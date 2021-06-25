@@ -1,4 +1,5 @@
 import SoraFoundation
+import IrohaCrypto
 
 final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?
@@ -33,29 +34,51 @@ final class ValidatorSearchPresenter {
         self.localizationManager = localizationManager
     }
 
-    #warning("Not implemented")
-
     // MARK: - Private functions
 
     private func provideViewModels() {
-        if searchString.isEmpty {
+        guard !searchString.isEmpty else {
             filteredValidatorList = []
-            let viewModel = viewModelFactory.createEmptyModel()
-            self.viewModel = viewModel
-            view?.didReload(viewModel)
+            viewModel = nil
+            view?.didReset()
+            return
         }
 
         performSearch()
     }
 
+    private func performAddressSearch() {
+        filteredValidatorList = []
+
+        let searchResult = allValidatorList.first {
+            $0.address == searchString
+        }
+
+        if let validator = searchResult {
+            filteredValidatorList.append(validator)
+        }
+
+        let viewModel = viewModelFactory.createViewModel(
+            from: filteredValidatorList,
+            selectedValidators: selectedValidatorList,
+            locale: selectedLocale
+        )
+
+        self.viewModel = viewModel
+        view?.didReload(viewModel)
+    }
+
     private func performSearch() {
+        if (try? SS58AddressFactory().accountId(from: searchString)) != nil {
+            performAddressSearch()
+            return
+        }
+
         let searchString = searchString.lowercased()
 
         filteredValidatorList = allValidatorList.filter {
             $0.identity?.displayName.lowercased()
-                .contains(searchString) ?? false ||
-                $0.address.lowercased()
-                .contains(searchString)
+                .contains(searchString) ?? false
         }.sorted(by: {
             $0.stakeReturn > $1.stakeReturn
         })
@@ -73,7 +96,7 @@ final class ValidatorSearchPresenter {
 
 extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     func setup() {
-        // TODO: provideViewModels()?
+        provideViewModels()
         interactor.setup()
     }
 
@@ -152,7 +175,7 @@ extension ValidatorSearchPresenter: ValidatorSearchInteractorOutputProtocol {
 extension ValidatorSearchPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
-            // TODO: provideViewModels()?
+            provideViewModels()
         }
     }
 }

@@ -39,6 +39,12 @@ final class ValidatorSearchViewLayout: UIView {
         return tableView
     }()
 
+    let emptyStateContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.color.colorBlack()
+        return view
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -76,6 +82,12 @@ final class ValidatorSearchViewLayout: UIView {
         searchContainer.snp.makeConstraints { make in
             make.height.equalTo(52)
             make.leading.top.trailing.equalTo(safeAreaLayoutGuide)
+        }
+
+        addSubview(emptyStateContainer)
+        emptyStateContainer.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(searchContainer.snp.bottom)
         }
 
         addSubview(tableView)

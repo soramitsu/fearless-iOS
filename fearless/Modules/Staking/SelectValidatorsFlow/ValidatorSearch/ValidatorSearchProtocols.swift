@@ -18,21 +18,14 @@ protocol ValidatorSearchDelegate: AnyObject {
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
     func didReload(_ viewModel: ValidatorSearchViewModel)
-    #warning("Not implemented")
-    // Did receive validator?
-    // Did start search?
-    // Did finish serach?
-    // Did receive search results
+    func didReset()
 }
 
 protocol ValidatorSearchInteractorInputProtocol {
     func setup()
 }
 
-protocol ValidatorSearchInteractorOutputProtocol {
-    #warning("Not implemented")
-    // Did receive validator
-}
+protocol ValidatorSearchInteractorOutputProtocol {}
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
     func setup()
@@ -51,8 +44,6 @@ protocol ValidatorSearchViewFactoryProtocol {
 }
 
 protocol ValidatorSearchViewModelFactoryProtocol {
-    func createEmptyModel() -> ValidatorSearchViewModel
-
     func createViewModel(
         from validators: [ElectedValidatorInfo],
         selectedValidators: [ElectedValidatorInfo],

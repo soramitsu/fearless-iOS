@@ -44,21 +44,25 @@ final class ValidatorSearchViewModelFactory {
             )
         }
     }
-}
 
-extension ValidatorSearchViewModelFactory: ValidatorSearchViewModelFactoryProtocol {
     func createEmptyModel() -> ValidatorSearchViewModel {
         ValidatorSearchViewModel(
             headerViewModel: nil,
             cellViewModels: []
         )
     }
+}
 
+extension ValidatorSearchViewModelFactory: ValidatorSearchViewModelFactoryProtocol {
     func createViewModel(
         from validators: [ElectedValidatorInfo],
         selectedValidators: [ElectedValidatorInfo],
         locale: Locale
     ) -> ValidatorSearchViewModel {
+        guard !validators.isEmpty else {
+            return createEmptyModel()
+        }
+
         let headerViewModel = createHeaderViewModel(
             displayValidatorsCount: validators.count,
             locale: locale

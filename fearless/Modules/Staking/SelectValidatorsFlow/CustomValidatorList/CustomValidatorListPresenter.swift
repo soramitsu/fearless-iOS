@@ -162,8 +162,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
         if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
             selectedValidatorList.remove(at: selectedIndex)
+            viewModel.selectedValidatorsCount -= 1
         } else {
             selectedValidatorList.append(changedValidator)
+            viewModel.selectedValidatorsCount += 1
         }
 
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected

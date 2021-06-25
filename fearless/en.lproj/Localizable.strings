@@ -481,3 +481,5 @@ Derivation path: %@";
 "common.search" = "Search";
 "staking.validator.search.placeholder" = "Search by address or name";
 "common.search.results.number" = "Search results: %d";
+"common.search.start.title" = "Search results will appear here";
+"staking.validator.search.empty.title" = "No search results.\nBe sure you typed full account address";

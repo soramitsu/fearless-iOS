@@ -38,6 +38,7 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder {
         setupSearchView()
 
         applyLocalization()
+        applyState()
 
         presenter.setup()
     }
@@ -48,6 +49,11 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Private functions
+
+    private func applyState() {
+        rootView.tableView.isHidden = shouldDisplayEmptyState
+        reloadEmptyState(animated: false)
+    }
 
     private func setupTable() {
         rootView.tableView.dataSource = self
@@ -96,6 +102,13 @@ extension ValidatorSearchViewController: ValidatorSearchViewProtocol {
     func didReload(_ viewModel: ValidatorSearchViewModel) {
         self.viewModel = viewModel
         rootView.tableView.reloadData()
+
+        applyState()
+    }
+
+    func didReset() {
+        viewModel = nil
+        applyState()
     }
 }
 
@@ -175,42 +188,45 @@ extension ValidatorSearchViewController: UITextFieldDelegate {
     }
 }
 
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension ValidatorSearchViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
 // MARK: - EmptyStateDataSource
 
 extension ValidatorSearchViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        #warning("Not implemented")
-        return UIView()
+        let emptyView = EmptyStateView()
+
+        if viewModel != nil {
+            emptyView.image = R.image.iconEmptySearch()
+            emptyView.title = R.string.localizable
+                .stakingValidatorSearchEmptyTitle(preferredLanguages: selectedLocale.rLanguages)
+        } else {
+            emptyView.image = R.image.iconStartSearch()
+            emptyView.title = R.string.localizable
+                .commonSearchStartTitle(preferredLanguages: selectedLocale.rLanguages)
+        }
+
+        emptyView.titleColor = R.color.colorLightGray()!
+        emptyView.titleFont = .p2Paragraph
+        return emptyView
     }
 
-    var imageForEmptyState: UIImage? {
-        #warning("Not implemented")
-        return UIImage()
+    var contentViewForEmptyState: UIView {
+        rootView.emptyStateContainer
     }
+}
 
-    var titleForEmptyState: String? {
-        #warning("Not implemented")
-        return ""
-    }
+// MARK: - EmptyStateDelegate
 
-    var titleColorForEmptyState: UIColor? {
-        #warning("Not implemented")
-        return .white
-    }
-
-    var titleFontForEmptyState: UIFont? {
-        #warning("Not implemented")
-        return .p0Paragraph
-    }
-
-    var verticalSpacingForEmptyState: CGFloat? {
-        #warning("Not implemented")
-        return 10.0
-    }
-
-    var trimStrategyForEmptyState: EmptyStateView.TrimStrategy {
-        #warning("Not implemented")
-        return .none
+extension ValidatorSearchViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let viewModel = viewModel else { return true }
+        return viewModel.cellViewModels.isEmpty
     }
 }
 
