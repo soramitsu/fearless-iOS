@@ -1,53 +1,29 @@
 import Foundation
 
 final class InitiatedBondingRecommendationsWireframe: RecommendedValidatorsWireframe {
-    private let state: InitiatedBonding
+    let state: InitiatedBonding
 
     init(state: InitiatedBonding) {
         self.state = state
     }
 
-    override func proceedToCustomList(
-        from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo]
-    ) {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-        let optSelectValidators = SelectValidatorsViewFactory.createView(selectedValidators: validators)
-        guard let selectValidators = optSelectValidators else { return }
-        view?.controller.navigationController?.pushViewController(
-            selectValidators.controller,
-            animated: true
-        )
-    }
-
-    override func proceedToRecommendedList(
+    override func proceed(
         from view: RecommendedValidatorsViewProtocol?,
-        validators: [ElectedValidatorInfo],
+        targets: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
-        let selectedValidators = validators.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                )
-            )
-        }
+        let nomination = PreparedNomination(
+            bonding: state,
+            targets: targets,
+            maxTargets: maxTargets
+        )
 
-        guard let nextView = SelectedValidatorsViewFactory.createInitiatedBondingView(
-            for: selectedValidators,
-            maxTargets: maxTargets,
-            with: state
-        ) else {
+        guard let confirmView = StakingConfirmViewFactory.createInitiatedBondingView(for: nomination) else {
             return
         }
 
         view?.controller.navigationController?.pushViewController(
-            nextView.controller,
+            confirmView.controller,
             animated: true
         )
     }

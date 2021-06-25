@@ -1,12 +1,6 @@
 import Foundation
 
-class SelectedValidatorsWireframe: SelectedValidatorsWireframeProtocol {
-    func proceed(
-        from _: SelectedValidatorsViewProtocol?,
-        targets _: [SelectedValidatorInfo],
-        maxTargets _: Int
-    ) {}
-
+final class SelectedValidatorsWireframe: SelectedValidatorsWireframeProtocol {
     func showInformation(
         about validatorInfo: SelectedValidatorInfo,
         from view: SelectedValidatorsViewProtocol?

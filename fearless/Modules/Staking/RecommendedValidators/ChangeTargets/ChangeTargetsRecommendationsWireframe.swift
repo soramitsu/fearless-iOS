@@ -1,47 +1,29 @@
 import Foundation
 
 final class ChangeTargetsRecommendationsWireframe: RecommendedValidatorsWireframe {
-    private let state: ExistingBonding
+    let state: ExistingBonding
 
     init(state: ExistingBonding) {
         self.state = state
     }
 
-    override func proceedToCustomList(
-        from _: ControllerBackedProtocol?,
-        validators _: [ElectedValidatorInfo]
-    ) {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-    }
-
-    override func proceedToRecommendedList(
+    override func proceed(
         from view: RecommendedValidatorsViewProtocol?,
-        validators: [ElectedValidatorInfo],
+        targets: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
-        let selectedValidators = validators.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                )
-            )
-        }
+        let nomination = PreparedNomination(
+            bonding: state,
+            targets: targets,
+            maxTargets: maxTargets
+        )
 
-        guard let nextView = SelectedValidatorsViewFactory.createChangeTargetsView(
-            for: selectedValidators,
-            maxTargets: maxTargets,
-            with: state
-        ) else {
+        guard let confirmView = StakingConfirmViewFactory.createChangeTargetsView(for: nomination) else {
             return
         }
 
         view?.controller.navigationController?.pushViewController(
-            nextView.controller,
+            confirmView.controller,
             animated: true
         )
     }

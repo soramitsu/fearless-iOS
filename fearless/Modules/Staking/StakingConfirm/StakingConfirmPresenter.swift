@@ -141,6 +141,18 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
         }
     }
 
+    func selectValidators() {
+        guard let state = state else {
+            return
+        }
+
+        wireframe.showSelectedValidator(
+            from: view,
+            validators: state.targets,
+            maxTargets: state.maxTargets
+        )
+    }
+
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 

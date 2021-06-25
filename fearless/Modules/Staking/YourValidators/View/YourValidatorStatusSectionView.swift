@@ -18,7 +18,6 @@ class YourValidatorStatusSectionView: UITableViewHeaderFooterView {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorLightGray()!
-        label.numberOfLines = 0
         return label
     }()
 
