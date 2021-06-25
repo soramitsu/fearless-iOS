@@ -16,6 +16,8 @@ final class ValidatorSearchPresenter {
     private var viewModel: ValidatorSearchViewModel?
     private var searchString: String = ""
 
+    private lazy var addressFactory = SS58AddressFactory()
+
     init(
         wireframe: ValidatorSearchWireframeProtocol,
         interactor: ValidatorSearchInteractorInputProtocol,
@@ -69,7 +71,7 @@ final class ValidatorSearchPresenter {
     }
 
     private func performSearch() {
-        if (try? SS58AddressFactory().accountId(from: searchString)) != nil {
+        if (try? addressFactory.accountId(from: searchString)) != nil {
             performAddressSearch()
             return
         }
