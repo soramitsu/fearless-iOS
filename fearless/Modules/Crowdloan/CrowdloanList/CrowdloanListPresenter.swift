@@ -109,6 +109,14 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
         wireframe.presentContributionSetup(from: view, paraId: viewModel.paraId)
     }
+
+    func becomeOnline() {
+        interactor.becomeOnline()
+    }
+
+    func putOffline() {
+        interactor.putOffline()
+    }
 }
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
@@ -130,6 +138,7 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         switch result {
         case let .success(blockNumber):
             self.blockNumber = blockNumber
+
             updateView()
         case let .failure(error):
             logger?.error("Did receivee block number error: \(error)")
