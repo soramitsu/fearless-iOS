@@ -7,7 +7,7 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder {
 
     let presenter: ValidatorSearchPresenterProtocol
 
-    private var viewModel: CustomValidatorListViewModel?
+    private var viewModel: ValidatorSearchViewModel?
 
     // MARK: - Lifecycle
 
@@ -86,14 +86,18 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder {
     // MARK: - Actions
 
     @objc private func tapDoneButton() {
-        #warning("Not implemented")
-        // TODO: Pass models back to presenting scene
+        presenter.applyChanges()
     }
 }
 
 // MARK: - ValidatorSearchViewProtocol
 
-extension ValidatorSearchViewController: ValidatorSearchViewProtocol {}
+extension ValidatorSearchViewController: ValidatorSearchViewProtocol {
+    func didReload(_ viewModel: ValidatorSearchViewModel) {
+        self.viewModel = viewModel
+        rootView.tableView.reloadData()
+    }
+}
 
 // MARK: - UITableViewDataSource
 
@@ -119,11 +123,57 @@ extension ValidatorSearchViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 
-extension ValidatorSearchViewController: UITableViewDelegate {}
+extension ValidatorSearchViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        presenter.changeValidatorSelection(at: indexPath.row)
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
+        guard viewModel?.headerViewModel != nil else { return 0 }
+        return 26.0
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        guard let headerViewModel = viewModel?.headerViewModel else { return nil }
+        let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
+        headerView.bind(viewModel: headerViewModel)
+        return headerView
+    }
+}
 
 // MARK: - UITextFieldDelegate
 
-extension ValidatorSearchViewController: UITextFieldDelegate {}
+extension ValidatorSearchViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+
+        guard let text = textField.text else { return false }
+
+        presenter.search(for: text)
+        return false
+    }
+
+    func textFieldShouldClear(_: UITextField) -> Bool {
+        presenter.search(for: "")
+        return true
+    }
+
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        guard let text = textField.text as NSString? else {
+            return true
+        }
+
+        let newString = text.replacingCharacters(in: range, with: string)
+        presenter.search(for: newString)
+
+        return true
+    }
+}
 
 // MARK: - EmptyStateDataSource
 

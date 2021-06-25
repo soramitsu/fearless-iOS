@@ -154,4 +154,24 @@ class CustomValidatorCell: UITableViewCell {
 
         selectionImageView.image = viewModel.isSelected ? R.image.listCheckmarkIcon() : nil
     }
+
+    func bind(viewModel: ValidatorSearchCellViewModel) {
+        if let icon = viewModel.icon {
+            iconView.bind(icon: icon)
+        }
+
+        if let name = viewModel.name {
+            titleLabel.lineBreakMode = .byTruncatingTail
+            titleLabel.text = name
+        } else {
+            titleLabel.lineBreakMode = .byTruncatingMiddle
+            titleLabel.text = viewModel.address
+        }
+
+        detailsLabel.text = viewModel.details
+
+        detailsAuxLabel.isHidden = true
+
+        selectionImageView.image = viewModel.isSelected ? R.image.listCheckmarkIcon() : nil
+    }
 }

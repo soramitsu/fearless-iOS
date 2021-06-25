@@ -480,3 +480,4 @@ Derivation path: %@";
 "crowdloan.contribution.format" = "You contributed: %@";
 "common.search" = "Search";
 "staking.validator.search.placeholder" = "Search by address or name";
+"common.search.results.number" = "Search results: %d";

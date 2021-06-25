@@ -10,9 +10,9 @@ final class CustomValidatorListPresenter {
     let maxTargets: Int
     let logger: LoggerProtocol?
 
-    private let electedValidatorList: [ElectedValidatorInfo]
     private let recommendedValidatorList: [ElectedValidatorInfo]
 
+    private var electedValidatorList: [ElectedValidatorInfo]
     private var filteredValidatorList: [ElectedValidatorInfo] = []
     private var selectedValidatorList: [ElectedValidatorInfo] = []
     private var viewModel: CustomValidatorListViewModel?
@@ -196,7 +196,12 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentSearch() {
-        wireframe.presentSearch(from: view)
+        wireframe.presentSearch(
+            from: view,
+            allValidators: electedValidatorList,
+            selectedValidators: selectedValidatorList,
+            delegate: self
+        )
     }
 
     func proceed() {
@@ -231,6 +236,18 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
             selectedValidatorList.remove(at: selectedIndex)
         }
+    }
+}
+
+extension CustomValidatorListPresenter: ValidatorSearchDelegate {
+    func didUpdate(
+        _ validators: [ElectedValidatorInfo],
+        selectedValidatos: [ElectedValidatorInfo]
+    ) {
+        electedValidatorList = validators
+        selectedValidatorList = selectedValidatos
+
+        provideViewModels()
     }
 }
 

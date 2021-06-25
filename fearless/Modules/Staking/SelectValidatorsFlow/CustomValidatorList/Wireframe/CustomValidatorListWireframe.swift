@@ -21,10 +21,18 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-894
     }
 
-    func presentSearch(from view: ControllerBackedProtocol?) {
-        guard
-            let searchView = ValidatorSearchViewFactory
-            .createView() else { return }
+    func presentSearch(
+        from view: ControllerBackedProtocol?,
+        allValidators: [ElectedValidatorInfo],
+        selectedValidators: [ElectedValidatorInfo],
+        delegate: ValidatorSearchDelegate?
+    ) {
+        guard let searchView = ValidatorSearchViewFactory
+            .createView(
+                with: allValidators,
+                selectedValidators: selectedValidators,
+                delegate: delegate
+            ) else { return }
 
         view?.controller.navigationController?.pushViewController(
             searchView.controller,

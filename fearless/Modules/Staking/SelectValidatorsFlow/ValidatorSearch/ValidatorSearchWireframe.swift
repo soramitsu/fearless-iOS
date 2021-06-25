@@ -14,4 +14,8 @@ final class ValidatorSearchWireframe: ValidatorSearchWireframeProtocol {
             animated: true
         )
     }
+
+    func close(_ view: ControllerBackedProtocol?) {
+        view?.controller.navigationController?.popViewController(animated: true)
+    }
 }

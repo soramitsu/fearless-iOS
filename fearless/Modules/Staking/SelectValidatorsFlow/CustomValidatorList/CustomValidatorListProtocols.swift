@@ -48,7 +48,10 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
     func presentFilters()
 
     func presentSearch(
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        allValidators: [ElectedValidatorInfo],
+        selectedValidators: [ElectedValidatorInfo],
+        delegate: ValidatorSearchDelegate?
     )
 
     func proceed(
