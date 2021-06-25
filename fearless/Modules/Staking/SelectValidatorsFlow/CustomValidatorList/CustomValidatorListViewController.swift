@@ -203,9 +203,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
             rootView.tableView.reloadData()
         }
 
-        selectedValidatorsCount = cellViewModels.filter {
-            $0.isSelected
-        }.count
+        selectedValidatorsCount = viewModel.selectedValidatorsCount
 
         updateFillRestButton()
         updateDeselectButton()

@@ -6,7 +6,7 @@ final class InitiatedBondingCustomValidatorListWireframe: CustomValidatorListWir
     }
 
     override func proceed(
-        from view: CustomValidatorListViewProtocol?,
+        from view: ControllerBackedProtocol?,
         validators: [ElectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate

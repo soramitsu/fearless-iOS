@@ -10,9 +10,9 @@ final class CustomValidatorListPresenter {
     let maxTargets: Int
     let logger: LoggerProtocol?
 
-    private let electedValidatorList: [ElectedValidatorInfo]
     private let recommendedValidatorList: [ElectedValidatorInfo]
 
+    private var electedValidatorList: [ElectedValidatorInfo]
     private var filteredValidatorList: [ElectedValidatorInfo] = []
     private var selectedValidatorList: [ElectedValidatorInfo] = []
     private var viewModel: CustomValidatorListViewModel?
@@ -162,8 +162,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
         if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
             selectedValidatorList.remove(at: selectedIndex)
+            viewModel.selectedValidatorsCount -= 1
         } else {
             selectedValidatorList.append(changedValidator)
+            viewModel.selectedValidatorsCount += 1
         }
 
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
@@ -196,7 +198,12 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentSearch() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-893
+        wireframe.presentSearch(
+            from: view,
+            allValidators: electedValidatorList,
+            selectedValidators: selectedValidatorList,
+            delegate: self
+        )
     }
 
     func proceed() {
@@ -231,6 +238,18 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
             selectedValidatorList.remove(at: selectedIndex)
         }
+    }
+}
+
+extension CustomValidatorListPresenter: ValidatorSearchDelegate {
+    func didUpdate(
+        _ validators: [ElectedValidatorInfo],
+        selectedValidatos: [ElectedValidatorInfo]
+    ) {
+        electedValidatorList = validators
+        selectedValidatorList = selectedValidatos
+
+        provideViewModels()
     }
 }
 
