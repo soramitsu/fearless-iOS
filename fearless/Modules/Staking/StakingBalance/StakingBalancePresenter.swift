@@ -5,92 +5,105 @@ final class StakingBalancePresenter {
     let wireframe: StakingBalanceWireframeProtocol
     let viewModelFactory: StakingBalanceViewModelFactoryProtocol
     weak var view: StakingBalanceViewProtocol?
-    private let accountAddress: AccountAddress
+    let accountAddress: AccountAddress
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     var controllerAccount: AccountItem?
     var stashAccount: AccountItem?
+    var stakingLedger: StakingLedger?
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
-    private var stakingLedger: StakingLedger?
     private var priceData: PriceData?
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         accountAddress: AccountAddress
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.accountAddress = accountAddress
     }
 
     private func updateView() {
-        guard
-            let stakingLedger = stakingLedger,
-            let activeEra = activeEra
-        else { return }
-        let balanceData = StakingBalanceData(stakingLedger: stakingLedger, activeEra: activeEra, priceData: priceData)
+        guard let stakingLedger = stakingLedger, let activeEra = activeEra else { return }
+
+        let balanceData = StakingBalanceData(
+            stakingLedger: stakingLedger,
+            activeEra: activeEra,
+            priceData: priceData
+        )
+
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
         view?.reload(with: viewModel)
     }
 
-    var controllerAccountIsAvailable: Bool {
-        controllerAccount != nil
-    }
-
-    var stashAccountIsAvailable: Bool {
-        stashAccount != nil
-    }
-
-    var unbondingRequestsLimitExceeded: Bool {
-        guard let stakingLedger = stakingLedger else { return false }
-        return stakingLedger.unlocking.count >= SubstrateConstants.maxUnbondingRequests
-    }
-
     private func handleBondExtraAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        guard stashAccountIsAvailable else {
-            wireframe.presentMissingStash(
-                from: view,
-                address: stashItem?.stash ?? "",
-                locale: locale
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(
+                stash: stashAccount,
+                for: stashItem?.stash ?? "",
+                locale: locale ?? Locale.current
             )
-            return
+        ]).runValidation { [weak self] in
+            self?.wireframe.showBondMore(from: view)
         }
-
-        wireframe.showBondMore(from: view)
     }
 
     private func handleUnbondAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        guard controllerAccountIsAvailable else {
-            wireframe.presentMissingController(
-                from: view,
-                address: stashItem?.controller ?? "",
+        let locale = locale ?? Locale.current
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
+
+            dataValidatingFactory.unbondingsLimitNotReached(
+                stakingLedger?.unlocking.count,
                 locale: locale
             )
-            return
+        ]).runValidation { [weak self] in
+            self?.wireframe.showUnbond(from: view)
         }
-
-        guard !unbondingRequestsLimitExceeded else {
-            wireframe.presentUnbondingLimitReached(from: view, locale: locale)
-            return
-        }
-
-        wireframe.showUnbond(from: view)
     }
 
     private func handleRedeemAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        guard controllerAccountIsAvailable else {
-            wireframe.presentMissingController(
-                from: view,
-                address: stashItem?.controller ?? "",
-                locale: locale
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale ?? Locale.current
             )
-            return
+        ]).runValidation { [weak self] in
+            self?.wireframe.showRedeem(from: view)
+        }
+    }
+
+    private func presentRebond(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
+            let title = option.titleForLocale(locale)
+            let action = AlertPresentableAction(title: title) { [weak self] in
+                self?.wireframe.showRebond(from: self?.view, option: option)
+            }
+            return action
         }
 
-        wireframe.showRedeem(from: view)
+        let title = R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale?.rLanguages)
+        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: closeTitle
+        )
+
+        wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
 }
 
@@ -114,25 +127,21 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     }
 
     func handleUnbondingMoreAction() {
-        let locale = view?.localizationManager?.selectedLocale
-        let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
-            let title = option.titleForLocale(locale)
-            let action = AlertPresentableAction(title: title) { [weak self] in
-                self?.wireframe.showRebond(from: self?.view, option: option)
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            )
+        ]).runValidation { [weak self] in
+            guard let view = self?.view else {
+                return
             }
-            return action
+
+            self?.presentRebond(for: view, locale: locale)
         }
-
-        let title = R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale?.rLanguages)
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-        let viewModel = AlertPresentableViewModel(
-            title: title,
-            message: nil,
-            actions: actions,
-            closeAction: closeTitle
-        )
-
-        wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
 }
 

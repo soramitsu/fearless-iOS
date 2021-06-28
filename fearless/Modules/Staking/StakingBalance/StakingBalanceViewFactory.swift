@@ -34,19 +34,29 @@ struct StakingBalanceViewFactory {
             chain: chain,
             balanceViewModelFactory: balanceViewModelFactory
         )
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: balanceViewModelFactory
+        )
+
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             accountAddress: accountAddress
         )
+
         interactor.presenter = presenter
 
         let viewController = StakingBalanceViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
+
         presenter.view = viewController
+        dataValidatingFactory.view = viewController
 
         return viewController
     }
