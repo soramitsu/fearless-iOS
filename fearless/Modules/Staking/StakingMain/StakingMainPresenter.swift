@@ -65,6 +65,7 @@ final class StakingMainPresenter {
                 .createNetworkStakingInfoViewModel(
                     with: networkStakingInfo,
                     chain: chain,
+                    minNominatorBond: commonData?.minNominatorBond,
                     priceData: commonData?.price
                 )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
@@ -163,10 +164,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             let locale = view?.localizationManager?.selectedLocale
 
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
-                return nominatorState.createStatusPresentableViewModel(
-                    for: networkStakingInfo?.minimalStake,
-                    locale: locale
-                )
+                return nominatorState.createStatusPresentableViewModel(locale: locale)
             }
 
             if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
@@ -442,7 +440,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
-        stateMachine.state.process(minimalStake: networkStakingInfo.minimalStake)
+
+        let commondData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
+        let minStake = networkStakingInfo.calculateMinimumStake(given: commondData?.minNominatorBond)
+        stateMachine.state.process(minStake: minStake)
         provideStakingInfo()
     }
 
@@ -481,6 +482,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(minNominatorBond):
             stateMachine.state.process(minNominatorBond: minNominatorBond)
+            provideStakingInfo()
         case let .failure(error):
             handle(error: error)
         }

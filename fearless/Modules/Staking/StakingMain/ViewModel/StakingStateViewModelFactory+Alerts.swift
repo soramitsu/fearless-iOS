@@ -52,20 +52,18 @@ extension StakingStateViewModelFactory {
         let commonData = state.commonData
         let ledgerInfo = state.ledgerInfo
 
-        guard let minimalStake = commonData.minimalStake else {
+        guard let minStake = commonData.minStake else {
             return nil
         }
 
-        let minActive = commonData.minNominatorBond.map { max(minimalStake, $0) } ?? minimalStake
-
-        guard ledgerInfo.active < minActive else {
+        guard ledgerInfo.active < minStake else {
             return nil
         }
 
         guard
             let chain = commonData.chain,
             let minActiveDecimal = Decimal.fromSubstrateAmount(
-                minActive,
+                minStake,
                 precision: chain.addressType.precision
             ),
             let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
@@ -89,17 +87,15 @@ extension StakingStateViewModelFactory {
         let commonData = state.commonData
         let ledgerInfo = state.ledgerInfo
 
-        guard let minimalStake = commonData.minimalStake else {
+        guard let minStake = commonData.minStake else {
             return nil
         }
 
-        let minActive = commonData.minNominatorBond.map { max(minimalStake, $0) } ?? minimalStake
-
-        if ledgerInfo.active < minActive {
+        if ledgerInfo.active < minStake {
             guard
                 let chain = commonData.chain,
                 let minActiveDecimal = Decimal.fromSubstrateAmount(
-                    minActive,
+                    minStake,
                     precision: chain.addressType.precision
                 ),
                 let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
