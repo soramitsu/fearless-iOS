@@ -91,10 +91,15 @@ class StakingMainTests: XCTestCase {
 
         stub(operationFactory) { stub in
             when(stub).networkStakingOperation().then { _ in
-                CompoundOperationWrapper.createWithResult(NetworkStakingInfo(totalStake: BigUInt.zero,
-                                                                             minimalStake: BigUInt.zero,
-                                                                             activeNominatorsCount: 0,
-                                                                             lockUpPeriod: 0))
+                CompoundOperationWrapper.createWithResult(
+                    NetworkStakingInfo(
+                        totalStake: BigUInt.zero,
+                        minStakeAmongActiveNominators: BigUInt.zero,
+                        minimalBalance: BigUInt.zero,
+                        activeNominatorsCount: 0,
+                        lockUpPeriod: 0
+                    )
+                )
             }
         }
 
