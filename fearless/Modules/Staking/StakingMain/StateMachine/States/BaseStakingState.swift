@@ -76,8 +76,8 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
-    func process(minimalStake: BigUInt?) {
-        commonData = commonData.byReplacing(minimalStake: minimalStake)
+    func process(minStake: BigUInt?) {
+        commonData = commonData.byReplacing(minStake: minStake)
 
         stateMachine?.transit(to: self)
     }
