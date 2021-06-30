@@ -4,7 +4,7 @@ struct CustomValidatorListFilter: Equatable {
         case limited(amount: Int)
     }
 
-    enum CustomValidatorListSort {
+    enum CustomValidatorListSort: Int, CaseIterable {
         case estimatedReward
         case totalStake
         case ownStake

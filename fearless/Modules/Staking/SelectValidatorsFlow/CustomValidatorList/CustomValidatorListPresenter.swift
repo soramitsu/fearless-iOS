@@ -192,7 +192,11 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentFilter() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-894
+        wireframe.presentFilters(
+            from: view,
+            filter: filter,
+            delegate: self
+        )
     }
 
     func presentSearch() {
@@ -231,6 +235,13 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
             selectedValidatorList.remove(at: selectedIndex)
         }
+    }
+}
+
+extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
+    func didUpdate(_ filter: CustomValidatorListFilter) {
+        self.filter = filter
+        provideViewModels()
     }
 }
 
