@@ -98,6 +98,7 @@ final class CustomValidatorListPresenter {
         selectedValidatorList = []
 
         viewModel.cellViewModels = changedModels
+        viewModel.selectedValidatorsCount = 0
         self.viewModel = viewModel
 
         view?.reload(viewModel, at: indices)
@@ -115,14 +116,14 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     // MARK: - Header actions
 
     func fillWithRecommended() {
-        recommendedValidatorList
+        let recommendedToFill = recommendedValidatorList
             .filter { !selectedValidatorList.contains($0) }
             .prefix(maxTargets - selectedValidatorList.count)
-            .forEach {
-                if let index = filteredValidatorList.firstIndex(of: $0) {
-                    changeValidatorSelection(at: index)
-                }
-            }
+
+        guard !recommendedToFill.isEmpty else { return }
+
+        selectedValidatorList.append(contentsOf: recommendedToFill)
+        provideViewModels()
     }
 
     func clearFilter() {
@@ -167,6 +168,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         }
 
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        viewModel.selectedValidatorsCount = selectedValidatorList.count
         self.viewModel = viewModel
 
         view?.reload(viewModel, at: [index])

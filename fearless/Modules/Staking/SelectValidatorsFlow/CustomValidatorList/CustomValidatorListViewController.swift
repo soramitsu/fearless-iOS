@@ -193,6 +193,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
         cellViewModels = viewModel.cellViewModels
         headerViewModel = viewModel.headerViewModel
+        selectedValidatorsCount = viewModel.selectedValidatorsCount
 
         if let indexes = indexes {
             let indexPaths = indexes.map {
@@ -202,10 +203,6 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
         } else {
             rootView.tableView.reloadData()
         }
-
-        selectedValidatorsCount = cellViewModels.filter {
-            $0.isSelected
-        }.count
 
         updateFillRestButton()
         updateDeselectButton()

@@ -120,7 +120,8 @@ extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFacto
 
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel
+            cellViewModels: cellsViewModel,
+            selectedValidatorsCount: selectedValidators.count
         )
     }
 }
