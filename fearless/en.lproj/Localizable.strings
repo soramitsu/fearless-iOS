@@ -487,3 +487,4 @@ Derivation path: %@";
 "common.filter.sort.header" = "Sort by:";
 "staking.recommended.hint3.addition" = "with at least one identity contact";
 "staking.validator.total.stake.token" = "Total stake (%s)";
+"staking.validator.apy.percent" = "Estimated reward (% APY)";

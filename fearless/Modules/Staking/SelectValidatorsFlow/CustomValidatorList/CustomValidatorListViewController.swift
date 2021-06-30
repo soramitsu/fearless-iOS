@@ -91,14 +91,17 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         updateProceedButton()
     }
 
+    private func updateSetFiiltersButton() {
+        let image = filterIsApplied ? R.image.iconFilterActive() : R.image.iconFilter()
+        filterButton.setImage(image, for: .normal)
+    }
+
     private func updateFillRestButton() {
         rootView.fillRestButton.isEnabled =
             selectedValidatorsCount < selectedValidatorsLimit
     }
 
     private func updateClearFiltersButton() {
-        let image = filterIsApplied ? R.image.iconFilterActive() : R.image.iconFilter()
-        filterButton.setImage(image, for: .normal)
         rootView.clearButton.isEnabled = filterIsApplied
     }
 
@@ -212,6 +215,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func setFilterAppliedState(to applied: Bool) {
         filterIsApplied = applied
         updateClearFiltersButton()
+        updateSetFiiltersButton()
     }
 
     func updateHeaderViewModel(to viewModel: TitleWithSubtitleViewModel) {
