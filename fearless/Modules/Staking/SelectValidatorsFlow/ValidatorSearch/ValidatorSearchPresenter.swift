@@ -76,11 +76,12 @@ final class ValidatorSearchPresenter {
             return
         }
 
-        let searchString = self.searchString.lowercased()
+        let nameSearchString = searchString.lowercased()
 
         filteredValidatorList = allValidatorList.filter {
-            $0.identity?.displayName.lowercased()
-                .contains(searchString) ?? false
+            ($0.identity?.displayName.lowercased()
+                .contains(nameSearchString) ?? false) ||
+                $0.address.hasPrefix(searchString)
         }.sorted(by: {
             $0.stakeReturn > $1.stakeReturn
         })
