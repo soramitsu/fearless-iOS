@@ -10,9 +10,9 @@ final class CustomValidatorListPresenter {
     let maxTargets: Int
     let logger: LoggerProtocol?
 
-    private let electedValidatorList: [ElectedValidatorInfo]
     private let recommendedValidatorList: [ElectedValidatorInfo]
 
+    private var electedValidatorList: [ElectedValidatorInfo]
     private var filteredValidatorList: [ElectedValidatorInfo] = []
     private var selectedValidatorList: [ElectedValidatorInfo] = []
     private var viewModel: CustomValidatorListViewModel?
@@ -163,8 +163,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
         if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
             selectedValidatorList.remove(at: selectedIndex)
+            viewModel.selectedValidatorsCount -= 1
         } else {
             selectedValidatorList.append(changedValidator)
+            viewModel.selectedValidatorsCount += 1
         }
 
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
@@ -202,7 +204,12 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentSearch() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-893
+        wireframe.presentSearch(
+            from: view,
+            allValidators: electedValidatorList,
+            selectedValidators: selectedValidatorList,
+            delegate: self
+        )
     }
 
     func proceed() {
@@ -230,6 +237,8 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
     }
 }
 
+// MARK: - SelectedValidatorListDelegate
+
 extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
     func didRemove(_ validator: ElectedValidatorInfo) {
         if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
@@ -240,9 +249,25 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
     }
 }
 
+// MARK: - ValidatorListFilterDelegate
+
 extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
     func didUpdate(_ filter: CustomValidatorListFilter) {
         self.filter = filter
+        provideViewModels()
+    }
+}
+
+// MARK: - ValidatorSearchDelegate
+
+extension CustomValidatorListPresenter: ValidatorSearchDelegate {
+    func didUpdate(
+        _ validators: [ElectedValidatorInfo],
+        selectedValidatos: [ElectedValidatorInfo]
+    ) {
+        electedValidatorList = validators
+        selectedValidatorList = selectedValidatos
+
         provideViewModels()
     }
 }

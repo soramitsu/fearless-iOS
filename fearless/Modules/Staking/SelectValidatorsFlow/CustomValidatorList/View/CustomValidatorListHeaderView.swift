@@ -6,6 +6,7 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
         label.font = .capsTitle
         label.textColor = R.color.colorLightGray()
         label.lineBreakMode = .byTruncatingHead
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -15,7 +16,7 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
         label.textAlignment = .right
         label.textColor = R.color.colorLightGray()
         label.lineBreakMode = .byTruncatingTail
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()
 
