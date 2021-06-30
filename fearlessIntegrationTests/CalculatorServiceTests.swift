@@ -6,6 +6,37 @@ import SoraFoundation
 import FearlessUtils
 
 class CalculatorServiceTests: XCTestCase {
+    func testWestendCalculatorSetupWithoutCache() throws {
+        measure {
+            do {
+                let storageFacade = SubstrateStorageTestFacade()
+                try performServiceTest(for: .westend, storageFacade: storageFacade)
+            } catch {
+                XCTFail("unexpected error \(error)")
+            }
+        }
+    }
+
+    func testSingleWestend() throws {
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        do {
+            try performServiceTest(for: .westend, storageFacade: storageFacade)
+        } catch {
+            XCTFail("unexpected error \(error)")
+        }
+    }
+
+    func testWestendCalculatorSetupWithCache() throws {
+        let storageFacade = SubstrateDataStorageFacade.shared
+        measure {
+            do {
+                try performServiceTest(for: .westend, storageFacade: storageFacade)
+            } catch {
+                XCTFail("unexpected error \(error)")
+            }
+        }
+    }
 
     func testKusamaCalculatorSetupWithoutCache() throws {
         measure {
@@ -18,6 +49,16 @@ class CalculatorServiceTests: XCTestCase {
         }
     }
 
+    func testSingleKusama() throws {
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        do {
+            try performServiceTest(for: .kusama, storageFacade: storageFacade)
+        } catch {
+            XCTFail("unexpected error \(error)")
+        }
+    }
+
     func testKusamaCalculatorSetupWithCache() throws {
         let storageFacade = SubstrateDataStorageFacade.shared
         measure {
@@ -27,6 +68,10 @@ class CalculatorServiceTests: XCTestCase {
                 XCTFail("unexpected error \(error)")
             }
         }
+    }
+
+    func testDecodeLocalEncodedValidatorsForWestend() {
+        performTestFetchingLocalEncodedValidators(for: .westend)
     }
 
     func testDecodeLocalEncodedValidatorsForKusama() {
@@ -155,8 +200,13 @@ class CalculatorServiceTests: XCTestCase {
 
             runtimeService.setup()
 
-            let webSocketService = createWebSocketService(storageFacade: storageFacade,
-                                                          settings: settings)
+            let webSocketService = createWebSocketService(
+                storageFacade: storageFacade,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                settings: settings
+            )
+
             webSocketService.setup()
 
             guard let engine = webSocketService.connection else {
@@ -221,8 +271,13 @@ class CalculatorServiceTests: XCTestCase {
 
                 runtimeService.setup()
 
-                let webSocketService = createWebSocketService(storageFacade: storageFacade,
-                                                              settings: settings)
+                let webSocketService = createWebSocketService(
+                    storageFacade: storageFacade,
+                    runtimeService: runtimeService,
+                    operationManager: operationManager,
+                    settings: settings
+                )
+
                 webSocketService.setup()
 
                 guard let engine = webSocketService.connection else {
@@ -538,6 +593,35 @@ class CalculatorServiceTests: XCTestCase {
         return try erasStakersKeyOperation.extractNoCancellableResultData().first
     }
 
+    private func performTestFetchingLocalEncodedValidators(for chain: Chain) {
+        do {
+            let storageFacade = SubstrateDataStorageFacade.shared
+
+            let codingFactory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
+
+            guard let era = try fetchActiveEra(for: chain,
+                                               storageFacade: storageFacade,
+                                               codingFactory: codingFactory) else {
+                XCTFail("No era found")
+                return
+            }
+
+            measure {
+                do {
+                    let items = try fetchLocalEncodedValidators(for: chain,
+                                                                era: era,
+                                                                coderFactory: codingFactory,
+                                                                storageFacade: storageFacade)
+                    XCTAssert(!items.isEmpty)
+                } catch {
+                    XCTFail("Unexpected error \(error)")
+                }
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     private func performServiceTest(for chain: Chain, storageFacade: StorageFacadeProtocol) throws {
         // given
 
@@ -553,17 +637,24 @@ class CalculatorServiceTests: XCTestCase {
 
         let runtimeService = try createRuntimeService(from: storageFacade,
                                                       operationManager: operationManager,
-                                                      chain: chain)
+                                                      chain: chain,
+                                                      logger: Logger.shared)
 
         runtimeService.setup()
 
-        let webSocketService = createWebSocketService(storageFacade: storageFacade,
-                                                      settings: settings)
+        let webSocketService = createWebSocketService(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            settings: settings
+        )
+
         webSocketService.setup()
 
         let validatorService = createEraValidatorsService(storageFacade: storageFacade,
                                                           runtimeService: runtimeService,
-                                                          operationManager: operationManager)
+                                                          operationManager: operationManager,
+                                                          logger: Logger.shared)
 
         if let engine = webSocketService.connection {
             validatorService.update(to: chain, engine: engine)
@@ -596,7 +687,7 @@ class CalculatorServiceTests: XCTestCase {
 
         operationManager.enqueue(operations: [operation], in: .transient)
 
-        wait(for: [expectation], timeout: 20.0)
+        wait(for: [expectation], timeout: 60.0)
     }
 
     private func createRuntimeService(from storageFacade: StorageFacadeProtocol,
@@ -624,14 +715,21 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     private func createWebSocketService(storageFacade: StorageFacadeProtocol,
-                                        settings: SettingsManagerProtocol) -> WebSocketServiceProtocol {
+                                        runtimeService: RuntimeCodingServiceProtocol,
+                                        operationManager: OperationManagerProtocol,
+                                        settings: SettingsManagerProtocol
+    ) -> WebSocketServiceProtocol {
         let connectionItem = settings.selectedConnection
         let address = settings.selectedAccount?.address
 
         let settings = WebSocketServiceSettings(url: connectionItem.url,
                                                 addressType: connectionItem.type,
                                                 address: address)
-        let factory = WebSocketSubscriptionFactory(storageFacade: storageFacade)
+        let factory = WebSocketSubscriptionFactory(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager
+        )
         return WebSocketService(settings: settings,
                                 connectionFactory: WebSocketEngineFactory(),
                                 subscriptionsFactory: factory,

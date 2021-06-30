@@ -8,15 +8,21 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
     let storageKeyFactory = StorageKeyFactory()
     let addressFactory = SS58AddressFactory()
-    let operationManager = OperationManagerFacade.sharedManager
+    let operationManager: OperationManagerProtocol
     let eventCenter = EventCenter.shared
     let logger = Logger.shared
 
-    let runtimeService = RuntimeRegistryFacade.sharedService
+    let runtimeService: RuntimeCodingServiceProtocol
     let providerFactory: SubstrateDataProviderFactoryProtocol
 
-    init(storageFacade: StorageFacadeProtocol) {
+    init(
+        storageFacade: StorageFacadeProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
+        operationManager: OperationManagerProtocol
+    ) {
         self.storageFacade = storageFacade
+        self.runtimeService = runtimeService
+        self.operationManager = operationManager
 
         providerFactory = SubstrateDataProviderFactory(
             facade: storageFacade,
