@@ -16,13 +16,20 @@ extension SS58AddressFactoryProtocol {
         return addressType
     }
 
-    func accountId(from address: String) throws -> Data {
+    func accountId(from address: String) throws -> AccountId {
         let addressType = try extractAddressType(from: address)
         return try accountId(fromAddress: address, type: addressType)
     }
 
-    func addressFromAccountId(data: Data, type: SNAddressType) throws -> String {
-        let accountId = try AccountIdWrapper(rawData: data)
-        return try address(fromPublicKey: accountId, type: type)
+    func accountId(fromAddress: AccountAddress, type: SNAddressType) throws -> AccountId {
+        try accountId(fromAddress: fromAddress, type: UInt16(type.rawValue))
+    }
+
+    func addressFromAccountId(data: AccountId, type: SNAddressType) throws -> AccountAddress {
+        try address(fromAccountId: data, type: UInt16(type.rawValue))
+    }
+
+    func address(fromPublicKey: IRPublicKeyProtocol, type: SNAddressType) throws -> AccountAddress {
+        try address(fromAccountId: fromPublicKey.rawData(), type: UInt16(type.rawValue))
     }
 }

@@ -19,7 +19,12 @@ final class AccountImportJsonFactory {
             chain = genesisBasedChain
             networkTypeConfirmed = true
         } else {
-            chain = info.addressType?.chain
+            if let chainType = info.chainType {
+                chain = SNAddressType(rawValue: UInt8(chainType))?.chain
+            } else {
+                chain = nil
+            }
+
             networkTypeConfirmed = false
         }
 
