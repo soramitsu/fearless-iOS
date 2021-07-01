@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SoraKeystore
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
@@ -11,16 +12,24 @@ protocol NetworkInfoViewModelFactoryProtocol {
         priceData: PriceData?
     ) ->
         LocalizableResource<NetworkStakingInfoViewModelProtocol>
+    func viewDidCollapsed(_ value: Bool)
 }
 
 final class NetworkInfoViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
+    let settings: SettingsManager
+
+    private static let viewIsCollapsedKey = "viewIsCollapsedKey"
 
     private var chain: Chain?
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
 
-    init(primitiveFactory: WalletPrimitiveFactoryProtocol) {
+    init(
+        primitiveFactory: WalletPrimitiveFactoryProtocol,
+        settings: SettingsManager
+    ) {
         self.primitiveFactory = primitiveFactory
+        self.settings = settings
     }
 
     private func getBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
@@ -116,6 +125,10 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         }
     }
 
+    func viewDidCollapsed(_ value: Bool) {
+        settings.set(value: value, for: Self.viewIsCollapsedKey)
+    }
+
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
@@ -147,7 +160,8 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
                 totalStake: localizedTotalStake.value(for: locale),
                 minimalStake: localizedMinimalStake.value(for: locale),
                 activeNominators: nominatorsCount.value(for: locale),
-                lockUpPeriod: localizedLockUpPeriod.value(for: locale)
+                lockUpPeriod: localizedLockUpPeriod.value(for: locale),
+                viewIsCollapsed: self.settings.bool(for: Self.viewIsCollapsedKey) ?? false
             )
         }
     }

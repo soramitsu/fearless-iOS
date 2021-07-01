@@ -296,6 +296,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
         wireframe.showRedeem(from: view)
     }
+
+    func networkInfoViewDidCollapsed(_ value: Bool) {
+        networkInfoViewModelFactory.viewDidCollapsed(value)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {

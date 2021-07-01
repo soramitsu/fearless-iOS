@@ -343,6 +343,10 @@ extension StakingMainViewController: NetworkInfoViewDelegate {
     func animateAlongsideWithInfo(view _: NetworkInfoView) {
         scrollView.layoutIfNeeded()
     }
+
+    func viewCollapsed(_ value: Bool, view _: NetworkInfoView) {
+        presenter.networkInfoViewDidCollapsed(value)
+    }
 }
 
 extension StakingMainViewController: KeyboardAdoptable {

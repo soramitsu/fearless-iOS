@@ -4,6 +4,7 @@ import SoraFoundation
 
 protocol NetworkInfoViewDelegate: AnyObject {
     func animateAlongsideWithInfo(view: NetworkInfoView)
+    func viewCollapsed(_ value: Bool, view: NetworkInfoView)
 }
 
 final class NetworkInfoView: UIView {
@@ -97,6 +98,7 @@ final class NetworkInfoView: UIView {
         minimumStakeFiatAmountLabel.text = localizedViewModel.minimalStake?.price
         activeNominatorsLabel.text = localizedViewModel.activeNominators
         lockUpPeriodLabel.text = localizedViewModel.lockUpPeriod
+        setExpanded(!localizedViewModel.viewIsCollapsed, animated: false)
     }
 
     private func applyTitle() {
@@ -148,9 +150,11 @@ final class NetworkInfoView: UIView {
         if expanded {
             contentTop.constant = 0.0
             networkInfoContainer.alpha = 1.0
+            delegate?.viewCollapsed(false, view: self)
         } else {
             contentTop.constant = -contentHeight.constant
             networkInfoContainer.alpha = 0.0
+            delegate?.viewCollapsed(true, view: self)
         }
     }
 
