@@ -57,6 +57,7 @@ class YourValidatorTableCell: UITableViewCell {
         )
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.axis = .horizontal
+        stackView.alignment = .center
         stackView.spacing = 12
         return stackView
     }()

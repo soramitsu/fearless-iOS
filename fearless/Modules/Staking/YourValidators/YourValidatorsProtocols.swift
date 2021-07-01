@@ -1,6 +1,6 @@
 import SoraFoundation
 
-protocol YourValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
+protocol YourValidatorsViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func reload(state: YourValidatorsViewState)
 }
 
