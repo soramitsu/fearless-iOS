@@ -77,11 +77,13 @@ final class AccountImportPresenter {
         case .mnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
+            let processor = TrimmingCharacterProcessor(charset: CharacterSet.whitespacesAndNewlines)
             let inputHandler = InputHandler(
                 value: value,
                 maxLength: AccountImportPresenter.maxMnemonicLength,
                 validCharacterSet: CharacterSet.englishMnemonic,
-                predicate: NSPredicate.notEmpty
+                predicate: NSPredicate.notEmpty,
+                processor: processor
             )
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .seed:
