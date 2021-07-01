@@ -37,10 +37,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             primitiveFactory: primitiveFactory,
             logger: logger
         )
-        let networkInfoViewModelFactory = NetworkInfoViewModelFactory(
-            primitiveFactory: primitiveFactory,
-            settings: settings
-        )
+        let networkInfoViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 

@@ -37,10 +37,7 @@ class StakingMainTests: XCTestCase {
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
                                                                  logger: Logger.shared)
-        let networkViewModelFactory = NetworkInfoViewModelFactory(
-            primitiveFactory: primitiveFactory,
-            settings: settings
-        )
+        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
@@ -223,10 +220,7 @@ class StakingMainTests: XCTestCase {
             primitiveFactory: primitiveFactory,
             logger: nil
         )
-        let networkViewModelFactory = NetworkInfoViewModelFactory(
-            primitiveFactory: primitiveFactory,
-            settings: settings
-        )
+        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
@@ -247,45 +241,5 @@ class StakingMainTests: XCTestCase {
         presenter.didReceive(nomination: WestendStub.nomination.item)
 
         return presenter
-    }
-
-    func testNetworkInfoViewCollapsing() {
-        // given
-        let settings = InMemorySettingsManager()
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let viewModelFactory = NetworkInfoViewModelFactory(
-            primitiveFactory: primitiveFactory,
-            settings: settings
-        )
-        let stubNetworkStakingInfo = NetworkStakingInfo(
-            totalStake: 0,
-            minStakeAmongActiveNominators: 0,
-            minimalBalance: 0,
-            activeNominatorsCount: 0,
-            lockUpPeriod: 0
-        )
-
-        // when
-        let viewModel = viewModelFactory.createNetworkStakingInfoViewModel(
-            with: stubNetworkStakingInfo,
-            chain: .westend,
-            minNominatorBond: nil,
-            priceData: nil
-        ).value(for: .current)
-
-        // then by default
-        XCTAssert(viewModel.viewIsExpanded == true)
-
-        // when user collapse view
-        viewModelFactory.viewDidChangeExpansion(isExpanded: false)
-        let viewModelAfter = viewModelFactory.createNetworkStakingInfoViewModel(
-            with: stubNetworkStakingInfo,
-            chain: .westend,
-            minNominatorBond: nil,
-            priceData: nil
-        ).value(for: .current)
-
-        // then
-        XCTAssert(viewModelAfter.viewIsExpanded == false)
     }
 }

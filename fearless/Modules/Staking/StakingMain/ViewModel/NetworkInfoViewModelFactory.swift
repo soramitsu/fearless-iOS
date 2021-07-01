@@ -9,27 +9,19 @@ protocol NetworkInfoViewModelFactoryProtocol {
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
-    ) ->
-        LocalizableResource<NetworkStakingInfoViewModelProtocol>
-    func viewDidChangeExpansion(isExpanded: Bool)
+        priceData: PriceData?,
+        viewIsExpanded: Bool
+    ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
 final class NetworkInfoViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
-    let settings: SettingsManagerProtocol
-
-    private static let viewIsExpandedKey = "viewIsExpandedKey"
 
     private var chain: Chain?
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
 
-    init(
-        primitiveFactory: WalletPrimitiveFactoryProtocol,
-        settings: SettingsManagerProtocol
-    ) {
+    init(primitiveFactory: WalletPrimitiveFactoryProtocol) {
         self.primitiveFactory = primitiveFactory
-        self.settings = settings
     }
 
     private func getBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
@@ -125,15 +117,12 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         }
     }
 
-    func viewDidChangeExpansion(isExpanded: Bool) {
-        settings.set(value: isExpanded, for: Self.viewIsExpandedKey)
-    }
-
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        viewIsExpanded: Bool
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let localizedTotalStake = createTotalStakeViewModel(
             with: networkStakingInfo,
@@ -161,7 +150,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
                 minimalStake: localizedMinimalStake.value(for: locale),
                 activeNominators: nominatorsCount.value(for: locale),
                 lockUpPeriod: localizedLockUpPeriod.value(for: locale),
-                viewIsExpanded: self.settings.bool(for: Self.viewIsExpandedKey) ?? true
+                viewIsExpanded: viewIsExpanded
             )
         }
     }

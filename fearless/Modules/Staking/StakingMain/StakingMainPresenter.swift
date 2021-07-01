@@ -15,6 +15,7 @@ final class StakingMainPresenter {
 
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
+    private var networkInfoViewIsExpanded: Bool?
 
     var chain: Chain? {
         stateMachine.viewState { (state: BaseStakingState) in state.commonData.chain }
@@ -66,7 +67,8 @@ final class StakingMainPresenter {
                     with: networkStakingInfo,
                     chain: chain,
                     minNominatorBond: commonData?.minNominatorBond,
-                    priceData: commonData?.price
+                    priceData: commonData?.price,
+                    viewIsExpanded: networkInfoViewIsExpanded ?? true
                 )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
         } else {
@@ -298,7 +300,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
-        networkInfoViewModelFactory.viewDidChangeExpansion(isExpanded: isExpanded)
+        interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
     }
 }
 
@@ -508,6 +510,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         case let .failure(error):
             handle(error: error)
         }
+    }
+
+    func networkInfoViewExpansion(isExpanded: Bool) {
+        networkInfoViewIsExpanded = isExpanded
     }
 }
 
