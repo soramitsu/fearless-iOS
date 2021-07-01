@@ -77,7 +77,7 @@ final class AccountImportPresenter {
         case .mnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
-            let processor = TrimmingCharacterProcessor(charset: CharacterSet.whitespacesAndNewlines)
+            let processor = MnemonicTextProcessor()
             let inputHandler = InputHandler(
                 value: value,
                 maxLength: AccountImportPresenter.maxMnemonicLength,
