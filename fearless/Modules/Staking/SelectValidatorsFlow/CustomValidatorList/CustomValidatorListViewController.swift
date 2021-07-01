@@ -91,14 +91,17 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         updateProceedButton()
     }
 
+    private func updateSetFiltersButton() {
+        let image = filterIsApplied ? R.image.iconFilterActive() : R.image.iconFilter()
+        filterButton.setImage(image, for: .normal)
+    }
+
     private func updateFillRestButton() {
         rootView.fillRestButton.isEnabled =
             selectedValidatorsCount < selectedValidatorsLimit
     }
 
     private func updateClearFiltersButton() {
-        let image = filterIsApplied ? R.image.iconFilterActive() : R.image.iconFilter()
-        filterButton.setImage(image, for: .normal)
         rootView.clearButton.isEnabled = filterIsApplied
     }
 
@@ -193,6 +196,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
         cellViewModels = viewModel.cellViewModels
         headerViewModel = viewModel.headerViewModel
+        selectedValidatorsCount = viewModel.selectedValidatorsCount
 
         if let indexes = indexes {
             let indexPaths = indexes.map {
@@ -203,8 +207,6 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
             rootView.tableView.reloadData()
         }
 
-        selectedValidatorsCount = viewModel.selectedValidatorsCount
-
         updateFillRestButton()
         updateDeselectButton()
         updateProceedButton()
@@ -213,6 +215,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func setFilterAppliedState(to applied: Bool) {
         filterIsApplied = applied
         updateClearFiltersButton()
+        updateSetFiltersButton()
     }
 
     func updateHeaderViewModel(to viewModel: TitleWithSubtitleViewModel) {

@@ -98,6 +98,7 @@ final class CustomValidatorListPresenter {
         selectedValidatorList = []
 
         viewModel.cellViewModels = changedModels
+        viewModel.selectedValidatorsCount = 0
         self.viewModel = viewModel
 
         view?.reload(viewModel, at: indices)
@@ -115,14 +116,14 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     // MARK: - Header actions
 
     func fillWithRecommended() {
-        recommendedValidatorList
+        let recommendedToFill = recommendedValidatorList
             .filter { !selectedValidatorList.contains($0) }
             .prefix(maxTargets - selectedValidatorList.count)
-            .forEach {
-                if let index = filteredValidatorList.firstIndex(of: $0) {
-                    changeValidatorSelection(at: index)
-                }
-            }
+
+        guard !recommendedToFill.isEmpty else { return }
+
+        selectedValidatorList.append(contentsOf: recommendedToFill)
+        provideViewModels()
     }
 
     func clearFilter() {
@@ -169,6 +170,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         }
 
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        viewModel.selectedValidatorsCount = selectedValidatorList.count
         self.viewModel = viewModel
 
         view?.reload(viewModel, at: [index])
@@ -194,7 +196,11 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentFilter() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-894
+        wireframe.presentFilters(
+            from: view,
+            filter: filter,
+            delegate: self
+        )
     }
 
     func presentSearch() {
@@ -231,6 +237,8 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
     }
 }
 
+// MARK: - SelectedValidatorListDelegate
+
 extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
     func didRemove(_ validator: ElectedValidatorInfo) {
         if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
@@ -240,6 +248,17 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
         }
     }
 }
+
+// MARK: - ValidatorListFilterDelegate
+
+extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
+    func didUpdate(_ filter: CustomValidatorListFilter) {
+        self.filter = filter
+        provideViewModels()
+    }
+}
+
+// MARK: - ValidatorSearchDelegate
 
 extension CustomValidatorListPresenter: ValidatorSearchDelegate {
     func didUpdate(
