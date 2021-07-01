@@ -26843,6 +26843,21 @@ import SoraFoundation
     
     
     
+     func expandNetworkInfoView(_ isExpanded: Bool)  {
+        
+    return cuckoo_manager.call("expandNetworkInfoView(_: Bool)",
+            parameters: (isExpanded),
+            escapingParameters: (isExpanded),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.expandNetworkInfoView(isExpanded))
+        
+    }
+    
+    
+    
     public func applyLocalization()  {
         
     return cuckoo_manager.call("applyLocalization()",
@@ -26898,6 +26913,11 @@ import SoraFoundation
 	    func didReceiveStakingState<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingViewState)> where M1.MatchedType == StakingViewState {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingViewState)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveStakingState(viewModel: StakingViewState)", parameterMatchers: matchers))
+	    }
+	    
+	    func expandNetworkInfoView<M1: Cuckoo.Matchable>(_ isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "expandNetworkInfoView(_: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -26961,6 +26981,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func expandNetworkInfoView<M1: Cuckoo.Matchable>(_ isExpanded: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return cuckoo_manager.verify("expandNetworkInfoView(_: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func applyLocalization() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("applyLocalization()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -27014,6 +27040,10 @@ import SoraFoundation
     }
     
      func didReceiveStakingState(viewModel: StakingViewState)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func expandNetworkInfoView(_ isExpanded: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
