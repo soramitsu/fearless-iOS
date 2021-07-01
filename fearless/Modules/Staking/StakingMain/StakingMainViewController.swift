@@ -434,6 +434,8 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter.performBondMoreAction()
         case .redeemUnbonded:
             presenter.performRedeemAction()
+        case .waitingNextEra:
+            break
         }
     }
 }
