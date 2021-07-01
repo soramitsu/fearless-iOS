@@ -5,7 +5,8 @@ extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         [
             findInactiveAlert(state: state),
-            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
+            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
+            findWaitingNextEraAlert(nominationStatus: state.status)
         ].compactMap { $0 }
     }
 
@@ -113,5 +114,12 @@ extension StakingStateViewModelFactory {
         } else {
             return .nominatorChangeValidators
         }
+    }
+
+    private func findWaitingNextEraAlert(nominationStatus: NominationViewStatus) -> StakingAlert? {
+        if case NominationViewStatus.waiting = nominationStatus {
+            return .waitingNextEra
+        }
+        return nil
     }
 }
