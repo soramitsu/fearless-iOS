@@ -69,7 +69,15 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
-    func showExperimental(from _: ProfileViewProtocol?) {}
+    func showExperimental(from view: ProfileViewProtocol?) {
+        guard let experimentalView = ExperimentalListViewFactory.createView() else {
+            return
+        }
+
+        experimentalView.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(experimentalView.controller, animated: true)
+    }
 
     // MARK: Private
 

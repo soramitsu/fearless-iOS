@@ -477,3 +477,6 @@ Derivation path: %@";
 "staking.max.nominators.reached.message" = "Maximum number of nominators has been reached";
 "staking.alert.start.next.era.message" = "Please wait for the next era to start.";
 "profile.experiments.title" = "Experimental features";
+"experimental.title" = "Features";
+"experimental.option.notifications" = "Notifications";
+"experimental.option.signers" = "Mobile Signer";
