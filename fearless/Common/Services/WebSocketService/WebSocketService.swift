@@ -14,7 +14,11 @@ final class WebSocketService: WebSocketServiceProtocol {
             address: address
         )
         let storageFacade = SubstrateDataStorageFacade.shared
-        let subscriptionFactory = WebSocketSubscriptionFactory(storageFacade: storageFacade)
+        let subscriptionFactory = WebSocketSubscriptionFactory(
+            storageFacade: storageFacade,
+            runtimeService: RuntimeRegistryFacade.sharedService,
+            operationManager: OperationManagerFacade.sharedManager
+        )
         return WebSocketService(
             settings: settings,
             connectionFactory: WebSocketEngineFactory(),

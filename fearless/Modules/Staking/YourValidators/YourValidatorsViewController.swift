@@ -196,6 +196,12 @@ extension YourValidatorsViewController: YourValidatorsViewProtocol {
     func reload(state: YourValidatorsViewState) {
         viewState = state
 
+        if case .loading = viewState {
+            didStartLoading()
+        } else {
+            didStopLoading()
+        }
+
         rootView.tableView.reloadData()
         reloadEmptyState(animated: true)
     }
