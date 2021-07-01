@@ -17,7 +17,7 @@ protocol NetworkInfoViewModelFactoryProtocol {
 
 final class NetworkInfoViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
-    let settings: SettingsManager
+    let settings: SettingsManagerProtocol
 
     private static let viewIsCollapsedKey = "viewIsCollapsedKey"
 
@@ -26,7 +26,7 @@ final class NetworkInfoViewModelFactory {
 
     init(
         primitiveFactory: WalletPrimitiveFactoryProtocol,
-        settings: SettingsManager
+        settings: SettingsManagerProtocol
     ) {
         self.primitiveFactory = primitiveFactory
         self.settings = settings

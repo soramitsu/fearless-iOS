@@ -27258,6 +27258,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func networkInfoViewDidCollapsed(_ value: Bool)  {
+        
+    return cuckoo_manager.call("networkInfoViewDidCollapsed(_: Bool)",
+            parameters: (value),
+            escapingParameters: (value),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.networkInfoViewDidCollapsed(value))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingMainPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -27335,6 +27350,11 @@ import SoraFoundation
 	    func selectStory<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
 	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "selectStory(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func networkInfoViewDidCollapsed<M1: Cuckoo.Matchable>(_ value: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: value) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "networkInfoViewDidCollapsed(_: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -27437,6 +27457,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("selectStory(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func networkInfoViewDidCollapsed<M1: Cuckoo.Matchable>(_ value: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: value) { $0 }]
+	        return cuckoo_manager.verify("networkInfoViewDidCollapsed(_: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -27499,6 +27525,10 @@ import SoraFoundation
     }
     
      func selectStory(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func networkInfoViewDidCollapsed(_ value: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
