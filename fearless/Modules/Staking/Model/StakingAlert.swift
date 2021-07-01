@@ -7,6 +7,7 @@ enum StakingAlert {
     case nominatorChangeValidators
     case nominatorLowStake(LocalizableResource<String>)
     case redeemUnbonded(LocalizableResource<String>)
+    case waitingNextEra
 }
 
 extension StakingAlert {
@@ -14,6 +15,8 @@ extension StakingAlert {
         switch self {
         case .nominatorLowStake, .nominatorChangeValidators, .redeemUnbonded, .bondedSetValidators:
             return true
+        case .waitingNextEra:
+            return false
         }
     }
 
@@ -27,6 +30,8 @@ extension StakingAlert {
             return R.image.iconWarning()
         case .bondedSetValidators:
             return R.image.iconWarning()
+        case .waitingNextEra:
+            return R.image.iconPending()
         }
     }
 
@@ -40,6 +45,8 @@ extension StakingAlert {
             return R.string.localizable.stakingRedeemUnbondedTokens(preferredLanguages: locale.rLanguages)
         case .bondedSetValidators:
             return R.string.localizable.stakingSetValidatorsTitle(preferredLanguages: locale.rLanguages)
+        case .waitingNextEra:
+            return R.string.localizable.stakingNominatorStatusAlertWaitingMessage(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -54,6 +61,8 @@ extension StakingAlert {
             return localizedString.value(for: locale)
         case .bondedSetValidators:
             return R.string.localizable.stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages)
+        case .waitingNextEra:
+            return R.string.localizable.stakingAlertStartNextEraMessage(preferredLanguages: locale.rLanguages)
         }
     }
 }

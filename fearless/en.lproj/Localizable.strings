@@ -475,3 +475,4 @@ Derivation path: %@";
 "staking.set.validators.message" = "Validators are not selected";
 "staking.max.nominators.reached.title" = "Cannot nominate";
 "staking.max.nominators.reached.message" = "Maximum number of nominators has been reached";
+"staking.alert.start.next.era.message" = "Please wait for the next era to start.";

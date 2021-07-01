@@ -144,7 +144,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stateContainerView = nil
         stateView = nil
-        alertsView.isHidden = true
+        alertsContainerView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -172,7 +172,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearStateView()
 
         guard let prevViewIndex = stackView.arrangedSubviews
-            .firstIndex(of: networkInfoContainerView)
+            .firstIndex(of: alertsContainerView)
         else {
             return nil
         }
@@ -259,7 +259,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyAlerts(_ alerts: [StakingAlert]) {
-        alertsView.isHidden = false
+        alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
     }
 }
@@ -434,6 +434,8 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter.performBondMoreAction()
         case .redeemUnbonded:
             presenter.performRedeemAction()
+        case .waitingNextEra:
+            break
         }
     }
 }
