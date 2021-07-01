@@ -69,6 +69,16 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
+    func showExperimental(from view: ProfileViewProtocol?) {
+        guard let experimentalView = ExperimentalListViewFactory.createView() else {
+            return
+        }
+
+        experimentalView.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(experimentalView.controller, animated: true)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

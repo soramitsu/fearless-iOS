@@ -144,6 +144,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showPincodeChange(from: view)
         case .language:
             wireframe.showLanguageSelection(from: view)
+        case .experimental:
+            wireframe.showExperimental(from: view)
         case .about:
             wireframe.showAbout(from: view)
         }

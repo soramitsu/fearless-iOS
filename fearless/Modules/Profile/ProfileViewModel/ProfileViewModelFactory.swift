@@ -18,6 +18,7 @@ enum ProfileOption: UInt, CaseIterable {
     case connectionList
     case language
     case changePincode
+    case experimental
     case about
 }
 
@@ -53,6 +54,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createChangePincode(for: locale)
             case .language:
                 return createLanguageViewModel(from: language, locale: locale)
+            case .experimental:
+                return createExperimentalViewModel(for: locale)
             case .about:
                 return createAboutViewModel(for: locale)
             }
@@ -121,5 +124,15 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             icon: R.image.iconProfileAbout()!,
             accessoryTitle: nil
         )
+    }
+
+    private func createExperimentalViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable.profileExperimentsTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconExperiment()!,
+            accessoryTitle: nil
+        )
+        return viewModel
     }
 }

@@ -27,6 +27,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresen
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)
+    func showExperimental(from view: ProfileViewProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {
