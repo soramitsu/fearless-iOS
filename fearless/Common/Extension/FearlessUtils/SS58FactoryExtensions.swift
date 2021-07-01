@@ -5,6 +5,7 @@ enum SS58AddressFactoryError: Error {
     case unexpectedAddress
 }
 
+// Deprecated: better not to use this methods anymore, will be removed when we get rid of SNAddressType
 extension SS58AddressFactoryProtocol {
     func extractAddressType(from address: String) throws -> SNAddressType {
         let addressTypeValue = try type(fromAddress: address)

@@ -71,40 +71,11 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testDecodeLocalEncodedValidatorsForWestend() {
-        performTestFetchingLocalEncodedValidators(for: .westend)
+        performTestDecodeLocalEncodedValidators(for: .westend)
     }
 
     func testDecodeLocalEncodedValidatorsForKusama() {
-        do {
-            let storageFacade = SubstrateDataStorageFacade.shared
-            let chain = Chain.kusama
-
-            let codingFactory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
-
-            guard let era = try fetchActiveEra(for: chain,
-                                               storageFacade: storageFacade,
-                                               codingFactory: codingFactory) else {
-                XCTFail("No era found")
-                return
-            }
-
-            let items = try fetchLocalEncodedValidators(for: chain,
-                                                        era: era,
-                                                        coderFactory: codingFactory,
-                                                        storageFacade: storageFacade)
-            XCTAssert(!items.isEmpty)
-
-            measure {
-                do {
-                    let decodedValidators = try decodeEncodedValidators(items, codingFactory: codingFactory)
-                    XCTAssertEqual(decodedValidators.count, items.count)
-                } catch {
-                    XCTFail("Unexpected error \(error)")
-                }
-            }
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
+        performTestDecodeLocalEncodedValidators(for: .kusama)
     }
 
     func testFetchingLocalEncodedValidatorsForKusama() {
@@ -593,7 +564,7 @@ class CalculatorServiceTests: XCTestCase {
         return try erasStakersKeyOperation.extractNoCancellableResultData().first
     }
 
-    private func performTestFetchingLocalEncodedValidators(for chain: Chain) {
+    private func performTestDecodeLocalEncodedValidators(for chain: Chain) {
         do {
             let storageFacade = SubstrateDataStorageFacade.shared
 
@@ -606,13 +577,16 @@ class CalculatorServiceTests: XCTestCase {
                 return
             }
 
+            let items = try fetchLocalEncodedValidators(for: chain,
+                                                        era: era,
+                                                        coderFactory: codingFactory,
+                                                        storageFacade: storageFacade)
+            XCTAssert(!items.isEmpty)
+
             measure {
                 do {
-                    let items = try fetchLocalEncodedValidators(for: chain,
-                                                                era: era,
-                                                                coderFactory: codingFactory,
-                                                                storageFacade: storageFacade)
-                    XCTAssert(!items.isEmpty)
+                    let decodedValidators = try decodeEncodedValidators(items, codingFactory: codingFactory)
+                    XCTAssertEqual(decodedValidators.count, items.count)
                 } catch {
                     XCTFail("Unexpected error \(error)")
                 }
