@@ -62,7 +62,7 @@ extension StakingAlert {
         case .bondedSetValidators:
             return R.string.localizable.stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages)
         case .waitingNextEra:
-            return "Please wait for the next era to start."
+            return R.string.localizable.stakingAlertStartNextEraMessage(preferredLanguages: locale.rLanguages)
         }
     }
 }
