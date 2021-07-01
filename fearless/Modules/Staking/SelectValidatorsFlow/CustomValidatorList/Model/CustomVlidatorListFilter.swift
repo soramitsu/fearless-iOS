@@ -35,7 +35,7 @@ struct CustomValidatorListFilter: Equatable {
             allowsNoIdentity: false,
             allowsSlashed: false,
             allowsOversubscribed: false,
-            allowsClusters: .limited(amount: 2)
+            allowsClusters: .limited(amount: StakingConstants.targetsClusterLimit)
         )
     }
 

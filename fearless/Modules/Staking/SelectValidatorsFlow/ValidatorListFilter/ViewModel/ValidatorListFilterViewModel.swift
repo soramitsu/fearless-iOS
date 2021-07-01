@@ -9,7 +9,7 @@ struct ValidatorListFilterViewModel {
 
 struct ValidatorListFilterViewModelSection {
     let title: String
-    let cellViewModels: [ValidatorListFilterCellViewModel]
+    let cellViewModels: [SelectableViewModel<TitleWithSubtitleViewModel>]
 }
 
 struct ValidatorListFilterCellViewModel {
@@ -24,41 +24,41 @@ enum ValidatorListFilterRow: Int, CaseIterable {
     case oversubscribed
     case clusterLimit
 
-    var title: LocalizableResource<String> {
+    var titleSubtitleViewModel: LocalizableResource<TitleWithSubtitleViewModel> {
         switch self {
         case .slashed:
             return LocalizableResource { locale in
-                R.string.localizable
-                    .stakingRecommendedHint4(preferredLanguages: locale.rLanguages)
+                TitleWithSubtitleViewModel(
+                    title: R.string.localizable
+                        .stakingRecommendedHint4(preferredLanguages: locale.rLanguages)
+                )
             }
+
         case .oversubscribed:
             return LocalizableResource { locale in
-                R.string.localizable
-                    .stakingRecommendedHint2(preferredLanguages: locale.rLanguages)
+                TitleWithSubtitleViewModel(
+                    title: R.string.localizable
+                        .stakingRecommendedHint2(preferredLanguages: locale.rLanguages)
+                )
             }
+
         case .clusterLimit:
             return LocalizableResource { locale in
-                R.string.localizable
-                    .stakingRecommendedHint5(preferredLanguages: locale.rLanguages)
-            }
-        case .withoutIdentity:
-            return LocalizableResource { locale in
-                R.string.localizable
-                    .stakingRecommendedHint3(preferredLanguages: locale.rLanguages)
-            }
-        }
-    }
-
-    var subtitle: LocalizableResource<String>? {
-        switch self {
-        case .withoutIdentity:
-            return LocalizableResource { locale in
-                R.string.localizable
-                    .stakingRecommendedHint3Addition(preferredLanguages: locale.rLanguages)
+                TitleWithSubtitleViewModel(
+                    title: R.string.localizable
+                        .stakingRecommendedHint5(preferredLanguages: locale.rLanguages)
+                )
             }
 
-        default:
-            return nil
+        case .withoutIdentity:
+            return LocalizableResource { locale in
+                TitleWithSubtitleViewModel(
+                    title: R.string.localizable
+                        .stakingRecommendedHint3(preferredLanguages: locale.rLanguages),
+                    subtitle: R.string.localizable
+                        .stakingRecommendedHint3Addition(preferredLanguages: locale.rLanguages)
+                )
+            }
         }
     }
 }

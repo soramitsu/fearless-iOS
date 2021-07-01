@@ -99,9 +99,9 @@ final class TitleSubtitleSwitchTableViewCell: SwitchTableViewCell {
         stackView.addArrangedSubview(subtitleLabel)
     }
 
-    func bind(title: String, subtitle: String?, isOn: Bool) {
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-        switchView.isOn = isOn
+    func bind(viewModel: SelectableViewModel<TitleWithSubtitleViewModel>) {
+        titleLabel.text = viewModel.underlyingViewModel.title
+        subtitleLabel.text = viewModel.underlyingViewModel.subtitle
+        switchView.isOn = viewModel.selectable
     }
 }

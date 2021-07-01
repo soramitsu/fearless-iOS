@@ -58,7 +58,7 @@ extension ValidatorListFilterPresenter: ValidatorListFilterPresenterProtocol {
         case .clusterLimit:
             let allowsUnlimitedClusters = currentFilter.allowsClusters == .unlimited
             currentFilter.allowsClusters = allowsUnlimitedClusters ?
-                .limited(amount: 2) :
+                .limited(amount: StakingConstants.targetsClusterLimit) :
                 .unlimited
         }
 

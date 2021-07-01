@@ -58,8 +58,8 @@ final class ValidatorListFilterSortCell: UITableViewCell {
         }
     }
 
-    func bind(title: String, isSelected: Bool) {
-        titleLabel.text = title
-        selectionImageView.isHidden = !isSelected
+    func bind(viewModel: SelectableViewModel<TitleWithSubtitleViewModel>) {
+        titleLabel.text = viewModel.underlyingViewModel.title
+        selectionImageView.isHidden = !viewModel.selectable
     }
 }

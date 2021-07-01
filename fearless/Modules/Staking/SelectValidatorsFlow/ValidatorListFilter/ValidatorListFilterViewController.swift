@@ -146,10 +146,8 @@ extension ValidatorListFilterViewController: UITableViewDataSource {
             let item = viewModel.filterModel.cellViewModels[indexPath.row]
             let cell = tableView.dequeueReusableCellWithType(TitleSubtitleSwitchTableViewCell.self)!
 
-            cell.bind(title: item.title, subtitle: item.subtitle, isOn: item.isSelected)
+            cell.bind(viewModel: item)
             cell.delegate = self
-
-            cell.selectionStyle = .none
 
             return cell
 
@@ -157,7 +155,7 @@ extension ValidatorListFilterViewController: UITableViewDataSource {
             let item = viewModel.sortModel.cellViewModels[indexPath.row]
             let cell = tableView.dequeueReusableCellWithType(ValidatorListFilterSortCell.self)!
 
-            cell.bind(title: item.title, isSelected: item.isSelected)
+            cell.bind(viewModel: item)
             return cell
 
         default:
