@@ -98,7 +98,6 @@ final class NetworkInfoView: UIView {
         minimumStakeFiatAmountLabel.text = localizedViewModel.minimalStake?.price
         activeNominatorsLabel.text = localizedViewModel.activeNominators
         lockUpPeriodLabel.text = localizedViewModel.lockUpPeriod
-        setExpanded(localizedViewModel.viewIsExpanded, animated: false)
     }
 
     private func applyTitle() {

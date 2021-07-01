@@ -9,8 +9,7 @@ protocol NetworkInfoViewModelFactoryProtocol {
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?,
-        viewIsExpanded: Bool
+        priceData: PriceData?
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
@@ -121,8 +120,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?,
-        viewIsExpanded: Bool
+        priceData: PriceData?
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let localizedTotalStake = createTotalStakeViewModel(
             with: networkStakingInfo,
@@ -149,8 +147,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
                 totalStake: localizedTotalStake.value(for: locale),
                 minimalStake: localizedMinimalStake.value(for: locale),
                 activeNominators: nominatorsCount.value(for: locale),
-                lockUpPeriod: localizedLockUpPeriod.value(for: locale),
-                viewIsExpanded: viewIsExpanded
+                lockUpPeriod: localizedLockUpPeriod.value(for: locale)
             )
         }
     }
