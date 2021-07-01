@@ -26843,6 +26843,21 @@ import SoraFoundation
     
     
     
+     func expandNetworkInfoView(_ isExpanded: Bool)  {
+        
+    return cuckoo_manager.call("expandNetworkInfoView(_: Bool)",
+            parameters: (isExpanded),
+            escapingParameters: (isExpanded),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.expandNetworkInfoView(isExpanded))
+        
+    }
+    
+    
+    
     public func applyLocalization()  {
         
     return cuckoo_manager.call("applyLocalization()",
@@ -26898,6 +26913,11 @@ import SoraFoundation
 	    func didReceiveStakingState<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingViewState)> where M1.MatchedType == StakingViewState {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingViewState)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveStakingState(viewModel: StakingViewState)", parameterMatchers: matchers))
+	    }
+	    
+	    func expandNetworkInfoView<M1: Cuckoo.Matchable>(_ isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "expandNetworkInfoView(_: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -26961,6 +26981,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func expandNetworkInfoView<M1: Cuckoo.Matchable>(_ isExpanded: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return cuckoo_manager.verify("expandNetworkInfoView(_: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func applyLocalization() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("applyLocalization()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -27014,6 +27040,10 @@ import SoraFoundation
     }
     
      func didReceiveStakingState(viewModel: StakingViewState)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func expandNetworkInfoView(_ isExpanded: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -27258,6 +27288,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func networkInfoViewDidChangeExpansion(isExpanded: Bool)  {
+        
+    return cuckoo_manager.call("networkInfoViewDidChangeExpansion(isExpanded: Bool)",
+            parameters: (isExpanded),
+            escapingParameters: (isExpanded),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.networkInfoViewDidChangeExpansion(isExpanded: isExpanded))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingMainPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -27335,6 +27380,11 @@ import SoraFoundation
 	    func selectStory<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
 	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "selectStory(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func networkInfoViewDidChangeExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "networkInfoViewDidChangeExpansion(isExpanded: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -27437,6 +27487,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("selectStory(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func networkInfoViewDidChangeExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return cuckoo_manager.verify("networkInfoViewDidChangeExpansion(isExpanded: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -27502,6 +27558,10 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
+     func networkInfoViewDidChangeExpansion(isExpanded: Bool)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
 }
 
 
@@ -27544,6 +27604,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func saveNetworkInfoViewExpansion(isExpanded: Bool)  {
+        
+    return cuckoo_manager.call("saveNetworkInfoViewExpansion(isExpanded: Bool)",
+            parameters: (isExpanded),
+            escapingParameters: (isExpanded),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.saveNetworkInfoViewExpansion(isExpanded: isExpanded))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingMainInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -27556,6 +27631,11 @@ import SoraFoundation
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func saveNetworkInfoViewExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "saveNetworkInfoViewExpansion(isExpanded: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -27580,6 +27660,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func saveNetworkInfoViewExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return cuckoo_manager.verify("saveNetworkInfoViewExpansion(isExpanded: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -27590,6 +27676,10 @@ import SoraFoundation
 
     
      func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func saveNetworkInfoViewExpansion(isExpanded: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -28055,6 +28145,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func networkInfoViewExpansion(isExpanded: Bool)  {
+        
+    return cuckoo_manager.call("networkInfoViewExpansion(isExpanded: Bool)",
+            parameters: (isExpanded),
+            escapingParameters: (isExpanded),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.networkInfoViewExpansion(isExpanded: isExpanded))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingMainInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -28207,6 +28312,11 @@ import SoraFoundation
 	    func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<AccountItem?, Error>)> where M1.MatchedType == Result<AccountItem?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<AccountItem?, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceiveControllerAccount(result: Result<AccountItem?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func networkInfoViewExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "networkInfoViewExpansion(isExpanded: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -28399,6 +28509,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("didReceiveControllerAccount(result: Result<AccountItem?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func networkInfoViewExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return cuckoo_manager.verify("networkInfoViewExpansion(isExpanded: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -28521,6 +28637,10 @@ import SoraFoundation
     }
     
      func didReceiveControllerAccount(result: Result<AccountItem?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func networkInfoViewExpansion(isExpanded: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
