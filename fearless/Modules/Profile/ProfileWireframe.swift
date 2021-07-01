@@ -69,6 +69,8 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
+    func showExperimental(from _: ProfileViewProtocol?) {}
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {
