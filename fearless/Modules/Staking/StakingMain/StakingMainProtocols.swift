@@ -26,7 +26,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
-    func networkInfoViewDidCollapsed(_ value: Bool)
+    func networkInfoViewDidChangeExpansion(isExpanded: Bool)
 }
 
 protocol StakingMainInteractorInputProtocol: AnyObject {

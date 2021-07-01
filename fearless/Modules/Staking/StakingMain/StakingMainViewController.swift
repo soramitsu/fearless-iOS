@@ -344,8 +344,8 @@ extension StakingMainViewController: NetworkInfoViewDelegate {
         scrollView.layoutIfNeeded()
     }
 
-    func viewCollapsed(_ value: Bool, view _: NetworkInfoView) {
-        presenter.networkInfoViewDidCollapsed(value)
+    func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
+        presenter.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
     }
 }
 

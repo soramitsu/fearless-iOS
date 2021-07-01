@@ -27260,16 +27260,16 @@ import SoraFoundation
     
     
     
-     func networkInfoViewDidCollapsed(_ value: Bool)  {
+     func networkInfoViewDidChangeExpansion(isExpanded: Bool)  {
         
-    return cuckoo_manager.call("networkInfoViewDidCollapsed(_: Bool)",
-            parameters: (value),
-            escapingParameters: (value),
+    return cuckoo_manager.call("networkInfoViewDidChangeExpansion(isExpanded: Bool)",
+            parameters: (isExpanded),
+            escapingParameters: (isExpanded),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.networkInfoViewDidCollapsed(value))
+            defaultCall: __defaultImplStub!.networkInfoViewDidChangeExpansion(isExpanded: isExpanded))
         
     }
     
@@ -27352,9 +27352,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "selectStory(at: Int)", parameterMatchers: matchers))
 	    }
 	    
-	    func networkInfoViewDidCollapsed<M1: Cuckoo.Matchable>(_ value: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: value) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "networkInfoViewDidCollapsed(_: Bool)", parameterMatchers: matchers))
+	    func networkInfoViewDidChangeExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "networkInfoViewDidChangeExpansion(isExpanded: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -27458,9 +27458,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func networkInfoViewDidCollapsed<M1: Cuckoo.Matchable>(_ value: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: value) { $0 }]
-	        return cuckoo_manager.verify("networkInfoViewDidCollapsed(_: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func networkInfoViewDidChangeExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
+	        return cuckoo_manager.verify("networkInfoViewDidChangeExpansion(isExpanded: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -27528,7 +27528,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func networkInfoViewDidCollapsed(_ value: Bool)   {
+     func networkInfoViewDidChangeExpansion(isExpanded: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

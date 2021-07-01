@@ -6,7 +6,7 @@ protocol NetworkStakingInfoViewModelProtocol {
     var minimalStake: BalanceViewModelProtocol? { get }
     var activeNominators: String? { get }
     var lockUpPeriod: String? { get }
-    var viewIsCollapsed: Bool { get }
+    var viewIsExpanded: Bool { get }
 }
 
 struct NetworkStakingInfoViewModel: NetworkStakingInfoViewModelProtocol {
@@ -14,5 +14,5 @@ struct NetworkStakingInfoViewModel: NetworkStakingInfoViewModelProtocol {
     let minimalStake: BalanceViewModelProtocol?
     let activeNominators: String?
     let lockUpPeriod: String?
-    let viewIsCollapsed: Bool
+    let viewIsExpanded: Bool
 }

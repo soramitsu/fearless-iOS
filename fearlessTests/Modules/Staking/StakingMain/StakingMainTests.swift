@@ -274,10 +274,10 @@ class StakingMainTests: XCTestCase {
         ).value(for: .current)
 
         // then by default
-        XCTAssert(viewModel.viewIsCollapsed == false)
+        XCTAssert(viewModel.viewIsExpanded == true)
 
         // when user collapse view
-        viewModelFactory.viewDidCollapsed(true)
+        viewModelFactory.viewDidChangeExpansion(isExpanded: false)
         let viewModelAfter = viewModelFactory.createNetworkStakingInfoViewModel(
             with: stubNetworkStakingInfo,
             chain: .westend,
@@ -286,6 +286,6 @@ class StakingMainTests: XCTestCase {
         ).value(for: .current)
 
         // then
-        XCTAssert(viewModelAfter.viewIsCollapsed == true)
+        XCTAssert(viewModelAfter.viewIsExpanded == false)
     }
 }

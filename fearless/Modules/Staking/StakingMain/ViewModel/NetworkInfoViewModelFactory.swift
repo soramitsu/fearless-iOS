@@ -12,14 +12,14 @@ protocol NetworkInfoViewModelFactoryProtocol {
         priceData: PriceData?
     ) ->
         LocalizableResource<NetworkStakingInfoViewModelProtocol>
-    func viewDidCollapsed(_ value: Bool)
+    func viewDidChangeExpansion(isExpanded: Bool)
 }
 
 final class NetworkInfoViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
     let settings: SettingsManagerProtocol
 
-    private static let viewIsCollapsedKey = "viewIsCollapsedKey"
+    private static let viewIsExpandedKey = "viewIsExpandedKey"
 
     private var chain: Chain?
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
@@ -125,8 +125,8 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         }
     }
 
-    func viewDidCollapsed(_ value: Bool) {
-        settings.set(value: value, for: Self.viewIsCollapsedKey)
+    func viewDidChangeExpansion(isExpanded: Bool) {
+        settings.set(value: isExpanded, for: Self.viewIsExpandedKey)
     }
 
     func createNetworkStakingInfoViewModel(
@@ -161,7 +161,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
                 minimalStake: localizedMinimalStake.value(for: locale),
                 activeNominators: nominatorsCount.value(for: locale),
                 lockUpPeriod: localizedLockUpPeriod.value(for: locale),
-                viewIsCollapsed: self.settings.bool(for: Self.viewIsCollapsedKey) ?? false
+                viewIsExpanded: self.settings.bool(for: Self.viewIsExpandedKey) ?? true
             )
         }
     }
