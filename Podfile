@@ -1,4 +1,4 @@
-platform :ios, '11.0'
+platform :ios, '13.0'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
@@ -20,6 +20,8 @@ abstract_target 'fearlessAll' do
   pod 'Sourcery', '~> 1.4'
   pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :tag => '3.0.0'
+  pod 'Base58Swift', :git => 'https://github.com/keefertaylor/Base58Swift.git', :tag => '2.1.11'
+  pod 'BeaconSDK', :git => 'https://github.com/airgap-it/beacon-ios-sdk.git', :tag => '1.0.3'
 
   target 'fearlessTests' do
     inherit! :search_paths
