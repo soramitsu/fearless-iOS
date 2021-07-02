@@ -296,6 +296,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
         wireframe.showRedeem(from: view)
     }
+
+    func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
+        interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
@@ -504,6 +508,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         case let .failure(error):
             handle(error: error)
         }
+    }
+
+    func networkInfoViewExpansion(isExpanded: Bool) {
+        view?.expandNetworkInfoView(isExpanded)
     }
 }
 

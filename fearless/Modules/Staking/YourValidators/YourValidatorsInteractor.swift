@@ -99,8 +99,8 @@ final class YourValidatorsInteractor {
 
         let validatorsWrapper = createValidatorsWrapper(
             for: nomination,
-            stashAddress: stashAddress, activeEra: activeEra,
-            validatorInfoFactory: validatorOperationFactory
+            stashAddress: stashAddress,
+            activeEra: activeEra
         )
 
         validatorsWrapper.targetOperation.completionBlock = { [weak self] in
@@ -120,8 +120,7 @@ final class YourValidatorsInteractor {
     func createValidatorsWrapper(
         for nomination: Nomination,
         stashAddress: AccountAddress,
-        activeEra: EraIndex,
-        validatorInfoFactory _: ValidatorOperationFactoryProtocol
+        activeEra: EraIndex
     ) -> CompoundOperationWrapper<YourValidatorsModel> {
         if nomination.submittedIn >= activeEra {
             let activeValidatorsWrapper = validatorOperationFactory.activeValidatorsOperation(

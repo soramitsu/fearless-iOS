@@ -41,6 +41,8 @@ final class CommonStakingSubscription: WebSocketSubscribing {
     private func resolveSubscription() {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
+        logger?.debug("Will start resolving subscriptions")
+
         let remoteKeyOperation = ClosureOperation<[Data]> {
             let metadata = try coderFactoryOperation.extractNoCancellableResultData().metadata
 

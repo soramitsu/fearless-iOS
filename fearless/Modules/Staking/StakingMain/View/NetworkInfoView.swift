@@ -4,6 +4,7 @@ import SoraFoundation
 
 protocol NetworkInfoViewDelegate: AnyObject {
     func animateAlongsideWithInfo(view: NetworkInfoView)
+    func didChangeExpansion(isExpanded: Bool, view: NetworkInfoView)
 }
 
 final class NetworkInfoView: UIView {
@@ -148,9 +149,11 @@ final class NetworkInfoView: UIView {
         if expanded {
             contentTop.constant = 0.0
             networkInfoContainer.alpha = 1.0
+            delegate?.didChangeExpansion(isExpanded: true, view: self)
         } else {
             contentTop.constant = -contentHeight.constant
             networkInfoContainer.alpha = 0.0
+            delegate?.didChangeExpansion(isExpanded: false, view: self)
         }
     }
 

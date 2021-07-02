@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SoraKeystore
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
@@ -9,8 +10,7 @@ protocol NetworkInfoViewModelFactoryProtocol {
         chain: Chain,
         minNominatorBond: BigUInt?,
         priceData: PriceData?
-    ) ->
-        LocalizableResource<NetworkStakingInfoViewModelProtocol>
+    ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
 final class NetworkInfoViewModelFactory {
