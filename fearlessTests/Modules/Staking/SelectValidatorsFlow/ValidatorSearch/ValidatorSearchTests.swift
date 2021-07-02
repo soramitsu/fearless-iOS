@@ -11,8 +11,12 @@ class ValidatorSearchTests: XCTestCase {
         let view = MockValidatorSearchViewProtocol()
         let wireframe = MockValidatorSearchWireframeProtocol()
         let viewModelFactory = ValidatorSearchViewModelFactory()
+        let validatorOperationFactory = ValidatorOperationFactoryProtocolStub()
 
-        let interactor = ValidatorSearchInteractor()
+        let interactor = ValidatorSearchInteractor(
+            validatorOperationFactory: validatorOperationFactory,
+            operationManager: OperationManagerFacade.sharedManager
+        )
 
         let validators = CustomValidatorListTestDataGenerator.goodValidators
         let selectedValidator = CustomValidatorListTestDataGenerator.goodValidator

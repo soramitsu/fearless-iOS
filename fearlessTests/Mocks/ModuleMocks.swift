@@ -27078,6 +27078,36 @@ import SoraFoundation
     
     
     
+     func didStartSearch()  {
+        
+    return cuckoo_manager.call("didStartSearch()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didStartSearch())
+        
+    }
+    
+    
+    
+     func didStopSearch()  {
+        
+    return cuckoo_manager.call("didStopSearch()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didStopSearch())
+        
+    }
+    
+    
+    
      func didReset()  {
         
     return cuckoo_manager.call("didReset()",
@@ -27135,6 +27165,16 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchViewProtocol.self, method: "didReload(_: ValidatorSearchViewModel)", parameterMatchers: matchers))
 	    }
 	    
+	    func didStartSearch() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchViewProtocol.self, method: "didStartSearch()", parameterMatchers: matchers))
+	    }
+	    
+	    func didStopSearch() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchViewProtocol.self, method: "didStopSearch()", parameterMatchers: matchers))
+	    }
+	    
 	    func didReset() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchViewProtocol.self, method: "didReset()", parameterMatchers: matchers))
@@ -27180,6 +27220,18 @@ import SoraFoundation
 	    func didReload<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.__DoNotUse<(ValidatorSearchViewModel), Void> where M1.MatchedType == ValidatorSearchViewModel {
 	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorSearchViewModel)>] = [wrap(matchable: viewModel) { $0 }]
 	        return cuckoo_manager.verify("didReload(_: ValidatorSearchViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didStartSearch() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("didStartSearch()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didStopSearch() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("didStopSearch()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -27233,6 +27285,14 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
+     func didStartSearch()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didStopSearch()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
      func didReset()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -27270,16 +27330,16 @@ import SoraFoundation
     
     
     
-     func setup()  {
+     func performValidatorSearch(accountId: AccountId)  {
         
-    return cuckoo_manager.call("setup()",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("performValidatorSearch(accountId: AccountId)",
+            parameters: (accountId),
+            escapingParameters: (accountId),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.setup())
+            defaultCall: __defaultImplStub!.performValidatorSearch(accountId: accountId))
         
     }
     
@@ -27292,9 +27352,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    func performValidatorSearch<M1: Cuckoo.Matchable>(accountId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountId)> where M1.MatchedType == AccountId {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountId)>] = [wrap(matchable: accountId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchInteractorInputProtocol.self, method: "performValidatorSearch(accountId: AccountId)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -27314,9 +27374,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func performValidatorSearch<M1: Cuckoo.Matchable>(accountId: M1) -> Cuckoo.__DoNotUse<(AccountId), Void> where M1.MatchedType == AccountId {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountId)>] = [wrap(matchable: accountId) { $0 }]
+	        return cuckoo_manager.verify("performValidatorSearch(accountId: AccountId)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -27328,7 +27388,7 @@ import SoraFoundation
     
 
     
-     func setup()   {
+     func performValidatorSearch(accountId: AccountId)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -27359,6 +27419,21 @@ import SoraFoundation
     
 
     
+    
+    
+     func didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveValidatorInfo(result: result))
+        
+    }
+    
 
 	 struct __StubbingProxy_ValidatorSearchInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -27367,6 +27442,11 @@ import SoraFoundation
 	        self.cuckoo_manager = manager
 	    }
 	    
+	    
+	    func didReceiveValidatorInfo<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ElectedValidatorInfo?, Error>)> where M1.MatchedType == Result<ElectedValidatorInfo?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<ElectedValidatorInfo?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchInteractorOutputProtocol.self, method: "didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)", parameterMatchers: matchers))
+	    }
 	    
 	}
 
@@ -27384,6 +27464,12 @@ import SoraFoundation
 	    
 	
 	    
+	    @discardableResult
+	    func didReceiveValidatorInfo<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ElectedValidatorInfo?, Error>), Void> where M1.MatchedType == Result<ElectedValidatorInfo?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<ElectedValidatorInfo?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -27392,6 +27478,10 @@ import SoraFoundation
 
     
 
+    
+     func didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
     
 }
 

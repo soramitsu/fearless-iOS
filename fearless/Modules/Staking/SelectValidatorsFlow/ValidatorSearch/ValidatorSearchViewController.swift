@@ -9,6 +9,12 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder {
 
     private var viewModel: ValidatorSearchViewModel?
 
+    private lazy var searchActivityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .white)
+        activityIndicator.color = .white
+        return activityIndicator
+    }()
+
     // MARK: - Lifecycle
 
     init(
@@ -104,6 +110,17 @@ extension ValidatorSearchViewController: ValidatorSearchViewProtocol {
         rootView.tableView.reloadData()
 
         applyState()
+    }
+
+    func didStartSearch() {
+        rootView.searchField.rightViewMode = .always
+        rootView.searchField.rightView = searchActivityIndicator
+        searchActivityIndicator.startAnimating()
+    }
+
+    func didStopSearch() {
+        searchActivityIndicator.stopAnimating()
+        rootView.searchField.rightView = nil
     }
 
     func didReset() {

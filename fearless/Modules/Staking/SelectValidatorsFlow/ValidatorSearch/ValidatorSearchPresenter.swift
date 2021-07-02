@@ -15,6 +15,7 @@ final class ValidatorSearchPresenter {
     private var filteredValidatorList: [ElectedValidatorInfo] = []
     private var viewModel: ValidatorSearchViewModel?
     private var searchString: String = ""
+    private var isSearching: Bool = false
 
     private lazy var addressFactory = SS58AddressFactory()
 
@@ -46,20 +47,6 @@ final class ValidatorSearchPresenter {
             return
         }
 
-        performSearch()
-    }
-
-    private func performAddressSearch() {
-        filteredValidatorList = []
-
-        let searchResult = allValidatorList.first {
-            $0.address == searchString
-        }
-
-        if let validator = searchResult {
-            filteredValidatorList.append(validator)
-        }
-
         let viewModel = viewModelFactory.createViewModel(
             from: filteredValidatorList,
             selectedValidators: selectedValidatorList,
@@ -70,9 +57,33 @@ final class ValidatorSearchPresenter {
         view?.didReload(viewModel)
     }
 
+    private func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
+        filteredValidatorList = []
+
+        let searchResult = allValidatorList.first {
+            $0.address == address
+        }
+
+        guard let validator = searchResult else {
+            isSearching = true
+            view?.didStartSearch()
+            interactor.performValidatorSearch(accountId: accountId)
+            return
+        }
+
+        filteredValidatorList.append(validator)
+
+        provideViewModels()
+    }
+
     private func performSearch() {
-        if (try? addressFactory.accountId(from: searchString)) != nil {
-            performAddressSearch()
+        guard !searchString.isEmpty else {
+            provideViewModels()
+            return
+        }
+
+        if let accountId = try? addressFactory.accountId(from: searchString) {
+            performFullAddressSearch(by: searchString, accountId: accountId)
             return
         }
 
@@ -86,21 +97,13 @@ final class ValidatorSearchPresenter {
             $0.stakeReturn > $1.stakeReturn
         })
 
-        let viewModel = viewModelFactory.createViewModel(
-            from: filteredValidatorList,
-            selectedValidators: selectedValidatorList,
-            locale: selectedLocale
-        )
-
-        self.viewModel = viewModel
-        view?.didReload(viewModel)
+        provideViewModels()
     }
 }
 
 extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     func setup() {
         provideViewModels()
-        interactor.setup()
     }
 
     // MARK: - Cell actions
@@ -139,7 +142,13 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 
     func search(for textEntry: String) {
         searchString = textEntry
-        provideViewModels()
+
+        if isSearching {
+            view?.didStopSearch()
+            isSearching = false
+        }
+
+        performSearch()
     }
 
     // MARK: - Presenting actions
@@ -172,13 +181,35 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 }
 
 extension ValidatorSearchPresenter: ValidatorSearchInteractorOutputProtocol {
-    #warning("Not implemented")
+    func didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>) {
+        view?.didStopSearch()
+
+        guard isSearching == true else { return }
+        isSearching = false
+
+        if case let .failure(error) = result {
+            logger?.error("Did receive validator info error: \(error)")
+            return
+        }
+
+        guard case let .success(validator) = result,
+              let validatorInfo = validator
+        else {
+            filteredValidatorList = []
+            provideViewModels()
+            return
+        }
+
+        allValidatorList.append(validatorInfo)
+        filteredValidatorList = [validatorInfo]
+        provideViewModels()
+    }
 }
 
 extension ValidatorSearchPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
-            provideViewModels()
+            performSearch()
         }
     }
 }

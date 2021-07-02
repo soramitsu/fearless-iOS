@@ -18,14 +18,18 @@ protocol ValidatorSearchDelegate: AnyObject {
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
     func didReload(_ viewModel: ValidatorSearchViewModel)
+    func didStartSearch()
+    func didStopSearch()
     func didReset()
 }
 
 protocol ValidatorSearchInteractorInputProtocol {
-    func setup()
+    func performValidatorSearch(accountId: AccountId)
 }
 
-protocol ValidatorSearchInteractorOutputProtocol {}
+protocol ValidatorSearchInteractorOutputProtocol: AnyObject {
+    func didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)
+}
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
     func setup()
