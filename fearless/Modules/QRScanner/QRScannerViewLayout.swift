@@ -51,14 +51,14 @@ final class QRScannerViewLayout: UIView {
         addSubview(titleLabel)
 
         titleLabel.snp.makeConstraints { make in
-            make.left.right.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.top.equalTo(safeAreaLayoutGuide.snp.top).inset(58.0)
         }
 
         addSubview(messageLabel)
         messageLabel.snp.makeConstraints { make in
-            make.left.right.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-40.0)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(40.0)
         }
     }
 }

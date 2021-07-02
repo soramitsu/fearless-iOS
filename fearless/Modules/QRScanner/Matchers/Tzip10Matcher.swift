@@ -11,15 +11,18 @@ enum Tzip10MatcherError: Error {
 final class Tzip10Matcher: QRMatching {
     let logger: LoggerProtocol
 
+    weak var delegate: BeaconQRDelegate?
+
     private var lastProccessedCode: String?
 
-    init(logger: LoggerProtocol) {
+    init(delegate: BeaconQRDelegate, logger: LoggerProtocol) {
+        self.delegate = delegate
         self.logger = logger
     }
 
     func match(code: String) -> Bool {
         guard lastProccessedCode != code else {
-            return true
+            return false
         }
 
         lastProccessedCode = code
@@ -27,6 +30,11 @@ final class Tzip10Matcher: QRMatching {
         do {
             let info = try parse(code: code)
             logger.info("Did receive connection info: \(info)")
+
+            DispatchQueue.main.async {
+                self.delegate?.didReceiveBeacon(connectionInfo: info)
+            }
+
             return true
         } catch {
             logger.error("Did receive parsing error: \(error)")

@@ -33,9 +33,15 @@ extension ExperimentalListPresenter: ExperimentalListPresenterProtocol {
         case .notifications:
             wireframe.showNotificationSettings(from: view)
         case .signer:
-            wireframe.showMobileSigning(from: view)
+            wireframe.showBeaconConnection(from: view, delegate: self)
         }
     }
 }
 
 extension ExperimentalListPresenter: ExperimentalListInteractorOutputProtocol {}
+
+extension ExperimentalListPresenter: BeaconQRDelegate {
+    func didReceiveBeacon(connectionInfo: BeaconConnectionInfo) {
+        wireframe.showBeaconSession(from: view, connectionInfo: connectionInfo)
+    }
+}

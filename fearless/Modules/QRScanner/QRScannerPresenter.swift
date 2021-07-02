@@ -53,11 +53,11 @@ final class QRScannerPresenter {
         }
     }
 
-    private func handleMatch(code _: String) {
+    private func handleCompletion() {
         wireframe.close(view: view)
     }
 
-    private func handleMatchingFailure(for _: String) {
+    private func handleMatchingFailure() {
         let message = R.string.localizable.qrScanErrorExtractFail(preferredLanguages: view?.selectedLocale.rLanguages)
         view?.present(message: message, animated: true)
     }
@@ -76,15 +76,15 @@ extension QRScannerPresenter: QRCaptureServiceDelegate {
         }
     }
 
-    func qrCapture(service _: QRCaptureServiceProtocol, didMatch code: String) {
+    func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
         DispatchQueue.main.async {
-            self.handleMatch(code: code)
+            self.handleCompletion()
         }
     }
 
-    func qrCapture(service _: QRCaptureServiceProtocol, didFailMatching code: String) {
+    func qrCapture(service _: QRCaptureServiceProtocol, didFailMatching _: String) {
         DispatchQueue.main.async {
-            self.handleMatchingFailure(for: code)
+            self.handleMatchingFailure()
         }
     }
 

@@ -16,5 +16,6 @@ protocol ExperimentalListInteractorOutputProtocol: AnyObject {}
 
 protocol ExperimentalListWireframeProtocol: AnyObject {
     func showNotificationSettings(from view: ExperimentalListViewProtocol?)
-    func showMobileSigning(from view: ExperimentalListViewProtocol?)
+    func showBeaconConnection(from view: ExperimentalListViewProtocol?, delegate: BeaconQRDelegate)
+    func showBeaconSession(from view: ExperimentalListViewProtocol?, connectionInfo: BeaconConnectionInfo)
 }
