@@ -2,10 +2,10 @@ import Foundation
 import SoraFoundation
 
 struct QRScannerViewFactory {
-    static func createBeaconView() -> QRScannerViewProtocol? {
+    static func createBeaconView(for delegate: BeaconQRDelegate) -> QRScannerViewProtocol? {
         let wireframe = QRScannerWireframe()
 
-        let matcher = Tzip10Matcher(logger: Logger.shared)
+        let matcher = Tzip10Matcher(delegate: delegate, logger: Logger.shared)
         let qrService = QRCaptureService(matcher: matcher, delegate: nil)
         let presenter = QRScannerPresenter(wireframe: wireframe, qrScanService: qrService, logger: Logger.shared)
 

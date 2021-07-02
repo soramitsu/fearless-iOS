@@ -9,6 +9,8 @@ final class QRScannerViewController: UIViewController, ViewHolder {
     let localizedTitle: LocalizableResource<String>
     let presenter: QRScannerPresenterProtocol
 
+    var messageVisibilityDuration: TimeInterval = 5.0
+
     lazy var messageAppearanceAnimator: BlockViewAnimatorProtocol = BlockViewAnimator()
     lazy var messageDissmisAnimator: BlockViewAnimatorProtocol = BlockViewAnimator()
 
@@ -43,8 +45,6 @@ final class QRScannerViewController: UIViewController, ViewHolder {
         setupLocalization()
         presenter.setup()
     }
-
-    var messageVisibilityDuration: TimeInterval = 5.0
 
     private func setupLocalization() {
         title = localizedTitle.value(for: selectedLocale)

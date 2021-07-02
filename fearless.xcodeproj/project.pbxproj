@@ -170,6 +170,7 @@
 		8401AEC72642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBE2642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift */; };
 		8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBF2642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift */; };
 		8401F24F24E524900081D8F8 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401F24E24E524900081D8F8 /* String+Helpers.swift */; };
+		840271EF268F56CD006EA780 /* BeaconQRDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840271EE268F56CD006EA780 /* BeaconQRDelegate.swift */; };
 		84031C17263EC95C008FD9D4 /* SetPayeeCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */; };
 		840689FC26321F2700A017B1 /* StorageQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840689FB26321F2700A017B1 /* StorageQuery.swift */; };
 		840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840882AF2514024800177E20 /* SelectedConnectionChanged.swift */; };
@@ -1563,6 +1564,7 @@
 		8401AEBE2642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationPresenter.swift; sourceTree = "<group>"; };
 		8401AEBF2642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationProtocols.swift; sourceTree = "<group>"; };
 		8401F24E24E524900081D8F8 /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
+		840271EE268F56CD006EA780 /* BeaconQRDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconQRDelegate.swift; sourceTree = "<group>"; };
 		84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetPayeeCall.swift; sourceTree = "<group>"; };
 		840689FB26321F2700A017B1 /* StorageQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageQuery.swift; sourceTree = "<group>"; };
 		840882AF2514024800177E20 /* SelectedConnectionChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedConnectionChanged.swift; sourceTree = "<group>"; };
@@ -5895,6 +5897,7 @@
 				84DD8904268E5CD300D2EFFD /* Tzip10Matcher.swift */,
 				84DD8906268F05B800D2EFFD /* BeaconConnectionInfo.swift */,
 				84DD8908268F066700D2EFFD /* BeaconQuery.swift */,
+				840271EE268F56CD006EA780 /* BeaconQRDelegate.swift */,
 			);
 			path = Matchers;
 			sourceTree = "<group>";
@@ -8272,6 +8275,7 @@
 				847C96492553614F002D288F /* ExportRestoreJsonPresenter.swift in Sources */,
 				8463A71225E30C95003B8160 /* BalanceViewModelFactory.swift in Sources */,
 				6D315EFF2B664235D297674E /* AccountImportProtocols.swift in Sources */,
+				840271EF268F56CD006EA780 /* BeaconQRDelegate.swift in Sources */,
 				F43A8A9E265BA03500A8A5A8 /* SelectValidatorsCellViewModel.swift in Sources */,
 				F4617415260E23E900E8FA3D /* StakingRewardStatusViewModel.swift in Sources */,
 				4A520B7081BE2D7604B69354 /* AccountImportWireframe.swift in Sources */,
