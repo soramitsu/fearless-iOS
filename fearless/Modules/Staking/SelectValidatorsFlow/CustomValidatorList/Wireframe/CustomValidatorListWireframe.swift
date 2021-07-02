@@ -17,8 +17,21 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         )
     }
 
-    func presentFilters() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-894
+    func presentFilters(
+        from view: ControllerBackedProtocol?,
+        filter: CustomValidatorListFilter,
+        delegate: ValidatorListFilterDelegate?
+    ) {
+        guard let filterView = ValidatorListFilterViewFactory
+            .createView(
+                with: filter,
+                delegate: delegate
+            ) else { return }
+
+        view?.controller.navigationController?.pushViewController(
+            filterView.controller,
+            animated: true
+        )
     }
 
     func presentSearch(

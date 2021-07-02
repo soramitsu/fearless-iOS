@@ -5,7 +5,7 @@ protocol SwitchTableViewCellDelegate: AnyObject {
     func didToggle(cell: SwitchTableViewCell)
 }
 
-final class SwitchTableViewCell: UITableViewCell {
+class SwitchTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -45,7 +45,7 @@ final class SwitchTableViewCell: UITableViewCell {
         switchView.addTarget(self, action: #selector(actionToggle), for: .valueChanged)
     }
 
-    private func setupLayout() {
+    fileprivate func setupLayout() {
         contentView.addSubview(switchView)
 
         switchView.snp.makeConstraints { make in
@@ -62,7 +62,46 @@ final class SwitchTableViewCell: UITableViewCell {
         }
     }
 
-    @objc private func actionToggle() {
+    @objc fileprivate func actionToggle() {
         delegate?.didToggle(cell: self)
+    }
+}
+
+final class TitleSubtitleSwitchTableViewCell: SwitchTableViewCell {
+    let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorLightGray()
+        label.font = .p2Paragraph
+        return label
+    }()
+
+    let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        return stackView
+    }()
+
+    override fileprivate func setupLayout() {
+        contentView.addSubview(switchView)
+        switchView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
+        }
+
+        contentView.addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalTo(switchView.snp.leading).offset(-16)
+            make.centerY.equalToSuperview()
+        }
+
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(subtitleLabel)
+    }
+
+    func bind(viewModel: SelectableViewModel<TitleWithSubtitleViewModel>) {
+        titleLabel.text = viewModel.underlyingViewModel.title
+        subtitleLabel.text = viewModel.underlyingViewModel.subtitle
+        switchView.isOn = viewModel.selectable
     }
 }

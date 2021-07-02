@@ -10483,6 +10483,36 @@ import SoraFoundation
         
     }
     
+    
+    
+     func becomeOnline()  {
+        
+    return cuckoo_manager.call("becomeOnline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.becomeOnline())
+        
+    }
+    
+    
+    
+     func putOffline()  {
+        
+    return cuckoo_manager.call("putOffline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.putOffline())
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanListPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -10505,6 +10535,16 @@ import SoraFoundation
 	    func selectViewModel<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(CrowdloanSectionItem<ActiveCrowdloanViewModel>)> where M1.MatchedType == CrowdloanSectionItem<ActiveCrowdloanViewModel> {
 	        let matchers: [Cuckoo.ParameterMatcher<(CrowdloanSectionItem<ActiveCrowdloanViewModel>)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListPresenterProtocol.self, method: "selectViewModel(_: CrowdloanSectionItem<ActiveCrowdloanViewModel>)", parameterMatchers: matchers))
+	    }
+	    
+	    func becomeOnline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListPresenterProtocol.self, method: "becomeOnline()", parameterMatchers: matchers))
+	    }
+	    
+	    func putOffline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListPresenterProtocol.self, method: "putOffline()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -10541,6 +10581,18 @@ import SoraFoundation
 	        return cuckoo_manager.verify("selectViewModel(_: CrowdloanSectionItem<ActiveCrowdloanViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func becomeOnline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("becomeOnline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func putOffline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("putOffline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -10559,6 +10611,14 @@ import SoraFoundation
     }
     
      func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func becomeOnline()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func putOffline()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -10619,6 +10679,36 @@ import SoraFoundation
         
     }
     
+    
+    
+     func becomeOnline()  {
+        
+    return cuckoo_manager.call("becomeOnline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.becomeOnline())
+        
+    }
+    
+    
+    
+     func putOffline()  {
+        
+    return cuckoo_manager.call("putOffline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.putOffline())
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanListInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -10636,6 +10726,16 @@ import SoraFoundation
 	    func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorInputProtocol.self, method: "refresh()", parameterMatchers: matchers))
+	    }
+	    
+	    func becomeOnline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorInputProtocol.self, method: "becomeOnline()", parameterMatchers: matchers))
+	    }
+	    
+	    func putOffline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorInputProtocol.self, method: "putOffline()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -10666,6 +10766,18 @@ import SoraFoundation
 	        return cuckoo_manager.verify("refresh()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func becomeOnline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("becomeOnline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func putOffline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("putOffline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -10680,6 +10792,14 @@ import SoraFoundation
     }
     
      func refresh()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func becomeOnline()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func putOffline()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -21630,16 +21750,16 @@ import SoraFoundation
     
     
     
-     func presentFilters()  {
+     func presentFilters(from view: ControllerBackedProtocol?, filter: CustomValidatorListFilter, delegate: ValidatorListFilterDelegate?)  {
         
-    return cuckoo_manager.call("presentFilters()",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("presentFilters(from: ControllerBackedProtocol?, filter: CustomValidatorListFilter, delegate: ValidatorListFilterDelegate?)",
+            parameters: (view, filter, delegate),
+            escapingParameters: (view, filter, delegate),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentFilters())
+            defaultCall: __defaultImplStub!.presentFilters(from: view, filter: filter, delegate: delegate))
         
     }
     
@@ -21717,9 +21837,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method: "present(_: ValidatorInfoProtocol, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
-	    func presentFilters() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method: "presentFilters()", parameterMatchers: matchers))
+	    func presentFilters<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(from view: M1, filter: M2, delegate: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, CustomValidatorListFilter, ValidatorListFilterDelegate?)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == CustomValidatorListFilter, M3.OptionalMatchedType == ValidatorListFilterDelegate {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, CustomValidatorListFilter, ValidatorListFilterDelegate?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: filter) { $0.1 }, wrap(matchable: delegate) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method: "presentFilters(from: ControllerBackedProtocol?, filter: CustomValidatorListFilter, delegate: ValidatorListFilterDelegate?)", parameterMatchers: matchers))
 	    }
 	    
 	    func presentSearch<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(from view: M1, allValidators: M2, selectedValidators: M3, delegate: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, [ElectedValidatorInfo], [ElectedValidatorInfo], ValidatorSearchDelegate?)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == [ElectedValidatorInfo], M3.MatchedType == [ElectedValidatorInfo], M4.OptionalMatchedType == ValidatorSearchDelegate {
@@ -21765,9 +21885,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentFilters() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("presentFilters()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentFilters<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(from view: M1, filter: M2, delegate: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, CustomValidatorListFilter, ValidatorListFilterDelegate?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == CustomValidatorListFilter, M3.OptionalMatchedType == ValidatorListFilterDelegate {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, CustomValidatorListFilter, ValidatorListFilterDelegate?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: filter) { $0.1 }, wrap(matchable: delegate) { $0.2 }]
+	        return cuckoo_manager.verify("presentFilters(from: ControllerBackedProtocol?, filter: CustomValidatorListFilter, delegate: ValidatorListFilterDelegate?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -21807,7 +21927,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentFilters()   {
+     func presentFilters(from view: ControllerBackedProtocol?, filter: CustomValidatorListFilter, delegate: ValidatorListFilterDelegate?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26702,6 +26822,751 @@ import SoraFoundation
     }
     
      func present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+
+import SoraFoundation
+
+
+ class MockValidatorListFilterWireframeProtocol: ValidatorListFilterWireframeProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ValidatorListFilterWireframeProtocol
+    
+     typealias Stubbing = __StubbingProxy_ValidatorListFilterWireframeProtocol
+     typealias Verification = __VerificationProxy_ValidatorListFilterWireframeProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ValidatorListFilterWireframeProtocol?
+
+     func enableDefaultImplementation(_ stub: ValidatorListFilterWireframeProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func close(_ view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("close(_: ControllerBackedProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.close(view))
+        
+    }
+    
+
+	 struct __StubbingProxy_ValidatorListFilterWireframeProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func close<M1: Cuckoo.OptionalMatchable>(_ view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterWireframeProtocol.self, method: "close(_: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ValidatorListFilterWireframeProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func close<M1: Cuckoo.OptionalMatchable>(_ view: M1) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("close(_: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ValidatorListFilterWireframeProtocolStub: ValidatorListFilterWireframeProtocol {
+    
+
+    
+
+    
+     func close(_ view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockValidatorListFilterViewProtocol: ValidatorListFilterViewProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ValidatorListFilterViewProtocol
+    
+     typealias Stubbing = __StubbingProxy_ValidatorListFilterViewProtocol
+     typealias Verification = __VerificationProxy_ValidatorListFilterViewProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ValidatorListFilterViewProtocol?
+
+     func enableDefaultImplementation(_ stub: ValidatorListFilterViewProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var isSetup: Bool {
+        get {
+            return cuckoo_manager.getter("isSetup",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.isSetup)
+        }
+        
+    }
+    
+    
+    
+     var controller: UIViewController {
+        get {
+            return cuckoo_manager.getter("controller",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.controller)
+        }
+        
+    }
+    
+    
+    
+    public var localizationManager: LocalizationManagerProtocol? {
+        get {
+            return cuckoo_manager.getter("localizationManager",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.localizationManager)
+        }
+        
+        set {
+            cuckoo_manager.setter("localizationManager",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.localizationManager = newValue)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func didUpdateViewModel(_ viewModel: ValidatorListFilterViewModel)  {
+        
+    return cuckoo_manager.call("didUpdateViewModel(_: ValidatorListFilterViewModel)",
+            parameters: (viewModel),
+            escapingParameters: (viewModel),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didUpdateViewModel(viewModel))
+        
+    }
+    
+    
+    
+    public func applyLocalization()  {
+        
+    return cuckoo_manager.call("applyLocalization()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.applyLocalization())
+        
+    }
+    
+
+	 struct __StubbingProxy_ValidatorListFilterViewProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockValidatorListFilterViewProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup")
+	    }
+	    
+	    
+	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockValidatorListFilterViewProtocol, UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller")
+	    }
+	    
+	    
+	    var localizationManager: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockValidatorListFilterViewProtocol, LocalizationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "localizationManager")
+	    }
+	    
+	    
+	    func didUpdateViewModel<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorListFilterViewModel)> where M1.MatchedType == ValidatorListFilterViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorListFilterViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterViewProtocol.self, method: "didUpdateViewModel(_: ValidatorListFilterViewModel)", parameterMatchers: matchers))
+	    }
+	    
+	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterViewProtocol.self, method: "applyLocalization()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ValidatorListFilterViewProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var isSetup: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var controller: Cuckoo.VerifyReadOnlyProperty<UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var localizationManager: Cuckoo.VerifyOptionalProperty<LocalizationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "localizationManager", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func didUpdateViewModel<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.__DoNotUse<(ValidatorListFilterViewModel), Void> where M1.MatchedType == ValidatorListFilterViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorListFilterViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didUpdateViewModel(_: ValidatorListFilterViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func applyLocalization() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("applyLocalization()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ValidatorListFilterViewProtocolStub: ValidatorListFilterViewProtocol {
+    
+    
+     var isSetup: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        
+    }
+    
+    
+     var controller: UIViewController {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (UIViewController).self)
+        }
+        
+    }
+    
+    
+    public var localizationManager: LocalizationManagerProtocol? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (LocalizationManagerProtocol?).self)
+        }
+        
+        set { }
+        
+    }
+    
+
+    
+
+    
+     func didUpdateViewModel(_ viewModel: ValidatorListFilterViewModel)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    public func applyLocalization()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockValidatorListFilterPresenterProtocol: ValidatorListFilterPresenterProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ValidatorListFilterPresenterProtocol
+    
+     typealias Stubbing = __StubbingProxy_ValidatorListFilterPresenterProtocol
+     typealias Verification = __VerificationProxy_ValidatorListFilterPresenterProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ValidatorListFilterPresenterProtocol?
+
+     func enableDefaultImplementation(_ stub: ValidatorListFilterPresenterProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var view: ValidatorListFilterViewProtocol? {
+        get {
+            return cuckoo_manager.getter("view",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.view)
+        }
+        
+        set {
+            cuckoo_manager.setter("view",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.view = newValue)
+        }
+        
+    }
+    
+    
+    
+    public var localizationManager: LocalizationManagerProtocol? {
+        get {
+            return cuckoo_manager.getter("localizationManager",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.localizationManager)
+        }
+        
+        set {
+            cuckoo_manager.setter("localizationManager",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.localizationManager = newValue)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func toggleFilterItem(at index: Int)  {
+        
+    return cuckoo_manager.call("toggleFilterItem(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.toggleFilterItem(at: index))
+        
+    }
+    
+    
+    
+     func selectFilterItem(at index: Int)  {
+        
+    return cuckoo_manager.call("selectFilterItem(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.selectFilterItem(at: index))
+        
+    }
+    
+    
+    
+     func applyFilter()  {
+        
+    return cuckoo_manager.call("applyFilter()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.applyFilter())
+        
+    }
+    
+    
+    
+     func resetFilter()  {
+        
+    return cuckoo_manager.call("resetFilter()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.resetFilter())
+        
+    }
+    
+    
+    
+    public func applyLocalization()  {
+        
+    return cuckoo_manager.call("applyLocalization()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.applyLocalization())
+        
+    }
+    
+
+	 struct __StubbingProxy_ValidatorListFilterPresenterProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var view: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockValidatorListFilterPresenterProtocol, ValidatorListFilterViewProtocol> {
+	        return .init(manager: cuckoo_manager, name: "view")
+	    }
+	    
+	    
+	    var localizationManager: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockValidatorListFilterPresenterProtocol, LocalizationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "localizationManager")
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func toggleFilterItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterPresenterProtocol.self, method: "toggleFilterItem(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func selectFilterItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterPresenterProtocol.self, method: "selectFilterItem(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func applyFilter() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterPresenterProtocol.self, method: "applyFilter()", parameterMatchers: matchers))
+	    }
+	    
+	    func resetFilter() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterPresenterProtocol.self, method: "resetFilter()", parameterMatchers: matchers))
+	    }
+	    
+	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterPresenterProtocol.self, method: "applyLocalization()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ValidatorListFilterPresenterProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var view: Cuckoo.VerifyOptionalProperty<ValidatorListFilterViewProtocol> {
+	        return .init(manager: cuckoo_manager, name: "view", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var localizationManager: Cuckoo.VerifyOptionalProperty<LocalizationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "localizationManager", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func toggleFilterItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("toggleFilterItem(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func selectFilterItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("selectFilterItem(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func applyFilter() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("applyFilter()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func resetFilter() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("resetFilter()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func applyLocalization() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("applyLocalization()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ValidatorListFilterPresenterProtocolStub: ValidatorListFilterPresenterProtocol {
+    
+    
+     var view: ValidatorListFilterViewProtocol? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (ValidatorListFilterViewProtocol?).self)
+        }
+        
+        set { }
+        
+    }
+    
+    
+    public var localizationManager: LocalizationManagerProtocol? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (LocalizationManagerProtocol?).self)
+        }
+        
+        set { }
+        
+    }
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func toggleFilterItem(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func selectFilterItem(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func applyFilter()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func resetFilter()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    public func applyLocalization()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockValidatorListFilterDelegate: ValidatorListFilterDelegate, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ValidatorListFilterDelegate
+    
+     typealias Stubbing = __StubbingProxy_ValidatorListFilterDelegate
+     typealias Verification = __VerificationProxy_ValidatorListFilterDelegate
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ValidatorListFilterDelegate?
+
+     func enableDefaultImplementation(_ stub: ValidatorListFilterDelegate) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func didUpdate(_ filter: CustomValidatorListFilter)  {
+        
+    return cuckoo_manager.call("didUpdate(_: CustomValidatorListFilter)",
+            parameters: (filter),
+            escapingParameters: (filter),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didUpdate(filter))
+        
+    }
+    
+
+	 struct __StubbingProxy_ValidatorListFilterDelegate: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func didUpdate<M1: Cuckoo.Matchable>(_ filter: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(CustomValidatorListFilter)> where M1.MatchedType == CustomValidatorListFilter {
+	        let matchers: [Cuckoo.ParameterMatcher<(CustomValidatorListFilter)>] = [wrap(matchable: filter) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorListFilterDelegate.self, method: "didUpdate(_: CustomValidatorListFilter)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ValidatorListFilterDelegate: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func didUpdate<M1: Cuckoo.Matchable>(_ filter: M1) -> Cuckoo.__DoNotUse<(CustomValidatorListFilter), Void> where M1.MatchedType == CustomValidatorListFilter {
+	        let matchers: [Cuckoo.ParameterMatcher<(CustomValidatorListFilter)>] = [wrap(matchable: filter) { $0 }]
+	        return cuckoo_manager.verify("didUpdate(_: CustomValidatorListFilter)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ValidatorListFilterDelegateStub: ValidatorListFilterDelegate {
+    
+
+    
+
+    
+     func didUpdate(_ filter: CustomValidatorListFilter)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

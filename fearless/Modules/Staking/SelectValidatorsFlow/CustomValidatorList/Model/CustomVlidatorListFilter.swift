@@ -4,7 +4,7 @@ struct CustomValidatorListFilter: Equatable {
         case limited(amount: Int)
     }
 
-    enum CustomValidatorListSort {
+    enum CustomValidatorListSort: Int, CaseIterable {
         case estimatedReward
         case totalStake
         case ownStake
@@ -35,7 +35,7 @@ struct CustomValidatorListFilter: Equatable {
             allowsNoIdentity: false,
             allowsSlashed: false,
             allowsOversubscribed: false,
-            allowsClusters: .limited(amount: 2)
+            allowsClusters: .limited(amount: StakingConstants.targetsClusterLimit)
         )
     }
 

@@ -8,11 +8,15 @@ protocol CrowdloanListPresenterProtocol: AnyObject {
     func setup()
     func refresh(shouldReset: Bool)
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)
+    func becomeOnline()
+    func putOffline()
 }
 
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
     func setup()
     func refresh()
+    func becomeOnline()
+    func putOffline()
 }
 
 protocol CrowdloanListInteractorOutputProtocol: AnyObject {

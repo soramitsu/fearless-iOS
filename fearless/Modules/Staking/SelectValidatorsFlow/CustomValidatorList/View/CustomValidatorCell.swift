@@ -119,9 +119,9 @@ class CustomValidatorCell: UITableViewCell {
 
         contentView.addSubview(detailsStackView)
         detailsStackView.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
             make.leading.equalTo(titleLabel.snp.trailing).offset(8)
             make.trailing.equalTo(infoButton.snp.leading).offset(-16)
+            make.centerY.equalToSuperview()
         }
     }
 

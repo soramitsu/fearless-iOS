@@ -13,6 +13,7 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
     let detailsLabel: UILabel = {
         let label = UILabel()
         label.font = .capsTitle
+        label.textAlignment = .right
         label.textColor = R.color.colorLightGray()
         label.lineBreakMode = .byTruncatingTail
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
