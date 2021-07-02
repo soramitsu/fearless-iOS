@@ -334,7 +334,7 @@ final class AccountImportPresenter {
 
         switch selectedSourceType {
         case .mnemonic:
-            return validateMnemonic(value: viewModel.inputHandler.value)
+            return validateMnemonic(value: viewModel.inputHandler.normalizedValue)
         case .seed:
             return viewModel.inputHandler.completed ? nil : AccountCreateError.invalidSeed
         case .keystore:
