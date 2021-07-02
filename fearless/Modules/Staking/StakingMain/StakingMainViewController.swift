@@ -337,11 +337,19 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyAlerts(alerts)
         }
     }
+
+    func expandNetworkInfoView(_ isExpanded: Bool) {
+        networkInfoView.setExpanded(isExpanded, animated: false)
+    }
 }
 
 extension StakingMainViewController: NetworkInfoViewDelegate {
     func animateAlongsideWithInfo(view _: NetworkInfoView) {
         scrollView.layoutIfNeeded()
+    }
+
+    func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
+        presenter.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
     }
 }
 

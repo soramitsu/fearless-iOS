@@ -88,6 +88,7 @@ class StakingMainTests: XCTestCase {
         let nominatorStateExpectation = XCTestExpectation()
         let chainExpectation = XCTestExpectation()
         let networkStakingInfoExpectation = XCTestExpectation()
+        let networkStakingInfoExpandedExpectation = XCTestExpectation()
 
         stub(operationFactory) { stub in
             when(stub).networkStakingOperation().then { _ in
@@ -121,6 +122,9 @@ class StakingMainTests: XCTestCase {
                     nominatorStateExpectation.fulfill()
                 }
             }
+            stub.expandNetworkInfoView(any()).then { _ in
+                networkStakingInfoExpandedExpectation.fulfill()
+            }
         }
 
         presenter.setup()
@@ -146,7 +150,8 @@ class StakingMainTests: XCTestCase {
             accountExpectation,
             nominatorStateExpectation,
             chainExpectation,
-            networkStakingInfoExpectation
+            networkStakingInfoExpectation,
+            networkStakingInfoExpandedExpectation
         ]
 
         wait(for: expectations, timeout: 5)
