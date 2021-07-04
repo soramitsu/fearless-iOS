@@ -19,7 +19,7 @@ final class ValidatorSearchInteractor {
 extension ValidatorSearchInteractor: ValidatorSearchInteractorInputProtocol {
     func performValidatorSearch(accountId: AccountId) {
         let operation = validatorOperationFactory
-            .pendingValidatorsOperation(for: [accountId])
+            .wannabeValidatorsOperation(for: [accountId])
 
         operation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {

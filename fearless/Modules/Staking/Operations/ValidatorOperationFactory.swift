@@ -16,6 +16,10 @@ protocol ValidatorOperationFactoryProtocol {
     func pendingValidatorsOperation(
         for accountIds: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
+
+    func wannabeValidatorsOperation(
+        for accountIdList: [AccountId]
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
 }
 
 final class ValidatorOperationFactory {
@@ -169,6 +173,45 @@ final class ValidatorOperationFactory {
         return CompoundOperationWrapper(
             targetOperation: statusesOperation,
             dependencies: [runtimeOperation, maxNominatorsOperation]
+        )
+    }
+
+    private func createValidatorPrefsWrapper(for accountIdList: [AccountId])
+        -> CompoundOperationWrapper<[AccountAddress: ValidatorPrefs]> {
+        let addressType = chain.addressType
+
+        let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let fetchOperation: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: { accountIdList },
+                factory: { try runtimeFetchOperation.extractNoCancellableResultData() },
+                storagePath: .validatorPrefs
+            )
+
+        fetchOperation.allOperations.forEach { $0.addDependency(runtimeFetchOperation) }
+
+        let addressFactory = SS58AddressFactory()
+
+        let mapOperation = ClosureOperation<[AccountAddress: ValidatorPrefs]> {
+            try fetchOperation.targetOperation.extractNoCancellableResultData()
+                .enumerated()
+                .reduce(into: [AccountAddress: ValidatorPrefs]()) { result, indexedItem in
+                    let address = try addressFactory.addressFromAccountId(
+                        data: accountIdList[indexedItem.offset],
+                        type: addressType
+                    )
+
+                    result[address] = indexedItem.element.value
+                }
+        }
+
+        mapOperation.addDependency(fetchOperation.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: [runtimeFetchOperation] + fetchOperation.allOperations
         )
     }
 
@@ -627,6 +670,47 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
         let dependencies = [eraValidatorsOperation] + validatorsStakeInfoWrapper.allOperations +
             identitiesWrapper.allOperations
 
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
+    func wannabeValidatorsOperation(
+        for accountIdList: [AccountId]
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
+            for: { accountIdList },
+            engine: engine,
+            runtimeService: runtimeService,
+            chain: chain
+        )
+
+        let validatorPrefsWrapper = createValidatorPrefsWrapper(for: accountIdList)
+
+        let addressType = chain.addressType
+
+        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
+            let identityList = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
+            let validatorPrefsList = try validatorPrefsWrapper.targetOperation.extractNoCancellableResultData()
+            let addressFactory = SS58AddressFactory()
+
+            return try accountIdList.map {
+                let validatorAddress = try addressFactory.addressFromAccountId(
+                    data: $0,
+                    type: addressType
+                )
+
+                return SelectedValidatorInfo(
+                    address: validatorAddress,
+                    identity: identityList[validatorAddress],
+                    stakeInfo: nil,
+                    myNomination: nil
+                )
+            }
+        }
+
+        mergeOperation.addDependency(identitiesWrapper.targetOperation)
+        mergeOperation.addDependency(validatorPrefsWrapper.targetOperation)
+
+        let dependencies = identitiesWrapper.allOperations + validatorPrefsWrapper.allOperations
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }
 }

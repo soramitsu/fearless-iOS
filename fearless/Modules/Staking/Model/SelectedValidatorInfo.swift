@@ -6,7 +6,9 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol {
     let identity: AccountIdentity?
     let stakeInfo: ValidatorStakeInfoProtocol?
     let myNomination: ValidatorMyNominationStatus?
+//    let comission: Decimal
     let slashed: Bool
+//    let blocked: Bool
 
     init(
         address: AccountAddress,
