@@ -44,7 +44,7 @@ struct ValidatorListFilterViewModelFactory {
                 }
             }
 
-        let title = R.string.localizable.walletFiltersTitle(
+        let title = R.string.localizable.walletFiltersHeader(
             preferredLanguages: locale.rLanguages
         )
 
