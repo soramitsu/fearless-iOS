@@ -361,6 +361,66 @@ class JSONRPCTests: XCTestCase {
         XCTAssertEqual(hexKeys.count, resultsCount)
     }
 
+    func testWestendDecodeExtrinsic() throws {
+        // given
+
+        let settings = InMemorySettingsManager()
+        let keychain = InMemoryKeychain()
+        let chain = Chain.westend
+        let storageFacade = SubstrateStorageTestFacade()
+
+        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
+                                                            networkType: chain,
+                                                            keychain: keychain,
+                                                            settings: settings)
+
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let runtimeService = try createRuntimeService(from: storageFacade,
+                                                      operationManager: operationManager,
+                                                      chain: chain,
+                                                      logger: Logger.shared)
+
+        runtimeService.setup()
+
+        let webSocketService = createWebSocketService(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            settings: settings
+        )
+
+        webSocketService.setup()
+
+        let hexExtrinsic = "0x0400008ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac7b29310405016501006e23000005000000e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423ebf4085a1fdfd223a40b52eb7fc657250b6f607e4e8e8b96bac31a5897417b7f7"
+        let extrinsicData = try Data(hexString: hexExtrinsic)
+
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        // when
+
+        OperationQueue().addOperations(
+            [coderFactoryOperation],
+            waitUntilFinished: true
+        )
+
+        let factory = try coderFactoryOperation.extractNoCancellableResultData()
+        let decoder = try factory.createDecoder(from: extrinsicData)
+
+        // then
+
+        do {
+            let call = try decoder.read(type: GenericType.call.name)
+            let extraSigned: ExtrinsicSignedExtra = try decoder.read(of: GenericType.extrinsicExtra.name)
+
+            Logger.shared.info("\(call)")
+            Logger.shared.info("\(extraSigned)")
+
+        } catch {
+            XCTFail("Did receive error: \(error)")
+        }
+    }
+
     func testMultipleChangesQuery() throws {
         try performTestMultipleChangesQuery(keysCount: 100)
         try performTestMultipleChangesQuery(keysCount: 1000)
