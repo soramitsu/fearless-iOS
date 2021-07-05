@@ -11,7 +11,12 @@ final class ExperimentalListWireframe: ExperimentalListWireframeProtocol {
         view?.controller.navigationController?.pushViewController(signerView.controller, animated: true)
     }
 
-    func showBeaconSession(from _: ExperimentalListViewProtocol?, connectionInfo: BeaconConnectionInfo) {
-        Logger.shared.info("Will present session for info: \(connectionInfo)")
+    func showBeaconSession(from view: ExperimentalListViewProtocol?, connectionInfo: BeaconConnectionInfo) {
+        guard let sessionView = SignerConnectViewFactory.createBeaconView(for: connectionInfo) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: sessionView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }

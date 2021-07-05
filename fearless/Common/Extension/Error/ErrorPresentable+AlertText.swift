@@ -11,6 +11,12 @@ protocol ErrorContentConvertible {
 }
 
 extension ErrorPresentable where Self: AlertPresentable {
+    func presentErrorOrUndefined(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) {
+        if !present(error: error, from: view, locale: locale) {
+            _ = present(error: CommonError.undefined, from: view, locale: locale)
+        }
+    }
+
     func present(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) -> Bool {
         let optionalContent: ErrorContent? = {
             if let contentConvertibleError = error as? ErrorContentConvertible {

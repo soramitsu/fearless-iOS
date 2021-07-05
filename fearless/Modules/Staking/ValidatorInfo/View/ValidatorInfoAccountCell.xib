@@ -106,7 +106,7 @@
             <color red="0.52941176470588236" green="0.52941176470588236" blue="0.52941176470588236" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorHighlightedPink">
-            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.0" blue="0.60392156862745094" alpha="0.30000001192092896" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorLightGray">
             <color red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
