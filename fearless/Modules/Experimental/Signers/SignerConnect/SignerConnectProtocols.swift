@@ -20,6 +20,10 @@ protocol SignerConnectInteractorOutputProtocol: AnyObject {
     func didReceive(account: Result<AccountItem?, Error>)
     func didReceiveApp(metadata: BeaconConnectionInfo)
     func didReceiveConnection(result: Result<Void, Error>)
+    func didReceive(request: SignerOperationRequestProtocol)
+    func didReceiveProtocol(error: Error)
 }
 
-protocol SignerConnectWireframeProtocol: AlertPresentable, ErrorPresentable, AddressOptionsPresentable {}
+protocol SignerConnectWireframeProtocol: AlertPresentable, ErrorPresentable, AddressOptionsPresentable {
+    func showConfirmation(from view: SignerConnectViewProtocol?, request: SignerOperationRequestProtocol)
+}

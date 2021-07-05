@@ -12,8 +12,6 @@ final class SignerConnectInteractor {
     let selectedAddress: AccountAddress
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
-    let signingWrapper: SigningWrapperProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
     let peer: Beacon.P2PPeer
     let connectionInfo: BeaconConnectionInfo
     let logger: LoggerProtocol?
@@ -22,8 +20,6 @@ final class SignerConnectInteractor {
         selectedAddress: AccountAddress,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
-        signingWrapper: SigningWrapperProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
         info: BeaconConnectionInfo,
         logger: LoggerProtocol? = nil
     ) {
@@ -40,8 +36,6 @@ final class SignerConnectInteractor {
         self.selectedAddress = selectedAddress
         self.accountRepository = accountRepository
         self.operationManager = operationManager
-        self.signingWrapper = signingWrapper
-        self.runtimeService = runtimeService
         connectionInfo = info
         self.logger = logger
     }
@@ -100,6 +94,10 @@ final class SignerConnectInteractor {
             }
         case let .failure(error):
             logger?.error("Error while processing incoming messages: \(error)")
+
+            DispatchQueue.main.async {
+                self.presenter.didReceiveProtocol(error: error)
+            }
         }
     }
 
@@ -145,49 +143,18 @@ final class SignerConnectInteractor {
     }
 
     private func handle(signPayload: Beacon.Request.SignPayload) {
+        guard let client = client else {
+            return
+        }
+
         logger?.info("Signing request: \(signPayload)")
 
         do {
-            let data = try Data(hexString: signPayload.payload)
-            let signatureData = try signingWrapper.sign(data)
-
-            let signature = MultiSignature.sr25519(data: signatureData.rawData())
-
-            let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-            let encodingOperation: BaseOperation<Data> = ClosureOperation {
-                let encoder = try coderFactoryOperation.extractNoCancellableResultData().createEncoder()
-                try encoder.append(signature, ofType: KnownType.signature.name)
-                return try encoder.encode()
-            }
-
-            encodingOperation.addDependency(coderFactoryOperation)
-
-            encodingOperation.completionBlock = { [weak self] in
-                do {
-                    let encodedSignature = try encodingOperation.extractNoCancellableResultData()
-                    let response = Beacon.Response.SignPayload(
-                        from: signPayload,
-                        signature: encodedSignature.toHex(includePrefix: true)
-                    )
-
-                    self?.client?.respond(with: .signPayload(response)) { [weak self] result in
-                        switch result {
-                        case .success:
-                            self?.logger?.info("Did submit signature")
-                        case let .failure(error):
-                            self?.logger?.error("Signature submission error: \(error)")
-                        }
-                    }
-                } catch {
-                    self?.logger?.error("Signature encoding error: \(error)")
-                }
-            }
-
-            operationManager.enqueue(operations: [coderFactoryOperation, encodingOperation], in: .transient)
-
+            let request = try BeaconSigningRequest(client: client, request: signPayload)
+            presenter.didReceive(request: request)
         } catch {
             logger?.error("Did receive signing error: \(error)")
+            presenter.didReceiveProtocol(error: error)
         }
     }
 

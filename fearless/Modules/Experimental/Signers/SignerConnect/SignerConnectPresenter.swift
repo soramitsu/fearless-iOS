@@ -60,6 +60,10 @@ extension SignerConnectPresenter: SignerConnectPresenterProtocol {
 }
 
 extension SignerConnectPresenter: SignerConnectInteractorOutputProtocol {
+    func didReceive(request: SignerOperationRequestProtocol) {
+        wireframe.showConfirmation(from: view, request: request)
+    }
+
     func didReceive(account: Result<AccountItem?, Error>) {
         switch account {
         case let .success(account):
@@ -82,5 +86,9 @@ extension SignerConnectPresenter: SignerConnectInteractorOutputProtocol {
         case .failure:
             view?.didReceive(status: .failed)
         }
+    }
+
+    func didReceiveProtocol(error: Error) {
+        wireframe.presentErrorOrUndefined(error: error, from: view, locale: view?.selectedLocale)
     }
 }
