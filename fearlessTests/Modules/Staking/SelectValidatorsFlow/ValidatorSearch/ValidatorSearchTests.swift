@@ -18,32 +18,13 @@ class ValidatorSearchTests: XCTestCase {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let validators = CustomValidatorListTestDataGenerator.goodValidators
-        let selectedValidatorList = [CustomValidatorListTestDataGenerator.goodValidator].map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                )
-            )
-        }
+        let generator = CustomValidatorListTestDataGenerator.self
 
-        let fullValidatorList = validators.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                )
-            )
-        }
+        let selectedValidatorList = generator
+            .createSelectedValidators(from: [generator.goodValidator])
+
+        let fullValidatorList = generator
+            .createSelectedValidators(from: generator.goodValidators)
 
 
         let presenter = ValidatorSearchPresenter(
@@ -64,7 +45,7 @@ class ValidatorSearchTests: XCTestCase {
             when(stub).didReset().thenDoNothing()
             
             when(stub).didReload(any()).then { viewModel in
-                XCTAssertEqual(viewModel.cellViewModels.count, validators.count)
+                XCTAssertEqual(viewModel.cellViewModels.count, fullValidatorList.count)
                 reloadExpectation.fulfill()
             }
         }

@@ -5,23 +5,6 @@ import FearlessUtils
 import SoraFoundation
 
 class SelectedValidatorListTests: XCTestCase {
-    private func createSelectedValidators(from validators: [ElectedValidatorInfo]) -> [SelectedValidatorInfo] {
-        validators.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                ),
-                commission: $0.comission,
-                hasSlashes: $0.hasSlashes
-            )
-        }
-    }
-
     func testSetup() {
         // given
 
@@ -29,8 +12,10 @@ class SelectedValidatorListTests: XCTestCase {
         let wireframe = MockSelectedValidatorListWireframeProtocol()
         let viewModelFactory = SelectedValidatorListViewModelFactory()
 
-        let selectedvalidatorList = createSelectedValidators(
-            from: CustomValidatorListTestDataGenerator.goodValidators
+        let generator = CustomValidatorListTestDataGenerator.self
+
+        let selectedvalidatorList = generator.createSelectedValidators(
+            from: generator.goodValidators
         )
 
         let presenter = SelectedValidatorListPresenter(

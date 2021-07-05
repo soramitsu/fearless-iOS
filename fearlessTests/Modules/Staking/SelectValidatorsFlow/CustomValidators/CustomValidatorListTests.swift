@@ -6,23 +6,6 @@ import SoraKeystore
 import SoraFoundation
 
 class CustomValidatorListTests: XCTestCase {
-    private func createSelectedValidators(from validators: [ElectedValidatorInfo]) -> [SelectedValidatorInfo] {
-        validators.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                ),
-                commission: $0.comission,
-                hasSlashes: $0.hasSlashes
-            )
-        }
-    }
-
     func testSetup() {
         // given
         let settings = InMemorySettingsManager()
@@ -52,8 +35,13 @@ class CustomValidatorListTests: XCTestCase {
             assetId: assetId
         )
 
-        let fullValidatorList = createSelectedValidators(from: WestendStub.recommendedValidators)
-        let recommendedValidatorList = createSelectedValidators(from: WestendStub.recommendedValidators)
+        let generator = CustomValidatorListTestDataGenerator.self
+
+        let fullValidatorList = generator
+            .createSelectedValidators(from: WestendStub.recommendedValidators)
+
+        let recommendedValidatorList = generator
+            .createSelectedValidators(from: WestendStub.recommendedValidators)
 
         let presenter = CustomValidatorListPresenter(
             interactor: interactor,
