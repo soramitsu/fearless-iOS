@@ -25,6 +25,7 @@ final class ValidatorSearchViewLayout: UIView {
 
     let searchField: UITextField = {
         let view = UITextField()
+        view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing

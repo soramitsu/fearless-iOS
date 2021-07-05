@@ -47,19 +47,10 @@ extension CustomValidatorListComposer: RecommendationsComposing {
 
         guard case let .limited(clusterSizeLimit) = filter.allowsClusters else { return sorted }
 
-        var clusterCounters: [AccountAddress: UInt] = [:]
-        var result: [RecommendableType] = []
-
-        for validator in sorted {
-            let clusterKey = validator.identity?.parentAddress ?? validator.address
-            let clusterCounter = clusterCounters[clusterKey] ?? 0
-
-            if clusterCounter < clusterSizeLimit {
-                clusterCounters[clusterKey] = clusterCounter + 1
-                result.append(validator)
-            }
-        }
-
-        return result
+        return processClusters(
+            items: sorted,
+            clusterSizeLimit: clusterSizeLimit,
+            resultSize: nil
+        )
     }
 }

@@ -7,6 +7,8 @@ final class ValidatorSearchInteractor {
     let validatorOperationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
 
+    private var currentOperation: CompoundOperationWrapper<[SelectedValidatorInfo]>?
+
     init(
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol
@@ -14,19 +16,25 @@ final class ValidatorSearchInteractor {
         self.validatorOperationFactory = validatorOperationFactory
         self.operationManager = operationManager
     }
+
+    private func cancelSearch() {
+        currentOperation?.cancel()
+        currentOperation = nil
+    }
 }
 
 extension ValidatorSearchInteractor: ValidatorSearchInteractorInputProtocol {
     func performValidatorSearch(accountId: AccountId) {
-        let operation = validatorOperationFactory
+        cancelSearch()
+
+        currentOperation = validatorOperationFactory
             .wannabeValidatorsOperation(for: [accountId])
 
-        operation.targetOperation.completionBlock = { [weak self] in
+        currentOperation!.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let result = try operation.targetOperation.extractNoCancellableResultData()
-
-                    guard let validatorInfo = result.first else {
+                    guard let result = try self?.currentOperation?.targetOperation.extractNoCancellableResultData(),
+                          let validatorInfo = result.first else {
                         self?.presenter.didReceiveValidatorInfo(result: .success(nil))
                         return
                     }
@@ -38,6 +46,6 @@ extension ValidatorSearchInteractor: ValidatorSearchInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: operation.allOperations, in: .transient)
+        operationManager.enqueue(operations: currentOperation?.allOperations ?? [], in: .transient)
     }
 }
