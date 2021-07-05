@@ -10,11 +10,11 @@ final class CustomValidatorListPresenter {
     let maxTargets: Int
     let logger: LoggerProtocol?
 
-    private let recommendedValidatorList: [ElectedValidatorInfo]
+    private let recommendedValidatorList: [SelectedValidatorInfo]
+    private var fullValidatorList: [SelectedValidatorInfo]
 
-    private var electedValidatorList: [ElectedValidatorInfo]
-    private var filteredValidatorList: [ElectedValidatorInfo] = []
-    private var selectedValidatorList: [ElectedValidatorInfo] = []
+    private var filteredValidatorList: [SelectedValidatorInfo] = []
+    private var selectedValidatorList: [SelectedValidatorInfo] = []
     private var viewModel: CustomValidatorListViewModel?
     private var filter = CustomValidatorListFilter.recommendedFilter()
     private var priceData: PriceData?
@@ -24,16 +24,16 @@ final class CustomValidatorListPresenter {
         wireframe: CustomValidatorListWireframeProtocol,
         viewModelFactory: CustomValidatorListViewModelFactory,
         localizationManager: LocalizationManagerProtocol,
-        electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
+        fullValidatorList: [SelectedValidatorInfo],
+        recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        electedValidatorList = electedValidators
-        recommendedValidatorList = recommendedValidators
+        self.fullValidatorList = fullValidatorList
+        self.recommendedValidatorList = recommendedValidatorList
         self.maxTargets = maxTargets
         self.logger = logger
         self.localizationManager = localizationManager
@@ -41,9 +41,9 @@ final class CustomValidatorListPresenter {
 
     // MARK: - Private functions
 
-    private func composeFilteredValidatorList() -> [ElectedValidatorInfo] {
+    private func composeFilteredValidatorList() -> [SelectedValidatorInfo] {
         let composer = CustomValidatorListComposer(filter: filter)
-        return composer.compose(from: electedValidatorList)
+        return composer.compose(from: fullValidatorList)
     }
 
     private func updateFilteredValidatorsList() {
@@ -53,8 +53,8 @@ final class CustomValidatorListPresenter {
     private func provideValidatorListViewModel() {
         let viewModel = viewModelFactory.createViewModel(
             from: filteredValidatorList,
-            selectedValidators: selectedValidatorList,
-            totalValidatorsCount: electedValidatorList.count,
+            selectedValidatorList: selectedValidatorList,
+            totalValidatorsCount: fullValidatorList.count,
             filter: filter,
             priceData: priceData,
             locale: selectedLocale
@@ -180,19 +180,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
     func didSelectValidator(at index: Int) {
         let selectedValidator = filteredValidatorList[index]
-
-        let validatorInfo = SelectedValidatorInfo(
-            address: selectedValidator.address,
-            identity: selectedValidator.identity,
-            stakeInfo: ValidatorStakeInfo(
-                nominators: selectedValidator.nominators,
-                totalStake: selectedValidator.totalStake,
-                stakeReturn: selectedValidator.stakeReturn,
-                maxNominatorsRewarded: selectedValidator.maxNominatorsRewarded
-            )
-        )
-
-        wireframe.present(validatorInfo, from: view)
+        wireframe.present(selectedValidator, from: view)
     }
 
     func presentFilter() {
@@ -206,8 +194,8 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func presentSearch() {
         wireframe.presentSearch(
             from: view,
-            allValidators: electedValidatorList,
-            selectedValidators: selectedValidatorList,
+            fullValidatorList: fullValidatorList,
+            selectedValidatorList: selectedValidatorList,
             delegate: self
         )
     }
@@ -215,7 +203,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func proceed() {
         wireframe.proceed(
             from: view,
-            validators: selectedValidatorList,
+            validatorList: selectedValidatorList,
             maxTargets: maxTargets,
             delegate: self
         )
@@ -240,7 +228,7 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
 // MARK: - SelectedValidatorListDelegate
 
 extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
-    func didRemove(_ validator: ElectedValidatorInfo) {
+    func didRemove(_ validator: SelectedValidatorInfo) {
         if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
             changeValidatorSelection(at: displayedIndex)
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
@@ -262,11 +250,11 @@ extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
 
 extension CustomValidatorListPresenter: ValidatorSearchDelegate {
     func didUpdate(
-        _ validators: [ElectedValidatorInfo],
-        selectedValidatos: [ElectedValidatorInfo]
+        _ validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo]
     ) {
-        electedValidatorList = validators
-        selectedValidatorList = selectedValidatos
+        fullValidatorList = validatorList
+        self.selectedValidatorList = selectedValidatorList
 
         provideViewModels()
     }

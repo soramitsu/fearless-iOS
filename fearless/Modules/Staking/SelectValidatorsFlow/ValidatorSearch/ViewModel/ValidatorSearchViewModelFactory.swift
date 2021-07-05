@@ -22,13 +22,13 @@ final class ValidatorSearchViewModelFactory {
     }
 
     private func createCellsViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from displayValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         locale: Locale
     ) -> [ValidatorSearchCellViewModel] {
         let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
 
-        return validators.map { validator in
+        return displayValidatorList.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
             let detailsText = apyFormatter.string(
@@ -40,7 +40,7 @@ final class ValidatorSearchViewModelFactory {
                 name: validator.identity?.displayName,
                 address: validator.address,
                 details: detailsText,
-                isSelected: selectedValidators.contains(validator)
+                isSelected: selectedValidatorList.contains(validator)
             )
         }
     }
@@ -55,22 +55,22 @@ final class ValidatorSearchViewModelFactory {
 
 extension ValidatorSearchViewModelFactory: ValidatorSearchViewModelFactoryProtocol {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from displayValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         locale: Locale
     ) -> ValidatorSearchViewModel {
-        guard !validators.isEmpty else {
+        guard !displayValidatorList.isEmpty else {
             return createEmptyModel()
         }
 
         let headerViewModel = createHeaderViewModel(
-            displayValidatorsCount: validators.count,
+            displayValidatorsCount: displayValidatorList.count,
             locale: locale
         )
 
         let cellsViewModel = createCellsViewModel(
-            from: validators,
-            selectedValidators: selectedValidators,
+            from: displayValidatorList,
+            selectedValidatorList: selectedValidatorList,
             locale: locale
         )
 

@@ -11,9 +11,9 @@ final class SelectValidatorsStartPresenter {
     var allValidators: [ElectedValidatorInfo]?
     var recommended: [ElectedValidatorInfo]?
 
-    let recommendationsComposer: RecommendationsComposing
+    let recommendationsComposer: RecommendationsComposer
 
-    init(recommendationsComposer: RecommendationsComposing, logger: LoggerProtocol? = nil) {
+    init(recommendationsComposer: RecommendationsComposer, logger: LoggerProtocol? = nil) {
         self.recommendationsComposer = recommendationsComposer
         self.logger = logger
     }
@@ -31,6 +31,25 @@ final class SelectValidatorsStartPresenter {
 
         view?.didReceive(viewModel: viewModel)
     }
+
+    private func prepareSelectedValidators(
+        from electedValidatorList: [ElectedValidatorInfo]
+    ) -> [SelectedValidatorInfo] {
+        electedValidatorList.map {
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
+                ),
+                commission: $0.comission,
+                blocked: $0.blocked
+            )
+        }
+    }
 }
 
 extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol {
@@ -44,10 +63,11 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         }
 
         let maxTargets = min(all.count, StakingConstants.maxTargets)
+        let recommendedValidatorList = prepareSelectedValidators(from: recommended)
 
         wireframe.proceedToRecommendedList(
             from: view,
-            validators: recommended,
+            validatorList: recommendedValidatorList,
             maxTargets: maxTargets
         )
     }
@@ -58,11 +78,13 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         }
 
         let maxTargets = min(all.count, StakingConstants.maxTargets)
+        let electedValidatorList = prepareSelectedValidators(from: all)
+        let recommendedValidatorList = prepareSelectedValidators(from: recommended ?? [])
 
         wireframe.proceedToCustomList(
             from: view,
-            validators: all,
-            recommended: recommended ?? [],
+            validatorList: electedValidatorList,
+            recommendedValidatorList: recommendedValidatorList,
             maxTargets: maxTargets
         )
     }

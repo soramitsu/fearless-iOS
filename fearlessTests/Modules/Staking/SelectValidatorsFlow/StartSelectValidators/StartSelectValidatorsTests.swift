@@ -4,6 +4,23 @@ import Cuckoo
 import RobinHood
 
 class SelectValidatorsStartTests: XCTestCase {
+    private func createSelectedValidators(from validators: [ElectedValidatorInfo]) -> [SelectedValidatorInfo] {
+        validators.map {
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
+                ),
+                commission: $0.comission,
+                hasSlashes: $0.hasSlashes
+            )
+        }
+    }
+
     func testSetupAndOptionSelect() {
         // given
 
@@ -44,15 +61,19 @@ class SelectValidatorsStartTests: XCTestCase {
             }
         }
 
-        let recommended = WestendStub.recommendedValidators
-        let all = WestendStub.allValidators
+        let recommended = createSelectedValidators(from: WestendStub.recommendedValidators)
+        let all = createSelectedValidators(from: WestendStub.allValidators)
 
         stub(wireframe) { stub in
-            when(stub).proceedToCustomList(from: any(), validators: any(), recommended: any(), maxTargets: any()).then { (_, validators, _, _) in
+            when(stub).proceedToCustomList(
+                from: any(),
+                validatorList: any(),
+                recommendedValidatorList: any(),
+                maxTargets: any()).then { (_, validators, _, _) in
                 XCTAssertEqual(all, validators)
             }
 
-            when(stub).proceedToRecommendedList(from: any(), validators: any(), maxTargets: any()).then { (_, targets, _) in
+            when(stub).proceedToRecommendedList(from: any(), validatorList: any(), maxTargets: any()).then { (_, targets, _) in
                 XCTAssertEqual(Set(recommended.map({ $0.address })),
                                Set(targets.map({ $0.address })))
             }
@@ -67,7 +88,7 @@ class SelectValidatorsStartTests: XCTestCase {
         presenter.selectRecommendedValidators()
         presenter.selectCustomValidators()
 
-        verify(wireframe, times(1)).proceedToCustomList(from: any(), validators: any(), recommended: any(), maxTargets: any())
-        verify(wireframe, times(1)).proceedToRecommendedList(from: any(), validators: any(), maxTargets: any())
+        verify(wireframe, times(1)).proceedToCustomList(from: any(), validatorList: any(), recommendedValidatorList: any(), maxTargets: any())
+        verify(wireframe, times(1)).proceedToRecommendedList(from: any(), validatorList: any(), maxTargets: any())
     }
 }

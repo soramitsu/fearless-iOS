@@ -6,6 +6,7 @@ import SoraFoundation
 protocol ValidatorStakeInfoProtocol {
     var nominators: [NominatorInfo] { get }
     var totalStake: Decimal { get }
+    var ownStake: Decimal { get }
     var stakeReturn: Decimal { get }
     var maxNominatorsRewarded: UInt32 { get }
     var oversubscribed: Bool { get }
@@ -16,7 +17,10 @@ protocol ValidatorInfoProtocol {
     var identity: AccountIdentity? { get }
     var stakeInfo: ValidatorStakeInfoProtocol? { get }
     var myNomination: ValidatorMyNominationStatus? { get }
-    var slashed: Bool { get }
+    var totalStake: Decimal { get }
+    var ownStake: Decimal { get }
+    var hasSlashes: Bool { get }
+    var blocked: Bool { get }
 }
 
 // MARK: - View

@@ -5,6 +5,23 @@ import FearlessUtils
 import SoraFoundation
 
 class SelectedValidatorListTests: XCTestCase {
+    private func createSelectedValidators(from validators: [ElectedValidatorInfo]) -> [SelectedValidatorInfo] {
+        validators.map {
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
+                ),
+                commission: $0.comission,
+                hasSlashes: $0.hasSlashes
+            )
+        }
+    }
+
     func testSetup() {
         // given
 
@@ -12,13 +29,15 @@ class SelectedValidatorListTests: XCTestCase {
         let wireframe = MockSelectedValidatorListWireframeProtocol()
         let viewModelFactory = SelectedValidatorListViewModelFactory()
 
-        let validators = CustomValidatorListTestDataGenerator.goodValidators
+        let selectedvalidatorList = createSelectedValidators(
+            from: CustomValidatorListTestDataGenerator.goodValidators
+        )
 
         let presenter = SelectedValidatorListPresenter(
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
-            selectedValidators: validators,
+            selectedValidatorList: selectedvalidatorList,
             maxTargets: 16)
 
         presenter.view = view
@@ -30,7 +49,7 @@ class SelectedValidatorListTests: XCTestCase {
 
         stub(view) { stub in
             when(stub).didReload(any()).then { viewModel in
-                XCTAssertEqual(viewModel.cellViewModels.count, validators.count)
+                XCTAssertEqual(viewModel.cellViewModels.count, selectedvalidatorList.count)
                 reloadExpectation.fulfill()
             }
         }
@@ -47,7 +66,7 @@ class SelectedValidatorListTests: XCTestCase {
             }
         }
 
-        presenter.removeItem(at: validators.count - 1)
+        presenter.removeItem(at: selectedvalidatorList.count - 1)
 
         // then
 

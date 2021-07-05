@@ -11,7 +11,9 @@ class CustomValidatorListComposer {
 }
 
 extension CustomValidatorListComposer: RecommendationsComposing {
-    func compose(from validators: [ElectedValidatorInfo]) -> [ElectedValidatorInfo] {
+    typealias RecommendableType = SelectedValidatorInfo
+
+    func compose(from validators: [RecommendableType]) -> [RecommendableType] {
         var filtered = validators
 
         if !filter.allowsNoIdentity {
@@ -32,7 +34,7 @@ extension CustomValidatorListComposer: RecommendationsComposing {
             }
         }
 
-        let sorted: [ElectedValidatorInfo]
+        let sorted: [RecommendableType]
 
         switch filter.sortedBy {
         case .estimatedReward:
@@ -46,7 +48,7 @@ extension CustomValidatorListComposer: RecommendationsComposing {
         guard case let .limited(clusterSizeLimit) = filter.allowsClusters else { return sorted }
 
         var clusterCounters: [AccountAddress: UInt] = [:]
-        var result: [ElectedValidatorInfo] = []
+        var result: [RecommendableType] = []
 
         for validator in sorted {
             let clusterKey = validator.identity?.parentAddress ?? validator.address

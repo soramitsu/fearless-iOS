@@ -34,7 +34,7 @@ final class YourValidatorListViewModelFactory {
             name: model.identity?.displayName,
             amount: amountTitle,
             shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false,
-            shouldHaveError: model.slashed
+            shouldHaveError: model.hasSlashes
         )
     }
 

@@ -37,8 +37,8 @@ struct ValidatorSearchViewFactory {
 
 extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
     static func createView(
-        with validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        with validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?
     ) -> ValidatorSearchViewProtocol? {
         guard let interactor = createInteractor(settings: SettingsManager.shared) else {
@@ -53,8 +53,8 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
             wireframe: wireframe,
             interactor: interactor,
             viewModelFactory: viewModelFactory,
-            allValidators: validators,
-            selectedValidators: selectedValidators,
+            fullValidatorList: validatorList,
+            selectedValidatorList: selectedValidatorList,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared
         )

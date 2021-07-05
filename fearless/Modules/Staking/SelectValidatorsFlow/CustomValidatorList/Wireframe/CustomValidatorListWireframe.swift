@@ -36,14 +36,14 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
 
     func presentSearch(
         from view: ControllerBackedProtocol?,
-        allValidators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        fullValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?
     ) {
         guard let searchView = ValidatorSearchViewFactory
             .createView(
-                with: allValidators,
-                selectedValidators: selectedValidators,
+                with: fullValidatorList,
+                selectedValidatorList: selectedValidatorList,
                 delegate: delegate
             ) else { return }
 
@@ -55,7 +55,7 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
 
     func proceed(
         from _: ControllerBackedProtocol?,
-        validators _: [ElectedValidatorInfo],
+        validatorList _: [SelectedValidatorInfo],
         maxTargets _: Int,
         delegate _: SelectedValidatorListDelegate
     ) {}

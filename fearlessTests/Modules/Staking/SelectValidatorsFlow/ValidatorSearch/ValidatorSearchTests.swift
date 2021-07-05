@@ -19,14 +19,39 @@ class ValidatorSearchTests: XCTestCase {
         )
 
         let validators = CustomValidatorListTestDataGenerator.goodValidators
-        let selectedValidator = CustomValidatorListTestDataGenerator.goodValidator
+        let selectedValidatorList = [CustomValidatorListTestDataGenerator.goodValidator].map {
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
+                )
+            )
+        }
+
+        let fullValidatorList = validators.map {
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
+                )
+            )
+        }
+
 
         let presenter = ValidatorSearchPresenter(
             wireframe: wireframe,
             interactor: interactor,
             viewModelFactory: viewModelFactory,
-            allValidators: validators,
-            selectedValidators: [selectedValidator],
+            fullValidatorList: fullValidatorList,
+            selectedValidatorList: selectedValidatorList,
             localizationManager: LocalizationManager.shared)
 
         presenter.view = view

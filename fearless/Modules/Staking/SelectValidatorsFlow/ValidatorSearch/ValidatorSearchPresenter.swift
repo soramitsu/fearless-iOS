@@ -10,9 +10,9 @@ final class ValidatorSearchPresenter {
     let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
     let logger: LoggerProtocol?
 
-    private var allValidatorList: [ElectedValidatorInfo] = []
-    private var selectedValidatorList: [ElectedValidatorInfo] = []
-    private var filteredValidatorList: [ElectedValidatorInfo] = []
+    private var fullValidatorList: [SelectedValidatorInfo] = []
+    private var selectedValidatorList: [SelectedValidatorInfo] = []
+    private var filteredValidatorList: [SelectedValidatorInfo] = []
     private var viewModel: ValidatorSearchViewModel?
     private var searchString: String = ""
     private var isSearching: Bool = false
@@ -23,16 +23,16 @@ final class ValidatorSearchPresenter {
         wireframe: ValidatorSearchWireframeProtocol,
         interactor: ValidatorSearchInteractorInputProtocol,
         viewModelFactory: ValidatorSearchViewModelFactoryProtocol,
-        allValidators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        fullValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         localizationManager: LocalizationManager,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        allValidatorList = allValidators
-        selectedValidatorList = selectedValidators
+        self.fullValidatorList = fullValidatorList
+        self.selectedValidatorList = selectedValidatorList
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -49,7 +49,7 @@ final class ValidatorSearchPresenter {
 
         let viewModel = viewModelFactory.createViewModel(
             from: filteredValidatorList,
-            selectedValidators: selectedValidatorList,
+            selectedValidatorList: selectedValidatorList,
             locale: selectedLocale
         )
 
@@ -60,7 +60,7 @@ final class ValidatorSearchPresenter {
     private func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
         filteredValidatorList = []
 
-        let searchResult = allValidatorList.first {
+        let searchResult = fullValidatorList.first {
             $0.address == address
         }
 
@@ -89,7 +89,7 @@ final class ValidatorSearchPresenter {
 
         let nameSearchString = searchString.lowercased()
 
-        filteredValidatorList = allValidatorList.filter {
+        filteredValidatorList = fullValidatorList.filter {
             ($0.identity?.displayName.lowercased()
                 .contains(nameSearchString) ?? false) ||
                 $0.address.hasPrefix(searchString)
@@ -155,25 +155,13 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 
     func didSelectValidator(at index: Int) {
         let selectedValidator = filteredValidatorList[index]
-
-        let validatorInfo = SelectedValidatorInfo(
-            address: selectedValidator.address,
-            identity: selectedValidator.identity,
-            stakeInfo: ValidatorStakeInfo(
-                nominators: selectedValidator.nominators,
-                totalStake: selectedValidator.totalStake,
-                stakeReturn: selectedValidator.stakeReturn,
-                maxNominatorsRewarded: selectedValidator.maxNominatorsRewarded
-            )
-        )
-
-        wireframe.present(validatorInfo, from: view)
+        wireframe.present(selectedValidator, from: view)
     }
 
     func applyChanges() {
         delegate?.didUpdate(
-            allValidatorList,
-            selectedValidatos: selectedValidatorList
+            fullValidatorList,
+            selectedValidatorList: selectedValidatorList
         )
 
         wireframe.close(view)
@@ -181,7 +169,7 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 }
 
 extension ValidatorSearchPresenter: ValidatorSearchInteractorOutputProtocol {
-    func didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>) {
+    func didReceiveValidatorInfo(result: Result<SelectedValidatorInfo?, Error>) {
         view?.didStopSearch()
 
         guard isSearching == true else { return }
@@ -200,7 +188,7 @@ extension ValidatorSearchPresenter: ValidatorSearchInteractorOutputProtocol {
             return
         }
 
-        allValidatorList.append(validatorInfo)
+        fullValidatorList.append(validatorInfo)
         filteredValidatorList = [validatorInfo]
         provideViewModels()
     }

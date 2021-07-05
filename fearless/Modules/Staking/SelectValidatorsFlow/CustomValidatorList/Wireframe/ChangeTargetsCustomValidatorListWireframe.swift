@@ -7,13 +7,13 @@ final class ChangeTargetsCustomValidatorListWireframe: CustomValidatorListWirefr
 
     override func proceed(
         from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate
     ) {
         guard let nextView = SelectedValidatorListViewFactory
             .createChangeTargetsView(
-                for: validators,
+                for: validatorList,
                 maxTargets: maxTargets,
                 delegate: delegate,
                 with: state

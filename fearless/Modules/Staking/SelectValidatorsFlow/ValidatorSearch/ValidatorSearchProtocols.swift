@@ -11,8 +11,8 @@ protocol ValidatorSearchWireframeProtocol: AlertPresentable {
 
 protocol ValidatorSearchDelegate: AnyObject {
     func didUpdate(
-        _ validators: [ElectedValidatorInfo],
-        selectedValidatos: [ElectedValidatorInfo]
+        _ validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo]
     )
 }
 
@@ -28,7 +28,7 @@ protocol ValidatorSearchInteractorInputProtocol {
 }
 
 protocol ValidatorSearchInteractorOutputProtocol: AnyObject {
-    func didReceiveValidatorInfo(result: Result<ElectedValidatorInfo?, Error>)
+    func didReceiveValidatorInfo(result: Result<SelectedValidatorInfo?, Error>)
 }
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
@@ -41,16 +41,16 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
-        with validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        with fullValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?
     ) -> ValidatorSearchViewProtocol?
 }
 
 protocol ValidatorSearchViewModelFactoryProtocol {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from displayValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         locale: Locale
     ) -> ValidatorSearchViewModel
 }

@@ -8,18 +8,18 @@ final class SelectedValidatorListPresenter {
     let viewModelFactory: SelectedValidatorListViewModelFactory
     let maxTargets: Int
 
-    private var selectedValidatorList: [ElectedValidatorInfo]
+    private var selectedValidatorList: [SelectedValidatorInfo]
 
     init(
         wireframe: SelectedValidatorListWireframeProtocol,
         viewModelFactory: SelectedValidatorListViewModelFactory,
         localizationManager: LocalizationManagerProtocol,
-        selectedValidators: [ElectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        selectedValidatorList = selectedValidators
+        self.selectedValidatorList = selectedValidatorList
         self.maxTargets = maxTargets
         self.localizationManager = localizationManager
     }
@@ -38,19 +38,6 @@ final class SelectedValidatorListPresenter {
         let viewModel = createViewModel()
         view?.didReload(viewModel)
     }
-
-    private func selectedValidatorInfo(from validator: ElectedValidatorInfo) -> SelectedValidatorInfo {
-        SelectedValidatorInfo(
-            address: validator.address,
-            identity: validator.identity,
-            stakeInfo: ValidatorStakeInfo(
-                nominators: validator.nominators,
-                totalStake: validator.totalStake,
-                stakeReturn: validator.stakeReturn,
-                maxNominatorsRewarded: validator.maxNominatorsRewarded
-            )
-        )
-    }
 }
 
 // MARK: - SelectedValidatorListPresenterProtocol
@@ -61,9 +48,7 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
     }
 
     func didSelectValidator(at index: Int) {
-        let validatorInfo = selectedValidatorInfo(
-            from: selectedValidatorList[index]
-        )
+        let validatorInfo = selectedValidatorList[index]
         wireframe.present(validatorInfo, from: view)
     }
 
@@ -79,13 +64,9 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
     }
 
     func proceed() {
-        let validators = selectedValidatorList.map {
-            selectedValidatorInfo(from: $0)
-        }
-
         wireframe.proceed(
             from: view,
-            targets: validators,
+            targets: selectedValidatorList,
             maxTargets: maxTargets
         )
     }

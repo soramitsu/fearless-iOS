@@ -203,7 +203,11 @@ final class ValidatorOperationFactory {
                         type: addressType
                     )
 
-                    result[address] = indexedItem.element.value
+                    if indexedItem.element.data != nil {
+                        result[address] = indexedItem.element.value
+                    } else {
+                        result[address] = nil
+                    }
                 }
         }
 
@@ -545,7 +549,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
-                    slashed: slashes[index]
+                    hasSlashes: slashes[index]
                 )
             }
         }
@@ -692,17 +696,24 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             let validatorPrefsList = try validatorPrefsWrapper.targetOperation.extractNoCancellableResultData()
             let addressFactory = SS58AddressFactory()
 
-            return try accountIdList.map {
+            return try accountIdList.compactMap {
                 let validatorAddress = try addressFactory.addressFromAccountId(
                     data: $0,
                     type: addressType
                 )
 
+                guard let prefs = validatorPrefsList[validatorAddress] else { return nil }
+
                 return SelectedValidatorInfo(
                     address: validatorAddress,
                     identity: identityList[validatorAddress],
                     stakeInfo: nil,
-                    myNomination: nil
+                    myNomination: nil,
+                    commission: Decimal.fromSubstrateAmount(
+                        prefs.commission,
+                        precision: addressType.precision
+                    ) ?? 0.0,
+                    blocked: prefs.blocked
                 )
             }
         }
