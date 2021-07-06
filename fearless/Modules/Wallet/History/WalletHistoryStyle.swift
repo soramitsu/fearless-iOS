@@ -15,7 +15,7 @@ extension HistoryViewStyle {
             borderStyle: borderStyle,
             cornerRadius: cornerRadius,
             titleStyle: titleStyle,
-            filterIcon: R.image.iconHistoryFilter(),
+            filterIcon: R.image.iconFilter(),
             closeIcon: R.image.iconClose(),
             panIndicatorStyle: UIColor.white,
             shouldInsertFullscreenShadow: false,

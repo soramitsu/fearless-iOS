@@ -39,6 +39,13 @@ protocol StakingErrorPresentable: BaseErrorPresentable {
     func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentNoRedeemables(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentControllerIsAlreadyUsed(from view: ControllerBackedProtocol?, locale: Locale?)
+
+    func presentDeselectValidatorsWarning(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    )
+
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
@@ -171,6 +178,25 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentDeselectValidatorsWarning(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .stakingCustomDeselectWarning(preferredLanguages: locale?.rLanguages)
+
+        presentWarning(
+            for: title,
+            message: message,
+            action: action,
+            view: view,
+            locale: locale
+        )
     }
 
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?) {

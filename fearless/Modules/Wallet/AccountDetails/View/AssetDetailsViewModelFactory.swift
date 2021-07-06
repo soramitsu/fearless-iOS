@@ -46,7 +46,7 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
         let totalPrice = balanceContext.price * balance.balance.decimalValue
         let totalPriceString = priceFormater.stringFromDecimal(totalPrice) ?? ""
 
-        let priceChangeString = NumberFormatter.percent
+        let priceChangeString = NumberFormatter.signedPercent
             .localizableResource()
             .value(for: locale)
             .string(from: balanceContext.priceChange as NSNumber) ?? ""
