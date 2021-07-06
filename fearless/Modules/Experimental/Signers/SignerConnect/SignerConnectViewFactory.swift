@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import RobinHood
+import SoraFoundation
 
 struct SignerConnectViewFactory {
     static func createBeaconView(for info: BeaconConnectionInfo) -> SignerConnectViewProtocol? {
@@ -30,7 +31,10 @@ struct SignerConnectViewFactory {
             chain: settings.selectedConnection.type.chain
         )
 
-        let view = SignerConnectViewController(presenter: presenter)
+        let view = SignerConnectViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         interactor.presenter = presenter

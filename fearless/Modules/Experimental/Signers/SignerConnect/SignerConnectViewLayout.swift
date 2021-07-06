@@ -1,10 +1,7 @@
 import UIKit
 
 final class SignerConnectViewLayout: UIView {
-    let contentView: ScrollableContainerView = {
-        let view = ScrollableContainerView()
-        return view
-    }()
+    let contentView = ScrollableContainerView()
 
     let appView: IconWithSubtitleView = {
         let view = IconWithSubtitleView()
