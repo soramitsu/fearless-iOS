@@ -233,6 +233,7 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
             changeValidatorSelection(at: displayedIndex)
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
             selectedValidatorList.remove(at: selectedIndex)
+            provideViewModels()
         }
     }
 }
