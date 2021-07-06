@@ -13,29 +13,33 @@ PODS:
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
   - Cuckoo/Swift (1.5.0)
-  - FearlessUtils (0.10.0):
+  - FearlessUtils (0.11.0):
     - BigInt (~> 5.0)
-    - IrohaCrypto/ed25519 (~> 0.7.0)
-    - IrohaCrypto/Scrypt (~> 0.7.0)
-    - IrohaCrypto/secp256k1 (~> 0.7.0)
-    - IrohaCrypto/sr25519 (~> 0.7.0)
+    - IrohaCrypto/ed25519 (~> 0.8.0)
+    - IrohaCrypto/Scrypt (~> 0.8.0)
+    - IrohaCrypto/secp256k1 (~> 0.8.0)
+    - IrohaCrypto/sr25519 (~> 0.8.0)
+    - IrohaCrypto/ss58 (~> 0.8.0)
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.7.4):
+  - IrohaCrypto/BIP39 (0.8.0):
     - IrohaCrypto/Common
-  - IrohaCrypto/blake2 (0.7.4)
-  - IrohaCrypto/Common (0.7.4)
-  - IrohaCrypto/ed25519 (0.7.4):
+  - IrohaCrypto/blake2 (0.8.0)
+  - IrohaCrypto/Common (0.8.0)
+  - IrohaCrypto/ed25519 (0.8.0):
     - IrohaCrypto/Common
-  - IrohaCrypto/Scrypt (0.7.4):
+  - IrohaCrypto/Scrypt (0.8.0):
     - IrohaCrypto/Common
     - scrypt.c (~> 0.1)
-  - IrohaCrypto/secp256k1 (0.7.4):
+  - IrohaCrypto/secp256k1 (0.8.0):
     - IrohaCrypto/Common
     - secp256k1.c (~> 0.1)
-  - IrohaCrypto/sr25519 (0.7.4):
+  - IrohaCrypto/sr25519 (0.8.0):
     - IrohaCrypto/BIP39
+    - IrohaCrypto/blake2
+    - IrohaCrypto/Common
+  - IrohaCrypto/ss58 (0.8.0):
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - Kingfisher (6.3.0)
@@ -112,7 +116,7 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `33c7eec1db947eeae8e3b7feb217c60199599bd7`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `08bf127ebcda8821541c961e756e8f95b15166af`)
+  - FearlessUtils (~> 0.11.0)
   - FireMock
   - Kingfisher
   - R.swift
@@ -135,6 +139,7 @@ SPEC REPOS:
     - BigInt
     - CocoaLumberjack
     - Cuckoo
+    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - Kingfisher
@@ -160,9 +165,6 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: 08bf127ebcda8821541c961e756e8f95b15166af
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -174,9 +176,6 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: 08bf127ebcda8821541c961e756e8f95b15166af
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -189,9 +188,9 @@ SPEC CHECKSUMS:
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
   CommonWallet: 216009b2274247ec0a7f80b57f1f4d1ffbdd0a72
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
-  FearlessUtils: 03891c4f0a4031ec8380fd336bc6b366992a4135
+  FearlessUtils: 9a5933f8b1a519bfc6baf21d6d23a2be92d638aa
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: 753b4f9c2af9ddb97538e6b919d087f87112e708
+  IrohaCrypto: bef5e0fdbbfe587657d5de9a8961d7cb1f995a7e
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
@@ -213,6 +212,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 988c3ff7a01e9dda01f577f881a28c5f561c6da5
+PODFILE CHECKSUM: fca4f18cad8f2e27e0224e4dc187cfc65d580580
 
 COCOAPODS: 1.10.1

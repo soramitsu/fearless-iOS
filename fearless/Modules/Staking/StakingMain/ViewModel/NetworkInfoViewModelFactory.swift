@@ -1,15 +1,16 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SoraKeystore
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
+        minNominatorBond: BigUInt?,
         priceData: PriceData?
-    ) ->
-        LocalizableResource<NetworkStakingInfoViewModelProtocol>
+    ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
 final class NetworkInfoViewModelFactory {
@@ -72,10 +73,11 @@ final class NetworkInfoViewModelFactory {
     private func createMinimalStakeViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
+        minNominatorBond: BigUInt?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(
-            stake: networkStakingInfo.minimalStake,
+            stake: networkStakingInfo.calculateMinimumStake(given: minNominatorBond),
             chain: chain,
             priceData: priceData
         )
@@ -117,6 +119,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
+        minNominatorBond: BigUInt?,
         priceData: PriceData?
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let localizedTotalStake = createTotalStakeViewModel(
@@ -128,6 +131,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         let localizedMinimalStake = createMinimalStakeViewModel(
             with: networkStakingInfo,
             chain: chain,
+            minNominatorBond: minNominatorBond,
             priceData: priceData
         )
 

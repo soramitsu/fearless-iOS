@@ -14,7 +14,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         subscribeToStashControllerProvider()
-        subscribeToElectionStatus()
         subscribeToNominatorsLimit()
         provideRewardCalculator()
         provideEraStakersInfo()
@@ -23,6 +22,17 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
 
         applicationHandler.delegate = self
+
+        let infoViewIsExpanded = settings.bool(for: Self.networkInfoViewExpansionKey) ?? true
+        presenter.networkInfoViewExpansion(isExpanded: infoViewIsExpanded)
+    }
+
+    func saveNetworkInfoViewExpansion(isExpanded: Bool) {
+        settings.set(value: isExpanded, for: Self.networkInfoViewExpansionKey)
+    }
+
+    fileprivate static var networkInfoViewExpansionKey: String {
+        "networkInfoViewExpansionKey"
     }
 }
 
@@ -36,9 +46,6 @@ extension StakingMainInteractor: EventVisitorProtocol {
 
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         if updateAccountAndChainIfNeeded() {
-            clearElectionStatusProvider()
-            subscribeToElectionStatus()
-
             clearNominatorsLimitProviders()
             subscribeToNominatorsLimit()
 

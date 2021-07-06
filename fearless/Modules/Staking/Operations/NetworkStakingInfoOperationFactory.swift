@@ -43,20 +43,37 @@ final class NetworkStakingInfoOperationFactory {
             .reduce(0, +)
     }
 
+    private func extractActiveNominators(
+        from eraStakersInfo: EraStakersInfo,
+        limitedBy maxNominators: Int
+    ) -> Set<AccountId> {
+        eraStakersInfo.validators.map(\.exposure.others)
+            .flatMap { Array($0.prefix(maxNominators)) }
+            .reduce(into: Set<Data>()) { $0.insert($1.who) }
+    }
+
     private func deriveMinimalStake(
         from eraStakersInfo: EraStakersInfo,
         limitedBy maxNominators: Int
     ) -> BigUInt {
-        eraStakersInfo.validators.map(\.exposure.others)
-            .flatMap { Array($0.prefix(maxNominators)) }
+        let stakeDistribution = eraStakersInfo.validators
+            .flatMap(\.exposure.others)
             .reduce(into: [Data: BigUInt]()) { result, item in
-                if let maybeStake = result[item.who], let stake = maybeStake {
+                if let stake = result[item.who] {
                     result[item.who] = stake + item.value
                 } else {
                     result[item.who] = item.value
                 }
             }
-            .compactMap(\.value)
+
+        let activeNominators = extractActiveNominators(
+            from: eraStakersInfo,
+            limitedBy: maxNominators
+        )
+
+        return stakeDistribution
+            .filter { activeNominators.contains($0.key) }
+            .map(\.value)
             .min() ?? BigUInt.zero
     }
 
@@ -64,10 +81,7 @@ final class NetworkStakingInfoOperationFactory {
         from eraStakersInfo: EraStakersInfo,
         limitedBy maxNominators: Int
     ) -> Int {
-        eraStakersInfo.validators.map(\.exposure.others)
-            .flatMap { Array($0.prefix(maxNominators)) }
-            .reduce(into: Set<Data>()) { $0.insert($1.who) }
-            .count
+        extractActiveNominators(from: eraStakersInfo, limitedBy: maxNominators).count
     }
 
     private func createMapOperation(
@@ -96,7 +110,8 @@ final class NetworkStakingInfoOperationFactory {
 
             return NetworkStakingInfo(
                 totalStake: totalStake,
-                minimalStake: max(minimalStake, minBalance),
+                minStakeAmongActiveNominators: minimalStake,
+                minimalBalance: minBalance,
                 activeNominatorsCount: activeNominatorsCount,
                 lockUpPeriod: lockUpPeriod
             )

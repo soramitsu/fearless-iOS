@@ -490,3 +490,4 @@ Derivation path: %@";
 "staking.recommended.hint3.addition" = "with at least one identity contact";
 "staking.validator.total.stake.token" = "Total stake (%s)";
 "staking.validator.apy.percent" = "Estimated reward (% APY)";
+"staking.alert.start.next.era.message" = "Please wait for the next era to start.";

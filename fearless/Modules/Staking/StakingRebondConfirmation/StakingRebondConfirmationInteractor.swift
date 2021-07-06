@@ -20,7 +20,6 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     let assetId: WalletAssetId
 
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -72,10 +71,6 @@ extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteract
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(
-            chain: chain,
-            runtimeService: runtimeService
-        )
 
         activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
 
@@ -186,10 +181,6 @@ extension StakingRebondConfirmationInteractor: SingleValueProviderSubscriber, Si
 
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 
     func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {

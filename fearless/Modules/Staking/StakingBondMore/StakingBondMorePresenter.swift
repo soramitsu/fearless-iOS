@@ -15,7 +15,6 @@ final class StakingBondMorePresenter {
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
-    private var electionStatus: ElectionStatus?
     private var stashItem: StashItem?
     private var stashAccount: AccountItem?
 
@@ -92,9 +91,7 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
                 stash: stashAccount,
                 for: stashItem?.stash ?? "",
                 locale: locale
-            ),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
 
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }
@@ -129,15 +126,6 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Did receive election status error: \(error)")
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

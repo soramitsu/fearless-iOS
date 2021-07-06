@@ -5,14 +5,13 @@ extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         [
             findInactiveAlert(state: state),
-            findElectionAlert(commonData: state.commonData),
-            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
+            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
+            findWaitingNextEraAlert(nominationStatus: state.status)
         ].compactMap { $0 }
     }
 
     func stakingAlertsForValidatorState(_ state: ValidatorState) -> [StakingAlert] {
         [
-            findElectionAlert(commonData: state.commonData),
             findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
     }
@@ -21,24 +20,12 @@ extension StakingStateViewModelFactory {
         [
             findMinNominatorBondAlert(state: state),
             .bondedSetValidators,
-            findElectionAlert(commonData: state.commonData),
             findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
     }
 
-    func stakingAlertsNoStashState(_ state: NoStashState) -> [StakingAlert] {
-        [
-            findElectionAlert(commonData: state.commonData)
-        ].compactMap { $0 }
-    }
-
-    private func findElectionAlert(commonData: StakingStateCommonData) -> StakingAlert? {
-        switch commonData.electionStatus {
-        case .open:
-            return .electionPeriod
-        case .none, .close:
-            return nil
-        }
+    func stakingAlertsNoStashState(_: NoStashState) -> [StakingAlert] {
+        []
     }
 
     private func findRedeemUnbondedAlert(
@@ -66,20 +53,18 @@ extension StakingStateViewModelFactory {
         let commonData = state.commonData
         let ledgerInfo = state.ledgerInfo
 
-        guard let minimalStake = commonData.minimalStake else {
+        guard let minStake = commonData.minStake else {
             return nil
         }
 
-        let minActive = commonData.minNominatorBond.map { max(minimalStake, $0) } ?? minimalStake
-
-        guard ledgerInfo.active < minActive else {
+        guard ledgerInfo.active < minStake else {
             return nil
         }
 
         guard
             let chain = commonData.chain,
             let minActiveDecimal = Decimal.fromSubstrateAmount(
-                minActive,
+                minStake,
                 precision: chain.addressType.precision
             ),
             let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
@@ -103,17 +88,15 @@ extension StakingStateViewModelFactory {
         let commonData = state.commonData
         let ledgerInfo = state.ledgerInfo
 
-        guard let minimalStake = commonData.minimalStake else {
+        guard let minStake = commonData.minStake else {
             return nil
         }
 
-        let minActive = commonData.minNominatorBond.map { max(minimalStake, $0) } ?? minimalStake
-
-        if ledgerInfo.active < minActive {
+        if ledgerInfo.active < minStake {
             guard
                 let chain = commonData.chain,
                 let minActiveDecimal = Decimal.fromSubstrateAmount(
-                    minActive,
+                    minStake,
                     precision: chain.addressType.precision
                 ),
                 let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
@@ -131,5 +114,12 @@ extension StakingStateViewModelFactory {
         } else {
             return .nominatorChangeValidators
         }
+    }
+
+    private func findWaitingNextEraAlert(nominationStatus: NominationViewStatus) -> StakingAlert? {
+        if case NominationViewStatus.waiting = nominationStatus {
+            return .waitingNextEra
+        }
+        return nil
     }
 }

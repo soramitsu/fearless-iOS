@@ -41,20 +41,14 @@ final class CommonStakingSubscription: WebSocketSubscribing {
     private func resolveSubscription() {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
+        logger?.debug("Will start resolving subscriptions")
+
         let remoteKeyOperation = ClosureOperation<[Data]> {
             let metadata = try coderFactoryOperation.extractNoCancellableResultData().metadata
 
             let storageKeyFactory = StorageKeyFactory()
 
             var keys: [Data] = []
-
-            if metadata.getStorageMetadata(for: .electionStatus) != nil {
-                let key = try storageKeyFactory.key(from: .electionStatus)
-                keys.append(key)
-            } else if metadata.getStorageMetadata(for: .electionPhase) != nil {
-                let key = try storageKeyFactory.key(from: .electionPhase)
-                keys.append(key)
-            }
 
             if metadata.getStorageMetadata(for: .minNominatorBond) != nil {
                 let key = try storageKeyFactory.key(from: .minNominatorBond)

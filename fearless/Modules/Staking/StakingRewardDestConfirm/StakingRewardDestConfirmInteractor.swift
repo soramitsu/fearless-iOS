@@ -17,7 +17,6 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     let assetId: WalletAssetId
     let chain: Chain
 
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -70,7 +69,6 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
 
         feeProxy.delegate = self
     }
@@ -166,10 +164,6 @@ extension StakingRewardDestConfirmInteractor: SubstrateProviderSubscriber,
 
     func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 }
 

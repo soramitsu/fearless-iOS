@@ -65,6 +65,7 @@ final class StakingMainPresenter {
                 .createNetworkStakingInfoViewModel(
                     with: networkStakingInfo,
                     chain: chain,
+                    minNominatorBond: commonData?.minNominatorBond,
                     priceData: commonData?.price
                 )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
@@ -152,8 +153,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 counterForNominators: commonData.counterForNominators,
                 maxNominatorsCount: commonData.maxNominatorsCount,
                 locale: locale
-            ),
-            dataValidatingFactory.electionClosed(commonData.electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             self?.wireframe.showSetupAmount(from: self?.view, amount: self?.amount)
         }
@@ -164,10 +164,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             let locale = view?.localizationManager?.selectedLocale
 
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
-                return nominatorState.createStatusPresentableViewModel(
-                    for: networkStakingInfo?.minimalStake,
-                    locale: locale
-                )
+                return nominatorState.createStatusPresentableViewModel(locale: locale)
             }
 
             if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
@@ -299,6 +296,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
         wireframe.showRedeem(from: view)
     }
+
+    func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
+        interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
@@ -422,23 +423,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: validatorError)
     }
 
-    func didReceive(electionStatus: ElectionStatus?) {
-        stateMachine.state.process(electionStatus: electionStatus)
-
-        switch electionStatus {
-        case .close:
-            logger?.debug("Election status: close")
-        case let .open(blockNumber):
-            logger?.debug("Election status: open from \(blockNumber)")
-        case .none:
-            logger?.debug("No election status set")
-        }
-    }
-
-    func didReceive(electionStatusError: Error) {
-        handle(error: electionStatusError)
-    }
-
     func didReceive(eraStakersInfo: EraStakersInfo) {
         stateMachine.state.process(eraStakersInfo: eraStakersInfo)
 
@@ -460,7 +444,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
-        stateMachine.state.process(minimalStake: networkStakingInfo.minimalStake)
+
+        let commondData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
+        let minStake = networkStakingInfo.calculateMinimumStake(given: commondData?.minNominatorBond)
+        stateMachine.state.process(minStake: minStake)
         provideStakingInfo()
     }
 
@@ -499,6 +486,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(minNominatorBond):
             stateMachine.state.process(minNominatorBond: minNominatorBond)
+            provideStakingInfo()
         case let .failure(error):
             handle(error: error)
         }
@@ -520,6 +508,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         case let .failure(error):
             handle(error: error)
         }
+    }
+
+    func networkInfoViewExpansion(isExpanded: Bool) {
+        view?.expandNetworkInfoView(isExpanded)
     }
 }
 

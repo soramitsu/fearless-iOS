@@ -144,7 +144,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stateContainerView = nil
         stateView = nil
-        alertsView.isHidden = true
+        alertsContainerView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -172,7 +172,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearStateView()
 
         guard let prevViewIndex = stackView.arrangedSubviews
-            .firstIndex(of: networkInfoContainerView)
+            .firstIndex(of: alertsContainerView)
         else {
             return nil
         }
@@ -259,7 +259,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyAlerts(_ alerts: [StakingAlert]) {
-        alertsView.isHidden = false
+        alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
     }
 }
@@ -337,11 +337,19 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyAlerts(alerts)
         }
     }
+
+    func expandNetworkInfoView(_ isExpanded: Bool) {
+        networkInfoView.setExpanded(isExpanded, animated: false)
+    }
 }
 
 extension StakingMainViewController: NetworkInfoViewDelegate {
     func animateAlongsideWithInfo(view _: NetworkInfoView) {
         scrollView.layoutIfNeeded()
+    }
+
+    func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
+        presenter.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
     }
 }
 
@@ -432,10 +440,10 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter.performSetupValidatorsForBondedAction()
         case .nominatorLowStake:
             presenter.performBondMoreAction()
-        case .electionPeriod:
-            break
         case .redeemUnbonded:
             presenter.performRedeemAction()
+        case .waitingNextEra:
+            break
         }
     }
 }

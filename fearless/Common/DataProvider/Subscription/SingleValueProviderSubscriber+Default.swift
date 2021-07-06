@@ -123,45 +123,6 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
         return accountInfoProvider
     }
 
-    func subscribeToElectionStatusProvider(
-        chain: Chain,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> AnyDataProvider<DecodedElectionStatus>? {
-        guard let electionStatusProvider = try? singleValueProviderFactory
-            .getElectionStatusProvider(chain: chain, runtimeService: runtimeService)
-        else {
-            return nil
-        }
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
-            let electionStatus = changes.reduceToLastChange()
-            self?.subscriptionHandler.handleElectionStatus(
-                result: .success(electionStatus?.item),
-                chain: chain
-            )
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.subscriptionHandler.handleElectionStatus(result: .failure(error), chain: chain)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-
-        electionStatusProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-
-        return electionStatusProvider
-    }
-
     func subscribeToNominationProvider(
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol

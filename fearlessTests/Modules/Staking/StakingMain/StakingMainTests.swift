@@ -88,13 +88,19 @@ class StakingMainTests: XCTestCase {
         let nominatorStateExpectation = XCTestExpectation()
         let chainExpectation = XCTestExpectation()
         let networkStakingInfoExpectation = XCTestExpectation()
+        let networkStakingInfoExpandedExpectation = XCTestExpectation()
 
         stub(operationFactory) { stub in
             when(stub).networkStakingOperation().then { _ in
-                CompoundOperationWrapper.createWithResult(NetworkStakingInfo(totalStake: BigUInt.zero,
-                                                                             minimalStake: BigUInt.zero,
-                                                                             activeNominatorsCount: 0,
-                                                                             lockUpPeriod: 0))
+                CompoundOperationWrapper.createWithResult(
+                    NetworkStakingInfo(
+                        totalStake: BigUInt.zero,
+                        minStakeAmongActiveNominators: BigUInt.zero,
+                        minimalBalance: BigUInt.zero,
+                        activeNominatorsCount: 0,
+                        lockUpPeriod: 0
+                    )
+                )
             }
         }
 
@@ -115,6 +121,9 @@ class StakingMainTests: XCTestCase {
                 if case .nominator = state {
                     nominatorStateExpectation.fulfill()
                 }
+            }
+            stub.expandNetworkInfoView(any()).then { _ in
+                networkStakingInfoExpandedExpectation.fulfill()
             }
         }
 
@@ -141,7 +150,8 @@ class StakingMainTests: XCTestCase {
             accountExpectation,
             nominatorStateExpectation,
             chainExpectation,
-            networkStakingInfoExpectation
+            networkStakingInfoExpectation,
+            networkStakingInfoExpandedExpectation
         ]
 
         wait(for: expectations, timeout: 5)

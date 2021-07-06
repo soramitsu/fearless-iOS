@@ -22,7 +22,6 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(ledgerResult: Result<StakingLedger?, Error>)
     func didReceive(activeEraResult: Result<EraIndex?, Error>)
     func didReceive(priceResult: Result<PriceData?, Error>)
-    func didReceive(electionStatusResult: Result<ElectionStatus?, Error>)
     func didReceive(stashItemResult: Result<StashItem?, Error>)
     func didReceive(controllerResult: Result<AccountItem?, Error>)
     func didReceive(stashResult: Result<AccountItem?, Error>)

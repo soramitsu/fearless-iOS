@@ -20,7 +20,6 @@ final class StakingUnbondConfirmPresenter {
     private var nomination: Nomination?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var electionStatus: ElectionStatus?
     private var controller: AccountItem?
     private var stashItem: StashItem?
     private var payee: RewardDestinationArg?
@@ -140,9 +139,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
                 controller: controller,
                 for: stashItem?.controller ?? "",
                 locale: locale
-            ),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
@@ -167,15 +164,6 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
 }
 
 extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputProtocol {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Election status error: \(error)")
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

@@ -28,7 +28,6 @@ final class StakingAmountPresenter {
     private var minBondAmount: Decimal?
     private var counterForNominators: UInt32?
     private var maxNominatorsCount: UInt32?
-    private var electionStatus: ElectionStatus?
 
     init(
         amount: Decimal?,
@@ -226,8 +225,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,
                 locale: locale
-            ),
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             guard
                 let amount = self?.amount,
@@ -347,10 +345,6 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
     func didReceive(maxNominatorsCount: UInt32?) {
         self.maxNominatorsCount = maxNominatorsCount
-    }
-
-    func didReceive(electionStatus: ElectionStatus?) {
-        self.electionStatus = electionStatus
     }
 }
 

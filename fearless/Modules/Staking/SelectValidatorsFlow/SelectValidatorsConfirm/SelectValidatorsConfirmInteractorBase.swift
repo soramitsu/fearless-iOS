@@ -19,7 +19,6 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     private var minBondProvider: AnyDataProvider<DecodedBigUInt>?
     private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
 
     init(
         balanceAccountAddress: AccountAddress,
@@ -49,7 +48,6 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
             for: balanceAccountAddress,
             runtimeService: runtimeService
         )
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
         minBondProvider = subscribeToMinNominatorBondProvider(chain: chain, runtimeService: runtimeService)
 
         counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
@@ -87,9 +85,5 @@ extension SelectValidatorsConfirmInteractorBase: SingleValueProviderSubscriber, 
 
     func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
         presenter.didReceiveMaxNominatorsCount(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 }

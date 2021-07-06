@@ -40,7 +40,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
     private let assets: [WalletAsset]
 
     init(networkType: SNAddressType, assets: [WalletAsset]) {
-        substrateDecoder = SubstrateQRDecoder(networkType: networkType)
+        substrateDecoder = SubstrateQRDecoder(chainType: ChainType(networkType.rawValue))
         self.assets = assets
     }
 
@@ -49,7 +49,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
 
         let accountId = try addressFactory.accountId(
             fromAddress: info.address,
-            type: substrateDecoder.networkType
+            type: substrateDecoder.chainType
         )
 
         return ReceiveInfo(

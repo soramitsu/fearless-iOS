@@ -1,6 +1,6 @@
 import SoraFoundation
 
-protocol YourValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
+protocol YourValidatorListViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func reload(state: YourValidatorListViewState)
 }
 
@@ -19,7 +19,6 @@ protocol YourValidatorListInteractorInputProtocol: AnyObject {
 protocol YourValidatorListInteractorOutputProtocol: AnyObject {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
     func didReceiveController(result: Result<AccountItem?, Error>)
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveLedger(result: Result<StakingLedger?, Error>)
     func didReceiveRewardDestination(result: Result<RewardDestinationArg?, Error>)

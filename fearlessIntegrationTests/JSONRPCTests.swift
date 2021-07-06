@@ -290,6 +290,77 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testWestendStakersFetch() throws {
+        // given
+
+        let settings = InMemorySettingsManager()
+        let keychain = InMemoryKeychain()
+        let chain = Chain.westend
+        let storageFacade = SubstrateStorageTestFacade()
+
+        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
+                                                            networkType: chain,
+                                                            keychain: keychain,
+                                                            settings: settings)
+
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let runtimeService = try createRuntimeService(from: storageFacade,
+                                                      operationManager: operationManager,
+                                                      chain: chain,
+                                                      logger: Logger.shared)
+
+        runtimeService.setup()
+
+        let webSocketService = createWebSocketService(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            settings: settings
+        )
+
+        webSocketService.setup()
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let hexKeys: [String] = ["0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f000003adc196911e491e08264834504a64ace1373f0c8ed5d57381ddf54a2f67a318fa42b1352681606d", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00000b1caab63c52abf8bc92ae6f12477a9c52d97b17bf3cf98158c081c69f8010d08f25b2dfce727940", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f000016d5103a6adeae4fc21ad1e5198cc0dc3b0f9f43a50f292678f63235ea321e59385d7ee45a720836", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00002726099619673eb6a0bcc553cb33f8b4676e6b6e812cafd86ea962dd99e5c765663a0a673e43704e", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00004245138345ca3fd8aebb0211dbb07b4d335a657257b8ac5e53794c901e4f616d4a254f2490c43934", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00004f0f0dc89f14ad14767f36484b1e2acf5c265c7a64bfb46e95259c66a8189bbcd216195def436852", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00005c69b53821debaa39ae581fef1fc06828723715731adcf810e42ce4dadad629b1b7fa5c3c144a81d", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f0000ce6a96a3775ab416f268995cc38974ce0686df1364875f26f2c32b246ddc18835512c3f9969f5836"]
+
+        let keys: () throws -> [Data] = {
+            return try hexKeys.map { try Data(hexString: $0) }
+        }
+
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
+            try coderFactoryOperation.extractNoCancellableResultData()
+        }
+
+        // when
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
+            engine: webSocketService.connection!,
+            keys: keys,
+            factory: factoryClosure,
+            storagePath: .erasStakers
+        )
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        OperationQueue().addOperations(
+            [coderFactoryOperation] + wrapper.allOperations,
+            waitUntilFinished: true
+        )
+
+        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
+
+        // then
+
+        XCTAssertEqual(hexKeys.count, resultsCount)
+    }
+
     func testMultipleChangesQuery() throws {
         try performTestMultipleChangesQuery(keysCount: 100)
         try performTestMultipleChangesQuery(keysCount: 1000)
@@ -321,8 +392,13 @@ class JSONRPCTests: XCTestCase {
 
         runtimeService.setup()
 
-        let webSocketService = createWebSocketService(storageFacade: storageFacade,
-                                                      settings: settings)
+        let webSocketService = createWebSocketService(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            settings: settings
+        )
+
         webSocketService.setup()
 
         let address = "GqpApQStgzzGxYa1XQZQUq9L3aXhukxDWABccbeHEh7zPYR"
@@ -397,14 +473,23 @@ class JSONRPCTests: XCTestCase {
     }
 
     private func createWebSocketService(storageFacade: StorageFacadeProtocol,
-                                        settings: SettingsManagerProtocol) -> WebSocketServiceProtocol {
+                                        runtimeService: RuntimeCodingServiceProtocol,
+                                        operationManager: OperationManagerProtocol,
+                                        settings: SettingsManagerProtocol
+    ) -> WebSocketServiceProtocol {
         let connectionItem = settings.selectedConnection
         let address = settings.selectedAccount?.address
 
         let settings = WebSocketServiceSettings(url: connectionItem.url,
                                                 addressType: connectionItem.type,
                                                 address: address)
-        let factory = WebSocketSubscriptionFactory(storageFacade: storageFacade)
+
+        let factory = WebSocketSubscriptionFactory(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager
+        )
+
         return WebSocketService(settings: settings,
                                 connectionFactory: WebSocketEngineFactory(),
                                 subscriptionsFactory: factory,

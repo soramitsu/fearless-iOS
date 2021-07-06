@@ -9,6 +9,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
 
     func didReceiveStakingState(viewModel: StakingViewState)
+    func expandNetworkInfoView(_ isExpanded: Bool)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
@@ -26,10 +27,12 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
+    func networkInfoViewDidChangeExpansion(isExpanded: Bool)
 }
 
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
+    func saveNetworkInfoViewExpansion(isExpanded: Bool)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
@@ -50,8 +53,6 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(nominationError: Error)
     func didReceive(validatorPrefs: ValidatorPrefs?)
     func didReceive(validatorError: Error)
-    func didReceive(electionStatus: ElectionStatus?)
-    func didReceive(electionStatusError: Error)
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraStakersInfoError: Error)
     func didReceive(networkStakingInfo: NetworkStakingInfo)
@@ -66,6 +67,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 
     func didReceiveControllerAccount(result: Result<AccountItem?, Error>)
+    func networkInfoViewExpansion(isExpanded: Bool)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

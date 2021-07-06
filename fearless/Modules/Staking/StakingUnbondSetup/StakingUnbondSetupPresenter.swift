@@ -20,7 +20,6 @@ final class StakingUnbondSetupPresenter {
     private var minimalBalance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var electionStatus: ElectionStatus?
     private var controller: AccountItem?
     private var stashItem: StashItem?
 
@@ -125,8 +124,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
                 locale: locale
             ),
 
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale),
-
             dataValidatingFactory.stashIsNotKilledAfterUnbonding(
                 amount: inputAmount,
                 bonded: bonded,
@@ -148,15 +145,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 }
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Election status error: \(error)")
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

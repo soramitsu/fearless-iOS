@@ -17,13 +17,6 @@ final class AlertsView: UIView {
         return label
     }()
 
-    private let noAlertsLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p2Paragraph
-        label.textColor = R.color.colorWhite()?.withAlphaComponent(0.64)
-        return label
-    }()
-
     private let alertsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -52,7 +45,6 @@ final class AlertsView: UIView {
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable.stakingAlertsTitle(preferredLanguages: locale.rLanguages)
-        noAlertsLabel.text = R.string.localizable.stakingNoAlerts(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -72,12 +64,6 @@ final class AlertsView: UIView {
             make.height.equalTo(UIConstants.separatorHeight)
         }
 
-        addSubview(noAlertsLabel)
-        noAlertsLabel.snp.makeConstraints { make in
-            make.top.equalTo(separatorView.snp.bottom).offset(UIConstants.horizontalInset)
-            make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
         addSubview(alertsStackView)
         alertsStackView.snp.makeConstraints { make in
             make.top.equalTo(separatorView.snp.bottom)
@@ -88,10 +74,8 @@ final class AlertsView: UIView {
     func bind(alerts: [StakingAlert]) {
         alertsStackView.subviews.forEach { $0.removeFromSuperview() }
         if alerts.isEmpty {
-            noAlertsLabel.isHidden = false
             alertsStackView.isHidden = true
         } else {
-            noAlertsLabel.isHidden = true
             alertsStackView.isHidden = false
 
             var itemViews = [UIView]()

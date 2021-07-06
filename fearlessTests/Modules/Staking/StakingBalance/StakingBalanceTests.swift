@@ -9,23 +9,26 @@ class StakingBalanceTests: XCTestCase {
     func testStakingBalanceActionsOnSuccess() {
         let interactor = MockStakingBalanceInteractorInputProtocol()
         let wireframe = MockStakingBalanceWireframeProtocol()
+
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
+            dataValidatingFactory: dataValidatingFactory,
             accountAddress: ""
         )
         let view = MockStakingBalanceViewProtocol()
         presenter.view = view
+        dataValidatingFactory.view = view
 
         stub(view) { stub in
             when(stub).localizationManager.get.then { _ in nil }
         }
 
         let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
-        let closeElectionStatus = ElectionStatus.close
         presenter.stashAccount = stubAccount
-        presenter.electionStatus = closeElectionStatus
 
         // given
         let showBondMoreExpectation = XCTestExpectation()
@@ -42,6 +45,7 @@ class StakingBalanceTests: XCTestCase {
 
         // given
         presenter.controllerAccount = stubAccount
+        presenter.stakingLedger = WestendStub.ledgerInfo.item
 
         let showUnbondExpectation = XCTestExpectation()
         stub(wireframe) { stub in
@@ -86,10 +90,13 @@ class StakingBalanceTests: XCTestCase {
     func testCancelStakingBalanceModuleWhenStashItemIsNil() {
         let interactor = MockStakingBalanceInteractorInputProtocol()
         let wireframe = MockStakingBalanceWireframeProtocol()
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
+            dataValidatingFactory: dataValidatingFactory,
             accountAddress: ""
         )
         let view = MockStakingBalanceViewProtocol()
@@ -112,94 +119,110 @@ class StakingBalanceTests: XCTestCase {
     func testBondActionOnError() {
         let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
 
+        let actionClosure: (StakingBalancePresenterProtocol) -> Void = { $0.handleAction(.bondMore) }
+
         performTestStakingBalanceActionsOnError(
-            for: .bondMore,
+            for: actionClosure,
             stash: nil,
             controller: nil,
-            electionStatus: nil
+            ledger: nil
         )
 
         performTestStakingBalanceActionsOnError(
-            for: .bondMore,
+            for: actionClosure,
             stash: nil,
             controller: stubAccount,
-            electionStatus: .close
-        )
-
-        performTestStakingBalanceActionsOnError(
-            for: .bondMore,
-            stash: stubAccount,
-            controller: stubAccount,
-            electionStatus: nil
+            ledger: nil
         )
     }
 
     func testUnbondActionOnError() {
         let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
 
+        let actionClosure: (StakingBalancePresenterProtocol) -> Void = { $0.handleAction(.unbond) }
+
         performTestStakingBalanceActionsOnError(
-            for: .unbond,
+            for: actionClosure,
             stash: nil,
             controller: nil,
-            electionStatus: nil
+            ledger: nil
         )
 
         performTestStakingBalanceActionsOnError(
-            for: .unbond,
+            for: actionClosure,
             stash: stubAccount,
             controller: nil,
-            electionStatus: .close
+            ledger: nil
         )
 
         performTestStakingBalanceActionsOnError(
-            for: .unbond,
+            for: actionClosure,
             stash: stubAccount,
             controller: stubAccount,
-            electionStatus: nil
+            ledger: nil
         )
     }
 
     func testRedeemActionOnError() {
         let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
 
+        let actionClosure: (StakingBalancePresenterProtocol) -> Void = { $0.handleAction(.redeem) }
+
         performTestStakingBalanceActionsOnError(
-            for: .redeem,
+            for: actionClosure,
             stash: nil,
             controller: nil,
-            electionStatus: nil
+            ledger: nil
         )
 
         performTestStakingBalanceActionsOnError(
-            for: .redeem,
+            for: actionClosure,
             stash: stubAccount,
             controller: nil,
-            electionStatus: .close
+            ledger: nil
+        )
+    }
+
+    func testRebondActionOnError() {
+        let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
+
+        let actionClosure: (StakingBalancePresenterProtocol) -> Void = { $0.handleUnbondingMoreAction() }
+
+        performTestStakingBalanceActionsOnError(
+            for: actionClosure,
+            stash: nil,
+            controller: nil,
+            ledger: nil
         )
 
         performTestStakingBalanceActionsOnError(
-            for: .redeem,
+            for: actionClosure,
             stash: stubAccount,
-            controller: stubAccount,
-            electionStatus: nil
+            controller: nil,
+            ledger: nil
         )
     }
 
     private func performTestStakingBalanceActionsOnError(
-        for action: StakingBalanceAction,
+        for actionClosure: (StakingBalancePresenterProtocol) -> Void,
         stash: AccountItem?,
         controller: AccountItem?,
-        electionStatus: ElectionStatus?
+        ledger: StakingLedger?
     ) {
         let interactor = MockStakingBalanceInteractorInputProtocol()
         let wireframe = MockStakingBalanceWireframeProtocol()
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
+            dataValidatingFactory: dataValidatingFactory,
             accountAddress: ""
         )
         let view = MockStakingBalanceViewProtocol()
         presenter.view = view
+        dataValidatingFactory.view = view
 
         stub(view) { stub in
             when(stub).localizationManager.get.then { _ in nil }
@@ -210,7 +233,7 @@ class StakingBalanceTests: XCTestCase {
         let presentErrorAlertExpectation = XCTestExpectation()
         presenter.controllerAccount = controller
         presenter.stashAccount = stash
-        presenter.electionStatus = electionStatus
+        presenter.stakingLedger = ledger
 
         stub(wireframe) { stub in
             when(stub)
@@ -222,7 +245,7 @@ class StakingBalanceTests: XCTestCase {
 
         // when
 
-        presenter.handleAction(action)
+        actionClosure(presenter)
 
         // then
         wait(for: [presentErrorAlertExpectation], timeout: Constants.defaultExpectationDuration)
