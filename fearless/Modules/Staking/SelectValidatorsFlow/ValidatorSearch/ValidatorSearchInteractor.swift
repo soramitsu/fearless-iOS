@@ -27,14 +27,18 @@ extension ValidatorSearchInteractor: ValidatorSearchInteractorInputProtocol {
     func performValidatorSearch(accountId: AccountId) {
         cancelSearch()
 
-        currentOperation = validatorOperationFactory
+        let searchOperation = validatorOperationFactory
             .wannabeValidatorsOperation(for: [accountId])
 
-        currentOperation!.targetOperation.completionBlock = { [weak self] in
+        currentOperation = searchOperation
+
+        searchOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    guard let result = try self?.currentOperation?.targetOperation.extractNoCancellableResultData(),
-                          let validatorInfo = result.first else {
+                    self?.currentOperation = nil
+                    let result = try searchOperation.targetOperation.extractNoCancellableResultData()
+
+                    guard let validatorInfo = result.first else {
                         self?.presenter.didReceiveValidatorInfo(result: .success(nil))
                         return
                     }
@@ -46,6 +50,6 @@ extension ValidatorSearchInteractor: ValidatorSearchInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: currentOperation?.allOperations ?? [], in: .transient)
+        operationManager.enqueue(operations: searchOperation.allOperations, in: .transient)
     }
 }
