@@ -2,55 +2,10 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 
-struct CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol {
-    static func createInitiatedBondingView(
-        for electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
-        maxTargets: Int,
-        with state: InitiatedBonding
-    ) -> CustomValidatorListViewProtocol? {
-        let wireframe = InitiatedBondingCustomValidatorListWireframe(state: state)
-        return createView(
-            electedValidators: electedValidators,
-            recommendedValidators: recommendedValidators,
-            maxTargets: maxTargets,
-            with: wireframe
-        )
-    }
-
-    static func createChangeTargetsView(
-        for electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
-        maxTargets: Int,
-        with state: ExistingBonding
-    ) -> CustomValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsCustomValidatorListWireframe(state: state)
-        return createView(
-            electedValidators: electedValidators,
-            recommendedValidators: recommendedValidators,
-            maxTargets: maxTargets,
-            with: wireframe
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        for electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
-        maxTargets: Int,
-        with state: ExistingBonding
-    ) -> CustomValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.CustomListWireframe(state: state)
-        return createView(
-            electedValidators: electedValidators,
-            recommendedValidators: recommendedValidators,
-            maxTargets: maxTargets,
-            with: wireframe
-        )
-    }
-
-    static func createView(
-        electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
+enum CustomValidatorListViewFactory {
+    private static func createView(
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         with wireframe: CustomValidatorListWireframeProtocol
     ) -> CustomValidatorListViewProtocol? {
@@ -86,8 +41,8 @@ struct CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
-            electedValidators: electedValidators,
-            recommendedValidators: recommendedValidators,
+            fullValidatorList: validatorList,
+            recommendedValidatorList: recommendedValidatorList,
             maxTargets: maxTargets,
             logger: Logger.shared
         )
@@ -102,5 +57,52 @@ struct CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol {
         interactor.presenter = presenter
 
         return view
+    }
+}
+
+extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol {
+    static func createInitiatedBondingView(
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
+        maxTargets: Int,
+        with state: InitiatedBonding
+    ) -> CustomValidatorListViewProtocol? {
+        let wireframe = InitBondingCustomValidatorListWireframe(state: state)
+        return createView(
+            for: validatorList,
+            with: recommendedValidatorList,
+            maxTargets: maxTargets,
+            with: wireframe
+        )
+    }
+
+    static func createChangeTargetsView(
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol? {
+        let wireframe = ChangeTargetsCustomValidatorListWireframe(state: state)
+        return createView(
+            for: validatorList,
+            with: recommendedValidatorList,
+            maxTargets: maxTargets,
+            with: wireframe
+        )
+    }
+
+    static func createChangeYourValidatorsView(
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol? {
+        let wireframe = YourValidatorList.CustomListWireframe(state: state)
+        return createView(
+            for: validatorList,
+            with: recommendedValidatorList,
+            maxTargets: maxTargets,
+            with: wireframe
+        )
     }
 }

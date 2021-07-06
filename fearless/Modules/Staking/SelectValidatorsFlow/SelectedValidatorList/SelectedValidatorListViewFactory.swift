@@ -3,14 +3,14 @@ import SoraFoundation
 
 struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtocol {
     static func createInitiatedBondingView(
-        for validators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with state: InitiatedBonding
     ) -> SelectedValidatorListViewProtocol? {
         let wireframe = InitiatedBondingSelectedValidatorListWireframe(state: state)
         return createView(
-            validators: validators,
+            validatorList: validatorList,
             maxTargets: maxTargets,
             delegate: delegate,
             with: wireframe
@@ -18,14 +18,14 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     }
 
     static func createChangeTargetsView(
-        for validators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol? {
         let wireframe = ChangeTargetsSelectedValidatorListWireframe(state: state)
         return createView(
-            validators: validators,
+            validatorList: validatorList,
             maxTargets: maxTargets,
             delegate: delegate,
             with: wireframe
@@ -33,14 +33,14 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     }
 
     static func createChangeYourValidatorsView(
-        for validators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol? {
         let wireframe = YourValidatorList.SelectedListWireframe(state: state)
         return createView(
-            validators: validators,
+            validatorList: validatorList,
             maxTargets: maxTargets,
             delegate: delegate,
             with: wireframe
@@ -48,7 +48,7 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     }
 
     static func createView(
-        validators: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with wireframe: SelectedValidatorListWireframeProtocol
@@ -59,7 +59,7 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
-            selectedValidators: validators,
+            selectedValidatorList: validatorList,
             maxTargets: maxTargets
         )
 

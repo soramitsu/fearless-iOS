@@ -9,7 +9,7 @@ protocol SelectedValidatorListViewProtocol: ControllerBackedProtocol, Localizabl
 }
 
 protocol SelectedValidatorListDelegate: AnyObject {
-    func didRemove(_ validator: ElectedValidatorInfo)
+    func didRemove(_ validator: SelectedValidatorInfo)
 }
 
 protocol SelectedValidatorListPresenterProtocol: AnyObject {
@@ -22,7 +22,7 @@ protocol SelectedValidatorListPresenterProtocol: AnyObject {
 
 protocol SelectedValidatorListViewModelFactoryProtocol: AnyObject {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
+        from validatorList: [SelectedValidatorInfo],
         totalValidatorsCount: Int,
         locale: Locale
     ) -> SelectedValidatorListViewModel
@@ -45,21 +45,21 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
 
 protocol SelectedValidatorListViewFactoryProtocol {
     static func createInitiatedBondingView(
-        for validators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with state: InitiatedBonding
     ) -> SelectedValidatorListViewProtocol?
 
     static func createChangeTargetsView(
-        for validators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol?
 
     static func createChangeYourValidatorsView(
-        for validators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding

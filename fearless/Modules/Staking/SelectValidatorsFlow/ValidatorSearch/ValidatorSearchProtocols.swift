@@ -11,21 +11,25 @@ protocol ValidatorSearchWireframeProtocol: AlertPresentable {
 
 protocol ValidatorSearchDelegate: AnyObject {
     func didUpdate(
-        _ validators: [ElectedValidatorInfo],
-        selectedValidatos: [ElectedValidatorInfo]
+        _ validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo]
     )
 }
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
     func didReload(_ viewModel: ValidatorSearchViewModel)
+    func didStartSearch()
+    func didStopSearch()
     func didReset()
 }
 
 protocol ValidatorSearchInteractorInputProtocol {
-    func setup()
+    func performValidatorSearch(accountId: AccountId)
 }
 
-protocol ValidatorSearchInteractorOutputProtocol {}
+protocol ValidatorSearchInteractorOutputProtocol: AnyObject {
+    func didReceiveValidatorInfo(result: Result<SelectedValidatorInfo?, Error>)
+}
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
     func setup()
@@ -37,16 +41,16 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
-        with validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        with fullValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?
     ) -> ValidatorSearchViewProtocol?
 }
 
 protocol ValidatorSearchViewModelFactoryProtocol {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from displayValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         locale: Locale
     ) -> ValidatorSearchViewModel
 }

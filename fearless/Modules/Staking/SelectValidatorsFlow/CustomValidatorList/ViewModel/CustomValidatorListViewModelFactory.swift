@@ -43,15 +43,15 @@ final class CustomValidatorListViewModelFactory {
     }
 
     private func createCellsViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         filter: CustomValidatorListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> [CustomValidatorCellViewModel] {
         let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
 
-        return validators.map { validator in
+        return validatorList.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
             let detailsText: String?
@@ -88,7 +88,7 @@ final class CustomValidatorListViewModelFactory {
                 address: validator.address,
                 details: detailsText,
                 auxDetails: auxDetailsText,
-                isSelected: selectedValidators.contains(validator)
+                isSelected: selectedValidatorList.contains(validator)
             )
         }
     }
@@ -96,23 +96,23 @@ final class CustomValidatorListViewModelFactory {
 
 extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from displayValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         totalValidatorsCount: Int,
         filter: CustomValidatorListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> CustomValidatorListViewModel {
         let headerViewModel = createHeaderViewModel(
-            displayValidatorsCount: validators.count,
+            displayValidatorsCount: displayValidatorList.count,
             totalValidatorsCount: totalValidatorsCount,
             filter: filter,
             locale: locale
         )
 
         let cellsViewModel = createCellsViewModel(
-            from: validators,
-            selectedValidators: selectedValidators,
+            from: displayValidatorList,
+            selectedValidatorList: selectedValidatorList,
             filter: filter,
             priceData: priceData,
             locale: locale
@@ -121,7 +121,7 @@ extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFacto
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
-            selectedValidatorsCount: selectedValidators.count
+            selectedValidatorsCount: selectedValidatorList.count
         )
     }
 }

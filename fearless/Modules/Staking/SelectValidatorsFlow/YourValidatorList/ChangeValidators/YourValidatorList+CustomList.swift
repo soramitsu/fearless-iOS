@@ -8,13 +8,13 @@ extension YourValidatorList {
 
         override func proceed(
             from view: ControllerBackedProtocol?,
-            validators: [ElectedValidatorInfo],
+            validatorList: [SelectedValidatorInfo],
             maxTargets: Int,
             delegate: SelectedValidatorListDelegate
         ) {
             guard let nextView = SelectedValidatorListViewFactory
                 .createChangeYourValidatorsView(
-                    for: validators,
+                    for: validatorList,
                     maxTargets: maxTargets,
                     delegate: delegate,
                     with: state

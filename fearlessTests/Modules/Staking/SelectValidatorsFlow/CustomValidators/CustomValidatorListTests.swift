@@ -35,13 +35,21 @@ class CustomValidatorListTests: XCTestCase {
             assetId: assetId
         )
 
+        let generator = CustomValidatorListTestDataGenerator.self
+
+        let fullValidatorList = generator
+            .createSelectedValidators(from: WestendStub.recommendedValidators)
+
+        let recommendedValidatorList = generator
+            .createSelectedValidators(from: WestendStub.recommendedValidators)
+
         let presenter = CustomValidatorListPresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
-            electedValidators: WestendStub.recommendedValidators,
-            recommendedValidators: WestendStub.recommendedValidators,
+            fullValidatorList: fullValidatorList,
+            recommendedValidatorList: recommendedValidatorList,
             maxTargets: 16
         )
 

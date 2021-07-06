@@ -26,12 +26,12 @@ final class SelectedValidatorListViewModelFactory {
     }
 
     private func createCellsViewModel(
-        from validators: [ElectedValidatorInfo],
+        from validatorList: [SelectedValidatorInfo],
         locale: Locale
     ) -> [SelectedValidatorCellViewModel] {
         let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
 
-        return validators.map { validator in
+        return validatorList.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
             let detailsText = apyFormatter.string(from: validator.stakeReturn as NSNumber)
@@ -48,25 +48,25 @@ final class SelectedValidatorListViewModelFactory {
 
 extension SelectedValidatorListViewModelFactory: SelectedValidatorListViewModelFactoryProtocol {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
+        from validatorList: [SelectedValidatorInfo],
         totalValidatorsCount: Int,
         locale: Locale
     ) -> SelectedValidatorListViewModel {
         let headerViewModel = createHeaderViewModel(
-            displayValidatorsCount: validators.count,
+            displayValidatorsCount: validatorList.count,
             totalValidatorsCount: totalValidatorsCount,
             locale: locale
         )
 
         let cellsViewModel = createCellsViewModel(
-            from: validators,
+            from: validatorList,
             locale: locale
         )
 
         return SelectedValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
-            limitIsExceeded: validators.count > totalValidatorsCount
+            limitIsExceeded: validatorList.count > totalValidatorsCount
         )
     }
 }

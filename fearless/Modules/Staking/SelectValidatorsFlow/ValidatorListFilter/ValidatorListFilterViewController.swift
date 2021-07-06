@@ -174,6 +174,8 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
 
         view.titleView.titleColor = R.color.colorWhite()
         view.titleView?.titleFont = .h4Title
+        view.titleView.spacingBetweenLabelAndIcon = 0
+        view.titleView.displacementBetweenLabelAndIcon = 0
 
         let sectionTitle: String = {
             switch section {

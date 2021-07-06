@@ -1,6 +1,6 @@
 import Foundation
 
-final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStartWireframe {
+final class InitBondingSelectValidatorsStartWireframe: SelectValidatorsStartWireframe {
     private let state: InitiatedBonding
 
     init(state: InitiatedBonding) {
@@ -9,14 +9,14 @@ final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStar
 
     override func proceedToCustomList(
         from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo],
-        recommended: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
+        recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
         guard let nextView = CustomValidatorListViewFactory
             .createInitiatedBondingView(
-                for: validators,
-                recommendedValidators: recommended,
+                for: validatorList,
+                with: recommendedValidatorList,
                 maxTargets: maxTargets,
                 with: state
             ) else { return }
@@ -29,24 +29,11 @@ final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStar
 
     override func proceedToRecommendedList(
         from view: SelectValidatorsStartViewProtocol?,
-        validators: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
-        let selectedValidators = validators.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                )
-            )
-        }
-
         guard let nextView = RecommendedValidatorListViewFactory.createInitiatedBondingView(
-            for: selectedValidators,
+            for: validatorList,
             maxTargets: maxTargets,
             with: state
         ) else {

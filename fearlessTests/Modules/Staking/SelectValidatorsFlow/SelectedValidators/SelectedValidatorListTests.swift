@@ -12,13 +12,17 @@ class SelectedValidatorListTests: XCTestCase {
         let wireframe = MockSelectedValidatorListWireframeProtocol()
         let viewModelFactory = SelectedValidatorListViewModelFactory()
 
-        let validators = CustomValidatorListTestDataGenerator.goodValidators
+        let generator = CustomValidatorListTestDataGenerator.self
+
+        let selectedvalidatorList = generator.createSelectedValidators(
+            from: generator.goodValidators
+        )
 
         let presenter = SelectedValidatorListPresenter(
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
-            selectedValidators: validators,
+            selectedValidatorList: selectedvalidatorList,
             maxTargets: 16)
 
         presenter.view = view
@@ -30,7 +34,7 @@ class SelectedValidatorListTests: XCTestCase {
 
         stub(view) { stub in
             when(stub).didReload(any()).then { viewModel in
-                XCTAssertEqual(viewModel.cellViewModels.count, validators.count)
+                XCTAssertEqual(viewModel.cellViewModels.count, selectedvalidatorList.count)
                 reloadExpectation.fulfill()
             }
         }
@@ -47,7 +51,7 @@ class SelectedValidatorListTests: XCTestCase {
             }
         }
 
-        presenter.removeItem(at: validators.count - 1)
+        presenter.removeItem(at: selectedvalidatorList.count - 1)
 
         // then
 

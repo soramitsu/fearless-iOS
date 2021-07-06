@@ -24,14 +24,14 @@ protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {
 protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceedToCustomList(
         from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo],
-        recommended: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
+        recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int
     )
 
     func proceedToRecommendedList(
         from view: SelectValidatorsStartViewProtocol?,
-        validators: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
         maxTargets: Int
     )
 }

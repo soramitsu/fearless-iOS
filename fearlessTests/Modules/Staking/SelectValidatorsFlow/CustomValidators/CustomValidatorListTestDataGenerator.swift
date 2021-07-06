@@ -21,8 +21,8 @@ struct CustomValidatorListTestDataGenerator {
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr2",
             nominators: [],
-            totalStake: 10,
-            ownStake: 10,
+            totalStake: 10.1,
+            ownStake: 10.1,
             comission: 0.0,
             identity: AccountIdentity(name: "Slashed validator"),
             stakeReturn: 0.1,
@@ -39,8 +39,8 @@ struct CustomValidatorListTestDataGenerator {
                 NominatorInfo(address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7NOM1", stake: 1.0),
                 NominatorInfo(address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7NOM2", stake: 1.0)
             ],
-            totalStake: 10,
-            ownStake: 10,
+            totalStake: 100,
+            ownStake: 100,
             comission: 0.0,
             identity: AccountIdentity(name: "Oversubscribed validator"),
             stakeReturn: 0.1,
@@ -54,8 +54,8 @@ struct CustomValidatorListTestDataGenerator {
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr4",
             nominators: [],
-            totalStake: 10,
-            ownStake: 10,
+            totalStake: 11,
+            ownStake: 11,
             comission: 0.0,
             identity: AccountIdentity(name: "Clustered validator parent"),
             stakeReturn: 0.2,
@@ -69,8 +69,8 @@ struct CustomValidatorListTestDataGenerator {
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr5",
             nominators: [],
-            totalStake: 10,
-            ownStake: 10,
+            totalStake: 10.123,
+            ownStake: 10.123,
             comission: 0.0,
             identity: AccountIdentity(
                 name: "Clustered validator child 1",
@@ -89,8 +89,8 @@ struct CustomValidatorListTestDataGenerator {
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
             nominators: [],
-            totalStake: 10,
-            ownStake: 10,
+            totalStake: 0.5,
+            ownStake: 0.5,
             comission: 0.0,
             identity: AccountIdentity(
                 name: "Clustered validator child 2",
@@ -109,8 +109,8 @@ struct CustomValidatorListTestDataGenerator {
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr7",
             nominators: [],
-            totalStake: 10,
-            ownStake: 10,
+            totalStake: 16,
+            ownStake: 16,
             comission: 0.0,
             identity: nil, // No identity validator
             stakeReturn: 0.2,
@@ -139,8 +139,8 @@ struct CustomValidatorListTestDataGenerator {
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr9",
             nominators: [],
-            totalStake: 9,
-            ownStake: 9,
+            totalStake: 98,
+            ownStake: 98,
             comission: 0.0,
             identity: AccountIdentity(name: "Greedy good validator"),
             stakeReturn: 0.01,
@@ -161,4 +161,21 @@ struct CustomValidatorListTestDataGenerator {
     static let clusterValidators: [ElectedValidatorInfo] = {
         [clusterValidatorParent, clusterValidatorChild1, clusterValidatorChild2]
     }()
+
+    static func createSelectedValidators(from validators: [ElectedValidatorInfo]) -> [SelectedValidatorInfo] {
+        validators.map {
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
+                ),
+                commission: $0.comission,
+                hasSlashes: $0.hasSlashes
+            )
+        }
+    }
 }

@@ -11,18 +11,28 @@ class ValidatorSearchTests: XCTestCase {
         let view = MockValidatorSearchViewProtocol()
         let wireframe = MockValidatorSearchWireframeProtocol()
         let viewModelFactory = ValidatorSearchViewModelFactory()
+        let validatorOperationFactory = ValidatorOperationFactoryProtocolStub()
 
-        let interactor = ValidatorSearchInteractor()
+        let interactor = ValidatorSearchInteractor(
+            validatorOperationFactory: validatorOperationFactory,
+            operationManager: OperationManagerFacade.sharedManager
+        )
 
-        let validators = CustomValidatorListTestDataGenerator.goodValidators
-        let selectedValidator = CustomValidatorListTestDataGenerator.goodValidator
+        let generator = CustomValidatorListTestDataGenerator.self
+
+        let selectedValidatorList = generator
+            .createSelectedValidators(from: [generator.goodValidator])
+
+        let fullValidatorList = generator
+            .createSelectedValidators(from: generator.goodValidators)
+
 
         let presenter = ValidatorSearchPresenter(
             wireframe: wireframe,
             interactor: interactor,
             viewModelFactory: viewModelFactory,
-            allValidators: validators,
-            selectedValidators: [selectedValidator],
+            fullValidatorList: fullValidatorList,
+            selectedValidatorList: selectedValidatorList,
             localizationManager: LocalizationManager.shared)
 
         presenter.view = view
@@ -35,7 +45,7 @@ class ValidatorSearchTests: XCTestCase {
             when(stub).didReset().thenDoNothing()
             
             when(stub).didReload(any()).then { viewModel in
-                XCTAssertEqual(viewModel.cellViewModels.count, validators.count)
+                XCTAssertEqual(viewModel.cellViewModels.count, fullValidatorList.count)
                 reloadExpectation.fulfill()
             }
         }

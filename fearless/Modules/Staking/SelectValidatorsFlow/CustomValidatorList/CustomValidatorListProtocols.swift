@@ -22,8 +22,8 @@ protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
 
 protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
     func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        from validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         totalValidatorsCount: Int,
         filter: CustomValidatorListFilter,
         priceData: PriceData?,
@@ -53,14 +53,14 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
 
     func presentSearch(
         from view: ControllerBackedProtocol?,
-        allValidators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
+        fullValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?
     )
 
     func proceed(
         from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo],
+        validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate
     )
@@ -68,22 +68,22 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
 
 protocol CustomValidatorListViewFactoryProtocol {
     static func createInitiatedBondingView(
-        for electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         with state: InitiatedBonding
     ) -> CustomValidatorListViewProtocol?
 
     static func createChangeTargetsView(
-        for electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         with state: ExistingBonding
     ) -> CustomValidatorListViewProtocol?
 
     static func createChangeYourValidatorsView(
-        for electedValidators: [ElectedValidatorInfo],
-        recommendedValidators: [ElectedValidatorInfo],
+        for validatorList: [SelectedValidatorInfo],
+        with recommendedValidatorList: [SelectedValidatorInfo],
         maxTargets: Int,
         with state: ExistingBonding
     ) -> CustomValidatorListViewProtocol?
