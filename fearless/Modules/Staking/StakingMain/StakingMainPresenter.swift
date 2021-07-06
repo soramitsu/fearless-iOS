@@ -126,7 +126,7 @@ final class StakingMainPresenter {
                 rewardDestination: rewardDestination
             )
 
-            self?.wireframe.showRecommendedValidators(from: self?.view, existingBonding: existingBonding)
+            self?.wireframe.proceedToSelectValidatorsStart(from: self?.view, existingBonding: existingBonding)
         }
     }
 }

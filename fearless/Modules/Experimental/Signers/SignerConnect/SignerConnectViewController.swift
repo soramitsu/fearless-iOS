@@ -8,9 +8,11 @@ final class SignerConnectViewController: UIViewController, ViewHolder {
 
     private var iconViewModel: ImageViewModelProtocol?
 
-    init(presenter: SignerConnectPresenterProtocol) {
+    init(presenter: SignerConnectPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)

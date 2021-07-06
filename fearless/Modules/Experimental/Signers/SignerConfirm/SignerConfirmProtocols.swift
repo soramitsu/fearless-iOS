@@ -1,11 +1,29 @@
-protocol SignerConfirmViewProtocol: ControllerBackedProtocol {}
+import SoraFoundation
 
-protocol SignerConfirmPresenterProtocol: class {
+protocol SignerConfirmViewProtocol: ControllerBackedProtocol, Localizable {
+    func didReceiveCall(viewModel: SignerConfirmCallViewModel)
+    func didReceiveFee(viewModel: SignerConfirmFeeViewModel)
+}
+
+protocol SignerConfirmPresenterProtocol: AnyObject {
     func setup()
 }
 
-protocol SignerConfirmInteractorInputProtocol: class {}
+protocol SignerConfirmInteractorInputProtocol: AnyObject {
+    func setup()
+    func confirm()
+    func refreshFee()
+}
 
-protocol SignerConfirmInteractorOutputProtocol: class {}
+protocol SignerConfirmInteractorOutputProtocol: AnyObject {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didExtractRequest(result: Result<SignerConfirmation, Error>)
+    func didReceivePrice(result: Result<PriceData?, Error>)
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveSubmition(result: Result<Void, Error>)
+}
 
-protocol SignerConfirmWireframeProtocol: class {}
+protocol SignerConfirmWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting,
+    BaseErrorPresentable {
+    func complete(on view: SignerConfirmViewProtocol?)
+}

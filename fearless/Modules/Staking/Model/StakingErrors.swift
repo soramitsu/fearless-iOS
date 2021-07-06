@@ -1,6 +1,6 @@
 import Foundation
 
-enum StakingConfirmError: Error {
+enum SelectValidatorsConfirmError: Error {
     case notEnoughFunds
     case missingController(address: AccountAddress)
     case feeNotReceived

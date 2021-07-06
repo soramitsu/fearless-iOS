@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-struct ElectedValidatorInfo: Equatable {
+struct ElectedValidatorInfo: Equatable, Hashable, Recommendable {
     let address: String
     let nominators: [NominatorInfo]
     let totalStake: Decimal
@@ -19,6 +19,10 @@ struct ElectedValidatorInfo: Equatable {
 
     var hasIdentity: Bool {
         identity != nil
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(address)
     }
 }
 

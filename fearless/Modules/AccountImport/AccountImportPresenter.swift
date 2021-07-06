@@ -77,11 +77,13 @@ final class AccountImportPresenter {
         case .mnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
+            let normalizer = MnemonicTextNormalizer()
             let inputHandler = InputHandler(
                 value: value,
                 maxLength: AccountImportPresenter.maxMnemonicLength,
                 validCharacterSet: CharacterSet.englishMnemonic,
-                predicate: NSPredicate.notEmpty
+                predicate: NSPredicate.notEmpty,
+                normalizer: normalizer
             )
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .seed:
@@ -332,7 +334,7 @@ final class AccountImportPresenter {
 
         switch selectedSourceType {
         case .mnemonic:
-            return validateMnemonic(value: viewModel.inputHandler.value)
+            return validateMnemonic(value: viewModel.inputHandler.normalizedValue)
         case .seed:
             return viewModel.inputHandler.completed ? nil : AccountCreateError.invalidSeed
         case .keystore:
@@ -480,7 +482,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
         switch selectedSourceType {
         case .mnemonic:
-            let mnemonic = sourceViewModel.inputHandler.value
+            let mnemonic = sourceViewModel.inputHandler.normalizedValue
             let username = usernameViewModel.inputHandler.value
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
             let request = AccountImportMnemonicRequest(

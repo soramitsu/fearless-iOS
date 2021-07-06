@@ -1,21 +1,18 @@
 import Foundation
 import SoraKeystore
 import RobinHood
+import SoraFoundation
 
 struct SignerConnectViewFactory {
     static func createBeaconView(for info: BeaconConnectionInfo) -> SignerConnectViewProtocol? {
         let settings = SettingsManager.shared
-        guard let selectedAddress = settings.selectedAccount?.address else {
+
+        guard let selectedAccount = settings.selectedAccount else {
             return nil
         }
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
-
         let interactor = SignerConnectInteractor(
-            selectedAddress: selectedAddress,
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            operationManager: OperationManagerFacade.sharedManager,
+            selectedAccount: selectedAccount,
             info: info,
             logger: Logger.shared
         )
@@ -30,7 +27,10 @@ struct SignerConnectViewFactory {
             chain: settings.selectedConnection.type.chain
         )
 
-        let view = SignerConnectViewController(presenter: presenter)
+        let view = SignerConnectViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         interactor.presenter = presenter

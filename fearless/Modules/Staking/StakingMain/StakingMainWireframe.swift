@@ -27,11 +27,11 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(manageView, animated: true, completion: nil)
     }
 
-    func showRecommendedValidators(
+    func proceedToSelectValidatorsStart(
         from view: StakingMainViewProtocol?,
         existingBonding: ExistingBonding
     ) {
-        guard let recommendedView = RecommendedValidatorsViewFactory
+        guard let recommendedView = SelectValidatorsStartViewFactory
             .createChangeTargetsView(with: existingBonding)
         else {
             return
@@ -85,7 +85,7 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showNominatorValidators(from view: ControllerBackedProtocol?) {
-        guard let validatorsView = YourValidatorsViewFactory.createView() else {
+        guard let validatorsView = YourValidatorListViewFactory.createView() else {
             return
         }
 

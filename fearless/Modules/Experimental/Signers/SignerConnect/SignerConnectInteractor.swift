@@ -9,17 +9,13 @@ final class SignerConnectInteractor {
 
     private var client: Beacon.Client?
 
-    let selectedAddress: AccountAddress
-    let accountRepository: AnyDataProviderRepository<AccountItem>
-    let operationManager: OperationManagerProtocol
+    let selectedAccount: AccountItem
     let peer: Beacon.P2PPeer
     let connectionInfo: BeaconConnectionInfo
     let logger: LoggerProtocol?
 
     init(
-        selectedAddress: AccountAddress,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
-        operationManager: OperationManagerProtocol,
+        selectedAccount: AccountItem,
         info: BeaconConnectionInfo,
         logger: LoggerProtocol? = nil
     ) {
@@ -33,9 +29,7 @@ final class SignerConnectInteractor {
             appURL: nil
         )
 
-        self.selectedAddress = selectedAddress
-        self.accountRepository = accountRepository
-        self.operationManager = operationManager
+        self.selectedAccount = selectedAccount
         connectionInfo = info
         self.logger = logger
     }
@@ -117,7 +111,7 @@ final class SignerConnectInteractor {
     private func handle(permission: Beacon.Request.Permission) {
         logger?.debug("Permission request: \(permission)")
 
-        guard let accountId = try? SS58AddressFactory().accountId(from: selectedAddress) else {
+        guard let accountId = try? SS58AddressFactory().accountId(from: selectedAccount.address) else {
             logger?.error("Can't extract accountId")
             return
         }
@@ -168,14 +162,7 @@ final class SignerConnectInteractor {
 extension SignerConnectInteractor: SignerConnectInteractorInputProtocol, AccountFetching {
     func setup() {
         presenter.didReceiveApp(metadata: connectionInfo)
-
-        fetchAccount(
-            for: selectedAddress,
-            from: accountRepository,
-            operationManager: operationManager
-        ) { [weak self] result in
-            self?.presenter.didReceive(account: result)
-        }
+        presenter.didReceive(account: .success(selectedAccount))
     }
 
     func connect() {

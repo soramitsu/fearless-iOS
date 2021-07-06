@@ -1,7 +1,6 @@
 import UIKit
 
 final class SignerConfirmViewLayout: UIView {
-
     override init(frame: CGRect) {
         super.init(frame: frame)
     }

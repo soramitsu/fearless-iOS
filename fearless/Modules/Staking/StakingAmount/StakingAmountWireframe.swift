@@ -28,7 +28,7 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
     }
 
     func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding) {
-        guard let validatorsView = RecommendedValidatorsViewFactory
+        guard let validatorsView = SelectValidatorsStartViewFactory
             .createInitiatedBondingView(with: state)
         else {
             return

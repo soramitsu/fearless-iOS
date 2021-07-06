@@ -80,7 +80,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         context: AnyObject?
     )
 
-    func showRecommendedValidators(
+    func proceedToSelectValidatorsStart(
         from view: StakingMainViewProtocol?,
         existingBonding: ExistingBonding
     )
