@@ -56,7 +56,9 @@ extension SignerConnectPresenter: SignerConnectPresenterProtocol {
         )
     }
 
-    func changeConnectionStatus() {}
+    func changeConnectionStatus() {
+        // TODO: Needs more research
+    }
 }
 
 extension SignerConnectPresenter: SignerConnectInteractorOutputProtocol {
