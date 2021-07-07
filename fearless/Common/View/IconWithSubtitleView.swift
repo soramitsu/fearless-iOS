@@ -2,12 +2,11 @@ import UIKit
 
 class IconWithSubtitleView: UIView {
     enum Constants {
-        static let iconSize: CGFloat = 80.0
+        static let iconSize: CGFloat = 64.0
     }
 
     let iconView: UIImageView = {
         let imageView = UIImageView()
-        imageView.backgroundColor = R.color.colorWhite()
         return imageView
     }()
 

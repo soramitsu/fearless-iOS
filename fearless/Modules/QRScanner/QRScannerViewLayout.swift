@@ -13,7 +13,7 @@ final class QRScannerViewLayout: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p0Paragraph
+        label.font = .h3Title
         label.textColor = R.color.colorWhite()
         label.numberOfLines = 2
         label.textAlignment = .center

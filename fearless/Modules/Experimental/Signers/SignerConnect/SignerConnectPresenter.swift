@@ -56,8 +56,23 @@ extension SignerConnectPresenter: SignerConnectPresenterProtocol {
         )
     }
 
-    func changeConnectionStatus() {
-        // TODO: Needs more research
+    func presentConnectionDetails() {
+        guard let metadata = metadata else {
+            return
+        }
+
+        let languages = view?.selectedLocale.rLanguages
+        let title = R.string.localizable.signerConnectAddressFormat(
+            metadata.name,
+            preferredLanguages: languages
+        )
+
+        wireframe.present(
+            message: metadata.relayServer,
+            title: title,
+            closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+            from: view
+        )
     }
 }
 

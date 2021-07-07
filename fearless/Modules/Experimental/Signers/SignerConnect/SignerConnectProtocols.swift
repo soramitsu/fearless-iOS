@@ -8,7 +8,7 @@ protocol SignerConnectViewProtocol: ControllerBackedProtocol, Localizable {
 protocol SignerConnectPresenterProtocol: AnyObject {
     func setup()
     func presentAccountOptions()
-    func changeConnectionStatus()
+    func presentConnectionDetails()
 }
 
 protocol SignerConnectInteractorInputProtocol: AnyObject {
