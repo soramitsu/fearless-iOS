@@ -13,19 +13,7 @@ final class SignerConnectViewModelFactory: SignerConnectViewModelFactoryProtocol
         from metadata: BeaconConnectionInfo,
         account: AccountItem
     ) throws -> SignerConnectViewModel {
-        let iconViewModel: ImageViewModelProtocol? = {
-            guard let iconString = metadata.icon else {
-                return nil
-            }
-
-            if let url = URL(string: iconString) {
-                return RemoteImageViewModel(url: url)
-            } else if let data = Data(base64Encoded: iconString), let image = UIImage(data: data) {
-                return WalletStaticImageViewModel(staticImage: image)
-            }
-
-            return nil
-        }()
+        let iconViewModel = createImageViewModel(from: metadata.icon)
 
         let accountIcon = try PolkadotIconGenerator().generateFromAddress(account.address)
 
@@ -36,5 +24,26 @@ final class SignerConnectViewModelFactory: SignerConnectViewModelFactoryProtocol
             accountName: account.username,
             accountIcon: accountIcon
         )
+    }
+
+    private func createImageViewModel(from icon: String?) -> ImageViewModelProtocol? {
+        let defaultIconClosure: () -> ImageViewModelProtocol? = {
+            let defaultIcon = R.image.iconDAppDefault()
+            return defaultIcon.map { WalletStaticImageViewModel(staticImage: $0) }
+        }
+
+        guard let iconString = icon else {
+            return defaultIconClosure()
+        }
+
+        if let url = URL(string: iconString) {
+            return RemoteImageViewModel(url: url)
+        }
+
+        if let data = Data(base64Encoded: iconString), let image = UIImage(data: data) {
+            return WalletStaticImageViewModel(staticImage: image)
+        }
+
+        return defaultIconClosure()
     }
 }

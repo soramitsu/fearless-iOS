@@ -1,8 +1,8 @@
-import Foundation
+import UIKit
 
 enum ExperimentalOption: Int, CaseIterable {
-    case notifications
     case signer
+    case notifications
 }
 
 extension ExperimentalOption {
@@ -12,6 +12,15 @@ extension ExperimentalOption {
             return R.string.localizable.experimentalOptionNotifications(preferredLanguages: locale.rLanguages)
         case .signer:
             return R.string.localizable.experimentalOptionSigners(preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    var icon: UIImage? {
+        switch self {
+        case .notifications:
+            return R.image.iconNotificationsList()
+        case .signer:
+            return R.image.iconSignerConnectList()
         }
     }
 }

@@ -20,8 +20,7 @@ extension ExperimentalListPresenter: ExperimentalListPresenterProtocol {
             return
         }
 
-        let options = ExperimentalOption.allCases.map { $0.title(for: view.selectedLocale) }
-        view.didReceive(options: options)
+        view.didReceive(options: ExperimentalOption.allCases)
     }
 
     func selectOption(at index: Int) {

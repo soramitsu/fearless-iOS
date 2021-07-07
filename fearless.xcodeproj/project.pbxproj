@@ -5271,7 +5271,6 @@
 				840DCBFA25E0703A00D45C6A /* RewardSelectionView.swift */,
 				84DE8BD5264A651A002AF1EF /* RewardSelectionView+Inspectable.swift */,
 				F462B35B260C86880005AB01 /* ViewHolder.swift */,
-				84C91FA9261E724F002796B9 /* SwitchTableViewCell.swift */,
 				84F5105A263AB9F2005D15AE /* NetworkFeeView.swift */,
 				84F5105F263AE530005D15AE /* TitleValueView.swift */,
 				84FA8359265CE5BE00FDF727 /* TitleMultiValueView.swift */,
@@ -6091,6 +6090,7 @@
 				849842E526587573006BBB9F /* MultilineTableViewCell.swift */,
 				84DD88F7268E141300D2EFFD /* SingleTitleTableViewCell.swift */,
 				F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */,
+				84C91FA9261E724F002796B9 /* SwitchTableViewCell.swift */,
 			);
 			path = TableCell;
 			sourceTree = "<group>";

@@ -1,18 +1,10 @@
 import UIKit
 
 class SingleTitleTableViewCell: UITableViewCell {
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = R.color.colorWhite()
-        label.font = .p1Paragraph
-        return label
-    }()
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         configure()
-        setupLayout()
     }
 
     @available(*, unavailable)
@@ -20,8 +12,12 @@ class SingleTitleTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(title: String) {
-        titleLabel.text = title
+    func bind(title: String, icon: UIImage? = nil) {
+        textLabel?.text = title
+
+        if let icon = icon {
+            imageView?.image = icon
+        }
     }
 
     private func configure() {
@@ -31,6 +27,9 @@ class SingleTitleTableViewCell: UITableViewCell {
         selectedBackgroundView.backgroundColor = R.color.colorCellSelection()!
         self.selectedBackgroundView = selectedBackgroundView
 
+        textLabel?.textColor = R.color.colorWhite()
+        textLabel?.font = .p1Paragraph
+
         separatorInset = UIEdgeInsets(
             top: 0.0,
             left: UIConstants.horizontalInset,
@@ -39,13 +38,5 @@ class SingleTitleTableViewCell: UITableViewCell {
         )
 
         accessoryView = UIImageView(image: R.image.iconSmallArrow())
-    }
-
-    private func setupLayout() {
-        contentView.addSubview(titleLabel)
-
-        titleLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
     }
 }

@@ -6,7 +6,7 @@ final class ExperimentalListViewController: UIViewController, ViewHolder {
 
     let presenter: ExperimentalListPresenterProtocol
 
-    private(set) var options: [String] = []
+    private(set) var options: [ExperimentalOption] = []
 
     init(presenter: ExperimentalListPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
@@ -36,6 +36,7 @@ final class ExperimentalListViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(SingleTitleTableViewCell.self)
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+        rootView.tableView.rowHeight = 48.0
 
         rootView.tableView.tableFooterView = UIView()
     }
@@ -52,7 +53,12 @@ extension ExperimentalListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(SingleTitleTableViewCell.self)!
-        cell.bind(title: options[indexPath.row])
+
+        let option = options[indexPath.row]
+        cell.bind(
+            title: option.title(for: selectedLocale),
+            icon: option.icon
+        )
         return cell
     }
 }
@@ -66,7 +72,7 @@ extension ExperimentalListViewController: UITableViewDelegate {
 }
 
 extension ExperimentalListViewController: ExperimentalListViewProtocol {
-    func didReceive(options: [String]) {
+    func didReceive(options: [ExperimentalOption]) {
         self.options = options
 
         rootView.tableView.reloadData()
@@ -77,6 +83,7 @@ extension ExperimentalListViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
+            rootView.tableView.reloadData()
         }
     }
 }

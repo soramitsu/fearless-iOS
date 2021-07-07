@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol ExperimentalListViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(options: [String])
+    func didReceive(options: [ExperimentalOption])
 }
 
 protocol ExperimentalListPresenterProtocol: AnyObject {
