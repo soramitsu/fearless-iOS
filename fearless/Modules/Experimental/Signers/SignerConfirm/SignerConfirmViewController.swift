@@ -1,7 +1,8 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
-final class SignerConfirmViewController: UIViewController {
+final class SignerConfirmViewController: UIViewController, ViewHolder {
     typealias RootViewType = SignerConfirmViewLayout
 
     let presenter: SignerConfirmPresenterProtocol
@@ -12,6 +13,9 @@ final class SignerConfirmViewController: UIViewController {
 
         self.localizationManager = localizationManager
     }
+
+    let animatorIn = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromBottom, curve: .easeIn)
+    let animatorOut = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromTop, curve: .easeOut)
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -25,20 +29,71 @@ final class SignerConfirmViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configure()
         setupLocalization()
         presenter.setup()
     }
 
-    private func setupLocalization() {}
+    private func configure() {
+        rootView.confirmView.actionButton.addTarget(self, action: #selector(actionConfirm), for: .touchUpInside)
+
+        rootView.extrinsicView.isHidden = true
+        rootView.extrinsicToggle.addTarget(self, action: #selector(actionTxToggle), for: .valueChanged)
+    }
+
+    private func setupLocalization() {
+        title = R.string.localizable.commonConfirm(preferredLanguages: selectedLocale.rLanguages)
+        rootView.locale = selectedLocale
+    }
+
+    @objc private func actionConfirm() {
+        presenter.confirm()
+    }
+
+    @objc private func actionTxToggle() {
+        rootView.extrinsicView.isHidden = !rootView.extrinsicToggle.isActivated
+
+        if rootView.extrinsicToggle.isActivated {
+            animatorIn.animate(view: rootView.extrinsicView, completionBlock: nil)
+
+            let scrollView = rootView.contentView.scrollView
+            let targetFrame = rootView.extrinsicView.bounds
+            scrollView.scrollRectToVisible(rootView.extrinsicView.convert(targetFrame, to: scrollView), animated: true)
+        } else {
+            animatorOut.animate(view: rootView.extrinsicView, completionBlock: nil)
+        }
+    }
 }
 
 extension SignerConfirmViewController: SignerConfirmViewProtocol {
     func didReceiveCall(viewModel: SignerConfirmCallViewModel) {
+        rootView.accountView.subtitle = viewModel.accountName
+        rootView.accountView.iconImage = viewModel.accountIcon.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: UIConstants.smallAddressIconSize,
+            contentScale: UIScreen.main.scale
+        )
 
+        rootView.moduleView.valueLabel.text = viewModel.moduleName
+        rootView.callView.valueLabel.text = viewModel.callName
+
+        if let amount = viewModel.amount {
+            rootView.insertAmountViewIfNeeded()
+
+            rootView.amountView?.bind(viewModel: amount)
+        } else {
+            rootView.removeAmountViewIfNeeded()
+        }
+
+        rootView.extrinsicView.subtitleLabel.text = viewModel.extrinsicString
+
+        rootView.extrinsicView.invalidateLayout()
+        rootView.extrinsicView.setNeedsLayout()
     }
 
     func didReceiveFee(viewModel: SignerConfirmFeeViewModel) {
-        
+        rootView.feeView.bind(viewModel: viewModel.fee)
+        rootView.confirmView.networkFeeView.bind(viewModel: viewModel.total)
     }
 }
 

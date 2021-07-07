@@ -58,7 +58,13 @@ final class SignerConfirmPresenter {
             return
         }
 
-        let viewModel = viewModelFactory.createFeeViewModel(from: confirmation, fee: fee, priceData: priceData, locale: selectedLocale)
+        let viewModel = viewModelFactory.createFeeViewModel(
+            from: confirmation,
+            fee: fee,
+            priceData: priceData,
+            locale: selectedLocale
+        )
+
         view?.didReceiveFee(viewModel: viewModel)
     }
 }

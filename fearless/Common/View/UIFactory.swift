@@ -34,7 +34,7 @@ protocol UIFactoryProtocol {
     ) -> DetailsTriangularedView
     func createExpandableActionControl() -> ExpandableActionControl
     func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
-    func createMultilinedTriangularedView() -> MultilineTriangularedView
+    func createMultilinedTriangularedView(filled: Bool) -> MultilineTriangularedView
     func createSeparatorView() -> UIView
     func createActionsAccessoryView(
         for actions: [ViewSelectorAction],
@@ -77,6 +77,10 @@ extension UIFactoryProtocol {
         let view = createLearnMoreView()
         view.iconView.image = R.image.iconFearlessSmall()
         return view
+    }
+
+    func createMultilinedTriangularedView() -> MultilineTriangularedView {
+        createMultilinedTriangularedView(filled: true)
     }
 }
 
@@ -164,13 +168,22 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
-    func createMultilinedTriangularedView() -> MultilineTriangularedView {
+    func createMultilinedTriangularedView(filled: Bool) -> MultilineTriangularedView {
         let view = MultilineTriangularedView()
-        view.backgroundView.fillColor = R.color.colorDarkGray()!
-        view.backgroundView.highlightedFillColor = R.color.colorDarkGray()!
-        view.backgroundView.strokeColor = .clear
-        view.backgroundView.highlightedStrokeColor = .clear
-        view.backgroundView.strokeWidth = 0.0
+
+        if filled {
+            view.backgroundView.fillColor = R.color.colorDarkGray()!
+            view.backgroundView.highlightedFillColor = R.color.colorDarkGray()!
+            view.backgroundView.strokeColor = .clear
+            view.backgroundView.highlightedStrokeColor = .clear
+            view.backgroundView.strokeWidth = 0.0
+        } else {
+            view.backgroundView.fillColor = .clear
+            view.backgroundView.highlightedFillColor = .clear
+            view.backgroundView.strokeColor = R.color.colorDarkGray()!
+            view.backgroundView.highlightedStrokeColor = R.color.colorDarkGray()!
+            view.backgroundView.strokeWidth = 1.0
+        }
 
         view.titleLabel.textColor = R.color.colorLightGray()!
         view.titleLabel.font = UIFont.p2Paragraph

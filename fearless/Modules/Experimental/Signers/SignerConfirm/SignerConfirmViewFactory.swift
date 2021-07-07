@@ -51,7 +51,10 @@ struct SignerConfirmViewFactory {
             limit: Decimal.greatestFiniteMagnitude
         )
 
-        let viewModelFactory = SignerConfirmViewModelFactory(balanceViewModelFactory: balanceViewModelFactory, chain: networkType.chain)
+        let viewModelFactory = SignerConfirmViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory,
+            chain: networkType.chain
+        )
 
         let presenter = SignerConfirmPresenter(
             interactor: interactor,
@@ -59,7 +62,8 @@ struct SignerConfirmViewFactory {
             viewModelFactory: viewModelFactory,
             chain: networkType.chain,
             selectedAccount: selectedAccount,
-            dataValidatingFactory: dataValidating
+            dataValidatingFactory: dataValidating,
+            localizationManager: localizationManager
         )
 
         let view = SignerConfirmViewController(presenter: presenter, localizationManager: localizationManager)

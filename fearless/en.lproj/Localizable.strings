@@ -510,3 +510,7 @@ Derivation path: %@";
 "signer.connect.status.connecting" = "Connecting";
 "signer.connect.status.failed" = "Failed";
 "signer.beacon.title" = "Beacon connect";
+"signer.confirm.hint" = "Please, review information below before confirming";
+"common.from" = "From";
+"common.tx.raw" = "Transaction raw data";
+"common.transaction" = "Transaction";

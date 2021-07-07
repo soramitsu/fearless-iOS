@@ -66,6 +66,12 @@ class MultilineTriangularedView: UIView {
         )
     }
 
+    func invalidateLayout() {
+        calculatedSubtitleWidth = 0
+        calculatedSubtitleHeight = 0
+        invalidateIntrinsicContentSize()
+    }
+
     private func configure() {
         backgroundColor = .clear
 

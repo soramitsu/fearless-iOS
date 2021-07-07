@@ -7,6 +7,7 @@ protocol SignerConfirmViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol SignerConfirmPresenterProtocol: AnyObject {
     func setup()
+    func confirm()
 }
 
 protocol SignerConfirmInteractorInputProtocol: AnyObject {
