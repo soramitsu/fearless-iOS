@@ -14,8 +14,8 @@ final class SignerConfirmViewController: UIViewController, ViewHolder {
         self.localizationManager = localizationManager
     }
 
-    let animatorIn = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromBottom, curve: .easeIn)
-    let animatorOut = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromTop, curve: .easeOut)
+    let animatorIn = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromBottom, curve: .easeOut)
+    let animatorOut = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromTop, curve: .easeIn)
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -55,10 +55,6 @@ final class SignerConfirmViewController: UIViewController, ViewHolder {
 
         if rootView.extrinsicToggle.isActivated {
             animatorIn.animate(view: rootView.extrinsicView, completionBlock: nil)
-
-            let scrollView = rootView.contentView.scrollView
-            let targetFrame = rootView.extrinsicView.bounds
-            scrollView.scrollRectToVisible(rootView.extrinsicView.convert(targetFrame, to: scrollView), animated: true)
         } else {
             animatorOut.animate(view: rootView.extrinsicView, completionBlock: nil)
         }
