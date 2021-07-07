@@ -47,7 +47,7 @@ final class SignerConnectViewController: UIViewController, ViewHolder {
     }
 
     @objc private func actionDidSelectStatus() {
-        presenter.changeConnectionStatus()
+        presenter.presentConnectionDetails()
     }
 }
 

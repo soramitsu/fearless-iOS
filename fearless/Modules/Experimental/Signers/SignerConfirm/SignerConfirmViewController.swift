@@ -14,9 +14,6 @@ final class SignerConfirmViewController: UIViewController, ViewHolder {
         self.localizationManager = localizationManager
     }
 
-    let animatorIn = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromBottom, curve: .easeOut)
-    let animatorOut = TransitionAnimator(type: .push, duration: 0.35, subtype: .fromTop, curve: .easeIn)
-
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -39,6 +36,8 @@ final class SignerConfirmViewController: UIViewController, ViewHolder {
 
         rootView.extrinsicView.isHidden = true
         rootView.extrinsicToggle.addTarget(self, action: #selector(actionTxToggle), for: .valueChanged)
+
+        rootView.accountView.addTarget(self, action: #selector(actionSelectAccount), for: .touchUpInside)
     }
 
     private func setupLocalization() {
@@ -52,12 +51,10 @@ final class SignerConfirmViewController: UIViewController, ViewHolder {
 
     @objc private func actionTxToggle() {
         rootView.extrinsicView.isHidden = !rootView.extrinsicToggle.isActivated
+    }
 
-        if rootView.extrinsicToggle.isActivated {
-            animatorIn.animate(view: rootView.extrinsicView, completionBlock: nil)
-        } else {
-            animatorOut.animate(view: rootView.extrinsicView, completionBlock: nil)
-        }
+    @objc private func actionSelectAccount() {
+        presenter.presentAccountOptions()
     }
 }
 

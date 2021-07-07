@@ -67,6 +67,19 @@ final class SignerConfirmPresenter {
 
         view?.didReceiveFee(viewModel: viewModel)
     }
+
+    func presentAccountOptions() {
+        guard let view = view else {
+            return
+        }
+
+        wireframe.presentAccountOptions(
+            from: view,
+            address: selectedAccount.address,
+            chain: chain,
+            locale: view.selectedLocale
+        )
+    }
 }
 
 extension SignerConfirmPresenter: SignerConfirmPresenterProtocol {

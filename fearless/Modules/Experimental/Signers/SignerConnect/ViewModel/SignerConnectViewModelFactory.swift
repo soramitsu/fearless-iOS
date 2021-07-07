@@ -17,10 +17,18 @@ final class SignerConnectViewModelFactory: SignerConnectViewModelFactoryProtocol
 
         let accountIcon = try PolkadotIconGenerator().generateFromAddress(account.address)
 
+        let host: String? = {
+            guard let appUrl = metadata.appUrl else {
+                return nil
+            }
+
+            return URL(string: appUrl)?.host
+        }()
+
         return SignerConnectViewModel(
             title: metadata.name,
             icon: iconViewModel,
-            connection: metadata.relayServer,
+            connection: host ?? metadata.relayServer,
             accountName: account.username,
             accountIcon: accountIcon
         )

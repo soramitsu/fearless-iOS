@@ -7,6 +7,7 @@ protocol SignerConfirmViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol SignerConfirmPresenterProtocol: AnyObject {
     func setup()
+    func presentAccountOptions()
     func confirm()
 }
 
@@ -25,6 +26,6 @@ protocol SignerConfirmInteractorOutputProtocol: AnyObject {
 }
 
 protocol SignerConfirmWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting,
-    BaseErrorPresentable {
+    BaseErrorPresentable, AddressOptionsPresentable {
     func complete(on view: SignerConfirmViewProtocol?)
 }
