@@ -13,9 +13,9 @@ enum StakingManageOption {
         case .stakingBalance:
             return R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages)
         case .pendingRewards:
-            return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
+            return R.string.localizable.stakingPendingRewards(preferredLanguages: locale.rLanguages)
         case .rewardDestination:
-            return R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+            return R.string.localizable.stakingRewardsDestination(preferredLanguages: locale.rLanguages)
         case .changeValidators, .setupValidators:
             return R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: locale.rLanguages)
         case .controllerAccount:
