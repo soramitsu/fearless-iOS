@@ -207,7 +207,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 return [
                     .stakingBalance,
-                    .rewardPayouts,
+                    .pendingRewards,
                     .rewardDestination,
                     .changeValidators(count: nominatorState.nomination.targets.count),
                     .controllerAccount
@@ -225,7 +225,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
             return [
                 .stakingBalance,
-                .rewardPayouts,
+                .pendingRewards,
                 .rewardDestination,
                 .controllerAccount
             ]
@@ -526,7 +526,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         let selectedItem = manageStakingItems[index]
 
         switch selectedItem {
-        case .rewardPayouts:
+        case .pendingRewards:
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
                 let stashAddress = validatorState.stashItem.stash
                 wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashAddress)

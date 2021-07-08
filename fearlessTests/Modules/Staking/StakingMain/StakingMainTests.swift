@@ -162,7 +162,7 @@ class StakingMainTests: XCTestCase {
 
         let options: [StakingManageOption] = [
             .stakingBalance,
-            .rewardPayouts,
+            .pendingRewards,
             .changeValidators(count: 16)
         ]
 
@@ -190,7 +190,7 @@ class StakingMainTests: XCTestCase {
 
         let options: [StakingManageOption] = [
             .stakingBalance,
-            .rewardPayouts,
+            .pendingRewards,
             .changeValidators(count: 16)
         ]
 

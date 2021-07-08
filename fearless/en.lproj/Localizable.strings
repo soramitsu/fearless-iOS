@@ -491,3 +491,5 @@ Derivation path: %@";
 "staking.validator.total.stake.token" = "Total stake (%s)";
 "staking.validator.apy.percent" = "Estimated reward (% APY)";
 "staking.alert.start.next.era.message" = "Please wait for the next era to start.";
+"staking.pending.rewards" = "Pending rewards";
+"staking.rewards.destination" = "Rewards destination";

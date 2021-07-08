@@ -489,3 +489,5 @@ Derivation path: %@";
 "staking.recommended.hint3.addition" = "";
 "staking.validator.total.stake.token" = "";
 "staking.validator.apy.percent" = "";
+"staking.pending.rewards" = "";
+"staking.rewards.destination" = "";
