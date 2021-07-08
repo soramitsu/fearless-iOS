@@ -2,7 +2,7 @@ import UIKit.UIImage
 
 enum StakingManageOption {
     case stakingBalance
-    case rewardPayouts
+    case pendingRewards
     case rewardDestination
     case setupValidators
     case changeValidators(count: Int?)
@@ -12,7 +12,7 @@ enum StakingManageOption {
         switch self {
         case .stakingBalance:
             return R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages)
-        case .rewardPayouts:
+        case .pendingRewards:
             return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
         case .rewardDestination:
             return R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
@@ -40,7 +40,7 @@ enum StakingManageOption {
         switch self {
         case .stakingBalance:
             return R.image.iconStakingBalance()
-        case .rewardPayouts:
+        case .pendingRewards:
             return R.image.iconLightning()
         case .rewardDestination:
             return R.image.iconWallet()
