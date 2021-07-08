@@ -41,7 +41,7 @@ enum StakingManageOption {
         case .stakingBalance:
             return R.image.iconStakingBalance()
         case .pendingRewards:
-            return R.image.iconLightning()
+            return R.image.iconPendingRewards()
         case .rewardDestination:
             return R.image.iconWallet()
         case .changeValidators, .setupValidators:
