@@ -40,8 +40,11 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
         do {
             let updateClosure: (RuntimeVersionUpdate) -> Void = { [weak self] update in
                 let runtimeVersion = update.params.result
-                self?.logger.debug("Did receive spec version: \(runtimeVersion.specVersion)")
-                self?.logger.debug("Did receive tx version: \(runtimeVersion.transactionVersion)")
+
+                let chainName = self?.chain.rawValue ?? "no chain"
+
+                self?.logger.debug("Did receive spec version (\(chainName)): \(runtimeVersion.specVersion)")
+                self?.logger.debug("Did receive tx version (\(chainName)): \(runtimeVersion.transactionVersion)")
 
                 self?.handle(runtimeVersion: runtimeVersion)
             }

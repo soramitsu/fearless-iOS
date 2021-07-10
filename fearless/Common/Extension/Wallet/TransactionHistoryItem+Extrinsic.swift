@@ -13,7 +13,7 @@ extension TransactionHistoryItem {
             let typeRawValue = try addressFactory.type(fromAddress: address)
             let extrinsic = result.processingResult.extrinsic
 
-            guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
+            guard let addressType = SNAddressType(rawValue: typeRawValue.uint16Value) else {
                 return nil
             }
 

@@ -76,7 +76,7 @@ extension AddAccount {
 
                 let resultConnection: ConnectionItem
 
-                if selectedConnection.type == SNAddressType(rawValue: type.uint8Value) {
+                if selectedConnection.type == SNAddressType(rawValue: type.uint16Value) {
                     resultConnection = selectedConnection
                 } else if let connection = ConnectionItem.supportedConnections
                     .first(where: { $0.type.rawValue == type.uint8Value }) {

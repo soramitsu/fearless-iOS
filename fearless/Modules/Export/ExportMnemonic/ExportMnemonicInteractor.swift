@@ -47,7 +47,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
 
             let addressRawType = try SS58AddressFactory().type(fromAddress: address)
 
-            guard let chain = SNAddressType(rawValue: addressRawType.uint8Value)?.chain else {
+            guard let chain = SNAddressType(rawValue: addressRawType.uint16Value)?.chain else {
                 throw AccountExportPasswordInteractorError.unsupportedAddress
             }
 

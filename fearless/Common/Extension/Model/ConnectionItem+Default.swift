@@ -56,6 +56,56 @@ extension ConnectionItem {
                 title: "Rococo, Laminar node",
                 url: URL(string: "wss://rococo-community-rpc.laminar.codes/ws")!,
                 type: SNAddressType.kusamaSecondary
+            ),
+            ConnectionItem(
+                title: "Karura node",
+                url: URL(string: "wss://karura-rpc-0.aca-api.network/")!,
+                type: SNAddressType.karura
+            ),
+            ConnectionItem(
+                title: "Monriver node",
+                url: URL(string: "wss://wss.moonriver.moonbeam.network/")!,
+                type: SNAddressType.moonriver
+            ),
+            ConnectionItem(
+                title: "Centrifuge node",
+                url: URL(string: "wss://fullnode.centrifuge.io/")!,
+                type: .centrifuge
+            ),
+            ConnectionItem(
+                title: "ChainX node",
+                url: URL(string: "wss://chainx.elara.patract.io/")!,
+                type: .chainX
+            ),
+            ConnectionItem(
+                title: "Darwinia node",
+                url: URL(string: "wss://rpc.darwinia.network/")!,
+                type: .darwinia
+            ),
+            ConnectionItem(
+                title: "Edgeware node",
+                url: URL(string: "wss://edgeware.elara.patract.io/")!,
+                type: .edgeware
+            ),
+            ConnectionItem(
+                title: "Kulupu node",
+                url: URL(string: "wss://kulupu.elara.patract.io/")!,
+                type: .kulupu
+            ),
+            ConnectionItem(
+                title: "Plasm node",
+                url: URL(string: "wss://rpc.plasmnet.io/")!,
+                type: .plasm
+            ),
+            ConnectionItem(
+                title: "Sora node",
+                url: URL(string: "wss://mof2.sora.org/")!,
+                type: .sora
+            ),
+            ConnectionItem(
+                title: "Subsocial node",
+                url: URL(string: "wss://rpc.subsocial.network/")!,
+                type: .subsocial
             )
         ]
     }

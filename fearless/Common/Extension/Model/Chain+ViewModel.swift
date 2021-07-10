@@ -11,6 +11,13 @@ extension Chain {
             return "Westend"
         case .rococo:
             return "Rococo"
+        case .karura:
+            return "Karura"
+        case .moonriver:
+            return "Moonriver"
+        case .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+            return ""
         }
     }
 
@@ -24,6 +31,13 @@ extension Chain {
             return R.image.iconWestendSmallBg()
         case .rococo:
             return R.image.iconKsmSmallBg()
+        case .karura:
+            return R.image.iconKsmSmallBg()
+        case .moonriver:
+            return R.image.iconKsmSmallBg()
+        case .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+            return nil
         }
     }
 
@@ -37,6 +51,13 @@ extension Chain {
             return R.image.iconWestendExtrinsic()
         case .rococo:
             return R.image.iconKusamaExtrinsic()
+        case .karura:
+            return R.image.iconKusamaExtrinsic()
+        case .moonriver:
+            return R.image.iconKusamaExtrinsic()
+        case .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+            return nil
         }
     }
 }

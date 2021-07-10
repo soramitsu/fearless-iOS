@@ -63,16 +63,12 @@ class ControllerAccountTests: XCTestCase {
 
         let controllerAccountInfo = AccountInfo(
             nonce: 0,
-            consumers: 0,
-            providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(controllerAccountInfo), address: controllerAddress)
 
         let stashAccountInfo = AccountInfo(
             nonce: 0,
-            consumers: 0,
-            providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
@@ -99,8 +95,6 @@ class ControllerAccountTests: XCTestCase {
 
         let accountInfoSmallBalance = AccountInfo(
             nonce: 0,
-            consumers: 0,
-            providers: 0,
             data: AccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance), address: stashAddress)

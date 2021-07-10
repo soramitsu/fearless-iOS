@@ -10,7 +10,7 @@ extension SS58AddressFactoryProtocol {
     func extractAddressType(from address: String) throws -> SNAddressType {
         let addressTypeValue = try type(fromAddress: address)
 
-        guard let addressType = SNAddressType(rawValue: addressTypeValue.uint8Value) else {
+        guard let addressType = SNAddressType(rawValue: addressTypeValue.uint16Value) else {
             throw SS58AddressFactoryError.unexpectedAddress
         }
 

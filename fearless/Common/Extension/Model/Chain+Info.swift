@@ -11,6 +11,13 @@ extension Chain {
             return "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
         case .rococo:
             return "1ab7fbd1d7c3532386268ec23fe4ff69f5bb6b3e3697947df3a2ec2786424de3"
+        case .karura:
+            return "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b"
+        case .moonriver:
+            return "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b"
+        case .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+            return ""
         }
     }
 
@@ -18,7 +25,8 @@ extension Chain {
         switch self {
         case .polkadot:
             return 1
-        case .kusama, .westend, .rococo:
+        case .kusama, .westend, .rococo, .karura, .moonriver, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return 4
         }
     }
@@ -29,7 +37,12 @@ extension Chain {
             return URL(string: "https://polkascan.io/polkadot/extrinsic/\(hash)")
         case .kusama:
             return URL(string: "https://polkascan.io/kusama/extrinsic/\(hash)")
-        case .westend, .rococo:
+        case .karura:
+            return URL(string: "https://polkascan.io/karura/extrinsic/\(hash)")
+        case .moonriver:
+            return URL(string: "https://polkascan.io/moonriver/extrinsic/\(hash)")
+        case .westend, .rococo, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return nil
         }
     }
@@ -40,7 +53,12 @@ extension Chain {
             return URL(string: "https://polkascan.io/polkadot/account/\(address)")
         case .kusama:
             return URL(string: "https://polkascan.io/kusama/account/\(address)")
-        case .westend, .rococo:
+        case .karura:
+            return URL(string: "https://polkascan.io/karura/account/\(address)")
+        case .moonriver:
+            return URL(string: "https://polkascan.io/moonriver/account/\(address)")
+        case .westend, .rococo, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return nil
         }
     }
@@ -53,7 +71,12 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/extrinsic/\(hash)")
         case .westend:
             return URL(string: "https://westend.subscan.io/extrinsic/\(hash)")
-        case .rococo:
+        case .moonriver:
+            return URL(string: "https://moonriver.subscan.io/extrinsic/\(hash)")
+        case .karura:
+            return URL(string: "https://karura.subscan.io/extrinsic/\(hash)")
+        case .rococo, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return nil
         }
     }
@@ -66,7 +89,12 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/account/\(address)")
         case .westend:
             return URL(string: "https://westend.subscan.io/account/\(address)")
-        case .rococo:
+        case .karura:
+            return URL(string: "https://karura.subscan.io/account/\(address)")
+        case .moonriver:
+            return URL(string: "https://monriver.subscan.io/account/\(address)")
+        case .rococo, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return nil
         }
     }
@@ -77,7 +105,8 @@ extension Chain {
             return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward")
         case .kusama:
             return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward-kusama")
-        case .westend, .rococo:
+        case .westend, .rococo, .karura, .moonriver, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return nil
         }
     }
@@ -96,6 +125,26 @@ extension Chain {
             return R.file.runtimeWestendJson.path()
         case .rococo:
             return R.file.runtimeRococoJson.path()
+        case .karura:
+            return R.file.runtimeKaruraJson.path()
+        case .moonriver:
+            return R.file.runtimeMoonriverJson.path()
+        case .centrifuge:
+            return R.file.runtimeCentrifugeJson.path()
+        case .chainX:
+            return R.file.runtimeChainxJson.path()
+        case .darwinia:
+            return R.file.runtimeDawiniaJson.path()
+        case .edgeware:
+            return R.file.runtimeEdgewareJson.path()
+        case .plasm:
+            return R.file.runtimePlasmJson.path()
+        case .sora:
+            return R.file.runtimeSoraJson.path()
+        case .subsocial:
+            return R.file.runtimeSubsocialJson.path()
+        case .kulupu:
+            return R.file.runtimeKulupuJson.path()
         }
     }
 
@@ -116,6 +165,9 @@ extension Chain {
             return base?.appendingPathComponent("polkadot.json")
         case .rococo:
             return base?.appendingPathComponent("rococo.json")
+        case .karura, .moonriver, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+            return nil
         }
     }
 
@@ -131,6 +183,9 @@ extension Chain {
             return base.appendingPathComponent("polkadot.json")
         case .rococo:
             return base.appendingPathComponent("rococo.json")
+        case .karura, .moonriver, .centrifuge, .chainX,
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+            return base.appendingPathComponent("kusama.json")
         }
     }
     // swiftlint:enable line_length

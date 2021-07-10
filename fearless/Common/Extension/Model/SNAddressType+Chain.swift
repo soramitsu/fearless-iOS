@@ -12,6 +12,26 @@ extension SNAddressType {
             self = .genericSubstrate
         case .rococo:
             self = .kusamaSecondary
+        case .moonriver:
+            self = .moonriver
+        case .karura:
+            self = .karura
+        case .centrifuge:
+            self = .centrifuge
+        case .chainX:
+            self = .chainX
+        case .darwinia:
+            self = .darwinia
+        case .edgeware:
+            self = .edgeware
+        case .kulupu:
+            self = .kulupu
+        case .plasm:
+            self = .plasm
+        case .subsocial:
+            self = .subsocial
+        case .sora:
+            self = .sora
         }
     }
 
@@ -23,8 +43,30 @@ extension SNAddressType {
             return .polkadot
         case .kusamaSecondary:
             return .rococo
-        default:
+        case .karura:
+            return .karura
+        case .moonriver:
+            return .moonriver
+        case .genericSubstrate:
             return .westend
+        case .polkadotSecondary:
+            return .polkadot
+        case .centrifuge:
+            return .centrifuge
+        case .chainX:
+            return .chainX
+        case .darwinia:
+            return .darwinia
+        case .edgeware:
+            return .edgeware
+        case .kulupu:
+            return .kulupu
+        case .plasm:
+            return .plasm
+        case .sora:
+            return .sora
+        case .subsocial:
+            return .subsocial
         }
     }
 

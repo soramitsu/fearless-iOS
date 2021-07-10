@@ -8,6 +8,12 @@ protocol ChildSubscriptionFactoryProtocol {
     )
         -> StorageChildSubscribing
 
+    func createCustomHandlingSubscription(
+        remoteKey: Data,
+        handler: @escaping (DataProviderChange<ChainStorageItem>) -> Void
+    )
+        -> StorageChildSubscribing
+
     func createEmptyHandlingSubscription(remoteKey: Data) -> StorageChildSubscribing
 }
 
@@ -55,6 +61,23 @@ extension ChildSubscriptionFactory: ChildSubscriptionFactoryProtocol {
             logger: logger,
             eventCenter: eventCenter,
             eventFactory: eventFactory
+        )
+    }
+
+    func createCustomHandlingSubscription(
+        remoteKey: Data,
+        handler: @escaping (DataProviderChange<ChainStorageItem>) -> Void
+    ) -> StorageChildSubscribing {
+        let localKey = localKeyFactory.createIdentifier(for: remoteKey)
+
+        return CustomHandlingStorageSubscription(
+            remoteStorageKey: remoteKey,
+            localStorageKey: localKey,
+            storage: repository,
+            operationManager: operationManager,
+            logger: logger,
+            eventCenter: eventCenter,
+            handler: handler
         )
     }
 

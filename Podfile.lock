@@ -23,23 +23,23 @@ PODS:
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.8.0):
+  - IrohaCrypto/BIP39 (0.8.1):
     - IrohaCrypto/Common
-  - IrohaCrypto/blake2 (0.8.0)
-  - IrohaCrypto/Common (0.8.0)
-  - IrohaCrypto/ed25519 (0.8.0):
+  - IrohaCrypto/blake2 (0.8.1)
+  - IrohaCrypto/Common (0.8.1)
+  - IrohaCrypto/ed25519 (0.8.1):
     - IrohaCrypto/Common
-  - IrohaCrypto/Scrypt (0.8.0):
+  - IrohaCrypto/Scrypt (0.8.1):
     - IrohaCrypto/Common
     - scrypt.c (~> 0.1)
-  - IrohaCrypto/secp256k1 (0.8.0):
+  - IrohaCrypto/secp256k1 (0.8.1):
     - IrohaCrypto/Common
     - secp256k1.c (~> 0.1)
-  - IrohaCrypto/sr25519 (0.8.0):
+  - IrohaCrypto/sr25519 (0.8.1):
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
-  - IrohaCrypto/ss58 (0.8.0):
+  - IrohaCrypto/ss58 (0.8.1):
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - Kingfisher (6.3.0)
@@ -190,7 +190,7 @@ SPEC CHECKSUMS:
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 9a5933f8b1a519bfc6baf21d6d23a2be92d638aa
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: bef5e0fdbbfe587657d5de9a8961d7cb1f995a7e
+  IrohaCrypto: 2f3ced592d33186beeb8818c0cb7481ec1365819
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962

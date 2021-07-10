@@ -36,7 +36,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         var builder = KeystoreBuilder()
             .with(name: account.username)
 
-        if let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
+        if let genesisHash = SNAddressType(rawValue: addressType.uint16Value)?.chain.genesisHash,
            let genesisHashData = try? Data(hexString: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }

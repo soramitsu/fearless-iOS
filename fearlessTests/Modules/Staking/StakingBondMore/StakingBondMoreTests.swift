@@ -51,8 +51,6 @@ class StakingBondMoreTests: XCTestCase {
         // balance & fee is received
         let accountInfo = AccountInfo(
             nonce: 0,
-            consumers: 0,
-            providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
 

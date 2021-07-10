@@ -4,8 +4,6 @@ import BigInt
 
 struct AccountInfo: Codable, Equatable {
     @StringCodable var nonce: UInt32
-    @StringCodable var consumers: UInt32
-    @StringCodable var providers: UInt32
     let data: AccountData
 }
 

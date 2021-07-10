@@ -54,7 +54,7 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
         do {
             let typeRawValue = try addressFactory.type(fromAddress: address)
 
-            guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
+            guard let addressType = SNAddressType(rawValue: typeRawValue.uint16Value) else {
                 return nil
             }
 
