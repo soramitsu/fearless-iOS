@@ -16,7 +16,7 @@ extension Chain {
         case .moonriver:
             return "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b"
         case .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return ""
         }
     }
@@ -25,7 +25,7 @@ extension Chain {
         switch self {
         case .polkadot:
             return 1
-        case .kusama, .westend, .rococo, .karura, .moonriver, .centrifuge, .chainX,
+        case .kusama, .westend, .rococo, .karura, .moonriver, .moonBaseAlpha, .centrifuge, .chainX,
              .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
             return 4
         }
@@ -42,7 +42,7 @@ extension Chain {
         case .moonriver:
             return URL(string: "https://polkascan.io/moonriver/extrinsic/\(hash)")
         case .westend, .rococo, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -58,7 +58,7 @@ extension Chain {
         case .moonriver:
             return URL(string: "https://polkascan.io/moonriver/account/\(address)")
         case .westend, .rococo, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -76,7 +76,7 @@ extension Chain {
         case .karura:
             return URL(string: "https://karura.subscan.io/extrinsic/\(hash)")
         case .rococo, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -94,7 +94,7 @@ extension Chain {
         case .moonriver:
             return URL(string: "https://monriver.subscan.io/account/\(address)")
         case .rococo, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -106,7 +106,7 @@ extension Chain {
         case .kusama:
             return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward-kusama")
         case .westend, .rococo, .karura, .moonriver, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -129,6 +129,8 @@ extension Chain {
             return R.file.runtimeKaruraJson.path()
         case .moonriver:
             return R.file.runtimeMoonriverJson.path()
+        case .moonBaseAlpha:
+            return R.file.runtimeMoonbaseAlphaJson.path()
         case .centrifuge:
             return R.file.runtimeCentrifugeJson.path()
         case .chainX:
@@ -166,7 +168,7 @@ extension Chain {
         case .rococo:
             return base?.appendingPathComponent("rococo.json")
         case .karura, .moonriver, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -184,7 +186,7 @@ extension Chain {
         case .rococo:
             return base.appendingPathComponent("rococo.json")
         case .karura, .moonriver, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return base.appendingPathComponent("kusama.json")
         }
     }

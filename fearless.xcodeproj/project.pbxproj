@@ -623,6 +623,7 @@
 		8488101B2698E0F80076BC48 /* runtime-dawinia.json in Resources */ = {isa = PBXBuildFile; fileRef = 848810122698E0F80076BC48 /* runtime-dawinia.json */; };
 		8488101C2698E0F80076BC48 /* runtime-subsocial.json in Resources */ = {isa = PBXBuildFile; fileRef = 848810132698E0F80076BC48 /* runtime-subsocial.json */; };
 		8488101D2698E0F80076BC48 /* runtime-edgeware.json in Resources */ = {isa = PBXBuildFile; fileRef = 848810142698E0F80076BC48 /* runtime-edgeware.json */; };
+		8488101F269A35300076BC48 /* runtime-moonbase-alpha.json in Resources */ = {isa = PBXBuildFile; fileRef = 8488101E269A35300076BC48 /* runtime-moonbase-alpha.json */; };
 		8488ECD7258CDCBC004591CC /* PurchaseCompletionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488ECD6258CDCBC004591CC /* PurchaseCompletionHandler.swift */; };
 		8488ECDF258CE118004591CC /* PurchaseCompleted.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488ECDE258CE118004591CC /* PurchaseCompleted.swift */; };
 		8488ECEA258CE456004591CC /* PurchaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488ECE9258CE456004591CC /* PurchaseViewController.swift */; };
@@ -2055,6 +2056,7 @@
 		848810122698E0F80076BC48 /* runtime-dawinia.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-dawinia.json"; sourceTree = "<group>"; };
 		848810132698E0F80076BC48 /* runtime-subsocial.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-subsocial.json"; sourceTree = "<group>"; };
 		848810142698E0F80076BC48 /* runtime-edgeware.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-edgeware.json"; sourceTree = "<group>"; };
+		8488101E269A35300076BC48 /* runtime-moonbase-alpha.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-moonbase-alpha.json"; sourceTree = "<group>"; };
 		8488ECD6258CDCBC004591CC /* PurchaseCompletionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseCompletionHandler.swift; sourceTree = "<group>"; };
 		8488ECDE258CE118004591CC /* PurchaseCompleted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseCompleted.swift; sourceTree = "<group>"; };
 		8488ECE9258CE456004591CC /* PurchaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PurchaseViewController.swift; sourceTree = "<group>"; };
@@ -4090,6 +4092,7 @@
 		84452F6F25D5E2B300F47EC5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8488101E269A35300076BC48 /* runtime-moonbase-alpha.json */,
 				848810112698E0F80076BC48 /* runtime-centrifuge.json */,
 				8488100E2698E0F80076BC48 /* runtime-chainx.json */,
 				848810122698E0F80076BC48 /* runtime-dawinia.json */,
@@ -7401,6 +7404,7 @@
 				C90FC89D4CCDF3232AC2F2F0 /* AccountCreateViewController.xib in Resources */,
 				8409C279252286B60049B5C8 /* TransferConfirmAccessoryView.xib in Resources */,
 				773EC9764FC9DCD26E9E6424 /* AccountImportViewController.xib in Resources */,
+				8488101F269A35300076BC48 /* runtime-moonbase-alpha.json in Resources */,
 				8488101C2698E0F80076BC48 /* runtime-subsocial.json in Resources */,
 				8468B86724F59DA700B76BC6 /* IconTitleHeaderView.xib in Resources */,
 				8409C27225227CA00049B5C8 /* WalletSingleActionAccessoryView.xib in Resources */,

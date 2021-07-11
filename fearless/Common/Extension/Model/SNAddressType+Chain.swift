@@ -14,6 +14,8 @@ extension SNAddressType {
             self = .kusamaSecondary
         case .moonriver:
             self = .moonriver
+        case .moonBaseAlpha:
+            self = .moonbaseAlpha
         case .karura:
             self = .karura
         case .centrifuge:
@@ -47,6 +49,8 @@ extension SNAddressType {
             return .karura
         case .moonriver:
             return .moonriver
+        case .moonbaseAlpha:
+            return .moonBaseAlpha
         case .genericSubstrate:
             return .westend
         case .polkadotSecondary:

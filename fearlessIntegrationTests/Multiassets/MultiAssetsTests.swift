@@ -53,18 +53,22 @@ class MultiAssetsTests: XCTestCase {
                 address: "3sqo18YiLP8BzNGbAoAbCqJgcAhJvL56t7z9zs7pqEMKyRnx",
                 chain: .subsocial
             ),
-            /*ChainInfo(
-                address: "XV4yhm4d5ssDNHzvmapcF6KZQQs9QHnbsTuwFasQLihUekK",
+            ChainInfo(
+                address: "5SjzpaPkVvrZZXuKV2nBnjMUFwVS1CNopx31Eh9LfcJyKwTN",
+                chain: .chainX
+            ),
+            ChainInfo(
+                address: "0x5AacB4Cb1BF3fb344a0e93529A8f17A3ed6EB8B6",
+                chain: .moonBaseAlpha
+            )/*,
+            ChainInfo(
+                address: "Z9jV9NBr7iUwwdRDbVK1FxKVcx5CN2Lr9ZZyLN8NDBN1uFF",
                 chain: .plasm
             ),
             ChainInfo(
                 address: "4cwfB8jUPs2pWVEJdXQBvYKyxUoNTRGWLA5ePULPssxRh5CW",
                 chain: .centrifuge
-            ),*/
-            ChainInfo(
-                address: "5SjzpaPkVvrZZXuKV2nBnjMUFwVS1CNopx31Eh9LfcJyKwTN",
-                chain: .chainX
-            )
+            )*/
         ]
 
     func testKnowSubstrateNetworks() throws {

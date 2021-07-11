@@ -63,9 +63,14 @@ extension ConnectionItem {
                 type: SNAddressType.karura
             ),
             ConnectionItem(
-                title: "Monriver node",
+                title: "Moonriver node",
                 url: URL(string: "wss://wss.moonriver.moonbeam.network/")!,
                 type: SNAddressType.moonriver
+            ),
+            ConnectionItem(
+                title: "Moonbase node",
+                url: URL(string: "wss://wss.testnet.moonbeam.network")!,
+                type: SNAddressType.moonbaseAlpha
             ),
             ConnectionItem(
                 title: "Centrifuge node",
@@ -91,6 +96,11 @@ extension ConnectionItem {
                 title: "Kulupu node",
                 url: URL(string: "wss://kulupu.elara.patract.io/")!,
                 type: .kulupu
+            ),
+            ConnectionItem(
+                title: "Plasm (Patract) node",
+                url: URL(string: "wss://plasm.elara.patract.io/")!,
+                type: .plasm
             ),
             ConnectionItem(
                 title: "Plasm node",

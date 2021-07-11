@@ -313,9 +313,9 @@ extension WebSocketEngine {
             }
         } catch {
             if let stringData = String(data: data, encoding: .utf8) {
-                logger.error("Can't parse data: \(stringData)")
+                logger.error("Can't parse data: \(stringData) \(error)")
             } else {
-                logger.error("Can't parse data")
+                logger.error("Can't parse data: \(error)")
             }
         }
     }
@@ -414,8 +414,8 @@ extension WebSocketEngine {
 
     func processSubscriptionResponse(_ identifier: UInt16, data: Data) {
         do {
-            let response = try jsonDecoder.decode(JSONRPCData<String>.self, from: data)
-            subscriptions[identifier]?.remoteId = response.result
+            let response = try jsonDecoder.decode(JSONRPCData<IntStringDecoder>.self, from: data)
+            subscriptions[identifier]?.remoteId = response.result.wrappedValue
 
             logger.debug("Did receive subscription id: \(response.result)")
         } catch {
@@ -441,7 +441,11 @@ extension WebSocketEngine {
             logger.debug("Did receive update for subscription: \(remoteId)")
 
             completionQueue.async {
-                try? subscription.handle(data: data)
+                do {
+                    try subscription.handle(data: data)
+                } catch {
+                    subscription.handle(error: error, unsubscribed: false)
+                }
             }
         } else {
             logger.warning("No handler for subscription: \(remoteId)")

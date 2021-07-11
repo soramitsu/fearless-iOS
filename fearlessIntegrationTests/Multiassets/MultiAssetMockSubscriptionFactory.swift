@@ -84,7 +84,7 @@ final class MultiAssetMockSubscriptionFactory: WebSocketSubscriptionFactoryProto
         )
 
         return [
-            /*container,*/
+            container,
             runtimeSubscription
         ]
     }

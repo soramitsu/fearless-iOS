@@ -36,7 +36,7 @@ final class RampProvider: PurchaseProviderProtocol {
         case .kusama:
             optionUrl = buildURLForToken("KSM", address: address)
         case .westend, .rococo, .moonriver, .karura, .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             optionUrl = nil
         }
 

@@ -8,6 +8,7 @@ enum Chain: String, Codable, CaseIterable {
     case rococo = "Rococo"
     case karura = "Karura"
     case moonriver = "Moonriver"
+    case moonBaseAlpha = "moonbase-alphanet"
     case edgeware = "Edgeware"
     case plasm = "Plasm"
     case sora = "Sora"
@@ -33,6 +34,8 @@ extension Chain {
             return .karura
         case .moonriver:
             return .moonriver
+        case .moonBaseAlpha:
+            return .moonbaseAlpha
         case .edgeware:
             return .edgeware
         case .plasm:

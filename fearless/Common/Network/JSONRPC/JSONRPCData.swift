@@ -19,10 +19,26 @@ struct JSONRPCData<T: Decodable>: Decodable {
     let identifier: UInt16
 }
 
+@propertyWrapper
+struct IntStringDecoder: Decodable {
+    let wrappedValue: String
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if let stringValue = try? container.decode(String.self) {
+            wrappedValue = stringValue
+        } else {
+            let intValue = try container.decode(Int.self)
+            wrappedValue = String(intValue)
+        }
+    }
+}
+
 struct JSONRPCSubscriptionUpdate<T: Decodable>: Decodable {
     struct Result: Decodable {
         let result: T
-        let subscription: String
+        @IntStringDecoder var subscription: String
     }
 
     let jsonrpc: String
@@ -32,7 +48,7 @@ struct JSONRPCSubscriptionUpdate<T: Decodable>: Decodable {
 
 struct JSONRPCSubscriptionBasicUpdate: Decodable {
     struct Result: Decodable {
-        let subscription: String
+        @IntStringDecoder var subscription: String
     }
 
     let jsonrpc: String

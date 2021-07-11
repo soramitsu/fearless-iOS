@@ -9,6 +9,7 @@ enum SNAddressType: UInt16 {
     case genericSubstrate = 42
     case karura = 8
     case moonriver = 1285
+    case moonbaseAlpha = 1287
     case edgeware = 7
     case plasm = 5
     case sora = 69

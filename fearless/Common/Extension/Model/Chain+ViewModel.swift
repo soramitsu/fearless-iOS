@@ -16,7 +16,7 @@ extension Chain {
         case .moonriver:
             return "Moonriver"
         case .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return ""
         }
     }
@@ -36,7 +36,7 @@ extension Chain {
         case .moonriver:
             return R.image.iconKsmSmallBg()
         case .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
@@ -56,7 +56,7 @@ extension Chain {
         case .moonriver:
             return R.image.iconKusamaExtrinsic()
         case .centrifuge, .chainX,
-             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora:
+             .darwinia, .edgeware, .kulupu, .plasm, .subsocial, .sora, .moonBaseAlpha:
             return nil
         }
     }
