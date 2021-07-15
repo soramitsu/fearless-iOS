@@ -86,25 +86,6 @@ final class StakingPayoutConfirmationInteractor {
         return closure
     }
 
-    private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        let callFactory = SubstrateCallFactory()
-
-        let closure: ExtrinsicBuilderClosure = { builder in
-            try self.payouts.forEach { payout in
-                let payoutCall = try callFactory.payout(
-                    validatorId: payout.validator,
-                    era: payout.era
-                )
-
-                _ = try builder.adding(call: payoutCall).with(nonce: 0123)
-            }
-
-            return builder
-        }
-
-        return closure
-    }
-
     private func provideRewardAmount() {
         guard let account = settings.selectedAccount else { return }
 
