@@ -1,5 +1,6 @@
 import XCTest
 @testable import fearless
+import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
@@ -26,6 +27,9 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
+        let assetId = WalletAssetId(
+            rawValue: asset.identifier
+        )!
 
         let view = MockStakingPayoutConfirmationViewProtocol()
         let wireframe = MockStakingPayoutConfirmationWireframeProtocol()
@@ -45,8 +49,6 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
         let signer = try DummySigner(cryptoType: .sr25519)
-        let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
-        let priceProvider = SingleValueProviderStub(item: WestendStub.price)
 
         let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
 
@@ -59,20 +61,21 @@ class StakingPayoutsConfirmTests: XCTestCase {
             UserDataStorageTestFacade().createRepository()
 
         let interactor = StakingPayoutConfirmationInteractor(
-            providerFactory: providerFactory,
+            singleValueProviderFactory: providerFactory,
             substrateProviderFactory: substrateProviderFactory,
             extrinsicService: extrinsicService,
+            feeProxy: ExtrinsicFeeProxy(),
             runtimeService: runtimeCodingService,
             signer: signer,
-            balanceProvider: AnyDataProvider(balanceProvider),
-            priceProvider: AnySingleValueProvider(priceProvider),
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: OperationManager(),
             settings: settings,
+            logger: Logger.shared,
             payouts: [PayoutInfo(era: 1000, validator: accountId, reward: 100.0, identity: nil)],
-            chain: chain
+            chain: chain,
+            assetId: assetId
         )
-        
+
         presenter.view = view
         presenter.wireframe = wireframe
         presenter.interactor = interactor
@@ -96,6 +99,8 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
+
+            when(stub).localizationManager.get.then { LocalizationManager.shared }
         }
 
         let completionExpectation = XCTestExpectation()
@@ -104,6 +109,12 @@ class StakingPayoutsConfirmTests: XCTestCase {
             when(stub).complete(from: any()).then { _ in
                 completionExpectation.fulfill()
             }
+
+            when(stub).present(
+                message: any(),
+                title: any(),
+                closeAction: any(),
+                from: any()).thenDoNothing()
         }
 
         // when
@@ -118,7 +129,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         presenter.proceed()
 
-        // then
+//        // then
 
         wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
     }
