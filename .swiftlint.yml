@@ -1,5 +1,6 @@
 excluded:
   - Pods
+  - Capital-iOS
   - PrivatePods
   - R.generated.swift
   - fearlessTests

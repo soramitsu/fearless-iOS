@@ -1,0 +1,3 @@
+[submodule "Capital-iOS"]
+	path = Capital-iOS
+	url = https://github.com/soramitsu/Capital-iOS.git
