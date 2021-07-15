@@ -95,41 +95,32 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             settings: settings
         )
 
-        let providerFactory = SingleValueProviderFactory.shared
-
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: selectedAccount.address,
-                runtimeService: runtimeService
-            )
-        else {
-            return nil
-        }
+        let singleValueProviderFactory = SingleValueProviderFactory.shared
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
+        let feeProxy = ExtrinsicFeeProxy()
+
         return StakingPayoutConfirmationInteractor(
-            providerFactory: providerFactory,
+            singleValueProviderFactory: singleValueProviderFactory,
             substrateProviderFactory: substrateProviderFactory,
             extrinsicService: extrinsicService,
+            feeProxy: feeProxy,
             runtimeService: runtimeService,
             signer: signer,
-            balanceProvider: balanceProvider,
-            priceProvider: priceProvider,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
             settings: settings,
             logger: Logger.shared,
             payouts: payouts,
-            chain: chain
+            chain: chain,
+            assetId: assetId
         )
     }
 }

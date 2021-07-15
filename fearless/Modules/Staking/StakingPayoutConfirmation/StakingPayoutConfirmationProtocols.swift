@@ -15,29 +15,23 @@ protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
     func setup()
     func submitPayout()
     func estimateFee()
+    func provideRewardDestination(for payoutAddress: AccountAddress)
 }
 
 protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
-    func didStartPayout()
-    func didCompletePayout(txHash: String)
-    func didFailPayout(error: Error)
-
-    func didReceive(paymentInfo: RuntimeDispatchInfo)
-    func didReceive(feeError: Error)
-
-    func didReceive(balance: AccountData?)
-    func didReceive(balanceError: Error)
-
-    func didReceive(price: PriceData?)
-    func didReceive(priceError: Error)
-
-    func didReceive(stashItem: StashItem?)
-    func didReceive(stashItemError: Error)
-
-    func didReceive(rewardDestination: RewardDestination<DisplayAddress>?)
-    func didReceive(rewardDestinationError: Error)
-
     func didRecieve(account: AccountItem, rewardAmount: Decimal)
+
+    func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveStashItem(result: Result<StashItem?, Error>)
+    func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
+    func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>)
+
+    func didReceiveFee(result: Result<Decimal, Error>)
+
+    func didStartPayout()
+    func didCompletePayout(txHashes: [String])
+    func didFailPayout(error: Error)
 }
 
 protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable,

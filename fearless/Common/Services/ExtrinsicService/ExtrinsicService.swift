@@ -13,8 +13,22 @@ protocol ExtrinsicOperationFactoryProtocol {
 
     func submit(
         _ closure: @escaping ExtrinsicBuilderClosure,
-        signer: SigningWrapperProtocol
+        signer: SigningWrapperProtocol,
+        nonceShift: UInt32
     ) -> CompoundOperationWrapper<String>
+}
+
+extension ExtrinsicOperationFactoryProtocol {
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol
+    ) -> CompoundOperationWrapper<String> {
+        submit(
+            closure,
+            signer: signer,
+            nonceShift: 0
+        )
+    }
 }
 
 protocol ExtrinsicServiceProtocol {
@@ -28,8 +42,26 @@ protocol ExtrinsicServiceProtocol {
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol,
         runningIn queue: DispatchQueue,
+        nonceShift: UInt32,
         completion completionClosure: @escaping ExtrinsicSubmitClosure
     )
+}
+
+extension ExtrinsicServiceProtocol {
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping ExtrinsicSubmitClosure
+    ) {
+        submit(
+            closure,
+            signer: signer,
+            runningIn: queue,
+            nonceShift: 0,
+            completion: completionClosure
+        )
+    }
 }
 
 final class ExtrinsicOperationFactory {
@@ -66,13 +98,14 @@ final class ExtrinsicOperationFactory {
         dependingOn nonceOperation: BaseOperation<UInt32>,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         customClosure: @escaping ExtrinsicBuilderClosure,
-        signingClosure: @escaping (Data) throws -> Data
+        signingClosure: @escaping (Data) throws -> Data,
+        nonceShift: UInt32 = 0
     ) -> BaseOperation<Data> {
         let currentCryptoType = cryptoType
         let currentAddress = address
 
         return ClosureOperation {
-            let nonce = try nonceOperation.extractNoCancellableResultData()
+            let nonce = try nonceOperation.extractNoCancellableResultData() + nonceShift
             let codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
 
             let addressFactory = SS58AddressFactory()
@@ -152,7 +185,8 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
 
     func submit(
         _ closure: @escaping ExtrinsicBuilderClosure,
-        signer: SigningWrapperProtocol
+        signer: SigningWrapperProtocol,
+        nonceShift: UInt32 = 0
     ) -> CompoundOperationWrapper<String> {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
@@ -165,7 +199,8 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
             dependingOn: nonceOperation,
             codingFactoryOperation: codingFactoryOperation,
             customClosure: closure,
-            signingClosure: signingClosure
+            signingClosure: signingClosure,
+            nonceShift: nonceShift
         )
 
         builderOperation.addDependency(nonceOperation)
@@ -243,9 +278,10 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol,
         runningIn queue: DispatchQueue,
+        nonceShift: UInt32 = 0,
         completion completionClosure: @escaping ExtrinsicSubmitClosure
     ) {
-        let wrapper = operationFactory.submit(closure, signer: signer)
+        let wrapper = operationFactory.submit(closure, signer: signer, nonceShift: nonceShift)
 
         wrapper.targetOperation.completionBlock = {
             queue.async {

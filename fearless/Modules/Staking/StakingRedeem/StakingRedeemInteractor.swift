@@ -116,11 +116,11 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
             return
         }
 
-        let reuseIdetifier = resettingRewardDestination.description
+        let reuseIdentifier = resettingRewardDestination.description
 
         feeProxy.estimateFee(
             using: extrinsicService,
-            reuseIdentifier: reuseIdetifier
+            reuseIdentifier: reuseIdentifier
         ) { [weak self] builder in
             guard let strongSelf = self else {
                 throw CommonError.undefined

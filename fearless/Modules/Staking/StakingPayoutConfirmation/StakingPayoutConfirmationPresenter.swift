@@ -34,56 +34,6 @@ final class StakingPayoutConfirmationPresenter {
         self.asset = asset
         self.logger = logger
     }
-}
-
-extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenterProtocol {
-    func setup() {
-        provideFee()
-
-        interactor.setup()
-        interactor.estimateFee()
-    }
-
-    func proceed() {
-        guard let fee = fee else {
-            if let view = view {
-                wireframe.presentFeeNotReceived(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
-            }
-
-            return
-        }
-
-        let lastBalance = balance ?? 0.0
-
-        guard lastBalance >= fee else {
-            didFailPayout(error: StakingPayoutConfirmError.notEnoughFunds)
-            return
-        }
-
-        guard rewardAmount >= fee else {
-            didFailPayout(error: StakingPayoutConfirmError.tinyPayout)
-            return
-        }
-
-        interactor.submitPayout()
-    }
-
-    func presentAccountOptions(for viewModel: AccountInfoViewModel) {
-        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-
-        if let view = view,
-           let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
-            wireframe.presentAccountOptions(
-                from: view,
-                address: viewModel.address,
-                chain: chain,
-                locale: locale
-            )
-        }
-    }
 
     // MARK: - Private functions
 
@@ -139,46 +89,157 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     }
 }
 
+extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenterProtocol {
+    func setup() {
+        provideFee()
+        interactor.setup()
+    }
+
+    func proceed() {
+        guard let fee = fee else {
+            if let view = view {
+                wireframe.presentFeeNotReceived(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
+            }
+
+            return
+        }
+
+        let lastBalance = balance ?? 0.0
+
+        guard lastBalance >= fee else {
+            didFailPayout(error: StakingPayoutConfirmError.notEnoughFunds)
+            return
+        }
+
+        guard rewardAmount >= fee else {
+            didFailPayout(error: StakingPayoutConfirmError.tinyPayout)
+            return
+        }
+
+        interactor.submitPayout()
+    }
+
+    func presentAccountOptions(for viewModel: AccountInfoViewModel) {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let view = view,
+           let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
+            wireframe.presentAccountOptions(
+                from: view,
+                address: viewModel.address,
+                chain: chain,
+                locale: locale
+            )
+        }
+    }
+}
+
 // MARK: - StakingPayoutConfirmationInteractorOutputProtocol
 
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
-    func didReceive(stashItem: StashItem?) {
-        if let stashItem = stashItem {
-            logger?.debug("Stash: \(stashItem.stash)")
-            logger?.debug("Controller: \(stashItem.controller)")
-        } else {
-            logger?.debug("No stash found")
+    func didReceiveFee(result: Result<Decimal, Error>) {
+        switch result {
+        case let .success(fee):
+            self.fee = fee
+            provideFee()
+
+        case let .failure(error):
+            logger?.error("Did receive fee error: \(error)")
         }
-
-        self.stashItem = stashItem
     }
 
-    func didReceive(stashItemError: Error) {
-        handle(error: stashItemError)
-    }
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+            provideFee()
+            provideViewModel()
 
-    func didReceive(rewardDestination: RewardDestination<DisplayAddress>?) {
-        if let rewardDestination = rewardDestination {
-            logger?.debug("Payee: \(rewardDestination)")
-        } else {
-            logger?.debug("No payee received")
+        case let .failure(error):
+            logger?.error("Price data subscription error: \(error)")
         }
-
-        self.rewardDestination = rewardDestination
-
-        provideViewModel()
     }
 
-    func didReceive(rewardDestinationError: Error) {
-        handle(error: rewardDestinationError)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.available {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: asset.precision
+                )
+            } else {
+                balance = 0.0
+            }
+
+        case let .failure(error):
+            logger?.error("Account Info subscription error: \(error)")
+        }
+    }
+
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+
+        case let .failure(error):
+            logger?.error("Stash subscription item error: \(error)")
+        }
+    }
+
+    func didReceivePayee(result: Result<RewardDestinationArg?, Error>) {
+        switch result {
+        case let .success(payee):
+            guard let payee = payee, let stashItem = stashItem
+            else {
+                rewardDestination = nil
+                return
+            }
+
+            do {
+                let rewardDestination = try RewardDestination(
+                    payee: payee,
+                    stashItem: stashItem,
+                    chain: chain
+                )
+
+                switch rewardDestination {
+                case .restake:
+                    self.rewardDestination = .restake
+                    provideViewModel()
+
+                case let .payout(payoutAddress):
+                    interactor.provideRewardDestination(for: payoutAddress)
+                }
+            } catch {
+                logger?.error("Did receive payee item error: \(error)")
+            }
+        case let .failure(error):
+            logger?.error("Payee subscription error: \(error)")
+        }
+    }
+
+    func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>) {
+        switch result {
+        case let .success(rewardDestination):
+            self.rewardDestination = rewardDestination
+            provideViewModel()
+        case let .failure(error):
+            logger?.error("Did receive reward destination error: \(error)")
+        }
     }
 
     func didStartPayout() {
         view?.didStartLoading()
     }
 
-    func didCompletePayout(txHash: String) {
-        logger?.info("Did send payouts: \(txHash)")
+    func didCompletePayout(txHashes: [String]) {
+        txHashes.forEach { txHash in
+            logger?.info("Did send payouts: \(txHash)")
+        }
 
         view?.didStopLoading()
 
@@ -189,46 +250,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         view?.didStopLoading()
 
         handle(error: error)
-    }
-
-    func didReceive(paymentInfo: RuntimeDispatchInfo) {
-        if let feeValue = BigUInt(paymentInfo.fee),
-           let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
-            self.fee = fee
-        } else {
-            fee = nil
-        }
-
-        provideFee()
-    }
-
-    func didReceive(feeError: Error) {
-        handle(error: feeError)
-    }
-
-    func didReceive(balance: AccountData?) {
-        if let availableValue = balance?.available {
-            self.balance = Decimal.fromSubstrateAmount(
-                availableValue,
-                precision: asset.precision
-            )
-        } else {
-            self.balance = 0.0
-        }
-    }
-
-    func didReceive(balanceError: Error) {
-        handle(error: balanceError)
-    }
-
-    func didReceive(price: PriceData?) {
-        priceData = price
-        provideFee()
-        provideViewModel()
-    }
-
-    func didReceive(priceError: Error) {
-        handle(error: priceError)
     }
 
     func didRecieve(account: AccountItem, rewardAmount: Decimal) {
