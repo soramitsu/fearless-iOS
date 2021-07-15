@@ -13,7 +13,8 @@ final class WalletHistoryFilterViewLayout: UIView {
     let headerView: IconTitleHeaderView = {
         let view = R.nib.iconTitleHeaderView(owner: nil)!
         view.titleView.titleColor = R.color.colorWhite()
-        view.titleView?.titleFont = .h4Title
+        view.titleView.titleFont = .h4Title
+        view.titleView.spacingBetweenLabelAndIcon = 0
         return view
     }()
 
