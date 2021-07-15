@@ -116,6 +116,11 @@ extension ConnectionItem {
                 title: "Subsocial node",
                 url: URL(string: "wss://rpc.subsocial.network/")!,
                 type: .subsocial
+            ),
+            ConnectionItem(
+                title: "Statemine",
+                url: URL(string: "wss://statemine.api.onfinality.io/public-ws")!,
+                type: .statemine
             )
         ]
     }

@@ -17,6 +17,7 @@ enum Chain: String, Codable, CaseIterable {
     case chainX = "ChainX"
     case centrifuge = "Centrifuge"
     case subsocial = "Subsocial"
+    case statemine = "Statemine"
 }
 
 extension Chain {
@@ -52,6 +53,8 @@ extension Chain {
             return .centrifuge
         case .subsocial:
             return .subsocial
+        case .statemine:
+            return .statemine
         }
     }
 }

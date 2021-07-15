@@ -34,6 +34,8 @@ extension SNAddressType {
             self = .subsocial
         case .sora:
             self = .sora
+        case .statemine:
+            self = .statemine
         }
     }
 
@@ -71,6 +73,8 @@ extension SNAddressType {
             return .sora
         case .subsocial:
             return .subsocial
+        case .statemine:
+            return .statemine
         }
     }
 

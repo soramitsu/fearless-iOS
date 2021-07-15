@@ -18,4 +18,5 @@ enum SNAddressType: UInt16 {
     case chainX = 44
     case centrifuge = 36
     case subsocial = 28
+    case statemine = 41
 }

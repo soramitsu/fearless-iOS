@@ -13,7 +13,7 @@ class MultiAssetsTests: XCTestCase {
 
     let chainInfoList: [ChainInfo] =
         [
-            ChainInfo(
+            /*ChainInfo(
                 address: "5FCj3BzHo5274Jwd6PFdsGzSgDtQ724k7o7GRYTzAf7n37vk",
                 chain: .westend
             ),
@@ -60,7 +60,7 @@ class MultiAssetsTests: XCTestCase {
             ChainInfo(
                 address: "0x5AacB4Cb1BF3fb344a0e93529A8f17A3ed6EB8B6",
                 chain: .moonBaseAlpha
-            )/*,
+            ),
             ChainInfo(
                 address: "Z9jV9NBr7iUwwdRDbVK1FxKVcx5CN2Lr9ZZyLN8NDBN1uFF",
                 chain: .plasm
@@ -69,6 +69,10 @@ class MultiAssetsTests: XCTestCase {
                 address: "4cwfB8jUPs2pWVEJdXQBvYKyxUoNTRGWLA5ePULPssxRh5CW",
                 chain: .centrifuge
             )*/
+            ChainInfo(
+                address: "586U6e2jTGbbmAVMRorGdUYTUWC8XvN3Kyw3mNkYeYBVSTtz",
+                chain: .statemine
+            )
         ]
 
     func testKnowSubstrateNetworks() throws {
