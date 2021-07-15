@@ -129,7 +129,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         presenter.proceed()
 
-//        // then
+        // then
 
         wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
     }
