@@ -30,4 +30,32 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
 
         wait(for: [sessionExpectation], timeout: 10)
     }
+
+    func testNumberOfSlotsPerSession() {
+        let runtimeCodingService = try! RuntimeCodingServiceStub.createWestendService()
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let sessionExpectation = XCTestExpectation()
+        fetchConstant(
+            for: .sessionLength,
+            runtimeCodingService: runtimeCodingService,
+            operationManager: operationManager
+        ) { (result: Result<UInt64, Error>) in
+            switch result {
+            case let .success(index):
+                if index == 600 {
+                    sessionExpectation.fulfill()
+                } else {
+                    XCTFail("""
+                        EpochDuration for westend has been changed.
+                        See https://github.com/paritytech/polkadot/blob/8a6af4412ffc6d327775310c9b4ff527f3345958/runtime/westend/src/constants.rs#L36
+                    """)
+                }
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        wait(for: [sessionExpectation], timeout: 10)
+    }
 }

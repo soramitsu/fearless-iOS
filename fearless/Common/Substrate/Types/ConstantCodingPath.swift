@@ -34,6 +34,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Babe", constantName: "ExpectedBlockTime")
     }
 
+    static var sessionLength: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Babe", constantName: "EpochDuration")
+    }
+
     static var minimumContribution: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Crowdloan", constantName: "MinContribution")
     }
