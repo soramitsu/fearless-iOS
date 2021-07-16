@@ -11,7 +11,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
         // given
 
         let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
-        let accountId = try! SS58AddressFactory().accountId(from: address)
+        let validatorAccountId = try! SS58AddressFactory().accountId(from: address)
 
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
@@ -69,9 +69,9 @@ class StakingPayoutsConfirmTests: XCTestCase {
             signer: signer,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: OperationManager(),
-            settings: settings,
             logger: Logger.shared,
-            payouts: [PayoutInfo(era: 1000, validator: accountId, reward: 100.0, identity: nil)],
+            selectedAccount: settings.selectedAccount!,
+            payouts: [PayoutInfo(era: 1000, validator: validatorAccountId, reward: 100.0, identity: nil)],
             chain: chain,
             assetId: assetId
         )
