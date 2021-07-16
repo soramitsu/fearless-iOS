@@ -89,7 +89,7 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         )
 
         let sessionExpectation = XCTestExpectation()
-        let currentEraWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
                 engine: connection,
                 keys: { [try keyFactory.currentSessionIndex()] },
@@ -97,11 +97,11 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
                 storagePath: .currentSessionIndex
             )
 
-        currentEraWrapper.allOperations.forEach { codingFactoryOperation.addDependency($0) }
+        wrapper.addDependency(operations: [codingFactoryOperation])
 
-        currentEraWrapper.targetOperation.completionBlock = {
+        wrapper.targetOperation.completionBlock = {
             do {
-                let value = try currentEraWrapper.targetOperation.extractNoCancellableResultData()
+                let value = try wrapper.targetOperation.extractNoCancellableResultData()
                     .first?.value?.value
                 sessionExpectation.fulfill()
             } catch {
@@ -110,7 +110,7 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         }
 
         operationManager.enqueue(
-            operations: currentEraWrapper.allOperations,
+            operations: [codingFactoryOperation] + wrapper.allOperations,
             in: .transient
         )
         wait(for: [sessionExpectation], timeout: 5)
