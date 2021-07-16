@@ -179,7 +179,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         }
     }
 
-    func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>) {
+    func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>) {
         switch result {
         case let .success(rewardDestination):
             self.rewardDestination = rewardDestination

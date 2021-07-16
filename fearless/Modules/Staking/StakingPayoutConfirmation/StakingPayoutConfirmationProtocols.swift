@@ -22,7 +22,7 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
 
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
-    func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>)
+    func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)
 
     func didReceiveFee(result: Result<Decimal, Error>)
 

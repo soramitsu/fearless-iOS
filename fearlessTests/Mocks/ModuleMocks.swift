@@ -36526,7 +36526,7 @@ import SoraFoundation
     
     
     
-     func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>)  {
+     func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)  {
         
     return cuckoo_manager.call("didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>)",
             parameters: (result),
@@ -36535,7 +36535,7 @@ import SoraFoundation
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceiveRewardDestiination(result: result))
+            defaultCall: __defaultImplStub!.didReceiveRewardDestination(result: result))
         
     }
     
@@ -36763,7 +36763,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>)   {
+     func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

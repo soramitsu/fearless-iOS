@@ -124,7 +124,7 @@ final class StakingPayoutConfirmationInteractor {
 
     private func provideRewardDestination(with payee: RewardDestinationArg) {
         guard let stashItem = stashItem else {
-            presenter.didReceiveRewardDestiination(result: .failure(CommonError.undefined))
+            presenter.didReceiveRewardDestination(result: .failure(CommonError.undefined))
             return
         }
 
@@ -137,7 +137,7 @@ final class StakingPayoutConfirmationInteractor {
 
             switch rewardDestination {
             case .restake:
-                presenter.didReceiveRewardDestiination(result: .success(.restake))
+                presenter.didReceiveRewardDestination(result: .success(.restake))
 
             case let .payout(payoutAddress):
                 let queryOperation = accountRepository
@@ -155,9 +155,9 @@ final class StakingPayoutConfirmationInteractor {
 
                             let result: RewardDestination = .payout(account: displayAddress)
 
-                            self.presenter.didReceiveRewardDestiination(result: .success(result))
+                            self.presenter.didReceiveRewardDestination(result: .success(result))
                         } catch {
-                            self.presenter.didReceiveRewardDestiination(result: .failure(error))
+                            self.presenter.didReceiveRewardDestination(result: .failure(error))
                         }
                     }
                 }
@@ -288,7 +288,7 @@ extension StakingPayoutConfirmationInteractor: SingleValueProviderSubscriber,
             provideRewardDestination(with: payee)
 
         case let .failure(error):
-            presenter.didReceiveRewardDestiination(result: .failure(error))
+            presenter.didReceiveRewardDestination(result: .failure(error))
         }
     }
 }
@@ -309,10 +309,10 @@ extension StakingPayoutConfirmationInteractor: SubstrateProviderSubscriber,
                     runtimeService: runtimeService
                 )
             } else {
-                presenter.didReceiveRewardDestiination(result: .success(nil))
+                presenter.didReceiveRewardDestination(result: .success(nil))
             }
         } catch {
-            presenter.didReceiveRewardDestiination(result: .failure(error))
+            presenter.didReceiveRewardDestination(result: .failure(error))
             logger?.error("Stash subscription item error: \(error)")
         }
     }
