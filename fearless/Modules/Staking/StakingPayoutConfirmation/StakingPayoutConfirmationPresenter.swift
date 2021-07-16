@@ -82,6 +82,7 @@ final class StakingPayoutConfirmationPresenter {
             }
         } else {
             if !wireframe.present(error: error, from: view, locale: locale) {
+                _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
                 logger?.error("Did receive error: \(error)")
             }
         }
