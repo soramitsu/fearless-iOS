@@ -18,6 +18,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Staking", constantName: "BondingDuration")
     }
 
+    static var eraLength: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Staking", constantName: "SessionsPerEra")
+    }
+
     static var existentialDeposit: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
     }
