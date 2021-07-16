@@ -12,7 +12,6 @@ final class StakingPayoutConfirmationPresenter {
     private var rewardAmount: Decimal = 0.0
     private var priceData: PriceData?
     private var account: AccountItem?
-    private var stashItem: StashItem?
     private var rewardDestination: RewardDestination<DisplayAddress>?
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
@@ -177,48 +176,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
 
         case let .failure(error):
             logger?.error("Account Info subscription error: \(error)")
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-
-        case let .failure(error):
-            logger?.error("Stash subscription item error: \(error)")
-        }
-    }
-
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>) {
-        switch result {
-        case let .success(payee):
-            guard let payee = payee, let stashItem = stashItem
-            else {
-                rewardDestination = nil
-                return
-            }
-
-            do {
-                let rewardDestination = try RewardDestination(
-                    payee: payee,
-                    stashItem: stashItem,
-                    chain: chain
-                )
-
-                switch rewardDestination {
-                case .restake:
-                    self.rewardDestination = .restake
-                    provideViewModel()
-
-                case let .payout(payoutAddress):
-                    interactor.provideRewardDestination(for: payoutAddress)
-                }
-            } catch {
-                logger?.error("Did receive payee item error: \(error)")
-            }
-        case let .failure(error):
-            logger?.error("Payee subscription error: \(error)")
         }
     }
 

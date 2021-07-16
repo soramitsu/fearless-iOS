@@ -33,6 +33,8 @@ final class StakingPayoutConfirmationInteractor {
     private var stashControllerProvider: StreamableProvider<StashItem>?
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
 
+    private var stashItem: StashItem?
+
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol!
 
     init(
@@ -119,6 +121,53 @@ final class StakingPayoutConfirmationInteractor {
             setupBy: closure
         )
     }
+
+    private func provideRewardDestination(with payee: RewardDestinationArg) {
+        guard let stashItem = stashItem else {
+            presenter.didReceiveRewardDestiination(result: .failure(CommonError.undefined))
+            return
+        }
+
+        do {
+            let rewardDestination = try RewardDestination(
+                payee: payee,
+                stashItem: stashItem,
+                chain: chain
+            )
+
+            switch rewardDestination {
+            case .restake:
+                presenter.didReceiveRewardDestiination(result: .success(.restake))
+
+            case let .payout(payoutAddress):
+                let queryOperation = accountRepository
+                    .fetchOperation(by: payoutAddress, options: RepositoryFetchOptions())
+
+                queryOperation.completionBlock = {
+                    DispatchQueue.main.async {
+                        do {
+                            let account = try queryOperation.extractNoCancellableResultData()
+
+                            let displayAddress = DisplayAddress(
+                                address: payoutAddress,
+                                username: account?.username ?? ""
+                            )
+
+                            let result: RewardDestination = .payout(account: displayAddress)
+
+                            self.presenter.didReceiveRewardDestiination(result: .success(result))
+                        } catch {
+                            self.presenter.didReceiveRewardDestiination(result: .failure(error))
+                        }
+                    }
+                }
+
+                operationManager.enqueue(operations: [queryOperation], in: .transient)
+            }
+        } catch {
+            logger?.error("Did receive reward destination error: \(error)")
+        }
+    }
 }
 
 // MARK: - StakingPayoutConfirmationInteractorInputProtocol
@@ -192,32 +241,6 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
 
         estimateFee(for: lastBatch, with: FeeType.estimateLastBlock.rawValue)
     }
-
-    func provideRewardDestination(for payoutAddress: AccountAddress) {
-        let queryOperation = accountRepository
-            .fetchOperation(by: payoutAddress, options: RepositoryFetchOptions())
-
-        queryOperation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let account = try queryOperation.extractNoCancellableResultData()
-
-                    let displayAddress = DisplayAddress(
-                        address: payoutAddress,
-                        username: account?.username ?? ""
-                    )
-
-                    let result: RewardDestination = .payout(account: displayAddress)
-
-                    self.presenter.didReceiveRewardDestiination(result: .success(result))
-                } catch {
-                    self.presenter.didReceiveRewardDestiination(result: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [queryOperation], in: .transient)
-    }
 }
 
 // MARK: - RuntimeConstantFetching
@@ -256,7 +279,17 @@ extension StakingPayoutConfirmationInteractor: SingleValueProviderSubscriber,
     }
 
     func handlePayee(result: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {
-        presenter.didReceivePayee(result: result)
+        switch result {
+        case let .success(payee):
+            guard let payee = payee else {
+                return
+            }
+
+            provideRewardDestination(with: payee)
+
+        case let .failure(error):
+            presenter.didReceiveRewardDestiination(result: .failure(error))
+        }
     }
 }
 
@@ -266,7 +299,7 @@ extension StakingPayoutConfirmationInteractor: SubstrateProviderSubscriber,
     SubstrateProviderSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>) {
         do {
-            let stashItem = try result.get()
+            stashItem = try result.get()
 
             clear(dataProvider: &payeeProvider)
 
@@ -275,13 +308,12 @@ extension StakingPayoutConfirmationInteractor: SubstrateProviderSubscriber,
                     for: stashItem.stash,
                     runtimeService: runtimeService
                 )
-
-                presenter.didReceiveStashItem(result: .success(stashItem))
             } else {
-                presenter.didReceiveStashItem(result: .success(nil))
+                presenter.didReceiveRewardDestiination(result: .success(nil))
             }
         } catch {
-            presenter.didReceiveStashItem(result: .failure(error))
+            presenter.didReceiveRewardDestiination(result: .failure(error))
+            logger?.error("Stash subscription item error: \(error)")
         }
     }
 }

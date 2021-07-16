@@ -15,7 +15,6 @@ protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
     func setup()
     func submitPayout()
     func estimateFee()
-    func provideRewardDestination(for payoutAddress: AccountAddress)
 }
 
 protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
@@ -23,8 +22,6 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
 
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
     func didReceiveRewardDestiination(result: Result<RewardDestination<DisplayAddress>?, Error>)
 
     func didReceiveFee(result: Result<Decimal, Error>)
