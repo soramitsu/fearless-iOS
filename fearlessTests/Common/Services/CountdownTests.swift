@@ -1,4 +1,7 @@
 import XCTest
+import RobinHood
+import FearlessUtils
+import SoraKeystore
 @testable import fearless
 
 class CountdownTests: XCTestCase, RuntimeConstantFetching {
@@ -57,5 +60,59 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         }
 
         wait(for: [sessionExpectation], timeout: 10)
+    }
+
+    func testCurrentSessionIndex() {
+        let operationManager = OperationManagerFacade.sharedManager
+        let keyFactory = StorageKeyFactory()
+
+        let settings = SettingsManager.shared
+        let assetId = WalletAssetId.westend
+        let chain = assetId.chain!
+
+        try! AccountCreationHelper.createAccountFromMnemonic(
+            cryptoType: .sr25519,
+            networkType: chain,
+            keychain: Keychain(),
+            settings: settings
+        )
+
+        WebSocketService.shared.setup()
+        let connection = WebSocketService.shared.connection!
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        runtimeService.setup()
+
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let sessionExpectation = XCTestExpectation()
+        let currentEraWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            storageRequestFactory.queryItems(
+                engine: connection,
+                keys: { [try keyFactory.currentSessionIndex()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .currentSessionIndex
+            )
+
+        currentEraWrapper.allOperations.forEach { codingFactoryOperation.addDependency($0) }
+
+        currentEraWrapper.targetOperation.completionBlock = {
+            do {
+                let value = try currentEraWrapper.targetOperation.extractNoCancellableResultData()
+                    .first?.value?.value
+                sessionExpectation.fulfill()
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        operationManager.enqueue(
+            operations: currentEraWrapper.allOperations,
+            in: .transient
+        )
+        wait(for: [sessionExpectation], timeout: 5)
     }
 }

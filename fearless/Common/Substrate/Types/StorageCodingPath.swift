@@ -98,6 +98,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasStakersClipped")
     }
 
+    static var currentSessionIndex: StorageCodingPath {
+        StorageCodingPath(moduleName: "Session", itemName: "CurrentIndex")
+    }
+
     static var electionPhase: StorageCodingPath {
         StorageCodingPath(moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
     }

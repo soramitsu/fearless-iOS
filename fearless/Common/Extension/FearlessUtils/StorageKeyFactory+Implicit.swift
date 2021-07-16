@@ -50,6 +50,13 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
+    func currentSessionIndex() throws -> Data {
+        try createStorageKey(
+            moduleName: "Session",
+            storageName: "CurrentIndex"
+        )
+    }
+
     func totalIssuance() throws -> Data {
         try createStorageKey(
             moduleName: "Balances",
