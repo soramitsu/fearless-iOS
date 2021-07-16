@@ -116,8 +116,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             signer: signer,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
-            settings: settings,
             logger: Logger.shared,
+            selectedAccount: selectedAccount,
             payouts: payouts,
             chain: chain,
             assetId: assetId

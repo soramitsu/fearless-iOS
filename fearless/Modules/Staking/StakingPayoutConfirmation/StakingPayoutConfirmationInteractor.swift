@@ -16,9 +16,9 @@ final class StakingPayoutConfirmationInteractor {
     private let signer: SigningWrapperProtocol
 
     private let accountRepository: AnyDataProviderRepository<AccountItem>
-    private let settings: SettingsManagerProtocol
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol?
+    private let selectedAccount: AccountItem
     private let payouts: [PayoutInfo]
     private let chain: Chain
     private let assetId: WalletAssetId
@@ -44,8 +44,8 @@ final class StakingPayoutConfirmationInteractor {
         signer: SigningWrapperProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
-        settings: SettingsManagerProtocol,
         logger: LoggerProtocol? = nil,
+        selectedAccount: AccountItem,
         payouts: [PayoutInfo],
         chain: Chain,
         assetId: WalletAssetId
@@ -58,8 +58,8 @@ final class StakingPayoutConfirmationInteractor {
         self.signer = signer
         self.accountRepository = accountRepository
         self.operationManager = operationManager
-        self.settings = settings
         self.logger = logger
+        self.selectedAccount = selectedAccount
         self.payouts = payouts
         self.chain = chain
         self.assetId = assetId
@@ -87,12 +87,10 @@ final class StakingPayoutConfirmationInteractor {
     }
 
     private func provideRewardAmount() {
-        guard let account = settings.selectedAccount else { return }
-
         let rewardAmount = payouts.map(\.reward).reduce(0, +)
 
         presenter.didRecieve(
-            account: account,
+            account: selectedAccount,
             rewardAmount: rewardAmount
         )
     }
@@ -127,17 +125,13 @@ final class StakingPayoutConfirmationInteractor {
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
-        guard let selectedAccountAddress = settings.selectedAccount?.address else {
-            return
-        }
-
         feeProxy.delegate = self
 
         createBatches()
 
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAccount.address)
         balanceProvider = subscribeToAccountInfoProvider(
-            for: selectedAccountAddress,
+            for: selectedAccount.address,
             runtimeService: runtimeService
         )
         priceProvider = subscribeToPriceProvider(for: assetId)
