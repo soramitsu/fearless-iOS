@@ -14,6 +14,7 @@ final class StakingBalancePresenter {
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var priceData: PriceData?
+    private var eraCompletionTimeInSeconds: UInt64?
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
@@ -35,7 +36,8 @@ final class StakingBalancePresenter {
         let balanceData = StakingBalanceData(
             stakingLedger: stakingLedger,
             activeEra: activeEra,
-            priceData: priceData
+            priceData: priceData,
+            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
         )
 
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
@@ -206,6 +208,15 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
             stashAccount = stash
         case .failure:
             stashAccount = nil
+        }
+    }
+
+    func didReceive(eraCompletionTimeResult: Result<UInt64?, Error>) {
+        switch eraCompletionTimeResult {
+        case let .success(time):
+            eraCompletionTimeInSeconds = time
+        case .failure:
+            eraCompletionTimeInSeconds = nil
         }
     }
 }
