@@ -84,12 +84,27 @@ final class EraCountdownService: EraCountdownServiceProtocol {
                 storagePath: .genesisSlot
             )
 
+        let activeEraWrapper: CompoundOperationWrapper<[StorageResponse<ActiveEraInfo>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try keyFactory.activeEra()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .activeEra
+            )
+
+        let startSessionWrapper = createEraStartSessionIndex(
+            dependingOn: activeEraWrapper.targetOperation,
+            codingFactoryOperation: codingFactoryOperation
+        )
+
         let dependecies = eraLengthWrapper.allOperations
             + sessionLengthWrapper.allOperations
             + blockTimeWrapper.allOperations
             + sessionIndexWrapper.allOperations
             + currentSlotWrapper.allOperations
             + genesisSlotWrapper.allOperations
+            + activeEraWrapper.allOperations
+            + startSessionWrapper.allOperations
         dependecies.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<EraCountdownSteps> {
@@ -102,6 +117,8 @@ final class EraCountdownService: EraCountdownServiceProtocol {
                 let currentSlot = try? currentSlotWrapper.targetOperation
                 .extractNoCancellableResultData().first?.value?.value,
                 let genesisSlot = try? genesisSlotWrapper.targetOperation
+                .extractNoCancellableResultData().first?.value?.value,
+                let eraStartSessionIndex = try? startSessionWrapper.targetOperation
                 .extractNoCancellableResultData().first?.value?.value
             else {
                 throw PayoutRewardsServiceError.unknown
@@ -110,7 +127,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             return EraCountdownSteps(
                 numberOfSessionsPerEra: eraLength,
                 numberOfSlotsPerSession: sessionLength,
-                eraStartSessionIndex: 0,
+                eraStartSessionIndex: eraStartSessionIndex,
                 currentSessionIndex: currentSessionIndex,
                 currentSlot: currentSlot,
                 genesisSlot: genesisSlot,
@@ -120,7 +137,31 @@ final class EraCountdownService: EraCountdownServiceProtocol {
 
         dependecies.forEach { mergeOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies + [codingFactoryOperation])
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: dependecies + [codingFactoryOperation]
+        )
+    }
+
+    private func createEraStartSessionIndex(
+        dependingOn activeEra: BaseOperation<[StorageResponse<ActiveEraInfo>]>,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> {
+        let keyParams: () throws -> [StringScaleMapper<EraIndex>] = {
+            let activeEraIndex = try activeEra.extractNoCancellableResultData().first?.value?.index ?? 0
+            return [StringScaleMapper(value: activeEraIndex)]
+        }
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: keyParams,
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .eraStartSessionIndex
+            )
+        wrapper.addDependency(operations: [activeEra])
+
+        return wrapper
     }
 
     private func createFetchConstantWrapper<T: LosslessStringConvertible & Equatable>(
