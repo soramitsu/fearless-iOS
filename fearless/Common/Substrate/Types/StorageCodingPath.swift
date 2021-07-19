@@ -125,4 +125,8 @@ extension StorageCodingPath {
     static var blockNumber: StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Number")
     }
+
+    static var currentSlot: StorageCodingPath {
+        StorageCodingPath(moduleName: "Babe", itemName: "CurrentSlot")
+    }
 }

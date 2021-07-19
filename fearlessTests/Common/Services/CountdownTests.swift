@@ -15,7 +15,7 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
             for: .eraLength,
             runtimeCodingService: runtimeCodingService,
             operationManager: operationManager
-        ) { (result: Result<UInt32, Error>) in
+        ) { (result: Result<SessionIndex, Error>) in
             switch result {
             case let .success(index):
                 if index == 6 {
@@ -89,7 +89,7 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         )
 
         let sessionExpectation = XCTestExpectation()
-        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
                 engine: connection,
                 keys: { [try keyFactory.currentSessionIndex()] },
@@ -133,7 +133,7 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
 
         let eraStartSessionIndexExpectation = XCTestExpectation()
 
-        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
                 engine: connection,
                 keyParams: { [StringScaleMapper(value: "3938")] },
@@ -159,5 +159,49 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         )
 
         wait(for: [eraStartSessionIndexExpectation], timeout: 10)
+    }
+
+    func testFetchCurrentSlot() {
+        let operationManager = OperationManagerFacade.sharedManager
+        let keyFactory = StorageKeyFactory()
+
+        WebSocketService.shared.setup()
+        let connection = WebSocketService.shared.connection!
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        runtimeService.setup()
+
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let currentSlotWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<Slot>>]> =
+            storageRequestFactory.queryItems(
+                engine: connection,
+                keys: { [try keyFactory.currentSlot()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .currentSlot
+            )
+
+        currentSlotWrapper.addDependency(operations: [codingFactoryOperation])
+
+        let currentSlotExpectation = XCTestExpectation()
+        currentSlotWrapper.targetOperation.completionBlock = {
+            do {
+                let value = try currentSlotWrapper.targetOperation.extractNoCancellableResultData()
+                    .first?.value?.value
+                currentSlotExpectation.fulfill()
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        operationManager.enqueue(
+            operations: [codingFactoryOperation] + currentSlotWrapper.allOperations,
+            in: .transient
+        )
+
+        wait(for: [currentSlotExpectation], timeout: 10)
     }
 }
