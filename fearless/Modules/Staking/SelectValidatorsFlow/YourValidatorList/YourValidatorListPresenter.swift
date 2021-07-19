@@ -22,6 +22,7 @@ final class YourValidatorListPresenter {
         wireframe: YourValidatorListWireframeProtocol,
         viewModelFactory: YourValidatorListViewModelFactoryProtocol,
         chain: Chain,
+        localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -29,6 +30,8 @@ final class YourValidatorListPresenter {
         self.viewModelFactory = viewModelFactory
         self.chain = chain
         self.logger = logger
+
+        self.localizationManager = localizationManager
     }
 
     private func updateView() {
@@ -47,8 +50,8 @@ final class YourValidatorListPresenter {
         }
 
         do {
-            let sections = try viewModelFactory.createViewModel(for: model)
-            view?.reload(state: .validatorList(sections))
+            let viewModel = try viewModelFactory.createViewModel(for: model, locale: selectedLocale)
+            view?.reload(state: .validatorList(viewModel: viewModel))
         } catch {
             logger?.error("Did receive error: \(error)")
         }
@@ -101,11 +104,10 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
         }
 
         guard let controllerAccount = controllerAccount else {
-            let locale = view.localizationManager?.selectedLocale
             wireframe.presentMissingController(
                 from: view,
                 address: stashItem.controller,
-                locale: locale
+                locale: selectedLocale
             )
             return
         }
@@ -175,6 +177,14 @@ extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol 
             rewardDestinationArg = item
         case let .failure(error):
             handle(error: error)
+        }
+    }
+}
+
+extension YourValidatorListPresenter: Localizable {
+    func applyLocalization() {
+        if let view = view, view.isSetup {
+            updateView()
         }
     }
 }

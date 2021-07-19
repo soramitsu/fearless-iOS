@@ -3,6 +3,29 @@ import SoraFoundation
 import SoraUI
 
 final class YourValidatorListViewController: UIViewController, ViewHolder {
+    private enum Constants {
+        static let warningHeaderMargins = UIEdgeInsets(
+            top: 0.0,
+            left: 0.0,
+            bottom: 8.0,
+            right: 0.0
+        )
+
+        static let regularHeaderMargins = UIEdgeInsets(
+            top: 16.0,
+            left: 0.0,
+            bottom: 8.0,
+            right: 0.0
+        )
+
+        static let notTopStatusHeaderMargins = UIEdgeInsets(
+            top: 32.0,
+            left: 0.0,
+            bottom: 8.0,
+            right: 0.0
+        )
+    }
+
     typealias RootViewType = YourValidatorListViewLayout
 
     var presenter: YourValidatorListPresenterProtocol
@@ -79,7 +102,15 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
         ])
 
         rootView.tableView.registerHeaderFooterView(
+            withClass: YourValidatorListDescSectionView.self
+        )
+
+        rootView.tableView.registerHeaderFooterView(
             withClass: YourValidatorListStatusSectionView.self
+        )
+
+        rootView.tableView.registerHeaderFooterView(
+            withClass: YourValidatorListWarningSectionView.self
         )
 
         rootView.tableView.rowHeight = 48
@@ -97,7 +128,7 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
 
 extension YourValidatorListViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        guard let sections = viewState?.validatorSections else {
+        guard let sections = viewState?.validatorListViewModel?.sections else {
             return 0
         }
 
@@ -105,7 +136,7 @@ extension YourValidatorListViewController: UITableViewDataSource {
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let sections = viewState?.validatorSections else {
+        guard let sections = viewState?.validatorListViewModel?.sections else {
             return 0
         }
 
@@ -115,7 +146,7 @@ extension YourValidatorListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(YourValidatorTableCell.self)!
 
-        let section = viewState?.validatorSections?[indexPath.section]
+        let section = viewState?.validatorListViewModel?.sections[indexPath.section]
         let validator = section!.validators[indexPath.row]
 
         cell.bind(viewModel: validator, for: selectedLocale)
@@ -130,7 +161,7 @@ extension YourValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard let section = viewState?.validatorSections?[indexPath.section] else {
+        guard let section = viewState?.validatorListViewModel?.sections[indexPath.section] else {
             return
         }
 
@@ -138,18 +169,121 @@ extension YourValidatorListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let section = viewState?.validatorSections?[section] else {
+        guard let viewModel = viewState?.validatorListViewModel else {
             return nil
         }
 
-        let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+        let sectionViewModel = viewModel.sections[section]
 
-        let title = section.title?.value(for: selectedLocale)
-        let description = section.description?.value(for: selectedLocale)
+        switch sectionViewModel.status {
+        case .stakeAllocated:
+            let count = viewModel.sections.first(where: { $0.status == .stakeNotAllocated }).map {
+                $0.validators.count + sectionViewModel.validators.count
+            } ?? sectionViewModel.validators.count
 
-        headerView.bind(title: title, description: description, for: section.status)
+            if viewModel.hasValidatorWithoutRewards {
+                let headerView: YourValidatorListWarningSectionView = tableView.dequeueReusableHeaderFooterView()
+                configureWarning(headerView: headerView, validatorsCount: count)
+                headerView.borderView.borderType = .none
+                headerView.mainStackView.layoutMargins = Constants.warningHeaderMargins
+                return headerView
+            } else {
+                let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+                configureElected(headerView: headerView, validatorsCount: count)
+                headerView.borderView.borderType = .none
+                headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+                return headerView
+            }
+        case .stakeNotAllocated:
+            let headerView: YourValidatorListDescSectionView = tableView.dequeueReusableHeaderFooterView()
+            configureNotAllocated(headerView: headerView)
 
-        return headerView
+            if section > 0 {
+                headerView.borderView.borderType = .top
+            } else {
+                headerView.borderView.borderType = .none
+            }
+
+            headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+
+            return headerView
+        case .unelected:
+            let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+            configureUnelected(headerView: headerView, validatorsCount: sectionViewModel.validators.count)
+
+            if section > 0 {
+                headerView.borderView.borderType = .top
+                headerView.mainStackView.layoutMargins = Constants.notTopStatusHeaderMargins
+            } else {
+                headerView.borderView.borderType = .none
+                headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+            }
+
+            return headerView
+        case .pending:
+            let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+            configurePending(headerView: headerView, validatorsCount: sectionViewModel.validators.count)
+
+            if section > 0 {
+                headerView.borderView.borderType = .top
+                headerView.mainStackView.layoutMargins = Constants.notTopStatusHeaderMargins
+            } else {
+                headerView.borderView.borderType = .none
+                headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+            }
+
+            return headerView
+        }
+    }
+
+    private func configureWarning(headerView: YourValidatorListWarningSectionView, validatorsCount: Int) {
+        configureElected(headerView: headerView, validatorsCount: validatorsCount)
+
+        headerView.bind(warningText: "Your tokens allocated to the oversubscribed validator. You will not receive rewards in this era from the validator.")
+    }
+
+    private func configureElected(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
+        let icon = R.image.iconAlgoItem()!
+        let title = "Elected(\(validatorsCount))"
+        let value = "REWARD(APY)"
+
+        let description = "Your stake is allocated to the following validators."
+
+        headerView.statusView.titleLabel.textColor = R.color.colorWhite()
+
+        headerView.bind(icon: icon, title: title, value: value)
+        headerView.bind(description: description)
+    }
+
+    private func configureNotAllocated(headerView: YourValidatorListDescSectionView) {
+        let description = "Others, who are active without your stake allocation."
+        headerView.bind(description: description)
+    }
+
+    private func configureUnelected(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
+        let icon = R.image.iconPending()!.withRenderingMode(.alwaysTemplate)
+        let title = "Not elected(\(validatorsCount))"
+
+        let description = "Validators who were not elected in this era."
+
+        headerView.statusView.titleLabel.textColor = R.color.colorLightGray()
+        headerView.statusView.imageView.tintColor = R.color.colorLightGray()
+
+        headerView.bind(icon: icon, title: title, value: "")
+        headerView.bind(description: description)
+    }
+
+    private func configurePending(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
+        let icon = R.image.iconPending()!.withRenderingMode(.alwaysTemplate)
+        let title = "Selected(\(validatorsCount))"
+
+        let description = "Validators to apply from the next era."
+
+        headerView.statusView.titleLabel.textColor = R.color.colorLightGray()
+        headerView.statusView.imageView.tintColor = R.color.colorLightGray()
+
+        headerView.bind(icon: icon, title: title, value: "")
+        headerView.bind(description: description)
     }
 }
 
