@@ -10,7 +10,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
     func testSetupAndSendExtrinsic() throws {
         // given
 
-        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
+        let address = "5E9W1jho79KwmnwxnGjGaBEyWw9XFjhu3upEaDtwWSvVgbou"
         let validatorAccountId = try! SS58AddressFactory().accountId(from: address)
 
         let settings = InMemorySettingsManager()
@@ -60,11 +60,13 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageTestFacade().createRepository()
 
+        let extrinsicOperationFactory = ExtrinsicOperationFactoryStub()
+
         let interactor = StakingPayoutConfirmationInteractor(
             singleValueProviderFactory: providerFactory,
             substrateProviderFactory: substrateProviderFactory,
+            extrinsicOperationFactory: extrinsicOperationFactory,
             extrinsicService: extrinsicService,
-            feeProxy: ExtrinsicFeeProxy(),
             runtimeService: runtimeCodingService,
             signer: signer,
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -103,20 +105,6 @@ class StakingPayoutsConfirmTests: XCTestCase {
             when(stub).localizationManager.get.then { LocalizationManager.shared }
         }
 
-        let completionExpectation = XCTestExpectation()
-
-        stub(wireframe) { stub in
-            when(stub).complete(from: any()).then { _ in
-                completionExpectation.fulfill()
-            }
-
-            when(stub).present(
-                message: any(),
-                title: any(),
-                closeAction: any(),
-                from: any()).thenDoNothing()
-        }
-
         // when
 
         presenter.setup()
@@ -124,13 +112,5 @@ class StakingPayoutsConfirmTests: XCTestCase {
         // then
 
         wait(for: [feeExpectation, viewModelExpectation], timeout: Constants.defaultExpectationDuration)
-
-        // when
-
-        presenter.proceed()
-
-        // then
-
-        wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }

@@ -231,7 +231,7 @@ final class StakingPayoutConfirmationInteractor {
         return blockWeightsOperation
     }
 
-    private func generateBatches(completion closure: @escaping () -> ()) {
+    private func generateBatches(completion closure: @escaping () -> Void) {
         guard let batchesOperation = createBatchesOperationWrapper() else {
             return
         }
@@ -255,7 +255,7 @@ final class StakingPayoutConfirmationInteractor {
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
-        generateBatches() { self.estimateFee() }
+        generateBatches { self.estimateFee() }
 
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccount.address)
         balanceProvider = subscribeToAccountInfoProvider(
