@@ -14,7 +14,8 @@ final class StakingBalancePresenter {
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var priceData: PriceData?
-    private var eraCompletionTimeInSeconds: UInt64?
+    private var eraCompletionTimeInSeconds: TimeInterval?
+    private var timer: CountdownTimerProtocol?
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
@@ -211,12 +212,29 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(eraCompletionTimeResult: Result<UInt64?, Error>) {
+    func didReceive(eraCompletionTimeResult: Result<UInt64, Error>) {
         switch eraCompletionTimeResult {
         case let .success(time):
-            eraCompletionTimeInSeconds = time
+            let timeInterval = TimeInterval(time / 1000)
+            eraCompletionTimeInSeconds = timeInterval
+            if timer == nil, timeInterval <= 60 * 60 * 24 {
+                timer = CountdownTimer(delegate: self)
+                timer?.start(with: timeInterval)
+            }
         case .failure:
             eraCompletionTimeInSeconds = nil
         }
+    }
+}
+
+extension StakingBalancePresenter: CountdownTimerDelegate {
+    func didStart(with _: TimeInterval) {}
+
+    func didCountdown(remainedInterval _: TimeInterval) {
+        updateView()
+    }
+
+    func didStop(with _: TimeInterval) {
+        updateView()
     }
 }

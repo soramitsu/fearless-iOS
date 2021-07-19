@@ -31,4 +31,14 @@ extension DateFormatter {
             return dateFormatter
         }
     }
+
+    static var hhMMss: LocalizableResource<DateFormatter> {
+        LocalizableResource { locale in
+            let format = DateFormatter.dateFormat(fromTemplate: "HH:mm:ss", options: 0, locale: locale)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = format
+            dateFormatter.locale = locale
+            return dateFormatter
+        }
+    }
 }

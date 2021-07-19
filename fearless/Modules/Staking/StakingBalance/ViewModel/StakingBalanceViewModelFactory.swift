@@ -13,7 +13,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    private let eraTimeFormatter = DateFormatter.txHistory
+    private let eraTimeFormatter = DateFormatter.hhMMss
 
     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
         LocalizableResource { locale in
@@ -131,23 +131,16 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
 
     func createUnbondingsViewModels(
         from balanceData: StakingBalanceData,
-        precision: Int16,
+        precision _: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
-        balanceData.stakingLedger
-            .unbondings(inEra: balanceData.activeEra)
-            .sorted(by: { $0.era < $1.era })
-            .map { unbondingItem -> UnbondingItemViewModel in
-                let unbondingAmountDecimal = Decimal
-                    .fromSubstrateAmount(
-                        unbondingItem.value,
-                        precision: precision
-                    ) ?? .zero
-                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
-                let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
+        (0 ..< 4)
+            .map { _ in
+                let tokenAmount = "KSM"
+                let usdAmount = "$"
                 let daysLeft = daysLeftAttributedString(
-                    activeEra: balanceData.activeEra,
-                    unbondingEra: unbondingItem.era,
+                    activeEra: 1000,
+                    unbondingEra: 1000,
                     eraCompletionTimeInSeconds: balanceData.eraCompletionTimeInSeconds,
                     locale: locale
                 )
@@ -159,6 +152,31 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                     usdAmountText: usdAmount
                 )
             }
+//        balanceData.stakingLedger
+//            .unbondings(inEra: balanceData.activeEra)
+//            .sorted(by: { $0.era < $1.era })
+//            .map { unbondingItem -> UnbondingItemViewModel in
+//                let unbondingAmountDecimal = Decimal
+//                    .fromSubstrateAmount(
+//                        unbondingItem.value,
+//                        precision: precision
+//                    ) ?? .zero
+//                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+//                let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
+//                let daysLeft = daysLeftAttributedString(
+//                    activeEra: balanceData.activeEra,
+//                    unbondingEra: unbondingItem.era,
+//                    eraCompletionTimeInSeconds: balanceData.eraCompletionTimeInSeconds,
+//                    locale: locale
+//                )
+//
+//                return UnbondingItemViewModel(
+//                    addressOrName: R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages),
+//                    daysLeftText: daysLeft,
+//                    tokenAmountText: tokenAmount,
+//                    usdAmountText: usdAmount
+//                )
+//            }
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
@@ -178,7 +196,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private func daysLeftAttributedString(
         activeEra: EraIndex,
         unbondingEra: EraIndex,
-        eraCompletionTimeInSeconds: UInt64?,
+        eraCompletionTimeInSeconds: TimeInterval?,
         locale: Locale
     ) -> NSAttributedString {
         let eraDistance = unbondingEra - activeEra
@@ -186,7 +204,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         let timeLeftText: String = {
             if daysLeft == 0, let eraCompletionTimeInSeconds = eraCompletionTimeInSeconds {
                 let localizedFormatter = eraTimeFormatter.value(for: locale)
-                let date = Date().addingTimeInterval(TimeInterval(eraCompletionTimeInSeconds))
+                let date = Date().addingTimeInterval(eraCompletionTimeInSeconds)
                 return localizedFormatter.string(from: date)
             }
             return R.string.localizable
