@@ -6,6 +6,45 @@ import SoraKeystore
 
 class CountdownTests: XCTestCase, RuntimeConstantFetching {
 
+    func testService() {
+        let operationManager = OperationManagerFacade.sharedManager
+
+        WebSocketService.shared.setup()
+        let connection = WebSocketService.shared.connection!
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        runtimeService.setup()
+
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+
+        let service = EraCountdownService(
+            chain: .westend,
+            runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
+            engine: connection
+        )
+
+        let expectation = XCTestExpectation()
+        let operation = service.fetchCountdownOperationWrapper()
+        operation.targetOperation.completionBlock = {
+            do {
+                let res = try operation.targetOperation.extractNoCancellableResultData()
+                print(res)
+                expectation.fulfill()
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        operationManager.enqueue(operations: operation.allOperations, in: .transient)
+
+        wait(for: [expectation], timeout: 10)
+    }
+
     func testNumberOfSessionsPerEra() {
         let runtimeCodingService = try! RuntimeCodingServiceStub.createWestendService()
         let operationManager = OperationManagerFacade.sharedManager
@@ -222,26 +261,5 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         )
 
         wait(for: [currentSlotExpectation, genesisSlotExpectation], timeout: 10)
-    }
-
-    func testBlockCreationTime() {
-        let runtimeCodingService = try! RuntimeCodingServiceStub.createWestendService()
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let blockTimeExpectation = XCTestExpectation()
-        fetchConstant(
-            for: .expectedBlockTime,
-            runtimeCodingService: runtimeCodingService,
-            operationManager: operationManager
-        ) { (result: Result<Moment, Error>) in
-            switch result {
-            case let .success(index):
-                blockTimeExpectation.fulfill()
-            case let .failure(error):
-                XCTFail(error.localizedDescription)
-            }
-        }
-
-        wait(for: [blockTimeExpectation], timeout: 10)
     }
 }
