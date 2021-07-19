@@ -90,6 +90,13 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             operationManager: operationManager
         )
 
+        let extrinsicOperationFactory = ExtrinsicOperationFactory(
+            address: selectedAccount.address,
+            cryptoType: selectedAccount.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection
+        )
+
         let signer = SigningWrapper(
             keystore: keystore,
             settings: settings
@@ -105,13 +112,11 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let feeProxy = ExtrinsicFeeProxy()
-
         return StakingPayoutConfirmationInteractor(
             singleValueProviderFactory: singleValueProviderFactory,
             substrateProviderFactory: substrateProviderFactory,
+            extrinsicOperationFactory: extrinsicOperationFactory,
             extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
             runtimeService: runtimeService,
             signer: signer,
             accountRepository: AnyDataProviderRepository(accountRepository),
