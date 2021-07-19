@@ -223,4 +223,25 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
 
         wait(for: [currentSlotExpectation, genesisSlotExpectation], timeout: 10)
     }
+
+    func testBlockCreationTime() {
+        let runtimeCodingService = try! RuntimeCodingServiceStub.createWestendService()
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let blockTimeExpectation = XCTestExpectation()
+        fetchConstant(
+            for: .expectedBlockTime,
+            runtimeCodingService: runtimeCodingService,
+            operationManager: operationManager
+        ) { (result: Result<Moment, Error>) in
+            switch result {
+            case let .success(index):
+                blockTimeExpectation.fulfill()
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        wait(for: [blockTimeExpectation], timeout: 10)
+    }
 }
