@@ -41,8 +41,10 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let viewModelFactory = StakingPayoutConfirmViewModelFactory(asset: asset,
                                                                     balanceViewModelFactory: balanceViewModelFactory)
 
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingPayoutConfirmationPresenter(balanceViewModelFactory: balanceViewModelFactory,
                                                            payoutConfirmViewModelFactory: viewModelFactory,
+                                                           dataValidatingFactory: dataValidatingFactory,
                                                            chain: chain,
                                                            asset: asset,
                                                            logger: nil)
@@ -105,6 +107,20 @@ class StakingPayoutsConfirmTests: XCTestCase {
             when(stub).localizationManager.get.then { LocalizationManager.shared }
         }
 
+        let completionExpectation = XCTestExpectation()
+
+        stub(wireframe) { stub in
+            when(stub).complete(from: any()).then { _ in
+                completionExpectation.fulfill()
+            }
+
+            when(stub).present(
+                message: any(),
+                title: any(),
+                closeAction: any(),
+                from: any()).thenDoNothing()
+        }
+
         // when
 
         presenter.setup()
@@ -112,5 +128,13 @@ class StakingPayoutsConfirmTests: XCTestCase {
         // then
 
         wait(for: [feeExpectation, viewModelExpectation], timeout: Constants.defaultExpectationDuration)
+
+        // when
+
+        presenter.proceed()
+
+        // then
+
+        wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }

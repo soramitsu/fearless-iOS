@@ -29,9 +29,14 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             balanceViewModelFactory: balanceViewModelFactory
         )
 
+        let wireframe = StakingPayoutConfirmationWireframe()
+
+        let dataValidationFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingPayoutConfirmationPresenter(
             balanceViewModelFactory: balanceViewModelFactory,
             payoutConfirmViewModelFactory: payoutConfirmViewModelFactory,
+            dataValidatingFactory: dataValidationFactory,
             chain: chain,
             asset: asset,
             logger: Logger.shared
@@ -50,8 +55,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         ) else {
             return nil
         }
-
-        let wireframe = StakingPayoutConfirmationWireframe()
 
         presenter.view = view
         presenter.interactor = interactor

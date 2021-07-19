@@ -16,6 +16,7 @@ final class StakingPayoutConfirmationPresenter {
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     private let chain: Chain
     private let asset: WalletAsset
     private let logger: LoggerProtocol?
@@ -23,12 +24,14 @@ final class StakingPayoutConfirmationPresenter {
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: Chain,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.asset = asset
         self.logger = logger
@@ -96,30 +99,21 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     }
 
     func proceed() {
-        guard let fee = fee else {
-            if let view = view {
-                wireframe.presentFeeNotReceived(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
+                self?.interactor.estimateFee()
+            },
+            dataValidatingFactory.rewardIsHigherThanFee(reward: rewardAmount, fee: fee, locale: locale),
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else {
+                return
             }
 
-            return
+            strongSelf.interactor.submitPayout()
         }
-
-        let lastBalance = balance ?? 0.0
-
-        guard lastBalance >= fee else {
-            didFailPayout(error: StakingPayoutConfirmError.notEnoughFunds)
-            return
-        }
-
-        guard rewardAmount >= fee else {
-            didFailPayout(error: StakingPayoutConfirmError.tinyPayout)
-            return
-        }
-
-        interactor.submitPayout()
     }
 
     func presentAccountOptions(for viewModel: AccountInfoViewModel) {
