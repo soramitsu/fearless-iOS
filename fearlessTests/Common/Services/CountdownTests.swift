@@ -42,7 +42,7 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
 
         operationManager.enqueue(operations: operation.allOperations, in: .transient)
 
-        wait(for: [expectation], timeout: 10)
+        wait(for: [expectation], timeout: 20)
     }
 
     func testNumberOfSessionsPerEra() {

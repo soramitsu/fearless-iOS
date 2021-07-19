@@ -57,7 +57,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             for: .babeBlockTime
         )
 
-        let currentSessionIndexWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
+        let sessionIndexWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try keyFactory.currentSessionIndex()] },
@@ -84,22 +84,23 @@ final class EraCountdownService: EraCountdownServiceProtocol {
         let dependecies = eraLengthWrapper.allOperations
             + sessionLengthWrapper.allOperations
             + blockTimeWrapper.allOperations
-//            + currentSessionIndexWrapper.allOperations
-//            + currentSlotWrapper.allOperations
-//            + genesisSlotWrapper.allOperations
-//        dependecies.forEach { $0.addDependency(codingFactoryOperation) }
+        let all =
+            sessionIndexWrapper.allOperations
+                + currentSlotWrapper.allOperations
+                + genesisSlotWrapper.allOperations
+        all.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<EraCountdownSteps> {
             guard
                 let eraLength = try? eraLengthWrapper.targetOperation.extractNoCancellableResultData(),
                 let sessionLength = try? sessionLengthWrapper.targetOperation.extractNoCancellableResultData(),
-                let babeBlockTime = try? blockTimeWrapper.targetOperation.extractNoCancellableResultData()
-//                let currentSessionIndex = try? currentSessionIndexWrapper.targetOperation.extractNoCancellableResultData()
-//                .first?.value?.value,
-//                let currentSlot = try? currentSlotWrapper.targetOperation.extractNoCancellableResultData()
-//                .first?.value?.value,
-//                let genesisSlot = try? genesisSlotWrapper.targetOperation.extractNoCancellableResultData()
-//                .first?.value?.value
+                let babeBlockTime = try? blockTimeWrapper.targetOperation.extractNoCancellableResultData(),
+                let currentSessionIndex = try? sessionIndexWrapper.targetOperation
+                .extractNoCancellableResultData().first?.value?.value,
+                let currentSlot = try? currentSlotWrapper.targetOperation
+                .extractNoCancellableResultData().first?.value?.value,
+                let genesisSlot = try? genesisSlotWrapper.targetOperation
+                .extractNoCancellableResultData().first?.value?.value
             else {
                 throw PayoutRewardsServiceError.unknown
             }
@@ -108,16 +109,17 @@ final class EraCountdownService: EraCountdownServiceProtocol {
                 numberOfSessionsPerEra: eraLength,
                 numberOfSlotsPerSession: sessionLength,
                 eraStartSessionIndex: 0,
-                currentSessionIndex: 0, // currentSessionIndex,
-                currentSlot: 0, // currentSlot,
-                genesisSlot: 0, // genesisSlot,
+                currentSessionIndex: currentSessionIndex,
+                currentSlot: currentSlot,
+                genesisSlot: genesisSlot,
                 blockCreationTime: babeBlockTime
             )
         }
 
-        dependecies.forEach { mergeOperation.addDependency($0) }
+        let abs = dependecies + all
+        abs.forEach { mergeOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies)
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: abs + [codingFactoryOperation])
     }
 
     private func createFetchConstantOperation<T: LosslessStringConvertible & Equatable>(
