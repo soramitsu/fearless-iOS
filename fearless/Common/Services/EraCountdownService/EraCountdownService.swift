@@ -57,6 +57,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
         return result
     }
 
+    // swiftlint:disable function_body_length
     private func createStepsOperationWrapper() throws -> CompoundOperationWrapper<EraCountdownSteps> {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let keyFactory = StorageKeyFactory()
