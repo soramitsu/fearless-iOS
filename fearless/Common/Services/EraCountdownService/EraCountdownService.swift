@@ -45,16 +45,19 @@ final class EraCountdownService: EraCountdownServiceProtocol {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let keyFactory = StorageKeyFactory()
 
-        let eraLengthWrapper: CompoundOperationWrapper<SessionIndex> = createFetchConstantOperation(
-            for: .eraLength
+        let eraLengthWrapper: CompoundOperationWrapper<SessionIndex> = createFetchConstantWrapper(
+            for: .eraLength,
+            codingFactoryOperation: codingFactoryOperation
         )
 
-        let sessionLengthWrapper: CompoundOperationWrapper<SessionIndex> = createFetchConstantOperation(
-            for: .sessionLength
+        let sessionLengthWrapper: CompoundOperationWrapper<SessionIndex> = createFetchConstantWrapper(
+            for: .sessionLength,
+            codingFactoryOperation: codingFactoryOperation
         )
 
-        let blockTimeWrapper: CompoundOperationWrapper<Moment> = createFetchConstantOperation(
-            for: .babeBlockTime
+        let blockTimeWrapper: CompoundOperationWrapper<Moment> = createFetchConstantWrapper(
+            for: .babeBlockTime,
+            codingFactoryOperation: codingFactoryOperation
         )
 
         let sessionIndexWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
@@ -84,11 +87,10 @@ final class EraCountdownService: EraCountdownServiceProtocol {
         let dependecies = eraLengthWrapper.allOperations
             + sessionLengthWrapper.allOperations
             + blockTimeWrapper.allOperations
-        let all =
-            sessionIndexWrapper.allOperations
-                + currentSlotWrapper.allOperations
-                + genesisSlotWrapper.allOperations
-        all.forEach { $0.addDependency(codingFactoryOperation) }
+            + sessionIndexWrapper.allOperations
+            + currentSlotWrapper.allOperations
+            + genesisSlotWrapper.allOperations
+        dependecies.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<EraCountdownSteps> {
             guard
@@ -116,16 +118,15 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             )
         }
 
-        let abs = dependecies + all
-        abs.forEach { mergeOperation.addDependency($0) }
+        dependecies.forEach { mergeOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: abs + [codingFactoryOperation])
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies + [codingFactoryOperation])
     }
 
-    private func createFetchConstantOperation<T: LosslessStringConvertible & Equatable>(
-        for path: ConstantCodingPath
+    private func createFetchConstantWrapper<T: LosslessStringConvertible & Equatable>(
+        for path: ConstantCodingPath,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<T> {
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let constOperation = PrimitiveConstantOperation<T>(path: path)
         constOperation.configurationBlock = {
             do {
@@ -135,8 +136,6 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             }
         }
 
-        constOperation.addDependency(codingFactoryOperation)
-
-        return CompoundOperationWrapper(targetOperation: constOperation, dependencies: [codingFactoryOperation])
+        return CompoundOperationWrapper(targetOperation: constOperation)
     }
 }
