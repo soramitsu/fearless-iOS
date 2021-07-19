@@ -115,4 +115,49 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
         )
         wait(for: [sessionExpectation], timeout: 5)
     }
+
+    func testEraStartSessionIndex() {
+        let operationManager = OperationManagerFacade.sharedManager
+        let keyFactory = StorageKeyFactory()
+
+        WebSocketService.shared.setup()
+        let connection = WebSocketService.shared.connection!
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        runtimeService.setup()
+
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let eraStartSessionIndexExpectation = XCTestExpectation()
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            storageRequestFactory.queryItems(
+                engine: connection,
+                keyParams: { [StringScaleMapper(value: "3938")] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .eraStartSessionIndex
+            )
+
+        wrapper.addDependency(operations: [codingFactoryOperation])
+
+        wrapper.targetOperation.completionBlock = {
+            do {
+                let value = try wrapper.targetOperation.extractNoCancellableResultData()
+                    .first?.value?.value
+                eraStartSessionIndexExpectation.fulfill()
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        operationManager.enqueue(
+            operations: [codingFactoryOperation] + wrapper.allOperations,
+            in: .transient
+        )
+
+        wait(for: [eraStartSessionIndexExpectation], timeout: 10)
+    }
 }
