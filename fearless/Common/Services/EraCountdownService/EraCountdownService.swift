@@ -3,7 +3,7 @@ import FearlessUtils
 import SoraKeystore
 
 protocol EraCountdownServiceProtocol {
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdownSteps>
+    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>
 }
 
 final class EraCountdownService: EraCountdownServiceProtocol {
@@ -24,21 +24,37 @@ final class EraCountdownService: EraCountdownServiceProtocol {
         self.engine = engine
     }
 
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdownSteps> {
+    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64> {
         do {
-            return try createStepsOperationWrapper()
-//            let stepsOperation = try createStepsOperationWrapper()
-//            let mapOperation = ClosureOperation<UInt64> {
-//                let steps = try stepsOperation.targetOperation.extractNoCancellableResultData()
-//                let time: UInt64 = 0
-//                return time
-//            }
-//            stepsOperation.allOperations.forEach { mapOperation.addDependency($0) }
-//
-//            return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: stepsOperation.allOperations)
+            let stepsOperation = try createStepsOperationWrapper()
+            let mapOperation = ClosureOperation<UInt64> {
+                let steps = try stepsOperation.targetOperation.extractNoCancellableResultData()
+                let time = self.calculateEraCompletionTime(steps: steps)
+                return time
+            }
+
+            let dependencies = stepsOperation.allOperations
+            dependencies.forEach { mapOperation.addDependency($0) }
+
+            return CompoundOperationWrapper(
+                targetOperation: mapOperation,
+                dependencies: dependencies
+            )
         } catch {
             return CompoundOperationWrapper.createWithError(error)
         }
+    }
+
+    private func calculateEraCompletionTime(steps: EraCountdownSteps) -> UInt64 {
+        let numberOfSlotsPerSession = UInt64(steps.sessionLength)
+        let currentSessionIndex = UInt64(steps.currentSessionIndex)
+
+        let sessionStartSlot = currentSessionIndex * numberOfSlotsPerSession + steps.genesisSlot
+        let sessionProgress = steps.currentSlot - sessionStartSlot
+        let eraProgress = (currentSessionIndex - UInt64(steps.eraStartSessionIndex)) * numberOfSlotsPerSession + sessionProgress
+        let eraRemained = UInt64(steps.eraLength) * numberOfSlotsPerSession - eraProgress
+        let result = eraRemained * UInt64(steps.blockCreationTime)
+        return result
     }
 
     private func createStepsOperationWrapper() throws -> CompoundOperationWrapper<EraCountdownSteps> {
@@ -125,8 +141,8 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             }
 
             return EraCountdownSteps(
-                numberOfSessionsPerEra: eraLength,
-                numberOfSlotsPerSession: sessionLength,
+                eraLength: eraLength,
+                sessionLength: sessionLength,
                 eraStartSessionIndex: eraStartSessionIndex,
                 currentSessionIndex: currentSessionIndex,
                 currentSlot: currentSlot,
