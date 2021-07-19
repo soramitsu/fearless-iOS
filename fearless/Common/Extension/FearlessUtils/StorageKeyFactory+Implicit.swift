@@ -78,6 +78,13 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
+    func genesisSlot() throws -> Data {
+        try createStorageKey(
+            moduleName: "Babe",
+            storageName: "GenesisSlot"
+        )
+    }
+
     func key(from codingPath: StorageCodingPath) throws -> Data {
         try createStorageKey(moduleName: codingPath.moduleName, storageName: codingPath.itemName)
     }

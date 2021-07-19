@@ -183,7 +183,6 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .currentSlot
             )
-
         currentSlotWrapper.addDependency(operations: [codingFactoryOperation])
 
         let currentSlotExpectation = XCTestExpectation()
@@ -197,11 +196,31 @@ class CountdownTests: XCTestCase, RuntimeConstantFetching {
             }
         }
 
+        let genesisSlotWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<Slot>>]> =
+            storageRequestFactory.queryItems(
+                engine: connection,
+                keys: { [try keyFactory.genesisSlot()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .genesisSlot
+            )
+        genesisSlotWrapper.addDependency(operations: [codingFactoryOperation])
+
+        let genesisSlotExpectation = XCTestExpectation()
+        genesisSlotWrapper.targetOperation.completionBlock = {
+            do {
+                let value = try genesisSlotWrapper.targetOperation.extractNoCancellableResultData()
+                    .first?.value?.value
+                genesisSlotExpectation.fulfill()
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
         operationManager.enqueue(
-            operations: [codingFactoryOperation] + currentSlotWrapper.allOperations,
+            operations: [codingFactoryOperation] + currentSlotWrapper.allOperations + genesisSlotWrapper.allOperations,
             in: .transient
         )
 
-        wait(for: [currentSlotExpectation], timeout: 10)
+        wait(for: [currentSlotExpectation, genesisSlotExpectation], timeout: 10)
     }
 }
