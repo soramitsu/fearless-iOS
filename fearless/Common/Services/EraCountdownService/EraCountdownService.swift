@@ -6,6 +6,10 @@ protocol EraCountdownServiceProtocol {
     func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>
 }
 
+enum EraCountdownServiceError: Error {
+    case noData
+}
+
 final class EraCountdownService: EraCountdownServiceProtocol {
     let chain: Chain
     let runtimeCodingService: RuntimeCodingServiceProtocol
@@ -114,7 +118,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             codingFactoryOperation: codingFactoryOperation
         )
 
-        let dependecies = eraLengthWrapper.allOperations
+        let dependencies = eraLengthWrapper.allOperations
             + sessionLengthWrapper.allOperations
             + blockTimeWrapper.allOperations
             + sessionIndexWrapper.allOperations
@@ -122,7 +126,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             + genesisSlotWrapper.allOperations
             + activeEraWrapper.allOperations
             + startSessionWrapper.allOperations
-        dependecies.forEach { $0.addDependency(codingFactoryOperation) }
+        dependencies.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<EraCountdownSteps> {
             guard
@@ -138,7 +142,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
                 let eraStartSessionIndex = try? startSessionWrapper.targetOperation
                 .extractNoCancellableResultData().first?.value?.value
             else {
-                throw PayoutRewardsServiceError.unknown
+                throw EraCountdownServiceError.noData
             }
 
             return EraCountdownSteps(
@@ -152,11 +156,11 @@ final class EraCountdownService: EraCountdownServiceProtocol {
             )
         }
 
-        dependecies.forEach { mergeOperation.addDependency($0) }
+        dependencies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: dependecies + [codingFactoryOperation]
+            dependencies: dependencies + [codingFactoryOperation]
         )
     }
 
