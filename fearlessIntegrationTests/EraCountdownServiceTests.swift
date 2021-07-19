@@ -1,7 +1,6 @@
 import XCTest
 import RobinHood
 import FearlessUtils
-import SoraKeystore
 @testable import fearless
 
 class EraCountdownServiceTests: XCTestCase {
@@ -27,20 +26,20 @@ class EraCountdownServiceTests: XCTestCase {
             engine: connection
         )
 
-        let expectation = XCTestExpectation()
-        let operation = service.fetchCountdownOperationWrapper()
-        operation.targetOperation.completionBlock = {
+        let timeExpectation = XCTestExpectation()
+        let operationWrapper = service.fetchCountdownOperationWrapper()
+        operationWrapper.targetOperation.completionBlock = {
             do {
-                let res = try operation.targetOperation.extractNoCancellableResultData()
-                print(res)
-                expectation.fulfill()
+                let eraCompletionTime = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                print("Estimating era completion time (in seconds): \(eraCompletionTime / 1000)")
+                timeExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)
             }
         }
 
-        operationManager.enqueue(operations: operation.allOperations, in: .transient)
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
 
-        wait(for: [expectation], timeout: 20)
+        wait(for: [timeExpectation], timeout: 20)
     }
 }
