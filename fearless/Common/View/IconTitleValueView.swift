@@ -18,14 +18,7 @@ class IconTitleValueView: UIView {
         return label
     }()
 
-    let borderView: BorderedContainerView = {
-        let view = BorderedContainerView()
-        view.backgroundColor = .clear
-        view.borderType = .bottom
-        view.strokeWidth = 1.0
-        view.strokeColor = R.color.colorDarkGray()!
-        return view
-    }()
+    let borderView = UIFactory.default.createBorderedContainerView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
