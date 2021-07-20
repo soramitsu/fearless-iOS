@@ -3,7 +3,7 @@ import RobinHood
 import FearlessUtils
 @testable import fearless
 
-class EraCountdownServiceTests: XCTestCase {
+class EraCountdownOperationFactoryTests: XCTestCase {
 
     func testService() {
         let operationManager = OperationManagerFacade.sharedManager
@@ -19,15 +19,14 @@ class EraCountdownServiceTests: XCTestCase {
             operationManager: operationManager
         )
 
-        let service = EraCountdownService(
-            chain: .westend,
+        let factory = EraCountdownOperationFactory(
             runtimeCodingService: runtimeService,
             storageRequestFactory: storageRequestFactory,
             engine: connection
         )
 
         let timeExpectation = XCTestExpectation()
-        let operationWrapper = service.fetchCountdownOperationWrapper()
+        let operationWrapper = factory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = {
             do {
                 let eraCompletionTime = try operationWrapper.targetOperation.extractNoCancellableResultData()
