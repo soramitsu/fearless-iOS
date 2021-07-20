@@ -13,8 +13,6 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    private let eraTimeFormatter = DateFormatter.hhMMss
-
     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
         LocalizableResource { locale in
             let precision = chain.addressType.precision
@@ -203,9 +201,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         let daysLeft = Int(eraDistance) / chain.erasPerDay
         let timeLeftText: String = {
             if daysLeft == 0, let eraCompletionTimeInSeconds = eraCompletionTimeInSeconds {
-                let localizedFormatter = eraTimeFormatter.value(for: locale)
-                let date = Date().addingTimeInterval(eraCompletionTimeInSeconds)
-                return localizedFormatter.string(from: date)
+                return timeString(time: eraCompletionTimeInSeconds)
             }
             return R.string.localizable
                 .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
@@ -216,5 +212,12 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             attributes: [.foregroundColor: R.color.colorLightGray()!]
         )
         return attrubutedString
+    }
+
+    func timeString(time: TimeInterval) -> String {
+        let hours = Int(time) / 3600
+        let minutes = Int(time) / 60 % 60
+        let seconds = Int(time) % 60
+        return String(format: "%02i:%02i:%02i", hours, minutes, seconds)
     }
 }

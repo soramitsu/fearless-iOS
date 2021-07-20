@@ -228,9 +228,13 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
 }
 
 extension StakingBalancePresenter: CountdownTimerDelegate {
-    func didStart(with _: TimeInterval) {}
+    func didStart(with remainedInterval: TimeInterval) {
+        eraCompletionTimeInSeconds = remainedInterval
+        updateView()
+    }
 
-    func didCountdown(remainedInterval _: TimeInterval) {
+    func didCountdown(remainedInterval: TimeInterval) {
+        eraCompletionTimeInSeconds = remainedInterval
         updateView()
     }
 
