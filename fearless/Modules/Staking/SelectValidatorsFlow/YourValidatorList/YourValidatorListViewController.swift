@@ -278,7 +278,7 @@ extension YourValidatorListViewController: UITableViewDelegate {
         validatorsCount: Int,
         section: Int
     ) {
-        let icon = R.image.iconPending()!.withRenderingMode(.alwaysTemplate)
+        let icon = R.image.iconLightPending()!
         let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
             R.string.localizable.stakingYourNotElectedFormat($0)
         } ?? ""
@@ -288,7 +288,6 @@ extension YourValidatorListViewController: UITableViewDelegate {
         )
 
         headerView.statusView.titleLabel.textColor = R.color.colorLightGray()
-        headerView.statusView.imageView.tintColor = R.color.colorLightGray()
 
         headerView.bind(icon: icon, title: title, value: "")
         headerView.bind(description: description)
@@ -307,7 +306,7 @@ extension YourValidatorListViewController: UITableViewDelegate {
         validatorsCount: Int,
         section: Int
     ) {
-        let icon = R.image.iconPending()!.withRenderingMode(.alwaysTemplate)
+        let icon = R.image.iconLightPending()!
         let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
             R.string.localizable.stakingYourSelectedFormat($0)
         } ?? ""
@@ -317,7 +316,6 @@ extension YourValidatorListViewController: UITableViewDelegate {
         )
 
         headerView.statusView.titleLabel.textColor = R.color.colorLightGray()
-        headerView.statusView.imageView.tintColor = R.color.colorLightGray()
 
         headerView.bind(icon: icon, title: title, value: "")
         headerView.bind(description: description)

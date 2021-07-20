@@ -23,11 +23,11 @@ final class YourValidatorListViewModelFactory {
         let icon = try iconGenerator.generateFromAddress(model.address)
 
         let amountTitle: String? = {
-            guard case let .active(amount) = model.myNomination else {
+            guard case let .active(allocation) = model.myNomination else {
                 return nil
             }
 
-            return balanceViewModeFactory.amountFromValue(amount).value(for: locale)
+            return balanceViewModeFactory.amountFromValue(allocation.amount).value(for: locale)
         }()
 
         let apy: String? = model.stakeInfo.map { info in
@@ -48,16 +48,14 @@ final class YourValidatorListViewModelFactory {
     private func createSectionsFromOrder(
         _ order: [YourValidatorListSectionStatus],
         mapping: [YourValidatorListSectionStatus: [YourValidatorViewModel]]
-    ) -> YourValidatorListViewModel {
-        let sections: [YourValidatorListSection] = order.compactMap { status in
+    ) -> [YourValidatorListSection] {
+        order.compactMap { status in
             if let validators = mapping[status], !validators.isEmpty {
                 return YourValidatorListSection(status: status, validators: validators)
             } else {
                 return nil
             }
         }
-
-        return YourValidatorListViewModel(hasValidatorWithoutRewards: true, sections: sections)
     }
 }
 
@@ -97,6 +95,18 @@ extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryPr
             .stakeAllocated, .pending, .stakeNotAllocated, .unelected
         ]
 
-        return createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
+        let sections = createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
+        let hasValidatorsWithoutReward = model.allValidators.contains { validator in
+            if case let .active(allocation) = validator.myNomination {
+                return !allocation.isRewarded
+            } else {
+                return false
+            }
+        }
+
+        return YourValidatorListViewModel(
+            hasValidatorWithoutRewards: hasValidatorsWithoutReward,
+            sections: sections
+        )
     }
 }
