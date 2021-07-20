@@ -2,27 +2,24 @@ import RobinHood
 import FearlessUtils
 import SoraKeystore
 
-protocol EraCountdownServiceProtocol {
+protocol EraCountdownOperationFactoryProtocol {
     func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>
 }
 
-enum EraCountdownServiceError: Error {
+enum EraCountdownOperationFactoryError: Error {
     case noData
 }
 
-final class EraCountdownService: EraCountdownServiceProtocol {
-    let chain: Chain
+final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let engine: JSONRPCEngine
 
     init(
-        chain: Chain,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine
     ) {
-        self.chain = chain
         self.runtimeCodingService = runtimeCodingService
         self.storageRequestFactory = storageRequestFactory
         self.engine = engine
@@ -142,7 +139,7 @@ final class EraCountdownService: EraCountdownServiceProtocol {
                 let eraStartSessionIndex = try? startSessionWrapper.targetOperation
                 .extractNoCancellableResultData().first?.value?.value
             else {
-                throw EraCountdownServiceError.noData
+                throw EraCountdownOperationFactoryError.noData
             }
 
             return EraCountdownSteps(
