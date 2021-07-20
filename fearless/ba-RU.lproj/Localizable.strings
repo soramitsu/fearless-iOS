@@ -237,6 +237,7 @@
 "staking.payouts.learn.more" = "Узнать больше про выплаты";
 "staking.reward.payout.account" = "Награда аккаунты";
 "staking.selected.accounts.mask" = "Аккаунттар(%d)";
+"staking.recommended.validators.title" = "Кәңәшләнгән валидаторҙар";
 "staking.recommended.validators.description" = "Эти валидаторы принесут вам максимальную прибыль с наименьшим шансом мошенничества или провала.";
 "common.learn.more" = "Узнать больше";
 "staking.custom.validators.title" = "Валидаторҙарҙы һайлағыҙ";
@@ -489,3 +490,8 @@
 "staking.validator.apy.percent" = "";
 "staking.pending.rewards" = "";
 "staking.rewards.destination" = "";
+"staking.your.oversubscribed.message" = "";
+"staking.your.not.elected.format" = "";
+"staking.your.selected.format" = "";
+"staking.your.elected.format" = "";
+"staking.common.rewards.apy" = "";

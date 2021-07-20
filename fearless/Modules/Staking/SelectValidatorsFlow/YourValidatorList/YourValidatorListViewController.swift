@@ -36,8 +36,15 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
 
     private var viewState: YourValidatorListViewState?
 
-    init(presenter: YourValidatorListPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
+    let counterFormater: LocalizableResource<NumberFormatter>
+
+    init(
+        presenter: YourValidatorListPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol,
+        counterFormater: LocalizableResource<NumberFormatter> = NumberFormatter.quantity.localizableResource()
+    ) {
         self.presenter = presenter
+        self.counterFormater = counterFormater
 
         super.init(nibName: nil, bundle: nil)
 
@@ -184,14 +191,10 @@ extension YourValidatorListViewController: UITableViewDelegate {
             if viewModel.hasValidatorWithoutRewards {
                 let headerView: YourValidatorListWarningSectionView = tableView.dequeueReusableHeaderFooterView()
                 configureWarning(headerView: headerView, validatorsCount: count)
-                headerView.borderView.borderType = .none
-                headerView.mainStackView.layoutMargins = Constants.warningHeaderMargins
                 return headerView
             } else {
                 let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
                 configureElected(headerView: headerView, validatorsCount: count)
-                headerView.borderView.borderType = .none
-                headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
                 return headerView
             }
         case .stakeNotAllocated:
@@ -209,28 +212,20 @@ extension YourValidatorListViewController: UITableViewDelegate {
             return headerView
         case .unelected:
             let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
-            configureUnelected(headerView: headerView, validatorsCount: sectionViewModel.validators.count)
-
-            if section > 0 {
-                headerView.borderView.borderType = .top
-                headerView.mainStackView.layoutMargins = Constants.notTopStatusHeaderMargins
-            } else {
-                headerView.borderView.borderType = .none
-                headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
-            }
+            configureUnelected(
+                headerView: headerView,
+                validatorsCount: sectionViewModel.validators.count,
+                section: section
+            )
 
             return headerView
         case .pending:
             let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
-            configurePending(headerView: headerView, validatorsCount: sectionViewModel.validators.count)
-
-            if section > 0 {
-                headerView.borderView.borderType = .top
-                headerView.mainStackView.layoutMargins = Constants.notTopStatusHeaderMargins
-            } else {
-                headerView.borderView.borderType = .none
-                headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
-            }
+            configurePending(
+                headerView: headerView,
+                validatorsCount: sectionViewModel.validators.count,
+                section: section
+            )
 
             return headerView
         }
@@ -239,51 +234,101 @@ extension YourValidatorListViewController: UITableViewDelegate {
     private func configureWarning(headerView: YourValidatorListWarningSectionView, validatorsCount: Int) {
         configureElected(headerView: headerView, validatorsCount: validatorsCount)
 
-        headerView.bind(warningText: "Your tokens allocated to the oversubscribed validator. You will not receive rewards in this era from the validator.")
+        let text = R.string.localizable.stakingYourOversubscribedMessage(
+            preferredLanguages: selectedLocale.rLanguages
+        )
+
+        headerView.bind(warningText: text)
+
+        headerView.borderView.borderType = .none
+        headerView.mainStackView.layoutMargins = Constants.warningHeaderMargins
     }
 
     private func configureElected(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
         let icon = R.image.iconAlgoItem()!
-        let title = "Elected(\(validatorsCount))"
-        let value = "REWARD(APY)"
+        let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
+            R.string.localizable.stakingYourElectedFormat($0)
+        } ?? ""
 
-        let description = "Your stake is allocated to the following validators."
+        let value = R.string.localizable.stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages)
+
+        let description = R.string.localizable.stakingYourAllocatedDescription(
+            preferredLanguages: selectedLocale.rLanguages
+        )
 
         headerView.statusView.titleLabel.textColor = R.color.colorWhite()
 
         headerView.bind(icon: icon, title: title, value: value)
         headerView.bind(description: description)
+
+        headerView.borderView.borderType = .none
+        headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
     }
 
     private func configureNotAllocated(headerView: YourValidatorListDescSectionView) {
-        let description = "Others, who are active without your stake allocation."
+        let description = R.string.localizable.stakingYourNotAllocatedDescription(
+            preferredLanguages: selectedLocale.rLanguages
+        )
+
         headerView.bind(description: description)
     }
 
-    private func configureUnelected(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
+    private func configureUnelected(
+        headerView: YourValidatorListStatusSectionView,
+        validatorsCount: Int,
+        section: Int
+    ) {
         let icon = R.image.iconPending()!.withRenderingMode(.alwaysTemplate)
-        let title = "Not elected(\(validatorsCount))"
+        let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
+            R.string.localizable.stakingYourNotElectedFormat($0)
+        } ?? ""
 
-        let description = "Validators who were not elected in this era."
+        let description = R.string.localizable.stakingYourInactiveDescription(
+            preferredLanguages: selectedLocale.rLanguages
+        )
 
         headerView.statusView.titleLabel.textColor = R.color.colorLightGray()
         headerView.statusView.imageView.tintColor = R.color.colorLightGray()
 
         headerView.bind(icon: icon, title: title, value: "")
         headerView.bind(description: description)
+
+        if section > 0 {
+            headerView.borderView.borderType = .top
+            headerView.mainStackView.layoutMargins = Constants.notTopStatusHeaderMargins
+        } else {
+            headerView.borderView.borderType = .none
+            headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+        }
     }
 
-    private func configurePending(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
+    private func configurePending(
+        headerView: YourValidatorListStatusSectionView,
+        validatorsCount: Int,
+        section: Int
+    ) {
         let icon = R.image.iconPending()!.withRenderingMode(.alwaysTemplate)
-        let title = "Selected(\(validatorsCount))"
+        let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
+            R.string.localizable.stakingYourSelectedFormat($0)
+        } ?? ""
 
-        let description = "Validators to apply from the next era."
+        let description = R.string.localizable.stakingYourValidatorsChangingTitle(
+            preferredLanguages: selectedLocale.rLanguages
+        )
 
         headerView.statusView.titleLabel.textColor = R.color.colorLightGray()
         headerView.statusView.imageView.tintColor = R.color.colorLightGray()
 
         headerView.bind(icon: icon, title: title, value: "")
         headerView.bind(description: description)
+
+        if section > 0 {
+            headerView.borderView.borderType = .top
+            headerView.mainStackView.layoutMargins = Constants.notTopStatusHeaderMargins
+        } else {
+            headerView.borderView.borderType = .none
+            headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+        }
     }
 }
 
