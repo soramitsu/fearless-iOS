@@ -136,7 +136,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             .map { _ in
                 let tokenAmount = "KSM"
                 let usdAmount = "$"
-                let daysLeft = daysLeftAttributedString(
+                let daysLeft = timeLeftAttributedString(
                     activeEra: 1000,
                     unbondingEra: 1000,
                     eraCompletionTimeInSeconds: balanceData.eraCompletionTimeInSeconds,
@@ -191,7 +191,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         return price
     }
 
-    private func daysLeftAttributedString(
+    private func timeLeftAttributedString(
         activeEra: EraIndex,
         unbondingEra: EraIndex,
         eraCompletionTimeInSeconds: TimeInterval?,
@@ -214,6 +214,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         return attrubutedString
     }
 
+    // TODO: refactor
     func timeString(time: TimeInterval) -> String {
         let hours = Int(time) / 3600
         let minutes = Int(time) / 60 % 60

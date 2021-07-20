@@ -108,6 +108,16 @@ final class StakingBalancePresenter {
 
         wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
+
+    private func startCoundownTimerIfNeeded() {
+        if
+            timer == nil,
+            let eraCompletionTimeInSeconds = eraCompletionTimeInSeconds,
+            eraCompletionTimeInSeconds <= 60 * 60 * 24 {
+            timer = CountdownTimer(delegate: self)
+            timer?.start(with: eraCompletionTimeInSeconds)
+        }
+    }
 }
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
@@ -215,12 +225,8 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
     func didReceive(eraCompletionTimeResult: Result<UInt64, Error>) {
         switch eraCompletionTimeResult {
         case let .success(time):
-            let timeInterval = TimeInterval(time / 1000)
-            eraCompletionTimeInSeconds = timeInterval
-            if timer == nil, timeInterval <= 60 * 60 * 24 {
-                timer = CountdownTimer(delegate: self)
-                timer?.start(with: timeInterval)
-            }
+            eraCompletionTimeInSeconds = TimeInterval(time / 1000)
+            startCoundownTimerIfNeeded()
         case .failure:
             eraCompletionTimeInSeconds = nil
         }

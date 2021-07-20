@@ -14,7 +14,7 @@ final class StakingBalanceInteractor: AccountFetching {
     let priceProvider: AnySingleValueProvider<PriceData>
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let eraCountdownService: EraCountdownServiceProtocol
+    let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -28,7 +28,7 @@ final class StakingBalanceInteractor: AccountFetching {
         localStorageRequestFactory: LocalStorageRequestFactoryProtocol,
         priceProvider: AnySingleValueProvider<PriceData>,
         providerFactory: SingleValueProviderFactoryProtocol,
-        eraCountdownService: EraCountdownServiceProtocol,
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
@@ -40,7 +40,7 @@ final class StakingBalanceInteractor: AccountFetching {
         self.localStorageRequestFactory = localStorageRequestFactory
         self.priceProvider = priceProvider
         self.providerFactory = providerFactory
-        self.eraCountdownService = eraCountdownService
+        self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
     }
@@ -63,19 +63,19 @@ final class StakingBalanceInteractor: AccountFetching {
         }
     }
 
-    func fetchEraTime() {
-        let operation = eraCountdownService.fetchCountdownOperationWrapper()
-        operation.targetOperation.completionBlock = { [weak self] in
+    private func fetchEraCompletionTime() {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let result = try operation.targetOperation.extractNoCancellableResultData()
+                    let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
                     self?.presenter.didReceive(eraCompletionTimeResult: .success(result))
                 } catch {
                     self?.presenter.didReceive(eraCompletionTimeResult: .failure(error))
                 }
             }
         }
-        operationManager.enqueue(operations: operation.allOperations, in: .transient)
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
     }
 }
 
@@ -84,6 +84,6 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
         subscribeToPriceChanges()
         subsribeToActiveEra()
         subscribeToStashControllerProvider()
-        fetchEraTime()
+        fetchEraCompletionTime()
     }
 }

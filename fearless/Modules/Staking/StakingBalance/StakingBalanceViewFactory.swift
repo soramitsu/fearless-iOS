@@ -97,8 +97,7 @@ struct StakingBalanceViewFactory {
             operationManager: operationManager
         )
 
-        let eraCountdownService = EraCountdownService(
-            chain: chain,
+        let eraCountdownOperationFactory = EraCountdownOperationFactory(
             runtimeCodingService: runtimeService,
             storageRequestFactory: storageRequestFactory,
             engine: connection
@@ -113,7 +112,7 @@ struct StakingBalanceViewFactory {
             localStorageRequestFactory: localStorageRequestFactory,
             priceProvider: priceProvider,
             providerFactory: SingleValueProviderFactory.shared,
-            eraCountdownService: eraCountdownService,
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
             substrateProviderFactory: substrateProviderFactory,
             operationManager: OperationManagerFacade.sharedManager
         )
