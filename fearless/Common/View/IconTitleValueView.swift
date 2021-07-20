@@ -47,7 +47,7 @@ class IconTitleValueView: UIView {
         addSubview(imageView)
         imageView.snp.makeConstraints { make in
             make.leading.centerY.equalToSuperview()
-            make.size.equalTo(14.0)
+            make.size.equalTo(16.0)
         }
 
         addSubview(titleLabel)
