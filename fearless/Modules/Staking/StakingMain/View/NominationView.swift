@@ -135,7 +135,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
 extension NominationView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
-        // TODO format time
+        // TODO: format time
         statusDetailsLabel.text = interval.description
     }
 

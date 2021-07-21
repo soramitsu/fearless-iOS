@@ -61,6 +61,8 @@ class StakingMainTests: XCTestCase {
             logger: Logger.shared
         )
 
+        let eraCountdownOperationFactory = MockEraCountdownOperationFactoryProtocol()
+
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
                                                accountRepositoryFactory: accountRepositoryFactory,
@@ -74,6 +76,7 @@ class StakingMainTests: XCTestCase {
                                                operationManager: operationManager,
                                                eraInfoOperationFactory: operationFactory,
                                                applicationHandler: ApplicationHandler(),
+                                               eraCountdownOperationFactory: eraCountdownOperationFactory,
                                                logger: Logger.shared)
 
         presenter.view = view
@@ -101,6 +104,12 @@ class StakingMainTests: XCTestCase {
                         lockUpPeriod: 0
                     )
                 )
+            }
+        }
+
+        stub(eraCountdownOperationFactory) { stub in
+            when(stub).fetchCountdownOperationWrapper().then { _ in
+                CompoundOperationWrapper.createWithResult(10)
             }
         }
 

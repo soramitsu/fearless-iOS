@@ -6,7 +6,7 @@ extension NominatorState {
     var status: NominationViewStatus {
         .waiting(eraCompletionTimeInSeconds: commonData.eraCompletionTimeInSeconds)
 
-        // TODO Revert stub
+        // TODO: Revert stub
 //        guard let eraStakers = commonData.eraStakersInfo else {
 //            return .undefined
 //        }

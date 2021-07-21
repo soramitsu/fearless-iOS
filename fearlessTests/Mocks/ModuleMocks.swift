@@ -30712,6 +30712,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func didReceive(eraCompletionTimeResult: Result<UInt64, Error>)  {
+        
+    return cuckoo_manager.call("didReceive(eraCompletionTimeResult: Result<UInt64, Error>)",
+            parameters: (eraCompletionTimeResult),
+            escapingParameters: (eraCompletionTimeResult),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(eraCompletionTimeResult: eraCompletionTimeResult))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingBalanceInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -30749,6 +30764,11 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(stashResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<AccountItem?, Error>)> where M1.MatchedType == Result<AccountItem?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<AccountItem?, Error>)>] = [wrap(matchable: stashResult) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceInteractorOutputProtocol.self, method: "didReceive(stashResult: Result<AccountItem?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(eraCompletionTimeResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<UInt64, Error>)> where M1.MatchedType == Result<UInt64, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt64, Error>)>] = [wrap(matchable: eraCompletionTimeResult) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceInteractorOutputProtocol.self, method: "didReceive(eraCompletionTimeResult: Result<UInt64, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -30803,6 +30823,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("didReceive(stashResult: Result<AccountItem?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(eraCompletionTimeResult: M1) -> Cuckoo.__DoNotUse<(Result<UInt64, Error>), Void> where M1.MatchedType == Result<UInt64, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt64, Error>)>] = [wrap(matchable: eraCompletionTimeResult) { $0 }]
+	        return cuckoo_manager.verify("didReceive(eraCompletionTimeResult: Result<UInt64, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -30833,6 +30859,10 @@ import SoraFoundation
     }
     
      func didReceive(stashResult: Result<AccountItem?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(eraCompletionTimeResult: Result<UInt64, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -34634,6 +34664,21 @@ import SoraFoundation
     
     
     
+     func didReceive(eraCompletionTimeResult: Result<UInt64, Error>)  {
+        
+    return cuckoo_manager.call("didReceive(eraCompletionTimeResult: Result<UInt64, Error>)",
+            parameters: (eraCompletionTimeResult),
+            escapingParameters: (eraCompletionTimeResult),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(eraCompletionTimeResult: eraCompletionTimeResult))
+        
+    }
+    
+    
+    
      func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)  {
         
     return cuckoo_manager.call("didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)",
@@ -34819,6 +34864,11 @@ import SoraFoundation
 	    func didReceiveMaxNominatorsCount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<UInt32?, Error>)> where M1.MatchedType == Result<UInt32?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt32?, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(eraCompletionTimeResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<UInt64, Error>)> where M1.MatchedType == Result<UInt64, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt64, Error>)>] = [wrap(matchable: eraCompletionTimeResult) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(eraCompletionTimeResult: Result<UInt64, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveMaxNominatorsPerValidator<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<UInt32, Error>)> where M1.MatchedType == Result<UInt32, Error> {
@@ -35015,6 +35065,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(eraCompletionTimeResult: M1) -> Cuckoo.__DoNotUse<(Result<UInt64, Error>), Void> where M1.MatchedType == Result<UInt64, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt64, Error>)>] = [wrap(matchable: eraCompletionTimeResult) { $0 }]
+	        return cuckoo_manager.verify("didReceive(eraCompletionTimeResult: Result<UInt64, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didReceiveMaxNominatorsPerValidator<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<UInt32, Error>), Void> where M1.MatchedType == Result<UInt32, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt32, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return cuckoo_manager.verify("didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -35146,6 +35202,10 @@ import SoraFoundation
     }
     
      func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(eraCompletionTimeResult: Result<UInt64, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
