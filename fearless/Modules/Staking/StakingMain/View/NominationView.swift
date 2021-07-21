@@ -24,7 +24,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var statusButton: TriangularedButton!
 
     weak var delegate: NominationViewDelegate?
-    private lazy var timer = CountdownTimer(delegate: self)
+    private var timer: CountdownTimer?
+    private lazy var timeFormatter = TotalTimeFormatter()
 
     var locale = Locale.current {
         didSet {
@@ -39,11 +40,16 @@ final class NominationView: UIView, LocalizableViewProtocol {
         applyLocalization()
     }
 
+    deinit {
+        stopCountdownTimer()
+    }
+
     private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
 
     func bind(viewModel: LocalizableResource<NominationViewModelProtocol>) {
         localizableViewModel = viewModel
 
+        stopCountdownTimer()
         applyViewModel()
     }
 
@@ -118,8 +124,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
         statusTitleLabel.text = R.string.localizable
             .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
-        if let time = remainingTime {
-            timer.start(with: time)
+        if let remainingTime = remainingTime {
+            startCountdownTimer(eraCompletionTime: remainingTime)
         }
         statusDetailsLabel.text = ""
     }
@@ -131,16 +137,25 @@ final class NominationView: UIView, LocalizableViewProtocol {
     @IBAction private func actionOnStatus() {
         delegate?.nominationViewDidReceiveStatusAction(self)
     }
+
+    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
+        timer = CountdownTimer(delegate: self)
+        timer?.start(with: eraCompletionTime)
+    }
+
+    private func stopCountdownTimer() {
+        timer?.stop()
+        timer = nil
+    }
 }
 
 extension NominationView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
-        // TODO: format time
-        statusDetailsLabel.text = interval.description
+        statusDetailsLabel.text = (try? timeFormatter.string(from: interval)) ?? ""
     }
 
     func didCountdown(remainedInterval: TimeInterval) {
-        statusDetailsLabel.text = remainedInterval.description
+        statusDetailsLabel.text = (try? timeFormatter.string(from: remainedInterval)) ?? ""
     }
 
     func didStop(with _: TimeInterval) {
