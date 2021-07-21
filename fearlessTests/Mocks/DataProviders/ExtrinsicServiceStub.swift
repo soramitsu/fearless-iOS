@@ -22,11 +22,29 @@ final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
     func submit(_ closure: @escaping ExtrinsicBuilderClosure,
                 signer: SigningWrapperProtocol,
                 runningIn queue: DispatchQueue,
-                nonceShift: UInt32 = 0,
                 completion completionClosure: @escaping ExtrinsicSubmitClosure) {
         queue.async {
             completionClosure(self.txHash)
         }
+    }
+
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping EstimateFeeIndexedClosure
+    ) {
+        completionClosure(.success([self.dispatchInfo]))
+    }
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping ExtrinsicSubmitIndexedClosure
+    ) {
+        completionClosure(.success([self.txHash]))
     }
 }
 

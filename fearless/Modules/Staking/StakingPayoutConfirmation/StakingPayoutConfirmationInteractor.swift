@@ -67,6 +67,25 @@ final class StakingPayoutConfirmationInteractor {
 
     // MARK: - Private functions
 
+    private func createExtrinsicBuilderClosure(for batches: [Batch]) -> ExtrinsicBuilderIndexedClosure? {
+        let callFactory = SubstrateCallFactory()
+
+        let closure: ExtrinsicBuilderIndexedClosure = { builder, index in
+            try batches[index].forEach { payout in
+                let payoutCall = try callFactory.payout(
+                    validatorId: payout.validator,
+                    era: payout.era
+                )
+
+                _ = try builder.adding(call: payoutCall)
+            }
+
+            return builder
+        }
+
+        return closure
+    }
+
     private func createExtrinsicBuilderClosure(for batch: Batch) -> ExtrinsicBuilderClosure? {
         let callFactory = SubstrateCallFactory()
 
@@ -143,39 +162,42 @@ final class StakingPayoutConfirmationInteractor {
     }
 
     private func createFeeOperationWrapper() -> CompoundOperationWrapper<Decimal>? {
-        guard let batches = batches,
-              let firstBatch = batches.first,
-              let lastBatch = batches.last,
-              let firstFeeClosure = createExtrinsicBuilderClosure(for: firstBatch),
-              let lastFeeClosure = createExtrinsicBuilderClosure(for: lastBatch)
-        else { return nil }
+        guard let batches = batches else { return nil }
 
-        let firstFeeOperation = extrinsicOperationFactory.estimateFeeOperation(firstFeeClosure)
-        let lastFeeOperation = extrinsicOperationFactory.estimateFeeOperation(lastFeeClosure)
-
-        let dependencies = firstFeeOperation.allOperations + lastFeeOperation.allOperations
-
-        let mergeOperation = ClosureOperation<Decimal> {
-            let dispatchInfo = try lastFeeOperation.targetOperation.extractNoCancellableResultData()
-
-            var fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: self.chain.addressType.precision) ?? 0.0
-            } ?? 0.0
-
-            if batches.count > 1 {
-                let firstBatchDispatchInfo = try firstFeeOperation.targetOperation.extractNoCancellableResultData()
-                let firstBatchFee = BigUInt(firstBatchDispatchInfo.fee).map {
-                    Decimal.fromSubstrateAmount($0, precision: self.chain.addressType.precision) ?? 0.0
-                } ?? 0.0
-
-                fee += firstBatchFee * Decimal(batches.count - 1)
-            }
-
-            return fee
+        let feeBatches: [Batch] = batches.enumerated().compactMap {
+            if $0 == 0 || $0 == batches.count - 1 {
+                return $1
+            } else { return nil }
         }
 
-        mergeOperation.addDependency(firstFeeOperation.targetOperation)
-        mergeOperation.addDependency(lastFeeOperation.targetOperation)
+        guard let feeClosure = createExtrinsicBuilderClosure(for: feeBatches) else { return nil }
+
+        let feeOperation = extrinsicOperationFactory.estimateFeeOperation(
+            feeClosure,
+            numberOfExtrinsics: batches.count
+        )
+
+        let dependencies = feeOperation.allOperations
+
+        let mergeOperation = ClosureOperation<Decimal> {
+            let results = try feeOperation.targetOperation.extractNoCancellableResultData()
+
+            let fees: [Decimal] = try results.map { result in
+                switch result {
+                case let .success(dispatchInfo):
+                    return BigUInt(dispatchInfo.fee).map {
+                        Decimal.fromSubstrateAmount($0, precision: self.chain.addressType.precision) ?? 0.0
+                    } ?? 0.0
+
+                case let .failure(error):
+                    throw error
+                }
+            }
+
+            return (fees.first ?? 0.0) + (fees.last ?? 0.0) * Decimal(batches.count - 1)
+        }
+
+        mergeOperation.addDependency(feeOperation.targetOperation)
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
@@ -270,33 +292,34 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     func submitPayout() {
         guard let batches = batches else { return }
 
-        var txHashes: [String] = []
-
         presenter.didStartPayout()
 
-        for index in 0 ..< batches.count {
-            let batch = batches[index]
-            guard let closure = createExtrinsicBuilderClosure(for: batch) else {
-                presenter.didFailPayout(error: CommonError.undefined)
-                return
-            }
+        guard let closure = createExtrinsicBuilderClosure(for: batches) else { return }
 
-            extrinsicService.submit(
-                closure,
-                signer: signer,
-                runningIn: .main,
-                nonceShift: UInt32(index)
-            ) { [weak self] result in
-                switch result {
-                case let .success(txHash):
-                    txHashes.append(txHash)
-                    if txHashes.count == batches.count {
-                        self?.presenter.didCompletePayout(txHashes: txHashes)
+        extrinsicService.submit(
+            closure,
+            signer: signer,
+            runningIn: .main,
+            numberOfExtrinsics: batches.count
+        ) { [weak self] result in
+            switch result {
+            case let .success(extrinsicResultList):
+                do {
+                    let txHashes: [String] = try extrinsicResultList.map { result in
+                        switch result {
+                        case let .success(txHash):
+                            return txHash
+                        case let .failure(error):
+                            throw error
+                        }
                     }
 
-                case let .failure(error):
+                    self?.presenter.didCompletePayout(txHashes: txHashes)
+                } catch {
                     self?.presenter.didFailPayout(error: error)
                 }
+            case let .failure(error):
+                self?.presenter.didFailPayout(error: error)
             }
         }
     }

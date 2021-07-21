@@ -75,7 +75,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
             operationManager: OperationManager(),
             logger: Logger.shared,
             selectedAccount: settings.selectedAccount!,
-            payouts: [PayoutInfo(era: 1000, validator: validatorAccountId, reward: 100.0, identity: nil)],
+            payouts: [PayoutInfo(era: 1000, validator: validatorAccountId, reward: 1, identity: nil)],
             chain: chain,
             assetId: assetId
         )

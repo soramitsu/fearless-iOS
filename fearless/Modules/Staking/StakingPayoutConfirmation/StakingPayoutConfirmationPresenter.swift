@@ -105,8 +105,18 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.interactor.estimateFee()
             },
-            dataValidatingFactory.rewardIsHigherThanFee(reward: rewardAmount, fee: fee, locale: locale),
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
+
+            dataValidatingFactory.rewardIsHigherThanFee(
+                reward: rewardAmount,
+                fee: fee,
+                locale: locale
+            ),
+
+            dataValidatingFactory.canPayFee(
+                balance: balance,
+                fee: fee,
+                locale: locale
+            )
         ]).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
