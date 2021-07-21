@@ -26,11 +26,11 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
 
         let timeExpectation = XCTestExpectation()
-        let operationWrapper = factory.fetchCountdownOperationWrapper()
+        let operationWrapper = factory.fetchCountdownOperationWrapper(targetEra: 3947)
         operationWrapper.targetOperation.completionBlock = {
             do {
-                let eraCompletionTime = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                print("Estimating era completion time (in seconds): \(eraCompletionTime / 1000)")
+                let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                print("Estimating era completion time (in seconds): \(eraCountdown.eraCompletionTime)")
                 timeExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)
