@@ -43,7 +43,7 @@ final class StakingBalancePresenter {
             stakingLedger: stakingLedger,
             activeEra: activeEra,
             priceData: priceData,
-            eraCompletionTimeInSeconds: eraCompletionTime
+            eraCompletionTime: eraCompletionTime
         )
 
         let viewModel = viewModelFactory.createViewModel(from: balanceData)

@@ -4,13 +4,16 @@ import SoraFoundation
 struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let timeFormatter: TimeFormatterProtocol
 
     init(
         chain: Chain,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        timeFormatter: TimeFormatterProtocol
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.timeFormatter = timeFormatter
     }
 
     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
@@ -139,7 +142,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 let daysLeft = timeLeftAttributedString(
                     activeEra: 1000,
                     unbondingEra: 1000,
-                    eraCompletionTimeInSeconds: balanceData.eraCompletionTimeInSeconds,
+                    eraCompletionTime: balanceData.eraCompletionTime,
                     locale: locale
                 )
 
@@ -194,14 +197,14 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private func timeLeftAttributedString(
         activeEra: EraIndex,
         unbondingEra: EraIndex,
-        eraCompletionTimeInSeconds: TimeInterval?,
+        eraCompletionTime: TimeInterval?,
         locale: Locale
     ) -> NSAttributedString {
         let eraDistance = unbondingEra - activeEra
         let daysLeft = Int(eraDistance) / chain.erasPerDay
         let timeLeftText: String = {
-            if daysLeft == 0, let eraCompletionTimeInSeconds = eraCompletionTimeInSeconds {
-                return timeString(time: eraCompletionTimeInSeconds)
+            if daysLeft == 0, let eraCompletionTime = eraCompletionTime {
+                return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
             }
             return R.string.localizable
                 .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
@@ -212,13 +215,5 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             attributes: [.foregroundColor: R.color.colorLightGray()!]
         )
         return attrubutedString
-    }
-
-    // TODO: refactor
-    func timeString(time: TimeInterval) -> String {
-        let hours = Int(time) / 3600
-        let minutes = Int(time) / 60 % 60
-        let seconds = Int(time) % 60
-        return String(format: "%02i:%02i:%02i", hours, minutes, seconds)
     }
 }
