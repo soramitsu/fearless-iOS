@@ -15,7 +15,6 @@ final class StakingBalancePresenter {
     private var activeEra: EraIndex?
     private var priceData: PriceData?
     private var eraCompletionTime: TimeInterval?
-    private var eraCountdown: EraCountdown?
     private var timer: CountdownTimerProtocol?
 
     init(
@@ -33,7 +32,7 @@ final class StakingBalancePresenter {
     }
 
     deinit {
-        stopCoundownTimer()
+        stopCountdownTimer()
     }
 
     private func updateView() {
@@ -114,12 +113,12 @@ final class StakingBalancePresenter {
         wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
 
-    private func startCoundownTimer(eraCompletionTime: TimeInterval) {
+    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
         timer = CountdownTimer(delegate: self)
         timer?.start(with: eraCompletionTime)
     }
 
-    private func stopCoundownTimer() {
+    private func stopCountdownTimer() {
         timer?.stop()
         timer = nil
     }
@@ -230,12 +229,9 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
         switch eraCountdownResult {
         case let .success(eraCountdown):
-            self.eraCountdown = eraCountdown
-
-            stopCoundownTimer()
-            startCoundownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
+            stopCountdownTimer()
+            startCountdownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
         case .failure:
-            eraCountdown = nil
             eraCompletionTime = nil
         }
     }
