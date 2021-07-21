@@ -253,7 +253,10 @@ extension YourValidatorListViewController: UITableViewDelegate {
     private func configureElected(headerView: YourValidatorListStatusSectionView, validatorsCount: Int) {
         let icon = R.image.iconAlgoItem()!
         let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
-            R.string.localizable.stakingYourElectedFormat($0)
+            R.string.localizable.stakingYourElectedFormat(
+                $0,
+                preferredLanguages: selectedLocale.rLanguages
+            )
         } ?? ""
 
         let value = R.string.localizable.stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages)
@@ -286,7 +289,10 @@ extension YourValidatorListViewController: UITableViewDelegate {
     ) {
         let icon = R.image.iconLightPending()!
         let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
-            R.string.localizable.stakingYourNotElectedFormat($0)
+            R.string.localizable.stakingYourNotElectedFormat(
+                $0,
+                preferredLanguages: selectedLocale.rLanguages
+            )
         } ?? ""
 
         let description = R.string.localizable.stakingYourInactiveDescription(
@@ -314,7 +320,10 @@ extension YourValidatorListViewController: UITableViewDelegate {
     ) {
         let icon = R.image.iconLightPending()!
         let title = counterFormater.value(for: selectedLocale).string(from: NSNumber(value: validatorsCount)).map {
-            R.string.localizable.stakingYourSelectedFormat($0)
+            R.string.localizable.stakingYourSelectedFormat(
+                $0,
+                preferredLanguages: selectedLocale.rLanguages
+            )
         } ?? ""
 
         let description = R.string.localizable.stakingYourValidatorsChangingTitle(
