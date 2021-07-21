@@ -3,7 +3,7 @@ import FearlessUtils
 import SoraKeystore
 
 protocol EraCountdownOperationFactoryProtocol {
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>
+    func fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>
 }
 
 enum EraCountdownOperationFactoryError: Error {
@@ -25,41 +25,8 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
         self.engine = engine
     }
 
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64> {
-        do {
-            let stepsOperation = try createStepsOperationWrapper()
-            let mapOperation = ClosureOperation<UInt64> {
-                let steps = try stepsOperation.targetOperation.extractNoCancellableResultData()
-                let time = self.calculateEraCompletionTime(steps: steps)
-                return time
-            }
-
-            let dependencies = stepsOperation.allOperations
-            dependencies.forEach { mapOperation.addDependency($0) }
-
-            return CompoundOperationWrapper(
-                targetOperation: mapOperation,
-                dependencies: dependencies
-            )
-        } catch {
-            return CompoundOperationWrapper.createWithError(error)
-        }
-    }
-
-    private func calculateEraCompletionTime(steps: EraCountdownSteps) -> UInt64 {
-        let numberOfSlotsPerSession = UInt64(steps.sessionLength)
-        let currentSessionIndex = UInt64(steps.currentSessionIndex)
-
-        let sessionStartSlot = currentSessionIndex * numberOfSlotsPerSession + steps.genesisSlot
-        let sessionProgress = steps.currentSlot - sessionStartSlot
-        let eraProgress = (currentSessionIndex - UInt64(steps.eraStartSessionIndex)) * numberOfSlotsPerSession + sessionProgress
-        let eraRemained = UInt64(steps.eraLength) * numberOfSlotsPerSession - eraProgress
-        let result = eraRemained * UInt64(steps.blockCreationTime)
-        return result
-    }
-
     // swiftlint:disable function_body_length
-    private func createStepsOperationWrapper() throws -> CompoundOperationWrapper<EraCountdownSteps> {
+    func fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown> {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let keyFactory = StorageKeyFactory()
 
@@ -102,18 +69,13 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
                 storagePath: .genesisSlot
             )
 
-        let activeEraWrapper: CompoundOperationWrapper<[StorageResponse<ActiveEraInfo>]> =
+        let startSessionWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [try keyFactory.activeEra()] },
+                keyParams: { [StringScaleMapper(value: targetEra)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .activeEra
+                storagePath: .eraStartSessionIndex
             )
-
-        let startSessionWrapper = createEraStartSessionIndex(
-            dependingOn: activeEraWrapper.targetOperation,
-            codingFactoryOperation: codingFactoryOperation
-        )
 
         let dependencies = eraLengthWrapper.allOperations
             + sessionLengthWrapper.allOperations
@@ -121,11 +83,10 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
             + sessionIndexWrapper.allOperations
             + currentSlotWrapper.allOperations
             + genesisSlotWrapper.allOperations
-            + activeEraWrapper.allOperations
             + startSessionWrapper.allOperations
         dependencies.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let mergeOperation = ClosureOperation<EraCountdownSteps> {
+        let mergeOperation = ClosureOperation<EraCountdown> {
             guard
                 let eraLength = try? eraLengthWrapper.targetOperation.extractNoCancellableResultData(),
                 let sessionLength = try? sessionLengthWrapper.targetOperation.extractNoCancellableResultData(),
@@ -142,14 +103,15 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
                 throw EraCountdownOperationFactoryError.noData
             }
 
-            return EraCountdownSteps(
+            return EraCountdown(
                 eraLength: eraLength,
                 sessionLength: sessionLength,
                 eraStartSessionIndex: eraStartSessionIndex,
                 currentSessionIndex: currentSessionIndex,
                 currentSlot: currentSlot,
                 genesisSlot: genesisSlot,
-                blockCreationTime: babeBlockTime
+                blockCreationTime: babeBlockTime,
+                createdAtDate: Date()
             )
         }
 
@@ -159,27 +121,6 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
             targetOperation: mergeOperation,
             dependencies: dependencies + [codingFactoryOperation]
         )
-    }
-
-    private func createEraStartSessionIndex(
-        dependingOn activeEra: BaseOperation<[StorageResponse<ActiveEraInfo>]>,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> {
-        let keyParams: () throws -> [StringScaleMapper<EraIndex>] = {
-            let activeEraIndex = try activeEra.extractNoCancellableResultData().first?.value?.index ?? 0
-            return [StringScaleMapper(value: activeEraIndex)]
-        }
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
-            storageRequestFactory.queryItems(
-                engine: engine,
-                keyParams: keyParams,
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .eraStartSessionIndex
-            )
-        wrapper.addDependency(operations: [activeEra])
-
-        return wrapper
     }
 
     private func createFetchConstantWrapper<T: LosslessStringConvertible & Equatable>(

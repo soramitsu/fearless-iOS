@@ -108,8 +108,19 @@ class StakingMainTests: XCTestCase {
         }
 
         stub(eraCountdownOperationFactory) { stub in
-            when(stub).fetchCountdownOperationWrapper().then { _ in
-                CompoundOperationWrapper.createWithResult(10)
+            when(stub).fetchCountdownOperationWrapper(targetEra: any()).then { _ in
+                CompoundOperationWrapper.createWithResult(
+                    EraCountdown(
+                        eraLength: 0,
+                        sessionLength: 0,
+                        eraStartSessionIndex: 0,
+                        currentSessionIndex: 0,
+                        currentSlot: 0,
+                        genesisSlot: 0,
+                        blockCreationTime: 0,
+                        createdAtDate: Date()
+                    )
+                )
             }
         }
 

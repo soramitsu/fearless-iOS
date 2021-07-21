@@ -48,8 +48,11 @@ extension StakingBalanceInteractor {
         self.activeEraProvider = activeEraProvider
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedActiveEra>]) in
-            if let activeEra = changes.reduceToLastChange() {
-                self?.presenter.didReceive(activeEraResult: .success(activeEra.item?.index))
+            if let activeEraInfo = changes.reduceToLastChange() {
+                self?.presenter.didReceive(activeEraResult: .success(activeEraInfo.item?.index))
+                if let eraIndex = activeEraInfo.item?.index {
+                    self?.fetchEraCompletionTime(targerEra: eraIndex)
+                }
             }
         }
 

@@ -18,7 +18,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideRewardCalculator()
         provideEraStakersInfo()
         provideNetworkStakingInfo()
-        fetchEraCompletionTime()
 
         eventCenter.add(observer: self, dispatchIn: .main)
 

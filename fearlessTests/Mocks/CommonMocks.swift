@@ -2068,16 +2068,16 @@ import SoraKeystore
     
     
     
-     func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64> {
+     func fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown> {
         
-    return cuckoo_manager.call("fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>",
+            parameters: (targetEra),
+            escapingParameters: (targetEra),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.fetchCountdownOperationWrapper())
+            defaultCall: __defaultImplStub!.fetchCountdownOperationWrapper(targetEra: targetEra))
         
     }
     
@@ -2090,9 +2090,9 @@ import SoraKeystore
 	    }
 	    
 	    
-	    func fetchCountdownOperationWrapper() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<UInt64>> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockEraCountdownOperationFactoryProtocol.self, method: "fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>", parameterMatchers: matchers))
+	    func fetchCountdownOperationWrapper<M1: Cuckoo.Matchable>(targetEra: M1) -> Cuckoo.ProtocolStubFunction<(EraIndex), CompoundOperationWrapper<EraCountdown>> where M1.MatchedType == EraIndex {
+	        let matchers: [Cuckoo.ParameterMatcher<(EraIndex)>] = [wrap(matchable: targetEra) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockEraCountdownOperationFactoryProtocol.self, method: "fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -2112,9 +2112,9 @@ import SoraKeystore
 	
 	    
 	    @discardableResult
-	    func fetchCountdownOperationWrapper() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<UInt64>> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func fetchCountdownOperationWrapper<M1: Cuckoo.Matchable>(targetEra: M1) -> Cuckoo.__DoNotUse<(EraIndex), CompoundOperationWrapper<EraCountdown>> where M1.MatchedType == EraIndex {
+	        let matchers: [Cuckoo.ParameterMatcher<(EraIndex)>] = [wrap(matchable: targetEra) { $0 }]
+	        return cuckoo_manager.verify("fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -2126,8 +2126,8 @@ import SoraKeystore
     
 
     
-     func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<UInt64>  {
-        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<UInt64>).self)
+     func fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<EraCountdown>).self)
     }
     
 }

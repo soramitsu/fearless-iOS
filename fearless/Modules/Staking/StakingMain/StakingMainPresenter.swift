@@ -510,11 +510,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didReceive(eraCompletionTimeResult: Result<UInt64, Error>) {
-        switch eraCompletionTimeResult {
-        case let .success(time):
-            let eraCompletionTimeInSeconds = TimeInterval(time / 1000)
-            stateMachine.state.process(eraCompletionTimeInSeconds: eraCompletionTimeInSeconds)
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            stateMachine.state.process(eraCompletionTimeInSeconds: eraCountdown.eraCompletionTime)
         case let .failure(error):
             handle(error: error)
         }

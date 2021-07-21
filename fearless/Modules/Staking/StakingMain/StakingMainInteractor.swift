@@ -113,10 +113,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             }
         }
 
-        operationManager.enqueue(
-            operations: [operation],
-            in: .transient
-        )
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func provideEraStakersInfo() {
@@ -127,16 +124,14 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 do {
                     let info = try operation.extractNoCancellableResultData()
                     self?.presenter.didReceive(eraStakersInfo: info)
+                    self?.fetchEraCompletionTime(targerEra: info.era)
                 } catch {
                     self?.presenter.didReceive(calculatorError: error)
                 }
             }
         }
 
-        operationManager.enqueue(
-            operations: [operation],
-            in: .transient
-        )
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func provideNetworkStakingInfo() {
@@ -156,15 +151,15 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 
-    func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+    func fetchEraCompletionTime(targerEra: EraIndex) {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(targetEra: targerEra)
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
                     let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(eraCompletionTimeResult: .success(result))
+                    self?.presenter.didReceive(eraCountdownResult: .success(result))
                 } catch {
-                    self?.presenter.didReceive(eraCompletionTimeResult: .failure(error))
+                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
                 }
             }
         }

@@ -32,7 +32,8 @@ struct StakingBalanceViewFactory {
         )
         let viewModelFactory = StakingBalanceViewModelFactory(
             chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            timeFormatter: TotalTimeFormatter()
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(
