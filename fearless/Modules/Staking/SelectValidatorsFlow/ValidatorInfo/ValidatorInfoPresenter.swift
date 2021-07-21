@@ -1,35 +1,71 @@
 import Foundation
-import CommonWallet
+import SoraFoundation
 
 final class ValidatorInfoPresenter {
     weak var view: ValidatorInfoViewProtocol?
-    var interactor: ValidatorInfoInteractorInputProtocol!
-    var wireframe: ValidatorInfoWireframeProtocol!
+    var interactor: ValidatorInfoInteractorInputProtocol
+    var wireframe: ValidatorInfoWireframeProtocol
 
-    private let locale: Locale
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
-    private let asset: WalletAsset
+    private let chain: Chain
     private let logger: LoggerProtocol?
 
     private(set) var validatorInfo: ValidatorInfoProtocol?
     private(set) var priceData: PriceData?
 
     init(
+        interactor: ValidatorInfoInteractorInputProtocol,
+        wireframe: ValidatorInfoWireframeProtocol,
         viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
-        asset: WalletAsset,
-        locale: Locale,
+        chain: Chain,
+        localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
+        self.interactor = interactor
+        self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.asset = asset
-        self.locale = locale
+        self.chain = chain
         self.logger = logger
+        self.localizationManager = localizationManager
+    }
+
+    func activateEmail(_ email: String) {
+        guard let view = view else { return }
+
+        let message = SocialMessage(
+            body: nil,
+            subject: "",
+            recepients: [email]
+        )
+        if !wireframe.writeEmail(with: message, from: view, completionHandler: nil) {
+            wireframe.present(
+                message: R.string.localizable
+                    .noEmailBoundErrorMessage(preferredLanguages: selectedLocale.rLanguages),
+                title: R.string.localizable
+                    .commonErrorGeneralTitle(preferredLanguages: selectedLocale.rLanguages),
+                closeAction: R.string.localizable
+                    .commonClose(preferredLanguages: selectedLocale.rLanguages),
+                from: view
+            )
+        }
     }
 
     private func show(_ url: URL) {
         if let view = view {
             wireframe.showWeb(url: url, from: view, style: .automatic)
         }
+    }
+
+    private func updateView() {
+        guard let validatorInfo = self.validatorInfo else { return }
+
+        let viewModel = viewModelFactory.createViewModel(
+            from: validatorInfo,
+            priceData: priceData,
+            locale: selectedLocale
+        )
+
+        view?.didRecieve(viewModel: viewModel)
     }
 }
 
@@ -39,14 +75,12 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentAccountOptions() {
-        if let view = view,
-           let chain = WalletAssetId(rawValue: asset.identifier)?.chain,
-           let validatorInfo = self.validatorInfo {
+        if let view = view, let validatorInfo = validatorInfo {
             wireframe.presentAccountOptions(
                 from: view,
                 address: validatorInfo.address,
                 chain: chain,
-                locale: locale
+                locale: selectedLocale
             )
         }
     }
@@ -63,64 +97,17 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         )
     }
 
-    func presentStateDescription() {
-        #warning("Not implemented")
-    }
-
-    func activateEmail() {
-        guard let email = validatorInfo?.identity?.email else { return }
-        guard let view = view else { return }
-
-        let message = SocialMessage(
-            body: nil,
-            subject: "",
-            recepients: [email]
-        )
-        if !wireframe.writeEmail(with: message, from: view, completionHandler: nil) {
-            wireframe.present(
-                message: R.string.localizable
-                    .noEmailBoundErrorMessage(preferredLanguages: locale.rLanguages),
-                title: R.string.localizable
-                    .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
-                closeAction: R.string.localizable
-                    .commonClose(preferredLanguages: locale.rLanguages),
-                from: view
-            )
+    func presentIdentityItem(_ item: ValidatorInfoViewModel.IdentityItem) {
+        switch item.value {
+        case let .email(email):
+            activateEmail(email)
+        case let .link(link):
+            if let url = URL(string: link) {
+                show(url)
+            }
+        case .text:
+            break
         }
-    }
-
-    func activateWeb() {
-        guard let urlString = validatorInfo?.identity?.web else { return }
-
-        if let url = URL(string: urlString) {
-            show(url)
-        }
-    }
-
-    func activateTwitter() {
-        guard let account = validatorInfo?.identity?.twitter else { return }
-
-        if let url = URL.twitterAddress(for: account) {
-            show(url)
-        }
-    }
-
-    func activateRiotName() {
-        guard let name = validatorInfo?.identity?.riot else { return }
-
-        if let url = URL.riotAddress(for: name) {
-            show(url)
-        }
-    }
-
-    private func updateView() {
-        guard let validatorInfo = self.validatorInfo else { return }
-
-        let viewModel = viewModelFactory.createViewModel(
-            from: validatorInfo,
-            priceData: priceData
-        )
-        view?.didRecieve(viewModel)
     }
 }
 
@@ -137,5 +124,13 @@ extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
 
     func didReceive(priceError: Error) {
         logger?.error("Did receive error: \(priceError)")
+    }
+}
+
+extension ValidatorInfoPresenter: Localizable {
+    func applyLocalization() {
+        if let view = view, view.isSetup {
+            updateView()
+        }
     }
 }

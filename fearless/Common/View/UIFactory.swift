@@ -69,6 +69,8 @@ protocol UIFactoryProtocol {
     func createLearnMoreView() -> LearnMoreView
 
     func createRewardSelectionView() -> RewardSelectionView
+
+    func createInfoIndicatingView() -> ImageWithTitleView
 }
 
 extension UIFactoryProtocol {
@@ -455,6 +457,16 @@ final class UIFactory: UIFactoryProtocol {
         view.iconView.image = R.image.listCheckmarkIcon()!
         view.isSelected = false
 
+        return view
+    }
+
+    func createInfoIndicatingView() -> ImageWithTitleView {
+        let view = ImageWithTitleView()
+        view.titleColor = R.color.colorLightGray()
+        view.titleFont = .p1Paragraph
+        view.layoutType = .horizontalLabelFirst
+        view.spacingBetweenLabelAndIcon = 5.0
+        view.iconImage = R.image.iconInfoFilled()
         return view
     }
 }

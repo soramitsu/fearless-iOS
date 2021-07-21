@@ -30,7 +30,7 @@ protocol ValidatorInfoViewFactoryProtocol: AnyObject {
 }
 
 protocol ValidatorInfoViewProtocol: ControllerBackedProtocol, Localizable {
-    func didRecieve(_ viewModel: [ValidatorInfoViewModel])
+    func didRecieve(viewModel: ValidatorInfoViewModel)
 }
 
 // MARK: - Interactor
@@ -51,13 +51,8 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
 
     func presentAccountOptions()
-    func presentStateDescription()
-
     func presentTotalStake()
-    func activateEmail()
-    func activateWeb()
-    func activateTwitter()
-    func activateRiotName()
+    func presentIdentityItem(_ item: ValidatorInfoViewModel.IdentityItem)
 }
 
 // MARK: - Router
