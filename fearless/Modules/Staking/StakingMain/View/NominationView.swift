@@ -24,6 +24,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var statusButton: TriangularedButton!
 
     weak var delegate: NominationViewDelegate?
+    private lazy var timer = CountdownTimer(delegate: self)
 
     var locale = Locale.current {
         didSet {
@@ -78,8 +79,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
             presentActiveStatus(for: era)
         case let .inactive(era):
             presentInactiveStatus(for: era)
-        case .waiting:
-            presentWaitingStatus()
+        case let .waiting(remainingTime):
+            presentWaitingStatus(remainingTime: remainingTime)
         }
     }
 
@@ -111,12 +112,15 @@ final class NominationView: UIView, LocalizableViewProtocol {
             .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
     }
 
-    private func presentWaitingStatus() {
+    private func presentWaitingStatus(remainingTime: TimeInterval?) {
         statusIndicatorView.fillColor = R.color.colorTransparentText()!
         statusTitleLabel.textColor = R.color.colorTransparentText()!
 
         statusTitleLabel.text = R.string.localizable
             .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
+        if let time = remainingTime {
+            timer.start(with: time)
+        }
         statusDetailsLabel.text = ""
     }
 
@@ -126,5 +130,20 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
     @IBAction private func actionOnStatus() {
         delegate?.nominationViewDidReceiveStatusAction(self)
+    }
+}
+
+extension NominationView: CountdownTimerDelegate {
+    func didStart(with interval: TimeInterval) {
+        // TODO format time
+        statusDetailsLabel.text = interval.description
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        statusDetailsLabel.text = remainedInterval.description
+    }
+
+    func didStop(with _: TimeInterval) {
+        statusDetailsLabel.text = ""
     }
 }

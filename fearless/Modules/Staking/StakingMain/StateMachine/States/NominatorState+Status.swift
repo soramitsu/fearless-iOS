@@ -4,36 +4,39 @@ import BigInt
 
 extension NominatorState {
     var status: NominationViewStatus {
-        guard let eraStakers = commonData.eraStakersInfo else {
-            return .undefined
-        }
+        .waiting(eraCompletionTimeInSeconds: commonData.eraCompletionTimeInSeconds)
 
-        do {
-            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
-
-            let allNominators = eraStakers.validators.map(\.exposure.others)
-                .flatMap { (nominators) -> [IndividualExposure] in
-                    if let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator {
-                        return Array(nominators.prefix(Int(maxNominatorsPerValidator)))
-                    } else {
-                        return nominators
-                    }
-                }
-                .reduce(into: Set<Data>()) { $0.insert($1.who) }
-
-            if allNominators.contains(accountId) {
-                return .active(era: eraStakers.era)
-            }
-
-            if nomination.submittedIn >= eraStakers.era {
-                return .waiting
-            }
-
-            return .inactive(era: eraStakers.era)
-
-        } catch {
-            return .undefined
-        }
+        // TODO Revert stub
+//        guard let eraStakers = commonData.eraStakersInfo else {
+//            return .undefined
+//        }
+//
+//        do {
+//            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
+//
+//            let allNominators = eraStakers.validators.map(\.exposure.others)
+//                .flatMap { (nominators) -> [IndividualExposure] in
+//                    if let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator {
+//                        return Array(nominators.prefix(Int(maxNominatorsPerValidator)))
+//                    } else {
+//                        return nominators
+//                    }
+//                }
+//                .reduce(into: Set<Data>()) { $0.insert($1.who) }
+//
+//            if allNominators.contains(accountId) {
+//                return .active(era: eraStakers.era)
+//            }
+//
+//            if nomination.submittedIn >= eraStakers.era {
+//                return .waiting(eraCompletionTimeInSeconds: commonData.eraCompletionTimeInSeconds)
+//            }
+//
+//            return .inactive(era: eraStakers.era)
+//
+//        } catch {
+//            return .undefined
+//        }
     }
 
     func createStatusPresentableViewModel(

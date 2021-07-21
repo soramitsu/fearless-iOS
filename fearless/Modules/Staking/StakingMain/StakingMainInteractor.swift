@@ -20,6 +20,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
+    let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -52,6 +53,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         logger: Logger
     ) {
         self.providerFactory = providerFactory
@@ -67,6 +69,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
+        self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.logger = logger
     }
 
@@ -151,5 +154,20 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
+    func fetchEraCompletionTime() {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        operationWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(eraCompletionTimeResult: .success(result))
+                } catch {
+                    self?.presenter.didReceive(eraCompletionTimeResult: .failure(error))
+                }
+            }
+        }
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
     }
 }
