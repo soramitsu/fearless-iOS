@@ -63,15 +63,15 @@ final class StakingBalanceInteractor: AccountFetching {
         }
     }
 
-    private func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+    func fetchEraCompletionTime(targerEra: EraIndex) {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(targetEra: targerEra)
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
                     let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(eraCompletionTimeResult: .success(result))
+                    self?.presenter.didReceive(eraCountdownResult: .success(result))
                 } catch {
-                    self?.presenter.didReceive(eraCompletionTimeResult: .failure(error))
+                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
                 }
             }
         }
@@ -84,6 +84,5 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
         subscribeToPriceChanges()
         subsribeToActiveEra()
         subscribeToStashControllerProvider()
-        fetchEraCompletionTime()
     }
 }

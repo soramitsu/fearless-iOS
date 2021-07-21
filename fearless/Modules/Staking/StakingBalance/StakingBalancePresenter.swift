@@ -14,7 +14,8 @@ final class StakingBalancePresenter {
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var priceData: PriceData?
-    private var eraCompletionTimeInSeconds: TimeInterval?
+    private var eraCompletionTime: TimeInterval?
+    private var eraCountdown: EraCountdown?
     private var timer: CountdownTimerProtocol?
 
     init(
@@ -31,6 +32,10 @@ final class StakingBalancePresenter {
         self.accountAddress = accountAddress
     }
 
+    deinit {
+        stopCoundownTimer()
+    }
+
     private func updateView() {
         guard let stakingLedger = stakingLedger, let activeEra = activeEra else { return }
 
@@ -38,7 +43,7 @@ final class StakingBalancePresenter {
             stakingLedger: stakingLedger,
             activeEra: activeEra,
             priceData: priceData,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCompletionTimeInSeconds: eraCompletionTime
         )
 
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
@@ -109,14 +114,14 @@ final class StakingBalancePresenter {
         wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
 
-    private func startCoundownTimerIfNeeded() {
-        if
-            timer == nil,
-            let eraCompletionTimeInSeconds = eraCompletionTimeInSeconds,
-            eraCompletionTimeInSeconds <= 60 * 60 * 24 {
-            timer = CountdownTimer(delegate: self)
-            timer?.start(with: eraCompletionTimeInSeconds)
-        }
+    private func startCoundownTimer(eraCompletionTime: TimeInterval) {
+        timer = CountdownTimer(delegate: self)
+        timer?.start(with: eraCompletionTime)
+    }
+
+    private func stopCoundownTimer() {
+        timer?.stop()
+        timer = nil
     }
 }
 
@@ -222,25 +227,28 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(eraCompletionTimeResult: Result<UInt64, Error>) {
-        switch eraCompletionTimeResult {
-        case let .success(time):
-            eraCompletionTimeInSeconds = TimeInterval(time / 1000)
-            startCoundownTimerIfNeeded()
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            self.eraCountdown = eraCountdown
+
+            stopCoundownTimer()
+            startCoundownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
         case .failure:
-            eraCompletionTimeInSeconds = nil
+            eraCountdown = nil
+            eraCompletionTime = nil
         }
     }
 }
 
 extension StakingBalancePresenter: CountdownTimerDelegate {
     func didStart(with remainedInterval: TimeInterval) {
-        eraCompletionTimeInSeconds = remainedInterval
+        eraCompletionTime = remainedInterval
         updateView()
     }
 
     func didCountdown(remainedInterval: TimeInterval) {
-        eraCompletionTimeInSeconds = remainedInterval
+        eraCompletionTime = remainedInterval
         updateView()
     }
 
