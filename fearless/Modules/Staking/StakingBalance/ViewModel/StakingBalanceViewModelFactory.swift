@@ -132,52 +132,34 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
 
     func createUnbondingsViewModels(
         from balanceData: StakingBalanceData,
-        precision _: Int16,
+        precision: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
-        (0 ..< 4)
-            .map { _ in
-                let tokenAmount = "KSM"
-                let usdAmount = "$"
-                let daysLeft = timeLeftAttributedString(
-                    activeEra: 1000,
-                    unbondingEra: 1000,
+        balanceData.stakingLedger
+            .unbondings(inEra: balanceData.activeEra)
+            .sorted(by: { $0.era < $1.era })
+            .map { unbondingItem -> UnbondingItemViewModel in
+                let unbondingAmountDecimal = Decimal
+                    .fromSubstrateAmount(
+                        unbondingItem.value,
+                        precision: precision
+                    ) ?? .zero
+                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+                let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
+                let timeLeft = timeLeftAttributedString(
+                    activeEra: balanceData.activeEra,
+                    unbondingEra: unbondingItem.era,
                     eraCompletionTime: balanceData.eraCompletionTime,
                     locale: locale
                 )
 
                 return UnbondingItemViewModel(
                     addressOrName: R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages),
-                    daysLeftText: daysLeft,
+                    daysLeftText: timeLeft,
                     tokenAmountText: tokenAmount,
                     usdAmountText: usdAmount
                 )
             }
-//        balanceData.stakingLedger
-//            .unbondings(inEra: balanceData.activeEra)
-//            .sorted(by: { $0.era < $1.era })
-//            .map { unbondingItem -> UnbondingItemViewModel in
-//                let unbondingAmountDecimal = Decimal
-//                    .fromSubstrateAmount(
-//                        unbondingItem.value,
-//                        precision: precision
-//                    ) ?? .zero
-//                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
-//                let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
-//                let daysLeft = daysLeftAttributedString(
-//                    activeEra: balanceData.activeEra,
-//                    unbondingEra: unbondingItem.era,
-//                    eraCompletionTimeInSeconds: balanceData.eraCompletionTimeInSeconds,
-//                    locale: locale
-//                )
-//
-//                return UnbondingItemViewModel(
-//                    addressOrName: R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages),
-//                    daysLeftText: daysLeft,
-//                    tokenAmountText: tokenAmount,
-//                    usdAmountText: usdAmount
-//                )
-//            }
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
