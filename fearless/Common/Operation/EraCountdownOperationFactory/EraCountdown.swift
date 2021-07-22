@@ -16,14 +16,13 @@ struct EraCountdown {
 
         let sessionStartSlot = currentSessionIndexInt * numberOfSlotsPerSession + genesisSlot
         let sessionProgress = currentSlot - sessionStartSlot
-        let eraProgress = (currentSessionIndexInt - UInt64(eraStartSessionIndex)) * numberOfSlotsPerSession + sessionProgress
+        let eraProgress = (currentSessionIndexInt - UInt64(eraStartSessionIndex)) * numberOfSlotsPerSession
+            + sessionProgress
         let eraRemained = UInt64(eraLength) * numberOfSlotsPerSession - eraProgress
         let result = eraRemained * UInt64(blockCreationTime)
 
-        let distanceInDates = Date()
-            .addingTimeInterval(-createdAtDate.timeIntervalSinceReferenceDate)
-            .timeIntervalSinceReferenceDate
-        let remainedTime = TimeInterval(result) - distanceInDates
+        let datesTimeinterval = Date().timeIntervalSince(createdAtDate)
+        let remainedTime = TimeInterval(result) - datesTimeinterval
         return remainedTime.seconds
     }
 }
