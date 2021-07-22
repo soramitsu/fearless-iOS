@@ -91,7 +91,6 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         switch result {
         case let .success(payoutsInfo):
             self.payoutsInfo = payoutsInfo
-            startCountdownTimer(eraCompletionTime: 1000)
             updateView()
         case .failure:
             payoutsInfo = nil
@@ -110,6 +109,16 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         case .failure:
             priceData = nil
             updateView()
+        }
+    }
+
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            stopCountdownTimer()
+            startCountdownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
+        case .failure:
+            eraCompletionTime = nil
         }
     }
 }

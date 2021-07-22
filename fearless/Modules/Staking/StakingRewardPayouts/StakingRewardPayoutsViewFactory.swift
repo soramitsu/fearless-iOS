@@ -134,10 +134,32 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let providerFactory = SingleValueProviderFactory.shared
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
+        guard let engine = WebSocketService.shared.connection else { return nil }
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let eraCountdownOperationFactory = EraCountdownOperationFactory(
+            runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
+            engine: engine
+        )
+
+        guard let activeEraProvider =
+            try? providerFactory.getActiveEra(for: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
         let interactor = StakingRewardPayoutsInteractor(
             payoutService: payoutService,
             priceProvider: priceProvider,
-            operationManager: operationManager
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
+            activeEraProvider: activeEraProvider,
+            operationManager: operationManager,
+            logger: Logger.shared
         )
         let wireframe = StakingRewardPayoutsWireframe()
 

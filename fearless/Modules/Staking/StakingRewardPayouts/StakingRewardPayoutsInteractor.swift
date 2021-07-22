@@ -6,7 +6,10 @@ final class StakingRewardPayoutsInteractor {
 
     private let payoutService: PayoutRewardsServiceProtocol
     private let priceProvider: AnySingleValueProvider<PriceData>
+    private let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+    private let activeEraProvider: AnyDataProvider<DecodedActiveEra>
     private let operationManager: OperationManagerProtocol
+    private let logger: LoggerProtocol?
 
     private var payoutOperationsWrapper: CompoundOperationWrapper<PayoutsInfo>?
 
@@ -19,11 +22,17 @@ final class StakingRewardPayoutsInteractor {
     init(
         payoutService: PayoutRewardsServiceProtocol,
         priceProvider: AnySingleValueProvider<PriceData>,
-        operationManager: OperationManagerProtocol
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
+        activeEraProvider: AnyDataProvider<DecodedActiveEra>,
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol? = nil
     ) {
         self.payoutService = payoutService
         self.priceProvider = priceProvider
+        self.eraCountdownOperationFactory = eraCountdownOperationFactory
+        self.activeEraProvider = activeEraProvider
         self.operationManager = operationManager
+        self.logger = logger
     }
 
     private func subscribeToPriceChanges() {
@@ -59,11 +68,52 @@ final class StakingRewardPayoutsInteractor {
             options: options
         )
     }
+
+    private func subsribeToActiveEra() {
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedActiveEra>]) in
+            if let activeEraInfo = changes.reduceToLastChange(), let eraIndex = activeEraInfo.item?.index {
+                self?.fetchEraCompletionTime(targerEra: eraIndex)
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.logger?.error(error.localizedDescription)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        activeEraProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    private func fetchEraCompletionTime(targerEra: EraIndex) {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(targetEra: targerEra)
+        operationWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(eraCountdownResult: .success(result))
+                } catch {
+                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
+                }
+            }
+        }
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
+    }
 }
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
+        subsribeToActiveEra()
         reload()
     }
 
