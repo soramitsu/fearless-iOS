@@ -48,7 +48,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
         let sessionIndexWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [try keyFactory.currentSessionIndex()] },
+                keys: { [try keyFactory.key(from: .currentSessionIndex)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .currentSessionIndex
             )
@@ -56,7 +56,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
         let currentSlotWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<Slot>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [try keyFactory.currentSlot()] },
+                keys: { [try keyFactory.key(from: .currentSlot)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .currentSlot
             )
@@ -64,7 +64,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
         let genesisSlotWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<Slot>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [try keyFactory.genesisSlot()] },
+                keys: { [try keyFactory.key(from: .genesisSlot)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .genesisSlot
             )

@@ -50,13 +50,6 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
-    func currentSessionIndex() throws -> Data {
-        try createStorageKey(
-            moduleName: "Session",
-            storageName: "CurrentIndex"
-        )
-    }
-
     func totalIssuance() throws -> Data {
         try createStorageKey(
             moduleName: "Balances",
@@ -68,20 +61,6 @@ extension StorageKeyFactoryProtocol {
         try createStorageKey(
             moduleName: "Staking",
             storageName: "HistoryDepth"
-        )
-    }
-
-    func currentSlot() throws -> Data {
-        try createStorageKey(
-            moduleName: "Babe",
-            storageName: "CurrentSlot"
-        )
-    }
-
-    func genesisSlot() throws -> Data {
-        try createStorageKey(
-            moduleName: "Babe",
-            storageName: "GenesisSlot"
         )
     }
 
