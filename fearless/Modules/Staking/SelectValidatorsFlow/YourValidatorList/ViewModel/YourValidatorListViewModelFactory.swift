@@ -69,7 +69,7 @@ final class YourValidatorListViewModelFactory {
 
 extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryProtocol {
     func createViewModel(for model: YourValidatorsModel, locale: Locale) throws -> YourValidatorListViewModel {
-        let apyFormatter = NumberFormatter.percentSingle
+        let apyFormatter = NumberFormatter.percent
 
         let validatorsMapping = model.allValidators
             .sorted(by: { $0.stakeReturn > $1.stakeReturn })
