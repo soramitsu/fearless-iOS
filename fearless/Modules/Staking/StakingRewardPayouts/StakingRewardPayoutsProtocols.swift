@@ -29,6 +29,7 @@ protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
     func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)
     func didReceive(priceResult: Result<PriceData?, Error>)
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
 }
 
 protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
@@ -54,6 +55,7 @@ protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
 protocol StakingPayoutViewModelFactoryProtocol {
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
-        priceData: PriceData?
+        priceData: PriceData?,
+        eraCompletionTime: TimeInterval?
     ) -> LocalizableResource<StakingPayoutViewModel>
 }

@@ -44349,6 +44349,21 @@ import SoraUI
         
     }
     
+    
+    
+     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)  {
+        
+    return cuckoo_manager.call("didReceive(eraCountdownResult: Result<EraCountdown, Error>)",
+            parameters: (eraCountdownResult),
+            escapingParameters: (eraCountdownResult),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(eraCountdownResult: eraCountdownResult))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingRewardPayoutsInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -44366,6 +44381,11 @@ import SoraUI
 	    func didReceive<M1: Cuckoo.Matchable>(priceResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<PriceData?, Error>)> where M1.MatchedType == Result<PriceData?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<PriceData?, Error>)>] = [wrap(matchable: priceResult) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsInteractorOutputProtocol.self, method: "didReceive(priceResult: Result<PriceData?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(eraCountdownResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<EraCountdown, Error>)> where M1.MatchedType == Result<EraCountdown, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<EraCountdown, Error>)>] = [wrap(matchable: eraCountdownResult) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsInteractorOutputProtocol.self, method: "didReceive(eraCountdownResult: Result<EraCountdown, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -44396,6 +44416,12 @@ import SoraUI
 	        return cuckoo_manager.verify("didReceive(priceResult: Result<PriceData?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(eraCountdownResult: M1) -> Cuckoo.__DoNotUse<(Result<EraCountdown, Error>), Void> where M1.MatchedType == Result<EraCountdown, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<EraCountdown, Error>)>] = [wrap(matchable: eraCountdownResult) { $0 }]
+	        return cuckoo_manager.verify("didReceive(eraCountdownResult: Result<EraCountdown, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -44410,6 +44436,10 @@ import SoraUI
     }
     
      func didReceive(priceResult: Result<PriceData?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -44563,16 +44593,16 @@ import SoraUI
     
     
     
-     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel> {
+     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel> {
         
-    return cuckoo_manager.call("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>",
-            parameters: (payoutsInfo, priceData),
-            escapingParameters: (payoutsInfo, priceData),
+    return cuckoo_manager.call("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>",
+            parameters: (payoutsInfo, priceData, eraCompletionTime),
+            escapingParameters: (payoutsInfo, priceData, eraCompletionTime),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData))
+            defaultCall: __defaultImplStub!.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData, eraCompletionTime: eraCompletionTime))
         
     }
     
@@ -44585,9 +44615,9 @@ import SoraUI
 	    }
 	    
 	    
-	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2) -> Cuckoo.ProtocolStubFunction<(PayoutsInfo, PriceData?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData {
-	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutViewModelFactoryProtocol.self, method: "createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>", parameterMatchers: matchers))
+	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2, eraCompletionTime: M3) -> Cuckoo.ProtocolStubFunction<(PayoutsInfo, PriceData?, TimeInterval?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData, M3.OptionalMatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?, TimeInterval?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }, wrap(matchable: eraCompletionTime) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutViewModelFactoryProtocol.self, method: "createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -44607,9 +44637,9 @@ import SoraUI
 	
 	    
 	    @discardableResult
-	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2) -> Cuckoo.__DoNotUse<(PayoutsInfo, PriceData?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData {
-	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }]
-	        return cuckoo_manager.verify("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2, eraCompletionTime: M3) -> Cuckoo.__DoNotUse<(PayoutsInfo, PriceData?, TimeInterval?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData, M3.OptionalMatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?, TimeInterval?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }, wrap(matchable: eraCompletionTime) { $0.2 }]
+	        return cuckoo_manager.verify("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -44621,7 +44651,7 @@ import SoraUI
     
 
     
-     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>  {
+     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>  {
         return DefaultValueRegistry.defaultValue(for: (LocalizableResource<StakingPayoutViewModel>).self)
     }
     

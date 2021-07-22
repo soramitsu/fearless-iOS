@@ -9,12 +9,18 @@ final class StakingRewardPayoutsPresenter {
 
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
+    private var eraCompletionTime: TimeInterval?
+    private var timer: CountdownTimerProtocol?
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
     init(chain: Chain, viewModelFactory: StakingPayoutViewModelFactoryProtocol) {
         self.chain = chain
         self.viewModelFactory = viewModelFactory
+    }
+
+    deinit {
+        stopCountdownTimer()
     }
 
     private func updateView() {
@@ -27,9 +33,23 @@ final class StakingRewardPayoutsPresenter {
             return
         }
 
-        let viewModel = viewModelFactory.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData)
+        let viewModel = viewModelFactory.createPayoutsViewModel(
+            payoutsInfo: payoutsInfo,
+            priceData: priceData,
+            eraCompletionTime: eraCompletionTime
+        )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
+    }
+
+    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
+        timer = CountdownTimer(delegate: self)
+        timer?.start(with: eraCompletionTime)
+    }
+
+    private func stopCountdownTimer() {
+        timer?.stop()
+        timer = nil
     }
 }
 
@@ -94,5 +114,31 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
             priceData = nil
             updateView()
         }
+    }
+
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            stopCountdownTimer()
+            startCountdownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
+        case .failure:
+            eraCompletionTime = nil
+        }
+    }
+}
+
+extension StakingRewardPayoutsPresenter: CountdownTimerDelegate {
+    func didStart(with remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didStop(with _: TimeInterval) {
+        updateView()
     }
 }
