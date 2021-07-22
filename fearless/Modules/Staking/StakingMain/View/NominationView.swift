@@ -24,7 +24,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var statusButton: TriangularedButton!
 
     weak var delegate: NominationViewDelegate?
-    private var timer: CountdownTimer?
+    private lazy var timer = CountdownTimer()
     private lazy var timeFormatter = TotalTimeFormatter()
 
     var locale = Locale.current {
@@ -41,7 +41,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
     }
 
     deinit {
-        stopCountdownTimer()
+        timer.stop()
     }
 
     private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
@@ -49,7 +49,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
     func bind(viewModel: LocalizableResource<NominationViewModelProtocol>) {
         localizableViewModel = viewModel
 
-        stopCountdownTimer()
+        timer.stop()
         applyViewModel()
     }
 
@@ -125,7 +125,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
         statusTitleLabel.text = R.string.localizable
             .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
         if let remainingTime = remainingTime {
-            startCountdownTimer(eraCompletionTime: remainingTime)
+            timer.start(with: remainingTime, runLoop: .main, mode: .common)
         }
         statusDetailsLabel.text = ""
     }
@@ -136,16 +136,6 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
     @IBAction private func actionOnStatus() {
         delegate?.nominationViewDidReceiveStatusAction(self)
-    }
-
-    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
-        timer = CountdownTimer(delegate: self)
-        timer?.start(with: eraCompletionTime)
-    }
-
-    private func stopCountdownTimer() {
-        timer?.stop()
-        timer = nil
     }
 }
 
