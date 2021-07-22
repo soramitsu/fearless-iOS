@@ -426,7 +426,7 @@ final class UIFactory: UIFactoryProtocol {
         view.iconRadius = 16.0
 
         view.fillColor = .clear
-        view.highlightedFillColor = .clear
+        view.highlightedFillColor = R.color.colorHighlightedPink()!
         view.strokeColor = R.color.colorStrokeGray()!
         view.highlightedStrokeColor = R.color.colorStrokeGray()!
         view.borderWidth = 1.0
