@@ -19,6 +19,10 @@ final class StakingRewardPayoutsPresenter {
         self.viewModelFactory = viewModelFactory
     }
 
+    deinit {
+        timer?.stop()
+    }
+
     private func updateView() {
         guard let payoutsInfo = payoutsInfo else {
             return
