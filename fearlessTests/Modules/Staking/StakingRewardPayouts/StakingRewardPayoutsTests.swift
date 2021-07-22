@@ -9,12 +9,16 @@ class StakingRewardPayoutsTests: XCTestCase {
     func testViewStateIsLoadingThenError() {
         let payoutServiceThatReturnsError = PayoutRewardsServiceStub.error()
         let eraCountdownOperationFactory = MockEraCountdownOperationFactoryProtocol()
+        let runtimeService = try! RuntimeCodingServiceStub.createWestendService()
+
         let interactor = StakingRewardPayoutsInteractor(
+            singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
             payoutService: payoutServiceThatReturnsError,
-            priceProvider: SingleValueProviderFactoryStub.westendNominatorStub().price,
+            assetId: WalletAssetId.westend,
+            chain: .westend,
             eraCountdownOperationFactory: eraCountdownOperationFactory,
-            activeEraProvider: SingleValueProviderFactoryStub.westendNominatorStub().activeEra,
-            operationManager: OperationManager()
+            operationManager: OperationManager(),
+            runtimeService: runtimeService
         )
         let view = MockStakingRewardPayoutsViewProtocol()
 
