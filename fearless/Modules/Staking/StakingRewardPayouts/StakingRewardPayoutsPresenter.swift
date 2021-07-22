@@ -10,17 +10,23 @@ final class StakingRewardPayoutsPresenter {
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
     private var eraCompletionTime: TimeInterval?
-    private var timer: CountdownTimerProtocol?
+    private let countdownTimer: CountdownTimerProtocol
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
-    init(chain: Chain, viewModelFactory: StakingPayoutViewModelFactoryProtocol) {
+    init(
+        chain: Chain,
+        viewModelFactory: StakingPayoutViewModelFactoryProtocol,
+        countdownTimer: CountdownTimerProtocol
+    ) {
         self.chain = chain
         self.viewModelFactory = viewModelFactory
+        self.countdownTimer = countdownTimer
+        self.countdownTimer.delegate = self
     }
 
     deinit {
-        stopCountdownTimer()
+        countdownTimer.stop()
     }
 
     private func updateView() {
@@ -40,16 +46,6 @@ final class StakingRewardPayoutsPresenter {
         )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
-    }
-
-    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
-        timer = CountdownTimer(delegate: self)
-        timer?.start(with: eraCompletionTime)
-    }
-
-    private func stopCountdownTimer() {
-        timer?.stop()
-        timer = nil
     }
 }
 
@@ -119,8 +115,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
         switch eraCountdownResult {
         case let .success(eraCountdown):
-            stopCountdownTimer()
-            startCountdownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
+            countdownTimer.stop()
+            countdownTimer.start(with: eraCountdown.eraCompletionTime, runLoop: .main, mode: .common)
         case .failure:
             eraCompletionTime = nil
         }

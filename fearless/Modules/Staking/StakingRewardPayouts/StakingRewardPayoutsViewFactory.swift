@@ -124,7 +124,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let presenter = StakingRewardPayoutsPresenter(
             chain: chain,
-            viewModelFactory: payoutsViewModelFactory
+            viewModelFactory: payoutsViewModelFactory,
+            countdownTimer: CountdownTimer()
         )
         let view = StakingRewardPayoutsViewController(
             presenter: presenter,
