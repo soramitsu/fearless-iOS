@@ -54,6 +54,7 @@ protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
 protocol StakingPayoutViewModelFactoryProtocol {
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
-        priceData: PriceData?
+        priceData: PriceData?,
+        eraCompletionTime: TimeInterval?
     ) -> LocalizableResource<StakingPayoutViewModel>
 }

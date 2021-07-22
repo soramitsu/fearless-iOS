@@ -119,7 +119,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let payoutsViewModelFactory = StakingPayoutViewModelFactory(
             chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            timeFormatter: TotalTimeFormatter()
         )
         let presenter = StakingRewardPayoutsPresenter(
             chain: chain,

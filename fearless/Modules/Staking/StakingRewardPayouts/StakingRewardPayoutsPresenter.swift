@@ -9,6 +9,8 @@ final class StakingRewardPayoutsPresenter {
 
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
+    private var eraCompletionTime: TimeInterval?
+    private var timer: CountdownTimerProtocol?
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
@@ -27,9 +29,23 @@ final class StakingRewardPayoutsPresenter {
             return
         }
 
-        let viewModel = viewModelFactory.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData)
+        let viewModel = viewModelFactory.createPayoutsViewModel(
+            payoutsInfo: payoutsInfo,
+            priceData: priceData,
+            eraCompletionTime: eraCompletionTime
+        )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
+    }
+
+    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
+        timer = CountdownTimer(delegate: self)
+        timer?.start(with: eraCompletionTime)
+    }
+
+    private func stopCountdownTimer() {
+        timer?.stop()
+        timer = nil
     }
 }
 
@@ -75,6 +91,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         switch result {
         case let .success(payoutsInfo):
             self.payoutsInfo = payoutsInfo
+            startCountdownTimer(eraCompletionTime: 1000)
             updateView()
         case .failure:
             payoutsInfo = nil
@@ -94,5 +111,21 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
             priceData = nil
             updateView()
         }
+    }
+}
+
+extension StakingRewardPayoutsPresenter: CountdownTimerDelegate {
+    func didStart(with remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didStop(with _: TimeInterval) {
+        updateView()
     }
 }
