@@ -34,13 +34,21 @@ final class YourValidatorListViewModelFactory {
             apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
         }
 
+        let shouldHaveWarning: Bool = {
+            guard case let .active(allocation) = model.myNomination else {
+                return false
+            }
+
+            return !allocation.isRewarded
+        }()
+
         return YourValidatorViewModel(
             address: model.address,
             icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
             apy: apy,
-            shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false,
+            shouldHaveWarning: shouldHaveWarning,
             shouldHaveError: model.hasSlashes
         )
     }
