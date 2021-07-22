@@ -36,10 +36,8 @@ final class YourValidatorListPresenter {
 
     private func updateView() {
         guard lastError == nil else {
-            let errorDescription = LocalizableResource { locale in
-                R.string.localizable
-                    .commonErrorNoDataRetrieved(preferredLanguages: locale.rLanguages)
-            }
+            let errorDescription = R.string.localizable
+                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
             view?.reload(state: .error(errorDescription))
             return
         }
@@ -54,6 +52,12 @@ final class YourValidatorListPresenter {
             view?.reload(state: .validatorList(viewModel: viewModel))
         } catch {
             logger?.error("Did receive error: \(error)")
+
+            let errorDescription = R.string.localizable.commonErrorGeneralTitle(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+
+            view?.reload(state: .error(errorDescription))
         }
     }
 

@@ -193,7 +193,7 @@ final class UIFactory: UIFactoryProtocol {
     func createBorderedContainerView() -> BorderedContainerView {
         let view = BorderedContainerView()
         view.borderType = .bottom
-        view.strokeWidth = 1.0 / UIScreen.main.scale
+        view.strokeWidth = UIConstants.separatorHeight
         view.strokeColor = R.color.colorDarkGray()!
         return view
     }

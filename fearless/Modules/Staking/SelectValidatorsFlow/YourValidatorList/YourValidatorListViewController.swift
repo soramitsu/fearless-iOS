@@ -28,7 +28,7 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
 
     typealias RootViewType = YourValidatorListViewLayout
 
-    var presenter: YourValidatorListPresenterProtocol
+    let presenter: YourValidatorListPresenterProtocol
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? Locale.current
@@ -135,26 +135,30 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
 
 extension YourValidatorListViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        guard let sections = viewState?.validatorListViewModel?.sections else {
+        guard case let .validatorList(viewModel) = viewState else {
             return 0
         }
 
-        return sections.count
+        return viewModel.sections.count
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let sections = viewState?.validatorListViewModel?.sections else {
+        guard case let .validatorList(viewModel) = viewState else {
             return 0
         }
 
-        return sections[section].validators.count
+        return viewModel.sections[section].validators.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(YourValidatorTableCell.self)!
 
-        let section = viewState?.validatorListViewModel?.sections[indexPath.section]
-        let validator = section!.validators[indexPath.row]
+        guard case let .validatorList(viewModel) = viewState else {
+            return cell
+        }
+
+        let section = viewModel.sections[indexPath.section]
+        let validator = section.validators[indexPath.row]
 
         cell.bind(viewModel: validator, for: selectedLocale)
 
@@ -168,15 +172,17 @@ extension YourValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard let section = viewState?.validatorListViewModel?.sections[indexPath.section] else {
+        guard case let .validatorList(viewModel) = viewState else {
             return
         }
+
+        let section = viewModel.sections[indexPath.section]
 
         presenter.didSelectValidator(viewModel: section.validators[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let viewModel = viewState?.validatorListViewModel else {
+        guard case let .validatorList(viewModel) = viewState else {
             return nil
         }
 
@@ -348,7 +354,7 @@ extension YourValidatorListViewController: EmptyStateDataSource {
         switch state {
         case let .error(error):
             let errorView = ErrorStateView()
-            errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
+            errorView.errorDescriptionLabel.text = error
             errorView.delegate = self
             return errorView
         case .loading, .validatorList:
@@ -388,7 +394,6 @@ extension YourValidatorListViewController {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
-            rootView.tableView.reloadData()
         }
     }
 }

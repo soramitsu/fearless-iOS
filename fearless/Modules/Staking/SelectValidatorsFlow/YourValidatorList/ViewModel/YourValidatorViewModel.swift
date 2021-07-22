@@ -5,25 +5,7 @@ import FearlessUtils
 enum YourValidatorListViewState {
     case loading
     case validatorList(viewModel: YourValidatorListViewModel)
-    case error(LocalizableResource<String>)
-
-    var validatorListViewModel: YourValidatorListViewModel? {
-        switch self {
-        case let .validatorList(viewModel):
-            return viewModel
-        default:
-            return nil
-        }
-    }
-
-    var error: LocalizableResource<String>? {
-        switch self {
-        case let .error(title):
-            return title
-        default:
-            return nil
-        }
-    }
+    case error(String)
 }
 
 struct YourValidatorListViewModel {
