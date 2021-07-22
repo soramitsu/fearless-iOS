@@ -24,10 +24,16 @@ struct ValidatorInfoViewModel {
         case unelected
     }
 
+    enum IdentityTag {
+        case email
+        case web
+        case riot
+        case twitter
+    }
+
     enum IdentityItemValue {
         case text(_ text: String)
-        case link(_ url: String)
-        case email(_ email: String)
+        case link(_ url: String, tag: IdentityTag)
     }
 
     struct IdentityItem {

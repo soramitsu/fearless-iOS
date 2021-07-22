@@ -498,3 +498,6 @@ Derivation path: %@";
 "staking.your.selected.format" = "Selected (%@)";
 "staking.your.elected.format" = "Elected (%@)";
 "staking.common.rewards.apy" = "REWARDS (APY)";
+"staking.validator.status.elected" = "Elected";
+"staking.validator.status.unelected" = "Not elected";
+"staking.validator.slashed.desc" = "Validator is slashed for misbehaves (e.g. goes offline, attacks the network, or runs modified software) in the network.";

@@ -6,6 +6,7 @@ class MultiValueView: UIView {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
+        label.textAlignment = .right
         return label
     }()
 
@@ -13,7 +14,14 @@ class MultiValueView: UIView {
         let label = UILabel()
         label.textColor = R.color.colorGray()
         label.font = .p2Paragraph
+        label.textAlignment = .right
         return label
+    }()
+
+    let stackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        return view
     }()
 
     override init(frame: CGRect) {
@@ -27,27 +35,25 @@ class MultiValueView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override var intrinsicContentSize: CGSize {
-        let topSize = valueTop.intrinsicContentSize
-        let bottomSize = valueBottom.intrinsicContentSize
-
-        let height = topSize.height + bottomSize.height
-        let width = max(topSize.width, bottomSize.width)
-
-        return CGSize(width: width, height: height)
-    }
-
     private func setupLayout() {
-        addSubview(valueTop)
-        valueTop.snp.makeConstraints { make in
-            make.trailing.leading.equalToSuperview()
-            make.bottom.equalTo(self.snp.centerY)
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
-        addSubview(valueBottom)
-        valueBottom.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(self.snp.centerY)
+        stackView.addArrangedSubview(valueTop)
+        stackView.addArrangedSubview(valueBottom)
+    }
+
+    func bind(topValue: String, bottomValue: String?) {
+        valueTop.text = topValue
+
+        if let bottomValue = bottomValue {
+            valueBottom.isHidden = false
+            valueBottom.text = bottomValue
+        } else {
+            valueBottom.text = ""
+            valueBottom.isHidden = true
         }
     }
 }

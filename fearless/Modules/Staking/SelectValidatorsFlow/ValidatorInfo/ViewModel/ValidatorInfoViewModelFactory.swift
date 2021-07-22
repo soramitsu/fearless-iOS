@@ -39,21 +39,21 @@ final class ValidatorInfoViewModelFactory {
 
     private func createEmailRow(with email: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
         let title = R.string.localizable.identityEmailTitle(preferredLanguages: locale.rLanguages)
-        return .init(title: title, value: .email(email))
+        return .init(title: title, value: .link(email, tag: .email))
     }
 
     private func createWebRow(with web: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
         let title = R.string.localizable.identityWebTitle(preferredLanguages: locale.rLanguages)
-        return .init(title: title, value: .link(web))
+        return .init(title: title, value: .link(web, tag: .web))
     }
 
     private func createTwitterRow(with twitter: String) -> ValidatorInfoViewModel.IdentityItem {
-        .init(title: "Twitter", value: .link(twitter))
+        .init(title: "Twitter", value: .link(twitter, tag: .twitter))
     }
 
     private func createRiotRow(with riot: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
         let title = R.string.localizable.identityRiotNameTitle(preferredLanguages: locale.rLanguages)
-        return .init(title: title, value: .link(riot))
+        return .init(title: title, value: .link(riot, tag: .riot))
     }
 
     private func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> AccountInfoViewModel {
@@ -67,9 +67,9 @@ final class ValidatorInfoViewModelFactory {
             )
 
         return AccountInfoViewModel(
-            title: identityName,
+            title: "",
             address: validatorInfo.address,
-            name: validatorInfo.address,
+            name: identityName,
             icon: icon
         )
     }

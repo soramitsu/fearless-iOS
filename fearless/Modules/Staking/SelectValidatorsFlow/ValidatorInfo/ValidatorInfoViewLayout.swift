@@ -9,6 +9,10 @@ final class ValidatorInfoViewLayout: UIView {
         return view
     }()
 
+    var stackView: UIStackView {
+        contentView.stackView
+    }
+
     let factory = UIFactory.default
 
     override init(frame: CGRect) {
@@ -24,48 +28,8 @@ final class ValidatorInfoViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(viewModel: ValidatorInfoViewModel, locale: Locale) {
-        clearStackView()
-
-        let accountView = addAccountView(for: viewModel.account)
-        contentView.stackView.setCustomSpacing(25.0, after: accountView)
-
-        addSectionHeader(with: R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages))
-        addStakingStatusView(viewModel.staking, locale: locale)
-
-        if case let .elected(exposure) = viewModel.staking.status {
-            addNominatorsView(exposure, locale: locale)
-            addTotalStakeView(exposure, locale: locale)
-            addTitleValueView(
-                for: "Estimated reward",
-                value: exposure.estimatedReward
-            )
-        }
-
-        if let identityItems = viewModel.identity, !identityItems.isEmpty {
-            contentView.stackView.arrangedSubviews.last.map { lastView in
-                contentView.stackView.setCustomSpacing(25.0, after: lastView)
-            }
-
-            addSectionHeader(
-                with: R.string.localizable.identityTitle(preferredLanguages: locale.rLanguages)
-            )
-
-            identityItems.forEach { item in
-                switch item.value {
-                case let .link(url):
-                    addLinkView(for: item.title, url: url)
-                case let .text(text):
-                    addTitleValueView(for: item.title, value: text)
-                case let .email(email):
-                    addLinkView(for: item.title, url: email)
-                }
-            }
-        }
-    }
-
-    private func clearStackView() {
-        let arrangedSubviews = contentView.stackView.arrangedSubviews
+    func clearStackView() {
+        let arrangedSubviews = stackView.arrangedSubviews
 
         arrangedSubviews.forEach {
             contentView.stackView.removeArrangedSubview($0)
@@ -74,46 +38,36 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    private func addAccountView(for viewModel: AccountInfoViewModel) -> UIView {
-        let accountView = factory.createAccountView(for: .options, filled: false)
-        accountView.iconRadius = UIConstants.normalAddressIconSize.height / 2.0
-        accountView.addTarget(self, action: #selector(actionOnAccount), for: .touchUpInside)
+    func addAccountView(for viewModel: AccountInfoViewModel) -> DetailsTriangularedView {
+        let accountView: DetailsTriangularedView
 
-        contentView.stackView.addArrangedSubview(accountView)
-        accountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(52)
+        if viewModel.name.isEmpty {
+            accountView = factory.createIdentityView(isSingleTitle: true)
+            accountView.title = viewModel.address
+        } else {
+            accountView = factory.createIdentityView(isSingleTitle: false)
+            accountView.title = viewModel.name
+            accountView.subtitle = viewModel.address
         }
 
         accountView.iconImage = viewModel.icon
 
-        accountView.titleLabel.textColor = R.color.colorWhite()!
-        accountView.titleLabel.font = .p1Paragraph
-
-        if viewModel.name.isEmpty {
-            accountView.layout = .singleTitle
-            accountView.title = viewModel.address
-            accountView.titleLabel.lineBreakMode = .byTruncatingMiddle
-        } else {
-            accountView.layout = .largeIconTitleSubtitle
-            accountView.subtitleLabel?.textColor = R.color.colorLightGray()!
-            accountView.subtitleLabel?.font = .p2Paragraph
-            accountView.title = viewModel.name
-            accountView.subtitle = viewModel.address
-            accountView.titleLabel.lineBreakMode = .byTruncatingTail
-            accountView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        stackView.addArrangedSubview(accountView)
+        accountView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(52)
         }
 
         return accountView
     }
 
     @discardableResult
-    private func addSectionHeader(with title: String) -> UIView {
+    func addSectionHeader(with title: String) -> UIView {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .h4Title
 
-        contentView.stackView.addArrangedSubview(label)
+        stackView.addArrangedSubview(label)
         label.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
@@ -124,7 +78,7 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    private func addStakingStatusView(
+    func addStakingStatusView(
         _ viewModel: ValidatorInfoViewModel.Staking,
         locale: Locale
     ) -> UIView {
@@ -140,17 +94,21 @@ final class ValidatorInfoViewLayout: UIView {
         switch viewModel.status {
         case .elected:
             statusView.indicatorColor = R.color.colorGreen()!
-            statusView.titleLabel.text = "Elected"
+            statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusElected(
+                preferredLanguages: locale.rLanguages
+            )
         case .unelected:
             statusView.indicatorColor = R.color.colorLightGray()!
-            statusView.titleLabel.text = "Not elected"
+            statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusUnelected(
+                preferredLanguages: locale.rLanguages
+            )
         }
 
         let statusContentView = GenericTitleValueView(titleView: titleLabel, valueView: statusView)
         let rowView = RowView(contentView: statusContentView, preferredHeight: 48.0)
         rowView.isUserInteractionEnabled = false
 
-        contentView.stackView.addArrangedSubview(rowView)
+        stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
             make.width.equalTo(self)
         }
@@ -158,7 +116,9 @@ final class ValidatorInfoViewLayout: UIView {
         if viewModel.slashed {
             rowView.borderView.borderType = .none
 
-            let text = "Validator is slashed for misbehaves (e.g. goes offline, attacks the network, or runs modified software) in the network."
+            let text = R.string.localizable.stakingValidatorSlashedDesc(
+                preferredLanguages: locale.rLanguages
+            )
 
             return addHintView(for: text, icon: R.image.iconErrorFilled())
         } else {
@@ -167,7 +127,7 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    private func addNominatorsView(_ exposure: ValidatorInfoViewModel.Exposure, locale: Locale) -> UIView {
+    func addNominatorsView(_ exposure: ValidatorInfoViewModel.Exposure, locale: Locale) -> UIView {
         let nominatorsView = addTitleValueView(
             for: R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages),
             value: exposure.nominators
@@ -187,7 +147,7 @@ final class ValidatorInfoViewLayout: UIView {
         }
     }
 
-    private func addHintView(for title: String, icon: UIImage?) -> UIView {
+    func addHintView(for title: String, icon: UIImage?) -> UIView {
         let borderView = factory.createBorderedContainerView()
 
         let hintView = factory.createHintView()
@@ -197,12 +157,13 @@ final class ValidatorInfoViewLayout: UIView {
         borderView.addSubview(hintView)
         hintView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.bottom.equalToSuperview().inset(9)
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview().inset(9)
         }
 
         borderView.borderType = .bottom
 
-        contentView.stackView.addArrangedSubview(borderView)
+        stackView.addArrangedSubview(borderView)
         borderView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
@@ -211,7 +172,10 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    private func addTotalStakeView(_ exposure: ValidatorInfoViewModel.Exposure, locale: Locale) -> UIView {
+    func addTotalStakeView(
+        _ exposure: ValidatorInfoViewModel.Exposure,
+        locale: Locale
+    ) -> UIControl {
         let titleView = factory.createInfoIndicatingView()
         titleView.title = R.string.localizable.stakingValidatorTotalStake(
             preferredLanguages: locale.rLanguages
@@ -219,14 +183,14 @@ final class ValidatorInfoViewLayout: UIView {
 
         let rowContentView = GenericTitleValueView<ImageWithTitleView, MultiValueView>(titleView: titleView)
 
-        rowContentView.valueView.valueTop.text = exposure.totalStake.amount
-        rowContentView.valueView.valueBottom.text = exposure.totalStake.price
+        rowContentView.valueView.bind(
+            topValue: exposure.totalStake.amount,
+            bottomValue: exposure.totalStake.price
+        )
 
         let rowView = RowView(contentView: rowContentView, preferredHeight: 48.0)
 
-        rowView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
-
-        contentView.stackView.addArrangedSubview(rowView)
+        stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
             make.width.equalTo(self)
         }
@@ -235,10 +199,11 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    private func addTitleValueView(for title: String, value: String) -> TitleValueView {
+    func addTitleValueView(for title: String, value: String) -> TitleValueView {
         let view = factory.createTitleValueView()
+        view.borderView.strokeWidth = 1 / UIScreen.main.scale
 
-        contentView.stackView.addArrangedSubview(view)
+        stackView.addArrangedSubview(view)
         view.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48)
@@ -251,7 +216,7 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    private func addLinkView(for title: String, url: String) -> UIView {
+    func addLinkView(for title: String, url: String) -> UIControl {
         let titleLabel = UILabel()
         titleLabel.textColor = R.color.colorLightGray()
         titleLabel.font = .p1Paragraph
@@ -269,15 +234,15 @@ final class ValidatorInfoViewLayout: UIView {
         let rowContentView = GenericTitleValueView(titleView: titleLabel, valueView: valueView)
         let rowView = RowView(contentView: rowContentView, preferredHeight: 48.0)
 
-        rowView.addTarget(self, action: #selector(actionOnIdentityLink(_:)), for: .touchUpInside)
-
-        contentView.stackView.addArrangedSubview(rowView)
+        stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
             make.width.equalTo(self)
         }
 
         return rowView
     }
+
+    // MARK: Private
 
     private func setupLayout() {
         addSubview(contentView)
@@ -286,10 +251,4 @@ final class ValidatorInfoViewLayout: UIView {
             make.bottom.leading.trailing.equalToSuperview()
         }
     }
-
-    @objc private func actionOnAccount() {}
-
-    @objc private func actionOnTotalStake() {}
-
-    @objc private func actionOnIdentityLink(_: UIControl) {}
 }

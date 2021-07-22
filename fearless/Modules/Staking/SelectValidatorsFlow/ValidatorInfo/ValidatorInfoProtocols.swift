@@ -52,7 +52,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 
     func presentAccountOptions()
     func presentTotalStake()
-    func presentIdentityItem(_ item: ValidatorInfoViewModel.IdentityItem)
+    func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue)
 }
 
 // MARK: - Router

@@ -97,16 +97,26 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         )
     }
 
-    func presentIdentityItem(_ item: ValidatorInfoViewModel.IdentityItem) {
-        switch item.value {
-        case let .email(email):
-            activateEmail(email)
-        case let .link(link):
-            if let url = URL(string: link) {
+    func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue) {
+        guard case let .link(value, tag) = value else {
+            return
+        }
+
+        switch tag {
+        case .email:
+            activateEmail(value)
+        case .web:
+            if let url = URL(string: value) {
                 show(url)
             }
-        case .text:
-            break
+        case .riot:
+            if let url = URL.riotAddress(for: value) {
+                show(url)
+            }
+        case .twitter:
+            if let url = URL.twitterAddress(for: value) {
+                show(url)
+            }
         }
     }
 }
