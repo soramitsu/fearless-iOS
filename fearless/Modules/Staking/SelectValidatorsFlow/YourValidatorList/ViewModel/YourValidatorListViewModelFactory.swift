@@ -71,33 +71,35 @@ extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryPr
     func createViewModel(for model: YourValidatorsModel, locale: Locale) throws -> YourValidatorListViewModel {
         let apyFormatter = NumberFormatter.percentSingle
 
-        let validatorsMapping = model.allValidators.reduce(
-            into: [YourValidatorListSectionStatus: [YourValidatorViewModel]]()) { result, item in
-            let sectionStatus: YourValidatorListSectionStatus = {
-                guard let modelStatus = item.myNomination else {
-                    return .pending
+        let validatorsMapping = model.allValidators
+            .sorted(by: { $0.stakeReturn > $1.stakeReturn })
+            .reduce(
+                into: [YourValidatorListSectionStatus: [YourValidatorViewModel]]()) { result, item in
+                let sectionStatus: YourValidatorListSectionStatus = {
+                    guard let modelStatus = item.myNomination else {
+                        return .pending
+                    }
+
+                    switch modelStatus {
+                    case .active:
+                        return .stakeAllocated
+                    case .elected:
+                        return .stakeNotAllocated
+                    case .unelected:
+                        return .unelected
+                    }
+                }()
+
+                guard let viewModel = try? createValidatorViewModel(
+                    for: item,
+                    apyFormatter: apyFormatter,
+                    locale: locale
+                ) else {
+                    return
                 }
 
-                switch modelStatus {
-                case .active:
-                    return .stakeAllocated
-                case .elected:
-                    return .stakeNotAllocated
-                case .unelected:
-                    return .unelected
-                }
-            }()
-
-            guard let viewModel = try? createValidatorViewModel(
-                for: item,
-                apyFormatter: apyFormatter,
-                locale: locale
-            ) else {
-                return
+                result[sectionStatus] = (result[sectionStatus] ?? []) + [viewModel]
             }
-
-            result[sectionStatus] = (result[sectionStatus] ?? []) + [viewModel]
-        }
 
         let sectionsOrder: [YourValidatorListSectionStatus] = [
             .stakeAllocated, .pending, .stakeNotAllocated, .unelected
