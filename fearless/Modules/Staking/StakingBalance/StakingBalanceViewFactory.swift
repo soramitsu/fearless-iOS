@@ -46,7 +46,8 @@ struct StakingBalanceViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            accountAddress: accountAddress
+            accountAddress: accountAddress,
+            countdownTimer: CountdownTimer()
         )
 
         interactor.presenter = presenter

@@ -15,24 +15,27 @@ final class StakingBalancePresenter {
     private var activeEra: EraIndex?
     private var priceData: PriceData?
     private var eraCompletionTime: TimeInterval?
-    private var timer: CountdownTimerProtocol?
+    private let countdownTimer: CountdownTimerProtocol
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        accountAddress: AccountAddress
+        accountAddress: AccountAddress,
+        countdownTimer: CountdownTimerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.accountAddress = accountAddress
+        self.countdownTimer = countdownTimer
+        self.countdownTimer.delegate = self
     }
 
     deinit {
-        stopCountdownTimer()
+        countdownTimer.stop()
     }
 
     private func updateView() {
@@ -111,16 +114,6 @@ final class StakingBalancePresenter {
         )
 
         wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
-    }
-
-    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
-        timer = CountdownTimer(delegate: self)
-        timer?.start(with: eraCompletionTime)
-    }
-
-    private func stopCountdownTimer() {
-        timer?.stop()
-        timer = nil
     }
 }
 
@@ -229,8 +222,8 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
         switch eraCountdownResult {
         case let .success(eraCountdown):
-            stopCountdownTimer()
-            startCountdownTimer(eraCompletionTime: eraCountdown.eraCompletionTime)
+            countdownTimer.stop()
+            countdownTimer.start(with: eraCountdown.eraCompletionTime, runLoop: .main, mode: .common)
         case .failure:
             eraCompletionTime = nil
         }

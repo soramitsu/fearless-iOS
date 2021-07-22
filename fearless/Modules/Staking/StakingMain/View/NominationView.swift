@@ -38,6 +38,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
         super.awakeFromNib()
 
         applyLocalization()
+        timer.delegate = self
     }
 
     deinit {
