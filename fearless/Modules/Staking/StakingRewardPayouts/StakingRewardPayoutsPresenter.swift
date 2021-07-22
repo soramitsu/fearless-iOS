@@ -20,7 +20,7 @@ final class StakingRewardPayoutsPresenter {
     }
 
     deinit {
-        timer?.stop()
+        stopCountdownTimer()
     }
 
     private func updateView() {
