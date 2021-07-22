@@ -491,3 +491,4 @@ Chemin de dérivation : %@";
 "staking.validator.apy.percent" = "";
 "staking.pending.rewards" = "";
 "staking.rewards.destination" = "";
+"staking.payout.expired" = "";

@@ -99,6 +99,9 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         let daysLeft = Int(eraDistance) / chain.erasPerDay
         let timeLeftText: String = {
             if daysLeft == 0, let eraCompletionTime = eraCompletionTime {
+                if eraCompletionTime <= .leastNormalMagnitude {
+                    return R.string.localizable.stakingPayoutExpired(preferredLanguages: locale.rLanguages)
+                }
                 let formattedTime = (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
                 return R.string.localizable.commonTimeLeftFormat(formattedTime)
             }
