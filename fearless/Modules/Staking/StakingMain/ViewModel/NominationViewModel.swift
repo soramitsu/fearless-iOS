@@ -4,7 +4,7 @@ enum NominationViewStatus {
     case undefined
     case active(era: UInt32)
     case inactive(era: UInt32)
-    case waiting
+    case waiting(eraCompletionTimeInSeconds: TimeInterval?)
 }
 
 protocol NominationViewModelProtocol {

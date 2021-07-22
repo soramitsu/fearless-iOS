@@ -24,6 +24,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var statusButton: TriangularedButton!
 
     weak var delegate: NominationViewDelegate?
+    private var timer: CountdownTimer?
+    private lazy var timeFormatter = TotalTimeFormatter()
 
     var locale = Locale.current {
         didSet {
@@ -38,11 +40,16 @@ final class NominationView: UIView, LocalizableViewProtocol {
         applyLocalization()
     }
 
+    deinit {
+        stopCountdownTimer()
+    }
+
     private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
 
     func bind(viewModel: LocalizableResource<NominationViewModelProtocol>) {
         localizableViewModel = viewModel
 
+        stopCountdownTimer()
         applyViewModel()
     }
 
@@ -78,8 +85,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
             presentActiveStatus(for: era)
         case let .inactive(era):
             presentInactiveStatus(for: era)
-        case .waiting:
-            presentWaitingStatus()
+        case let .waiting(remainingTime):
+            presentWaitingStatus(remainingTime: remainingTime)
         }
     }
 
@@ -111,12 +118,15 @@ final class NominationView: UIView, LocalizableViewProtocol {
             .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
     }
 
-    private func presentWaitingStatus() {
+    private func presentWaitingStatus(remainingTime: TimeInterval?) {
         statusIndicatorView.fillColor = R.color.colorTransparentText()!
         statusTitleLabel.textColor = R.color.colorTransparentText()!
 
         statusTitleLabel.text = R.string.localizable
             .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
+        if let remainingTime = remainingTime {
+            startCountdownTimer(eraCompletionTime: remainingTime)
+        }
         statusDetailsLabel.text = ""
     }
 
@@ -126,5 +136,29 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
     @IBAction private func actionOnStatus() {
         delegate?.nominationViewDidReceiveStatusAction(self)
+    }
+
+    private func startCountdownTimer(eraCompletionTime: TimeInterval) {
+        timer = CountdownTimer(delegate: self)
+        timer?.start(with: eraCompletionTime)
+    }
+
+    private func stopCountdownTimer() {
+        timer?.stop()
+        timer = nil
+    }
+}
+
+extension NominationView: CountdownTimerDelegate {
+    func didStart(with interval: TimeInterval) {
+        statusDetailsLabel.text = (try? timeFormatter.string(from: interval)) ?? ""
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        statusDetailsLabel.text = (try? timeFormatter.string(from: remainedInterval)) ?? ""
+    }
+
+    func didStop(with _: TimeInterval) {
+        statusDetailsLabel.text = ""
     }
 }

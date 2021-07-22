@@ -2033,3 +2033,102 @@ import RobinHood
     
 }
 
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import FearlessUtils
+import RobinHood
+import SoraKeystore
+
+
+ class MockEraCountdownOperationFactoryProtocol: EraCountdownOperationFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = EraCountdownOperationFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_EraCountdownOperationFactoryProtocol
+     typealias Verification = __VerificationProxy_EraCountdownOperationFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: EraCountdownOperationFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: EraCountdownOperationFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown> {
+        
+    return cuckoo_manager.call("fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>",
+            parameters: (targetEra),
+            escapingParameters: (targetEra),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.fetchCountdownOperationWrapper(targetEra: targetEra))
+        
+    }
+    
+
+	 struct __StubbingProxy_EraCountdownOperationFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func fetchCountdownOperationWrapper<M1: Cuckoo.Matchable>(targetEra: M1) -> Cuckoo.ProtocolStubFunction<(EraIndex), CompoundOperationWrapper<EraCountdown>> where M1.MatchedType == EraIndex {
+	        let matchers: [Cuckoo.ParameterMatcher<(EraIndex)>] = [wrap(matchable: targetEra) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockEraCountdownOperationFactoryProtocol.self, method: "fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_EraCountdownOperationFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func fetchCountdownOperationWrapper<M1: Cuckoo.Matchable>(targetEra: M1) -> Cuckoo.__DoNotUse<(EraIndex), CompoundOperationWrapper<EraCountdown>> where M1.MatchedType == EraIndex {
+	        let matchers: [Cuckoo.ParameterMatcher<(EraIndex)>] = [wrap(matchable: targetEra) { $0 }]
+	        return cuckoo_manager.verify("fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class EraCountdownOperationFactoryProtocolStub: EraCountdownOperationFactoryProtocol {
+    
+
+    
+
+    
+     func fetchCountdownOperationWrapper(targetEra: EraIndex) -> CompoundOperationWrapper<EraCountdown>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<EraCountdown>).self)
+    }
+    
+}
+

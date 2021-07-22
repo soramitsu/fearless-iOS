@@ -34,6 +34,7 @@ protocol StakingStateProtocol {
     func process(minNominatorBond: BigUInt?)
     func process(counterForNominators: UInt32?)
     func process(maxNominatorsCount: UInt32?)
+    func process(eraCompletionTimeInSeconds: TimeInterval)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

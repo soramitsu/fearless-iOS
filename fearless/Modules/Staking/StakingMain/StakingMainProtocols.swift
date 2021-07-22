@@ -63,6 +63,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 
