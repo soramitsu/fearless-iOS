@@ -64,30 +64,9 @@ final class StakingPayoutConfirmationPresenter {
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
-        if let confirmError = error as? StakingPayoutConfirmError {
-            guard let view = view else {
-                return
-            }
-
-            switch confirmError {
-            case .notEnoughFunds:
-                wireframe.presentFeeTooHigh(from: view, locale: locale)
-            case .feeNotReceived:
-                wireframe.presentFeeNotReceived(from: view, locale: locale)
-            case .extrinsicFailed:
-                wireframe.presentExtrinsicFailed(from: view, locale: locale)
-            case .tinyPayout:
-                wireframe.presentRewardIsLessThanFee(
-                    from: view,
-                    action: { self.interactor?.submitPayout() },
-                    locale: locale
-                )
-            }
-        } else {
-            if !wireframe.present(error: error, from: view, locale: locale) {
-                _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
-                logger?.error("Did receive error: \(error)")
-            }
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
+            logger?.error("Did receive error: \(error)")
         }
     }
 }
