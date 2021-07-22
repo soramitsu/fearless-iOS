@@ -275,7 +275,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
 
             let title = LocalizableResource { locale in
                 R.string.localizable
-                    .stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+                    .stakingRewardDestinationTitle_v190(preferredLanguages: locale.rLanguages)
             }
 
             wireframe.presentAccountSelection(

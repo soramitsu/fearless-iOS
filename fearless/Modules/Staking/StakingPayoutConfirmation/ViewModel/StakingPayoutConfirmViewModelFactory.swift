@@ -62,7 +62,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
         return LocalizableResource { locale in
             let title = R.string.localizable
-                .stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+                .stakingRewardDestinationTitle_v190(preferredLanguages: locale.rLanguages)
 
             let name = displayAddress.username.isEmpty ? displayAddress.address
                 : displayAddress.username
@@ -78,7 +78,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
     private func createRewardDestinationRestakeRow() -> LocalizableResource<PayoutConfirmViewModel> {
         LocalizableResource { locale in
-            let title = R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+            let title = R.string.localizable.stakingRewardDestinationTitle_v190(preferredLanguages: locale.rLanguages)
             let subtitle = R.string.localizable.stakingRestakeTitle(preferredLanguages: locale.rLanguages)
 
             return .restakeDestination(.init(titleText: title, valueText: subtitle))

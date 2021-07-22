@@ -82,7 +82,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
     private func setupLocalization() {
         let languages = selectedLocale.rLanguages
-        title = R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: languages)
+        title = R.string.localizable.tabbarCrowdloanTitle_v190(preferredLanguages: languages)
     }
 
     private func applyState() {

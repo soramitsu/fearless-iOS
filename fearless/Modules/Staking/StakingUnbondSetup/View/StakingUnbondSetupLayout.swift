@@ -52,7 +52,7 @@ final class StakingUnbondSetupLayout: UIView {
 
         footerLabel.text = R.string.localizable.stakingUnbondingHint(preferredLanguages: locale.rLanguages)
         durationView.titleLabel.text = R.string.localizable
-            .stakingUnbondingPeriod(preferredLanguages: locale.rLanguages)
+            .stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)

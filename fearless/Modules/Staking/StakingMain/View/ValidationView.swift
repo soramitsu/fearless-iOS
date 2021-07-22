@@ -52,7 +52,7 @@ final class ValidationView: UIView, LocalizableViewProtocol {
         stakedTitleLabel.text = R.string.localizable
             .stakingMainTotalStakedTitle(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
-            .stakingTotalRewards(preferredLanguages: locale.rLanguages)
+            .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
     }
 
     private func applyViewModel() {

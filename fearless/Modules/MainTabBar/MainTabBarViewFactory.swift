@@ -277,7 +277,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
 
         let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.tabbarCrowdloanTitle_v190(preferredLanguages: locale.rLanguages)
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)

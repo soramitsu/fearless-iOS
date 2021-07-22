@@ -54,7 +54,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         ) ?? 0.0
         let bondedViewModel = createWidgetItemViewModel(
             amount: bondedDecimal,
-            title: R.string.localizable.walletBalanceBonded(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.walletBalanceBonded_v190(preferredLanguages: locale.rLanguages),
             priceData: balanceData.priceData,
             locale: locale
         )
@@ -65,7 +65,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         ) ?? 0.0
         let unbondedViewModel = createWidgetItemViewModel(
             amount: unbondedDecimal,
-            title: R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
             priceData: balanceData.priceData,
             locale: locale
         )
@@ -121,9 +121,9 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         )
         return StakingBalanceUnbondingWidgetViewModel(
             title: R.string.localizable
-                .walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
+                .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
             emptyListDescription: R.string.localizable
-                .stakingUnbondingEmptyList(preferredLanguages: locale.rLanguages),
+                .stakingUnbondingEmptyList_v190(preferredLanguages: locale.rLanguages),
             unbondings: viewModels
         )
     }
@@ -152,7 +152,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 )
 
                 return UnbondingItemViewModel(
-                    addressOrName: R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages),
+                    addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
                     daysLeftText: daysLeft,
                     tokenAmountText: tokenAmount,
                     usdAmountText: usdAmount

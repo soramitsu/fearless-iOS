@@ -50,7 +50,7 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.stakingUnbond(preferredLanguages: selectedLocale.rLanguages)
+        title = R.string.localizable.stakingUnbond_v190(preferredLanguages: selectedLocale.rLanguages)
 
         rootView.locale = selectedLocale
 

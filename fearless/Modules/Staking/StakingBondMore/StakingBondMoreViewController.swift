@@ -115,7 +115,7 @@ extension StakingBondMoreViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             title = R.string.localizable
-                .stakingBondMore(preferredLanguages: selectedLocale.rLanguages)
+                .stakingBondMore_v190(preferredLanguages: selectedLocale.rLanguages)
             rootView.locale = selectedLocale
         }
     }
