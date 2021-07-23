@@ -283,10 +283,10 @@ final class ValidatorInfoViewModelFactory {
             .status(createNominationStateRow(with: nomination), createStatusViewModel(from: validatorInfo))
         ]
 
-        if case let .active(amount) = nomination {
+        if case let .active(allocation) = nomination {
             let row = createStakingAmountRow(
                 title: createYourNominatedTitle(),
-                amount: amount,
+                amount: allocation.amount,
                 priceData: priceData
             )
 
