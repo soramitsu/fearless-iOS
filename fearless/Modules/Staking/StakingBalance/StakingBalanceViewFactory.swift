@@ -32,7 +32,8 @@ struct StakingBalanceViewFactory {
         )
         let viewModelFactory = StakingBalanceViewModelFactory(
             chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            timeFormatter: TotalTimeFormatter()
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(
@@ -45,7 +46,8 @@ struct StakingBalanceViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            accountAddress: accountAddress
+            accountAddress: accountAddress,
+            countdownTimer: CountdownTimer()
         )
 
         interactor.presenter = presenter
@@ -68,6 +70,7 @@ struct StakingBalanceViewFactory {
     ) -> StakingBalanceInteractor? {
         guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain) else { return nil }
 
+        let operationManager = OperationManagerFacade.sharedManager
         let localStorageRequestFactory = LocalStorageRequestFactory(
             remoteKeyFactory: StorageKeyFactory(),
             localKeyFactory: localStorageIdFactory
@@ -82,11 +85,25 @@ struct StakingBalanceViewFactory {
         let substrateProviderFactory =
             SubstrateDataProviderFactory(
                 facade: SubstrateDataStorageFacade.shared,
-                operationManager: OperationManagerFacade.sharedManager
+                operationManager: operationManager
             )
 
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
+
+        guard let connection = WebSocketService.shared.connection else { return nil }
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let eraCountdownOperationFactory = EraCountdownOperationFactory(
+            runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
+            engine: connection
+        )
 
         let interactor = StakingBalanceInteractor(
             chain: chain,
@@ -97,6 +114,7 @@ struct StakingBalanceViewFactory {
             localStorageRequestFactory: localStorageRequestFactory,
             priceProvider: priceProvider,
             providerFactory: SingleValueProviderFactory.shared,
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
             substrateProviderFactory: substrateProviderFactory,
             operationManager: OperationManagerFacade.sharedManager
         )
