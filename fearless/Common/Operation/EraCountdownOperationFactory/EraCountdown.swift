@@ -19,6 +19,9 @@ struct EraCountdown {
         let sessionProgress = currentSlot - sessionStartSlot
         let eraProgress = (currentSessionIndexInt - UInt64(eraStartSessionIndex)) * numberOfSlotsPerSession
             + sessionProgress
+        if Int64(eraLength * sessionLength) - Int64(eraProgress) < 0 {
+            return 0
+        }
         let eraRemained = UInt64(eraLength) * numberOfSlotsPerSession - eraProgress
         let result = eraRemained * UInt64(blockCreationTime)
 
