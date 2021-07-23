@@ -34,7 +34,7 @@ final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
         numberOfExtrinsics: Int,
         completion completionClosure: @escaping EstimateFeeIndexedClosure
     ) {
-        completionClosure(.success([self.dispatchInfo]))
+        completionClosure([self.dispatchInfo])
     }
 
     func submit(
@@ -44,7 +44,7 @@ final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
         numberOfExtrinsics: Int,
         completion completionClosure: @escaping ExtrinsicSubmitIndexedClosure
     ) {
-        completionClosure(.success([self.txHash]))
+        completionClosure([self.txHash])
     }
 }
 
