@@ -124,12 +124,12 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let presenter = StakingRewardPayoutsPresenter(
             chain: chain,
-            viewModelFactory: payoutsViewModelFactory,
-            countdownTimer: CountdownTimer()
+            viewModelFactory: payoutsViewModelFactory
         )
         let view = StakingRewardPayoutsViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            countdownTimer: CountdownTimer()
         )
 
         guard let engine = WebSocketService.shared.connection else { return nil }

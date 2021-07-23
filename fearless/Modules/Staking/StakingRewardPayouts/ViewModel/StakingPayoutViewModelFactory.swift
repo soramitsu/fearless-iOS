@@ -32,7 +32,25 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                     eraCompletionTime: eraCompletionTime,
                     locale: locale
                 ),
+                eraComletionTime: eraCompletionTime,
                 bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts, locale: locale)
+            )
+        }
+    }
+
+    func timeLeftString(
+        at index: Int,
+        payoutsInfo: PayoutsInfo,
+        eraCompletionTime: TimeInterval?
+    ) -> LocalizableResource<NSAttributedString> {
+        LocalizableResource { locale in
+            let payout = payoutsInfo.payouts[index]
+            return self.timeLeftAttributedString(
+                activeEra: payoutsInfo.activeEra,
+                payoutEra: payout.era,
+                historyDepth: payoutsInfo.historyDepth,
+                eraCompletionTime: eraCompletionTime,
+                locale: locale
             )
         }
     }

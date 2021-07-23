@@ -10,23 +10,15 @@ final class StakingRewardPayoutsPresenter {
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
     private var eraCompletionTime: TimeInterval?
-    private let countdownTimer: CountdownTimerProtocol
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
     init(
         chain: Chain,
-        viewModelFactory: StakingPayoutViewModelFactoryProtocol,
-        countdownTimer: CountdownTimerProtocol
+        viewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) {
         self.chain = chain
         self.viewModelFactory = viewModelFactory
-        self.countdownTimer = countdownTimer
-        self.countdownTimer.delegate = self
-    }
-
-    deinit {
-        countdownTimer.stop()
     }
 
     private func updateView() {
@@ -82,6 +74,20 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         guard let payouts = payoutsInfo?.payouts else { return }
         wireframe.showPayoutConfirmation(for: payouts, from: view)
     }
+
+    func getTimeLeftString(
+        at index: Int,
+        eraCompletionTime: TimeInterval?
+    ) -> LocalizableResource<NSAttributedString>? {
+        guard let payoutsInfo = payoutsInfo else {
+            return nil
+        }
+        return viewModelFactory.timeLeftString(
+            at: index,
+            payoutsInfo: payoutsInfo,
+            eraCompletionTime: eraCompletionTime
+        )
+    }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
@@ -115,26 +121,10 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
         switch eraCountdownResult {
         case let .success(eraCountdown):
-            countdownTimer.stop()
-            countdownTimer.start(with: eraCountdown.eraCompletionTime, runLoop: .main, mode: .common)
+            eraCompletionTime = eraCountdown.eraCompletionTime
+            updateView()
         case .failure:
             eraCompletionTime = nil
         }
-    }
-}
-
-extension StakingRewardPayoutsPresenter: CountdownTimerDelegate {
-    func didStart(with remainedInterval: TimeInterval) {
-        eraCompletionTime = remainedInterval
-        updateView()
-    }
-
-    func didCountdown(remainedInterval: TimeInterval) {
-        eraCompletionTime = remainedInterval
-        updateView()
-    }
-
-    func didStop(with _: TimeInterval) {
-        updateView()
     }
 }
