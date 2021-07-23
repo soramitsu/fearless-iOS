@@ -155,7 +155,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
 
                 return UnbondingItemViewModel(
                     addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
-                    daysLeftText: daysLeft,
+                    daysLeftText: timeLeft,
                     tokenAmountText: tokenAmount,
                     usdAmountText: usdAmount
                 )
