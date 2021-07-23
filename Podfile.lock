@@ -107,7 +107,6 @@ PODS:
   - SVGKit (2.1.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftGifOrigin (1.7.0)
   - SwiftLint (0.43.1)
   - SwiftyBeaver (1.9.3)
   - TweetNacl (1.0.2)
@@ -130,7 +129,6 @@ DEPENDENCIES:
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
   - SwiftFormat/CLI (~> 0.47.13)
-  - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
   - SwiftyBeaver
 
@@ -154,7 +152,6 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SwiftFormat
-    - SwiftGifOrigin
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
@@ -211,12 +208,11 @@ SPEC CHECKSUMS:
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
   SwiftyBeaver: 2e8acd6fc90c6d0a27055867a290794926d57c02
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: d2447f1c08b947df2ed9711130fa21060713d233
+PODFILE CHECKSUM: 02148a80cde0d2b6e851e5eecd5177a0c317fa09
 
 COCOAPODS: 1.10.1

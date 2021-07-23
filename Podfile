@@ -14,7 +14,6 @@ abstract_target 'fearlessAll' do
   pod 'SwiftyBeaver'
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
   pod 'ReachabilitySwift'
-  pod 'SwiftGifOrigin', '~> 1.7.0'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
