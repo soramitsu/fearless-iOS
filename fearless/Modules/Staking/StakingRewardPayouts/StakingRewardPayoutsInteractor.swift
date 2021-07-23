@@ -68,6 +68,8 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
         reload()
     }
 
+    // TODO: revert stubs
+    // swiftlint:disable force_try
     func reload() {
         guard payoutOperationsWrapper == nil else {
             return

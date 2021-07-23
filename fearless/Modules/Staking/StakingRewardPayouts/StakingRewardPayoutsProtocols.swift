@@ -19,6 +19,10 @@ protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
     func handleSelectedHistory(at index: Int)
     func handlePayoutAction()
     func reload()
+    func getTimeLeftString(
+        at index: Int,
+        eraCompletionTime: TimeInterval?
+    ) -> LocalizableResource<NSAttributedString>?
 }
 
 protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
@@ -58,4 +62,10 @@ protocol StakingPayoutViewModelFactoryProtocol {
         priceData: PriceData?,
         eraCompletionTime: TimeInterval?
     ) -> LocalizableResource<StakingPayoutViewModel>
+
+    func timeLeftString(
+        at index: Int,
+        payoutsInfo: PayoutsInfo,
+        eraCompletionTime: TimeInterval?
+    ) -> LocalizableResource<NSAttributedString>
 }
