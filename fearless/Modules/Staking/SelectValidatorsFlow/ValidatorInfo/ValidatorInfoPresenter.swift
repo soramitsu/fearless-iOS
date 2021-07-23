@@ -3,8 +3,8 @@ import SoraFoundation
 
 final class ValidatorInfoPresenter {
     weak var view: ValidatorInfoViewProtocol?
-    var interactor: ValidatorInfoInteractorInputProtocol
-    var wireframe: ValidatorInfoWireframeProtocol
+    let interactor: ValidatorInfoInteractorInputProtocol
+    let wireframe: ValidatorInfoWireframeProtocol
 
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
     private let chain: Chain

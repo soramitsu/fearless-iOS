@@ -4,7 +4,7 @@ import SoraFoundation
 final class ValidatorInfoViewController: UIViewController, ViewHolder {
     typealias RootViewType = ValidatorInfoViewLayout
 
-    var presenter: ValidatorInfoPresenterProtocol
+    let presenter: ValidatorInfoPresenterProtocol
 
     struct LinkPair {
         let view: UIView
