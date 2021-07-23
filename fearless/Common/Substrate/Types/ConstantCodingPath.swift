@@ -18,6 +18,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Staking", constantName: "BondingDuration")
     }
 
+    static var eraLength: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Staking", constantName: "SessionsPerEra")
+    }
+
     static var existentialDeposit: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
     }
@@ -28,6 +32,10 @@ extension ConstantCodingPath {
 
     static var babeBlockTime: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Babe", constantName: "ExpectedBlockTime")
+    }
+
+    static var sessionLength: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Babe", constantName: "EpochDuration")
     }
 
     static var minimumContribution: ConstantCodingPath {

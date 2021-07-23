@@ -6,24 +6,51 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     private let addressFactory = SS58AddressFactory()
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let timeFormatter: TimeFormatterProtocol
     private lazy var formatterFactory = AmountFormatterFactory()
 
     init(
         chain: Chain,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        timeFormatter: TimeFormatterProtocol
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.timeFormatter = timeFormatter
     }
 
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
-        priceData: PriceData?
+        priceData: PriceData?,
+        eraCompletionTime: TimeInterval?
     ) -> LocalizableResource<StakingPayoutViewModel> {
         LocalizableResource<StakingPayoutViewModel> { locale in
             StakingPayoutViewModel(
-                cellViewModels: self.createCellViewModels(for: payoutsInfo, priceData: priceData, locale: locale),
+                cellViewModels: self.createCellViewModels(
+                    for: payoutsInfo,
+                    priceData: priceData,
+                    eraCompletionTime: eraCompletionTime,
+                    locale: locale
+                ),
+                eraComletionTime: eraCompletionTime,
                 bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts, locale: locale)
+            )
+        }
+    }
+
+    func timeLeftString(
+        at index: Int,
+        payoutsInfo: PayoutsInfo,
+        eraCompletionTime: TimeInterval?
+    ) -> LocalizableResource<NSAttributedString> {
+        LocalizableResource { locale in
+            let payout = payoutsInfo.payouts[index]
+            return self.timeLeftAttributedString(
+                activeEra: payoutsInfo.activeEra,
+                payoutEra: payout.era,
+                historyDepth: payoutsInfo.historyDepth,
+                eraCompletionTime: eraCompletionTime,
+                locale: locale
             )
         }
     }
@@ -31,13 +58,15 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     private func createCellViewModels(
         for payoutsInfo: PayoutsInfo,
         priceData: PriceData?,
+        eraCompletionTime: TimeInterval?,
         locale: Locale
     ) -> [StakingRewardHistoryCellViewModel] {
         payoutsInfo.payouts.map { payout in
-            let daysLeftText = daysLeftAttributedString(
+            let daysLeftText = timeLeftAttributedString(
                 activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
+                eraCompletionTime: eraCompletionTime,
                 locale: locale
             )
 
@@ -77,23 +106,33 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         return price
     }
 
-    private func daysLeftAttributedString(
+    private func timeLeftAttributedString(
         activeEra: EraIndex,
         payoutEra: EraIndex,
         historyDepth: UInt32,
+        eraCompletionTime: TimeInterval?,
         locale: Locale
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
         let daysLeft = Int(eraDistance) / chain.erasPerDay
-        let daysLeftText = R.string.localizable
-            .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+        let timeLeftText: String = {
+            if daysLeft == 0, let eraCompletionTime = eraCompletionTime {
+                if eraCompletionTime <= .leastNormalMagnitude {
+                    return R.string.localizable.stakingPayoutExpired(preferredLanguages: locale.rLanguages)
+                }
+                let formattedTime = (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
+                return R.string.localizable.commonTimeLeftFormat(formattedTime)
+            }
+            return R.string.localizable
+                .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+        }()
 
         let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
         let textColor: UIColor = daysLeft < historyDepthDays ?
             R.color.colorRed()! : R.color.colorLightGray()!
 
         let attrubutedString = NSAttributedString(
-            string: daysLeftText,
+            string: timeLeftText,
             attributes: [.foregroundColor: textColor]
         )
         return attrubutedString

@@ -3,7 +3,7 @@ import FearlessUtils
 import SoraFoundation
 
 protocol YourValidatorListViewModelFactoryProtocol {
-    func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorListSection]
+    func createViewModel(for model: YourValidatorsModel, locale: Locale) throws -> YourValidatorListViewModel
 }
 
 final class YourValidatorListViewModelFactory {
@@ -16,16 +16,30 @@ final class YourValidatorListViewModelFactory {
     }
 
     private func createValidatorViewModel(
-        for model: SelectedValidatorInfo
+        for model: SelectedValidatorInfo,
+        apyFormatter: NumberFormatter,
+        locale: Locale
     ) throws -> YourValidatorViewModel {
         let icon = try iconGenerator.generateFromAddress(model.address)
 
-        let amountTitle: LocalizableResource<String>? = {
-            guard case let .active(amount) = model.myNomination else {
+        let amountTitle: String? = {
+            guard case let .active(allocation) = model.myNomination else {
                 return nil
             }
 
-            return balanceViewModeFactory.amountFromValue(amount)
+            return balanceViewModeFactory.amountFromValue(allocation.amount).value(for: locale)
+        }()
+
+        let apy: String? = model.stakeInfo.map { info in
+            apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+        }
+
+        let shouldHaveWarning: Bool = {
+            guard case let .active(allocation) = model.myNomination else {
+                return false
+            }
+
+            return !allocation.isRewarded
         }()
 
         return YourValidatorViewModel(
@@ -33,75 +47,10 @@ final class YourValidatorListViewModelFactory {
             icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
-            shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false,
+            apy: apy,
+            shouldHaveWarning: shouldHaveWarning,
             shouldHaveError: model.hasSlashes
         )
-    }
-
-    private func createTitle(
-        for sectionStatus: YourValidatorListSectionStatus,
-        count: Int
-    ) -> LocalizableResource<String>? {
-        guard sectionStatus != .stakeNotAllocated else {
-            return nil
-        }
-
-        return LocalizableResource { locale in
-            let formatter = NumberFormatter.quantity.localizableResource()
-            let localizedFormatter = formatter.value(for: locale)
-            let countString = localizedFormatter.string(from: NSNumber(value: count)) ?? "0"
-
-            switch sectionStatus {
-            case .stakeAllocated:
-                return R.string.localizable.stakingYourActiveFormat(
-                    countString,
-                    preferredLanguages: locale.rLanguages
-                )
-
-            case .inactive:
-                return R.string.localizable.stakingYourInactiveFormat(
-                    countString,
-                    preferredLanguages: locale.rLanguages
-                )
-
-            case .pending:
-                let maxCountString = localizedFormatter
-                    .string(from: NSNumber(value: StakingConstants.maxTargets)) ?? "0"
-                return R.string.localizable.stakingYourPendingFormat(
-                    countString,
-                    maxCountString,
-                    preferredLanguages: locale.rLanguages
-                )
-
-            default:
-                return ""
-            }
-        }
-    }
-
-    private func createDescription(
-        for sectionStatus: YourValidatorListSectionStatus
-    ) -> LocalizableResource<String>? {
-        LocalizableResource { locale in
-            switch sectionStatus {
-            case .stakeAllocated:
-                return R.string.localizable.stakingYourAllocatedDescription(
-                    preferredLanguages: locale.rLanguages
-                )
-            case .stakeNotAllocated:
-                return R.string.localizable.stakingYourNotAllocatedDescription(
-                    preferredLanguages: locale.rLanguages
-                )
-            case .inactive:
-                return R.string.localizable.stakingYourInactiveDescription(
-                    preferredLanguages: locale.rLanguages
-                )
-            case .pending:
-                return R.string.localizable.stakingYourValidatorsChangingTitle(
-                    preferredLanguages: locale.rLanguages
-                )
-            }
-        }
     }
 
     private func createSectionsFromOrder(
@@ -110,23 +59,7 @@ final class YourValidatorListViewModelFactory {
     ) -> [YourValidatorListSection] {
         order.compactMap { status in
             if let validators = mapping[status], !validators.isEmpty {
-                let title: LocalizableResource<String>? = {
-                    let validatorsCount: Int = {
-                        if status == .stakeAllocated {
-                            return validators.count + (mapping[.stakeNotAllocated]?.count ?? 0)
-                        }
-                        return mapping[status]?.count ?? 0
-                    }()
-
-                    return createTitle(for: status, count: validatorsCount)
-                }()
-                let description = createDescription(for: status)
-                return YourValidatorListSection(
-                    status: status,
-                    title: title,
-                    description: description,
-                    validators: validators
-                )
+                return YourValidatorListSection(status: status, validators: validators)
             } else {
                 return nil
             }
@@ -135,35 +68,55 @@ final class YourValidatorListViewModelFactory {
 }
 
 extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryProtocol {
-    func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorListSection] {
-        let validatorsMapping = model.allValidators.reduce(
-            into: [YourValidatorListSectionStatus: [YourValidatorViewModel]]()) { result, item in
-            let sectionStatus: YourValidatorListSectionStatus = {
-                guard let modelStatus = item.myNomination else {
-                    return .pending
+    func createViewModel(for model: YourValidatorsModel, locale: Locale) throws -> YourValidatorListViewModel {
+        let apyFormatter = NumberFormatter.percent
+
+        let validatorsMapping = model.allValidators
+            .sorted(by: { $0.stakeReturn > $1.stakeReturn })
+            .reduce(
+                into: [YourValidatorListSectionStatus: [YourValidatorViewModel]]()) { result, item in
+                let sectionStatus: YourValidatorListSectionStatus = {
+                    guard let modelStatus = item.myNomination else {
+                        return .pending
+                    }
+
+                    switch modelStatus {
+                    case .active:
+                        return .stakeAllocated
+                    case .elected:
+                        return .stakeNotAllocated
+                    case .unelected:
+                        return .unelected
+                    }
+                }()
+
+                guard let viewModel = try? createValidatorViewModel(
+                    for: item,
+                    apyFormatter: apyFormatter,
+                    locale: locale
+                ) else {
+                    return
                 }
 
-                switch modelStatus {
-                case .active:
-                    return .stakeAllocated
-                case .elected:
-                    return .stakeNotAllocated
-                case .unelected:
-                    return .inactive
-                }
-            }()
-
-            guard let viewModel = try? createValidatorViewModel(for: item) else {
-                return
+                result[sectionStatus] = (result[sectionStatus] ?? []) + [viewModel]
             }
 
-            result[sectionStatus] = (result[sectionStatus] ?? []) + [viewModel]
-        }
-
         let sectionsOrder: [YourValidatorListSectionStatus] = [
-            .stakeAllocated, .pending, .stakeNotAllocated, .inactive
+            .stakeAllocated, .pending, .stakeNotAllocated, .unelected
         ]
 
-        return createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
+        let sections = createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
+        let hasValidatorsWithoutReward = model.allValidators.contains { validator in
+            if case let .active(allocation) = validator.myNomination {
+                return !allocation.isRewarded
+            } else {
+                return false
+            }
+        }
+
+        return YourValidatorListViewModel(
+            hasValidatorWithoutRewards: hasValidatorsWithoutReward,
+            sections: sections
+        )
     }
 }

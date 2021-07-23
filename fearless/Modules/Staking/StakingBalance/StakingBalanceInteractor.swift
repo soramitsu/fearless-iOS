@@ -14,7 +14,7 @@ final class StakingBalanceInteractor: AccountFetching {
     let priceProvider: AnySingleValueProvider<PriceData>
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-
+    let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -28,6 +28,7 @@ final class StakingBalanceInteractor: AccountFetching {
         localStorageRequestFactory: LocalStorageRequestFactoryProtocol,
         priceProvider: AnySingleValueProvider<PriceData>,
         providerFactory: SingleValueProviderFactoryProtocol,
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
@@ -39,6 +40,7 @@ final class StakingBalanceInteractor: AccountFetching {
         self.localStorageRequestFactory = localStorageRequestFactory
         self.priceProvider = priceProvider
         self.providerFactory = providerFactory
+        self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
     }
@@ -60,6 +62,21 @@ final class StakingBalanceInteractor: AccountFetching {
             self?.presenter.didReceive(stashResult: result)
         }
     }
+
+    func fetchEraCompletionTime() {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        operationWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(eraCountdownResult: .success(result))
+                } catch {
+                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
+                }
+            }
+        }
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
+    }
 }
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
@@ -67,5 +84,6 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
         subscribeToPriceChanges()
         subsribeToActiveEra()
         subscribeToStashControllerProvider()
+        fetchEraCompletionTime()
     }
 }

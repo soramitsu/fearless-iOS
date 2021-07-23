@@ -10,6 +10,8 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     let presenter: StakingRewardPayoutsPresenterProtocol
     private let localizationManager: LocalizationManagerProtocol?
     private var viewState: StakingRewardPayoutsViewState?
+    private let countdownTimer: CountdownTimerProtocol
+    private var eraCompletionTime: TimeInterval?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -19,16 +21,23 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 
     init(
         presenter: StakingRewardPayoutsPresenterProtocol,
-        localizationManager: LocalizationManagerProtocol?
+        localizationManager: LocalizationManagerProtocol?,
+        countdownTimer: CountdownTimerProtocol
     ) {
         self.presenter = presenter
         self.localizationManager = localizationManager
+        self.countdownTimer = countdownTimer
         super.init(nibName: nil, bundle: nil)
+        self.countdownTimer.delegate = self
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        countdownTimer.stop()
     }
 
     // MARK: Lifecycle -
@@ -83,14 +92,20 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
     func reload(with state: StakingRewardPayoutsViewState) {
         viewState = state
+        countdownTimer.stop()
 
         switch state {
         case let .loading(isLoading):
             isLoading ? didStartLoading() : didStopLoading()
         case let .payoutsList(viewModel):
-            let buttonTitle = viewModel.value(for: selectedLocale).bottomButtonTitle
+            let localizedViewModel = viewModel.value(for: selectedLocale)
+            let buttonTitle = localizedViewModel.bottomButtonTitle
             rootView.payoutButton.imageWithTitleView?.title = buttonTitle
             rootView.payoutButton.isHidden = false
+            if let time = localizedViewModel.eraComletionTime {
+                countdownTimer.start(with: time, runLoop: .main, mode: .common)
+            }
+
             rootView.tableView.reloadData()
         case .emptyList, .error:
             rootView.payoutButton.isHidden = true
@@ -190,5 +205,38 @@ extension StakingRewardPayoutsViewController: EmptyStateDelegate {
 extension StakingRewardPayoutsViewController: ErrorStateViewDelegate {
     func didRetry(errorView _: ErrorStateView) {
         presenter.reload()
+    }
+}
+
+extension StakingRewardPayoutsViewController: CountdownTimerDelegate {
+    func updateView() {
+        guard let indexPathsForVisibleRows = rootView.tableView.indexPathsForVisibleRows else { return }
+
+        let historyCells = indexPathsForVisibleRows
+            .compactMap { rootView.tableView.cellForRow(at: $0) as? StakingRewardHistoryTableCell }
+        guard historyCells.count == indexPathsForVisibleRows.count else { return }
+
+        for (index, cell) in historyCells.enumerated() {
+            guard let timeLeftText = presenter.getTimeLeftString(
+                at: indexPathsForVisibleRows[index].row,
+                eraCompletionTime: eraCompletionTime
+            ) else { return }
+            cell.bind(timeLeftText: timeLeftText.value(for: selectedLocale))
+        }
+    }
+
+    func didStart(with remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didStop(with _: TimeInterval) {
+        eraCompletionTime = nil
+        updateView()
     }
 }

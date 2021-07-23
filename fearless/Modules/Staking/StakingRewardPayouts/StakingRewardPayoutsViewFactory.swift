@@ -119,7 +119,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let payoutsViewModelFactory = StakingPayoutViewModelFactory(
             chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            timeFormatter: TotalTimeFormatter()
         )
         let presenter = StakingRewardPayoutsPresenter(
             chain: chain,
@@ -127,16 +128,33 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let view = StakingRewardPayoutsViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            countdownTimer: CountdownTimer()
         )
 
-        let providerFactory = SingleValueProviderFactory.shared
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+        guard let engine = WebSocketService.shared.connection else { return nil }
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let eraCountdownOperationFactory = EraCountdownOperationFactory(
+            runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
+            engine: engine
+        )
 
         let interactor = StakingRewardPayoutsInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
             payoutService: payoutService,
-            priceProvider: priceProvider,
-            operationManager: operationManager
+            assetId: assetId,
+            chain: chain,
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
+            operationManager: operationManager,
+            runtimeService: runtimeService,
+            logger: Logger.shared
         )
         let wireframe = StakingRewardPayoutsWireframe()
 

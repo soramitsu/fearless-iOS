@@ -40,10 +40,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let governanceController = createGovernanceController(for: localizationManager) else {
-            return nil
-        }
-
         guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
             return nil
         }
@@ -57,7 +53,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             walletController,
             crowdloanController,
             stakingController,
-            governanceController,
             settingsController
         ]
 
@@ -170,68 +165,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let navigationController = FearlessNavigationController(rootViewController: viewController)
 
         return navigationController
-    }
-
-    static func createGovernanceController(
-        for localizationManager: LocalizationManagerProtocol
-    ) -> UIViewController? {
-        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
-            return nil
-        }
-
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarGovernanceTitle(preferredLanguages: locale.rLanguages)
-        }
-
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let icon = R.image.iconTabGov()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
-            title: currentTitle,
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
-        )
-
-        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            viewController?.tabBarItem.title = currentTitle
-        }
-
-        return viewController
-    }
-
-    static func createPolkaswapController(
-        for localizationManager: LocalizationManagerProtocol
-    ) -> UIViewController? {
-        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
-            return nil
-        }
-
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarPolkaswapTitle(preferredLanguages: locale.rLanguages)
-        }
-
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let icon = R.image.iconTabPolkaswap()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
-            title: currentTitle,
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
-        )
-
-        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            viewController?.tabBarItem.title = currentTitle
-        }
-
-        return viewController
     }
 
     static func createProfileController(

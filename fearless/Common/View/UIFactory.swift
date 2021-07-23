@@ -36,6 +36,7 @@ protocol UIFactoryProtocol {
     func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
     func createMultilinedTriangularedView() -> MultilineTriangularedView
     func createSeparatorView() -> UIView
+    func createBorderedContainerView() -> BorderedContainerView
     func createActionsAccessoryView(
         for actions: [ViewSelectorAction],
         doneAction: ViewSelectorAction,
@@ -52,12 +53,15 @@ protocol UIFactoryProtocol {
     ) -> UIToolbar
 
     func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView
+    func createIdentityView(isSingleTitle: Bool) -> DetailsTriangularedView
 
     func createNetworkFeeView() -> NetworkFeeView
 
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
 
     func createTitleValueView() -> TitleValueView
+
+    func createIconTitleValueView() -> IconTitleValueView
 
     func createTitleValueSelectionControl() -> TitleValueSelectionControl
 
@@ -66,6 +70,8 @@ protocol UIFactoryProtocol {
     func createLearnMoreView() -> LearnMoreView
 
     func createRewardSelectionView() -> RewardSelectionView
+
+    func createInfoIndicatingView() -> ImageWithTitleView
 }
 
 extension UIFactoryProtocol {
@@ -184,6 +190,14 @@ final class UIFactory: UIFactoryProtocol {
     func createSeparatorView() -> UIView {
         let view = UIView()
         view.backgroundColor = R.color.colorDarkGray()!
+        return view
+    }
+
+    func createBorderedContainerView() -> BorderedContainerView {
+        let view = BorderedContainerView()
+        view.borderType = .bottom
+        view.strokeWidth = UIConstants.separatorHeight
+        view.strokeColor = R.color.colorDarkGray()!
         return view
     }
 
@@ -388,6 +402,40 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
+    func createIdentityView(isSingleTitle: Bool) -> DetailsTriangularedView {
+        let view = DetailsTriangularedView()
+
+        view.titleLabel.textColor = R.color.colorWhite()!
+        view.titleLabel.font = UIFont.p1Paragraph
+
+        if isSingleTitle {
+            view.layout = .singleTitle
+            view.titleLabel.lineBreakMode = .byTruncatingMiddle
+        } else {
+            view.layout = .largeIconTitleSubtitle
+
+            view.subtitleLabel?.textColor = R.color.colorLightGray()!
+            view.subtitleLabel?.font = UIFont.p2Paragraph
+
+            view.titleLabel.lineBreakMode = .byTruncatingTail
+            view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        }
+
+        view.actionImage = R.image.iconMore()
+
+        view.iconRadius = 16.0
+
+        view.fillColor = .clear
+        view.highlightedFillColor = R.color.colorHighlightedPink()!
+        view.strokeColor = R.color.colorStrokeGray()!
+        view.highlightedStrokeColor = R.color.colorStrokeGray()!
+        view.borderWidth = 1.0
+
+        view.contentInsets = UIEdgeInsets(top: 8.0, left: 11.0, bottom: 8.0, right: 16.0)
+
+        return view
+    }
+
     func createNetworkFeeView() -> NetworkFeeView {
         NetworkFeeView()
     }
@@ -398,6 +446,10 @@ final class UIFactory: UIFactoryProtocol {
 
     func createTitleValueView() -> TitleValueView {
         TitleValueView()
+    }
+
+    func createIconTitleValueView() -> IconTitleValueView {
+        IconTitleValueView()
     }
 
     func createHintView() -> HintView {
@@ -440,6 +492,16 @@ final class UIFactory: UIFactoryProtocol {
         view.iconView.image = R.image.listCheckmarkIcon()!
         view.isSelected = false
 
+        return view
+    }
+
+    func createInfoIndicatingView() -> ImageWithTitleView {
+        let view = ImageWithTitleView()
+        view.titleColor = R.color.colorLightGray()
+        view.titleFont = .p1Paragraph
+        view.layoutType = .horizontalLabelFirst
+        view.spacingBetweenLabelAndIcon = 5.0
+        view.iconImage = R.image.iconInfoFilled()
         return view
     }
 }

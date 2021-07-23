@@ -4,13 +4,16 @@ import SoraFoundation
 struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let timeFormatter: TimeFormatterProtocol
 
     init(
         chain: Chain,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        timeFormatter: TimeFormatterProtocol
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.timeFormatter = timeFormatter
     }
 
     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
@@ -115,7 +118,6 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     ) -> StakingBalanceUnbondingWidgetViewModel {
         let viewModels = createUnbondingsViewModels(
             from: balanceData,
-            priceData: balanceData.priceData,
             precision: precision,
             locale: locale
         )
@@ -130,7 +132,6 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
 
     func createUnbondingsViewModels(
         from balanceData: StakingBalanceData,
-        priceData: PriceData?,
         precision: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
@@ -144,10 +145,11 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                         precision: precision
                     ) ?? .zero
                 let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
-                let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
-                let daysLeft = daysLeftAttributedString(
+                let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
+                let timeLeft = timeLeftAttributedString(
                     activeEra: balanceData.activeEra,
                     unbondingEra: unbondingItem.era,
+                    eraCompletionTime: balanceData.eraCompletionTime,
                     locale: locale
                 )
 
@@ -174,18 +176,24 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         return price
     }
 
-    private func daysLeftAttributedString(
+    private func timeLeftAttributedString(
         activeEra: EraIndex,
         unbondingEra: EraIndex,
+        eraCompletionTime: TimeInterval?,
         locale: Locale
     ) -> NSAttributedString {
         let eraDistance = unbondingEra - activeEra
         let daysLeft = Int(eraDistance) / chain.erasPerDay
-        let daysLeftText = R.string.localizable
-            .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+        let timeLeftText: String = {
+            if daysLeft == 0, let eraCompletionTime = eraCompletionTime {
+                return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
+            }
+            return R.string.localizable
+                .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+        }()
 
         let attrubutedString = NSAttributedString(
-            string: daysLeftText,
+            string: timeLeftText,
             attributes: [.foregroundColor: R.color.colorLightGray()!]
         )
         return attrubutedString

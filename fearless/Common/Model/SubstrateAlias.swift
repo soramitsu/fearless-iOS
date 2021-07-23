@@ -7,6 +7,9 @@ typealias TrieIndex = UInt32
 typealias BlockNumber = UInt32
 typealias BlockTime = UInt64
 typealias LeasingPeriod = UInt32
+typealias Slot = UInt64
+typealias SessionIndex = UInt32
+typealias Moment = UInt32
 
 extension AccountId {
     static func matchHex(_ value: String) -> AccountId? {

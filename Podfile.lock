@@ -51,24 +51,24 @@ PODS:
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
-  - SoraFoundation (0.10.0):
-    - SoraFoundation/DateProcessing (= 0.10.0)
-    - SoraFoundation/Localization (= 0.10.0)
-    - SoraFoundation/NotificationHandlers (= 0.10.0)
-    - SoraFoundation/NumberProcessing (= 0.10.0)
-    - SoraFoundation/QueryProcessing (= 0.10.0)
-    - SoraFoundation/Timer (= 0.10.0)
-    - SoraFoundation/ViewModel (= 0.10.0)
-  - SoraFoundation/DateProcessing (0.10.0):
+  - SoraFoundation (0.10.2):
+    - SoraFoundation/DateProcessing (= 0.10.2)
+    - SoraFoundation/Localization (= 0.10.2)
+    - SoraFoundation/NotificationHandlers (= 0.10.2)
+    - SoraFoundation/NumberProcessing (= 0.10.2)
+    - SoraFoundation/QueryProcessing (= 0.10.2)
+    - SoraFoundation/Timer (= 0.10.2)
+    - SoraFoundation/ViewModel (= 0.10.2)
+  - SoraFoundation/DateProcessing (0.10.2):
     - SoraFoundation/Localization
-  - SoraFoundation/Localization (0.10.0):
+  - SoraFoundation/Localization (0.10.2):
     - SoraKeystore (~> 0.1.5)
-  - SoraFoundation/NotificationHandlers (0.10.0)
-  - SoraFoundation/NumberProcessing (0.10.0)
-  - SoraFoundation/QueryProcessing (0.10.0)
-  - SoraFoundation/Timer (0.10.0):
+  - SoraFoundation/NotificationHandlers (0.10.2)
+  - SoraFoundation/NumberProcessing (0.10.2)
+  - SoraFoundation/QueryProcessing (0.10.2)
+  - SoraFoundation/Timer (0.10.2):
     - SoraFoundation/NotificationHandlers
-  - SoraFoundation/ViewModel (0.10.0)
+  - SoraFoundation/ViewModel (0.10.2)
   - SoraKeystore (0.1.5)
   - SoraUI (1.10.2):
     - SoraUI/AdaptiveDesign (= 1.10.2)
@@ -107,7 +107,6 @@ PODS:
   - SVGKit (2.1.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftGifOrigin (1.7.0)
   - SwiftLint (0.43.1)
   - SwiftyBeaver (1.9.3)
   - TweetNacl (1.0.2)
@@ -123,14 +122,13 @@ DEPENDENCIES:
   - ReachabilitySwift
   - RobinHood (~> 2.6.0)
   - SnapKit (~> 5.0.0)
-  - SoraFoundation (~> 0.10.0)
+  - SoraFoundation (~> 0.10.2)
   - SoraKeystore
   - SoraUI (~> 1.10.1)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
   - SwiftFormat/CLI (~> 0.47.13)
-  - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
   - SwiftyBeaver
 
@@ -155,7 +153,6 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SwiftFormat
-    - SwiftGifOrigin
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
@@ -199,19 +196,18 @@ SPEC CHECKSUMS:
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
-  SoraFoundation: 65987e30345860c4d95c01a2c2fea823ddc8f51d
+  SoraFoundation: 6a20509e5c997b08ecc60fbdeb37e4dabeff0211
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
   SoraUI: 71fd2befbc39df2f903888a4096fa66174637826
   Sourcery: db66600e8b285c427701821598d07cf3c7e6c476
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
   SwiftyBeaver: 2e8acd6fc90c6d0a27055867a290794926d57c02
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: fca4f18cad8f2e27e0224e4dc187cfc65d580580
+PODFILE CHECKSUM: ba368ead61b995cd319fbee5a8035c7d588c50a6
 
 COCOAPODS: 1.10.1
