@@ -260,7 +260,7 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
 
         return CompoundOperationWrapper(
             targetOperation: wrapperOperation,
-            dependencies: [nonceOperation, codingFactoryOperation, builderOperation] + wrapperOperation.dependencies
+            dependencies: [nonceOperation, codingFactoryOperation, builderOperation] + feeOperationList
         )
     }
 
@@ -327,7 +327,7 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
 
         return CompoundOperationWrapper(
             targetOperation: wrapperOperation,
-            dependencies: [nonceOperation, codingFactoryOperation, builderOperation] + wrapperOperation.dependencies
+            dependencies: [nonceOperation, codingFactoryOperation, builderOperation] + submitOperationList
         )
     }
 }

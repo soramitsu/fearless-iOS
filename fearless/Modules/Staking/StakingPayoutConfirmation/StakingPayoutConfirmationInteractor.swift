@@ -162,13 +162,9 @@ final class StakingPayoutConfirmationInteractor {
     }
 
     private func createFeeOperationWrapper() -> CompoundOperationWrapper<Decimal>? {
-        guard let batches = batches else { return nil }
+        guard let batches = batches, !batches.isEmpty else { return nil }
 
-        let feeBatches: [Batch] = batches.enumerated().compactMap {
-            if $0 == 0 || $0 == batches.count - 1 {
-                return $1
-            } else { return nil }
-        }
+        let feeBatches = batches.count > 1 ? [batches[0], batches[batches.count - 1]] : [batches[0]]
 
         guard let feeClosure = createExtrinsicBuilderClosure(for: feeBatches) else { return nil }
 
@@ -194,7 +190,7 @@ final class StakingPayoutConfirmationInteractor {
                 }
             }
 
-            return (fees.first ?? 0.0) + (fees.last ?? 0.0) * Decimal(batches.count - 1)
+            return (fees.first ?? 0.0) * Decimal(batches.count - 1) + (fees.last ?? 0.0)
         }
 
         mergeOperation.addDependency(feeOperation.targetOperation)
@@ -306,12 +302,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
             case let .success(extrinsicResultList):
                 do {
                     let txHashes: [String] = try extrinsicResultList.map { result in
-                        switch result {
-                        case let .success(txHash):
-                            return txHash
-                        case let .failure(error):
-                            throw error
-                        }
+                        try result.get()
                     }
 
                     self?.presenter.didCompletePayout(txHashes: txHashes)
