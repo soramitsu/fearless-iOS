@@ -441,10 +441,20 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
                         let results = try operationResult.get()
                         completionClosure(results)
                     } catch {
-                        completionClosure([.failure(error)])
+                        let results: [SubmitExtrinsicResult] = Array(
+                            repeating: .failure(error),
+                            count: numberOfExtrinsics
+                        )
+
+                        completionClosure(results)
                     }
                 } else {
-                    completionClosure([.failure(BaseOperationError.parentOperationCancelled)])
+                    let results: [SubmitExtrinsicResult] = Array(
+                        repeating: .failure(BaseOperationError.parentOperationCancelled),
+                        count: numberOfExtrinsics
+                    )
+
+                    completionClosure(results)
                 }
             }
         }

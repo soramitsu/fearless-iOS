@@ -164,7 +164,9 @@ final class StakingPayoutConfirmationInteractor {
     private func createFeeOperationWrapper() -> CompoundOperationWrapper<Decimal>? {
         guard let batches = batches, !batches.isEmpty else { return nil }
 
-        let feeBatches = batches.count > 1 ? [batches[0], batches[batches.count - 1]] : [batches[0]]
+        let feeBatches = batches.count > 1 ?
+            [batches[0], batches[batches.count - 1]] :
+            [batches[0]]
 
         guard let feeClosure = createExtrinsicBuilderClosure(for: feeBatches) else { return nil }
 
@@ -286,7 +288,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     }
 
     func submitPayout() {
-        guard let batches = batches else { return }
+        guard let batches = batches, !batches.isEmpty else { return }
 
         presenter.didStartPayout()
 
