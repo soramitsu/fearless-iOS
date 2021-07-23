@@ -124,7 +124,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 do {
                     let info = try operation.extractNoCancellableResultData()
                     self?.presenter.didReceive(eraStakersInfo: info)
-                    self?.fetchEraCompletionTime(targerEra: info.era)
+                    self?.fetchEraCompletionTime()
                 } catch {
                     self?.presenter.didReceive(calculatorError: error)
                 }
@@ -151,8 +151,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 
-    func fetchEraCompletionTime(targerEra: EraIndex) {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(targetEra: targerEra)
+    func fetchEraCompletionTime() {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {

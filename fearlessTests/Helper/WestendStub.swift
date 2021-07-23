@@ -136,7 +136,7 @@ struct WestendStub {
                 address: electedValidator.address,
                 identity: electedValidator.identity,
                 stakeInfo: validatorStakeInfo,
-                myNomination: .active(amount: 10.0)
+                myNomination: .active(allocation: ValidatorTokenAllocation(amount: 10.0, isRewarded: true))
             )
         }
     }

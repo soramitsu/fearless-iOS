@@ -1,6 +1,7 @@
 import Foundation
 
 struct EraCountdown {
+    let activeEra: EraIndex
     let eraLength: SessionIndex
     let sessionLength: SessionIndex
     let eraStartSessionIndex: SessionIndex
@@ -22,7 +23,7 @@ struct EraCountdown {
         let result = eraRemained * UInt64(blockCreationTime)
 
         let datesTimeinterval = Date().timeIntervalSince(createdAtDate)
-        let remainedTime = TimeInterval(result) - datesTimeinterval
-        return remainedTime.seconds
+        let remainedTime = TimeInterval(result).seconds - datesTimeinterval
+        return remainedTime
     }
 }

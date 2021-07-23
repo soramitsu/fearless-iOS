@@ -37,9 +37,10 @@ class StakingRewardPayoutsTests: XCTestCase {
         let viewStateIsErrorWhenPresenterRecievedError = XCTestExpectation()
 
         stub(eraCountdownOperationFactory) { stub in
-            when(stub).fetchCountdownOperationWrapper(targetEra: any()).then { _ in
+            when(stub).fetchCountdownOperationWrapper().then { _ in
                 CompoundOperationWrapper.createWithResult(
                     EraCountdown(
+                        activeEra: 0,
                         eraLength: 0,
                         sessionLength: 0,
                         eraStartSessionIndex: 0,

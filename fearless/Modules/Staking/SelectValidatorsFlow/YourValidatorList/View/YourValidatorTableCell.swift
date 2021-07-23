@@ -13,6 +13,8 @@ class YourValidatorTableCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()!
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         return label
     }()
 
@@ -20,6 +22,8 @@ class YourValidatorTableCell: UITableViewCell {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorLightGray()
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         return label
     }()
 
@@ -42,9 +46,16 @@ class YourValidatorTableCell: UITableViewCell {
     let infoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconInfo()
-        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        imageView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         return imageView
+    }()
+
+    let apyLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorWhite()
+        label.font = .p2Paragraph
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        return label
     }()
 
     let mainStackView: UIStackView = {
@@ -58,7 +69,6 @@ class YourValidatorTableCell: UITableViewCell {
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.spacing = 12
         return stackView
     }()
 
@@ -71,8 +81,8 @@ class YourValidatorTableCell: UITableViewCell {
     let iconsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.spacing = 10
         stackView.alignment = .center
+        stackView.spacing = 9.0
         return stackView
     }()
 
@@ -121,7 +131,16 @@ class YourValidatorTableCell: UITableViewCell {
 
         iconsStackView.addArrangedSubview(warningImageView)
         iconsStackView.addArrangedSubview(errorImageView)
-        iconsStackView.addArrangedSubview(infoImageView)
+        iconsStackView.addArrangedSubview(apyLabel)
+
+        mainStackView.addArrangedSubview(infoImageView)
+        infoImageView.snp.makeConstraints { make in
+            make.size.equalTo(24)
+        }
+
+        mainStackView.setCustomSpacing(12, after: iconView)
+        mainStackView.setCustomSpacing(8.0, after: labelsStackView)
+        mainStackView.setCustomSpacing(13.0, after: iconsStackView)
     }
 
     func bind(viewModel: YourValidatorViewModel, for locale: Locale) {
@@ -133,11 +152,9 @@ class YourValidatorTableCell: UITableViewCell {
             titleLabel.lineBreakMode = .byTruncatingMiddle
         }
 
-        let amountTitle = viewModel.amount?.value(for: locale)
-
-        if let details = amountTitle {
+        if let amount = viewModel.amount {
             detailsLabel.text = R.string.localizable.stakingYourNominatedFormat(
-                details,
+                amount,
                 preferredLanguages: locale.rLanguages
             )
         } else {
@@ -148,5 +165,13 @@ class YourValidatorTableCell: UITableViewCell {
 
         warningImageView.isHidden = !viewModel.shouldHaveWarning
         errorImageView.isHidden = !viewModel.shouldHaveError
+
+        if let apy = viewModel.apy {
+            apyLabel.isHidden = false
+            apyLabel.text = apy
+        } else {
+            apyLabel.isHidden = true
+            apyLabel.text = nil
+        }
     }
 }

@@ -36,6 +36,7 @@ protocol UIFactoryProtocol {
     func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
     func createMultilinedTriangularedView() -> MultilineTriangularedView
     func createSeparatorView() -> UIView
+    func createBorderedContainerView() -> BorderedContainerView
     func createActionsAccessoryView(
         for actions: [ViewSelectorAction],
         doneAction: ViewSelectorAction,
@@ -58,6 +59,8 @@ protocol UIFactoryProtocol {
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
 
     func createTitleValueView() -> TitleValueView
+
+    func createIconTitleValueView() -> IconTitleValueView
 
     func createTitleValueSelectionControl() -> TitleValueSelectionControl
 
@@ -184,6 +187,14 @@ final class UIFactory: UIFactoryProtocol {
     func createSeparatorView() -> UIView {
         let view = UIView()
         view.backgroundColor = R.color.colorDarkGray()!
+        return view
+    }
+
+    func createBorderedContainerView() -> BorderedContainerView {
+        let view = BorderedContainerView()
+        view.borderType = .bottom
+        view.strokeWidth = UIConstants.separatorHeight
+        view.strokeColor = R.color.colorDarkGray()!
         return view
     }
 
@@ -398,6 +409,10 @@ final class UIFactory: UIFactoryProtocol {
 
     func createTitleValueView() -> TitleValueView {
         TitleValueView()
+    }
+
+    func createIconTitleValueView() -> IconTitleValueView {
+        IconTitleValueView()
     }
 
     func createHintView() -> HintView {

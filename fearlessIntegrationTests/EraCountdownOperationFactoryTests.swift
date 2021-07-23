@@ -26,7 +26,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
 
         let timeExpectation = XCTestExpectation()
-        let operationWrapper = factory.fetchCountdownOperationWrapper(targetEra: 3947)
+        let operationWrapper = factory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = {
             do {
                 let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
