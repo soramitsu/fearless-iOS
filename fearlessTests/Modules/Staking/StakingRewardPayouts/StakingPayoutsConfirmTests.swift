@@ -1,5 +1,6 @@
 import XCTest
 @testable import fearless
+import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
@@ -9,8 +10,8 @@ class StakingPayoutsConfirmTests: XCTestCase {
     func testSetupAndSendExtrinsic() throws {
         // given
 
-        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
-        let accountId = try! SS58AddressFactory().accountId(from: address)
+        let address = "5E9W1jho79KwmnwxnGjGaBEyWw9XFjhu3upEaDtwWSvVgbou"
+        let validatorAccountId = try! SS58AddressFactory().accountId(from: address)
 
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
@@ -26,6 +27,9 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
+        let assetId = WalletAssetId(
+            rawValue: asset.identifier
+        )!
 
         let view = MockStakingPayoutConfirmationViewProtocol()
         let wireframe = MockStakingPayoutConfirmationWireframeProtocol()
@@ -37,16 +41,16 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let viewModelFactory = StakingPayoutConfirmViewModelFactory(asset: asset,
                                                                     balanceViewModelFactory: balanceViewModelFactory)
 
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingPayoutConfirmationPresenter(balanceViewModelFactory: balanceViewModelFactory,
                                                            payoutConfirmViewModelFactory: viewModelFactory,
+                                                           dataValidatingFactory: dataValidatingFactory,
                                                            chain: chain,
                                                            asset: asset,
                                                            logger: nil)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
         let signer = try DummySigner(cryptoType: .sr25519)
-        let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
-        let priceProvider = SingleValueProviderStub(item: WestendStub.price)
 
         let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
 
@@ -58,21 +62,24 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageTestFacade().createRepository()
 
+        let extrinsicOperationFactory = ExtrinsicOperationFactoryStub()
+
         let interactor = StakingPayoutConfirmationInteractor(
-            providerFactory: providerFactory,
+            singleValueProviderFactory: providerFactory,
             substrateProviderFactory: substrateProviderFactory,
+            extrinsicOperationFactory: extrinsicOperationFactory,
             extrinsicService: extrinsicService,
             runtimeService: runtimeCodingService,
             signer: signer,
-            balanceProvider: AnyDataProvider(balanceProvider),
-            priceProvider: AnySingleValueProvider(priceProvider),
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: OperationManager(),
-            settings: settings,
-            payouts: [PayoutInfo(era: 1000, validator: accountId, reward: 100.0, identity: nil)],
-            chain: chain
+            logger: Logger.shared,
+            selectedAccount: settings.selectedAccount!,
+            payouts: [PayoutInfo(era: 1000, validator: validatorAccountId, reward: 1, identity: nil)],
+            chain: chain,
+            assetId: assetId
         )
-        
+
         presenter.view = view
         presenter.wireframe = wireframe
         presenter.interactor = interactor
@@ -96,6 +103,8 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
+
+            when(stub).localizationManager.get.then { LocalizationManager.shared }
         }
 
         let completionExpectation = XCTestExpectation()
@@ -104,6 +113,12 @@ class StakingPayoutsConfirmTests: XCTestCase {
             when(stub).complete(from: any()).then { _ in
                 completionExpectation.fulfill()
             }
+
+            when(stub).present(
+                message: any(),
+                title: any(),
+                closeAction: any(),
+                from: any()).thenDoNothing()
         }
 
         // when

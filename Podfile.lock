@@ -13,7 +13,7 @@ PODS:
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
   - Cuckoo/Swift (1.5.0)
-  - FearlessUtils (0.11.0):
+  - FearlessUtils (0.11.1):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.8.0)
     - IrohaCrypto/Scrypt (~> 0.8.0)
@@ -115,7 +115,7 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `33c7eec1db947eeae8e3b7feb217c60199599bd7`)
   - Cuckoo
-  - FearlessUtils (~> 0.11.0)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `f741750a40e57d810762cb568cb22ce9515fa152`)
   - FireMock
   - Kingfisher
   - R.swift
@@ -137,7 +137,6 @@ SPEC REPOS:
     - BigInt
     - CocoaLumberjack
     - Cuckoo
-    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - Kingfisher
@@ -162,6 +161,9 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: f741750a40e57d810762cb568cb22ce9515fa152
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -173,6 +175,9 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: f741750a40e57d810762cb568cb22ce9515fa152
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -185,7 +190,7 @@ SPEC CHECKSUMS:
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
   CommonWallet: 216009b2274247ec0a7f80b57f1f4d1ffbdd0a72
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
-  FearlessUtils: 9a5933f8b1a519bfc6baf21d6d23a2be92d638aa
+  FearlessUtils: 760f5884fb83e132d9e6751e216d0bb6cee2b27a
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: bef5e0fdbbfe587657d5de9a8961d7cb1f995a7e
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
@@ -208,6 +213,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: ba368ead61b995cd319fbee5a8035c7d588c50a6
+PODFILE CHECKSUM: 02148a80cde0d2b6e851e5eecd5177a0c317fa09
 
 COCOAPODS: 1.10.1

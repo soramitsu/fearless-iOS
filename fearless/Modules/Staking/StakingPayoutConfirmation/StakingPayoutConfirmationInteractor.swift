@@ -3,73 +3,75 @@ import SoraKeystore
 import CommonWallet
 import RobinHood
 import IrohaCrypto
+import BigInt
 
 final class StakingPayoutConfirmationInteractor {
-    private let providerFactory: SingleValueProviderFactoryProtocol
-    private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    typealias Batch = [PayoutInfo]
+    internal let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    internal let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+
+    private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let signer: SigningWrapperProtocol
-    private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
-    private let priceProvider: AnySingleValueProvider<PriceData>
+
     private let accountRepository: AnyDataProviderRepository<AccountItem>
-    private let settings: SettingsManagerProtocol
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol?
+    private let selectedAccount: AccountItem
     private let payouts: [PayoutInfo]
     private let chain: Chain
+    private let assetId: WalletAssetId
 
-    var stashControllerProvider: StreamableProvider<StashItem>?
-    var payeeProvider: AnyDataProvider<DecodedPayee>?
+    private var batches: [Batch]?
+
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var stashItemProvider: StreamableProvider<StashItem>?
+    private var stashControllerProvider: StreamableProvider<StashItem>?
+    private var payeeProvider: AnyDataProvider<DecodedPayee>?
+
+    private var stashItem: StashItem?
 
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol!
 
     init(
-        providerFactory: SingleValueProviderFactoryProtocol,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         signer: SigningWrapperProtocol,
-        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-        priceProvider: AnySingleValueProvider<PriceData>,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
-        settings: SettingsManagerProtocol,
         logger: LoggerProtocol? = nil,
+        selectedAccount: AccountItem,
         payouts: [PayoutInfo],
-        chain: Chain
+        chain: Chain,
+        assetId: WalletAssetId
     ) {
-        self.providerFactory = providerFactory
+        self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
+        self.extrinsicOperationFactory = extrinsicOperationFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
         self.signer = signer
-        self.balanceProvider = balanceProvider
-        self.priceProvider = priceProvider
         self.accountRepository = accountRepository
         self.operationManager = operationManager
-        self.settings = settings
         self.logger = logger
+        self.selectedAccount = selectedAccount
         self.payouts = payouts
         self.chain = chain
+        self.assetId = assetId
     }
 
     // MARK: - Private functions
 
-    private func handle(stashItem: StashItem?) {
-        if let stashItem = stashItem {
-            clearPayeeProvider()
-            subscribeToPayee(from: stashItem)
-        }
-
-        presenter?.didReceive(stashItem: stashItem)
-    }
-
-    private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
+    private func createExtrinsicBuilderClosure(for batches: [Batch]) -> ExtrinsicBuilderIndexedClosure? {
         let callFactory = SubstrateCallFactory()
 
-        let closure: ExtrinsicBuilderClosure = { builder in
-            try self.payouts.forEach { payout in
+        let closure: ExtrinsicBuilderIndexedClosure = { builder, index in
+            try batches[index].forEach { payout in
                 let payoutCall = try callFactory.payout(
                     validatorId: payout.validator,
                     era: payout.era
@@ -84,237 +86,302 @@ final class StakingPayoutConfirmationInteractor {
         return closure
     }
 
-    private func subscribeToAccountChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            let balanceItem = changes.reduceToLastChange()?.item?.data
-            self?.presenter.didReceive(balance: balanceItem)
-        }
+    private func createExtrinsicBuilderClosure(for batch: Batch) -> ExtrinsicBuilderClosure? {
+        let callFactory = SubstrateCallFactory()
 
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(balanceError: error)
-            return
-        }
+        let closure: ExtrinsicBuilderClosure = { builder in
+            try batch.forEach { payout in
+                let payoutCall = try callFactory.payout(
+                    validatorId: payout.validator,
+                    era: payout.era
+                )
 
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        balanceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    private func subscribeToPriceChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(price: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didReceive(price: item)
-                    case .delete:
-                        self?.presenter.didReceive(price: nil)
-                    }
-                }
+                _ = try builder.adding(call: payoutCall)
             }
+
+            return builder
         }
 
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(priceError: error)
-            return
-        }
+        return closure
+    }
 
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
+    private func provideRewardAmount() {
+        let rewardAmount = payouts.map(\.reward).reduce(0, +)
 
-        priceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
+        presenter.didRecieve(
+            account: selectedAccount,
+            rewardAmount: rewardAmount
         )
     }
 
-    private func subscribeToStashControllerProvider() {
-        guard stashControllerProvider == nil, let selectedAccount = settings.selectedAccount else {
-            return
-        }
-
-        let provider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
-
-        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
-            let stashItem = changes.reduceToLastChange()
-            self?.handle(stashItem: stashItem)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceive(stashItemError: error)
-            return
-        }
-
-        provider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: changesClosure,
-            failing: failureClosure,
-            options: StreamableProviderObserverOptions.substrateSource()
-        )
-
-        stashControllerProvider = provider
-    }
-
-    func subscribeToPayee(from stashItem: StashItem) {
-        guard payeeProvider == nil else {
-            return
-        }
-
-        guard let payeeProvider = try? providerFactory
-            .getPayee(for: stashItem.stash, runtimeService: runtimeService)
-        else {
-            logger?.error("Can't create payee provider")
-            return
-        }
-
-        self.payeeProvider = payeeProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPayee>]) in
-            if let rewardDestination = changes.reduceToLastChange() {
-                self?.handle(rewardDestinationArg: rewardDestination.item, stashItem: stashItem)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(rewardDestinationError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-
-        payeeProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    private func handle(rewardDestinationArg: RewardDestinationArg?, stashItem: StashItem) {
-        guard let rewardDestinationArg = rewardDestinationArg else {
-            presenter.didReceive(rewardDestination: nil)
+    private func provideRewardDestination(with payee: RewardDestinationArg) {
+        guard let stashItem = stashItem else {
+            presenter.didReceiveRewardDestination(result: .failure(CommonError.undefined))
             return
         }
 
         do {
             let rewardDestination = try RewardDestination(
-                payee: rewardDestinationArg,
+                payee: payee,
                 stashItem: stashItem,
                 chain: chain
             )
 
             switch rewardDestination {
             case .restake:
-                presenter.didReceive(rewardDestination: .restake)
-            case let .payout(payoutAddress):
-                providerRewardDestination(for: payoutAddress)
-            }
+                presenter.didReceiveRewardDestination(result: .success(.restake))
 
+            case let .payout(payoutAddress):
+                let queryOperation = accountRepository
+                    .fetchOperation(by: payoutAddress, options: RepositoryFetchOptions())
+
+                queryOperation.completionBlock = {
+                    DispatchQueue.main.async {
+                        do {
+                            let account = try queryOperation.extractNoCancellableResultData()
+
+                            let displayAddress = DisplayAddress(
+                                address: payoutAddress,
+                                username: account?.username ?? ""
+                            )
+
+                            let result: RewardDestination = .payout(account: displayAddress)
+
+                            self.presenter.didReceiveRewardDestination(result: .success(result))
+                        } catch {
+                            self.presenter.didReceiveRewardDestination(result: .failure(error))
+                        }
+                    }
+                }
+
+                operationManager.enqueue(operations: [queryOperation], in: .transient)
+            }
         } catch {
-            presenter.didReceive(rewardDestinationError: error)
+            logger?.error("Did receive reward destination error: \(error)")
         }
     }
 
-    private func providerRewardDestination(for payoutAddress: AccountAddress) {
-        let queryOperation = accountRepository
-            .fetchOperation(by: payoutAddress, options: RepositoryFetchOptions())
+    private func createFeeOperationWrapper() -> CompoundOperationWrapper<Decimal>? {
+        guard let batches = batches, !batches.isEmpty else { return nil }
 
-        queryOperation.completionBlock = {
+        let feeBatches = batches.count > 1 ?
+            [batches[0], batches[batches.count - 1]] :
+            [batches[0]]
+
+        guard let feeClosure = createExtrinsicBuilderClosure(for: feeBatches) else { return nil }
+
+        let feeOperation = extrinsicOperationFactory.estimateFeeOperation(
+            feeClosure,
+            numberOfExtrinsics: batches.count
+        )
+
+        let dependencies = feeOperation.allOperations
+
+        let mergeOperation = ClosureOperation<Decimal> {
+            let results = try feeOperation.targetOperation.extractNoCancellableResultData()
+
+            let fees: [Decimal] = try results.map { result in
+                switch result {
+                case let .success(dispatchInfo):
+                    return BigUInt(dispatchInfo.fee).map {
+                        Decimal.fromSubstrateAmount($0, precision: self.chain.addressType.precision) ?? 0.0
+                    } ?? 0.0
+
+                case let .failure(error):
+                    throw error
+                }
+            }
+
+            return (fees.first ?? 0.0) * Decimal(batches.count - 1) + (fees.last ?? 0.0)
+        }
+
+        mergeOperation.addDependency(feeOperation.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: dependencies
+        )
+    }
+
+    private func createBatchesOperationWrapper() -> CompoundOperationWrapper<[Batch]>? {
+        guard let firstPayout = payouts.first,
+              let feeClosure = createExtrinsicBuilderClosure(for: [firstPayout])
+        else { return nil }
+
+        let blockWeightsOperation = createBlockWeightsOperation()
+        let feeOperation = extrinsicOperationFactory.estimateFeeOperation(feeClosure)
+
+        let batchesOperationWrapper = ClosureOperation<[Batch]> {
+            let blockWeights = try blockWeightsOperation.extractNoCancellableResultData()
+            let fee = try feeOperation.targetOperation.extractNoCancellableResultData()
+
+            let batchSize = Int(Double(blockWeights.maxBlock) / Double(fee.weight) * 0.64)
+            let batches = stride(from: 0, to: self.payouts.count, by: batchSize).map {
+                Array(self.payouts[$0 ..< Swift.min($0 + batchSize, self.payouts.count)])
+            }
+
+            return batches
+        }
+
+        batchesOperationWrapper.addDependency(blockWeightsOperation)
+        batchesOperationWrapper.addDependency(feeOperation.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: batchesOperationWrapper,
+            dependencies: [blockWeightsOperation] +
+                blockWeightsOperation.dependencies +
+                feeOperation.allOperations
+        )
+    }
+
+    private func createBlockWeightsOperation() -> BaseOperation<BlockWeights> {
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let blockWeightsOperation = StorageConstantOperation<BlockWeights>(path: .blockWeights)
+        blockWeightsOperation.configurationBlock = {
+            do {
+                blockWeightsOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+            } catch {
+                blockWeightsOperation.result = .failure(error)
+            }
+        }
+
+        blockWeightsOperation.addDependency(codingFactoryOperation)
+
+        return blockWeightsOperation
+    }
+
+    private func generateBatches(completion closure: @escaping () -> Void) {
+        guard let batchesOperation = createBatchesOperationWrapper() else {
+            return
+        }
+
+        batchesOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let account = try queryOperation.extractNoCancellableResultData()
-                    let displayAddress = DisplayAddress(
-                        address: payoutAddress,
-                        username: account?.username ?? ""
-                    )
-                    self.presenter.didReceive(rewardDestination: .payout(account: displayAddress))
+                    self?.batches = try batchesOperation.targetOperation.extractNoCancellableResultData()
+                    closure()
                 } catch {
-                    self.presenter.didReceive(rewardDestinationError: error)
+                    self?.presenter.didReceiveFee(result: .failure(error))
                 }
             }
         }
 
-        operationManager.enqueue(operations: [queryOperation], in: .transient)
-    }
-
-    private func clearPayeeProvider() {
-        payeeProvider?.removeObserver(self)
-        payeeProvider = nil
-    }
-
-    private func getRewardData() {
-        guard let account = settings.selectedAccount else { return }
-
-        let rewardAmount = payouts.map(\.reward).reduce(0, +)
-
-        presenter.didRecieve(
-            account: account,
-            rewardAmount: rewardAmount
-        )
+        operationManager.enqueue(operations: batchesOperation.allOperations, in: .transient)
     }
 }
 
+// MARK: - StakingPayoutConfirmationInteractorInputProtocol
+
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
-        subscribeToStashControllerProvider()
-        subscribeToAccountChanges()
-        subscribeToPriceChanges()
-        getRewardData()
+        generateBatches { self.estimateFee() }
+
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAccount.address)
+        balanceProvider = subscribeToAccountInfoProvider(
+            for: selectedAccount.address,
+            runtimeService: runtimeService
+        )
+        priceProvider = subscribeToPriceProvider(for: assetId)
+
+        provideRewardAmount()
     }
 
     func submitPayout() {
-        guard let closure = createExtrinsicBuilderClosure() else {
-            return
-        }
+        guard let batches = batches, !batches.isEmpty else { return }
 
         presenter.didStartPayout()
+
+        guard let closure = createExtrinsicBuilderClosure(for: batches) else { return }
 
         extrinsicService.submit(
             closure,
             signer: signer,
-            runningIn: .main
+            runningIn: .main,
+            numberOfExtrinsics: batches.count
         ) { [weak self] result in
-            switch result {
-            case let .success(txHash):
-                self?.presenter.didCompletePayout(txHash: txHash)
-            case let .failure(error):
+            do {
+                let txHashes: [String] = try result.map { result in
+                    try result.get()
+                }
+
+                self?.presenter.didCompletePayout(txHashes: txHashes)
+            } catch {
                 self?.presenter.didFailPayout(error: error)
             }
         }
     }
 
     func estimateFee() {
-        guard let closure = createExtrinsicBuilderClosure() else {
+        guard let feeOperation = createFeeOperationWrapper() else {
+            presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
         }
 
-        extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
-            switch result {
-            case let .success(info):
-                self?.presenter.didReceive(paymentInfo: info)
-            case let .failure(error):
-                self?.presenter.didReceive(feeError: error)
+        feeOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let fee = try feeOperation.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceiveFee(result: .success(fee))
+                } catch {
+                    self?.presenter.didReceiveFee(result: .failure(error))
+                }
             }
+        }
+
+        operationManager.enqueue(operations: feeOperation.allOperations, in: .transient)
+    }
+}
+
+// MARK: - SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning
+
+extension StakingPayoutConfirmationInteractor: SingleValueProviderSubscriber,
+    SingleValueSubscriptionHandler,
+    AnyProviderAutoCleaning {
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        presenter.didReceivePriceData(result: result)
+    }
+
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
+        presenter.didReceiveAccountInfo(result: result)
+    }
+
+    func handlePayee(result: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {
+        switch result {
+        case let .success(payee):
+            guard let payee = payee else {
+                return
+            }
+
+            provideRewardDestination(with: payee)
+
+        case let .failure(error):
+            presenter.didReceiveRewardDestination(result: .failure(error))
+        }
+    }
+}
+
+// MARK: - SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler
+
+extension StakingPayoutConfirmationInteractor: SubstrateProviderSubscriber,
+    SubstrateProviderSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>) {
+        do {
+            stashItem = try result.get()
+
+            clear(dataProvider: &payeeProvider)
+
+            if let stashItem = stashItem {
+                payeeProvider = subscribeToPayeeProvider(
+                    for: stashItem.stash,
+                    runtimeService: runtimeService
+                )
+            } else {
+                presenter.didReceiveRewardDestination(result: .success(nil))
+            }
+        } catch {
+            presenter.didReceiveRewardDestination(result: .failure(error))
+            logger?.error("Stash subscription item error: \(error)")
         }
     }
 }
