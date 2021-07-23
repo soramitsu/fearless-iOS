@@ -298,18 +298,13 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
             runningIn: .main,
             numberOfExtrinsics: batches.count
         ) { [weak self] result in
-            switch result {
-            case let .success(extrinsicResultList):
-                do {
-                    let txHashes: [String] = try extrinsicResultList.map { result in
-                        try result.get()
-                    }
-
-                    self?.presenter.didCompletePayout(txHashes: txHashes)
-                } catch {
-                    self?.presenter.didFailPayout(error: error)
+            do {
+                let txHashes: [String] = try result.map { result in
+                    try result.get()
                 }
-            case let .failure(error):
+
+                self?.presenter.didCompletePayout(txHashes: txHashes)
+            } catch {
                 self?.presenter.didFailPayout(error: error)
             }
         }

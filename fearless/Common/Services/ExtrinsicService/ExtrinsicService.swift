@@ -8,11 +8,11 @@ typealias ExtrinsicBuilderIndexedClosure = (ExtrinsicBuilderProtocol, Int) throw
 
 typealias FeeExtrinsicResult = Result<RuntimeDispatchInfo, Error>
 typealias EstimateFeeClosure = (FeeExtrinsicResult) -> Void
-typealias EstimateFeeIndexedClosure = (Result<[FeeExtrinsicResult], Error>) -> Void
+typealias EstimateFeeIndexedClosure = ([FeeExtrinsicResult]) -> Void
 
 typealias SubmitExtrinsicResult = Result<String, Error>
 typealias ExtrinsicSubmitClosure = (SubmitExtrinsicResult) -> Void
-typealias ExtrinsicSubmitIndexedClosure = (Result<[SubmitExtrinsicResult], Error>) -> Void
+typealias ExtrinsicSubmitIndexedClosure = ([SubmitExtrinsicResult]) -> Void
 
 protocol ExtrinsicOperationFactoryProtocol {
     func estimateFeeOperation(
@@ -388,10 +388,15 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
 
         wrapper.targetOperation.completionBlock = {
             queue.async {
-                if let result = wrapper.targetOperation.result {
-                    completionClosure(result)
+                if let operationResult = wrapper.targetOperation.result {
+                    do {
+                        let results = try operationResult.get()
+                        completionClosure(results)
+                    } catch {
+                        completionClosure([.failure(error)])
+                    }
                 } else {
-                    completionClosure(.failure(BaseOperationError.parentOperationCancelled))
+                    completionClosure([.failure(BaseOperationError.parentOperationCancelled)])
                 }
             }
         }
@@ -431,10 +436,15 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
 
         wrapper.targetOperation.completionBlock = {
             queue.async {
-                if let result = wrapper.targetOperation.result {
-                    completionClosure(result)
+                if let operationResult = wrapper.targetOperation.result {
+                    do {
+                        let results = try operationResult.get()
+                        completionClosure(results)
+                    } catch {
+                        completionClosure([.failure(error)])
+                    }
                 } else {
-                    completionClosure(.failure(BaseOperationError.parentOperationCancelled))
+                    completionClosure([.failure(BaseOperationError.parentOperationCancelled)])
                 }
             }
         }
