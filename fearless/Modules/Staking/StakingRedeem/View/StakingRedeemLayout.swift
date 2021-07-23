@@ -144,6 +144,7 @@ final class StakingRedeemLayout: UIView {
 
         let hintView = HintView()
 
+        stackView.setCustomSpacing(16, after: amountView)
         stackView.addArrangedSubview(hintView)
         hintView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
