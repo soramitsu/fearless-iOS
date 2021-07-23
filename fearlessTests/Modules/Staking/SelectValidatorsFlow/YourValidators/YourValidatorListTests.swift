@@ -4,6 +4,7 @@ import SoraKeystore
 import RobinHood
 import Cuckoo
 import IrohaCrypto
+import SoraFoundation
 
 class YourValidatorListTests: XCTestCase {
 
@@ -110,7 +111,8 @@ class YourValidatorListTests: XCTestCase {
         let presenter = YourValidatorListPresenter(interactor: interactor,
                                                 wireframe: wireframe,
                                                 viewModelFactory: viewModelFactory,
-                                                chain: chain
+                                                chain: chain,
+                                                localizationManager: LocalizationManager.shared
         )
 
         interactor.presenter = presenter
@@ -122,8 +124,8 @@ class YourValidatorListTests: XCTestCase {
 
         stub(view) { stub in
             when(stub).reload(state: any()).then { state in
-                if case .validatorList(let validators) = state, !validators.isEmpty {
-                    receivedValidatorAddresses = validators
+                if case .validatorList(let viewModel) = state, !viewModel.sections.isEmpty {
+                    receivedValidatorAddresses = viewModel.sections
                         .flatMap { $0.validators }
                         .reduce(into: Set<AccountAddress>()) { $0.insert($1.address) }
                     expectation.fulfill()

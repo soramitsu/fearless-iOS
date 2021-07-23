@@ -79,8 +79,13 @@ struct ValidatorStakeInfo: ValidatorStakeInfoProtocol {
     }
 }
 
+struct ValidatorTokenAllocation {
+    let amount: Decimal
+    let isRewarded: Bool
+}
+
 enum ValidatorMyNominationStatus {
-    case active(amount: Decimal)
+    case active(allocation: ValidatorTokenAllocation)
     case elected
     case unelected
 }

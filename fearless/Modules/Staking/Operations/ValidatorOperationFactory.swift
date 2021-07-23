@@ -155,10 +155,15 @@ final class ValidatorOperationFactory {
             return validatorIds.enumerated().map { _, accountId in
                 if let electedValidator = allElectedValidators.validators
                     .first(where: { $0.accountId == accountId }) {
-                    let exposuresClipped = electedValidator.exposure.others.prefix(Int(maxNominators))
-                    if let amount = exposuresClipped.first(where: { $0.who == nominatorId })?.value,
-                       let amountDecimal = Decimal.fromSubstrateAmount(amount, precision: addressType.precision) {
-                        return .active(amount: amountDecimal)
+                    let nominators = electedValidator.exposure.others
+                    if let index = nominators.firstIndex(where: { $0.who == nominatorId }),
+                       let amountDecimal = Decimal.fromSubstrateAmount(
+                           nominators[index].value,
+                           precision: addressType.precision
+                       ) {
+                        let isRewarded = index < maxNominators
+                        let allocation = ValidatorTokenAllocation(amount: amountDecimal, isRewarded: isRewarded)
+                        return .active(allocation: allocation)
                     } else {
                         return .elected
                     }
@@ -601,8 +606,8 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             let addressFactory = SS58AddressFactory()
 
             return try validatorStakeInfo.compactMap { validatorAccountId, validatorStakeInfo in
-                guard let nominatorInfo = validatorStakeInfo.nominators
-                    .first(where: { $0.address == nominatorAddress }) else {
+                guard let nominatorIndex = validatorStakeInfo.nominators
+                    .firstIndex(where: { $0.address == nominatorAddress }) else {
                     return nil
                 }
 
@@ -611,11 +616,15 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
                     type: addressType
                 )
 
+                let nominatorInfo = validatorStakeInfo.nominators[nominatorIndex]
+                let isRewarded = nominatorIndex < validatorStakeInfo.maxNominatorsRewarded
+                let allocation = ValidatorTokenAllocation(amount: nominatorInfo.stake, isRewarded: isRewarded)
+
                 return SelectedValidatorInfo(
                     address: validatorAddress,
                     identity: identities[validatorAddress],
                     stakeInfo: validatorStakeInfo,
-                    myNomination: .active(amount: nominatorInfo.stake)
+                    myNomination: .active(allocation: allocation)
                 )
             }
         }

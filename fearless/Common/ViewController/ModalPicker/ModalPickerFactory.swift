@@ -356,6 +356,8 @@ enum ModalPickerFactory {
         viewController.modalPresentationStyle = .custom
         viewController.context = context
         viewController.selectedIndex = NSNotFound
+        viewController.separatorStyle = .singleLine
+        viewController.separatorColor = R.color.colorDarkGray()
 
         viewController.viewModels = items
 

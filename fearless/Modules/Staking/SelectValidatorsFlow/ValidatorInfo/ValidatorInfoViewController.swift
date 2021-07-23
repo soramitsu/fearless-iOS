@@ -1,294 +1,137 @@
 import UIKit
 import SoraFoundation
 
-final class ValidatorInfoViewController: UIViewController {
-    enum Constants {
-        static let headerHeight: CGFloat = 52.0
-        static let rowHeight: CGFloat = 48.0
-        static let accountRowHeight: CGFloat = 56.0
-        static let emptyStakeRowHeight: CGFloat = 140.0
+final class ValidatorInfoViewController: UIViewController, ViewHolder {
+    typealias RootViewType = ValidatorInfoViewLayout
+
+    let presenter: ValidatorInfoPresenterProtocol
+
+    struct LinkPair {
+        let view: UIView
+        let item: ValidatorInfoViewModel.IdentityItem
     }
 
-    var viewModels: [ValidatorInfoViewModel] = []
+    private var linkPairs: [LinkPair] = []
 
-    @IBOutlet var tableView: UITableView!
+    // MARK: Lifecycle -
 
-    var presenter: ValidatorInfoPresenterProtocol!
-    var locale: Locale?
+    init(presenter: ValidatorInfoPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
+        self.presenter = presenter
+
+        super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = ValidatorInfoViewLayout()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureTableView()
         setupLocalization()
         presenter.setup()
     }
 
-    private func configureTableView() {
-        tableView.register(
-            UINib(resource: R.nib.validatorInfoAccountCell),
-            forCellReuseIdentifier: R.reuseIdentifier.validatorAccountCellId.identifier
+    private func setupLocalization() {
+        title = R.string.localizable
+            .stakingValidatorInfoTitle(preferredLanguages: selectedLocale.rLanguages)
+    }
+
+    func apply(viewModel: ValidatorInfoViewModel) {
+        rootView.clearStackView()
+        linkPairs = []
+
+        let sectionSpacing: CGFloat = 25.0
+        let accountView = rootView.addAccountView(for: viewModel.account)
+        rootView.stackView.setCustomSpacing(sectionSpacing, after: accountView)
+
+        accountView.addTarget(self, action: #selector(actionOnAccount), for: .touchUpInside)
+
+        rootView.addSectionHeader(
+            with: R.string.localizable.stakingTitle(preferredLanguages: selectedLocale.rLanguages)
         )
+        rootView.addStakingStatusView(viewModel.staking, locale: selectedLocale)
 
-        tableView.register(
-            UINib(resource: R.nib.validatorInfoCell),
-            forCellReuseIdentifier: R.reuseIdentifier.validatorInfoCellId.identifier
+        if case let .elected(exposure) = viewModel.staking.status {
+            rootView.addNominatorsView(exposure, locale: selectedLocale)
+
+            let totalStakeView = rootView.addTotalStakeView(exposure, locale: selectedLocale)
+            totalStakeView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
+
+            rootView.addTitleValueView(
+                for: R.string.localizable.stakingValidatorEstimatedReward(
+                    preferredLanguages: selectedLocale.rLanguages
+                ),
+                value: exposure.estimatedReward
+            )
+        }
+
+        if let identityItems = viewModel.identity, !identityItems.isEmpty {
+            rootView.stackView.arrangedSubviews.last.map { lastView in
+                rootView.stackView.setCustomSpacing(sectionSpacing, after: lastView)
+            }
+
+            rootView.addSectionHeader(
+                with: R.string.localizable.identityTitle(preferredLanguages: selectedLocale.rLanguages)
+            )
+
+            identityItems.forEach { item in
+                switch item.value {
+                case let .link(value, _):
+                    addLinkView(for: item, title: item.title, value: value)
+                case let .text(text):
+                    rootView.addTitleValueView(for: item.title, value: text)
+                }
+            }
+        }
+    }
+
+    private func addLinkView(for item: ValidatorInfoViewModel.IdentityItem, title: String, value: String) {
+        let itemView = rootView.addLinkView(for: title, url: value)
+        linkPairs.append(LinkPair(view: itemView, item: item))
+
+        itemView.addTarget(
+            self,
+            action: #selector(actionOnIdentityLink(_:)),
+            for: .touchUpInside
         )
+    }
 
-        tableView.registerClassForCell(ValidatorInfoEmptyStakeCell.self)
+    @objc private func actionOnAccount() {
+        presenter.presentAccountOptions()
+    }
 
-        tableView.alwaysBounceVertical = false
+    @objc private func actionOnTotalStake() {
+        presenter.presentTotalStake()
+    }
+
+    @objc private func actionOnIdentityLink(_ sender: UIControl) {
+        guard let linkPair = linkPairs.first(where: { $0.view === sender }) else {
+            return
+        }
+
+        presenter.presentIdentityItem(linkPair.item.value)
     }
 }
-
-extension ValidatorInfoViewController: UITableViewDelegate {
-    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch viewModels[section] {
-        case .account:
-            return CGFloat.leastNormalMagnitude
-        default:
-            return Constants.headerHeight
-        }
-    }
-
-    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
-        CGFloat.leastNormalMagnitude
-    }
-
-    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch viewModels[indexPath.section] {
-        case .account:
-            return Constants.accountRowHeight
-        case .emptyStake:
-            return Constants.emptyStakeRowHeight
-        default:
-            return Constants.rowHeight
-        }
-    }
-
-    // swiftlint:disable:next cyclomatic_complexity
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        switch viewModels[indexPath.section] {
-        case .account: presenter.presentAccountOptions()
-
-        case let .myNomination(rows):
-            switch rows[indexPath.row] {
-            case .status: presenter.presentStateDescription()
-            default: break
-            }
-
-        case let .staking(rows):
-            switch rows[indexPath.row] {
-            case .totalStake: presenter.presentTotalStake()
-            default: break
-            }
-
-        case let .identity(rows):
-            switch rows[indexPath.row] {
-            case .email: presenter.activateEmail()
-            case .web: presenter.activateWeb()
-            case .twitter: presenter.activateTwitter()
-            case .riot: presenter.activateRiotName()
-            default: break
-            }
-
-        default: break
-        }
-    }
-}
-
-extension ValidatorInfoViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        viewModels.count
-    }
-
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch viewModels[section] {
-        case .account, .emptyStake: return 1
-        case let .myNomination(rows): return rows.count
-        case let .staking(rows): return rows.count
-        case let .identity(rows): return rows.count
-        }
-    }
-
-    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let view = UINib(resource: R.nib.validatorInfoHeaderView)
-            .instantiate(withOwner: nil, options: nil).first as? ValidatorInfoHeaderView
-        else {
-            return nil
-        }
-
-        switch viewModels[section] {
-        case .myNomination:
-            view.bind(title: R.string.localizable.stakingYourNominationTitle(preferredLanguages: locale?.rLanguages))
-        case .staking, .emptyStake:
-            view.bind(title: R.string.localizable.stakingTitle(preferredLanguages: locale?.rLanguages))
-        case .identity:
-            view.bind(title: R.string.localizable.identityTitle(preferredLanguages: locale?.rLanguages))
-        default:
-            return nil
-        }
-
-        return view
-    }
-
-    // swiftlint:disable function_body_length
-    // swiftlint:disable cyclomatic_complexity
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        func informationCell(
-            with model: LocalizableResource<TitleWithSubtitleViewModel>,
-            selectionStyle: UITableViewCell.SelectionStyle = .default
-        ) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.setStyle(.info)
-            cell.bind(model: model.value(for: locale))
-            cell.selectionStyle = selectionStyle
-            return cell
-        }
-
-        func statusCell(
-            with model: LocalizableResource<TitleWithSubtitleViewModel>,
-            status: StatusViewModel
-        ) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.setStyle(.info)
-            cell.bind(model: model.value(for: locale), status: status)
-            return cell
-        }
-
-        func totalStakeCell(
-            with model: LocalizableResource<StakingAmountViewModel>
-        ) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.setStyle(.totalStake)
-            cell.bind(model: model.value(for: locale))
-            return cell
-        }
-
-        func balanceCell(
-            with model: LocalizableResource<StakingAmountViewModel>
-        ) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.setStyle(.balance)
-            cell.bind(model: model.value(for: locale))
-            cell.selectionStyle = .none
-            return cell
-        }
-
-        func titleSubtitleCell(
-            with model: LocalizableResource<TitleWithSubtitleViewModel>,
-            selectionStyle: UITableViewCell.SelectionStyle = .default
-        )
-            -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.bind(model: model.value(for: locale))
-            cell.selectionStyle = selectionStyle
-            return cell
-        }
-
-        func nominatorsCell(
-            with model: LocalizableResource<TitleWithSubtitleViewModel>,
-            oversubscribed: Bool
-        ) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.bind(model: model.value(for: locale))
-            cell.selectionStyle = oversubscribed ? .default : .none
-            if oversubscribed { cell.setStyle(.oversubscribed) }
-            return cell
-        }
-
-        func webCell(with model: LocalizableResource<TitleWithSubtitleViewModel>) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
-                for: indexPath
-            )!
-            cell.setStyle(.web)
-            cell.bind(model: model.value(for: locale))
-            return cell
-        }
-
-        let locale = self.locale ?? Locale.current
-
-        switch viewModels[indexPath.section] {
-        case let .account(model):
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorAccountCellId,
-                for: indexPath
-            )!
-            cell.bind(model: model)
-            return cell
-
-        case let .myNomination(rows):
-            switch rows[indexPath.row] {
-            case let .status(model, status): return statusCell(with: model, status: status)
-            case let .nominatedAmount(model): return balanceCell(with: model)
-            }
-
-        case let .emptyStake(model):
-            let cell = tableView.dequeueReusableCellWithType(ValidatorInfoEmptyStakeCell.self)!
-            cell.bind(model: model.value(for: locale))
-            return cell
-
-        case let .staking(rows):
-            switch rows[indexPath.row] {
-            case let .totalStake(model): return totalStakeCell(with: model)
-            case let .nominators(model, oversubscribed):
-                return nominatorsCell(with: model, oversubscribed: oversubscribed)
-            case let .estimatedReward(model): return titleSubtitleCell(with: model, selectionStyle: .none)
-            }
-
-        case let .identity(rows):
-            switch rows[indexPath.row] {
-            case let .legalName(model): return titleSubtitleCell(with: model, selectionStyle: .none)
-            case let .email(model): return webCell(with: model)
-            case let .riot(model): return webCell(with: model)
-            case let .twitter(model): return webCell(with: model)
-            case let .web(model): return webCell(with: model)
-            }
-        }
-    }
-}
-
-// swiftlint:enable function_body_length
-// swiftlint:enable cyclomatic_complexity
 
 // MARK: - ValidatorInfoViewProtocol
 
 extension ValidatorInfoViewController: ValidatorInfoViewProtocol {
-    func didRecieve(_ viewModel: [ValidatorInfoViewModel]) {
-        viewModels = viewModel
-        tableView.reloadData()
+    func didRecieve(viewModel: ValidatorInfoViewModel) {
+        apply(viewModel: viewModel)
     }
 }
 
 // MARK: - Localizable
 
 extension ValidatorInfoViewController: Localizable {
-    private func setupLocalization() {
-        title = R.string.localizable
-            .stakingValidatorInfoTitle(preferredLanguages: locale?.rLanguages)
-        tableView.reloadData()
-    }
-
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
