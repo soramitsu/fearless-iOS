@@ -510,6 +510,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            stateMachine.state.process(eraCompletionTimeInSeconds: eraCountdown.eraCompletionTime)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
     func networkInfoViewExpansion(isExpanded: Bool) {
         view?.expandNetworkInfoView(isExpanded)
     }

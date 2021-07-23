@@ -17,7 +17,8 @@ class StakingBalanceTests: XCTestCase {
             wireframe: wireframe,
             viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
             dataValidatingFactory: dataValidatingFactory,
-            accountAddress: ""
+            accountAddress: "",
+            countdownTimer: CountdownTimer()
         )
         let view = MockStakingBalanceViewProtocol()
         presenter.view = view
@@ -97,7 +98,8 @@ class StakingBalanceTests: XCTestCase {
             wireframe: wireframe,
             viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
             dataValidatingFactory: dataValidatingFactory,
-            accountAddress: ""
+            accountAddress: "",
+            countdownTimer: CountdownTimer()
         )
         let view = MockStakingBalanceViewProtocol()
         presenter.view = view
@@ -218,7 +220,8 @@ class StakingBalanceTests: XCTestCase {
             wireframe: wireframe,
             viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
             dataValidatingFactory: dataValidatingFactory,
-            accountAddress: ""
+            accountAddress: "",
+            countdownTimer: CountdownTimer()
         )
         let view = MockStakingBalanceViewProtocol()
         presenter.view = view

@@ -4,10 +4,18 @@ import RobinHood
 final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!
 
-    private let payoutService: PayoutRewardsServiceProtocol
-    private let priceProvider: AnySingleValueProvider<PriceData>
-    private let operationManager: OperationManagerProtocol
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
 
+    private let payoutService: PayoutRewardsServiceProtocol
+    private let assetId: WalletAssetId
+    private let chain: Chain
+    private let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let logger: LoggerProtocol?
+
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var payoutOperationsWrapper: CompoundOperationWrapper<PayoutsInfo>?
 
     deinit {
@@ -17,56 +25,51 @@ final class StakingRewardPayoutsInteractor {
     }
 
     init(
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         payoutService: PayoutRewardsServiceProtocol,
-        priceProvider: AnySingleValueProvider<PriceData>,
-        operationManager: OperationManagerProtocol
+        assetId: WalletAssetId,
+        chain: Chain,
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
+        logger: LoggerProtocol? = nil
     ) {
+        self.singleValueProviderFactory = singleValueProviderFactory
         self.payoutService = payoutService
-        self.priceProvider = priceProvider
+        self.assetId = assetId
+        self.chain = chain
+        self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.operationManager = operationManager
+        self.runtimeService = runtimeService
+        self.logger = logger
     }
 
-    private func subscribeToPriceChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(priceResult: .success(nil))
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didReceive(priceResult: .success(item))
-                    case .delete:
-                        self?.presenter.didReceive(priceResult: .success(nil))
-                    }
+    private func fetchEraCompletionTime() {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        operationWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(eraCountdownResult: .success(result))
+                } catch {
+                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
                 }
             }
         }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(priceResult: .failure(error))
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        priceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
     }
 }
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        subscribeToPriceChanges()
+        priceProvider = subscribeToPriceProvider(for: assetId)
+        activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
+        fetchEraCompletionTime()
         reload()
     }
 
+    // TODO: revert stubs
+    // swiftlint:disable force_try
     func reload() {
         guard payoutOperationsWrapper == nil else {
             return
@@ -97,5 +100,16 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
 
         payoutOperationsWrapper = wrapper
+    }
+}
+
+extension StakingRewardPayoutsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        switch result {
+        case let .success(priceData):
+            presenter.didReceive(priceResult: .success(priceData))
+        case let .failure(error):
+            presenter.didReceive(priceResult: .failure(error))
+        }
     }
 }
