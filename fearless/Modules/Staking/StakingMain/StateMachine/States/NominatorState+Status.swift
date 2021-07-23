@@ -36,6 +36,30 @@ extension NominatorState {
         }
     }
 
+    var allValidatorsWithoutReward: Bool {
+        guard
+            let eraStakers = commonData.eraStakersInfo,
+            let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator else {
+            return false
+        }
+
+        do {
+            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
+            let nominatorPositions = eraStakers.validators.compactMap { validator in
+                validator.exposure.others.firstIndex(where: { $0.who == accountId })
+            }
+
+            guard !nominatorPositions.isEmpty else {
+                return false
+            }
+
+            return nominatorPositions.allSatisfy { $0 >= maxNominatorsPerValidator }
+
+        } catch {
+            return false
+        }
+    }
+
     func createStatusPresentableViewModel(
         locale: Locale?
     ) -> AlertPresentableViewModel? {
