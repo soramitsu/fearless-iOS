@@ -25,8 +25,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
         let presenter = StakingRewardPayoutsPresenter(
             chain: .westend,
-            viewModelFactory: viewModelFactory,
-            countdownTimer: CountdownTimer()
+            viewModelFactory: viewModelFactory
         )
         presenter.interactor = interactor
         presenter.view = view
@@ -97,8 +96,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
         let presenter = StakingRewardPayoutsPresenter(
             chain: .westend,
-            viewModelFactory: viewModelFactory,
-            countdownTimer: CountdownTimer()
+            viewModelFactory: viewModelFactory
         )
         presenter.wireframe = wireframe
         presenter.interactor = interactor
@@ -117,6 +115,7 @@ class StakingRewardPayoutsTests: XCTestCase {
                 LocalizableResource { _ in
                     StakingPayoutViewModel(
                         cellViewModels: [],
+                        eraComletionTime: nil,
                         bottomButtonTitle: ""
                     )
                 }

@@ -70,63 +70,35 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
     // TODO: revert stubs
     // swiftlint:disable force_try
     func reload() {
-        let payoutsInfo = PayoutsInfo(
-            activeEra: 10,
-            historyDepth: 2,
-            payouts: [
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil),
-                .init(era: 10, validator: try! Data(hexString: "0x11"), reward: 100, identity: nil)
-            ]
-        )
-        presenter?.didReceive(result: .success(payoutsInfo))
-//        guard payoutOperationsWrapper == nil else {
-//            return
-//        }
-//
-//        let wrapper = payoutService.fetchPayoutsOperationWrapper()
-//        wrapper.targetOperation.completionBlock = { [weak self] in
-//            DispatchQueue.main.async {
-//                do {
-//                    guard let currentWrapper = self?.payoutOperationsWrapper else {
-//                        return
-//                    }
-//
-//                    self?.payoutOperationsWrapper = nil
-//
-//                    let payoutsInfo = try currentWrapper.targetOperation.extractNoCancellableResultData()
-//                    self?.presenter?.didReceive(result: .success(payoutsInfo))
-//                } catch {
-//                    if let serviceError = error as? PayoutRewardsServiceError {
-//                        self?.presenter.didReceive(result: .failure(serviceError))
-//                    } else {
-//                        self?.presenter.didReceive(result: .failure(.unknown))
-//                    }
-//                }
-//            }
-//        }
-//
-//        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
-//
-//        payoutOperationsWrapper = wrapper
+        guard payoutOperationsWrapper == nil else {
+            return
+        }
+
+        let wrapper = payoutService.fetchPayoutsOperationWrapper()
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    guard let currentWrapper = self?.payoutOperationsWrapper else {
+                        return
+                    }
+
+                    self?.payoutOperationsWrapper = nil
+
+                    let payoutsInfo = try currentWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter?.didReceive(result: .success(payoutsInfo))
+                } catch {
+                    if let serviceError = error as? PayoutRewardsServiceError {
+                        self?.presenter.didReceive(result: .failure(serviceError))
+                    } else {
+                        self?.presenter.didReceive(result: .failure(.unknown))
+                    }
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+
+        payoutOperationsWrapper = wrapper
     }
 }
 

@@ -44077,6 +44077,21 @@ import SoraUI
         
     }
     
+    
+    
+     func getTimeLeftString(at index: Int, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>? {
+        
+    return cuckoo_manager.call("getTimeLeftString(at: Int, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>?",
+            parameters: (index, eraCompletionTime),
+            escapingParameters: (index, eraCompletionTime),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.getTimeLeftString(at: index, eraCompletionTime: eraCompletionTime))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingRewardPayoutsPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -44104,6 +44119,11 @@ import SoraUI
 	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsPresenterProtocol.self, method: "reload()", parameterMatchers: matchers))
+	    }
+	    
+	    func getTimeLeftString<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(at index: M1, eraCompletionTime: M2) -> Cuckoo.ProtocolStubFunction<(Int, TimeInterval?), LocalizableResource<NSAttributedString>?> where M1.MatchedType == Int, M2.OptionalMatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, TimeInterval?)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: eraCompletionTime) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsPresenterProtocol.self, method: "getTimeLeftString(at: Int, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>?", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -44146,6 +44166,12 @@ import SoraUI
 	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func getTimeLeftString<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(at index: M1, eraCompletionTime: M2) -> Cuckoo.__DoNotUse<(Int, TimeInterval?), LocalizableResource<NSAttributedString>?> where M1.MatchedType == Int, M2.OptionalMatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, TimeInterval?)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: eraCompletionTime) { $0.1 }]
+	        return cuckoo_manager.verify("getTimeLeftString(at: Int, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>?", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -44169,6 +44195,10 @@ import SoraUI
     
      func reload()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func getTimeLeftString(at index: Int, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>?  {
+        return DefaultValueRegistry.defaultValue(for: (LocalizableResource<NSAttributedString>?).self)
     }
     
 }
@@ -44606,6 +44636,21 @@ import SoraUI
         
     }
     
+    
+    
+     func timeLeftString(at index: Int, payoutsInfo: PayoutsInfo, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString> {
+        
+    return cuckoo_manager.call("timeLeftString(at: Int, payoutsInfo: PayoutsInfo, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>",
+            parameters: (index, payoutsInfo, eraCompletionTime),
+            escapingParameters: (index, payoutsInfo, eraCompletionTime),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.timeLeftString(at: index, payoutsInfo: payoutsInfo, eraCompletionTime: eraCompletionTime))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingPayoutViewModelFactoryProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -44618,6 +44663,11 @@ import SoraUI
 	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2, eraCompletionTime: M3) -> Cuckoo.ProtocolStubFunction<(PayoutsInfo, PriceData?, TimeInterval?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData, M3.OptionalMatchedType == TimeInterval {
 	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?, TimeInterval?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }, wrap(matchable: eraCompletionTime) { $0.2 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutViewModelFactoryProtocol.self, method: "createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>", parameterMatchers: matchers))
+	    }
+	    
+	    func timeLeftString<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(at index: M1, payoutsInfo: M2, eraCompletionTime: M3) -> Cuckoo.ProtocolStubFunction<(Int, PayoutsInfo, TimeInterval?), LocalizableResource<NSAttributedString>> where M1.MatchedType == Int, M2.MatchedType == PayoutsInfo, M3.OptionalMatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, PayoutsInfo, TimeInterval?)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: payoutsInfo) { $0.1 }, wrap(matchable: eraCompletionTime) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutViewModelFactoryProtocol.self, method: "timeLeftString(at: Int, payoutsInfo: PayoutsInfo, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -44642,6 +44692,12 @@ import SoraUI
 	        return cuckoo_manager.verify("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func timeLeftString<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(at index: M1, payoutsInfo: M2, eraCompletionTime: M3) -> Cuckoo.__DoNotUse<(Int, PayoutsInfo, TimeInterval?), LocalizableResource<NSAttributedString>> where M1.MatchedType == Int, M2.MatchedType == PayoutsInfo, M3.OptionalMatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, PayoutsInfo, TimeInterval?)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: payoutsInfo) { $0.1 }, wrap(matchable: eraCompletionTime) { $0.2 }]
+	        return cuckoo_manager.verify("timeLeftString(at: Int, payoutsInfo: PayoutsInfo, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -44653,6 +44709,10 @@ import SoraUI
     
      func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?, eraCompletionTime: TimeInterval?) -> LocalizableResource<StakingPayoutViewModel>  {
         return DefaultValueRegistry.defaultValue(for: (LocalizableResource<StakingPayoutViewModel>).self)
+    }
+    
+     func timeLeftString(at index: Int, payoutsInfo: PayoutsInfo, eraCompletionTime: TimeInterval?) -> LocalizableResource<NSAttributedString>  {
+        return DefaultValueRegistry.defaultValue(for: (LocalizableResource<NSAttributedString>).self)
     }
     
 }
