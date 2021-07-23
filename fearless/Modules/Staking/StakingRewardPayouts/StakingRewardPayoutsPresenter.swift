@@ -9,10 +9,14 @@ final class StakingRewardPayoutsPresenter {
 
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
+    private var eraCompletionTime: TimeInterval?
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
-    init(chain: Chain, viewModelFactory: StakingPayoutViewModelFactoryProtocol) {
+    init(
+        chain: Chain,
+        viewModelFactory: StakingPayoutViewModelFactoryProtocol
+    ) {
         self.chain = chain
         self.viewModelFactory = viewModelFactory
     }
@@ -27,7 +31,11 @@ final class StakingRewardPayoutsPresenter {
             return
         }
 
-        let viewModel = viewModelFactory.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData)
+        let viewModel = viewModelFactory.createPayoutsViewModel(
+            payoutsInfo: payoutsInfo,
+            priceData: priceData,
+            eraCompletionTime: eraCompletionTime
+        )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
     }
@@ -66,6 +74,20 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         guard let payouts = payoutsInfo?.payouts else { return }
         wireframe.showPayoutConfirmation(for: payouts, from: view)
     }
+
+    func getTimeLeftString(
+        at index: Int,
+        eraCompletionTime: TimeInterval?
+    ) -> LocalizableResource<NSAttributedString>? {
+        guard let payoutsInfo = payoutsInfo else {
+            return nil
+        }
+        return viewModelFactory.timeLeftString(
+            at: index,
+            payoutsInfo: payoutsInfo,
+            eraCompletionTime: eraCompletionTime
+        )
+    }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
@@ -93,6 +115,16 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         case .failure:
             priceData = nil
             updateView()
+        }
+    }
+
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            eraCompletionTime = eraCountdown.eraCompletionTime
+            updateView()
+        case .failure:
+            eraCompletionTime = nil
         }
     }
 }

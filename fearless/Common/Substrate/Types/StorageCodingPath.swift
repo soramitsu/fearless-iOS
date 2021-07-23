@@ -98,6 +98,14 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasStakersClipped")
     }
 
+    static var eraStartSessionIndex: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "ErasStartSessionIndex")
+    }
+
+    static var currentSessionIndex: StorageCodingPath {
+        StorageCodingPath(moduleName: "Session", itemName: "CurrentIndex")
+    }
+
     static var electionPhase: StorageCodingPath {
         StorageCodingPath(moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
     }
@@ -116,5 +124,13 @@ extension StorageCodingPath {
 
     static var blockNumber: StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Number")
+    }
+
+    static var currentSlot: StorageCodingPath {
+        StorageCodingPath(moduleName: "Babe", itemName: "CurrentSlot")
+    }
+
+    static var genesisSlot: StorageCodingPath {
+        StorageCodingPath(moduleName: "Babe", itemName: "GenesisSlot")
     }
 }

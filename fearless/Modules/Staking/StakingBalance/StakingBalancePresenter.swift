@@ -14,19 +14,28 @@ final class StakingBalancePresenter {
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var priceData: PriceData?
+    private var eraCompletionTime: TimeInterval?
+    private let countdownTimer: CountdownTimerProtocol
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        accountAddress: AccountAddress
+        accountAddress: AccountAddress,
+        countdownTimer: CountdownTimerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.accountAddress = accountAddress
+        self.countdownTimer = countdownTimer
+        self.countdownTimer.delegate = self
+    }
+
+    deinit {
+        countdownTimer.stop()
     }
 
     private func updateView() {
@@ -35,7 +44,8 @@ final class StakingBalancePresenter {
         let balanceData = StakingBalanceData(
             stakingLedger: stakingLedger,
             activeEra: activeEra,
-            priceData: priceData
+            priceData: priceData,
+            eraCompletionTime: eraCompletionTime
         )
 
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
@@ -207,5 +217,31 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         case .failure:
             stashAccount = nil
         }
+    }
+
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            countdownTimer.stop()
+            countdownTimer.start(with: eraCountdown.eraCompletionTime, runLoop: .main, mode: .common)
+        case .failure:
+            eraCompletionTime = nil
+        }
+    }
+}
+
+extension StakingBalancePresenter: CountdownTimerDelegate {
+    func didStart(with remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        eraCompletionTime = remainedInterval
+        updateView()
+    }
+
+    func didStop(with _: TimeInterval) {
+        updateView()
     }
 }

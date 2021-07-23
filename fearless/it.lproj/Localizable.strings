@@ -492,6 +492,7 @@ Derivation path: %@";
 "staking.validator.apy.percent" = "";
 "staking.pending.rewards" = "";
 "staking.rewards.destination" = "";
+"staking.payout.expired" = "";
 "staking.your.oversubscribed.message" = "";
 "staking.your.not.elected.format" = "";
 "staking.your.selected.format" = "";

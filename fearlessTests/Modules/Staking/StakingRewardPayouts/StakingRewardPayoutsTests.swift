@@ -8,10 +8,17 @@ class StakingRewardPayoutsTests: XCTestCase {
 
     func testViewStateIsLoadingThenError() {
         let payoutServiceThatReturnsError = PayoutRewardsServiceStub.error()
+        let eraCountdownOperationFactory = MockEraCountdownOperationFactoryProtocol()
+        let runtimeService = try! RuntimeCodingServiceStub.createWestendService()
+
         let interactor = StakingRewardPayoutsInteractor(
+            singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
             payoutService: payoutServiceThatReturnsError,
-            priceProvider: SingleValueProviderFactoryStub.westendNominatorStub().price,
-            operationManager: OperationManager()
+            assetId: WalletAssetId.westend,
+            chain: .westend,
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
+            operationManager: OperationManager(),
+            runtimeService: runtimeService
         )
         let view = MockStakingRewardPayoutsViewProtocol()
 
@@ -28,6 +35,24 @@ class StakingRewardPayoutsTests: XCTestCase {
         let viewStateIsLoadingOnPresenterSetup = XCTestExpectation()
         let viewStateIsNotLoadingWhenPresenterRecievedResult = XCTestExpectation()
         let viewStateIsErrorWhenPresenterRecievedError = XCTestExpectation()
+
+        stub(eraCountdownOperationFactory) { stub in
+            when(stub).fetchCountdownOperationWrapper().then { _ in
+                CompoundOperationWrapper.createWithResult(
+                    EraCountdown(
+                        activeEra: 0,
+                        eraLength: 0,
+                        sessionLength: 0,
+                        eraStartSessionIndex: 0,
+                        currentSessionIndex: 0,
+                        currentSlot: 0,
+                        genesisSlot: 0,
+                        blockCreationTime: 0,
+                        createdAtDate: Date()
+                    )
+                )
+            }
+        }
 
         stub(view) { stub in
             when(stub).reload(with: any())
@@ -87,10 +112,11 @@ class StakingRewardPayoutsTests: XCTestCase {
         }
 
         stub(viewModelFactory) { stub in
-            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any()).then { _ in
+            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any(), eraCompletionTime: any()).then { _ in
                 LocalizableResource { _ in
                     StakingPayoutViewModel(
                         cellViewModels: [],
+                        eraComletionTime: nil,
                         bottomButtonTitle: ""
                     )
                 }

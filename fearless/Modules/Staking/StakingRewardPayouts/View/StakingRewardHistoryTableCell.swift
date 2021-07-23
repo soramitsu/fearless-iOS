@@ -97,4 +97,8 @@ extension StakingRewardHistoryTableCell {
         tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
     }
+
+    func bind(timeLeftText: NSAttributedString) {
+        daysLeftLabel.attributedText = timeLeftText
+    }
 }
