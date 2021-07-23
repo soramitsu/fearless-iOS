@@ -1,6 +1,7 @@
 import Foundation
 
 struct EraCountdown {
+    let activeEra: EraIndex
     let eraLength: SessionIndex
     let sessionLength: SessionIndex
     let eraStartSessionIndex: SessionIndex

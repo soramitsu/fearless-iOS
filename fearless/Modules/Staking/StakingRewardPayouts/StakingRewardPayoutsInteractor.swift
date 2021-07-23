@@ -44,8 +44,8 @@ final class StakingRewardPayoutsInteractor {
         self.logger = logger
     }
 
-    private func fetchEraCompletionTime(targerEra: EraIndex) {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(targetEra: targerEra)
+    private func fetchEraCompletionTime() {
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
@@ -64,6 +64,7 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
     func setup() {
         priceProvider = subscribeToPriceProvider(for: assetId)
         activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
+        fetchEraCompletionTime()
         reload()
     }
 
@@ -107,17 +108,6 @@ extension StakingRewardPayoutsInteractor: SingleValueProviderSubscriber, SingleV
             presenter.didReceive(priceResult: .success(priceData))
         case let .failure(error):
             presenter.didReceive(priceResult: .failure(error))
-        }
-    }
-
-    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {
-        switch result {
-        case let .success(activeEraInfo):
-            if let eraIndex = activeEraInfo?.index {
-                fetchEraCompletionTime(targerEra: eraIndex)
-            }
-        case let .failure(error):
-            logger?.error(error.localizedDescription)
         }
     }
 }
