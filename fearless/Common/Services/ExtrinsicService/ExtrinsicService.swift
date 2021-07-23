@@ -388,15 +388,15 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
 
         wrapper.targetOperation.completionBlock = {
             queue.async {
-                if let operationResult = wrapper.targetOperation.result {
-                    do {
-                        let results = try operationResult.get()
-                        completionClosure(results)
-                    } catch {
-                        completionClosure([.failure(error)])
-                    }
-                } else {
-                    completionClosure([.failure(BaseOperationError.parentOperationCancelled)])
+                do {
+                    let result = try wrapper.targetOperation.extractNoCancellableResultData()
+                    completionClosure(result)
+                } catch {
+                    let result: [FeeExtrinsicResult] = Array(
+                        repeating: .failure(error),
+                        count: numberOfExtrinsics
+                    )
+                    completionClosure(result)
                 }
             }
         }
@@ -436,24 +436,14 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
 
         wrapper.targetOperation.completionBlock = {
             queue.async {
-                if let operationResult = wrapper.targetOperation.result {
-                    do {
-                        let results = try operationResult.get()
-                        completionClosure(results)
-                    } catch {
-                        let results: [SubmitExtrinsicResult] = Array(
-                            repeating: .failure(error),
-                            count: numberOfExtrinsics
-                        )
-
-                        completionClosure(results)
-                    }
-                } else {
+                do {
+                    let operationResult = try wrapper.targetOperation.extractNoCancellableResultData()
+                    completionClosure(operationResult)
+                } catch {
                     let results: [SubmitExtrinsicResult] = Array(
-                        repeating: .failure(BaseOperationError.parentOperationCancelled),
+                        repeating: .failure(error),
                         count: numberOfExtrinsics
                     )
-
                     completionClosure(results)
                 }
             }
