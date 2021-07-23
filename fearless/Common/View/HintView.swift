@@ -30,7 +30,7 @@ final class HintView: UIView {
         addSubview(iconView)
         iconView.snp.makeConstraints { make in
             make.leading.top.equalToSuperview()
-            make.size.equalTo(14.0)
+            make.size.equalTo(16.0)
         }
 
         addSubview(titleLabel)

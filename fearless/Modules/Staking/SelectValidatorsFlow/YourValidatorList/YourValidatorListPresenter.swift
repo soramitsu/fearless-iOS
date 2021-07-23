@@ -22,6 +22,7 @@ final class YourValidatorListPresenter {
         wireframe: YourValidatorListWireframeProtocol,
         viewModelFactory: YourValidatorListViewModelFactoryProtocol,
         chain: Chain,
+        localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -29,14 +30,14 @@ final class YourValidatorListPresenter {
         self.viewModelFactory = viewModelFactory
         self.chain = chain
         self.logger = logger
+
+        self.localizationManager = localizationManager
     }
 
     private func updateView() {
         guard lastError == nil else {
-            let errorDescription = LocalizableResource { locale in
-                R.string.localizable
-                    .commonErrorNoDataRetrieved(preferredLanguages: locale.rLanguages)
-            }
+            let errorDescription = R.string.localizable
+                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
             view?.reload(state: .error(errorDescription))
             return
         }
@@ -47,10 +48,16 @@ final class YourValidatorListPresenter {
         }
 
         do {
-            let sections = try viewModelFactory.createViewModel(for: model)
-            view?.reload(state: .validatorList(sections))
+            let viewModel = try viewModelFactory.createViewModel(for: model, locale: selectedLocale)
+            view?.reload(state: .validatorList(viewModel: viewModel))
         } catch {
             logger?.error("Did receive error: \(error)")
+
+            let errorDescription = R.string.localizable.commonErrorGeneralTitle(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+
+            view?.reload(state: .error(errorDescription))
         }
     }
 
@@ -101,11 +108,10 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
         }
 
         guard let controllerAccount = controllerAccount else {
-            let locale = view.localizationManager?.selectedLocale
             wireframe.presentMissingController(
                 from: view,
                 address: stashItem.controller,
-                locale: locale
+                locale: selectedLocale
             )
             return
         }
@@ -175,6 +181,14 @@ extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol 
             rewardDestinationArg = item
         case let .failure(error):
             handle(error: error)
+        }
+    }
+}
+
+extension YourValidatorListPresenter: Localizable {
+    func applyLocalization() {
+        if let view = view, view.isSetup {
+            updateView()
         }
     }
 }

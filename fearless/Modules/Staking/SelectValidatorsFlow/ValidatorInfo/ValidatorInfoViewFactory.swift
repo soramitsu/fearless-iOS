@@ -20,8 +20,6 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
 
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
             iconGenerator: PolkadotIconGenerator(),
-            asset: asset,
-            amountFormatterFactory: AmountFormatterFactory(),
             balanceViewModelFactory: balanceViewModelFactory
         )
 
@@ -30,25 +28,28 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         let providerFactory = SingleValueProviderFactory.shared
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
-        let view = ValidatorInfoViewController(nib: R.nib.validatorInfoViewController)
-        view.locale = localizationManager.selectedLocale
-
-        let presenter = ValidatorInfoPresenter(
-            viewModelFactory: validatorInfoViewModelFactory,
-            asset: asset,
-            locale: localizationManager.selectedLocale
-        )
-
         let interactor = ValidatorInfoInteractor(
             validatorInfo: validatorInfo,
             priceProvider: priceProvider
         )
+
         let wireframe = ValidatorInfoWireframe()
 
-        view.presenter = presenter
+        let presenter = ValidatorInfoPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: validatorInfoViewModelFactory,
+            chain: settings.selectedConnection.type.chain,
+            localizationManager: localizationManager,
+            logger: Logger.shared
+        )
+
+        let view = ValidatorInfoViewController(
+            presenter: presenter,
+            localizationManager: localizationManager
+        )
+
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         return view
