@@ -4,32 +4,27 @@ import SoraFoundation
 import CommonWallet
 
 protocol ValidatorInfoViewModelFactoryProtocol {
-    func createViewModel(
-        from validatorInfo: ValidatorInfoProtocol,
-        priceData: PriceData?
-    )
-        -> [ValidatorInfoViewModel]
     func createStakingAmountsViewModel(
         from validatorInfo: ValidatorInfoProtocol,
         priceData: PriceData?
     ) -> [LocalizableResource<StakingAmountViewModel>]
+
+    func createViewModel(
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> ValidatorInfoViewModel
 }
 
 final class ValidatorInfoViewModelFactory {
     private let iconGenerator: IconGenerating
-    private let asset: WalletAsset
-    private let amountFormatterFactory: NumberFormatterFactoryProtocol
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
         iconGenerator: IconGenerating,
-        asset: WalletAsset,
-        amountFormatterFactory: NumberFormatterFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.iconGenerator = iconGenerator
-        self.asset = asset
-        self.amountFormatterFactory = amountFormatterFactory
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
@@ -37,56 +32,116 @@ final class ValidatorInfoViewModelFactory {
 
     // MARK: Identity Rows
 
-    private func createLegalRow(with legal: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let title = R.string.localizable.identityLegalNameTitle(preferredLanguages: locale.rLanguages)
-            return TitleWithSubtitleViewModel(title: title, subtitle: legal)
-        }
+    private func createLegalRow(with legal: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
+        let title = R.string.localizable.identityLegalNameTitle(preferredLanguages: locale.rLanguages)
+        return .init(title: title, value: .text(legal))
     }
 
-    private func createEmailRow(with email: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let title = R.string.localizable.identityEmailTitle(preferredLanguages: locale.rLanguages)
-            return TitleWithSubtitleViewModel(title: title, subtitle: email)
-        }
+    private func createEmailRow(with email: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
+        let title = R.string.localizable.identityEmailTitle(preferredLanguages: locale.rLanguages)
+        return .init(title: title, value: .link(email, tag: .email))
     }
 
-    private func createWebRow(with web: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let title = R.string.localizable.identityWebTitle(preferredLanguages: locale.rLanguages)
-            return TitleWithSubtitleViewModel(title: title, subtitle: web)
-        }
+    private func createWebRow(with web: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
+        let title = R.string.localizable.identityWebTitle(preferredLanguages: locale.rLanguages)
+        return .init(title: title, value: .link(web, tag: .web))
     }
 
-    private func createTwitterRow(with twitter: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { _ in
-            TitleWithSubtitleViewModel(title: "Twitter", subtitle: twitter)
-        }
+    private func createTwitterRow(with twitter: String) -> ValidatorInfoViewModel.IdentityItem {
+        .init(title: "Twitter", value: .link(twitter, tag: .twitter))
     }
 
-    private func createRiotRow(with riot: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let title = R.string.localizable.identityRiotNameTitle(preferredLanguages: locale.rLanguages)
-            return TitleWithSubtitleViewModel(title: title, subtitle: riot)
-        }
+    private func createRiotRow(with riot: String, locale: Locale) -> ValidatorInfoViewModel.IdentityItem {
+        let title = R.string.localizable.identityRiotNameTitle(preferredLanguages: locale.rLanguages)
+        return .init(title: title, value: .link(riot, tag: .riot))
     }
 
-    // MARK: Stake Rows
+    private func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> AccountInfoViewModel {
+        let identityName: String = validatorInfo.identity?.displayName ?? ""
 
-    private func createTotalStakeRow(
-        with totalStake: Decimal,
-        priceData: PriceData?
-    ) -> LocalizableResource<StakingAmountViewModel> {
-        let title = LocalizableResource { locale in
-            R.string.localizable
-                .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
-        }
+        let icon = try? iconGenerator.generateFromAddress(validatorInfo.address)
+            .imageWithFillColor(
+                .white,
+                size: UIConstants.normalAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
 
-        return createStakingAmountRow(
-            title: title,
-            amount: totalStake,
-            priceData: priceData
+        return AccountInfoViewModel(
+            title: "",
+            address: validatorInfo.address,
+            name: identityName,
+            icon: icon
         )
+    }
+
+    private func createExposure(
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> ValidatorInfoViewModel.Exposure {
+        let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
+
+        let nominatorsCount = validatorInfo.stakeInfo?.nominators.count ?? 0
+        let maxNominatorsReward = validatorInfo.stakeInfo?.maxNominatorsRewarded ?? 0
+
+        let nominators = R.string.localizable.stakingValidatorInfoNominators(
+            formatter.string(from: NSNumber(value: nominatorsCount)) ?? "",
+            formatter.string(from: NSNumber(value: maxNominatorsReward)) ?? ""
+        )
+
+        let myNomination: ValidatorInfoViewModel.MyNomination?
+
+        switch validatorInfo.myNomination {
+        case let .active(allocation):
+            myNomination = ValidatorInfoViewModel.MyNomination(isRewarded: allocation.isRewarded)
+        case .elected, .unelected, .none:
+            myNomination = nil
+        }
+
+        let totalStake = balanceViewModelFactory.balanceFromPrice(
+            validatorInfo.totalStake,
+            priceData: priceData
+        ).value(for: locale)
+
+        let estimatedRewardDecimal = validatorInfo.stakeInfo?.stakeReturn ?? 0.0
+        let estimatedReward = NumberFormatter.percentAPY.localizableResource()
+            .value(for: locale).stringFromDecimal(estimatedRewardDecimal) ?? ""
+
+        return ValidatorInfoViewModel.Exposure(
+            nominators: nominators,
+            myNomination: myNomination,
+            totalStake: totalStake,
+            estimatedReward: estimatedReward
+        )
+    }
+
+    private func createIdentityViewModel(
+        from identity: AccountIdentity,
+        locale: Locale
+    ) -> [ValidatorInfoViewModel.IdentityItem] {
+        var identityItems: [ValidatorInfoViewModel.IdentityItem] = []
+
+        if let legal = identity.legal {
+            identityItems.append(createLegalRow(with: legal, locale: locale))
+        }
+
+        if let email = identity.email {
+            identityItems.append(createEmailRow(with: email, locale: locale))
+        }
+
+        if let web = identity.web {
+            identityItems.append(createWebRow(with: web, locale: locale))
+        }
+
+        if let twitter = identity.twitter {
+            identityItems.append(createTwitterRow(with: twitter))
+        }
+
+        if let riot = identity.riot {
+            identityItems.append(createRiotRow(with: riot, locale: locale))
+        }
+
+        return identityItems
     }
 
     private func createOwnStakeTitle() -> LocalizableResource<String> {
@@ -107,12 +162,6 @@ final class ValidatorInfoViewModelFactory {
         }
     }
 
-    private func createYourNominatedTitle() -> LocalizableResource<String> {
-        LocalizableResource { locale in
-            R.string.localizable.stakingYourNominatedTitle(preferredLanguages: locale.rLanguages)
-        }
-    }
-
     private func createStakingAmountRow(
         title: LocalizableResource<String>,
         amount: Decimal,
@@ -130,171 +179,6 @@ final class ValidatorInfoViewModelFactory {
             )
         }
     }
-
-    private func createNominatorsRow(with stakeInfo: ValidatorStakeInfoProtocol)
-        -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let title = R.string.localizable
-                .stakingValidatorNominators(preferredLanguages: locale.rLanguages)
-            let subtitle = R.string.localizable.stakingValidatorInfoNominators(
-                String(stakeInfo.nominators.count),
-                String(stakeInfo.maxNominatorsRewarded)
-            )
-            return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
-        }
-    }
-
-    private func createEstimatedRewardRow(
-        with stakeReturn: Decimal
-    ) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let percentageFormatter = NumberFormatter.percentAPY.localizableResource().value(for: locale)
-
-            let title = R.string.localizable
-                .stakingValidatorEstimatedReward(preferredLanguages: locale.rLanguages)
-
-            let subtitle = percentageFormatter
-                .string(from: stakeReturn as NSNumber) ?? ""
-
-            return TitleWithSubtitleViewModel(
-                title: title,
-                subtitle: subtitle
-            )
-        }
-    }
-
-    private func createEmptyStakeRow() -> ValidatorInfoViewModel {
-        .emptyStake(LocalizableResource { locale in
-            EmptyStakeViewModel(
-                image: R.image.iconEmptyStake()!,
-                title: R.string.localizable.validatorNotElectedDescription(preferredLanguages: locale.rLanguages)
-            )
-        })
-    }
-
-    // MARK: Nomination Rows
-
-    private func createNominationStateRow(with state: ValidatorMyNominationStatus)
-        -> LocalizableResource<TitleWithSubtitleViewModel> {
-        LocalizableResource { locale in
-            let title = R.string.localizable
-                .stakingRewardDetailsStatus(preferredLanguages: locale.rLanguages)
-
-            let subtitle: String = {
-                switch state {
-                case .active: return R.string.localizable
-                    .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages)
-                case .elected: return R.string.localizable
-                    .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages)
-                case .unelected: return R.string.localizable
-                    .stakingValidatorStatusWaiting(preferredLanguages: locale.rLanguages)
-                }
-            }()
-
-            return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
-        }
-    }
-
-    // MARK: - View models
-
-    private func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoViewModel {
-        let userIcon = try? iconGenerator.generateFromAddress(validatorInfo.address)
-            .imageWithFillColor(
-                .white,
-                size: UIConstants.normalAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
-
-        let viewModel: ValidatorInfoAccountViewModelProtocol =
-            ValidatorInfoAccountViewModel(
-                name: validatorInfo.identity?.displayName,
-                address: validatorInfo.address,
-                icon: userIcon
-            )
-
-        return .account(viewModel)
-    }
-
-    private func createStakingViewModel(
-        from validatorInfo: ValidatorInfoProtocol,
-        priceData: PriceData?
-    ) -> ValidatorInfoViewModel {
-        guard let stakeInfo = validatorInfo.stakeInfo else { return createEmptyStakeRow() }
-
-        let stakingRows: [ValidatorInfoViewModel.StakingRow] = [
-            .nominators(createNominatorsRow(with: stakeInfo), stakeInfo.oversubscribed),
-            .totalStake(createTotalStakeRow(with: stakeInfo.totalStake, priceData: priceData)),
-            .estimatedReward(createEstimatedRewardRow(with: stakeInfo.stakeReturn))
-        ]
-
-        return .staking(stakingRows)
-    }
-
-    //    case identity([IdentityRow])
-    private func createIdentityViewModel(
-        from validatorInfo: ValidatorInfoProtocol
-    ) -> ValidatorInfoViewModel? {
-        guard let identity = validatorInfo.identity else { return nil }
-
-        var identityRows: [ValidatorInfoViewModel.IdentityRow] = []
-
-        if let legal = identity.legal {
-            identityRows.append(.legalName(createLegalRow(with: legal)))
-        }
-
-        if let email = identity.email {
-            identityRows.append(.email(createEmailRow(with: email)))
-        }
-
-        if let web = identity.web {
-            identityRows.append(.web(createWebRow(with: web)))
-        }
-
-        if let twitter = identity.twitter {
-            identityRows.append(.twitter(createTwitterRow(with: twitter)))
-        }
-
-        if let riot = identity.riot {
-            identityRows.append(.riot(createRiotRow(with: riot)))
-        }
-
-        guard !identityRows.isEmpty else { return nil }
-
-        return .identity(identityRows)
-    }
-
-    private func createStatusViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> StatusViewModel {
-        switch validatorInfo.myNomination {
-        case .active:
-            return .good
-        default:
-            return .none
-        }
-    }
-
-    private func createMyNominationViewModel(
-        from validatorInfo: ValidatorInfoProtocol,
-        priceData: PriceData?
-    ) -> ValidatorInfoViewModel? {
-        guard let nomination = validatorInfo.myNomination else { return nil }
-
-        var nominationRows: [ValidatorInfoViewModel.NominationRow] = [
-            .status(createNominationStateRow(with: nomination), createStatusViewModel(from: validatorInfo))
-        ]
-
-        if case let .active(allocation) = nomination {
-            let row = createStakingAmountRow(
-                title: createYourNominatedTitle(),
-                amount: allocation.amount,
-                priceData: priceData
-            )
-
-            nominationRows.append(.nominatedAmount(row))
-        }
-
-        return .myNomination(nominationRows)
-    }
 }
 
 // MARK: - ValidatorInfoViewModelFactoryProtocol
@@ -302,24 +186,35 @@ final class ValidatorInfoViewModelFactory {
 extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
     func createViewModel(
         from validatorInfo: ValidatorInfoProtocol,
-        priceData: PriceData?
-    ) -> [ValidatorInfoViewModel] {
-        var model = [createAccountViewModel(from: validatorInfo)]
+        priceData: PriceData?,
+        locale: Locale
+    ) -> ValidatorInfoViewModel {
+        let accountViewModel = createAccountViewModel(from: validatorInfo)
 
-        if let nominationModel = createMyNominationViewModel(
-            from: validatorInfo,
-            priceData: priceData
-        ) {
-            model.append(nominationModel)
+        let status: ValidatorInfoViewModel.StakingStatus
+
+        switch validatorInfo.myNomination {
+        case .active, .elected:
+            let exposure = createExposure(from: validatorInfo, priceData: priceData, locale: locale)
+            status = .elected(exposure: exposure)
+        case .unelected, .none:
+            status = .unelected
         }
 
-        model.append(createStakingViewModel(from: validatorInfo, priceData: priceData))
+        let staking = ValidatorInfoViewModel.Staking(
+            status: status,
+            slashed: validatorInfo.hasSlashes
+        )
 
-        if let identityModel = createIdentityViewModel(from: validatorInfo) {
-            model.append(identityModel)
+        let identityItems = validatorInfo.identity.map { identity in
+            createIdentityViewModel(from: identity, locale: locale)
         }
 
-        return model
+        return ValidatorInfoViewModel(
+            account: accountViewModel,
+            staking: staking,
+            identity: identityItems
+        )
     }
 
     func createStakingAmountsViewModel(
@@ -330,20 +225,22 @@ extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
             .map(\.stake)
             .reduce(0, +) ?? 0.0
 
-        return [createStakingAmountRow(
-            title: createOwnStakeTitle(),
-            amount: (validatorInfo.stakeInfo?.totalStake ?? 0.0) - nominatorsStake,
-            priceData: priceData
-        ),
-        createStakingAmountRow(
-            title: createNominatorsStakeTitle(),
-            amount: nominatorsStake,
-            priceData: priceData
-        ),
-        createStakingAmountRow(
-            title: createTotalTitle(),
-            amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
-            priceData: priceData
-        )]
+        return [
+            createStakingAmountRow(
+                title: createOwnStakeTitle(),
+                amount: (validatorInfo.stakeInfo?.totalStake ?? 0.0) - nominatorsStake,
+                priceData: priceData
+            ),
+            createStakingAmountRow(
+                title: createNominatorsStakeTitle(),
+                amount: nominatorsStake,
+                priceData: priceData
+            ),
+            createStakingAmountRow(
+                title: createTotalTitle(),
+                amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
+                priceData: priceData
+            )
+        ]
     }
 }

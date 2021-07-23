@@ -26081,16 +26081,16 @@ import SoraFoundation
     
     
     
-     func didRecieve(_ viewModel: [ValidatorInfoViewModel])  {
+     func didRecieve(viewModel: ValidatorInfoViewModel)  {
         
-    return cuckoo_manager.call("didRecieve(_: [ValidatorInfoViewModel])",
+    return cuckoo_manager.call("didRecieve(viewModel: ValidatorInfoViewModel)",
             parameters: (viewModel),
             escapingParameters: (viewModel),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didRecieve(viewModel))
+            defaultCall: __defaultImplStub!.didRecieve(viewModel: viewModel))
         
     }
     
@@ -26133,9 +26133,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didRecieve<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ValidatorInfoViewModel])> where M1.MatchedType == [ValidatorInfoViewModel] {
-	        let matchers: [Cuckoo.ParameterMatcher<([ValidatorInfoViewModel])>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoViewProtocol.self, method: "didRecieve(_: [ValidatorInfoViewModel])", parameterMatchers: matchers))
+	    func didRecieve<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoViewModel)> where M1.MatchedType == ValidatorInfoViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoViewProtocol.self, method: "didRecieve(viewModel: ValidatorInfoViewModel)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -26175,9 +26175,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didRecieve<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.__DoNotUse<([ValidatorInfoViewModel]), Void> where M1.MatchedType == [ValidatorInfoViewModel] {
-	        let matchers: [Cuckoo.ParameterMatcher<([ValidatorInfoViewModel])>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didRecieve(_: [ValidatorInfoViewModel])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didRecieve<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(ValidatorInfoViewModel), Void> where M1.MatchedType == ValidatorInfoViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didRecieve(viewModel: ValidatorInfoViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -26221,7 +26221,7 @@ import SoraFoundation
     
 
     
-     func didRecieve(_ viewModel: [ValidatorInfoViewModel])   {
+     func didRecieve(viewModel: ValidatorInfoViewModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26530,21 +26530,6 @@ import SoraFoundation
     
     
     
-     func presentStateDescription()  {
-        
-    return cuckoo_manager.call("presentStateDescription()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.presentStateDescription())
-        
-    }
-    
-    
-    
      func presentTotalStake()  {
         
     return cuckoo_manager.call("presentTotalStake()",
@@ -26560,61 +26545,16 @@ import SoraFoundation
     
     
     
-     func activateEmail()  {
+     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue)  {
         
-    return cuckoo_manager.call("activateEmail()",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("presentIdentityItem(_: ValidatorInfoViewModel.IdentityItemValue)",
+            parameters: (value),
+            escapingParameters: (value),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.activateEmail())
-        
-    }
-    
-    
-    
-     func activateWeb()  {
-        
-    return cuckoo_manager.call("activateWeb()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.activateWeb())
-        
-    }
-    
-    
-    
-     func activateTwitter()  {
-        
-    return cuckoo_manager.call("activateTwitter()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.activateTwitter())
-        
-    }
-    
-    
-    
-     func activateRiotName()  {
-        
-    return cuckoo_manager.call("activateRiotName()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.activateRiotName())
+            defaultCall: __defaultImplStub!.presentIdentityItem(value))
         
     }
     
@@ -26637,34 +26577,14 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentAccountOptions()", parameterMatchers: matchers))
 	    }
 	    
-	    func presentStateDescription() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentStateDescription()", parameterMatchers: matchers))
-	    }
-	    
 	    func presentTotalStake() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentTotalStake()", parameterMatchers: matchers))
 	    }
 	    
-	    func activateEmail() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "activateEmail()", parameterMatchers: matchers))
-	    }
-	    
-	    func activateWeb() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "activateWeb()", parameterMatchers: matchers))
-	    }
-	    
-	    func activateTwitter() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "activateTwitter()", parameterMatchers: matchers))
-	    }
-	    
-	    func activateRiotName() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "activateRiotName()", parameterMatchers: matchers))
+	    func presentIdentityItem<M1: Cuckoo.Matchable>(_ value: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoViewModel.IdentityItemValue)> where M1.MatchedType == ValidatorInfoViewModel.IdentityItemValue {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoViewModel.IdentityItemValue)>] = [wrap(matchable: value) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentIdentityItem(_: ValidatorInfoViewModel.IdentityItemValue)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -26696,39 +26616,15 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentStateDescription() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("presentStateDescription()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func presentTotalStake() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("presentTotalStake()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func activateEmail() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("activateEmail()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func activateWeb() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("activateWeb()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func activateTwitter() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("activateTwitter()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func activateRiotName() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("activateRiotName()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentIdentityItem<M1: Cuckoo.Matchable>(_ value: M1) -> Cuckoo.__DoNotUse<(ValidatorInfoViewModel.IdentityItemValue), Void> where M1.MatchedType == ValidatorInfoViewModel.IdentityItemValue {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoViewModel.IdentityItemValue)>] = [wrap(matchable: value) { $0 }]
+	        return cuckoo_manager.verify("presentIdentityItem(_: ValidatorInfoViewModel.IdentityItemValue)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -26748,27 +26644,11 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentStateDescription()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
      func presentTotalStake()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func activateEmail()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func activateWeb()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func activateTwitter()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func activateRiotName()   {
+     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

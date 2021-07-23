@@ -4,6 +4,7 @@ import Cuckoo
 import SoraKeystore
 import IrohaCrypto
 import FearlessUtils
+import SoraFoundation
 
 class ValidatorInfoTests: XCTestCase {
     let validator = SelectedValidatorInfo(address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6")
@@ -21,9 +22,6 @@ class ValidatorInfoTests: XCTestCase {
         let priceProvider = SingleValueProviderFactoryStub.westendNominatorStub().price
         let interactor = ValidatorInfoInteractor(validatorInfo: validator, priceProvider: priceProvider)
 
-        let addressType = SNAddressType.kusamaMain
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
             selectedAddressType: chain.addressType,
@@ -32,17 +30,18 @@ class ValidatorInfoTests: XCTestCase {
 
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
             iconGenerator: PolkadotIconGenerator(),
-            asset: asset,
-            amountFormatterFactory: AmountFormatterFactory(),
-            balanceViewModelFactory: balanceViewModelFactory)
+            balanceViewModelFactory: balanceViewModelFactory
+        )
 
-        let presenter = ValidatorInfoPresenter(viewModelFactory: validatorInfoViewModelFactory,
-                                               asset: asset,
-                                               locale: Locale.current)
+        let presenter = ValidatorInfoPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: validatorInfoViewModelFactory,
+            chain: chain,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         // when
@@ -50,7 +49,7 @@ class ValidatorInfoTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didRecieve(any()).then { _ in
+            when(stub).didRecieve(viewModel: any()).then { _ in
                 expectation.fulfill()
             }
         }
