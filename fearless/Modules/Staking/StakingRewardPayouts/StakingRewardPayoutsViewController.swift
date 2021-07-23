@@ -36,6 +36,10 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        countdownTimer.stop()
+    }
+
     // MARK: Lifecycle -
 
     override func loadView() {
