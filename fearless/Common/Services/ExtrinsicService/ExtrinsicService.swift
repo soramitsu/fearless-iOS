@@ -4,17 +4,87 @@ import RobinHood
 import IrohaCrypto
 
 typealias ExtrinsicBuilderClosure = (ExtrinsicBuilderProtocol) throws -> (ExtrinsicBuilderProtocol)
-typealias EstimateFeeClosure = (Result<RuntimeDispatchInfo, Error>) -> Void
-typealias ExtrinsicSubmitClosure = (Result<String, Error>) -> Void
+typealias ExtrinsicBuilderIndexedClosure = (ExtrinsicBuilderProtocol, Int) throws -> (ExtrinsicBuilderProtocol)
+
+typealias FeeExtrinsicResult = Result<RuntimeDispatchInfo, Error>
+typealias EstimateFeeClosure = (FeeExtrinsicResult) -> Void
+typealias EstimateFeeIndexedClosure = ([FeeExtrinsicResult]) -> Void
+
+typealias SubmitExtrinsicResult = Result<String, Error>
+typealias ExtrinsicSubmitClosure = (SubmitExtrinsicResult) -> Void
+typealias ExtrinsicSubmitIndexedClosure = ([SubmitExtrinsicResult]) -> Void
 
 protocol ExtrinsicOperationFactoryProtocol {
+    func estimateFeeOperation(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        numberOfExtrinsics: Int
+    )
+        -> CompoundOperationWrapper<[FeeExtrinsicResult]>
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        signer: SigningWrapperProtocol,
+        numberOfExtrinsics: Int
+    ) -> CompoundOperationWrapper<[SubmitExtrinsicResult]>
+}
+
+extension ExtrinsicOperationFactoryProtocol {
     func estimateFeeOperation(_ closure: @escaping ExtrinsicBuilderClosure)
-        -> CompoundOperationWrapper<RuntimeDispatchInfo>
+        -> CompoundOperationWrapper<RuntimeDispatchInfo> {
+        let wrapperClosure: ExtrinsicBuilderIndexedClosure = { builder, _ in
+            try closure(builder)
+        }
+
+        let feeOperation = estimateFeeOperation(
+            wrapperClosure,
+            numberOfExtrinsics: 1
+        )
+
+        let resultMappingOperation = ClosureOperation<RuntimeDispatchInfo> {
+            guard let result = try feeOperation.targetOperation.extractNoCancellableResultData().first else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
+
+            return try result.get()
+        }
+
+        resultMappingOperation.addDependency(feeOperation.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: resultMappingOperation,
+            dependencies: feeOperation.allOperations
+        )
+    }
 
     func submit(
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol
-    ) -> CompoundOperationWrapper<String>
+    ) -> CompoundOperationWrapper<String> {
+        let wrapperClosure: ExtrinsicBuilderIndexedClosure = { builder, _ in
+            try closure(builder)
+        }
+
+        let submitOperation = submit(
+            wrapperClosure,
+            signer: signer,
+            numberOfExtrinsics: 1
+        )
+
+        let resultMappingOperation = ClosureOperation<String> {
+            guard let result = try submitOperation.targetOperation.extractNoCancellableResultData().first else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
+
+            return try result.get()
+        }
+
+        resultMappingOperation.addDependency(submitOperation.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: resultMappingOperation,
+            dependencies: submitOperation.allOperations
+        )
+    }
 }
 
 protocol ExtrinsicServiceProtocol {
@@ -24,11 +94,26 @@ protocol ExtrinsicServiceProtocol {
         completion completionClosure: @escaping EstimateFeeClosure
     )
 
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping EstimateFeeIndexedClosure
+    )
+
     func submit(
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol,
         runningIn queue: DispatchQueue,
         completion completionClosure: @escaping ExtrinsicSubmitClosure
+    )
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping ExtrinsicSubmitIndexedClosure
     )
 }
 
@@ -65,9 +150,10 @@ final class ExtrinsicOperationFactory {
     private func createExtrinsicOperation(
         dependingOn nonceOperation: BaseOperation<UInt32>,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        customClosure: @escaping ExtrinsicBuilderClosure,
+        customClosure: @escaping ExtrinsicBuilderIndexedClosure,
+        numberOfExtrinsics: Int,
         signingClosure: @escaping (Data) throws -> Data
-    ) -> BaseOperation<Data> {
+    ) -> BaseOperation<[Data]> {
         let currentCryptoType = cryptoType
         let currentAddress = address
 
@@ -82,33 +168,40 @@ final class ExtrinsicOperationFactory {
 
             let account = MultiAddress.accoundId(accountId)
 
-            var builder: ExtrinsicBuilderProtocol =
-                try ExtrinsicBuilder(
-                    specVersion: codingFactory.specVersion,
-                    transactionVersion: codingFactory.txVersion,
-                    genesisHash: addressType.chain.genesisHash
+            let extrinsics: [Data] = try (0 ..< numberOfExtrinsics).map { index in
+                var builder: ExtrinsicBuilderProtocol =
+                    try ExtrinsicBuilder(
+                        specVersion: codingFactory.specVersion,
+                        transactionVersion: codingFactory.txVersion,
+                        genesisHash: addressType.chain.genesisHash
+                    )
+                    .with(address: account)
+                    .with(nonce: nonce + UInt32(index))
+
+                builder = try customClosure(builder, index).signing(
+                    by: signingClosure,
+                    of: currentCryptoType.utilsType,
+                    using: codingFactory.createEncoder(),
+                    metadata: codingFactory.metadata
                 )
-                .with(address: account)
-                .with(nonce: nonce)
 
-            builder = try customClosure(builder).signing(
-                by: signingClosure,
-                of: currentCryptoType.utilsType,
-                using: codingFactory.createEncoder(),
-                metadata: codingFactory.metadata
-            )
+                return try builder.build(
+                    encodingBy: codingFactory.createEncoder(),
+                    metadata: codingFactory.metadata
+                )
+            }
 
-            return try builder.build(
-                encodingBy: codingFactory.createEncoder(),
-                metadata: codingFactory.metadata
-            )
+            return extrinsics
         }
     }
 }
 
 extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
-    func estimateFeeOperation(_ closure: @escaping ExtrinsicBuilderClosure)
-        -> CompoundOperationWrapper<RuntimeDispatchInfo> {
+    func estimateFeeOperation(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        numberOfExtrinsics: Int
+    )
+        -> CompoundOperationWrapper<[FeeExtrinsicResult]> {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
@@ -122,38 +215,60 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
             dependingOn: nonceOperation,
             codingFactoryOperation: codingFactoryOperation,
             customClosure: closure,
+            numberOfExtrinsics: numberOfExtrinsics,
             signingClosure: signingClosure
         )
 
         builderOperation.addDependency(nonceOperation)
         builderOperation.addDependency(codingFactoryOperation)
 
-        let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(
-            engine: engine,
-            method: RPCMethod.paymentInfo
-        )
+        let feeOperationList: [JSONRPCListOperation<RuntimeDispatchInfo>] =
+            (0 ..< numberOfExtrinsics).map { index in
+                let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(
+                    engine: engine,
+                    method: RPCMethod.paymentInfo
+                )
 
-        infoOperation.configurationBlock = {
-            do {
-                let extrinsic = try builderOperation.extractNoCancellableResultData().toHex(includePrefix: true)
-                infoOperation.parameters = [extrinsic]
-            } catch {
-                infoOperation.result = .failure(error)
+                infoOperation.configurationBlock = {
+                    do {
+                        let extrinsic = try builderOperation.extractNoCancellableResultData()[index]
+                            .toHex(includePrefix: true)
+                        infoOperation.parameters = [extrinsic]
+                    } catch {
+                        infoOperation.result = .failure(error)
+                    }
+                }
+
+                infoOperation.addDependency(builderOperation)
+
+                return infoOperation
+            }
+
+        let wrapperOperation = ClosureOperation<[FeeExtrinsicResult]> {
+            feeOperationList.map { feeOperation in
+                if let result = feeOperation.result {
+                    return result
+                } else {
+                    return .failure(BaseOperationError.parentOperationCancelled)
+                }
             }
         }
 
-        infoOperation.addDependency(builderOperation)
+        feeOperationList.forEach { feeOperation in
+            wrapperOperation.addDependency(feeOperation)
+        }
 
         return CompoundOperationWrapper(
-            targetOperation: infoOperation,
-            dependencies: [nonceOperation, codingFactoryOperation, builderOperation]
+            targetOperation: wrapperOperation,
+            dependencies: [nonceOperation, codingFactoryOperation, builderOperation] + feeOperationList
         )
     }
 
     func submit(
-        _ closure: @escaping ExtrinsicBuilderClosure,
-        signer: SigningWrapperProtocol
-    ) -> CompoundOperationWrapper<String> {
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        signer: SigningWrapperProtocol,
+        numberOfExtrinsics: Int
+    ) -> CompoundOperationWrapper<[SubmitExtrinsicResult]> {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
@@ -165,33 +280,54 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
             dependingOn: nonceOperation,
             codingFactoryOperation: codingFactoryOperation,
             customClosure: closure,
+            numberOfExtrinsics: numberOfExtrinsics,
             signingClosure: signingClosure
         )
 
         builderOperation.addDependency(nonceOperation)
         builderOperation.addDependency(codingFactoryOperation)
 
-        let submitOperation = JSONRPCListOperation<String>(
-            engine: engine,
-            method: RPCMethod.submitExtrinsic
-        )
-        submitOperation.configurationBlock = {
-            do {
-                let extrinsic = try builderOperation
-                    .extractNoCancellableResultData()
-                    .toHex(includePrefix: true)
+        let submitOperationList: [JSONRPCListOperation<String>] =
+            (0 ..< numberOfExtrinsics).map { index in
+                let submitOperation = JSONRPCListOperation<String>(
+                    engine: engine,
+                    method: RPCMethod.submitExtrinsic
+                )
 
-                submitOperation.parameters = [extrinsic]
-            } catch {
-                submitOperation.result = .failure(error)
+                submitOperation.configurationBlock = {
+                    do {
+                        let extrinsic = try builderOperation
+                            .extractNoCancellableResultData()[index]
+                            .toHex(includePrefix: true)
+
+                        submitOperation.parameters = [extrinsic]
+                    } catch {
+                        submitOperation.result = .failure(error)
+                    }
+                }
+
+                submitOperation.addDependency(builderOperation)
+
+                return submitOperation
+            }
+
+        let wrapperOperation = ClosureOperation<[SubmitExtrinsicResult]> {
+            submitOperationList.map { submitOperation in
+                if let result = submitOperation.result {
+                    return result
+                } else {
+                    return .failure(BaseOperationError.parentOperationCancelled)
+                }
             }
         }
 
-        submitOperation.addDependency(builderOperation)
+        submitOperationList.forEach { submitOperation in
+            wrapperOperation.addDependency(submitOperation)
+        }
 
         return CompoundOperationWrapper(
-            targetOperation: submitOperation,
-            dependencies: [nonceOperation, codingFactoryOperation, builderOperation]
+            targetOperation: wrapperOperation,
+            dependencies: [nonceOperation, codingFactoryOperation, builderOperation] + submitOperationList
         )
     }
 }
@@ -239,6 +375,35 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping EstimateFeeIndexedClosure
+    ) {
+        let wrapper = operationFactory.estimateFeeOperation(
+            closure,
+            numberOfExtrinsics: numberOfExtrinsics
+        )
+
+        wrapper.targetOperation.completionBlock = {
+            queue.async {
+                do {
+                    let result = try wrapper.targetOperation.extractNoCancellableResultData()
+                    completionClosure(result)
+                } catch {
+                    let result: [FeeExtrinsicResult] = Array(
+                        repeating: .failure(error),
+                        count: numberOfExtrinsics
+                    )
+                    completionClosure(result)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
     func submit(
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol,
@@ -253,6 +418,33 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
                     completionClosure(result)
                 } else {
                     completionClosure(.failure(BaseOperationError.parentOperationCancelled))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping ExtrinsicSubmitIndexedClosure
+    ) {
+        let wrapper = operationFactory.submit(closure, signer: signer, numberOfExtrinsics: numberOfExtrinsics)
+
+        wrapper.targetOperation.completionBlock = {
+            queue.async {
+                do {
+                    let operationResult = try wrapper.targetOperation.extractNoCancellableResultData()
+                    completionClosure(operationResult)
+                } catch {
+                    let results: [SubmitExtrinsicResult] = Array(
+                        repeating: .failure(error),
+                        count: numberOfExtrinsics
+                    )
+                    completionClosure(results)
                 }
             }
         }

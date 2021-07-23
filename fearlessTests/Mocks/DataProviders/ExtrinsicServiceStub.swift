@@ -27,13 +27,32 @@ final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
             completionClosure(self.txHash)
         }
     }
+
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping EstimateFeeIndexedClosure
+    ) {
+        completionClosure([self.dispatchInfo])
+    }
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderIndexedClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        numberOfExtrinsics: Int,
+        completion completionClosure: @escaping ExtrinsicSubmitIndexedClosure
+    ) {
+        completionClosure([self.txHash])
+    }
 }
 
 extension ExtrinsicServiceStub {
     static func dummy() -> ExtrinsicServiceStub {
         let dispatchInfo = RuntimeDispatchInfo(dispatchClass: "Extrinsic",
                                                fee: "10000000000",
-                                               weight: 1)
+                                               weight: 10005000)
 
         let txHash = Data(repeating: 7, count: 32).toHex(includePrefix: true)
         return ExtrinsicServiceStub(dispatchInfo: .success(dispatchInfo), txHash: .success(txHash))
