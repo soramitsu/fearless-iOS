@@ -261,6 +261,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private func applyAlerts(_ alerts: [StakingAlert]) {
         alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
+        alertsContainerView.setNeedsLayout()
     }
 }
 
