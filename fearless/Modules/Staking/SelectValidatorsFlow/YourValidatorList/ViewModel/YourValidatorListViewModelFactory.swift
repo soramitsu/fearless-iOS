@@ -34,21 +34,13 @@ final class YourValidatorListViewModelFactory {
             apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
         }
 
-        let shouldHaveWarning: Bool = {
-            guard case let .active(allocation) = model.myNomination else {
-                return false
-            }
-
-            return !allocation.isRewarded
-        }()
-
         return YourValidatorViewModel(
             address: model.address,
             icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
             apy: apy,
-            shouldHaveWarning: shouldHaveWarning,
+            shouldHaveWarning: model.oversubscribed,
             shouldHaveError: model.hasSlashes
         )
     }
@@ -106,16 +98,19 @@ extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryPr
         ]
 
         let sections = createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
-        let hasValidatorsWithoutReward = model.allValidators.contains { validator in
+        let activeAllocations: [ValidatorTokenAllocation] = model.allValidators.compactMap { validator in
             if case let .active(allocation) = validator.myNomination {
-                return !allocation.isRewarded
+                return allocation
             } else {
-                return false
+                return nil
             }
         }
 
+        let allValidatorsWithoutReward = !activeAllocations.isEmpty &&
+            activeAllocations.allSatisfy { !$0.isRewarded }
+
         return YourValidatorListViewModel(
-            hasValidatorWithoutRewards: hasValidatorsWithoutReward,
+            allValidatorWithoutRewards: allValidatorsWithoutReward,
             sections: sections
         )
     }

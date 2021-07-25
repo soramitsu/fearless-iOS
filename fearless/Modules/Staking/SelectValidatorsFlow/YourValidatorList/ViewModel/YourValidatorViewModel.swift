@@ -9,7 +9,7 @@ enum YourValidatorListViewState {
 }
 
 struct YourValidatorListViewModel {
-    let hasValidatorWithoutRewards: Bool
+    let allValidatorWithoutRewards: Bool
     let sections: [YourValidatorListSection]
 }
 

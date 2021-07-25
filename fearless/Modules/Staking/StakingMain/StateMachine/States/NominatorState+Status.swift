@@ -105,6 +105,9 @@ extension NominatorState {
         if ledgerInfo.active < minStake {
             message = R.string.localizable
                 .stakingNominatorStatusAlertLowStake(preferredLanguages: locale?.rLanguages)
+        } else if allValidatorsWithoutReward {
+            message = R.string.localizable
+                .stakingYourOversubscribedMessage(preferredLanguages: locale?.rLanguages)
         } else {
             message = R.string.localizable
                 .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale?.rLanguages)
