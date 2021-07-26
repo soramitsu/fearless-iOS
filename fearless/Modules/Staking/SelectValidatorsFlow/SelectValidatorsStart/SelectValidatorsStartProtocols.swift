@@ -7,6 +7,7 @@ protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizabl
 
 protocol SelectValidatorsStartPresenterProtocol: AnyObject {
     func setup()
+    func updateOnAppearance()
 
     func selectRecommendedValidators()
     func selectCustomValidators()
@@ -26,6 +27,7 @@ protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresenta
         from view: ControllerBackedProtocol?,
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int
     )
 

@@ -10,6 +10,7 @@ final class SelectValidatorsStartPresenter {
 
     private var allValidators: [ElectedValidatorInfo]?
     private var recommended: [ElectedValidatorInfo]?
+    private var selectedValidators: SharedList<SelectedValidatorInfo> = .init(items: [])
     private var maxNominations: Int?
 
     init(logger: LoggerProtocol? = nil) {
@@ -24,23 +25,24 @@ final class SelectValidatorsStartPresenter {
         }
 
         let resultLimit = min(all.count, maxNominations)
-        recommended = RecommendationsComposer(
+        let recomendedValidators = RecommendationsComposer(
             resultSize: resultLimit,
             clusterSizeLimit: StakingConstants.targetsClusterLimit
         ).compose(from: all)
+
+        recommended = recomendedValidators
     }
 
     private func updateView() {
         guard
             let all = allValidators,
-            let recommended = recommended,
             let maxNominations = maxNominations else {
             return
         }
 
         let totalCount = min(all.count, maxNominations)
         let viewModel = SelectValidatorsStartViewModel(
-            selectedCount: recommended.count,
+            selectedCount: selectedValidators.count,
             totalCount: totalCount
         )
 
@@ -85,6 +87,10 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         interactor.setup()
     }
 
+    func updateOnAppearance() {
+        updateView()
+    }
+
     func selectRecommendedValidators() {
         guard
             let all = allValidators,
@@ -104,7 +110,9 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     }
 
     func selectCustomValidators() {
-        guard let all = allValidators, let maxNominations = maxNominations else {
+        guard
+            let all = allValidators,
+            let maxNominations = maxNominations else {
             return
         }
 
@@ -116,6 +124,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             from: view,
             validatorList: electedValidatorList,
             recommendedValidatorList: recommendedValidatorList,
+            selectedValidatorList: selectedValidators,
             maxTargets: maxTargets
         )
     }

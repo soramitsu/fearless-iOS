@@ -16,9 +16,9 @@ final class SelectValidatorsStartViewController: UIViewController {
     @IBOutlet private var hint5: ImageWithTitleView!
 
     @IBOutlet private var validatorsCell: DetailsTriangularedView!
-    @IBOutlet private var validatorsCountLabel: UILabel!
 
     @IBOutlet private var customValidatorsCell: DetailsTriangularedView!
+    @IBOutlet private var customValidatorsCountLabel: UILabel!
 
     @IBOutlet private var activityViews: [UIActivityIndicatorView]!
     @IBOutlet private var nextStepIndicators: [UIImageView]!
@@ -34,9 +34,15 @@ final class SelectValidatorsStartViewController: UIViewController {
 
         setupLocalization()
         updateLoadingState()
-        updateRecommended()
+        updateSelected()
 
         presenter.setup()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        presenter.updateOnAppearance()
     }
 
     private func setupLocalization() {
@@ -65,7 +71,7 @@ final class SelectValidatorsStartViewController: UIViewController {
         customValidatorsCell.title = R.string.localizable
             .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: languages)
 
-        updateRecommended()
+        updateSelected()
     }
 
     private func toggleActivityViews() {
@@ -89,8 +95,8 @@ final class SelectValidatorsStartViewController: UIViewController {
         toggleNextStepIndicators()
     }
 
-    private func updateRecommended() {
-        if let viewModel = viewModel {
+    private func updateSelected() {
+        if let viewModel = viewModel, viewModel.selectedCount > 0 {
             let languages = localizationManager?.selectedLocale.rLanguages
             let text = R.string.localizable
                 .stakingRecommendedValidatorsCounter(
@@ -98,9 +104,9 @@ final class SelectValidatorsStartViewController: UIViewController {
                     "\(viewModel.totalCount)",
                     preferredLanguages: languages
                 )
-            validatorsCountLabel.text = text
+            customValidatorsCountLabel.text = text
         } else {
-            validatorsCountLabel.text = ""
+            customValidatorsCountLabel.text = ""
         }
     }
 
@@ -118,7 +124,7 @@ extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol
         self.viewModel = viewModel
 
         updateLoadingState()
-        updateRecommended()
+        updateSelected()
     }
 }
 

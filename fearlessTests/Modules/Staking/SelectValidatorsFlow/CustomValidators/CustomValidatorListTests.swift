@@ -50,6 +50,7 @@ class CustomValidatorListTests: XCTestCase {
             localizationManager: LocalizationManager.shared,
             fullValidatorList: fullValidatorList,
             recommendedValidatorList: recommendedValidatorList,
+            selectedValidatorList: SharedList<SelectedValidatorInfo>(items: []),
             maxTargets: 16
         )
 

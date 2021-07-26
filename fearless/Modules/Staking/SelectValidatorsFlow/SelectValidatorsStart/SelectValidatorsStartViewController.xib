@@ -22,6 +22,7 @@
             <connections>
                 <outlet property="algoDetailsLabel" destination="55y-Iv-EdM" id="XQr-La-q6C"/>
                 <outlet property="customValidatorsCell" destination="ENT-cZ-dY0" id="44w-HN-17i"/>
+                <outlet property="customValidatorsCountLabel" destination="mUW-mr-dOJ" id="uD7-qr-l5T"/>
                 <outlet property="customValidatorsDetailsLabel" destination="jol-v5-CUa" id="jI1-CZ-u2x"/>
                 <outlet property="customValidatorsTitleLabel" destination="8N2-er-RfY" id="m5h-h7-oNG"/>
                 <outlet property="hint1" destination="JGu-sj-Eoi" id="a3t-US-xf8"/>
@@ -31,7 +32,6 @@
                 <outlet property="hint5" destination="v2q-2V-CbM" id="EuT-xr-PO8"/>
                 <outlet property="sectionTitleLabel" destination="xLN-Qv-Daq" id="2Df-XC-RhT"/>
                 <outlet property="validatorsCell" destination="g6a-OX-WP3" id="WUQ-Kc-sxO"/>
-                <outlet property="validatorsCountLabel" destination="mUW-mr-dOJ" id="paE-V2-kCH"/>
                 <outlet property="view" destination="iN0-l3-epB" id="e6v-3L-hpM"/>
                 <outletCollection property="activityViews" destination="Tck-WI-Kkf" collectionClass="NSMutableArray" id="k9P-RC-m8D"/>
                 <outletCollection property="activityViews" destination="Qsc-iQ-Swd" collectionClass="NSMutableArray" id="7tc-mx-hVy"/>
@@ -90,7 +90,7 @@
                                     <rect key="frame" x="0.0" y="152.5" width="375" height="114"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-sj-Eoi" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="0.0" width="111" height="26"/>
+                                            <rect key="frame" x="16" y="0.0" width="133.5" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -108,7 +108,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sgp-Kt-dYL" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="32" width="133.5" height="16"/>
+                                            <rect key="frame" x="16" y="24" width="166" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -126,7 +126,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xfe-hK-UX5" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="54" width="159.5" height="16"/>
+                                            <rect key="frame" x="16" y="48" width="193" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -144,7 +144,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O9j-gG-NIg" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="76" width="90" height="16"/>
+                                            <rect key="frame" x="16" y="72" width="109" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -162,7 +162,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v2q-2V-CbM" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="98" width="207.5" height="16"/>
+                                            <rect key="frame" x="16" y="96" width="249.5" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -268,12 +268,6 @@
                                                 <action selector="actionRecommendedValidators" destination="-1" eventType="touchUpInside" id="uWY-lv-FWG"/>
                                             </connections>
                                         </view>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="16 of 16" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUW-mr-dOJ">
-                                            <rect key="frame" x="187.5" y="16" width="147.5" height="16.5"/>
-                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
-                                            <color key="textColor" name="colorWhite"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="qo1-Km-IOb">
                                             <rect key="frame" x="335" y="12" width="24" height="24"/>
                                             <color key="tintColor" name="colorWhite"/>
@@ -282,7 +276,6 @@
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstAttribute="trailing" secondItem="g6a-OX-WP3" secondAttribute="trailing" id="2us-TX-Un6"/>
-                                        <constraint firstItem="mUW-mr-dOJ" firstAttribute="centerY" secondItem="g6a-OX-WP3" secondAttribute="centerY" id="LvI-h1-b3o"/>
                                         <constraint firstAttribute="trailing" secondItem="qo1-Km-IOb" secondAttribute="trailing" constant="16" id="Mow-fi-cqO"/>
                                         <constraint firstItem="sny-7g-S5M" firstAttribute="top" secondItem="cst-IG-Zd7" secondAttribute="top" id="O0b-wV-1nH"/>
                                         <constraint firstAttribute="bottom" secondItem="sny-7g-S5M" secondAttribute="bottom" id="QDd-oW-Nfo"/>
@@ -293,8 +286,6 @@
                                         <constraint firstItem="qo1-Km-IOb" firstAttribute="centerY" secondItem="cst-IG-Zd7" secondAttribute="centerY" id="YAQ-MF-yPk"/>
                                         <constraint firstAttribute="bottom" secondItem="g6a-OX-WP3" secondAttribute="bottom" id="lQz-wY-4nB"/>
                                         <constraint firstItem="g6a-OX-WP3" firstAttribute="top" secondItem="cst-IG-Zd7" secondAttribute="top" id="lar-uf-bUT"/>
-                                        <constraint firstItem="mUW-mr-dOJ" firstAttribute="leading" secondItem="g6a-OX-WP3" secondAttribute="centerX" id="mwR-X5-I7Y"/>
-                                        <constraint firstItem="qo1-Km-IOb" firstAttribute="leading" secondItem="mUW-mr-dOJ" secondAttribute="trailing" id="vw8-vE-NTR"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RHh-LA-GWs">
@@ -402,6 +393,12 @@
                                                 <action selector="actionCustomValidators" destination="-1" eventType="touchUpInside" id="6os-6a-ysw"/>
                                             </connections>
                                         </view>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="16 (max 16)" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUW-mr-dOJ">
+                                            <rect key="frame" x="187.5" y="15" width="147.5" height="18"/>
+                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                                            <color key="textColor" name="colorWhite"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="tnB-6r-c6l">
                                             <rect key="frame" x="335" y="12" width="24" height="24"/>
                                             <color key="tintColor" name="colorWhite"/>
@@ -411,13 +408,16 @@
                                     <constraints>
                                         <constraint firstAttribute="height" constant="48" id="1t4-Kz-rFy"/>
                                         <constraint firstAttribute="trailing" secondItem="gpJ-Ri-cah" secondAttribute="trailing" id="IcO-SU-F3t"/>
+                                        <constraint firstItem="mUW-mr-dOJ" firstAttribute="centerY" secondItem="UV7-1T-hlO" secondAttribute="centerY" id="Ieg-se-4j7"/>
                                         <constraint firstAttribute="trailing" secondItem="tnB-6r-c6l" secondAttribute="trailing" constant="16" id="MG8-Sz-350"/>
+                                        <constraint firstItem="mUW-mr-dOJ" firstAttribute="leading" secondItem="ENT-cZ-dY0" secondAttribute="centerX" id="MTd-89-1I4"/>
                                         <constraint firstItem="gpJ-Ri-cah" firstAttribute="top" secondItem="UV7-1T-hlO" secondAttribute="top" id="RmO-d6-DDQ"/>
                                         <constraint firstAttribute="bottom" secondItem="gpJ-Ri-cah" secondAttribute="bottom" id="Rmm-By-Lit"/>
                                         <constraint firstItem="ENT-cZ-dY0" firstAttribute="leading" secondItem="UV7-1T-hlO" secondAttribute="leading" id="S7j-r4-dmK"/>
                                         <constraint firstAttribute="trailing" secondItem="ENT-cZ-dY0" secondAttribute="trailing" id="VXc-BZ-440"/>
                                         <constraint firstItem="ENT-cZ-dY0" firstAttribute="top" secondItem="UV7-1T-hlO" secondAttribute="top" id="dMT-St-rT8"/>
                                         <constraint firstAttribute="bottom" secondItem="ENT-cZ-dY0" secondAttribute="bottom" id="fvZ-Eu-ZIh"/>
+                                        <constraint firstItem="tnB-6r-c6l" firstAttribute="leading" secondItem="mUW-mr-dOJ" secondAttribute="trailing" id="jYN-GP-uRc"/>
                                         <constraint firstItem="gpJ-Ri-cah" firstAttribute="leading" secondItem="UV7-1T-hlO" secondAttribute="leading" id="m0l-cD-2qx"/>
                                         <constraint firstItem="tnB-6r-c6l" firstAttribute="centerY" secondItem="UV7-1T-hlO" secondAttribute="centerY" id="w9q-8v-zoR"/>
                                     </constraints>
@@ -462,22 +462,22 @@
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
         <designable name="JGu-sj-Eoi">
-            <size key="intrinsicContentSize" width="111" height="16"/>
+            <size key="intrinsicContentSize" width="133.5" height="18"/>
         </designable>
         <designable name="O9j-gG-NIg">
-            <size key="intrinsicContentSize" width="90" height="16"/>
+            <size key="intrinsicContentSize" width="109" height="18"/>
         </designable>
         <designable name="Sgp-Kt-dYL">
-            <size key="intrinsicContentSize" width="133.5" height="16"/>
+            <size key="intrinsicContentSize" width="166" height="18"/>
         </designable>
         <designable name="g6a-OX-WP3">
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
         <designable name="v2q-2V-CbM">
-            <size key="intrinsicContentSize" width="207.5" height="16"/>
+            <size key="intrinsicContentSize" width="249.5" height="18"/>
         </designable>
         <designable name="xfe-hK-UX5">
-            <size key="intrinsicContentSize" width="159.5" height="16"/>
+            <size key="intrinsicContentSize" width="193" height="18"/>
         </designable>
     </designables>
     <resources>

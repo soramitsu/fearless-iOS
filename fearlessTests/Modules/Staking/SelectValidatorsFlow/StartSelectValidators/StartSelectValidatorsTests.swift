@@ -55,7 +55,8 @@ class SelectValidatorsStartTests: XCTestCase {
                 from: any(),
                 validatorList: any(),
                 recommendedValidatorList: any(),
-                maxTargets: any()).then { (_, validators, _, _) in
+                selectedValidatorList: any(),
+                maxTargets: any()).then { (_, validators, _, _ , _) in
                 XCTAssertEqual(all, validators)
             }
 
@@ -74,7 +75,7 @@ class SelectValidatorsStartTests: XCTestCase {
         presenter.selectRecommendedValidators()
         presenter.selectCustomValidators()
 
-        verify(wireframe, times(1)).proceedToCustomList(from: any(), validatorList: any(), recommendedValidatorList: any(), maxTargets: any())
+        verify(wireframe, times(1)).proceedToCustomList(from: any(), validatorList: any(), recommendedValidatorList: any(), selectedValidatorList: any(), maxTargets: any())
         verify(wireframe, times(1)).proceedToRecommendedList(from: any(), validatorList: any(), maxTargets: any())
     }
 }
