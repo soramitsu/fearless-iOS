@@ -4,7 +4,47 @@ import Cuckoo
 import RobinHood
 
 class SelectValidatorsStartTests: XCTestCase {
-    func testSetupAndOptionSelect() throws {
+    func testSetupValidators() throws {
+        let allValidators = WestendStub.allValidators
+        let recomendedValidators = WestendStub.recommendedValidators
+
+        try performTest(
+            for: nil,
+            allValidators: allValidators,
+            expectedRecommendedValidators: recomendedValidators,
+            expectedViewModel: SelectValidatorsStartViewModel(
+                phase: .setup,
+                selectedCount: 0,
+                totalCount: 16
+            ),
+            expectedCustomValidators: allValidators.map { $0.toSelected() }
+        )
+    }
+
+    func testChangeValidators() throws {
+        let allValidators = WestendStub.allValidators
+        let recomendedValidators = WestendStub.recommendedValidators
+
+        try performTest(
+            for: recomendedValidators.map { $0.toSelected() },
+            allValidators: allValidators,
+            expectedRecommendedValidators: recomendedValidators,
+            expectedViewModel: SelectValidatorsStartViewModel(
+                phase: .update,
+                selectedCount: recomendedValidators.count,
+                totalCount: 16
+            ),
+            expectedCustomValidators: allValidators.map { $0.toSelected() }
+        )
+    }
+
+    private func performTest(
+        for selectedTargets: [SelectedValidatorInfo]?,
+        allValidators: [ElectedValidatorInfo],
+        expectedRecommendedValidators: [ElectedValidatorInfo],
+        expectedViewModel: SelectValidatorsStartViewModel,
+        expectedCustomValidators: [SelectedValidatorInfo]
+    ) throws {
         // given
 
         let view = MockSelectValidatorsStartViewProtocol()
@@ -30,7 +70,7 @@ class SelectValidatorsStartTests: XCTestCase {
 
         stub(operationFactory) { stub in
             when(stub).allElectedOperation().then { _ in
-                CompoundOperationWrapper.createWithResult(WestendStub.allValidators)
+                CompoundOperationWrapper.createWithResult(allValidators)
             }
         }
 
@@ -46,10 +86,7 @@ class SelectValidatorsStartTests: XCTestCase {
         let generator = CustomValidatorListTestDataGenerator.self
 
         let recommended = generator
-            .createSelectedValidators(from: WestendStub.recommendedValidators)
-        
-        let all = generator
-            .createSelectedValidators(from: WestendStub.allValidators)
+            .createSelectedValidators(from: expectedRecommendedValidators)
 
         stub(wireframe) { stub in
             when(stub).proceedToCustomList(
@@ -58,7 +95,13 @@ class SelectValidatorsStartTests: XCTestCase {
                 recommendedValidatorList: any(),
                 selectedValidatorList: any(),
                 maxTargets: any()).then { (_, validators, _, _ , _) in
-                XCTAssertEqual(all, validators)
+                    XCTAssertEqual(
+                        expectedCustomValidators.sorted {
+                            $0.address.lexicographicallyPrecedes($1.address)
+                        },
+                        validators.sorted {
+                            $0.address.lexicographicallyPrecedes($1.address)
+                        })
             }
 
             when(stub).proceedToRecommendedList(from: any(), validatorList: any(), maxTargets: any()).then { (_, targets, _) in
@@ -71,7 +114,7 @@ class SelectValidatorsStartTests: XCTestCase {
 
         // then
 
-        wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [setupExpectation], timeout: 10)
 
         presenter.selectRecommendedValidators()
         presenter.selectCustomValidators()

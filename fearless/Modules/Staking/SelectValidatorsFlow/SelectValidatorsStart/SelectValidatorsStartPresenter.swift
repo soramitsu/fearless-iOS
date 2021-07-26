@@ -54,17 +54,15 @@ final class SelectValidatorsStartPresenter {
 
     private func updateView() {
         guard
-            let all = allValidators,
             let maxNominations = maxNominations,
             let selectedValidators = selectedValidators else {
             return
         }
 
-        let totalCount = min(all.count, maxNominations)
         let viewModel = SelectValidatorsStartViewModel(
             phase: initialTargets == nil ? .setup : .update,
             selectedCount: selectedValidators.count,
-            totalCount: totalCount
+            totalCount: maxNominations
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -161,6 +159,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputP
             self.maxNominations = maxNominations
 
             updateRecommendedValidators()
+            updateSelectedValidatorsIfNeeded()
             updateView()
         case let .failure(error):
             handle(error: error)

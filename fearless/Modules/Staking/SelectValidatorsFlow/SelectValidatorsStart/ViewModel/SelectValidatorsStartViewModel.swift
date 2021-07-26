@@ -1,6 +1,6 @@
 import Foundation
 
-struct SelectValidatorsStartViewModel {
+struct SelectValidatorsStartViewModel: Equatable {
     enum Phase {
         case setup
         case update
