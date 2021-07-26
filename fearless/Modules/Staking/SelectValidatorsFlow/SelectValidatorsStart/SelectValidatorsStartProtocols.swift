@@ -17,8 +17,8 @@ protocol SelectValidatorsStartInteractorInputProtocol: AnyObject {
 }
 
 protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {
-    func didReceive(validators: [ElectedValidatorInfo])
-    func didReceive(error: Error)
+    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
+    func didReceiveMaxNominations(result: Result<Int, Error>)
 }
 
 protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {

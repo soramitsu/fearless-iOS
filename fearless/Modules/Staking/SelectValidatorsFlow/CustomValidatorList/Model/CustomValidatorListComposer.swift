@@ -50,7 +50,7 @@ extension CustomValidatorListComposer: RecommendationsComposing {
         return processClusters(
             items: sorted,
             clusterSizeLimit: clusterSizeLimit,
-            resultSize: nil
+            resultSize: sorted.count
         )
     }
 }

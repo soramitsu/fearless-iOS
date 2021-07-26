@@ -32,15 +32,9 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             return nil
         }
 
-        let recomendationsComposer = RecommendationsComposer(
-            resultSize: StakingConstants.maxTargets,
-            clusterSizeLimit: StakingConstants.targetsClusterLimit
-        )
-
         let view = SelectValidatorsStartViewController(nib: R.nib.selectValidatorsStartViewController)
 
         let presenter = SelectValidatorsStartPresenter(
-            recommendationsComposer: recomendationsComposer,
             logger: Logger.shared
         )
 
@@ -67,6 +61,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         )
 
         let interactor = SelectValidatorsStartInteractor(
+            runtimeService: runtimeService,
             operationFactory: operationFactory,
             operationManager: operationManager
         )

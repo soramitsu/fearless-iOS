@@ -4,24 +4,22 @@ import Cuckoo
 import RobinHood
 
 class SelectValidatorsStartTests: XCTestCase {
-    func testSetupAndOptionSelect() {
+    func testSetupAndOptionSelect() throws {
         // given
 
         let view = MockSelectValidatorsStartViewProtocol()
         let wireframe = MockSelectValidatorsStartWireframeProtocol()
         let operationFactory = MockValidatorOperationFactoryProtocol()
 
-        let recommendationsComposer = RecommendationsComposer(
-            resultSize: StakingConstants.maxTargets,
-            clusterSizeLimit: StakingConstants.targetsClusterLimit
-        )
+        let presenter = SelectValidatorsStartPresenter()
 
-        let presenter = SelectValidatorsStartPresenter(
-            recommendationsComposer: recommendationsComposer
-        )
+        let runtimeService = try RuntimeCodingServiceStub.createWestendService()
 
-        let interactor = SelectValidatorsStartInteractor(operationFactory: operationFactory,
-                                                         operationManager: OperationManager())
+        let interactor = SelectValidatorsStartInteractor(
+            runtimeService: runtimeService,
+            operationFactory: operationFactory,
+            operationManager: OperationManager()
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe

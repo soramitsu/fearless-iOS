@@ -3,16 +3,19 @@ import RobinHood
 import FearlessUtils
 import IrohaCrypto
 
-final class SelectValidatorsStartInteractor {
+final class SelectValidatorsStartInteractor: RuntimeConstantFetching {
     weak var presenter: SelectValidatorsStartInteractorOutputProtocol!
 
     let operationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
+    let runtimeService: RuntimeCodingServiceProtocol
 
     init(
+        runtimeService: RuntimeCodingServiceProtocol,
         operationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
+        self.runtimeService = runtimeService
         self.operationFactory = operationFactory
         self.operationManager = operationManager
     }
@@ -24,9 +27,9 @@ final class SelectValidatorsStartInteractor {
             DispatchQueue.main.async {
                 do {
                     let validators = try wrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(validators: validators)
+                    self?.presenter.didReceiveValidators(result: .success(validators))
                 } catch {
-                    self?.presenter.didReceive(error: error)
+                    self?.presenter.didReceiveValidators(result: .failure(error))
                 }
             }
         }
@@ -38,5 +41,13 @@ final class SelectValidatorsStartInteractor {
 extension SelectValidatorsStartInteractor: SelectValidatorsStartInteractorInputProtocol {
     func setup() {
         prepareRecommendedValidatorList()
+
+        fetchConstant(
+            for: .maxNominations,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<Int, Error>) in
+            self?.presenter.didReceiveMaxNominations(result: result)
+        }
     }
 }

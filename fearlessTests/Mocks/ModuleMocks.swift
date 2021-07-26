@@ -24283,31 +24283,31 @@ import SoraFoundation
     
     
     
-     func didReceive(validators: [ElectedValidatorInfo])  {
+     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)  {
         
-    return cuckoo_manager.call("didReceive(validators: [ElectedValidatorInfo])",
-            parameters: (validators),
-            escapingParameters: (validators),
+    return cuckoo_manager.call("didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)",
+            parameters: (result),
+            escapingParameters: (result),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceive(validators: validators))
+            defaultCall: __defaultImplStub!.didReceiveValidators(result: result))
         
     }
     
     
     
-     func didReceive(error: Error)  {
+     func didReceiveMaxNominations(result: Result<Int, Error>)  {
         
-    return cuckoo_manager.call("didReceive(error: Error)",
-            parameters: (error),
-            escapingParameters: (error),
+    return cuckoo_manager.call("didReceiveMaxNominations(result: Result<Int, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceive(error: error))
+            defaultCall: __defaultImplStub!.didReceiveMaxNominations(result: result))
         
     }
     
@@ -24320,14 +24320,14 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(validators: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ElectedValidatorInfo])> where M1.MatchedType == [ElectedValidatorInfo] {
-	        let matchers: [Cuckoo.ParameterMatcher<([ElectedValidatorInfo])>] = [wrap(matchable: validators) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartInteractorOutputProtocol.self, method: "didReceive(validators: [ElectedValidatorInfo])", parameterMatchers: matchers))
+	    func didReceiveValidators<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[ElectedValidatorInfo], Error>)> where M1.MatchedType == Result<[ElectedValidatorInfo], Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<[ElectedValidatorInfo], Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartInteractorOutputProtocol.self, method: "didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartInteractorOutputProtocol.self, method: "didReceive(error: Error)", parameterMatchers: matchers))
+	    func didReceiveMaxNominations<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<Int, Error>)> where M1.MatchedType == Result<Int, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<Int, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartInteractorOutputProtocol.self, method: "didReceiveMaxNominations(result: Result<Int, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -24347,15 +24347,15 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(validators: M1) -> Cuckoo.__DoNotUse<([ElectedValidatorInfo]), Void> where M1.MatchedType == [ElectedValidatorInfo] {
-	        let matchers: [Cuckoo.ParameterMatcher<([ElectedValidatorInfo])>] = [wrap(matchable: validators) { $0 }]
-	        return cuckoo_manager.verify("didReceive(validators: [ElectedValidatorInfo])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceiveValidators<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<[ElectedValidatorInfo], Error>), Void> where M1.MatchedType == Result<[ElectedValidatorInfo], Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<[ElectedValidatorInfo], Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
-	        return cuckoo_manager.verify("didReceive(error: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceiveMaxNominations<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<Int, Error>), Void> where M1.MatchedType == Result<Int, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<Int, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveMaxNominations(result: Result<Int, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -24367,11 +24367,11 @@ import SoraFoundation
     
 
     
-     func didReceive(validators: [ElectedValidatorInfo])   {
+     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceive(error: Error)   {
+     func didReceiveMaxNominations(result: Result<Int, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

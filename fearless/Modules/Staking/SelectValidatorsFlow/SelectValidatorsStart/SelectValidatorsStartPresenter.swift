@@ -8,22 +8,37 @@ final class SelectValidatorsStartPresenter {
 
     let logger: LoggerProtocol?
 
-    var allValidators: [ElectedValidatorInfo]?
-    var recommended: [ElectedValidatorInfo]?
+    private var allValidators: [ElectedValidatorInfo]?
+    private var recommended: [ElectedValidatorInfo]?
+    private var maxNominations: Int?
 
-    let recommendationsComposer: RecommendationsComposer
-
-    init(recommendationsComposer: RecommendationsComposer, logger: LoggerProtocol? = nil) {
-        self.recommendationsComposer = recommendationsComposer
+    init(logger: LoggerProtocol? = nil) {
         self.logger = logger
     }
 
-    private func updateView() {
-        guard let all = allValidators, let recommended = recommended else {
+    private func updateRecommendedValidators() {
+        guard
+            let all = allValidators,
+            let maxNominations = maxNominations else {
             return
         }
 
-        let totalCount = min(all.count, StakingConstants.maxTargets)
+        let resultLimit = min(all.count, maxNominations)
+        recommended = RecommendationsComposer(
+            resultSize: resultLimit,
+            clusterSizeLimit: StakingConstants.targetsClusterLimit
+        ).compose(from: all)
+    }
+
+    private func updateView() {
+        guard
+            let all = allValidators,
+            let recommended = recommended,
+            let maxNominations = maxNominations else {
+            return
+        }
+
+        let totalCount = min(all.count, maxNominations)
         let viewModel = SelectValidatorsStartViewModel(
             selectedCount: recommended.count,
             totalCount: totalCount
@@ -50,6 +65,19 @@ final class SelectValidatorsStartPresenter {
             )
         }
     }
+
+    private func handle(error: Error) {
+        logger?.error("Did receive error \(error)")
+
+        let locale = view?.localizationManager?.selectedLocale
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            _ = wireframe.present(
+                error: BaseOperationError.unexpectedDependentResult,
+                from: view,
+                locale: locale
+            )
+        }
+    }
 }
 
 extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol {
@@ -58,11 +86,14 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     }
 
     func selectRecommendedValidators() {
-        guard let all = allValidators, let recommended = recommended else {
+        guard
+            let all = allValidators,
+            let recommended = recommended,
+            let maxNominations = maxNominations else {
             return
         }
 
-        let maxTargets = min(all.count, StakingConstants.maxTargets)
+        let maxTargets = min(all.count, maxNominations)
         let recommendedValidatorList = prepareSelectedValidators(from: recommended)
 
         wireframe.proceedToRecommendedList(
@@ -73,11 +104,11 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     }
 
     func selectCustomValidators() {
-        guard let all = allValidators else {
+        guard let all = allValidators, let maxNominations = maxNominations else {
             return
         }
 
-        let maxTargets = min(all.count, StakingConstants.maxTargets)
+        let maxTargets = min(all.count, maxNominations)
         let electedValidatorList = prepareSelectedValidators(from: all)
         let recommendedValidatorList = prepareSelectedValidators(from: recommended ?? [])
 
@@ -91,24 +122,27 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
 }
 
 extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputProtocol {
-    func didReceive(validators: [ElectedValidatorInfo]) {
-        allValidators = validators
+    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>) {
+        switch result {
+        case let .success(validators):
+            allValidators = validators
 
-        recommended = recommendationsComposer.compose(from: validators)
-
-        updateView()
+            updateRecommendedValidators()
+            updateView()
+        case let .failure(error):
+            handle(error: error)
+        }
     }
 
-    func didReceive(error: Error) {
-        logger?.error("Did receive error \(error)")
+    func didReceiveMaxNominations(result: Result<Int, Error>) {
+        switch result {
+        case let .success(maxNominations):
+            self.maxNominations = maxNominations
 
-        let locale = view?.localizationManager?.selectedLocale
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            _ = wireframe.present(
-                error: BaseOperationError.unexpectedDependentResult,
-                from: view,
-                locale: locale
-            )
+            updateRecommendedValidators()
+            updateView()
+        case let .failure(error):
+            handle(error: error)
         }
     }
 }

@@ -90,7 +90,7 @@
                                     <rect key="frame" x="0.0" y="152.5" width="375" height="114"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-sj-Eoi" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="0.0" width="133.5" height="18"/>
+                                            <rect key="frame" x="16" y="0.0" width="111" height="26"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -108,7 +108,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sgp-Kt-dYL" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="24" width="166" height="18"/>
+                                            <rect key="frame" x="16" y="32" width="133.5" height="16"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -126,7 +126,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xfe-hK-UX5" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="48" width="193" height="18"/>
+                                            <rect key="frame" x="16" y="54" width="159.5" height="16"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -144,7 +144,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O9j-gG-NIg" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="72" width="109" height="18"/>
+                                            <rect key="frame" x="16" y="76" width="90" height="16"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -162,7 +162,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v2q-2V-CbM" customClass="ImageWithTitleView" customModule="SoraUI">
-                                            <rect key="frame" x="16" y="96" width="249.5" height="18"/>
+                                            <rect key="frame" x="16" y="98" width="207.5" height="16"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
@@ -269,7 +269,7 @@
                                             </connections>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="16 of 16" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUW-mr-dOJ">
-                                            <rect key="frame" x="187.5" y="15" width="147.5" height="18"/>
+                                            <rect key="frame" x="187.5" y="16" width="147.5" height="16.5"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -462,22 +462,22 @@
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
         <designable name="JGu-sj-Eoi">
-            <size key="intrinsicContentSize" width="133.5" height="18"/>
+            <size key="intrinsicContentSize" width="111" height="16"/>
         </designable>
         <designable name="O9j-gG-NIg">
-            <size key="intrinsicContentSize" width="109" height="18"/>
+            <size key="intrinsicContentSize" width="90" height="16"/>
         </designable>
         <designable name="Sgp-Kt-dYL">
-            <size key="intrinsicContentSize" width="166" height="18"/>
+            <size key="intrinsicContentSize" width="133.5" height="16"/>
         </designable>
         <designable name="g6a-OX-WP3">
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
         <designable name="v2q-2V-CbM">
-            <size key="intrinsicContentSize" width="249.5" height="18"/>
+            <size key="intrinsicContentSize" width="207.5" height="16"/>
         </designable>
         <designable name="xfe-hK-UX5">
-            <size key="intrinsicContentSize" width="193" height="18"/>
+            <size key="intrinsicContentSize" width="159.5" height="16"/>
         </designable>
     </designables>
     <resources>
