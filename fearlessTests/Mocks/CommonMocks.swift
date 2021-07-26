@@ -2068,16 +2068,16 @@ import SoraKeystore
     
     
     
-     func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown> {
+     func fetchCountdownOperationWrapper(connection: JSONRPCEngine, runtimeCodingService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<EraCountdown> {
         
-    return cuckoo_manager.call("fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown>",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("fetchCountdownOperationWrapper(connection: JSONRPCEngine, runtimeCodingService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<EraCountdown>",
+            parameters: (connection, runtimeCodingService),
+            escapingParameters: (connection, runtimeCodingService),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.fetchCountdownOperationWrapper())
+            defaultCall: __defaultImplStub!.fetchCountdownOperationWrapper(connection: connection, runtimeCodingService: runtimeCodingService))
         
     }
     
@@ -2090,9 +2090,9 @@ import SoraKeystore
 	    }
 	    
 	    
-	    func fetchCountdownOperationWrapper() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<EraCountdown>> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockEraCountdownOperationFactoryProtocol.self, method: "fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown>", parameterMatchers: matchers))
+	    func fetchCountdownOperationWrapper<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(connection: M1, runtimeCodingService: M2) -> Cuckoo.ProtocolStubFunction<(JSONRPCEngine, RuntimeCodingServiceProtocol), CompoundOperationWrapper<EraCountdown>> where M1.MatchedType == JSONRPCEngine, M2.MatchedType == RuntimeCodingServiceProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(JSONRPCEngine, RuntimeCodingServiceProtocol)>] = [wrap(matchable: connection) { $0.0 }, wrap(matchable: runtimeCodingService) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockEraCountdownOperationFactoryProtocol.self, method: "fetchCountdownOperationWrapper(connection: JSONRPCEngine, runtimeCodingService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<EraCountdown>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -2112,9 +2112,9 @@ import SoraKeystore
 	
 	    
 	    @discardableResult
-	    func fetchCountdownOperationWrapper() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<EraCountdown>> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func fetchCountdownOperationWrapper<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(connection: M1, runtimeCodingService: M2) -> Cuckoo.__DoNotUse<(JSONRPCEngine, RuntimeCodingServiceProtocol), CompoundOperationWrapper<EraCountdown>> where M1.MatchedType == JSONRPCEngine, M2.MatchedType == RuntimeCodingServiceProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(JSONRPCEngine, RuntimeCodingServiceProtocol)>] = [wrap(matchable: connection) { $0.0 }, wrap(matchable: runtimeCodingService) { $0.1 }]
+	        return cuckoo_manager.verify("fetchCountdownOperationWrapper(connection: JSONRPCEngine, runtimeCodingService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<EraCountdown>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -2126,7 +2126,7 @@ import SoraKeystore
     
 
     
-     func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown>  {
+     func fetchCountdownOperationWrapper(connection: JSONRPCEngine, runtimeCodingService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<EraCountdown>  {
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<EraCountdown>).self)
     }
     
