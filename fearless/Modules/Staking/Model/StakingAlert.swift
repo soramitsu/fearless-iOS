@@ -6,6 +6,7 @@ enum StakingAlert {
     case bondedSetValidators
     case nominatorChangeValidators
     case nominatorLowStake(LocalizableResource<String>)
+    case nominatorAllOversubscribed
     case redeemUnbonded(LocalizableResource<String>)
     case waitingNextEra
 }
@@ -13,7 +14,8 @@ enum StakingAlert {
 extension StakingAlert {
     var hasAssociatedAction: Bool {
         switch self {
-        case .nominatorLowStake, .nominatorChangeValidators, .redeemUnbonded, .bondedSetValidators:
+        case .nominatorLowStake, .nominatorChangeValidators, .redeemUnbonded, .bondedSetValidators,
+             .nominatorAllOversubscribed:
             return true
         case .waitingNextEra:
             return false
@@ -22,13 +24,8 @@ extension StakingAlert {
 
     var icon: UIImage? {
         switch self {
-        case .nominatorChangeValidators:
-            return R.image.iconWarning()
-        case .nominatorLowStake:
-            return R.image.iconWarning()
-        case .redeemUnbonded:
-            return R.image.iconWarning()
-        case .bondedSetValidators:
+        case .nominatorChangeValidators, .nominatorLowStake, .redeemUnbonded, .bondedSetValidators,
+             .nominatorAllOversubscribed:
             return R.image.iconWarning()
         case .waitingNextEra:
             return R.image.iconPending()
@@ -37,7 +34,7 @@ extension StakingAlert {
 
     func title(for locale: Locale) -> String {
         switch self {
-        case .nominatorChangeValidators:
+        case .nominatorChangeValidators, .nominatorAllOversubscribed:
             return R.string.localizable.stakingChangeYourValidators(preferredLanguages: locale.rLanguages)
         case .nominatorLowStake:
             return R.string.localizable.stakingBondMoreTokens(preferredLanguages: locale.rLanguages)
@@ -55,6 +52,9 @@ extension StakingAlert {
         case .nominatorChangeValidators:
             return R.string.localizable
                 .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale.rLanguages)
+        case .nominatorAllOversubscribed:
+            return R.string.localizable
+                .stakingYourOversubscribedMessage(preferredLanguages: locale.rLanguages)
         case let .nominatorLowStake(localizedString):
             return localizedString.value(for: locale)
         case let .redeemUnbonded(localizedString):

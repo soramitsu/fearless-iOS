@@ -261,6 +261,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private func applyAlerts(_ alerts: [StakingAlert]) {
         alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
+        alertsContainerView.setNeedsLayout()
     }
 }
 
@@ -434,7 +435,7 @@ extension StakingMainViewController: HiddableBarWhenPushed {}
 extension StakingMainViewController: AlertsViewDelegate {
     func didSelectStakingAlert(_ alert: StakingAlert) {
         switch alert {
-        case .nominatorChangeValidators:
+        case .nominatorChangeValidators, .nominatorAllOversubscribed:
             presenter.performChangeValidatorsAction()
         case .bondedSetValidators:
             presenter.performSetupValidatorsForBondedAction()

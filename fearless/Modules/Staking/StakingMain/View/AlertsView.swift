@@ -27,9 +27,12 @@ final class AlertsView: UIView {
         didSet {
             if locale != oldValue {
                 applyLocalization()
+                applyAlerts()
             }
         }
     }
+
+    private var alerts: [StakingAlert]?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -53,7 +56,7 @@ final class AlertsView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
         let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
@@ -72,6 +75,15 @@ final class AlertsView: UIView {
     }
 
     func bind(alerts: [StakingAlert]) {
+        self.alerts = alerts
+        applyAlerts()
+    }
+
+    private func applyAlerts() {
+        guard let alerts = alerts else {
+            return
+        }
+
         alertsStackView.subviews.forEach { $0.removeFromSuperview() }
         if alerts.isEmpty {
             alertsStackView.isHidden = true
@@ -80,12 +92,22 @@ final class AlertsView: UIView {
 
             var itemViews = [UIView]()
             for (index, alert) in alerts.enumerated() {
-                let itemView = AlertItemView(stakingAlert: alert, locale: locale)
+                let alertView = AlertItemView(stakingAlert: alert, locale: locale)
+                let rowView = RowView(contentView: alertView)
+                rowView.borderView.strokeColor = R.color.colorBlurSeparator()!
+                rowView.contentInsets = UIEdgeInsets(
+                    top: 0.0,
+                    left: UIConstants.horizontalInset,
+                    bottom: 0.0,
+                    right: UIConstants.horizontalInset
+                )
+
                 if index == alerts.count - 1 {
-                    itemView.borderView.borderType = .none
+                    rowView.borderView.borderType = .none
                 }
-                itemView.addTarget(self, action: #selector(handleSelectItem), for: .touchUpInside)
-                itemViews.append(itemView)
+
+                rowView.addTarget(self, action: #selector(handleSelectItem), for: .touchUpInside)
+                itemViews.append(rowView)
             }
 
             itemViews.forEach { alertsStackView.addArrangedSubview($0) }
@@ -94,12 +116,12 @@ final class AlertsView: UIView {
 
     @objc
     private func handleSelectItem(sender: UIControl) {
-        guard let itemView = sender as? AlertItemView else { return }
-        delegate?.didSelectStakingAlert(itemView.alertType)
+        guard let rowView = sender as? RowView<AlertItemView> else { return }
+        delegate?.didSelectStakingAlert(rowView.rowContentView.alertType)
     }
 }
 
-private class AlertItemView: BackgroundedContentControl {
+private class AlertItemView: UIView {
     let alertType: StakingAlert
 
     let iconImageView: UIImageView = {
@@ -112,37 +134,24 @@ private class AlertItemView: BackgroundedContentControl {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite()
+        label.numberOfLines = 0
         return label
     }()
 
     let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = R.color.colorWhite()?.withAlphaComponent(0.64)
+        label.textColor = R.color.colorTransparentText()
         label.numberOfLines = 0
         return label
     }()
 
     let accessoryView: UIView = UIImageView(image: R.image.iconSmallArrow())
 
-    let borderView: BorderedContainerView = {
-        let view = BorderedContainerView()
-        view.backgroundColor = .clear
-        view.borderType = .bottom
-        view.strokeWidth = 1.0
-        view.strokeColor = R.color.colorWhite()!.withAlphaComponent(0.24)
-        return view
-    }()
-
     init(stakingAlert: StakingAlert, locale: Locale) {
         alertType = stakingAlert
-        super.init(frame: .zero)
 
-        let shapeView = ShapeView()
-        shapeView.isUserInteractionEnabled = false
-        shapeView.fillColor = .clear
-        shapeView.highlightedFillColor = R.color.colorCellSelection()!
-        backgroundView = shapeView
+        super.init(frame: .zero)
 
         setupLayout()
 
@@ -157,58 +166,34 @@ private class AlertItemView: BackgroundedContentControl {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        contentView?.frame = bounds
-    }
-
-    override var intrinsicContentSize: CGSize {
-        CGSize(
-            width: UIView.noIntrinsicMetric,
-            height: 77
-        )
-    }
-
     private func setupLayout() {
-        let containerView = UIView()
-        containerView.isUserInteractionEnabled = false
-
-        containerView.addSubview(borderView)
-        borderView.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        containerView.addSubview(iconImageView)
+        addSubview(iconImageView)
         iconImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(13)
-            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.equalToSuperview()
             make.size.equalTo(16)
         }
 
-        containerView.addSubview(titleLabel)
+        addSubview(accessoryView)
+        accessoryView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(9)
+            make.trailing.equalToSuperview()
+            make.size.equalTo(24)
+        }
+
+        addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(13)
             make.leading.equalTo(iconImageView.snp.trailing).offset(8)
+            make.trailing.lessThanOrEqualTo(accessoryView.snp.leading).offset(UIConstants.horizontalInset)
         }
 
-        containerView.addSubview(descriptionLabel)
+        addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
             make.leading.equalTo(titleLabel.snp.leading)
             make.bottom.equalToSuperview().inset(14)
+            make.trailing.lessThanOrEqualTo(accessoryView.snp.leading).offset(UIConstants.horizontalInset)
         }
-
-        containerView.addSubview(accessoryView)
-        accessoryView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(9)
-            make.trailing.equalToSuperview().inset(12)
-            make.size.equalTo(24)
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
-            make.leading.greaterThanOrEqualTo(descriptionLabel.snp.trailing).offset(UIConstants.horizontalInset)
-        }
-
-        contentView = containerView
     }
 }

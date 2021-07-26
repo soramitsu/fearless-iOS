@@ -111,6 +111,8 @@ extension StakingStateViewModelFactory {
                 )
             }
             return .nominatorLowStake(localizedString)
+        } else if state.allValidatorsWithoutReward {
+            return .nominatorAllOversubscribed
         } else {
             return .nominatorChangeValidators
         }
