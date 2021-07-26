@@ -68,8 +68,6 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
         reload()
     }
 
-    // TODO: revert stubs
-    // swiftlint:disable force_try
     func reload() {
         guard payoutOperationsWrapper == nil else {
             return
@@ -110,6 +108,15 @@ extension StakingRewardPayoutsInteractor: SingleValueProviderSubscriber, SingleV
             presenter.didReceive(priceResult: .success(priceData))
         case let .failure(error):
             presenter.didReceive(priceResult: .failure(error))
+        }
+    }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {
+        switch result {
+        case .success:
+            reload()
+        case let .failure(error):
+            logger?.error(error.localizedDescription)
         }
     }
 }
