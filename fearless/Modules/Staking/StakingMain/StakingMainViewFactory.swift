@@ -93,11 +93,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             remoteFactory: keyFactory,
             operationManager: operationManager
         )
-        guard let connection = WebSocketService.shared.connection else { return nil }
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
-            runtimeCodingService: runtimeService,
-            storageRequestFactory: storageRequestFactory,
-            engine: connection
+            storageRequestFactory: storageRequestFactory
         )
 
         return StakingMainInteractor(
@@ -115,6 +112,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             eraInfoOperationFactory: operationFactory,
             applicationHandler: ApplicationHandler(),
             eraCountdownOperationFactory: eraCountdownOperationFactory,
+            webSocketService: WebSocketService.shared,
             logger: Logger.shared
         )
     }

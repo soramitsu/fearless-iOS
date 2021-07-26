@@ -21,6 +21,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let applicationHandler: ApplicationHandlerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+    let webSocketService: WebSocketServiceProtocol
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -54,6 +55,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
+        webSocketService: WebSocketServiceProtocol,
         logger: Logger
     ) {
         self.providerFactory = providerFactory
@@ -70,6 +72,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
+        self.webSocketService = webSocketService
         self.logger = logger
     }
 
@@ -152,7 +155,11 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        guard let connection = webSocketService.connection else { return }
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
+            connection: connection,
+            runtimeCodingService: runtimeService
+        )
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {

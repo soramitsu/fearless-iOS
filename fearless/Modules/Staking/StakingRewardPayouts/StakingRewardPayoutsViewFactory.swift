@@ -141,9 +141,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
 
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
-            runtimeCodingService: runtimeService,
-            storageRequestFactory: storageRequestFactory,
-            engine: engine
+            storageRequestFactory: storageRequestFactory
         )
 
         let interactor = StakingRewardPayoutsInteractor(
@@ -154,6 +152,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             operationManager: operationManager,
             runtimeService: runtimeService,
+            connection: engine,
             logger: Logger.shared
         )
         let wireframe = StakingRewardPayoutsWireframe()

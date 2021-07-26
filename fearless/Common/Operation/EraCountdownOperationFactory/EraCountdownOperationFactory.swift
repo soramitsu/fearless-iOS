@@ -3,7 +3,10 @@ import FearlessUtils
 import SoraKeystore
 
 protocol EraCountdownOperationFactoryProtocol {
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown>
+    func fetchCountdownOperationWrapper(
+        connection: JSONRPCEngine,
+        runtimeCodingService: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<EraCountdown>
 }
 
 enum EraCountdownOperationFactoryError: Error {
@@ -11,22 +14,17 @@ enum EraCountdownOperationFactoryError: Error {
 }
 
 final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
-    let runtimeCodingService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
-    let engine: JSONRPCEngine
 
-    init(
-        runtimeCodingService: RuntimeCodingServiceProtocol,
-        storageRequestFactory: StorageRequestFactoryProtocol,
-        engine: JSONRPCEngine
-    ) {
-        self.runtimeCodingService = runtimeCodingService
+    init(storageRequestFactory: StorageRequestFactoryProtocol) {
         self.storageRequestFactory = storageRequestFactory
-        self.engine = engine
     }
 
     // swiftlint:disable function_body_length
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown> {
+    func fetchCountdownOperationWrapper(
+        connection: JSONRPCEngine,
+        runtimeCodingService: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<EraCountdown> {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let keyFactory = StorageKeyFactory()
 
@@ -47,7 +45,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let sessionIndexWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try keyFactory.key(from: .currentSessionIndex)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .currentSessionIndex
@@ -55,7 +53,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let currentSlotWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<Slot>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try keyFactory.key(from: .currentSlot)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .currentSlot
@@ -63,7 +61,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let genesisSlotWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<Slot>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try keyFactory.key(from: .genesisSlot)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .genesisSlot
@@ -71,7 +69,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let activeEraWrapper: CompoundOperationWrapper<[StorageResponse<ActiveEraInfo>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try keyFactory.key(from: .activeEra)] },
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .activeEra
@@ -79,7 +77,8 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let startSessionWrapper = createEraStartSessionIndex(
             dependingOn: activeEraWrapper.targetOperation,
-            codingFactoryOperation: codingFactoryOperation
+            codingFactoryOperation: codingFactoryOperation,
+            connection: connection
         )
 
         let dependencies = eraLengthWrapper.allOperations
@@ -134,7 +133,8 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
     private func createEraStartSessionIndex(
         dependingOn activeEra: BaseOperation<[StorageResponse<ActiveEraInfo>]>,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        connection: JSONRPCEngine
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> {
         let keyParams: () throws -> [StringScaleMapper<EraIndex>] = {
             let activeEraIndex = try activeEra.extractNoCancellableResultData().first?.value?.index ?? 0
@@ -143,7 +143,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: keyParams,
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: .eraStartSessionIndex
