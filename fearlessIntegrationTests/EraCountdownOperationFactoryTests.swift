@@ -9,7 +9,6 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         let operationManager = OperationManagerFacade.sharedManager
 
         WebSocketService.shared.setup()
-        let connection = WebSocketService.shared.connection!
         let runtimeService = RuntimeRegistryFacade.sharedService
         runtimeService.setup()
 
@@ -22,7 +21,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         let factory = EraCountdownOperationFactory(
             runtimeCodingService: runtimeService,
             storageRequestFactory: storageRequestFactory,
-            engine: connection
+            webSocketService: WebSocketService.shared
         )
 
         let timeExpectation = XCTestExpectation()
