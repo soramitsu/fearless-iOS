@@ -56,9 +56,9 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
-            .stakingYourStake_v190(preferredLanguages: locale.rLanguages)
+            .stakingYourStake(preferredLanguages: locale.rLanguages)
         stakedTitleLabel.text = R.string.localizable
-            .stakingMainTotalStakedTitle(preferredLanguages: locale.rLanguages)
+            .stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
             .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
     }
