@@ -259,7 +259,8 @@ extension YourValidatorListViewController: UITableViewDelegate {
             )
         } ?? ""
 
-        let value = R.string.localizable.stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages)
+        let value = R.string.localizable
+            .stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages).uppercased()
 
         let description = R.string.localizable.stakingYourAllocatedDescription(
             preferredLanguages: selectedLocale.rLanguages

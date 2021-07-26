@@ -101,14 +101,14 @@ final class RewardEstimationView: LocalizableView {
             infoButton.isHidden = false
 
             monthlyTitleLabel.text = viewModel.monthlyReward.increase.map {
-                R.string.localizable.stakingMonthPeriodFormat_v190($0, preferredLanguages: locale.rLanguages)
+                R.string.localizable.stakingMonthPeriodFormat($0, preferredLanguages: locale.rLanguages)
             }
 
             monthlyAmountLabel.text = viewModel.monthlyReward.amount
             monthlyFiatAmountLabel.text = viewModel.monthlyReward.price
 
             yearlyTitleLabel.text = viewModel.yearlyReward.increase.map {
-                R.string.localizable.stakingYearPeriodFormat_v190($0, preferredLanguages: locale.rLanguages)
+                R.string.localizable.stakingYearPeriodFormat($0, preferredLanguages: locale.rLanguages)
             }
 
             yearlyAmountLabel.text = viewModel.yearlyReward.amount
