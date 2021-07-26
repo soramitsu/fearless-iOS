@@ -124,7 +124,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
         guard !recommendedToFill.isEmpty else { return }
 
-        selectedValidatorList.append(contentsOf: Array(recommendedToFill))
+        selectedValidatorList.append(contentsOf: recommendedToFill)
         provideViewModels()
     }
 

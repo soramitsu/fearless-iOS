@@ -33,7 +33,7 @@ final class SelectValidatorsStartPresenter {
         .sorted { $0.stakeReturn > $1.stakeReturn }
         .prefix(maxNominations) ?? []
 
-        selectedValidators = SharedList(items: Array(selectedValidatorList))
+        selectedValidators = SharedList(items: selectedValidatorList)
     }
 
     private func updateRecommendedValidators() {

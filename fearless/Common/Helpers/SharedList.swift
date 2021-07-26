@@ -3,8 +3,8 @@ import Foundation
 class SharedList<T: Equatable> {
     private var store: [T]
 
-    init(items: [T]) {
-        store = items
+    init<S>(items: S) where S: Sequence, S.Element == T {
+        store = Array(items)
     }
 
     var count: Int { store.count }
@@ -23,7 +23,7 @@ class SharedList<T: Equatable> {
         store.append(item)
     }
 
-    public func append(contentsOf items: [T]) {
+    public func append<S>(contentsOf items: S) where S: Sequence, S.Element == T {
         store.append(contentsOf: items)
     }
 
