@@ -15,7 +15,6 @@ final class StakingBalanceInteractor: AccountFetching {
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
-    let connection: JSONRPCEngine
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -31,8 +30,7 @@ final class StakingBalanceInteractor: AccountFetching {
         providerFactory: SingleValueProviderFactoryProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        operationManager: OperationManagerProtocol,
-        connection: JSONRPCEngine
+        operationManager: OperationManagerProtocol
     ) {
         self.chain = chain
         self.accountAddress = accountAddress
@@ -45,7 +43,6 @@ final class StakingBalanceInteractor: AccountFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
-        self.connection = connection
     }
 
     func fetchAccounts(for stashItem: StashItem) {
@@ -67,10 +64,7 @@ final class StakingBalanceInteractor: AccountFetching {
     }
 
     func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
-            connection: connection,
-            runtimeCodingService: runtimeCodingService
-        )
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {

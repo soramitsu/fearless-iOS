@@ -100,7 +100,9 @@ struct StakingBalanceViewFactory {
         )
 
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
-            storageRequestFactory: storageRequestFactory
+            runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
+            engine: connection
         )
 
         let interactor = StakingBalanceInteractor(
@@ -114,8 +116,7 @@ struct StakingBalanceViewFactory {
             providerFactory: SingleValueProviderFactory.shared,
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             substrateProviderFactory: substrateProviderFactory,
-            operationManager: OperationManagerFacade.sharedManager,
-            connection: connection
+            operationManager: OperationManagerFacade.sharedManager
         )
         return interactor
     }

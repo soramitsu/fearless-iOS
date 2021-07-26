@@ -7,7 +7,6 @@ final class StakingRewardPayoutsInteractor {
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
 
     private let payoutService: PayoutRewardsServiceProtocol
-    private let connection: JSONRPCEngine
     private let assetId: WalletAssetId
     private let chain: Chain
     private let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
@@ -33,7 +32,6 @@ final class StakingRewardPayoutsInteractor {
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        connection: JSONRPCEngine,
         logger: LoggerProtocol? = nil
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
@@ -43,15 +41,11 @@ final class StakingRewardPayoutsInteractor {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.operationManager = operationManager
         self.runtimeService = runtimeService
-        self.connection = connection
         self.logger = logger
     }
 
     private func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
-            connection: connection,
-            runtimeCodingService: runtimeService
-        )
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
@@ -74,6 +68,8 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
         reload()
     }
 
+    // TODO: revert stubs
+    // swiftlint:disable force_try
     func reload() {
         guard payoutOperationsWrapper == nil else {
             return
