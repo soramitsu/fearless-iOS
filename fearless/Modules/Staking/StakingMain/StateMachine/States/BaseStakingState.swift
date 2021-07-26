@@ -114,8 +114,8 @@ class BaseStakingState: StakingStateProtocol {
     func process(totalReward _: TotalRewardItem?) {}
     func process(payee _: RewardDestinationArg?) {}
 
-    func process(eraCompletionTimeInSeconds: TimeInterval) {
-        commonData = commonData.byReplacing(eraCompletionTimeInSeconds: eraCompletionTimeInSeconds)
+    func process(eraCountdown: EraCountdown) {
+        commonData = commonData.byReplacing(eraCountdown: eraCountdown)
 
         stateMachine?.transit(to: self)
     }
