@@ -126,11 +126,16 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
                 stashItem: stashItem,
                 chain: chain
             ) {
+            let selectedTargets = validatorsModel.map {
+                !$0.pendingValidators.isEmpty ? $0.pendingValidators : $0.currentValidators
+            }
+
             let existingBonding = ExistingBonding(
                 stashAddress: stashItem.stash,
                 controllerAccount: controllerAccount,
                 amount: amount,
-                rewardDestination: rewardDestination
+                rewardDestination: rewardDestination,
+                selectedTargets: selectedTargets
             )
 
             wireframe.proceedToSelectValidatorsStart(from: view, existingBonding: existingBonding)

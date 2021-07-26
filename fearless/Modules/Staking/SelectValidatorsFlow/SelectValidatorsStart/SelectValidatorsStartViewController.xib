@@ -44,10 +44,10 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Qm-3j-u97">
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Qm-3j-u97">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="4uj-ym-C39">
+                        <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="4uj-ym-C39">
                             <rect key="frame" x="0.0" y="20" width="375" height="593"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="m7b-m7-Paw">
@@ -86,10 +86,10 @@
                                         <constraint firstItem="55y-Iv-EdM" firstAttribute="top" secondItem="W8V-Dc-3C1" secondAttribute="top" id="phA-UY-TDW"/>
                                     </constraints>
                                 </view>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v0U-sH-wHU">
+                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v0U-sH-wHU">
                                     <rect key="frame" x="0.0" y="152.5" width="375" height="114"/>
                                     <subviews>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-sj-Eoi" customClass="ImageWithTitleView" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-sj-Eoi" customClass="ImageWithTitleView" customModule="SoraUI">
                                             <rect key="frame" x="16" y="0.0" width="133.5" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
@@ -107,7 +107,7 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sgp-Kt-dYL" customClass="ImageWithTitleView" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sgp-Kt-dYL" customClass="ImageWithTitleView" customModule="SoraUI">
                                             <rect key="frame" x="16" y="24" width="166" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
@@ -125,7 +125,7 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xfe-hK-UX5" customClass="ImageWithTitleView" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xfe-hK-UX5" customClass="ImageWithTitleView" customModule="SoraUI">
                                             <rect key="frame" x="16" y="48" width="193" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
@@ -143,7 +143,7 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O9j-gG-NIg" customClass="ImageWithTitleView" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="O9j-gG-NIg" customClass="ImageWithTitleView" customModule="SoraUI">
                                             <rect key="frame" x="16" y="72" width="109" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
@@ -161,7 +161,7 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v2q-2V-CbM" customClass="ImageWithTitleView" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v2q-2V-CbM" customClass="ImageWithTitleView" customModule="SoraUI">
                                             <rect key="frame" x="16" y="96" width="249.5" height="18"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>
@@ -200,7 +200,7 @@
                                         <constraint firstItem="Sgp-Kt-dYL" firstAttribute="top" secondItem="JGu-sj-Eoi" secondAttribute="bottom" constant="6" id="mp8-Tq-iWK"/>
                                     </constraints>
                                 </view>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cst-IG-Zd7">
+                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cst-IG-Zd7">
                                     <rect key="frame" x="0.0" y="280.5" width="375" height="48"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sny-7g-S5M" customClass="BorderedContainerView" customModule="SoraUI">
@@ -288,7 +288,7 @@
                                         <constraint firstItem="g6a-OX-WP3" firstAttribute="top" secondItem="cst-IG-Zd7" secondAttribute="top" id="lar-uf-bUT"/>
                                     </constraints>
                                 </view>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RHh-LA-GWs">
+                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RHh-LA-GWs">
                                     <rect key="frame" x="0.0" y="342.5" width="375" height="60.5"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stake with your validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8N2-er-RfY">
@@ -306,7 +306,7 @@
                                         <constraint firstItem="8N2-er-RfY" firstAttribute="top" secondItem="RHh-LA-GWs" secondAttribute="top" constant="24" id="pMu-O1-6Zv"/>
                                     </constraints>
                                 </view>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZDc-RM-OkR">
+                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZDc-RM-OkR">
                                     <rect key="frame" x="0.0" y="417" width="375" height="114"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jol-v5-CUa">
@@ -325,7 +325,7 @@
                                         <constraint firstItem="jol-v5-CUa" firstAttribute="top" secondItem="ZDc-RM-OkR" secondAttribute="top" id="mjT-2x-pCO"/>
                                     </constraints>
                                 </view>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UV7-1T-hlO">
+                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UV7-1T-hlO">
                                     <rect key="frame" x="0.0" y="545" width="375" height="48"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gpJ-Ri-cah" customClass="BorderedContainerView" customModule="SoraUI">
@@ -433,11 +433,11 @@
                         <constraint firstItem="4uj-ym-C39" firstAttribute="leading" secondItem="8Qm-3j-u97" secondAttribute="leading" id="zw3-cZ-9Hx"/>
                     </constraints>
                 </scrollView>
-                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Tck-WI-Kkf">
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Tck-WI-Kkf">
                     <rect key="frame" x="337" y="314.5" width="20" height="20"/>
                     <color key="color" name="colorWhite"/>
                 </activityIndicatorView>
-                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Qsc-iQ-Swd">
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Qsc-iQ-Swd">
                     <rect key="frame" x="337" y="579" width="20" height="20"/>
                     <color key="color" name="colorWhite"/>
                 </activityIndicatorView>
@@ -461,23 +461,8 @@
         <designable name="ENT-cZ-dY0">
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
-        <designable name="JGu-sj-Eoi">
-            <size key="intrinsicContentSize" width="133.5" height="18"/>
-        </designable>
-        <designable name="O9j-gG-NIg">
-            <size key="intrinsicContentSize" width="109" height="18"/>
-        </designable>
-        <designable name="Sgp-Kt-dYL">
-            <size key="intrinsicContentSize" width="166" height="18"/>
-        </designable>
         <designable name="g6a-OX-WP3">
             <size key="intrinsicContentSize" width="55" height="15"/>
-        </designable>
-        <designable name="v2q-2V-CbM">
-            <size key="intrinsicContentSize" width="249.5" height="18"/>
-        </designable>
-        <designable name="xfe-hK-UX5">
-            <size key="intrinsicContentSize" width="193" height="18"/>
         </designable>
     </designables>
     <resources>

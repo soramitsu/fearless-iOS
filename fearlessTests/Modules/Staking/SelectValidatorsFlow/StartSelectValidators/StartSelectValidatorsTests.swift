@@ -11,7 +11,7 @@ class SelectValidatorsStartTests: XCTestCase {
         let wireframe = MockSelectValidatorsStartWireframeProtocol()
         let operationFactory = MockValidatorOperationFactoryProtocol()
 
-        let presenter = SelectValidatorsStartPresenter()
+        let presenter = SelectValidatorsStartPresenter(initialTargets: nil)
 
         let runtimeService = try RuntimeCodingServiceStub.createWestendService()
 
@@ -37,7 +37,8 @@ class SelectValidatorsStartTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didReceive(viewModel: any()).then { _ in
+            when(stub).didReceive(viewModel: any()).then { viewModel in
+                XCTAssertEqual(viewModel.phase, .setup)
                 setupExpectation.fulfill()
             }
         }

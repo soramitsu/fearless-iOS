@@ -123,7 +123,8 @@ final class StakingMainPresenter {
                 stashAddress: bondedState.stashItem.stash,
                 controllerAccount: controllerAccount,
                 amount: amount,
-                rewardDestination: rewardDestination
+                rewardDestination: rewardDestination,
+                selectedTargets: nil
             )
 
             self?.wireframe.proceedToSelectValidatorsStart(from: self?.view, existingBonding: existingBonding)

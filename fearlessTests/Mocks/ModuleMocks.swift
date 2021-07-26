@@ -23864,9 +23864,9 @@ import SoraFoundation
     
     
     
-     func didReceive(viewModel: SelectValidatorsStartViewModelProtocol)  {
+     func didReceive(viewModel: SelectValidatorsStartViewModel)  {
         
-    return cuckoo_manager.call("didReceive(viewModel: SelectValidatorsStartViewModelProtocol)",
+    return cuckoo_manager.call("didReceive(viewModel: SelectValidatorsStartViewModel)",
             parameters: (viewModel),
             escapingParameters: (viewModel),
             superclassCall:
@@ -23916,9 +23916,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectValidatorsStartViewModelProtocol)> where M1.MatchedType == SelectValidatorsStartViewModelProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartViewProtocol.self, method: "didReceive(viewModel: SelectValidatorsStartViewModelProtocol)", parameterMatchers: matchers))
+	    func didReceive<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectValidatorsStartViewModel)> where M1.MatchedType == SelectValidatorsStartViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartViewProtocol.self, method: "didReceive(viewModel: SelectValidatorsStartViewModel)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -23958,9 +23958,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(SelectValidatorsStartViewModelProtocol), Void> where M1.MatchedType == SelectValidatorsStartViewModelProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceive(viewModel: SelectValidatorsStartViewModelProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceive<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(SelectValidatorsStartViewModel), Void> where M1.MatchedType == SelectValidatorsStartViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didReceive(viewModel: SelectValidatorsStartViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -24004,7 +24004,7 @@ import SoraFoundation
     
 
     
-     func didReceive(viewModel: SelectValidatorsStartViewModelProtocol)   {
+     func didReceive(viewModel: SelectValidatorsStartViewModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

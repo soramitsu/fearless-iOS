@@ -6,15 +6,34 @@ final class SelectValidatorsStartPresenter {
     var wireframe: SelectValidatorsStartWireframeProtocol!
     var interactor: SelectValidatorsStartInteractorInputProtocol!
 
+    let initialTargets: [SelectedValidatorInfo]?
     let logger: LoggerProtocol?
 
-    private var allValidators: [ElectedValidatorInfo]?
+    private var allValidators: [AccountAddress: ElectedValidatorInfo]?
     private var recommended: [ElectedValidatorInfo]?
-    private var selectedValidators: SharedList<SelectedValidatorInfo> = .init(items: [])
+    private var selectedValidators: SharedList<SelectedValidatorInfo>?
     private var maxNominations: Int?
 
-    init(logger: LoggerProtocol? = nil) {
+    init(initialTargets: [SelectedValidatorInfo]?, logger: LoggerProtocol? = nil) {
+        self.initialTargets = initialTargets
         self.logger = logger
+    }
+
+    private func updateSelectedValidatorsIfNeeded() {
+        guard
+            let all = allValidators,
+            let maxNominations = maxNominations,
+            selectedValidators == nil else {
+            return
+        }
+
+        let selectedValidatorList = initialTargets?.map { target in
+            all[target.address]?.toSelected() ?? target
+        }
+        .sorted { $0.stakeReturn > $1.stakeReturn }
+        .prefix(maxNominations) ?? []
+
+        selectedValidators = SharedList(items: Array(selectedValidatorList))
     }
 
     private func updateRecommendedValidators() {
@@ -28,7 +47,7 @@ final class SelectValidatorsStartPresenter {
         let recomendedValidators = RecommendationsComposer(
             resultSize: resultLimit,
             clusterSizeLimit: StakingConstants.targetsClusterLimit
-        ).compose(from: all)
+        ).compose(from: Array(all.values))
 
         recommended = recomendedValidators
     }
@@ -36,36 +55,19 @@ final class SelectValidatorsStartPresenter {
     private func updateView() {
         guard
             let all = allValidators,
-            let maxNominations = maxNominations else {
+            let maxNominations = maxNominations,
+            let selectedValidators = selectedValidators else {
             return
         }
 
         let totalCount = min(all.count, maxNominations)
         let viewModel = SelectValidatorsStartViewModel(
+            phase: initialTargets == nil ? .setup : .update,
             selectedCount: selectedValidators.count,
             totalCount: totalCount
         )
 
         view?.didReceive(viewModel: viewModel)
-    }
-
-    private func prepareSelectedValidators(
-        from electedValidatorList: [ElectedValidatorInfo]
-    ) -> [SelectedValidatorInfo] {
-        electedValidatorList.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                ),
-                commission: $0.comission,
-                blocked: $0.blocked
-            )
-        }
     }
 
     private func handle(error: Error) {
@@ -100,7 +102,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         }
 
         let maxTargets = min(all.count, maxNominations)
-        let recommendedValidatorList = prepareSelectedValidators(from: recommended)
+        let recommendedValidatorList = recommended.map { $0.toSelected() }
 
         wireframe.proceedToRecommendedList(
             from: view,
@@ -112,17 +114,22 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     func selectCustomValidators() {
         guard
             let all = allValidators,
-            let maxNominations = maxNominations else {
+            let maxNominations = maxNominations,
+            let selectedValidators = selectedValidators else {
             return
         }
 
         let maxTargets = min(all.count, maxNominations)
-        let electedValidatorList = prepareSelectedValidators(from: all)
-        let recommendedValidatorList = prepareSelectedValidators(from: recommended ?? [])
+        let electedValidatorList = all.values.map { $0.toSelected() }
+        let recommendedValidatorList = recommended?.map { $0.toSelected() } ?? []
+
+        let notElectedValidators = selectedValidators.items.compactMap {
+            all[$0.address] == nil ? $0 : nil
+        }
 
         wireframe.proceedToCustomList(
             from: view,
-            validatorList: electedValidatorList,
+            validatorList: electedValidatorList + notElectedValidators,
             recommendedValidatorList: recommendedValidatorList,
             selectedValidatorList: selectedValidators,
             maxTargets: maxTargets
@@ -134,9 +141,14 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputP
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>) {
         switch result {
         case let .success(validators):
-            allValidators = validators
+            allValidators = validators.reduce(
+                into: [AccountAddress: ElectedValidatorInfo]()
+            ) { dict, validator in
+                dict[validator.address] = validator
+            }
 
             updateRecommendedValidators()
+            updateSelectedValidatorsIfNeeded()
             updateView()
         case let .failure(error):
             handle(error: error)

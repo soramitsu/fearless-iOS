@@ -23,7 +23,7 @@ final class SelectValidatorsStartViewController: UIViewController {
     @IBOutlet private var activityViews: [UIActivityIndicatorView]!
     @IBOutlet private var nextStepIndicators: [UIImageView]!
 
-    private var viewModel: SelectValidatorsStartViewModelProtocol?
+    private var viewModel: SelectValidatorsStartViewModel?
 
     private var viewModelIsSet: Bool {
         viewModel != nil
@@ -46,7 +46,7 @@ final class SelectValidatorsStartViewController: UIViewController {
     }
 
     private func setupLocalization() {
-        let languages = localizationManager?.selectedLocale.rLanguages
+        let languages = selectedLocale.rLanguages
 
         title = R.string.localizable.stakingRecommendedTitle(preferredLanguages: languages)
         sectionTitleLabel.text = R.string.localizable
@@ -67,9 +67,6 @@ final class SelectValidatorsStartViewController: UIViewController {
 
         customValidatorsDetailsLabel.text = R.string.localizable
             .stakingSelectValidatorsCustomDesc(preferredLanguages: languages)
-
-        customValidatorsCell.title = R.string.localizable
-            .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: languages)
 
         updateSelected()
     }
@@ -96,10 +93,15 @@ final class SelectValidatorsStartViewController: UIViewController {
     }
 
     private func updateSelected() {
-        if let viewModel = viewModel, viewModel.selectedCount > 0 {
-            let languages = localizationManager?.selectedLocale.rLanguages
+        guard let viewModel = viewModel else {
+            customValidatorsCountLabel.text = ""
+            return
+        }
+
+        if viewModel.selectedCount > 0 {
+            let languages = selectedLocale.rLanguages
             let text = R.string.localizable
-                .stakingRecommendedValidatorsCounter(
+                .stakingValidatorInfoNominators(
                     "\(viewModel.selectedCount)",
                     "\(viewModel.totalCount)",
                     preferredLanguages: languages
@@ -107,6 +109,15 @@ final class SelectValidatorsStartViewController: UIViewController {
             customValidatorsCountLabel.text = text
         } else {
             customValidatorsCountLabel.text = ""
+        }
+
+        switch viewModel.phase {
+        case .setup:
+            customValidatorsCell.title = R.string.localizable
+                .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: selectedLocale.rLanguages)
+        case .update:
+            customValidatorsCell.title = R.string.localizable
+                .stakingCustomValidatorsUpdateList(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 
@@ -120,7 +131,7 @@ final class SelectValidatorsStartViewController: UIViewController {
 }
 
 extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol {
-    func didReceive(viewModel: SelectValidatorsStartViewModelProtocol) {
+    func didReceive(viewModel: SelectValidatorsStartViewModel) {
         self.viewModel = viewModel
 
         updateLoadingState()

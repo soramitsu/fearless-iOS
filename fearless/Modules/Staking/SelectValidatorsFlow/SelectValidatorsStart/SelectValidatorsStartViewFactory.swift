@@ -8,25 +8,26 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         with state: InitiatedBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = InitBondingSelectValidatorsStartWireframe(state: state)
-        return createView(with: wireframe)
+        return createView(with: wireframe, selectedValidators: nil)
     }
 
     static func createChangeTargetsView(
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
-        return createView(with: wireframe)
+        return createView(with: wireframe, selectedValidators: state.selectedTargets)
     }
 
     static func createChangeYourValidatorsView(
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
-        return createView(with: wireframe)
+        return createView(with: wireframe, selectedValidators: state.selectedTargets)
     }
 
     private static func createView(
-        with wireframe: SelectValidatorsStartWireframeProtocol
+        with wireframe: SelectValidatorsStartWireframeProtocol,
+        selectedValidators: [SelectedValidatorInfo]?
     ) -> SelectValidatorsStartViewProtocol? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
@@ -35,6 +36,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         let view = SelectValidatorsStartViewController(nib: R.nib.selectValidatorsStartViewController)
 
         let presenter = SelectValidatorsStartPresenter(
+            initialTargets: selectedValidators,
             logger: Logger.shared
         )
 
