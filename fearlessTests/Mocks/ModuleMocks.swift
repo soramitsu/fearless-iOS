@@ -17113,16 +17113,16 @@ import UIKit
     
     
     
-     func didChangeAccessoryState(enabled: Bool)  {
+     func didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)  {
         
-    return cuckoo_manager.call("didChangeAccessoryState(enabled: Bool)",
-            parameters: (enabled),
-            escapingParameters: (enabled),
+    return cuckoo_manager.call("didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)",
+            parameters: (enabled, accessoryIcon),
+            escapingParameters: (enabled, accessoryIcon),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didChangeAccessoryState(enabled: enabled))
+            defaultCall: __defaultImplStub!.didChangeAccessoryState(enabled: enabled, accessoryIcon: accessoryIcon))
         
     }
     
@@ -17165,9 +17165,9 @@ import UIKit
 	        return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self, method: "didRequestBiometryUsage(biometryType: AvailableBiometryType, completionBlock: @escaping (Bool) -> Void)", parameterMatchers: matchers))
 	    }
 	    
-	    func didChangeAccessoryState<M1: Cuckoo.Matchable>(enabled: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: enabled) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self, method: "didChangeAccessoryState(enabled: Bool)", parameterMatchers: matchers))
+	    func didChangeAccessoryState<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(enabled: M1, accessoryIcon: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool, UIImage?)> where M1.MatchedType == Bool, M2.OptionalMatchedType == UIImage {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool, UIImage?)>] = [wrap(matchable: enabled) { $0.0 }, wrap(matchable: accessoryIcon) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self, method: "didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveWrongPincode() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -17208,9 +17208,9 @@ import UIKit
 	    }
 	    
 	    @discardableResult
-	    func didChangeAccessoryState<M1: Cuckoo.Matchable>(enabled: M1) -> Cuckoo.__DoNotUse<(Bool), Void> where M1.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: enabled) { $0 }]
-	        return cuckoo_manager.verify("didChangeAccessoryState(enabled: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didChangeAccessoryState<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(enabled: M1, accessoryIcon: M2) -> Cuckoo.__DoNotUse<(Bool, UIImage?), Void> where M1.MatchedType == Bool, M2.OptionalMatchedType == UIImage {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool, UIImage?)>] = [wrap(matchable: enabled) { $0.0 }, wrap(matchable: accessoryIcon) { $0.1 }]
+	        return cuckoo_manager.verify("didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -17248,7 +17248,7 @@ import UIKit
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didChangeAccessoryState(enabled: Bool)   {
+     func didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

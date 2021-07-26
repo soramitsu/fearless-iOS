@@ -45,7 +45,7 @@ class PincodeSetupTests: XCTestCase {
         }
 
         stub(view) { stub in
-            when(stub).didChangeAccessoryState(enabled: any()).thenDoNothing()
+            when(stub).didChangeAccessoryState(enabled: any(), accessoryIcon: any()).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
