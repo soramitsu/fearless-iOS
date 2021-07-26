@@ -13,7 +13,7 @@ struct StakingStateCommonData {
     let minNominatorBond: BigUInt?
     let counterForNominators: UInt32?
     let maxNominatorsCount: UInt32?
-    let eraCompletionTimeInSeconds: TimeInterval?
+    let eraCountdown: EraCountdown?
 }
 
 extension StakingStateCommonData {
@@ -30,7 +30,7 @@ extension StakingStateCommonData {
             minNominatorBond: nil,
             counterForNominators: nil,
             maxNominatorsCount: nil,
-            eraCompletionTimeInSeconds: nil
+            eraCountdown: nil
         )
     }
 
@@ -47,7 +47,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -64,7 +64,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -81,7 +81,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -98,7 +98,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -115,7 +115,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -132,7 +132,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -149,7 +149,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -166,7 +166,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -183,7 +183,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -200,7 +200,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
@@ -217,11 +217,11 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 
-    func byReplacing(eraCompletionTimeInSeconds: TimeInterval?) -> StakingStateCommonData {
+    func byReplacing(eraCountdown: EraCountdown?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
             chain: chain,
@@ -234,7 +234,7 @@ extension StakingStateCommonData {
             minNominatorBond: minNominatorBond,
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
-            eraCompletionTimeInSeconds: eraCompletionTimeInSeconds
+            eraCountdown: eraCountdown
         )
     }
 }
