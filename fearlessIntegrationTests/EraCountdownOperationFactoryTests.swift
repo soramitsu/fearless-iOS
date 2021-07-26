@@ -20,14 +20,13 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
 
         let factory = EraCountdownOperationFactory(
-            storageRequestFactory: storageRequestFactory
+            runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
+            engine: connection
         )
 
         let timeExpectation = XCTestExpectation()
-        let operationWrapper = factory.fetchCountdownOperationWrapper(
-            connection: connection,
-            runtimeCodingService: runtimeService
-        )
+        let operationWrapper = factory.fetchCountdownOperationWrapper()
         operationWrapper.targetOperation.completionBlock = {
             do {
                 let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()

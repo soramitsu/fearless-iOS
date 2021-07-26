@@ -77,7 +77,6 @@ class StakingMainTests: XCTestCase {
                                                eraInfoOperationFactory: operationFactory,
                                                applicationHandler: ApplicationHandler(),
                                                eraCountdownOperationFactory: eraCountdownOperationFactory,
-                                               webSocketService: WebSocketService.shared,
                                                logger: Logger.shared)
 
         presenter.view = view
@@ -109,10 +108,7 @@ class StakingMainTests: XCTestCase {
         }
 
         stub(eraCountdownOperationFactory) { stub in
-            when(stub).fetchCountdownOperationWrapper(
-                connection: any(),
-                runtimeCodingService: any()
-            ).then { _ in
+            when(stub).fetchCountdownOperationWrapper().then { _ in
                 CompoundOperationWrapper.createWithResult(
                     EraCountdown(
                         activeEra: 0,

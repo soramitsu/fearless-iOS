@@ -11,9 +11,6 @@ class StakingRewardPayoutsTests: XCTestCase {
         let eraCountdownOperationFactory = MockEraCountdownOperationFactoryProtocol()
         let runtimeService = try! RuntimeCodingServiceStub.createWestendService()
 
-        WebSocketService.shared.setup()
-        let connection = WebSocketService.shared.connection!
-
         let interactor = StakingRewardPayoutsInteractor(
             singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
             payoutService: payoutServiceThatReturnsError,
@@ -21,8 +18,7 @@ class StakingRewardPayoutsTests: XCTestCase {
             chain: .westend,
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             operationManager: OperationManager(),
-            runtimeService: runtimeService,
-            connection: connection
+            runtimeService: runtimeService
         )
         let view = MockStakingRewardPayoutsViewProtocol()
 
@@ -41,7 +37,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         let viewStateIsErrorWhenPresenterRecievedError = XCTestExpectation()
 
         stub(eraCountdownOperationFactory) { stub in
-            when(stub).fetchCountdownOperationWrapper(connection: any(), runtimeCodingService: any()).then { _ in
+            when(stub).fetchCountdownOperationWrapper().then { _ in
                 CompoundOperationWrapper.createWithResult(
                     EraCountdown(
                         activeEra: 0,
