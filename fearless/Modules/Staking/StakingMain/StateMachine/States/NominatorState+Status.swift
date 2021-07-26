@@ -26,7 +26,7 @@ extension NominatorState {
             }
 
             if nomination.submittedIn >= eraStakers.era {
-                return .waiting(eraCompletionTimeInSeconds: commonData.eraCompletionTimeInSeconds)
+                return .waiting(eraCountdown: commonData.eraCountdown)
             }
 
             return .inactive(era: eraStakers.era)
