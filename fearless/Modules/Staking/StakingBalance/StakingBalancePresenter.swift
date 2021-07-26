@@ -242,6 +242,7 @@ extension StakingBalancePresenter: CountdownTimerDelegate {
     }
 
     func didStop(with _: TimeInterval) {
+        eraCompletionTime = 0
         updateView()
     }
 }

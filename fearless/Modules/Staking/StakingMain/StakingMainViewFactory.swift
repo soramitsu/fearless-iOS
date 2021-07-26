@@ -53,7 +53,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe
-        interactor?.presenter = presenter
+        interactor.presenter = presenter
 
         dataValidatingFactory.view = view
 
@@ -63,7 +63,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     private static func createInteractor(
         settings: SettingsManagerProtocol,
         primitiveFactory: WalletPrimitiveFactoryProtocol
-    ) -> StakingMainInteractor? {
+    ) -> StakingMainInteractor {
         let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
         let eraValidatorService = EraValidatorFacade.sharedService
@@ -93,11 +93,11 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             remoteFactory: keyFactory,
             operationManager: operationManager
         )
-        guard let connection = WebSocketService.shared.connection else { return nil }
+
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
             runtimeCodingService: runtimeService,
             storageRequestFactory: storageRequestFactory,
-            engine: connection
+            webSocketService: WebSocketService.shared
         )
 
         return StakingMainInteractor(

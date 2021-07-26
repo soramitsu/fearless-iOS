@@ -91,7 +91,6 @@ struct StakingBalanceViewFactory {
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        guard let connection = WebSocketService.shared.connection else { return nil }
         let runtimeService = RuntimeRegistryFacade.sharedService
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -102,7 +101,7 @@ struct StakingBalanceViewFactory {
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
             runtimeCodingService: runtimeService,
             storageRequestFactory: storageRequestFactory,
-            engine: connection
+            webSocketService: WebSocketService.shared
         )
 
         let interactor = StakingBalanceInteractor(
