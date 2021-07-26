@@ -110,4 +110,13 @@ extension StakingRewardPayoutsInteractor: SingleValueProviderSubscriber, SingleV
             presenter.didReceive(priceResult: .failure(error))
         }
     }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {
+        switch result {
+        case .success:
+            reload()
+        case let .failure(error):
+            logger?.error(error.localizedDescription)
+        }
+    }
 }
