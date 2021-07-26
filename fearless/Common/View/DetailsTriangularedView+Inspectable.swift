@@ -163,12 +163,12 @@ extension DetailsTriangularedView {
     @IBInspectable
     private var _subtitleFontName: String? {
         get {
-            titleLabel.font.fontName
+            subtitleLabel?.font.fontName
         }
 
         set(newValue) {
             guard let fontName = newValue else {
-                titleLabel.font = nil
+                subtitleLabel?.font = nil
                 return
             }
 

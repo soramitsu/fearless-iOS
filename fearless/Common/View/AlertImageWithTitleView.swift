@@ -1,6 +1,6 @@
 import UIKit
 
-final class MultilineImageWithTitleView: UIView {
+final class AlertImageWithTitleView: UIView {
     private(set) var imageView: UIImageView!
     private(set) var titleLabel: UILabel!
 
