@@ -8,7 +8,10 @@ final class ScreenAuthorizationPresenter {
 
 extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
     func start() {
-        view?.didChangeAccessoryState(enabled: interactor.allowManualBiometryAuth)
+        view?.didChangeAccessoryState(
+            enabled: interactor.allowManualBiometryAuth,
+            accessoryIcon: interactor.availableBiometryType.accessoryIcon
+        )
         interactor.startAuth()
     }
 

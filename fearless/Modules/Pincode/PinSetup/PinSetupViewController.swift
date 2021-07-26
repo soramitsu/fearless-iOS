@@ -245,8 +245,9 @@ extension PinSetupViewController: PinSetupViewProtocol {
         }
     }
 
-    func didChangeAccessoryState(enabled: Bool) {
+    func didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?) {
         pinView?.numpadView?.supportsAccessoryControl = enabled
+        pinView?.numpadView?.accessoryIcon = accessoryIcon
     }
 }
 
