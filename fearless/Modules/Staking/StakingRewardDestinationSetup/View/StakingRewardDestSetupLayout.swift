@@ -52,7 +52,7 @@ final class StakingRewardDestSetupLayout: UIView {
             .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
 
         accountView.title = R.string.localizable
-            .stakingRewardDestinationTitle_v190(preferredLanguages: locale.rLanguages)
+            .stakingRewardsDestinationTitle(preferredLanguages: locale.rLanguages)
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)

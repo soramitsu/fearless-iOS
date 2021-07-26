@@ -51,10 +51,10 @@ final class SelectValidatorsConfirmViewController: UIViewController {
             .walletSendAmountTitle(preferredLanguages: languages)
 
         validatorsView.title = R.string.localizable
-            .stakingRecommendedValidatorsTitle(preferredLanguages: languages)
+            .stakingSelectedValidatorsTitle(preferredLanguages: languages)
 
         rewardTitleLabel.text = R.string.localizable
-            .stakingRewardDestinationTitle_v190(preferredLanguages: languages)
+            .stakingRewardsDestinationTitle(preferredLanguages: languages)
         feeTitleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: languages)
 
         applyConfirmationViewModel()
