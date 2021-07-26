@@ -8,7 +8,7 @@ class StakingRewardPayoutsTests: XCTestCase {
 
     func testViewStateIsLoadingThenError() {
         let payoutServiceThatReturnsError = PayoutRewardsServiceStub.error()
-        let eraCountdownOperationFactory = MockEraCountdownOperationFactoryProtocol()
+        let eraCountdownOperationFactory = EraCountdownOperationFactoryStub(eraCountdown: .testStub)
         let runtimeService = try! RuntimeCodingServiceStub.createWestendService()
 
         let interactor = StakingRewardPayoutsInteractor(
@@ -35,24 +35,6 @@ class StakingRewardPayoutsTests: XCTestCase {
         let viewStateIsLoadingOnPresenterSetup = XCTestExpectation()
         let viewStateIsNotLoadingWhenPresenterRecievedResult = XCTestExpectation()
         let viewStateIsErrorWhenPresenterRecievedError = XCTestExpectation()
-
-        stub(eraCountdownOperationFactory) { stub in
-            when(stub).fetchCountdownOperationWrapper().then { _ in
-                CompoundOperationWrapper.createWithResult(
-                    EraCountdown(
-                        activeEra: 0,
-                        eraLength: 0,
-                        sessionLength: 0,
-                        eraStartSessionIndex: 0,
-                        currentSessionIndex: 0,
-                        currentSlot: 0,
-                        genesisSlot: 0,
-                        blockCreationTime: 0,
-                        createdAtDate: Date()
-                    )
-                )
-            }
-        }
 
         stub(view) { stub in
             when(stub).reload(with: any())

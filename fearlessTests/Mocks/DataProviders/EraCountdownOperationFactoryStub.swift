@@ -12,16 +12,16 @@ struct EraCountdownOperationFactoryStub: EraCountdownOperationFactoryProtocol {
 }
 
 extension EraCountdown {
-    static var stub: EraCountdown {
+    static var testStub: EraCountdown {
         EraCountdown(
-            activeEra: 0,
-            eraLength: 0,
-            sessionLength: 0,
-            eraStartSessionIndex: 0,
-            currentSessionIndex: 0,
-            currentSlot: 0,
-            genesisSlot: 0,
-            blockCreationTime: 0,
+            activeEra: 2541,
+            eraLength: 6,
+            sessionLength: 600,
+            eraStartSessionIndex: 14538,
+            currentSessionIndex: 14538,
+            currentSlot: 271216483,
+            genesisSlot: 262493679,
+            blockCreationTime: 6000,
             createdAtDate: Date()
         )
     }
