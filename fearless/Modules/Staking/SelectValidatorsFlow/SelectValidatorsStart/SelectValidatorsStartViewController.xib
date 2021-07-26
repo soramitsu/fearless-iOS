@@ -394,7 +394,7 @@
                                             </connections>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="16 (max 16)" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUW-mr-dOJ">
-                                            <rect key="frame" x="187.5" y="15" width="147.5" height="18"/>
+                                            <rect key="frame" x="187.5" y="16" width="147.5" height="16.5"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -457,14 +457,6 @@
             <point key="canvasLocation" x="109.59999999999999" y="107.49625187406298"/>
         </view>
     </objects>
-    <designables>
-        <designable name="ENT-cZ-dY0">
-            <size key="intrinsicContentSize" width="55" height="15"/>
-        </designable>
-        <designable name="g6a-OX-WP3">
-            <size key="intrinsicContentSize" width="55" height="15"/>
-        </designable>
-    </designables>
     <resources>
         <image name="iconAlgoItem" width="16" height="16"/>
         <image name="iconList" width="24" height="24"/>

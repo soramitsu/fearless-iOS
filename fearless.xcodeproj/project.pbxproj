@@ -800,6 +800,7 @@
 		84BAFCD026AF585900871E86 /* SharedArrayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAFCCF26AF585900871E86 /* SharedArrayTests.swift */; };
 		84BAFCD226AF5EE700871E86 /* IconDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAFCD126AF5EE700871E86 /* IconDetailsView.swift */; };
 		84BAFCD426AF61F300871E86 /* IconDetailsView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAFCD326AF61F300871E86 /* IconDetailsView+Inspectable.swift */; };
+		84BAFCD626AF64CB00871E86 /* SelectValidatorsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAFCD526AF64CB00871E86 /* SelectValidatorsViewLayout.swift */; };
 		84BB3CE9267C9ADE00676FFE /* CrowdloanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB3CE8267C9ADE00676FFE /* CrowdloanTests.swift */; };
 		84BB3CEE267CD6B500676FFE /* CrowdloanContributionDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB3CED267CD6B500676FFE /* CrowdloanContributionDict.swift */; };
 		84BB3CF3267D24B000676FFE /* UIStackView+Manage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BB3CF2267D24B000676FFE /* UIStackView+Manage.swift */; };
@@ -2234,6 +2235,7 @@
 		84BAFCCF26AF585900871E86 /* SharedArrayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedArrayTests.swift; sourceTree = "<group>"; };
 		84BAFCD126AF5EE700871E86 /* IconDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconDetailsView.swift; sourceTree = "<group>"; };
 		84BAFCD326AF61F300871E86 /* IconDetailsView+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IconDetailsView+Inspectable.swift"; sourceTree = "<group>"; };
+		84BAFCD526AF64CB00871E86 /* SelectValidatorsViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsViewLayout.swift; sourceTree = "<group>"; };
 		84BB3CE8267C9ADE00676FFE /* CrowdloanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanTests.swift; sourceTree = "<group>"; };
 		84BB3CED267CD6B500676FFE /* CrowdloanContributionDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionDict.swift; sourceTree = "<group>"; };
 		84BB3CF2267D24B000676FFE /* UIStackView+Manage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Manage.swift"; sourceTree = "<group>"; };
@@ -3396,6 +3398,7 @@
 				27E722B58D9927B8916FD7AF /* SelectValidatorsStartViewController.xib */,
 				D4C391292F22D16427C77CD9 /* SelectValidatorsStartViewFactory.swift */,
 				8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */,
+				84BAFCD526AF64CB00871E86 /* SelectValidatorsViewLayout.swift */,
 			);
 			path = SelectValidatorsStart;
 			sourceTree = "<group>";
@@ -8493,6 +8496,7 @@
 				94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */,
 				8468B87224F63D3A00B76BC6 /* AddAccount+AccountCreateWireframe.swift in Sources */,
 				9DFB37659A6B911A4D54623E /* AccountConfirmInteractor.swift in Sources */,
+				84BAFCD626AF64CB00871E86 /* SelectValidatorsViewLayout.swift in Sources */,
 				84155DEB253980F900A27058 /* WebSocketService.swift in Sources */,
 				849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */,
 				8472C5B2265CF9C500E2481B /* StakingRewardDestConfirmInteractor.swift in Sources */,
