@@ -116,11 +116,11 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
             return
         }
 
-        let reuseIdetifier = amount.description + resettingRewardDestination.description
+        let reuseIdentifier = amount.description + resettingRewardDestination.description
 
         feeProxy.estimateFee(
             using: extrinsicService,
-            reuseIdentifier: reuseIdetifier
+            reuseIdentifier: reuseIdentifier
         ) { [weak self] builder in
             guard let strongSelf = self else {
                 throw CommonError.undefined

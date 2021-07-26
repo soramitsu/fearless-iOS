@@ -29,9 +29,17 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             balanceViewModelFactory: balanceViewModelFactory
         )
 
+        let wireframe = StakingPayoutConfirmationWireframe()
+
+        let dataValidationFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: balanceViewModelFactory
+        )
+
         let presenter = StakingPayoutConfirmationPresenter(
             balanceViewModelFactory: balanceViewModelFactory,
             payoutConfirmViewModelFactory: payoutConfirmViewModelFactory,
+            dataValidatingFactory: dataValidationFactory,
             chain: chain,
             asset: asset,
             logger: Logger.shared
@@ -51,8 +59,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             return nil
         }
 
-        let wireframe = StakingPayoutConfirmationWireframe()
-
+        dataValidationFactory.view = view
         presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe
@@ -90,46 +97,42 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             operationManager: operationManager
         )
 
+        let extrinsicOperationFactory = ExtrinsicOperationFactory(
+            address: selectedAccount.address,
+            cryptoType: selectedAccount.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection
+        )
+
         let signer = SigningWrapper(
             keystore: keystore,
             settings: settings
         )
 
-        let providerFactory = SingleValueProviderFactory.shared
-
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: selectedAccount.address,
-                runtimeService: runtimeService
-            )
-        else {
-            return nil
-        }
+        let singleValueProviderFactory = SingleValueProviderFactory.shared
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
         return StakingPayoutConfirmationInteractor(
-            providerFactory: providerFactory,
+            singleValueProviderFactory: singleValueProviderFactory,
             substrateProviderFactory: substrateProviderFactory,
+            extrinsicOperationFactory: extrinsicOperationFactory,
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
             signer: signer,
-            balanceProvider: balanceProvider,
-            priceProvider: priceProvider,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
-            settings: settings,
             logger: Logger.shared,
+            selectedAccount: selectedAccount,
             payouts: payouts,
-            chain: chain
+            chain: chain,
+            assetId: assetId
         )
     }
 }

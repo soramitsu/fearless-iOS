@@ -41,4 +41,8 @@ extension ConstantCodingPath {
     static var minimumContribution: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Crowdloan", constantName: "MinContribution")
     }
+
+    static var blockWeights: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "System", constantName: "BlockWeights")
+    }
 }
