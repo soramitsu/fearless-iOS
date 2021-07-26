@@ -11,8 +11,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         let eraCountdownOperationFactory = MockEraCountdownOperationFactoryProtocol()
         let runtimeService = try! RuntimeCodingServiceStub.createWestendService()
 
-        WebSocketService.shared.setup()
-        let connection = WebSocketService.shared.connection!
+        let connection = MockJSONRPCEngine()
 
         let interactor = StakingRewardPayoutsInteractor(
             singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
