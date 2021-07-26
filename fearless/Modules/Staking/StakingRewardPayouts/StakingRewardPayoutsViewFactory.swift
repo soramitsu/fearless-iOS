@@ -132,7 +132,6 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             countdownTimer: CountdownTimer()
         )
 
-        guard let engine = WebSocketService.shared.connection else { return nil }
         let runtimeService = RuntimeRegistryFacade.sharedService
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -143,7 +142,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
             runtimeCodingService: runtimeService,
             storageRequestFactory: storageRequestFactory,
-            engine: engine
+            webSocketService: WebSocketService.shared
         )
 
         let interactor = StakingRewardPayoutsInteractor(
