@@ -16,8 +16,8 @@ protocol StakingRedeemPresenterProtocol: AnyObject {
 
 protocol StakingRedeemInteractorInputProtocol: AnyObject {
     func setup()
-    func submitForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool)
-    func estimateFeeForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool)
+    func submitForStash(_ stashAddress: AccountAddress)
+    func estimateFeeForStash(_ stashAddress: AccountAddress)
 }
 
 protocol StakingRedeemInteractorOutputProtocol: AnyObject {
@@ -28,7 +28,6 @@ protocol StakingRedeemInteractorOutputProtocol: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveController(result: Result<AccountItem?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
     func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
 
     func didSubmitRedeeming(result: Result<String, Error>)

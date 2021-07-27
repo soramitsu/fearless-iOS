@@ -20,20 +20,6 @@ final class StakingRedeemPresenter {
     private var fee: Decimal?
     private var controller: AccountItem?
     private var stashItem: StashItem?
-    private var payee: RewardDestinationArg?
-
-    private var shouldResetRewardDestination: Bool {
-        switch payee {
-        case .staked:
-            if let stakingLedger = stakingLedger, let minimalBalance = minimalBalance {
-                return stakingLedger.active < minimalBalance
-            } else {
-                return false
-            }
-        default:
-            return false
-        }
-    }
 
     private func provideFeeViewModel() {
         if let fee = fee {
@@ -78,8 +64,7 @@ final class StakingRedeemPresenter {
         do {
             let viewModel = try confirmViewModelFactory.createRedeemViewModel(
                 controllerItem: controller,
-                amount: redeemableDecimal,
-                shouldResetRewardDestination: shouldResetRewardDestination
+                amount: redeemableDecimal
             )
 
             view?.didReceiveConfirmation(viewModel: viewModel)
@@ -92,17 +77,13 @@ final class StakingRedeemPresenter {
         guard
             fee == nil,
             controller != nil,
-            payee != nil,
             stakingLedger != nil,
             minimalBalance != nil,
             let stashItem = stashItem else {
             return
         }
 
-        interactor.estimateFeeForStash(
-            stashItem.stash,
-            resettingRewardDestination: shouldResetRewardDestination
-        )
+        interactor.estimateFeeForStash(stashItem.stash)
     }
 
     init(
@@ -160,10 +141,7 @@ extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
 
             strongSelf.view?.didStartLoading()
 
-            strongSelf.interactor.submitForStash(
-                stashItem.stash,
-                resettingRewardDestination: strongSelf.shouldResetRewardDestination
-            )
+            strongSelf.interactor.submitForStash(stashItem.stash)
         }
     }
 
@@ -263,19 +241,6 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
             self.stashItem = stashItem
         case let .failure(error):
             logger?.error("Did receive stash item error: \(error)")
-        }
-    }
-
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>) {
-        switch result {
-        case let .success(payee):
-            self.payee = payee
-
-            refreshFeeIfNeeded()
-
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Did receive payee item error: \(error)")
         }
     }
 

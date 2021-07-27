@@ -7,5 +7,4 @@ struct StakingRedeemViewModel {
     let senderIcon: DrawableIcon
     let senderName: String?
     let amount: LocalizableResource<String>
-    let shouldResetRewardDestination: Bool
 }
