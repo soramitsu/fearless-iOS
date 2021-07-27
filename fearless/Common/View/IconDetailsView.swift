@@ -5,10 +5,6 @@ class IconDetailsView: UIView {
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .center
-        imageView.setContentHuggingPriority(.defaultLow, for: .vertical)
-        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        imageView.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
-        imageView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return imageView
     }()
 
@@ -20,10 +16,20 @@ class IconDetailsView: UIView {
         return label
     }()
 
-    var horizontalSpacing = 8.0 {
+    var horizontalSpacing: CGFloat = 8.0 {
         didSet {
             detailsLabel.snp.updateConstraints { make in
                 make.leading.equalTo(imageView.snp.trailing).offset(horizontalSpacing)
+            }
+
+            setNeedsLayout()
+        }
+    }
+
+    var iconWidth: CGFloat = 16.0 {
+        didSet {
+            imageView.snp.updateConstraints { make in
+                make.width.equalTo(iconWidth)
             }
 
             setNeedsLayout()
@@ -54,17 +60,14 @@ class IconDetailsView: UIView {
     private func setupLayout() {
         addSubview(imageView)
         imageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.top.greaterThanOrEqualToSuperview()
-            make.top.lessThanOrEqualToSuperview()
+            make.leading.top.bottom.equalToSuperview()
+            make.width.equalTo(iconWidth)
         }
 
         addSubview(detailsLabel)
         detailsLabel.snp.makeConstraints { make in
             make.leading.equalTo(imageView.snp.trailing).offset(horizontalSpacing)
-            make.trailing.equalToSuperview()
-            make.top.greaterThanOrEqualToSuperview()
-            make.top.lessThanOrEqualToSuperview()
+            make.trailing.top.bottom.equalToSuperview()
         }
     }
 }

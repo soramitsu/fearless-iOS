@@ -33,13 +33,6 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             return nil
         }
 
-        let view = SelectValidatorsStartViewController(nib: R.nib.selectValidatorsStartViewController)
-
-        let presenter = SelectValidatorsStartPresenter(
-            initialTargets: selectedValidators,
-            logger: Logger.shared
-        )
-
         let eraValidatorService = EraValidatorFacade.sharedService
         let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
@@ -68,10 +61,19 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             operationManager: operationManager
         )
 
-        view.presenter = presenter
+        let presenter = SelectValidatorsStartPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            initialTargets: selectedValidators,
+            logger: Logger.shared
+        )
+
+        let view = SelectValidatorsStartViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         view.localizationManager = LocalizationManager.shared

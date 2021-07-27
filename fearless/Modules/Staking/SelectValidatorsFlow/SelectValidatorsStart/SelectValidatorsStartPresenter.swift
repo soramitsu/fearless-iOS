@@ -3,8 +3,8 @@ import RobinHood
 
 final class SelectValidatorsStartPresenter {
     weak var view: SelectValidatorsStartViewProtocol?
-    var wireframe: SelectValidatorsStartWireframeProtocol!
-    var interactor: SelectValidatorsStartInteractorInputProtocol!
+    let wireframe: SelectValidatorsStartWireframeProtocol
+    let interactor: SelectValidatorsStartInteractorInputProtocol
 
     let initialTargets: [SelectedValidatorInfo]?
     let logger: LoggerProtocol?
@@ -14,7 +14,14 @@ final class SelectValidatorsStartPresenter {
     private var selectedValidators: SharedList<SelectedValidatorInfo>?
     private var maxNominations: Int?
 
-    init(initialTargets: [SelectedValidatorInfo]?, logger: LoggerProtocol? = nil) {
+    init(
+        interactor: SelectValidatorsStartInteractorInputProtocol,
+        wireframe: SelectValidatorsStartWireframeProtocol,
+        initialTargets: [SelectedValidatorInfo]?,
+        logger: LoggerProtocol? = nil
+    ) {
+        self.interactor = interactor
+        self.wireframe = wireframe
         self.initialTargets = initialTargets
         self.logger = logger
     }
