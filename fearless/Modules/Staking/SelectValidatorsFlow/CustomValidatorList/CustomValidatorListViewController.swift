@@ -67,6 +67,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
+        rootView.tableView.rowHeight = 48.0
     }
 
     private func setupNavigationBar() {
@@ -202,7 +203,10 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
             let indexPaths = indexes.map {
                 IndexPath(row: $0, section: 0)
             }
-            rootView.tableView.reloadRows(at: indexPaths, with: .none)
+
+            UIView.performWithoutAnimation {
+                rootView.tableView.reloadRows(at: indexPaths, with: .automatic)
+            }
         } else {
             rootView.tableView.reloadData()
         }
