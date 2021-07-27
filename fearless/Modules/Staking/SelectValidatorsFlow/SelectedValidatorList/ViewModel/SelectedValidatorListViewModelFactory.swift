@@ -40,7 +40,9 @@ final class SelectedValidatorListViewModelFactory {
                 icon: icon,
                 name: validator.identity?.displayName,
                 address: validator.address,
-                details: detailsText
+                details: detailsText,
+                shouldShowWarning: validator.oversubscribed,
+                shouldShowError: validator.hasSlashes
             )
         }
     }
