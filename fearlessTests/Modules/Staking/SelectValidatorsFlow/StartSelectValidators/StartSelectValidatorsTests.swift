@@ -13,7 +13,6 @@ class SelectValidatorsStartTests: XCTestCase {
             allValidators: allValidators,
             expectedRecommendedValidators: recomendedValidators,
             expectedViewModel: SelectValidatorsStartViewModel(
-                phase: .setup,
                 selectedCount: 0,
                 totalCount: 16
             ),
@@ -30,7 +29,6 @@ class SelectValidatorsStartTests: XCTestCase {
             allValidators: allValidators,
             expectedRecommendedValidators: recomendedValidators,
             expectedViewModel: SelectValidatorsStartViewModel(
-                phase: .update,
                 selectedCount: recomendedValidators.count,
                 totalCount: 16
             ),

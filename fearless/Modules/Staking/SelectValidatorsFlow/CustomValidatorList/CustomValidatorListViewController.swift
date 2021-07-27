@@ -98,16 +98,35 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     private func updateFillRestButton() {
-        rootView.fillRestButton.isEnabled =
-            selectedValidatorsCount < selectedValidatorsLimit
+        let isEnabled = selectedValidatorsCount < selectedValidatorsLimit
+        rootView.fillRestButton.isEnabled = isEnabled
+
+        if isEnabled {
+            rootView.fillRestButton.applyEnabledStyle()
+        } else {
+            rootView.fillRestButton.applyDisabledStyle()
+        }
     }
 
     private func updateClearFiltersButton() {
         rootView.clearButton.isEnabled = filterIsApplied
+
+        if filterIsApplied {
+            rootView.clearButton.applyEnabledStyle()
+        } else {
+            rootView.clearButton.applyDisabledStyle()
+        }
     }
 
     private func updateDeselectButton() {
-        rootView.deselectButton.isEnabled = selectedValidatorsCount > 0
+        let isEnabled = selectedValidatorsCount > 0
+        rootView.deselectButton.isEnabled = isEnabled
+
+        if isEnabled {
+            rootView.deselectButton.applyEnabledStyle()
+        } else {
+            rootView.deselectButton.applyDisabledStyle()
+        }
     }
 
     private func updateProceedButton() {
