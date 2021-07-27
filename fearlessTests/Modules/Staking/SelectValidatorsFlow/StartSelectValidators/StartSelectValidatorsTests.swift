@@ -51,8 +51,6 @@ class SelectValidatorsStartTests: XCTestCase {
         let wireframe = MockSelectValidatorsStartWireframeProtocol()
         let operationFactory = MockValidatorOperationFactoryProtocol()
 
-        let presenter = SelectValidatorsStartPresenter(initialTargets: nil)
-
         let runtimeService = try RuntimeCodingServiceStub.createWestendService()
 
         let interactor = SelectValidatorsStartInteractor(
@@ -61,9 +59,13 @@ class SelectValidatorsStartTests: XCTestCase {
             operationManager: OperationManager()
         )
 
+        let presenter = SelectValidatorsStartPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            initialTargets: nil
+        )
+
         presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
         interactor.presenter = presenter
 
         // when
