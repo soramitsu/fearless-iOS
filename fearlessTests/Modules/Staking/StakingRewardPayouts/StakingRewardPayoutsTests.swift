@@ -94,7 +94,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         }
 
         stub(viewModelFactory) { stub in
-            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any(), eraCompletionTime: any()).then { _ in
+            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any(), eraCountdown: any()).then { _ in
                 LocalizableResource { _ in
                     StakingPayoutViewModel(
                         cellViewModels: [],

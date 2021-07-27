@@ -115,6 +115,7 @@ extension StakingRewardPayoutsInteractor: SingleValueProviderSubscriber, SingleV
         switch result {
         case .success:
             reload()
+            fetchEraCompletionTime()
         case let .failure(error):
             logger?.error(error.localizedDescription)
         }

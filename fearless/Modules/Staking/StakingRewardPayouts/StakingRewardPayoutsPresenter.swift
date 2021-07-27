@@ -9,6 +9,7 @@ final class StakingRewardPayoutsPresenter {
 
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
+    private var eraCountdown: EraCountdown?
     private var eraCompletionTime: TimeInterval?
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
@@ -34,7 +35,7 @@ final class StakingRewardPayoutsPresenter {
         let viewModel = viewModelFactory.createPayoutsViewModel(
             payoutsInfo: payoutsInfo,
             priceData: priceData,
-            eraCompletionTime: eraCompletionTime
+            eraCountdown: eraCountdown
         )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
@@ -76,8 +77,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     func getTimeLeftString(
-        at index: Int,
-        eraCompletionTime: TimeInterval?
+        at index: Int
     ) -> LocalizableResource<NSAttributedString>? {
         guard let payoutsInfo = payoutsInfo else {
             return nil
@@ -85,7 +85,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         return viewModelFactory.timeLeftString(
             at: index,
             payoutsInfo: payoutsInfo,
-            eraCompletionTime: eraCompletionTime
+            eraCountdown: eraCountdown
         )
     }
 }
@@ -121,7 +121,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
         switch eraCountdownResult {
         case let .success(eraCountdown):
-            eraCompletionTime = eraCountdown.eraCompletionTime
+            self.eraCountdown = eraCountdown
             updateView()
         case .failure:
             eraCompletionTime = nil
