@@ -29,7 +29,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         operationWrapper.targetOperation.completionBlock = {
             do {
                 let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                print("Estimating era completion time (in seconds): \(eraCountdown.eraCompletionTime)")
+                print("Estimating era completion time (in seconds): \(eraCountdown.eraCompletionTime())")
                 timeExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)

@@ -22,17 +22,17 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
         priceData: PriceData?,
-        eraCompletionTime: TimeInterval?
+        eraCountdown: EraCountdown?
     ) -> LocalizableResource<StakingPayoutViewModel> {
         LocalizableResource<StakingPayoutViewModel> { locale in
             StakingPayoutViewModel(
                 cellViewModels: self.createCellViewModels(
                     for: payoutsInfo,
                     priceData: priceData,
-                    eraCompletionTime: eraCompletionTime,
+                    eraCountdown: eraCountdown,
                     locale: locale
                 ),
-                eraComletionTime: eraCompletionTime,
+                eraComletionTime: eraCountdown?.eraCompletionTime(),
                 bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts, locale: locale)
             )
         }
@@ -41,7 +41,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     func timeLeftString(
         at index: Int,
         payoutsInfo: PayoutsInfo,
-        eraCompletionTime: TimeInterval?
+        eraCountdown: EraCountdown?
     ) -> LocalizableResource<NSAttributedString> {
         LocalizableResource { locale in
             let payout = payoutsInfo.payouts[index]
@@ -49,7 +49,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
-                eraCompletionTime: eraCompletionTime,
+                eraCountdown: eraCountdown,
                 locale: locale
             )
         }
@@ -58,7 +58,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     private func createCellViewModels(
         for payoutsInfo: PayoutsInfo,
         priceData: PriceData?,
-        eraCompletionTime: TimeInterval?,
+        eraCountdown: EraCountdown?,
         locale: Locale
     ) -> [StakingRewardHistoryCellViewModel] {
         payoutsInfo.payouts.map { payout in
@@ -66,7 +66,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
-                eraCompletionTime: eraCompletionTime,
+                eraCountdown: eraCountdown,
                 locale: locale
             )
 
@@ -110,13 +110,14 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         activeEra: EraIndex,
         payoutEra: EraIndex,
         historyDepth: UInt32,
-        eraCompletionTime: TimeInterval?,
+        eraCountdown: EraCountdown?,
         locale: Locale
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
         let daysLeft = Int(eraDistance) / chain.erasPerDay
         let timeLeftText: String = {
-            if daysLeft == 0, let eraCompletionTime = eraCompletionTime {
+            if daysLeft == 0, let eraCountdown = eraCountdown {
+                let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: activeEra + eraDistance)
                 if eraCompletionTime <= .leastNormalMagnitude {
                     return R.string.localizable.stakingPayoutExpired(preferredLanguages: locale.rLanguages)
                 }
