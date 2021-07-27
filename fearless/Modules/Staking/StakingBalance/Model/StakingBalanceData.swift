@@ -4,5 +4,5 @@ struct StakingBalanceData {
     let stakingLedger: StakingLedger
     let activeEra: EraIndex
     let priceData: PriceData?
-    let eraCompletionTime: TimeInterval?
+    let eraCountdown: EraCountdown?
 }
