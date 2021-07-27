@@ -2,12 +2,9 @@ import UIKit
 import SoraUI
 
 final class ValidatorSearchViewLayout: UIView {
-    private let searchContainer: BorderedContainerView = {
-        let view = BorderedContainerView()
+    private let searchContainer: UIView = {
+        let view = UIView()
         view.backgroundColor = R.color.colorBlack()!
-        view.borderType = .top
-        view.strokeColor = R.color.colorLightGray()!
-        view.strokeWidth = 0.5
         return view
     }()
 
