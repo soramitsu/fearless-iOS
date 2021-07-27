@@ -1150,6 +1150,7 @@ import Cuckoo
 
 import Foundation
 import LocalAuthentication
+import UIKit.UIImage
 
 
  class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock {
