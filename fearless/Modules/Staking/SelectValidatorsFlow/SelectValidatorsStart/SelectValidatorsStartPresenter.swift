@@ -7,6 +7,7 @@ final class SelectValidatorsStartPresenter {
     let interactor: SelectValidatorsStartInteractorInputProtocol
 
     let initialTargets: [SelectedValidatorInfo]?
+    let existingStashAddress: AccountAddress?
     let logger: LoggerProtocol?
 
     private var allValidators: [AccountAddress: ElectedValidatorInfo]?
@@ -17,11 +18,13 @@ final class SelectValidatorsStartPresenter {
     init(
         interactor: SelectValidatorsStartInteractorInputProtocol,
         wireframe: SelectValidatorsStartWireframeProtocol,
+        existingStashAddress: AccountAddress?,
         initialTargets: [SelectedValidatorInfo]?,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
+        self.existingStashAddress = existingStashAddress
         self.initialTargets = initialTargets
         self.logger = logger
     }
@@ -35,7 +38,7 @@ final class SelectValidatorsStartPresenter {
         }
 
         let selectedValidatorList = initialTargets?.map { target in
-            all[target.address]?.toSelected() ?? target
+            all[target.address]?.toSelected(for: existingStashAddress) ?? target
         }
         .sorted { $0.stakeReturn > $1.stakeReturn }
         .prefix(maxNominations) ?? []
@@ -107,7 +110,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         }
 
         let maxTargets = min(all.count, maxNominations)
-        let recommendedValidatorList = recommended.map { $0.toSelected() }
+        let recommendedValidatorList = recommended.map { $0.toSelected(for: existingStashAddress) }
 
         wireframe.proceedToRecommendedList(
             from: view,
@@ -125,8 +128,10 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         }
 
         let maxTargets = min(all.count, maxNominations)
-        let electedValidatorList = all.values.map { $0.toSelected() }
-        let recommendedValidatorList = recommended?.map { $0.toSelected() } ?? []
+        let electedValidatorList = all.values.map { $0.toSelected(for: existingStashAddress) }
+        let recommendedValidatorList = recommended?.map {
+            $0.toSelected(for: existingStashAddress)
+        } ?? []
 
         let notElectedValidators = selectedValidators.items.compactMap {
             all[$0.address] == nil ? $0 : nil
