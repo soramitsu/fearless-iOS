@@ -2,6 +2,7 @@ import Foundation
 
 protocol LocalAuthInteractorInputProtocol: AnyObject {
     var allowManualBiometryAuth: Bool { get }
+    var availableBiometryType: AvailableBiometryType { get }
 
     func startAuth()
     func process(pin: String)

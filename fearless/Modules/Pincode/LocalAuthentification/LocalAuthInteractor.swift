@@ -94,8 +94,13 @@ class LocalAuthInteractor {
 }
 
 extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
+    var availableBiometryType: AvailableBiometryType {
+        biometryAuth.availableBiometryType
+    }
+
     var allowManualBiometryAuth: Bool {
-        settingsManager.biometryEnabled == true && biometryAuth.availableBiometryType == .touchId
+        let touchOrFaceId = availableBiometryType == .touchId || availableBiometryType == .faceId
+        return settingsManager.biometryEnabled == true && touchOrFaceId
     }
 
     func startAuth() {

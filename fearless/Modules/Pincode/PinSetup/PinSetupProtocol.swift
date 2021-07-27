@@ -6,7 +6,7 @@ protocol PinSetupViewProtocol: ControllerBackedProtocol {
         completionBlock: @escaping (Bool) -> Void
     )
 
-    func didChangeAccessoryState(enabled: Bool)
+    func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)
 
     func didReceiveWrongPincode()
 }

@@ -40,12 +40,17 @@ class PincodeSetupTests: XCTestCase {
             }
         }
 
+        let availableBiometryType = AvailableBiometryType.none
         stub(biometry) { stub in
-            when(stub).availableBiometryType.get.thenReturn(.none)
+            when(stub).availableBiometryType.get.thenReturn(availableBiometryType)
         }
 
         stub(view) { stub in
-            when(stub).didChangeAccessoryState(enabled: any()).thenDoNothing()
+            when(stub).didChangeAccessoryState(enabled: any(), availableBiometryType: any())
+                .then { enabled, biometryType in
+                    XCTAssert(enabled == false)
+                    XCTAssert(biometryType == availableBiometryType)
+                }
         }
 
         let expectation = XCTestExpectation()

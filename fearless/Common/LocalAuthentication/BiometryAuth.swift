@@ -1,5 +1,6 @@
 import Foundation
 import LocalAuthentication
+import UIKit.UIImage
 
 enum AvailableBiometryType {
     case none
@@ -58,6 +59,19 @@ class BiometryAuth: BiometryAuthProtocol {
             completionQueue.async {
                 completionBlock(result)
             }
+        }
+    }
+}
+
+extension AvailableBiometryType {
+    var accessoryIcon: UIImage? {
+        switch self {
+        case .faceId:
+            return R.image.pinFaceId()
+        case .touchId:
+            return R.image.pinFingerprint()
+        case .none:
+            return nil
         }
     }
 }
