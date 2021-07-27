@@ -6,7 +6,7 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
     var wireframe: PinSetupWireframeProtocol!
 
     func start() {
-        view?.didChangeAccessoryState(enabled: false, accessoryIcon: nil)
+        view?.didChangeAccessoryState(enabled: false, availableBiometryType: .none)
     }
 
     func activateBiometricAuth() {}

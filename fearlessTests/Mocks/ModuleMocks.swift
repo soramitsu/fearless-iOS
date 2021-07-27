@@ -17113,16 +17113,16 @@ import UIKit
     
     
     
-     func didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)  {
+     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)  {
         
-    return cuckoo_manager.call("didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)",
-            parameters: (enabled, accessoryIcon),
-            escapingParameters: (enabled, accessoryIcon),
+    return cuckoo_manager.call("didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)",
+            parameters: (enabled, availableBiometryType),
+            escapingParameters: (enabled, availableBiometryType),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didChangeAccessoryState(enabled: enabled, accessoryIcon: accessoryIcon))
+            defaultCall: __defaultImplStub!.didChangeAccessoryState(enabled: enabled, availableBiometryType: availableBiometryType))
         
     }
     
@@ -17165,9 +17165,9 @@ import UIKit
 	        return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self, method: "didRequestBiometryUsage(biometryType: AvailableBiometryType, completionBlock: @escaping (Bool) -> Void)", parameterMatchers: matchers))
 	    }
 	    
-	    func didChangeAccessoryState<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(enabled: M1, accessoryIcon: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool, UIImage?)> where M1.MatchedType == Bool, M2.OptionalMatchedType == UIImage {
-	        let matchers: [Cuckoo.ParameterMatcher<(Bool, UIImage?)>] = [wrap(matchable: enabled) { $0.0 }, wrap(matchable: accessoryIcon) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self, method: "didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)", parameterMatchers: matchers))
+	    func didChangeAccessoryState<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(enabled: M1, availableBiometryType: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool, AvailableBiometryType)> where M1.MatchedType == Bool, M2.MatchedType == AvailableBiometryType {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool, AvailableBiometryType)>] = [wrap(matchable: enabled) { $0.0 }, wrap(matchable: availableBiometryType) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self, method: "didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveWrongPincode() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -17208,9 +17208,9 @@ import UIKit
 	    }
 	    
 	    @discardableResult
-	    func didChangeAccessoryState<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(enabled: M1, accessoryIcon: M2) -> Cuckoo.__DoNotUse<(Bool, UIImage?), Void> where M1.MatchedType == Bool, M2.OptionalMatchedType == UIImage {
-	        let matchers: [Cuckoo.ParameterMatcher<(Bool, UIImage?)>] = [wrap(matchable: enabled) { $0.0 }, wrap(matchable: accessoryIcon) { $0.1 }]
-	        return cuckoo_manager.verify("didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didChangeAccessoryState<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(enabled: M1, availableBiometryType: M2) -> Cuckoo.__DoNotUse<(Bool, AvailableBiometryType), Void> where M1.MatchedType == Bool, M2.MatchedType == AvailableBiometryType {
+	        let matchers: [Cuckoo.ParameterMatcher<(Bool, AvailableBiometryType)>] = [wrap(matchable: enabled) { $0.0 }, wrap(matchable: availableBiometryType) { $0.1 }]
+	        return cuckoo_manager.verify("didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -17248,7 +17248,7 @@ import UIKit
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didChangeAccessoryState(enabled: Bool, accessoryIcon: UIImage?)   {
+     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
