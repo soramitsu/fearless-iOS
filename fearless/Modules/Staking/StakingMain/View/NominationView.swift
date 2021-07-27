@@ -86,8 +86,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
             presentActiveStatus(for: era)
         case let .inactive(era):
             presentInactiveStatus(for: era)
-        case let .waiting(remainingTime):
-            presentWaitingStatus(remainingTime: remainingTime)
+        case let .waiting(eraCountdown):
+            presentWaitingStatus(remainingTime: eraCountdown?.eraCompletionTime)
         }
     }
 

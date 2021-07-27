@@ -26,13 +26,37 @@ extension NominatorState {
             }
 
             if nomination.submittedIn >= eraStakers.era {
-                return .waiting(eraCompletionTimeInSeconds: commonData.eraCompletionTimeInSeconds)
+                return .waiting(eraCountdown: commonData.eraCountdown)
             }
 
             return .inactive(era: eraStakers.era)
 
         } catch {
             return .undefined
+        }
+    }
+
+    var allValidatorsWithoutReward: Bool {
+        guard
+            let eraStakers = commonData.eraStakersInfo,
+            let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator else {
+            return false
+        }
+
+        do {
+            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
+            let nominatorPositions = eraStakers.validators.compactMap { validator in
+                validator.exposure.others.firstIndex(where: { $0.who == accountId })
+            }
+
+            guard !nominatorPositions.isEmpty else {
+                return false
+            }
+
+            return nominatorPositions.allSatisfy { $0 >= maxNominatorsPerValidator }
+
+        } catch {
+            return false
         }
     }
 
@@ -81,6 +105,9 @@ extension NominatorState {
         if ledgerInfo.active < minStake {
             message = R.string.localizable
                 .stakingNominatorStatusAlertLowStake(preferredLanguages: locale?.rLanguages)
+        } else if allValidatorsWithoutReward {
+            message = R.string.localizable
+                .stakingYourOversubscribedMessage(preferredLanguages: locale?.rLanguages)
         } else {
             message = R.string.localizable
                 .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale?.rLanguages)

@@ -10,6 +10,11 @@ class RowView<T: UIView>: BackgroundedContentControl {
 
     let borderView = UIFactory.default.createBorderedContainerView()
 
+    private var calculatedHeight: CGFloat = 0.0
+    private var calculatedWidth: CGFloat = 0.0
+
+    var rowContentView: T! { contentView as? T }
+
     init(contentView: T? = nil, preferredHeight: CGFloat? = nil) {
         self.preferredHeight = preferredHeight
 
@@ -32,27 +37,33 @@ class RowView<T: UIView>: BackgroundedContentControl {
     }
 
     override func layoutSubviews() {
-        super.layoutSubviews()
-
         let contentHeight: CGFloat
+
+        let width = max(bounds.width - contentInsets.left - contentInsets.right, 0)
 
         if let preferredHeight = preferredHeight {
             contentHeight = preferredHeight - contentInsets.top - contentInsets.bottom
         } else {
-            contentHeight = contentView?.intrinsicContentSize.height ?? 0.0
+            if abs(calculatedWidth - width) > CGFloat.leastNormalMagnitude {
+                updateContentSizeForWidth(width)
+            }
+
+            contentHeight = calculatedHeight
         }
+
+        backgroundView?.frame = bounds
 
         contentView?.frame = CGRect(
             x: bounds.minX + contentInsets.left,
             y: bounds.minY + contentInsets.top,
-            width: max(bounds.width - contentInsets.left - contentInsets.right, 0),
+            width: width,
             height: contentHeight
         )
 
         borderView.frame = CGRect(
             x: bounds.minX + contentInsets.left,
             y: bounds.minY,
-            width: max(bounds.width - contentInsets.left - contentInsets.right, 0),
+            width: width,
             height: bounds.height
         )
     }
@@ -63,8 +74,7 @@ class RowView<T: UIView>: BackgroundedContentControl {
         if let preferredHeight = preferredHeight {
             height = preferredHeight
         } else {
-            let contentHeight = contentView?.intrinsicContentSize.height ?? UIView.noIntrinsicMetric
-            height = contentHeight + contentInsets.bottom + contentInsets.top
+            height = calculatedHeight + contentInsets.bottom + contentInsets.top
         }
 
         return CGSize(
@@ -95,6 +105,20 @@ class RowView<T: UIView>: BackgroundedContentControl {
         }
 
         contentView?.isUserInteractionEnabled = false
-        contentView?.autoresizingMask = [.flexibleWidth]
+        contentView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    }
+
+    private func updateContentSizeForWidth(_ width: CGFloat) {
+        calculatedWidth = width
+
+        let size = rowContentView.systemLayoutSizeFitting(
+            CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .defaultLow
+        )
+
+        calculatedHeight = size.height
+
+        invalidateIntrinsicContentSize()
     }
 }
