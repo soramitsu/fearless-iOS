@@ -111,7 +111,8 @@ final class ValidatorInfoViewModelFactory {
             nominators: nominators,
             myNomination: myNomination,
             totalStake: totalStake,
-            estimatedReward: estimatedReward
+            estimatedReward: estimatedReward,
+            oversubscribed: validatorInfo.stakeInfo?.oversubscribed ?? false
         )
     }
 

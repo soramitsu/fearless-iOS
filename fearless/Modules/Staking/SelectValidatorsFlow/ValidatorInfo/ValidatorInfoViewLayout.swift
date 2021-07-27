@@ -133,15 +133,22 @@ final class ValidatorInfoViewLayout: UIView {
             value: exposure.nominators
         )
 
-        if let myNomination = exposure.myNomination, !myNomination.isRewarded {
+        if exposure.oversubscribed {
             nominatorsView.borderView.borderType = .none
 
-            return addHintView(
-                for: R.string.localizable.stakingYourOversubscribedMessage(
-                    preferredLanguages: locale.rLanguages
-                ),
-                icon: R.image.iconWarning()
-            )
+            let hintTitle: String = {
+                if let myNomination = exposure.myNomination, !myNomination.isRewarded {
+                    return R.string.localizable.stakingValidatorMyOversubscribedMessage(
+                        preferredLanguages: locale.rLanguages
+                    )
+                } else {
+                    return R.string.localizable.stakingValidatorOtherOversubscribedMessage(
+                        preferredLanguages: locale.rLanguages
+                    )
+                }
+            }()
+
+            return addHintView(for: hintTitle, icon: R.image.iconWarning())
         } else {
             return nominatorsView
         }

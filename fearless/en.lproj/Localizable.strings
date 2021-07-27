@@ -492,6 +492,7 @@ Derivation path: %@";
 "staking.validator.apy.percent" = "Estimated reward (% APY)";
 "staking.pending.rewards" = "Pending rewards";
 "staking.rewards.destination.title" = "Rewards destination";
+"staking.rewards.destination" = "Rewards destination";
 "staking.your.oversubscribed.message" = "Your tokens allocated to the oversubscribed validators. You will not receive rewards in this era.";
 "staking.your.not.elected.format" = "Not elected (%@)";
 "staking.your.selected.format" = "Selected (%@)";

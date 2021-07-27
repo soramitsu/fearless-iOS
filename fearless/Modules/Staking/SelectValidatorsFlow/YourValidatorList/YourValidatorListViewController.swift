@@ -194,7 +194,7 @@ extension YourValidatorListViewController: UITableViewDelegate {
                 $0.validators.count + sectionViewModel.validators.count
             } ?? sectionViewModel.validators.count
 
-            if viewModel.hasValidatorWithoutRewards {
+            if viewModel.allValidatorWithoutRewards {
                 let headerView: YourValidatorListWarningSectionView = tableView.dequeueReusableHeaderFooterView()
                 configureWarning(headerView: headerView, validatorsCount: count)
                 return headerView
