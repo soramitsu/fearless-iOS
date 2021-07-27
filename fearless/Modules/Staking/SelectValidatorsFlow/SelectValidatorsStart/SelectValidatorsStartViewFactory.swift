@@ -80,6 +80,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
 
         let view = SelectValidatorsStartViewController(
             presenter: presenter,
+            phase: selectedValidators == nil ? .setup : .update,
             localizationManager: LocalizationManager.shared
         )
 

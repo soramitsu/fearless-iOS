@@ -3,9 +3,15 @@ import SoraUI
 import SoraFoundation
 
 final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
+    enum Phase {
+        case setup
+        case update
+    }
+
     typealias RootViewType = SelectValidatorsViewLayout
 
     let presenter: SelectValidatorsStartPresenterProtocol!
+    let phase: Phase
 
     private var viewModel: SelectValidatorsStartViewModel?
 
@@ -15,9 +21,11 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
 
     init(
         presenter: SelectValidatorsStartPresenterProtocol,
+        phase: Phase,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.presenter = presenter
+        self.phase = phase
 
         super.init(nibName: nil, bundle: nil)
 
@@ -92,6 +100,15 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
         rootView.customValidatorsDetailsLabel.text = R.string.localizable
             .stakingSelectValidatorsCustomDesc(preferredLanguages: languages)
 
+        switch phase {
+        case .setup:
+            rootView.customValidatorsCell.rowContentView.titleLabel.text = R.string.localizable
+                .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: selectedLocale.rLanguages)
+        case .update:
+            rootView.customValidatorsCell.rowContentView.titleLabel.text = R.string.localizable
+                .stakingCustomValidatorsUpdateList(preferredLanguages: selectedLocale.rLanguages)
+        }
+
         updateSelected()
     }
 
@@ -139,15 +156,6 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
             rootView.customValidatorsCell.rowContentView.detailsLabel.text = text
         } else {
             rootView.customValidatorsCell.rowContentView.detailsLabel.text = ""
-        }
-
-        switch viewModel.phase {
-        case .setup:
-            rootView.customValidatorsCell.rowContentView.titleLabel.text = R.string.localizable
-                .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: selectedLocale.rLanguages)
-        case .update:
-            rootView.customValidatorsCell.rowContentView.titleLabel.text = R.string.localizable
-                .stakingCustomValidatorsUpdateList(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 

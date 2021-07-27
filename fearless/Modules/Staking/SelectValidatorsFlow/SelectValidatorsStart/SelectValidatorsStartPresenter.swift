@@ -70,7 +70,6 @@ final class SelectValidatorsStartPresenter {
         }
 
         let viewModel = SelectValidatorsStartViewModel(
-            phase: initialTargets == nil ? .setup : .update,
             selectedCount: selectedValidators.count,
             totalCount: maxNominations
         )
