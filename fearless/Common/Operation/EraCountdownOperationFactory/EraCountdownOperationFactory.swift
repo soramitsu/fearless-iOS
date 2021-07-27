@@ -8,21 +8,22 @@ protocol EraCountdownOperationFactoryProtocol {
 
 enum EraCountdownOperationFactoryError: Error {
     case noData
+    case noConnection
 }
 
 final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
-    let engine: JSONRPCEngine
+    let webSocketService: WebSocketServiceProtocol
 
     init(
         runtimeCodingService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        engine: JSONRPCEngine
+        webSocketService: WebSocketServiceProtocol
     ) {
         self.runtimeCodingService = runtimeCodingService
         self.storageRequestFactory = storageRequestFactory
-        self.engine = engine
+        self.webSocketService = webSocketService
     }
 
     // swiftlint:disable function_body_length
@@ -44,6 +45,10 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
             for: .babeBlockTime,
             codingFactoryOperation: codingFactoryOperation
         )
+
+        guard let engine = webSocketService.connection else {
+            return CompoundOperationWrapper.createWithError(EraCountdownOperationFactoryError.noConnection)
+        }
 
         let sessionIndexWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> =
             storageRequestFactory.queryItems(
@@ -79,7 +84,8 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
         let startSessionWrapper = createEraStartSessionIndex(
             dependingOn: activeEraWrapper.targetOperation,
-            codingFactoryOperation: codingFactoryOperation
+            codingFactoryOperation: codingFactoryOperation,
+            engine: engine
         )
 
         let dependencies = eraLengthWrapper.allOperations
@@ -134,7 +140,8 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
     private func createEraStartSessionIndex(
         dependingOn activeEra: BaseOperation<[StorageResponse<ActiveEraInfo>]>,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        engine: JSONRPCEngine
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<SessionIndex>>]> {
         let keyParams: () throws -> [StringScaleMapper<EraIndex>] = {
             let activeEraIndex = try activeEra.extractNoCancellableResultData().first?.value?.index ?? 0

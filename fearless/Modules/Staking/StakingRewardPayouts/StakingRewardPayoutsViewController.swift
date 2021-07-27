@@ -236,7 +236,7 @@ extension StakingRewardPayoutsViewController: CountdownTimerDelegate {
     }
 
     func didStop(with _: TimeInterval) {
-        eraCompletionTime = nil
+        eraCompletionTime = 0
         updateView()
     }
 }
