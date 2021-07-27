@@ -88,6 +88,8 @@ final class CustomValidatorListViewModelFactory {
                 address: validator.address,
                 details: detailsText,
                 auxDetails: auxDetailsText,
+                shouldShowWarning: validator.oversubscribed,
+                shouldShowError: validator.hasSlashes,
                 isSelected: selectedValidatorList.contains(validator)
             )
         }

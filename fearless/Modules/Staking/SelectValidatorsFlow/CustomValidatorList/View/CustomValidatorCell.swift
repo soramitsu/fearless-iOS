@@ -52,6 +52,15 @@ class CustomValidatorCell: UITableViewCell {
         return button
     }()
 
+    let statusStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 2.0
+        stackView.alignment = .center
+        stackView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        return stackView
+    }()
+
     let detailsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -114,12 +123,18 @@ class CustomValidatorCell: UITableViewCell {
             make.top.bottom.equalToSuperview().inset(16)
         }
 
+        contentView.addSubview(statusStackView)
+        statusStackView.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8)
+        }
+
         detailsStackView.addArrangedSubview(detailsLabel)
         detailsStackView.addArrangedSubview(detailsAuxLabel)
 
         contentView.addSubview(detailsStackView)
         detailsStackView.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel.snp.trailing).offset(8)
+            make.leading.equalTo(statusStackView.snp.trailing).offset(8)
             make.trailing.equalTo(infoButton.snp.leading).offset(-16)
             make.centerY.equalToSuperview()
         }
@@ -142,6 +157,9 @@ class CustomValidatorCell: UITableViewCell {
             titleLabel.lineBreakMode = .byTruncatingMiddle
             titleLabel.text = viewModel.address
         }
+
+        clearStatusView()
+        setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
 
         detailsLabel.text = viewModel.details
 
@@ -168,10 +186,32 @@ class CustomValidatorCell: UITableViewCell {
             titleLabel.text = viewModel.address
         }
 
+        clearStatusView()
+        setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
+
         detailsLabel.text = viewModel.details
 
         detailsAuxLabel.isHidden = true
 
         selectionImageView.image = viewModel.isSelected ? R.image.listCheckmarkIcon() : nil
+    }
+
+    private func clearStatusView() {
+        let arrangedSubviews = statusStackView.arrangedSubviews
+
+        arrangedSubviews.forEach {
+            statusStackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+    }
+
+    private func setupStatus(for shouldShowWarning: Bool, shouldShowError: Bool) {
+        if shouldShowWarning {
+            statusStackView.addArrangedSubview(UIImageView(image: R.image.iconWarning()))
+        }
+
+        if shouldShowError {
+            statusStackView.addArrangedSubview(UIImageView(image: R.image.iconErrorFilled()))
+        }
     }
 }
