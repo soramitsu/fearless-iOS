@@ -15,14 +15,6 @@ final class StakingUnbondSetupLayout: UIView {
 
     let durationView = UIFactory.default.createTitleValueView()
 
-    let footerLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = R.color.colorLightGray()
-        label.font = .p2Paragraph
-        label.numberOfLines = 0
-        return label
-    }()
-
     let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     var locale = Locale.current {
@@ -50,7 +42,6 @@ final class StakingUnbondSetupLayout: UIView {
     private func applyLocalization() {
         networkFeeView.locale = locale
 
-        footerLabel.text = R.string.localizable.stakingUnbondingHint(preferredLanguages: locale.rLanguages)
         durationView.titleLabel.text = R.string.localizable
             .stakingUnbondingPeriod(preferredLanguages: locale.rLanguages)
 
@@ -87,42 +78,11 @@ final class StakingUnbondSetupLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        let footerView = createFooterView()
-        contentView.stackView.addArrangedSubview(footerView)
-
-        footerView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.bottom.equalTo(footerLabel).offset(16.0)
-        }
-
         addSubview(actionButton)
         actionButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
-    }
-
-    private func createFooterView() -> UIView {
-        let footerView = UIView()
-
-        let iconView = UIImageView(image: R.image.iconInfoFilled()?.withRenderingMode(.alwaysTemplate))
-        iconView.tintColor = R.color.colorGray()
-
-        footerView.addSubview(iconView)
-        iconView.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.top.equalToSuperview().inset(16.0)
-            make.size.equalTo(14.0)
-        }
-
-        footerView.addSubview(footerLabel)
-        footerLabel.snp.makeConstraints { make in
-            make.top.equalTo(iconView.snp.top).offset(-1.0)
-            make.leading.equalTo(iconView.snp.trailing).offset(9.0)
-            make.trailing.equalToSuperview()
-        }
-
-        return footerView
     }
 }
