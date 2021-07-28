@@ -438,4 +438,4 @@
 "staking.setup.restake.title" = "Увеличения стейка";
 "staking.setup.payout.title" = "Выплаты";
 "staking.pending.rewards.explanation.message" = "Валидаторы выплачивают вознаграждения каждые 2-5 дней. Однако, вы можете инициировать выплату самостоятельно, особенно, если срок вознаграждения истекает. В этом случае придётся заплатить комиссию.";
-"staking.custom.validators.update.list" = "Обновить список";
+"staking.custom.validators.update.list" = "Обновить свой список";
