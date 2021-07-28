@@ -1,74 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>staking.main.lockup.period.value</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@format@</string>
-		<key>format</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>li</string>
-			<key>one</key>
-			<string>%li день</string>
-			<key>few</key>
-			<string>%li дня</string>
-			<key>many</key>
-			<string>%li дней</string>
-			<key>other</key>
-			<string>%li дней</string>
-		</dict>
-	</dict>
-	<key>staking.payouts.days.left</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@format@</string>
-		<key>format</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>li</string>
-			<key>one</key>
-			<string>%li день</string>
-			<key>other</key>
-			<string>%li дней</string>
-		</dict>
-	</dict>
-	<key>common.days.format</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@format@</string>
-		<key>format</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>li</string>
-			<key>one</key>
-			<string>%li день</string>
-			<key>other</key>
-			<string>%li дн.</string>
-		</dict>
-	</dict>
-	<key>common.hours.format</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@format@</string>
-		<key>format</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>li</string>
-			<key>one</key>
-			<string>%li час</string>
-			<key>other</key>
-			<string>%li часов</string>
-		</dict>
-	</dict>
-</dict>
+  <dict>
+    <key>staking.main.lockup.period.value</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li день</string>
+        <key>few</key>
+        <string>%li дня</string>
+        <key>many</key>
+        <string>%li дней</string>
+        <key>other</key>
+        <string>%li дней</string>
+      </dict>
+    </dict>
+    <key>staking.payouts.days.left</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li день</string>
+        <key>other</key>
+        <string>%li дней</string>
+      </dict>
+    </dict>
+    <key>common.days.format</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li день</string>
+        <key>other</key>
+        <string>%li дн.</string>
+      </dict>
+    </dict>
+    <key>common.hours.format</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li час</string>
+        <key>few</key>
+        <string>%li часа</string>
+        <key>many</key>
+        <string>%li часов</string>
+        <key>other</key>
+        <string>%li час</string>
+      </dict>
+    </dict>
+  </dict>
 </plist>
