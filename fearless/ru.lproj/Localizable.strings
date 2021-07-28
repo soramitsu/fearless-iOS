@@ -422,7 +422,7 @@
 "staking.payout.expired" = "Срок выплаты истёк";
 "wallet.balance.unbonding_v1.9.0" = "В процессе вывода";
 "staking.unbonding.period_v1.9.0" = "Время вывода";
-"wallet.balance.bonded_v1.9.0" = "Застейкано";
+"wallet.balance.bonded" = "Застейкано";
 "staking.total.rewards_v1.9.0" = "Заработано";
 "staking.setup.reward.destination.section.title" = "Использовать вознаграждения для";
 "staking.bond.more_v1.9.0" = "Застейкать ещё";

@@ -418,7 +418,7 @@ Derivation path: %@";
 "staking.payout.expired" = "Payout expired";
 "wallet.balance.unbonding_v1.9.0" = "Unstaking";
 "staking.unbonding.period_v1.9.0" = "Unstaking period";
-"wallet.balance.bonded_v1.9.0" = "Staked";
+"wallet.balance.bonded" = "Staked";
 "staking.total.rewards_v1.9.0" = "Rewarded";
 "staking.setup.reward.destination.section.title" = "How to use your rewards?";
 "staking.bond.more_v1.9.0" = "Stake more";
