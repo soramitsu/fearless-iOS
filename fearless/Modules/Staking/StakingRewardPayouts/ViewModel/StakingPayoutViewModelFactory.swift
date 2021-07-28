@@ -115,17 +115,26 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
         let daysLeft = Int(eraDistance) / chain.erasPerDay
+
         let timeLeftText: String = {
-            if daysLeft == 0, let eraCountdown = eraCountdown {
-                let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: activeEra + eraDistance)
+            if let eraCountdown = eraCountdown {
+                let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: payoutEra + historyDepth + 1)
                 if eraCompletionTime <= .leastNormalMagnitude {
                     return R.string.localizable.stakingPayoutExpired(preferredLanguages: locale.rLanguages)
                 }
-                let formattedTime = (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
-                return R.string.localizable.commonTimeLeftFormat(formattedTime)
+                let daysLeft = eraCompletionTime.daysFromSeconds
+                if daysLeft == 0 {
+                    let formattedTime = (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
+                    return R.string.localizable.commonTimeLeftFormat(formattedTime)
+                } else {
+                    return R.string.localizable
+                        .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+                }
+
+            } else {
+                return R.string.localizable
+                    .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
-            return R.string.localizable
-                .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
         }()
 
         let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
