@@ -198,8 +198,8 @@
 "wallet.send.phishing.warning.title" = "Предупреждение о мошенничестве";
 "staking.start.title" = "Начать стейкинг";
 "common.network.fee" = "Комиссия сети";
-"staking.restake.title" = "Увеличения стейка";
-"staking.payout.title" = "Выплаты";
+"staking.restake.title" = "Увеличение стейка";
+"staking.payout.title" = "Выплата";
 "staking.reward.payout.account" = "Аккаунт для выплат";
 "common.learn.more" = "Узнать больше";
 "staking.title" = "Стейкинг";
