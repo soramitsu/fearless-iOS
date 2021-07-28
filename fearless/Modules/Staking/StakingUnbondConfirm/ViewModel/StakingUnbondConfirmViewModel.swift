@@ -7,5 +7,5 @@ struct StakingUnbondConfirmViewModel {
     let senderIcon: DrawableIcon
     let senderName: String?
     let amount: LocalizableResource<String>
-    let shouldResetRewardDestination: Bool
+    let hints: LocalizableResource<[TitleIconViewModel]>
 }
