@@ -186,7 +186,7 @@ struct ModalInfoFactory {
 
             LocalizableResource { locale in
                 let title = R.string.localizable
-                    .walletBalanceBonded_v190(preferredLanguages: locale.rLanguages)
+                    .walletBalanceBonded(preferredLanguages: locale.rLanguages)
                 let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.bonded) ?? ""
 
                 return TitleWithSubtitleViewModel(title: title, subtitle: details)

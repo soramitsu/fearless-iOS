@@ -57,7 +57,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         ) ?? 0.0
         let bondedViewModel = createWidgetItemViewModel(
             amount: bondedDecimal,
-            title: R.string.localizable.walletBalanceBonded_v190(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.walletBalanceBonded(preferredLanguages: locale.rLanguages),
             priceData: balanceData.priceData,
             locale: locale
         )
