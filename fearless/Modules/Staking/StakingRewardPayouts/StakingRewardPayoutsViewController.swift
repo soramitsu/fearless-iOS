@@ -69,7 +69,11 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 
     private func setupTable() {
-        rootView.tableView.registerClassForCell(StakingRewardHistoryTableCell.self)
+        rootView.tableView.registerClassesForCell(
+            [StakingRewardHistoryTableCell.self,
+             MultilineTableViewCell.self]
+        )
+
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
@@ -131,28 +135,43 @@ extension StakingRewardPayoutsViewController: Localizable {
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
+    func numberOfSections(in _: UITableView) -> Int {
+        guard let state = viewState,
+              case StakingRewardPayoutsViewState.payoutsList = state
+        else { return 1 }
+        return 2
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        guard indexPath.section == 1 else { return }
         presenter.handleSelectedHistory(at: indexPath.row)
     }
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        guard let state = viewState else { return 0 }
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard let state = viewState else { return 1 }
         if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
-            return viewModel.value(for: selectedLocale).cellViewModels.count
+            return section == 0 ? 1 : viewModel.value(for: selectedLocale).cellViewModels.count
         }
-        return 0
+        return 1
     }
 
     func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
             let state = viewState,
-            case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state
+            case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state,
+            indexPath.section > 0
         else {
-            return UITableViewCell()
+            let titleCell = rootView.tableView.dequeueReusableCellWithType(MultilineTableViewCell.self)!
+            let title = R.string.localizable
+                .stakingPendingRewardsExplanationMessage(preferredLanguages: selectedLocale.rLanguages)
+            titleCell.bind(title: title)
+            return titleCell
         }
+
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
         let model = viewModel.value(for: selectedLocale).cellViewModels[indexPath.row]
@@ -175,6 +194,7 @@ extension StakingRewardPayoutsViewController: EmptyStateDataSource {
             let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
             errorView.delegate = self
+            errorView.locale = selectedLocale
             return errorView
         case .emptyList:
             let emptyView = EmptyStateView()

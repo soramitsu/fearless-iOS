@@ -148,7 +148,7 @@ final class RewardEstimationView: LocalizableView {
     private func applyLocalization() {
         let languages = locale.rLanguages
 
-        estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle(preferredLanguages: languages)
+        estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle_v190(preferredLanguages: languages)
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)

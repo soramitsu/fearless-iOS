@@ -79,7 +79,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder 
             preferredLanguages: languages
         )
 
-        rootView.rewardDestinationView.titleLabel.text = R.string.localizable.stakingRewardDestinationTitle(
+        rootView.rewardDestinationView.titleLabel.text = R.string.localizable.stakingRewardsDestinationTitle(
             preferredLanguages: languages
         )
 

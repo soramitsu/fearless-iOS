@@ -82,7 +82,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
     private func setupLocalization() {
         let languages = selectedLocale.rLanguages
-        title = R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: languages)
+        title = R.string.localizable.tabbarCrowdloanTitle_v190(preferredLanguages: languages)
     }
 
     private func applyState() {
@@ -149,7 +149,11 @@ extension CrowdloanListViewController: UITableViewDataSource {
             case 0:
                 let titleCell = tableView.dequeueReusableCellWithType(MultilineTableViewCell.self)!
                 let symbol = tokenSymbol.value(for: selectedLocale)
-                titleCell.bind(title: R.string.localizable.crowdloanListSectionFormat(symbol))
+                let title = R.string.localizable.crowdloanListSectionFormat(
+                    symbol,
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+                titleCell.bind(title: title)
                 return titleCell
             case 1:
                 let yourCrowdloansCell = tableView.dequeueReusableCellWithType(YourCrowdloansTableViewCell.self)!
@@ -259,6 +263,7 @@ extension CrowdloanListViewController: EmptyStateDataSource {
             let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = message
             errorView.delegate = self
+            errorView.locale = selectedLocale
             return errorView
         case .empty:
             let emptyView = EmptyStateView()
