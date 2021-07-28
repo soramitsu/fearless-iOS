@@ -120,7 +120,7 @@ final class NetworkInfoView: UIView {
         activeNominatorsTitleLabel.text = R.string.localizable
             .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
         lockUpPeriodTitleLabel.text = R.string.localizable
-            .stakingMainLockupPeriodTitle(preferredLanguages: languages)
+            .stakingMainLockupPeriodTitle_v190(preferredLanguages: languages)
     }
 
     private func applyExpansion(animated: Bool) {

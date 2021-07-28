@@ -260,7 +260,8 @@ extension YourValidatorListViewController: UITableViewDelegate {
             )
         } ?? ""
 
-        let value = R.string.localizable.stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages)
+        let value = R.string.localizable
+            .stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages).uppercased()
 
         let description = R.string.localizable.stakingYourAllocatedDescription(
             preferredLanguages: selectedLocale.rLanguages
@@ -374,6 +375,7 @@ extension YourValidatorListViewController: EmptyStateDataSource {
             let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = error
             errorView.delegate = self
+            errorView.locale = selectedLocale
             return errorView
         case .loading, .validatorList:
             return nil

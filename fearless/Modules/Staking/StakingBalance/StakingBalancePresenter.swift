@@ -104,7 +104,7 @@ final class StakingBalancePresenter {
             return action
         }
 
-        let title = R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale?.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
         let viewModel = AlertPresentableViewModel(
             title: title,

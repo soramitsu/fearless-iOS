@@ -21,15 +21,23 @@ class ErrorStateView: UIView {
 
     let retryButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Retry", for: .normal) // TODO: localize
         button.setTitleColor(R.color.colorPink(), for: .normal)
         return button
     }()
+
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         setupLayout()
+        applyLocalization()
         retryButton.addTarget(self, action: #selector(handleRetryAction), for: .touchUpInside)
     }
 
@@ -38,7 +46,7 @@ class ErrorStateView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setupLayout() {
+    private func setupLayout() {
         let stackView = UIStackView(arrangedSubviews: [iconImageView, errorDescriptionLabel, retryButton])
         stackView.axis = .vertical
         stackView.spacing = 16
@@ -46,6 +54,11 @@ class ErrorStateView: UIView {
 
         addSubview(stackView)
         stackView.snp.makeConstraints { $0.center.equalToSuperview() }
+    }
+
+    private func applyLocalization() {
+        let title = R.string.localizable.commonRetry(preferredLanguages: locale.rLanguages)
+        retryButton.setTitle(title, for: .normal)
     }
 
     @objc
