@@ -238,8 +238,7 @@ extension StakingRewardPayoutsViewController: CountdownTimerDelegate {
 
         for (index, cell) in historyCells.enumerated() {
             guard let timeLeftText = presenter.getTimeLeftString(
-                at: indexPathsForVisibleRows[index].row,
-                eraCompletionTime: eraCompletionTime
+                at: indexPathsForVisibleRows[index].row
             ) else { return }
             cell.bind(timeLeftText: timeLeftText.value(for: selectedLocale))
         }

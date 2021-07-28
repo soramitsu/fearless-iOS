@@ -14,7 +14,7 @@ final class StakingBalancePresenter {
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var priceData: PriceData?
-    private var eraCompletionTime: TimeInterval?
+    private var eraCountdown: EraCountdown?
     private let countdownTimer: CountdownTimerProtocol
 
     init(
@@ -45,7 +45,7 @@ final class StakingBalancePresenter {
             stakingLedger: stakingLedger,
             activeEra: activeEra,
             priceData: priceData,
-            eraCompletionTime: eraCompletionTime
+            eraCountdown: eraCountdown
         )
 
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
@@ -222,27 +222,24 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
         switch eraCountdownResult {
         case let .success(eraCountdown):
-            countdownTimer.stop()
-            countdownTimer.start(with: eraCountdown.eraCompletionTime, runLoop: .main, mode: .common)
+            self.eraCountdown = eraCountdown
+            countdownTimer.start(with: eraCountdown.eraCompletionTime(), runLoop: .main, mode: .common)
         case .failure:
-            eraCompletionTime = nil
+            eraCountdown = nil
         }
     }
 }
 
 extension StakingBalancePresenter: CountdownTimerDelegate {
-    func didStart(with remainedInterval: TimeInterval) {
-        eraCompletionTime = remainedInterval
+    func didStart(with _: TimeInterval) {
         updateView()
     }
 
-    func didCountdown(remainedInterval: TimeInterval) {
-        eraCompletionTime = remainedInterval
+    func didCountdown(remainedInterval _: TimeInterval) {
         updateView()
     }
 
     func didStop(with _: TimeInterval) {
-        eraCompletionTime = 0
         updateView()
     }
 }

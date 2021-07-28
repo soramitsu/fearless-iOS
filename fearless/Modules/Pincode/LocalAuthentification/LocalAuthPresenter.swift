@@ -6,7 +6,10 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
     var interactor: LocalAuthInteractorInputProtocol!
 
     func start() {
-        view?.didChangeAccessoryState(enabled: interactor.allowManualBiometryAuth)
+        view?.didChangeAccessoryState(
+            enabled: interactor.allowManualBiometryAuth,
+            availableBiometryType: interactor.availableBiometryType
+        )
         interactor.startAuth()
     }
 
