@@ -103,11 +103,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 threshold: 1000,
                 divisor: 1.0,
                 suffix: "",
-                formatter: NumberFormatter.decimalFormatter(
-                    precision: preferredPrecision,
-                    rounding: roundingMode,
-                    usesIntGrouping: true
-                )
+                formatter: nil
             ),
             BigNumberAbbreviation(
                 threshold: 1_000_000,
