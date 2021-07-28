@@ -149,7 +149,11 @@ extension CrowdloanListViewController: UITableViewDataSource {
             case 0:
                 let titleCell = tableView.dequeueReusableCellWithType(MultilineTableViewCell.self)!
                 let symbol = tokenSymbol.value(for: selectedLocale)
-                titleCell.bind(title: R.string.localizable.crowdloanListSectionFormat(symbol))
+                let title = R.string.localizable.crowdloanListSectionFormat(
+                    symbol,
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+                titleCell.bind(title: title)
                 return titleCell
             case 1:
                 let yourCrowdloansCell = tableView.dequeueReusableCellWithType(YourCrowdloansTableViewCell.self)!
