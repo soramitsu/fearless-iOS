@@ -5,6 +5,7 @@ class SelectValidatorsStartWireframe: SelectValidatorsStartWireframeProtocol {
         from _: ControllerBackedProtocol?,
         validatorList _: [SelectedValidatorInfo],
         recommendedValidatorList _: [SelectedValidatorInfo],
+        selectedValidatorList _: SharedList<SelectedValidatorInfo>,
         maxTargets _: Int
     ) {}
 

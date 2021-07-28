@@ -504,3 +504,4 @@ Derivation path: %@";
 "staking.validator.slashed.desc" = "Validator is slashed for misbehaves (e.g. goes offline, attacks the network, or runs modified software) in the network.";
 "staking.validator.my.oversubscribed.message" = "Oversubscribed. You will not receive rewards from the validator in this era.";
 "staking.validator.other.oversubscribed.message" = "Oversubscribed. Only the top staked nominators are paid rewards.";
+"staking.custom.validators.update.list" = "Update your list";

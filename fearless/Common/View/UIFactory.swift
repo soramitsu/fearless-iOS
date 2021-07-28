@@ -63,7 +63,7 @@ protocol UIFactoryProtocol {
 
     func createIconTitleValueView() -> IconTitleValueView
 
-    func createTitleValueSelectionControl() -> TitleValueSelectionControl
+    func createTitleValueSelectionView() -> TitleValueSelectionView
 
     func createHintView() -> HintView
 
@@ -467,8 +467,8 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
-    func createTitleValueSelectionControl() -> TitleValueSelectionControl {
-        TitleValueSelectionControl()
+    func createTitleValueSelectionView() -> TitleValueSelectionView {
+        TitleValueSelectionView()
     }
 
     func createRewardSelectionView() -> RewardSelectionView {

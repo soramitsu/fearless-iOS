@@ -44,7 +44,7 @@ struct ModalAlertFactory {
         _ title: String,
         dissmisAfter timeInterval: TimeInterval = 4.0
     ) -> UIViewController {
-        let contentView = MultilineImageWithTitleView()
+        let contentView = AlertImageWithTitleView()
         contentView.verticalSpacing = 8.0
         contentView.titleLabel.textColor = R.color.colorWhite()
         contentView.titleLabel.font = UIFont.p2Paragraph
