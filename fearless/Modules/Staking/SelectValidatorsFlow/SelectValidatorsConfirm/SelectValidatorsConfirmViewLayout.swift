@@ -85,9 +85,9 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
         for (index, view) in hintViews.enumerated() {
             if index > 0 {
-                stackView.insertArranged(view: view, after: validatorsView)
-            } else {
                 stackView.insertArranged(view: view, after: hintViews[index - 1])
+            } else {
+                stackView.insertArranged(view: view, after: validatorsView)
             }
 
             view.snp.makeConstraints { make in
@@ -139,6 +139,6 @@ final class SelectValidatorsConfirmViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        stackView.setCustomSpacing(13.0, after: amountView)
+        stackView.setCustomSpacing(13.0, after: validatorsView)
     }
 }

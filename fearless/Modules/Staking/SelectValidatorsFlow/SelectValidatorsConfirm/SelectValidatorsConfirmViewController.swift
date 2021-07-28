@@ -38,10 +38,25 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configure()
         setupLocalization()
         updateActionButton()
 
         presenter.setup()
+    }
+
+    private func configure() {
+        rootView.mainAccountView.addTarget(
+            self,
+            action: #selector(actionOnWalletAccount),
+            for: .touchUpInside
+        )
+
+        rootView.networkFeeConfirmView.actionButton.addTarget(
+            self,
+            action: #selector(proceed),
+            for: .touchUpInside
+        )
     }
 
     private func setupLocalization() {
@@ -60,11 +75,13 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder 
         rootView.amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
 
-        rootView.validatorsView.titleLabel.text = R.string.localizable
-            .stakingRecommendedValidatorsTitle(preferredLanguages: languages)
+        rootView.validatorsView.titleLabel.text = R.string.localizable.stakingSelectedValidatorsTitle(
+            preferredLanguages: languages
+        )
 
-        rootView.rewardDestinationView.titleLabel.text = R.string.localizable
-            .stakingRewardDestinationTitle(preferredLanguages: languages)
+        rootView.rewardDestinationView.titleLabel.text = R.string.localizable.stakingRewardDestinationTitle(
+            preferredLanguages: languages
+        )
 
         rootView.networkFeeConfirmView.locale = selectedLocale
 
@@ -104,6 +121,16 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder 
             rootView.rewardDestinationView.valueLabel.text = R.string.localizable
                 .stakingPayoutTitle(preferredLanguages: selectedLocale.rLanguages)
             rootView.addPayoutAccountIfNeeded()
+
+            rootView.payoutAccountView?.addTarget(
+                self,
+                action: #selector(actionOnPayoutAccount),
+                for: .touchUpInside
+            )
+
+            rootView.payoutAccountView?.title = R.string.localizable.stakingRewardPayoutAccount(
+                preferredLanguages: selectedLocale.rLanguages
+            )
 
             rootView.payoutAccountView?.iconImage = icon.imageWithFillColor(
                 R.color.colorWhite()!,

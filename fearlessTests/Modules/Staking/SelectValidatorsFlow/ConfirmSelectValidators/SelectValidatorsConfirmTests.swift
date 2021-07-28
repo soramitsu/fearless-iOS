@@ -94,6 +94,7 @@ class SelectValidatorsConfirmTests: XCTestCase {
         let feeExpectation = XCTestExpectation()
         let assetExpectation = XCTestExpectation()
         let confirmExpectation = XCTestExpectation()
+        let hintExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceive(feeViewModel: any()).then { viewModel in
@@ -108,6 +109,10 @@ class SelectValidatorsConfirmTests: XCTestCase {
 
             when(stub).didReceive(confirmationViewModel: any()).then { _ in
                 confirmExpectation.fulfill()
+            }
+
+            when(stub).didReceive(hintsViewModel: any()).then { _ in
+                hintExpectation.fulfill()
             }
 
             when(stub).localizationManager.get.thenReturn(LocalizationManager.shared)
@@ -130,7 +135,7 @@ class SelectValidatorsConfirmTests: XCTestCase {
 
         // then
 
-        wait(for: [feeExpectation, assetExpectation, confirmExpectation],
+        wait(for: [feeExpectation, assetExpectation, confirmExpectation, hintExpectation],
              timeout: Constants.defaultExpectationDuration)
 
         // when
