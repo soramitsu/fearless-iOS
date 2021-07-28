@@ -273,7 +273,7 @@
 "common.available.format" = "Доступно: %@";
 "staking.rewards.learn.more" = "Подробнее о вознаграждениях";
 "common.error.no.data.retrieved" = "Данные не получены.";
-"staking.reward.payouts.empty.rewards" = "Ваши вознаграждения появяться здесь";
+"staking.reward.payouts.empty.rewards" = "Прекрасно! Все вознаграждения выплачены.";
 "staking.reward.details.validator" = "Валидатор";
 "staking.error.insufficient.balance.title" = "Недостаточный баланс";
 "common.confirmation.title" = "Уверены ли вы?";

@@ -136,7 +136,9 @@ extension StakingRewardPayoutsViewController: Localizable {
 
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
     func numberOfSections(in _: UITableView) -> Int {
-        guard viewState != nil else { return 0 }
+        guard let state = viewState,
+              case StakingRewardPayoutsViewState.payoutsList = state
+        else { return 1 }
         return 2
     }
 
@@ -150,34 +152,31 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let state = viewState else { return 0 }
+        guard let state = viewState else { return 1 }
         if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
             return section == 0 ? 1 : viewModel.value(for: selectedLocale).cellViewModels.count
         }
-        return 0
+        return 1
     }
 
     func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
             let state = viewState,
-            case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state
+            case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state,
+            indexPath.section > 0
         else {
-            return UITableViewCell()
-        }
-
-        switch indexPath.section {
-        case 0:
             let titleCell = rootView.tableView.dequeueReusableCellWithType(MultilineTableViewCell.self)!
-            titleCell.bind(title: R.string.localizable.stakingPendingRewardsExplanationMessage(preferredLanguages: selectedLocale.rLanguages))
+            let title = R.string.localizable
+                .stakingPendingRewardsExplanationMessage(preferredLanguages: selectedLocale.rLanguages)
+            titleCell.bind(title: title)
             return titleCell
-
-        default:
-            let cell = rootView.tableView.dequeueReusableCellWithType(
-                StakingRewardHistoryTableCell.self)!
-            let model = viewModel.value(for: selectedLocale).cellViewModels[indexPath.row]
-            cell.bind(model: model)
-            return cell
         }
+
+        let cell = rootView.tableView.dequeueReusableCellWithType(
+            StakingRewardHistoryTableCell.self)!
+        let model = viewModel.value(for: selectedLocale).cellViewModels[indexPath.row]
+        cell.bind(model: model)
+        return cell
     }
 }
 
