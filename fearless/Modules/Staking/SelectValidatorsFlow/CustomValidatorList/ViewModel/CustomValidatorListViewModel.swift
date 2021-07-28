@@ -6,6 +6,8 @@ struct CustomValidatorCellViewModel {
     let address: String
     let details: String?
     let auxDetails: String?
+    let shouldShowWarning: Bool
+    let shouldShowError: Bool
     var isSelected: Bool = false
 }
 

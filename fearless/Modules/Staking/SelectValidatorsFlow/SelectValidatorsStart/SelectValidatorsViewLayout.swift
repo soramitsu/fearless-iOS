@@ -19,23 +19,9 @@ final class SelectValidatorsViewLayout: UIView {
         return RowView(contentView: view, preferredHeight: 48.0)
     }()
 
-    let recommendedValidatorsActivityIndicator: UIActivityIndicatorView = {
-        let view = UIActivityIndicatorView()
-        view.hidesWhenStopped = true
-        view.isUserInteractionEnabled = false
-        view.color = R.color.colorWhite()
-        view.style = .white
-        return view
-    }()
+    private(set) lazy var recommendedValidatorsActivityIndicator = createActivityIndicatorView()
 
-    let customValidatorsActivityIndicator: UIActivityIndicatorView = {
-        let view = UIActivityIndicatorView()
-        view.hidesWhenStopped = true
-        view.isUserInteractionEnabled = false
-        view.color = R.color.colorWhite()
-        view.style = .white
-        return view
-    }()
+    private(set) lazy var customValidatorsActivityIndicator = createActivityIndicatorView()
 
     let algoSectionLabel: UILabel = {
         let label = UILabel()
@@ -181,5 +167,14 @@ final class SelectValidatorsViewLayout: UIView {
         customValidatorsActivityIndicator.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
         }
+    }
+
+    private func createActivityIndicatorView() -> UIActivityIndicatorView {
+        let view = UIActivityIndicatorView()
+        view.hidesWhenStopped = true
+        view.isUserInteractionEnabled = false
+        view.color = R.color.colorWhite()
+        view.style = .white
+        return view
     }
 }

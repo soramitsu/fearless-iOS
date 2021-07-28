@@ -8,25 +8,34 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         with state: InitiatedBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = InitBondingSelectValidatorsStartWireframe(state: state)
-        return createView(with: wireframe, selectedValidators: nil)
+        return createView(with: wireframe, existingStashAddress: nil, selectedValidators: nil)
     }
 
     static func createChangeTargetsView(
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
-        return createView(with: wireframe, selectedValidators: state.selectedTargets)
+        return createView(
+            with: wireframe,
+            existingStashAddress: state.stashAddress,
+            selectedValidators: state.selectedTargets
+        )
     }
 
     static func createChangeYourValidatorsView(
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
-        return createView(with: wireframe, selectedValidators: state.selectedTargets)
+        return createView(
+            with: wireframe,
+            existingStashAddress: state.stashAddress,
+            selectedValidators: state.selectedTargets
+        )
     }
 
     private static func createView(
         with wireframe: SelectValidatorsStartWireframeProtocol,
+        existingStashAddress: AccountAddress?,
         selectedValidators: [SelectedValidatorInfo]?
     ) -> SelectValidatorsStartViewProtocol? {
         guard let engine = WebSocketService.shared.connection else {
@@ -64,12 +73,14 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         let presenter = SelectValidatorsStartPresenter(
             interactor: interactor,
             wireframe: wireframe,
+            existingStashAddress: existingStashAddress,
             initialTargets: selectedValidators,
             logger: Logger.shared
         )
 
         let view = SelectValidatorsStartViewController(
             presenter: presenter,
+            phase: selectedValidators == nil ? .setup : .update,
             localizationManager: LocalizationManager.shared
         )
 

@@ -40,6 +40,8 @@ final class ValidatorSearchViewModelFactory {
                 name: validator.identity?.displayName,
                 address: validator.address,
                 details: detailsText,
+                shouldShowWarning: validator.oversubscribed,
+                shouldShowError: validator.hasSlashes,
                 isSelected: selectedValidatorList.contains(validator)
             )
         }

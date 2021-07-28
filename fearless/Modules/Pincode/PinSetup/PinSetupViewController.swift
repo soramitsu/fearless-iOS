@@ -247,7 +247,9 @@ extension PinSetupViewController: PinSetupViewProtocol {
 
     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType) {
         pinView?.numpadView?.supportsAccessoryControl = enabled
-        pinView?.numpadView?.accessoryIcon = availableBiometryType.accessoryIcon
+        pinView?.numpadView?.accessoryIcon = availableBiometryType.accessoryIcon?.tinted(
+            with: R.color.colorWhite()!
+        )
     }
 }
 

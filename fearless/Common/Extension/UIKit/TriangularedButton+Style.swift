@@ -3,16 +3,8 @@ import SoraUI
 
 extension TriangularedButton {
     func applyDefaultStyle() {
-        triangularedView?.shadowOpacity = 0.0
-        triangularedView?.fillColor = R.color.colorAccent()!
-        triangularedView?.highlightedFillColor = R.color.colorAccent()!
-        triangularedView?.strokeColor = .clear
-        triangularedView?.highlightedStrokeColor = .clear
-
-        imageWithTitleView?.titleColor = R.color.colorWhite()!
         imageWithTitleView?.titleFont = UIFont.h5Title
-
-        changesContentOpacityWhenHighlighted = true
+        applyEnabledStyle()
     }
 
     func applyAccessoryStyle() {
@@ -25,6 +17,18 @@ extension TriangularedButton {
 
         imageWithTitleView?.titleColor = R.color.colorWhite()!
         imageWithTitleView?.titleFont = UIFont.h5Title
+
+        changesContentOpacityWhenHighlighted = true
+    }
+
+    func applyEnabledStyle() {
+        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.fillColor = R.color.colorAccent()!
+        triangularedView?.highlightedFillColor = R.color.colorAccent()!
+        triangularedView?.strokeColor = .clear
+        triangularedView?.highlightedStrokeColor = .clear
+
+        imageWithTitleView?.titleColor = R.color.colorWhite()!
 
         changesContentOpacityWhenHighlighted = true
     }

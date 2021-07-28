@@ -56,25 +56,21 @@ final class CustomValidatorListViewLayout: UIView {
 
     private static func createGradientButton() -> GradientButton {
         let button = GradientButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
+        button.opacityAnimationDuration = 0
         button.gradientBackgroundView?.cornerRadius = Constants.auxButtonHeight / 2.0
         button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
-        button.imageWithTitleView?.titleColor = R.color.colorWhite()!
         button.imageWithTitleView?.titleFont = UIFont.capsTitle
-        button.changesContentOpacityWhenHighlighted = true
         return button
     }
 
     private static func createRoundedButton() -> RoundedButton {
         let button = RoundedButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.roundedBackgroundView?.shadowOpacity = 0.0
-        button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
-        button.roundedBackgroundView?.fillColor = R.color.colorDarkGray()!
+        button.applyEnabledStyle()
+        button.opacityAnimationDuration = 0
         button.roundedBackgroundView?.cornerRadius = Constants.auxButtonHeight / 2.0
-        button.imageWithTitleView?.titleColor = R.color.colorWhite()!
+        button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
         button.imageWithTitleView?.titleFont = UIFont.capsTitle
-        button.changesContentOpacityWhenHighlighted = true
         return button
     }
 

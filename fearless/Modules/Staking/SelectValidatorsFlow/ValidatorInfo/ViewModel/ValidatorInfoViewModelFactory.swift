@@ -194,11 +194,10 @@ extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
 
         let status: ValidatorInfoViewModel.StakingStatus
 
-        switch validatorInfo.myNomination {
-        case .active, .elected:
+        if validatorInfo.stakeInfo != nil {
             let exposure = createExposure(from: validatorInfo, priceData: priceData, locale: locale)
             status = .elected(exposure: exposure)
-        case .unelected, .none:
+        } else {
             status = .unelected
         }
 
