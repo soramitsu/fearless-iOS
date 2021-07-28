@@ -187,7 +187,6 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
 
         let timeLeftText: String = {
             if daysLeft == 0 {
-                let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: unbondingEra)
                 return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
             } else {
                 return R.string.localizable
