@@ -147,7 +147,6 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
                 let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
                 let timeLeft = timeLeftAttributedString(
-                    activeEra: balanceData.activeEra,
                     unbondingEra: unbondingItem.era,
                     eraCountdown: balanceData.eraCountdown,
                     locale: locale
@@ -177,20 +176,22 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     }
 
     private func timeLeftAttributedString(
-        activeEra: EraIndex,
         unbondingEra: EraIndex,
         eraCountdown: EraCountdown?,
         locale: Locale
     ) -> NSAttributedString {
-        let eraDistance = unbondingEra - activeEra
-        let daysLeft = Int(eraDistance) / chain.erasPerDay
+        guard let eraCountdown = eraCountdown else { return .init(string: "") }
+
+        let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: unbondingEra)
+        let daysLeft = eraCompletionTime.daysFromSeconds
+
         let timeLeftText: String = {
-            if daysLeft == 0, let eraCountdown = eraCountdown {
-                let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: unbondingEra)
+            if daysLeft == 0 {
                 return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
+            } else {
+                return R.string.localizable
+                    .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
-            return R.string.localizable
-                .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
         }()
 
         let attrubutedString = NSAttributedString(
