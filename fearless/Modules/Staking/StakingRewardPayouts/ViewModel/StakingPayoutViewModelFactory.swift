@@ -46,7 +46,6 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         LocalizableResource { locale in
             let payout = payoutsInfo.payouts[index]
             return self.timeLeftAttributedString(
-                activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
                 eraCountdown: eraCountdown,
@@ -63,7 +62,6 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) -> [StakingRewardHistoryCellViewModel] {
         payoutsInfo.payouts.map { payout in
             let daysLeftText = timeLeftAttributedString(
-                activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
                 eraCountdown: eraCountdown,
@@ -107,25 +105,27 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     }
 
     private func timeLeftAttributedString(
-        activeEra: EraIndex,
         payoutEra: EraIndex,
         historyDepth: UInt32,
         eraCountdown: EraCountdown?,
         locale: Locale
     ) -> NSAttributedString {
-        let eraDistance = historyDepth - (activeEra - payoutEra)
-        let daysLeft = Int(eraDistance) / chain.erasPerDay
+        guard let eraCountdown = eraCountdown else { return .init(string: "") }
+
+        let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: payoutEra + historyDepth + 1)
+        let daysLeft = eraCompletionTime.daysFromSeconds
+
         let timeLeftText: String = {
-            if daysLeft == 0, let eraCountdown = eraCountdown {
-                let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: activeEra + eraDistance)
-                if eraCompletionTime <= .leastNormalMagnitude {
-                    return R.string.localizable.stakingPayoutExpired(preferredLanguages: locale.rLanguages)
-                }
+            if eraCompletionTime <= .leastNormalMagnitude {
+                return R.string.localizable.stakingPayoutExpired(preferredLanguages: locale.rLanguages)
+            }
+            if daysLeft == 0 {
                 let formattedTime = (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
                 return R.string.localizable.commonTimeLeftFormat(formattedTime)
+            } else {
+                return R.string.localizable
+                    .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
-            return R.string.localizable
-                .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
         }()
 
         let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
