@@ -24,7 +24,7 @@
 "ask.biometry.reason" = "Авторизуйтесь для доступа к аккаунту";
 "access.restore.words.error.message" = "Мнемоника должна содержать не более 24 слов";
 "access.restore.phrase.error.message" = "Ваша мнемоника недействительна. Пожалуйста, попробуйте другую";
-"tabbar.wallet.title" = "Кошелек";
+"tabbar.wallet.title" = "Кошелёк";
 "tabbar.staking.title" = "Стейкинг";
 "tabbar.settings.title" = "Настройки";
 "wallet.empty.description" = "Входящие и исходящие \
@@ -376,7 +376,7 @@
 "crowdloan.bonus.verification.error" = "Не удалась проверка подписи бонуса. Пожалуйста, попытайтесь снова";
 "staking.select.validators.custom.desc" = "Вы должны доверять своим валидаторам, чтобы они действовали грамотно и честно. Принятие решения исключительно на основе их текущей прибыльности может привести к снижению прибыли или даже потере средств.";
 "staking.select.validators.recommended.button.title" = "Выбрать рекомендованных";
-"staking.select.validators.custom.button.title" = "Выбрать самостоятельно";
+"staking.select.validators.custom.button.title" = "Выбрать самому";
 "staking.filter.title.rewards" = "Вознаграждение (APY)";
 "staking.selected.validators.count_v1.9.1" = "выбрано %li (макс. %li)";
 "staking.select.validators.recommended.desc" = "Алгоритм Fearless Wallet составил список рекомендованных валидаторов, основываясь на критериях:";
