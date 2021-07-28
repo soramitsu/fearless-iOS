@@ -388,7 +388,7 @@ Derivation path: %@";
 "crowdloan.contribution.format" = "You contributed: %@";
 "staking.set.validators.title" = "Select validators to start staking";
 "staking.set.validators.message" = "Validators are not selected";
-"staking.max.nominators.reached.title" = "Cannot nominate";
+"staking.max.nominators.reached.title" = "Cannot start staking";
 "staking.max.nominators.reached.message" = "Maximum number of nominators has been reached";
 "staking.custom.blocked.warning" = "This validator is blocked and cannot be selected at the moment. Please, try again in the next era.";
 "staking.alert.start.next.era.message" = "Please wait for the next era to start.";
