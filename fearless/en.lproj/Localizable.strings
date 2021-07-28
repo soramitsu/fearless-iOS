@@ -245,7 +245,7 @@ Derivation path: %@";
 "staking.nominator.status.alert.no.validators" = "None of your validators have been elected by network.";
 "staking.nominator.status.alert.low.stake" = "Your staked amount is less than the minimum stake to get a reward.";
 "staking.manage.title" = "Manage";
-"staking.reward.payouts.title" = "Reward payouts";
+"staking.reward.payouts.title" = "Pending rewards";
 "staking.reward.payouts.payout.all" = "Payout all (%@)";
 "staking.reward.details.title" = "Reward details";
 "staking.reward.details.payout" = "Payout";

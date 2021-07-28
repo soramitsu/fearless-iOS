@@ -247,7 +247,7 @@
 "staking.nominator.status.alert.no.validators" = "Ни один из ваших валидаторов не был избран сетью.";
 "staking.nominator.status.alert.low.stake" = "Ваш стейк меньше минимального стейка для получения вознаграждений.";
 "staking.manage.title" = "Управление";
-"staking.reward.payouts.title" = "Выплаты вознаграждений";
+"staking.reward.payouts.title" = "Ожидаемые вознаграждения";
 "staking.reward.payouts.payout.all" = "Выплатить все (%@)";
 "staking.reward.details.title" = "Детали награды";
 "staking.reward.details.payout" = "Выплата";
