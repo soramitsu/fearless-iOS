@@ -7,6 +7,7 @@ final class CustomValidatorListPresenter {
     let wireframe: CustomValidatorListWireframeProtocol
     let interactor: CustomValidatorListInteractorInputProtocol
     let viewModelFactory: CustomValidatorListViewModelFactory
+    let selectedValidatorList: SharedList<SelectedValidatorInfo>
     let maxTargets: Int
     let logger: LoggerProtocol?
 
@@ -14,7 +15,6 @@ final class CustomValidatorListPresenter {
     private var fullValidatorList: [SelectedValidatorInfo]
 
     private var filteredValidatorList: [SelectedValidatorInfo] = []
-    private var selectedValidatorList: [SelectedValidatorInfo] = []
     private var viewModel: CustomValidatorListViewModel?
     private var filter = CustomValidatorListFilter.recommendedFilter()
     private var priceData: PriceData?
@@ -26,6 +26,7 @@ final class CustomValidatorListPresenter {
         localizationManager: LocalizationManagerProtocol,
         fullValidatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
         logger: LoggerProtocol? = nil
     ) {
@@ -34,6 +35,7 @@ final class CustomValidatorListPresenter {
         self.viewModelFactory = viewModelFactory
         self.fullValidatorList = fullValidatorList
         self.recommendedValidatorList = recommendedValidatorList
+        self.selectedValidatorList = selectedValidatorList
         self.maxTargets = maxTargets
         self.logger = logger
         self.localizationManager = localizationManager
@@ -53,7 +55,7 @@ final class CustomValidatorListPresenter {
     private func provideValidatorListViewModel() {
         let viewModel = viewModelFactory.createViewModel(
             from: filteredValidatorList,
-            selectedValidatorList: selectedValidatorList,
+            selectedValidatorList: selectedValidatorList.items,
             totalValidatorsCount: fullValidatorList.count,
             filter: filter,
             priceData: priceData,
@@ -95,7 +97,7 @@ final class CustomValidatorListPresenter {
                 index
             }
 
-        selectedValidatorList = []
+        selectedValidatorList.set([])
 
         viewModel.cellViewModels = changedModels
         viewModel.selectedValidatorsCount = 0
@@ -195,7 +197,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         wireframe.presentSearch(
             from: view,
             fullValidatorList: fullValidatorList,
-            selectedValidatorList: selectedValidatorList,
+            selectedValidatorList: selectedValidatorList.items,
             delegate: self
         )
     }
@@ -203,7 +205,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func proceed() {
         wireframe.proceed(
             from: view,
-            validatorList: selectedValidatorList,
+            validatorList: selectedValidatorList.items,
             maxTargets: maxTargets,
             delegate: self
         )
@@ -255,7 +257,7 @@ extension CustomValidatorListPresenter: ValidatorSearchDelegate {
         selectedValidatorList: [SelectedValidatorInfo]
     ) {
         fullValidatorList = validatorList
-        self.selectedValidatorList = selectedValidatorList
+        self.selectedValidatorList.set(selectedValidatorList)
 
         provideViewModels()
     }

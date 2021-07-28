@@ -23,7 +23,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     private(set) var estimatedRewardView: TitleValueView?
 
-    private(set) var bonusView: TitleValueSelectionControl?
+    private(set) var bonusView: RowView<TitleValueSelectionView>?
 
     let leasingPeriodView = TitleMultiValueView()
 
@@ -123,7 +123,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     func bind(bonus: String?) {
         if let bonus = bonus {
             createBonusViewIfNeeded()
-            bonusView?.detailsLabel.text = bonus
+            bonusView?.rowContentView.detailsLabel.text = bonus
         } else {
             removeBonusViewIfNeeded()
         }
@@ -154,7 +154,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
 
-        bonusView?.titleLabel.text = R.string.localizable.commonBonus(
+        bonusView?.rowContentView.titleLabel.text = R.string.localizable.commonBonus(
             preferredLanguages: locale.rLanguages
         )
     }
@@ -287,18 +287,18 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             return
         }
 
-        let view = TitleValueSelectionControl()
+        let view = RowView(contentView: TitleValueSelectionView(), preferredHeight: 48.0)
+        view.borderView.strokeWidth = 1.0
 
-        view.titleLabel.text = R.string.localizable.commonBonus(
+        view.rowContentView.titleLabel.text = R.string.localizable.commonBonus(
             preferredLanguages: locale.rLanguages
         )
 
-        view.iconView.image = R.image.iconBonus()
+        view.rowContentView.iconView.image = R.image.iconBonus()
 
         contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
         view.snp.makeConstraints { make in
             make.width.equalTo(self)
-            make.height.equalTo(48.0)
         }
 
         view.contentInsets = UIEdgeInsets(

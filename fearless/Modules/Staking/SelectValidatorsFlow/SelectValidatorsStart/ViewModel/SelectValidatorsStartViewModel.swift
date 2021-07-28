@@ -1,11 +1,12 @@
 import Foundation
 
-protocol SelectValidatorsStartViewModelProtocol {
-    var selectedCount: Int { get }
-    var totalCount: Int { get }
-}
+struct SelectValidatorsStartViewModel: Equatable {
+    enum Phase {
+        case setup
+        case update
+    }
 
-struct SelectValidatorsStartViewModel: SelectValidatorsStartViewModelProtocol {
+    let phase: Phase
     let selectedCount: Int
     let totalCount: Int
 }
