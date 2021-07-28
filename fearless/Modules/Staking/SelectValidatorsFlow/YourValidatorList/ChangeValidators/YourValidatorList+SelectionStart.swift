@@ -12,11 +12,13 @@ extension YourValidatorList {
             from view: ControllerBackedProtocol?,
             validatorList: [SelectedValidatorInfo],
             recommendedValidatorList: [SelectedValidatorInfo],
+            selectedValidatorList: SharedList<SelectedValidatorInfo>,
             maxTargets: Int
         ) {
             guard let nextView = CustomValidatorListViewFactory.createChangeYourValidatorsView(
                 for: validatorList,
                 with: recommendedValidatorList,
+                selectedValidatorList: selectedValidatorList,
                 maxTargets: maxTargets,
                 with: state
             ) else { return }

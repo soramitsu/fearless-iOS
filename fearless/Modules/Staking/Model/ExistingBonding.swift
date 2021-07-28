@@ -5,4 +5,5 @@ struct ExistingBonding {
     let controllerAccount: AccountItem
     let amount: Decimal
     let rewardDestination: RewardDestination<AccountAddress>
+    let selectedTargets: [SelectedValidatorInfo]?
 }

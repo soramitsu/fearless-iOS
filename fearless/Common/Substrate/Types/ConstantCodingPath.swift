@@ -22,6 +22,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Staking", constantName: "SessionsPerEra")
     }
 
+    static var maxNominations: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Staking", constantName: "MaxNominations")
+    }
+
     static var existentialDeposit: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
     }

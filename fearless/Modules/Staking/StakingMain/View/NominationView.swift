@@ -127,8 +127,9 @@ final class NominationView: UIView, LocalizableViewProtocol {
             .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
         if let remainingTime = remainingTime {
             timer.start(with: remainingTime, runLoop: .main, mode: .common)
+        } else {
+            statusDetailsLabel.text = ""
         }
-        statusDetailsLabel.text = ""
     }
 
     @IBAction private func actionOnMore() {

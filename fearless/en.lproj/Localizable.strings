@@ -436,3 +436,4 @@ Derivation path: %@";
 "staking.pending.rewards.explanation.message" = "Validators payout the rewards every 2-5 days. However, you can payout them by yourself, especially if rewards are close to expiring, but you will pay the fee.";
 "staking.your.selected.format" = "Selected (%@)";
 "staking.your.validators.changing.title" = "Your validators will change in the next era.";
+"staking.custom.validators.update.list" = "Update list";

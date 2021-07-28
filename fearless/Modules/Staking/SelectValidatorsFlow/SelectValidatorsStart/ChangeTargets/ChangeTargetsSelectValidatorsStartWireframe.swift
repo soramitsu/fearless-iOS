@@ -11,12 +11,14 @@ final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWi
         from view: ControllerBackedProtocol?,
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int
     ) {
         guard let nextView = CustomValidatorListViewFactory
             .createChangeTargetsView(
                 for: validatorList,
                 with: recommendedValidatorList,
+                selectedValidatorList: selectedValidatorList,
                 maxTargets: maxTargets,
                 with: state
             ) else { return }

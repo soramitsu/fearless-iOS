@@ -2,11 +2,12 @@ import Foundation
 import SoraFoundation
 
 protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: SelectValidatorsStartViewModelProtocol)
+    func didReceive(viewModel: SelectValidatorsStartViewModel)
 }
 
 protocol SelectValidatorsStartPresenterProtocol: AnyObject {
     func setup()
+    func updateOnAppearance()
 
     func selectRecommendedValidators()
     func selectCustomValidators()
@@ -17,8 +18,8 @@ protocol SelectValidatorsStartInteractorInputProtocol: AnyObject {
 }
 
 protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {
-    func didReceive(validators: [ElectedValidatorInfo])
-    func didReceive(error: Error)
+    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
+    func didReceiveMaxNominations(result: Result<Int, Error>)
 }
 
 protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
@@ -26,6 +27,7 @@ protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresenta
         from view: ControllerBackedProtocol?,
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int
     )
 

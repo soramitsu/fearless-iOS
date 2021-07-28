@@ -6,6 +6,7 @@ enum CustomValidatorListViewFactory {
     private static func createView(
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
         with wireframe: CustomValidatorListWireframeProtocol
     ) -> CustomValidatorListViewProtocol? {
@@ -43,6 +44,7 @@ enum CustomValidatorListViewFactory {
             localizationManager: LocalizationManager.shared,
             fullValidatorList: validatorList,
             recommendedValidatorList: recommendedValidatorList,
+            selectedValidatorList: selectedValidatorList,
             maxTargets: maxTargets,
             logger: Logger.shared
         )
@@ -60,10 +62,11 @@ enum CustomValidatorListViewFactory {
     }
 }
 
-extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol {
+extension CustomValidatorListViewFactory {
     static func createInitiatedBondingView(
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
         with state: InitiatedBonding
     ) -> CustomValidatorListViewProtocol? {
@@ -71,6 +74,7 @@ extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol
         return createView(
             for: validatorList,
             with: recommendedValidatorList,
+            selectedValidatorList: selectedValidatorList,
             maxTargets: maxTargets,
             with: wireframe
         )
@@ -79,6 +83,7 @@ extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol
     static func createChangeTargetsView(
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
         with state: ExistingBonding
     ) -> CustomValidatorListViewProtocol? {
@@ -86,6 +91,7 @@ extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol
         return createView(
             for: validatorList,
             with: recommendedValidatorList,
+            selectedValidatorList: selectedValidatorList,
             maxTargets: maxTargets,
             with: wireframe
         )
@@ -94,6 +100,7 @@ extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol
     static func createChangeYourValidatorsView(
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
         with state: ExistingBonding
     ) -> CustomValidatorListViewProtocol? {
@@ -101,6 +108,7 @@ extension CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol
         return createView(
             for: validatorList,
             with: recommendedValidatorList,
+            selectedValidatorList: selectedValidatorList,
             maxTargets: maxTargets,
             with: wireframe
         )
