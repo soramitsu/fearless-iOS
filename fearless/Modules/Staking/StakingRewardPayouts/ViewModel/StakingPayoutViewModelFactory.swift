@@ -130,7 +130,6 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                     return R.string.localizable
                         .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
                 }
-
             } else {
                 return R.string.localizable
                     .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
