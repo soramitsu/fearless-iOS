@@ -52,12 +52,6 @@ class SelectValidatorsConfirmTests: XCTestCase {
             balanceFactory: balanceViewModelFactory
         )
 
-        let presenter = SelectValidatorsConfirmPresenter(
-            confirmationViewModelFactory: confirmViewModelFactory,
-            balanceViewModelFactory: balanceViewModelFactory,
-            dataValidatingFactory: dataValidatingFactory,
-            asset:asset)
-
         let signer = try DummySigner(cryptoType: .sr25519)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
@@ -76,14 +70,22 @@ class SelectValidatorsConfirmTests: XCTestCase {
                                               singleValueProviderFactory: singleValueProviderFactory,
                                               extrinsicService: extrinsicService,
                                               runtimeService: runtimeCodingService,
+                                              durationOperationFactory: StakingDurationOperationFactory(),
                                               operationManager: OperationManager(),
                                               signer: signer,
                                               assetId: assetId,
                                               nomination: initiatedBoding)
 
+        let presenter = SelectValidatorsConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            confirmationViewModelFactory: confirmViewModelFactory,
+            balanceViewModelFactory: balanceViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
+            asset:asset
+        )
+
         presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
         interactor.presenter = presenter
         dataValidatingFactory.view = view
 

@@ -2,30 +2,38 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class SelectValidatorsConfirmViewController: UIViewController {
-    var presenter: SelectValidatorsConfirmPresenterProtocol!
+final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder {
+    typealias RootViewType = SelectValidatorsConfirmViewLayout
 
-    @IBOutlet private var stackView: UIStackView!
-    @IBOutlet private var accountView: DetailsTriangularedView!
-    @IBOutlet private var balanceView: AmountInputView!
-    @IBOutlet private var rewardTitleLabel: UILabel!
-    @IBOutlet private var rewardDetailsLabel: UILabel!
-    @IBOutlet private var rewardContainerView: UIView!
-    @IBOutlet private var validatorsView: DetailsTriangularedView!
-    @IBOutlet private var validatorsDetailLabel: UILabel!
-    @IBOutlet private var feeTitleLabel: UILabel!
-    @IBOutlet private var feeDetailsLabel: UILabel!
-    @IBOutlet private var actionButton: TriangularedButton!
-    @IBOutlet private var activityIndicatorView: UIActivityIndicatorView!
+    let presenter: SelectValidatorsConfirmPresenterProtocol
+    let quantityFormatter: NumberFormatter
 
-    var uiFactory: UIFactoryProtocol!
-
-    private var payoutContainerView: UIView?
-    private var payoutView: DetailsTriangularedView?
-
-    private var confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>?
+    private var confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var hintsViewModel: LocalizableResource<[TitleIconViewModel]>?
+
+    init(
+        presenter: SelectValidatorsConfirmPresenterProtocol,
+        quantityFormatter: NumberFormatter,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.presenter = presenter
+        self.quantityFormatter = quantityFormatter
+
+        super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = SelectValidatorsConfirmViewLayout()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,144 +45,86 @@ final class SelectValidatorsConfirmViewController: UIViewController {
     }
 
     private func setupLocalization() {
-        let languages = localizationManager?.selectedLocale.rLanguages
+        let languages = selectedLocale.rLanguages
 
         title = R.string.localizable.commonConfirmTitle(preferredLanguages: languages)
 
-        accountView.title = R.string.localizable.stakingStashTitle(preferredLanguages: languages)
+        rootView.mainAccountView.title = R.string.localizable.stakingStashTitle(
+            preferredLanguages: languages
+        )
 
-        actionButton.imageWithTitleView?.title =
+        rootView.networkFeeConfirmView.actionButton.imageWithTitleView?.title =
             R.string.localizable.commonConfirm(preferredLanguages: languages)
-        actionButton.invalidateLayout()
+        rootView.networkFeeConfirmView.actionButton.invalidateLayout()
 
-        balanceView.title = R.string.localizable
+        rootView.amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
 
-        validatorsView.title = R.string.localizable
+        rootView.validatorsView.titleLabel.text = R.string.localizable
             .stakingRecommendedValidatorsTitle(preferredLanguages: languages)
 
-        rewardTitleLabel.text = R.string.localizable
+        rootView.rewardDestinationView.titleLabel.text = R.string.localizable
             .stakingRewardDestinationTitle(preferredLanguages: languages)
-        feeTitleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: languages)
+
+        rootView.networkFeeConfirmView.locale = selectedLocale
 
         applyConfirmationViewModel()
+        applyHints()
         applyBalanceView()
         applyFeeViewModel()
     }
 
-    private func createPayoutView() {
-        let payoutView = uiFactory.createDetailsView(with: .smallIconTitleSubtitle, filled: true)
-        payoutView.translatesAutoresizingMaskIntoConstraints = false
-        self.payoutView = payoutView
-
-        payoutView.highlightedFillColor = R.color.colorHighlightedPink()!
-
-        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
-        payoutView.title = R.string.localizable
-            .stakingRewardPayoutAccount(preferredLanguages: languages)
-
-        payoutView.actionImage = R.image.iconMore()
-
-        payoutView.addTarget(
-            self,
-            action: #selector(actionOnPayoutAccount),
-            for: .touchUpInside
-        )
-
-        let containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.backgroundColor = .clear
-        containerView.addSubview(payoutView)
-        payoutContainerView = containerView
-
-        payoutView.leadingAnchor.constraint(
-            equalTo: containerView.leadingAnchor,
-            constant: UIConstants.horizontalInset
-        ).isActive = true
-
-        payoutView.rightAnchor.constraint(
-            equalTo: containerView.rightAnchor,
-            constant: -UIConstants.horizontalInset
-        ).isActive = true
-
-        payoutView.heightAnchor.constraint(equalToConstant: UIConstants.triangularedViewHeight)
-            .isActive = true
-
-        payoutView.topAnchor.constraint(
-            equalTo: containerView.topAnchor,
-            constant: 0.0
-        ).isActive = true
-
-        payoutView.bottomAnchor.constraint(
-            equalTo: containerView.bottomAnchor,
-            constant: -12.0
-        ).isActive = true
-    }
-
     private func updateActionButton() {
         let isEnabled = (assetViewModel != nil)
-        actionButton.isEnabled = isEnabled
-    }
-
-    private func insertPayoutViewIfNeeded() {
-        guard payoutContainerView == nil else {
-            return
-        }
-
-        createPayoutView()
-
-        if let containerView = payoutContainerView,
-           let insertionIndex = stackView.arrangedSubviews
-           .firstIndex(where: { $0 == rewardContainerView }) {
-            stackView.insertArrangedSubview(containerView, at: insertionIndex + 1)
-        }
-    }
-
-    private func removePayoutViewIfNeeded() {
-        if let containerView = payoutContainerView {
-            stackView.removeArrangedSubview(containerView)
-            containerView.removeFromSuperview()
-
-            payoutContainerView = nil
-            payoutView = nil
-        }
+        rootView.networkFeeConfirmView.actionButton.isEnabled = isEnabled
     }
 
     private func applyConfirmationViewModel() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        guard let viewModel = confirmationViewModel?.value(for: locale) else {
+        guard let viewModel = confirmationViewModel?.value(for: selectedLocale) else {
             return
         }
 
-        balanceView.fieldText = viewModel.amount
+        rootView.amountView.fieldText = viewModel.amount
 
-        accountView.iconImage = viewModel.senderIcon
+        rootView.mainAccountView.iconImage = viewModel.senderIcon
             .imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )
-        accountView.subtitle = viewModel.senderName
+
+        rootView.mainAccountView.subtitle = viewModel.senderName
 
         switch viewModel.rewardDestination {
         case .restake:
-            rewardDetailsLabel.text = R.string.localizable
-                .stakingRestakeTitle(preferredLanguages: locale.rLanguages)
-            removePayoutViewIfNeeded()
+            rootView.rewardDestinationView.valueLabel.text = R.string.localizable
+                .stakingRestakeTitle(preferredLanguages: selectedLocale.rLanguages)
+            rootView.removePayoutAccountIfNeeded()
         case let .payout(icon, title):
-            rewardDetailsLabel.text = R.string.localizable
-                .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
-            insertPayoutViewIfNeeded()
+            rootView.rewardDestinationView.valueLabel.text = R.string.localizable
+                .stakingPayoutTitle(preferredLanguages: selectedLocale.rLanguages)
+            rootView.addPayoutAccountIfNeeded()
 
-            payoutView?.iconImage = icon.imageWithFillColor(
+            rootView.payoutAccountView?.iconImage = icon.imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )
-            payoutView?.subtitle = title
+            rootView.payoutAccountView?.subtitle = title
         }
 
-        validatorsDetailLabel.text = "\(viewModel.validatorsCount)"
+        rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
+            quantityFormatter.string(from: NSNumber(value: viewModel.validatorsCount)) ?? "",
+            quantityFormatter.string(from: NSNumber(value: viewModel.maxValidatorCount)) ?? ""
+        )
+    }
+
+    private func applyHints() {
+        guard let hints = hintsViewModel?.value(for: selectedLocale) else {
+            return
+        }
+
+        rootView.setHints(hints)
     }
 
     private func applyBalanceView() {
@@ -183,47 +133,20 @@ final class SelectValidatorsConfirmViewController: UIViewController {
             return
         }
 
-        balanceView.balanceText = R.string.localizable
+        rootView.amountView.balanceText = R.string.localizable
             .commonAvailableFormat(
                 viewModel.balance ?? "",
                 preferredLanguages: locale.rLanguages
             )
-        balanceView.priceText = viewModel.price
+        rootView.amountView.priceText = viewModel.price
 
-        balanceView.assetIcon = viewModel.icon
-        balanceView.symbol = viewModel.symbol
+        rootView.amountView.assetIcon = viewModel.icon
+        rootView.amountView.symbol = viewModel.symbol
     }
 
     private func applyFeeViewModel() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let viewModel = feeViewModel?.value(for: locale) {
-            activityIndicatorView.stopAnimating()
-            feeDetailsLabel.isHidden = false
-
-            let amountAttributedString = NSMutableAttributedString(
-                string: viewModel.amount + "  ",
-                attributes: [
-                    .foregroundColor: R.color.colorWhite()!,
-                    .font: UIFont.p1Paragraph
-                ]
-            )
-
-            if let price = viewModel.price {
-                let priceAttributedString = NSAttributedString(
-                    string: price,
-                    attributes: [
-                        .foregroundColor: R.color.colorGray()!,
-                        .font: UIFont.p1Paragraph
-                    ]
-                )
-                amountAttributedString.append(priceAttributedString)
-            }
-
-            feeDetailsLabel.attributedText = amountAttributedString
-        } else {
-            feeDetailsLabel.isHidden = true
-            activityIndicatorView.startAnimating()
-        }
+        let viewModel = feeViewModel?.value(for: selectedLocale)
+        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
     }
 
     // MARK: Action
@@ -232,19 +155,24 @@ final class SelectValidatorsConfirmViewController: UIViewController {
         presenter.selectPayoutAccount()
     }
 
-    @IBAction private func actionOnWalletAccount() {
+    @objc private func actionOnWalletAccount() {
         presenter.selectWalletAccount()
     }
 
-    @IBAction private func proceed() {
+    @objc private func proceed() {
         presenter.proceed()
     }
 }
 
 extension SelectValidatorsConfirmViewController: SelectValidatorsConfirmViewProtocol {
-    func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>) {
+    func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>) {
         self.confirmationViewModel = confirmationViewModel
         applyConfirmationViewModel()
+    }
+
+    func didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>) {
+        self.hintsViewModel = hintsViewModel
+        applyHints()
     }
 
     func didReceive(assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {

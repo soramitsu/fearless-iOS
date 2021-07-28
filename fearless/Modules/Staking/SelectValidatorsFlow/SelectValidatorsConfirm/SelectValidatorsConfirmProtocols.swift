@@ -3,7 +3,8 @@ import SoraFoundation
 import BigInt
 
 protocol SelectValidatorsConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
-    func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)
+    func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>)
+    func didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>)
     func didReceive(assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
@@ -28,6 +29,7 @@ protocol SelectValidatorsConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveMinBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
+    func didReceiveStakingDuration(result: Result<StakingDuration, Error>)
 
     func didStartNomination()
     func didCompleteNomination(txHash: String)
