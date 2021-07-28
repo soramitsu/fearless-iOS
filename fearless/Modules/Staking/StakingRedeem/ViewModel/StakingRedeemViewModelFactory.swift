@@ -6,8 +6,7 @@ import FearlessUtils
 protocol StakingRedeemViewModelFactoryProtocol {
     func createRedeemViewModel(
         controllerItem: AccountItem,
-        amount: Decimal,
-        shouldResetRewardDestination: Bool
+        amount: Decimal
     ) throws -> StakingRedeemViewModel
 }
 
@@ -23,8 +22,7 @@ final class StakingRedeemViewModelFactory: StakingRedeemViewModelFactoryProtocol
 
     func createRedeemViewModel(
         controllerItem: AccountItem,
-        amount: Decimal,
-        shouldResetRewardDestination: Bool
+        amount: Decimal
     ) throws -> StakingRedeemViewModel {
         let formatter = formatterFactory.createInputFormatter(for: asset)
 
@@ -38,8 +36,7 @@ final class StakingRedeemViewModelFactory: StakingRedeemViewModelFactoryProtocol
             senderAddress: controllerItem.address,
             senderIcon: icon,
             senderName: controllerItem.username,
-            amount: amount,
-            shouldResetRewardDestination: shouldResetRewardDestination
+            amount: amount
         )
     }
 }

@@ -25,7 +25,6 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var payeeProvider: AnyDataProvider<DecodedPayee>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     private var extrinsicService: ExtrinsicServiceProtocol?
@@ -71,17 +70,9 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
     private func setupExtrinsicBuiler(
         _ builder: ExtrinsicBuilderProtocol,
-        numberOfSlashingSpans: UInt32,
-        resettingRewardDestination: Bool
+        numberOfSlashingSpans: UInt32
     ) throws -> ExtrinsicBuilderProtocol {
-        if resettingRewardDestination {
-            return try builder
-                .adding(call: callFactory.withdrawUnbonded(for: numberOfSlashingSpans))
-                .adding(call: callFactory.setPayee(for: .stash))
-        } else {
-            return try builder
-                .adding(call: callFactory.withdrawUnbonded(for: numberOfSlashingSpans))
-        }
+        try builder.adding(call: callFactory.withdrawUnbonded(for: numberOfSlashingSpans))
     }
 
     private func fetchSlashingSpansForStash(
@@ -110,13 +101,13 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         )
     }
 
-    private func estimateFee(with numberOfSlasingSpans: UInt32, resettingRewardDestination: Bool) {
+    private func estimateFee(with numberOfSlasingSpans: UInt32) {
         guard let extrinsicService = extrinsicService else {
             presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
         }
 
-        let reuseIdentifier = resettingRewardDestination.description
+        let reuseIdentifier = numberOfSlasingSpans.description
 
         feeProxy.estimateFee(
             using: extrinsicService,
@@ -128,13 +119,12 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
             return try strongSelf.setupExtrinsicBuiler(
                 builder,
-                numberOfSlashingSpans: numberOfSlasingSpans,
-                resettingRewardDestination: resettingRewardDestination
+                numberOfSlashingSpans: numberOfSlasingSpans
             )
         }
     }
 
-    private func submit(with numberOfSlasingSpans: UInt32, resettingRewardDestination: Bool) {
+    private func submit(with numberOfSlasingSpans: UInt32) {
         guard
             let extrinsicService = extrinsicService,
             let signingWrapper = signingWrapper else {
@@ -150,8 +140,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
                 return try strongSelf.setupExtrinsicBuiler(
                     builder,
-                    numberOfSlashingSpans: numberOfSlasingSpans,
-                    resettingRewardDestination: resettingRewardDestination
+                    numberOfSlashingSpans: numberOfSlasingSpans
                 )
             },
             signer: signingWrapper,
@@ -184,30 +173,24 @@ extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
         feeProxy.delegate = self
     }
 
-    func estimateFeeForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool) {
+    func estimateFeeForStash(_ stashAddress: AccountAddress) {
         fetchSlashingSpansForStash(stashAddress) { [weak self] result in
             switch result {
             case let .success(slashingSpans):
                 let numberOfSlashes = slashingSpans.map { $0.prior.count + 1 } ?? 0
-                self?.estimateFee(
-                    with: UInt32(numberOfSlashes),
-                    resettingRewardDestination: resettingRewardDestination
-                )
+                self?.estimateFee(with: UInt32(numberOfSlashes))
             case let .failure(error):
                 self?.presenter.didSubmitRedeeming(result: .failure(error))
             }
         }
     }
 
-    func submitForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool) {
+    func submitForStash(_ stashAddress: AccountAddress) {
         fetchSlashingSpansForStash(stashAddress) { [weak self] result in
             switch result {
             case let .success(slashingSpans):
                 let numberOfSlashes = slashingSpans.map { $0.prior.count + 1 } ?? 0
-                self?.submit(
-                    with: UInt32(numberOfSlashes),
-                    resettingRewardDestination: resettingRewardDestination
-                )
+                self?.submit(with: UInt32(numberOfSlashes))
             case let .failure(error):
                 self?.presenter.didSubmitRedeeming(result: .failure(error))
             }
@@ -224,7 +207,6 @@ extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSub
 
             clear(dataProvider: &accountInfoProvider)
             clear(dataProvider: &ledgerProvider)
-            clear(dataProvider: &payeeProvider)
 
             presenter.didReceiveStashItem(result: result)
 
@@ -236,11 +218,6 @@ extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSub
 
                 accountInfoProvider = subscribeToAccountInfoProvider(
                     for: stashItem.controller,
-                    runtimeService: runtimeService
-                )
-
-                payeeProvider = subscribeToPayeeProvider(
-                    for: stashItem.stash,
                     runtimeService: runtimeService
                 )
 
@@ -259,14 +236,12 @@ extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSub
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
                 presenter.didReceiveAccountInfo(result: .success(nil))
-                presenter.didReceivePayee(result: .success(nil))
             }
 
         } catch {
             presenter.didReceiveStashItem(result: .failure(error))
             presenter.didReceiveAccountInfo(result: .failure(error))
             presenter.didReceiveStakingLedger(result: .failure(error))
-            presenter.didReceivePayee(result: .failure(error))
         }
     }
 
@@ -276,10 +251,6 @@ extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSub
 
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
         presenter.didReceiveStakingLedger(result: result)
-    }
-
-    func handlePayee(result: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {
-        presenter.didReceivePayee(result: result)
     }
 
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
