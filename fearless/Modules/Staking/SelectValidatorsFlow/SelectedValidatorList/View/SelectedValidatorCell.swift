@@ -26,6 +26,15 @@ class SelectedValidatorCell: UITableViewCell {
         return label
     }()
 
+    let statusStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 2.0
+        stackView.alignment = .center
+        stackView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        return stackView
+    }()
+
     let infoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconInfo()
@@ -80,9 +89,15 @@ class SelectedValidatorCell: UITableViewCell {
             make.top.bottom.equalToSuperview().inset(16)
         }
 
+        contentView.addSubview(statusStackView)
+        statusStackView.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8)
+        }
+
         contentView.addSubview(detailsLabel)
         detailsLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel.snp.trailing).offset(16)
+            make.leading.equalTo(statusStackView.snp.trailing).offset(8)
             make.trailing.equalTo(infoImageView.snp.leading).offset(-16)
             make.centerY.equalToSuperview()
         }
@@ -101,6 +116,28 @@ class SelectedValidatorCell: UITableViewCell {
             titleLabel.text = viewModel.address
         }
 
+        clearStatusView()
+        setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
+
         detailsLabel.text = viewModel.details
+    }
+
+    private func clearStatusView() {
+        let arrangedSubviews = statusStackView.arrangedSubviews
+
+        arrangedSubviews.forEach {
+            statusStackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+    }
+
+    private func setupStatus(for shouldShowWarning: Bool, shouldShowError: Bool) {
+        if shouldShowWarning {
+            statusStackView.addArrangedSubview(UIImageView(image: R.image.iconWarning()))
+        }
+
+        if shouldShowError {
+            statusStackView.addArrangedSubview(UIImageView(image: R.image.iconErrorFilled()))
+        }
     }
 }

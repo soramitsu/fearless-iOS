@@ -13,11 +13,10 @@ class SelectValidatorsStartTests: XCTestCase {
             allValidators: allValidators,
             expectedRecommendedValidators: recomendedValidators,
             expectedViewModel: SelectValidatorsStartViewModel(
-                phase: .setup,
                 selectedCount: 0,
                 totalCount: 16
             ),
-            expectedCustomValidators: allValidators.map { $0.toSelected() }
+            expectedCustomValidators: allValidators.map { $0.toSelected(for: nil) }
         )
     }
 
@@ -26,15 +25,14 @@ class SelectValidatorsStartTests: XCTestCase {
         let recomendedValidators = WestendStub.recommendedValidators
 
         try performTest(
-            for: recomendedValidators.map { $0.toSelected() },
+            for: recomendedValidators.map { $0.toSelected(for: nil) },
             allValidators: allValidators,
             expectedRecommendedValidators: recomendedValidators,
             expectedViewModel: SelectValidatorsStartViewModel(
-                phase: .update,
                 selectedCount: recomendedValidators.count,
                 totalCount: 16
             ),
-            expectedCustomValidators: allValidators.map { $0.toSelected() }
+            expectedCustomValidators: allValidators.map { $0.toSelected(for: nil) }
         )
     }
 
@@ -62,7 +60,8 @@ class SelectValidatorsStartTests: XCTestCase {
         let presenter = SelectValidatorsStartPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            initialTargets: nil
+            existingStashAddress: nil,
+            initialTargets: selectedTargets
         )
 
         presenter.view = view
@@ -80,7 +79,7 @@ class SelectValidatorsStartTests: XCTestCase {
 
         stub(view) { stub in
             when(stub).didReceive(viewModel: any()).then { viewModel in
-                XCTAssertEqual(viewModel.phase, .setup)
+                XCTAssertEqual(viewModel, expectedViewModel)
                 setupExpectation.fulfill()
             }
         }

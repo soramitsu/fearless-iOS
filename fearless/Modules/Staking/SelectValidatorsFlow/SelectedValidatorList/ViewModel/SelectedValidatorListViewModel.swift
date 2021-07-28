@@ -5,6 +5,8 @@ struct SelectedValidatorCellViewModel {
     let name: String?
     let address: String
     let details: String?
+    let shouldShowWarning: Bool
+    let shouldShowError: Bool
 }
 
 struct SelectedValidatorListViewModel {

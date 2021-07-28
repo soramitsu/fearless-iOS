@@ -441,6 +441,7 @@
 		845CB6EF26276104005F798B /* SubscanQueryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845CB6EE26276104005F798B /* SubscanQueryService.swift */; };
 		845CB6FA26276326005F798B /* LongrunOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845CB6F926276326005F798B /* LongrunOperation.swift */; };
 		845E49832636C87B002F8C22 /* StakingManageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845E49822636C87B002F8C22 /* StakingManageViewModel.swift */; };
+		845FC93426B09EDB0021EC48 /* RoundedButton+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845FC93326B09EDB0021EC48 /* RoundedButton+Style.swift */; };
 		846042C02666E2C800CFFCFC /* KaruraResultData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846042BF2666E2C800CFFCFC /* KaruraResultData.swift */; };
 		8460516D25536C4800A1F0B4 /* ExportOption+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8460516C25536C4800A1F0B4 /* ExportOption+ViewModel.swift */; };
 		8460517225536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8460517125536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift */; };
@@ -1866,6 +1867,7 @@
 		845CB6EE26276104005F798B /* SubscanQueryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanQueryService.swift; sourceTree = "<group>"; };
 		845CB6F926276326005F798B /* LongrunOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongrunOperation.swift; sourceTree = "<group>"; };
 		845E49822636C87B002F8C22 /* StakingManageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingManageViewModel.swift; sourceTree = "<group>"; };
+		845FC93326B09EDB0021EC48 /* RoundedButton+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoundedButton+Style.swift"; sourceTree = "<group>"; };
 		846042BF2666E2C800CFFCFC /* KaruraResultData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaruraResultData.swift; sourceTree = "<group>"; };
 		8460516C25536C4800A1F0B4 /* ExportOption+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExportOption+ViewModel.swift"; sourceTree = "<group>"; };
 		8460517125536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewModelBinder.swift; sourceTree = "<group>"; };
@@ -4977,6 +4979,7 @@
 				F4D96B662637E89300B23D3D /* UIView+Separator.swift */,
 				84981CC22666D95F00C4C691 /* GradientButton+Style.swift */,
 				84BB3CF2267D24B000676FFE /* UIStackView+Manage.swift */,
+				845FC93326B09EDB0021EC48 /* RoundedButton+Style.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -8083,6 +8086,7 @@
 				8473D4082657E9AD00B394B2 /* CrowdloanLastContribution.swift in Sources */,
 				841B456D26048F9600C08693 /* ValidationBannerView.swift in Sources */,
 				84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */,
+				845FC93426B09EDB0021EC48 /* RoundedButton+Style.swift in Sources */,
 				AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */,
 				AEA0C8BA268113F900F9666F /* YourValidatorList+RecommendedList.swift in Sources */,
 				84F5106D263BF9A4005D15AE /* SingleValueProviderSubscriber.swift in Sources */,

@@ -39683,31 +39683,31 @@ import SoraFoundation
     
     
     
-     func submitForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool)  {
+     func submitForStash(_ stashAddress: AccountAddress)  {
         
-    return cuckoo_manager.call("submitForStash(_: AccountAddress, resettingRewardDestination: Bool)",
-            parameters: (stashAddress, resettingRewardDestination),
-            escapingParameters: (stashAddress, resettingRewardDestination),
+    return cuckoo_manager.call("submitForStash(_: AccountAddress)",
+            parameters: (stashAddress),
+            escapingParameters: (stashAddress),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.submitForStash(stashAddress, resettingRewardDestination: resettingRewardDestination))
+            defaultCall: __defaultImplStub!.submitForStash(stashAddress))
         
     }
     
     
     
-     func estimateFeeForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool)  {
+     func estimateFeeForStash(_ stashAddress: AccountAddress)  {
         
-    return cuckoo_manager.call("estimateFeeForStash(_: AccountAddress, resettingRewardDestination: Bool)",
-            parameters: (stashAddress, resettingRewardDestination),
-            escapingParameters: (stashAddress, resettingRewardDestination),
+    return cuckoo_manager.call("estimateFeeForStash(_: AccountAddress)",
+            parameters: (stashAddress),
+            escapingParameters: (stashAddress),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.estimateFeeForStash(stashAddress, resettingRewardDestination: resettingRewardDestination))
+            defaultCall: __defaultImplStub!.estimateFeeForStash(stashAddress))
         
     }
     
@@ -39725,14 +39725,14 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
-	    func submitForStash<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ stashAddress: M1, resettingRewardDestination: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress, Bool)> where M1.MatchedType == AccountAddress, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress, Bool)>] = [wrap(matchable: stashAddress) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorInputProtocol.self, method: "submitForStash(_: AccountAddress, resettingRewardDestination: Bool)", parameterMatchers: matchers))
+	    func submitForStash<M1: Cuckoo.Matchable>(_ stashAddress: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress)> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: stashAddress) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorInputProtocol.self, method: "submitForStash(_: AccountAddress)", parameterMatchers: matchers))
 	    }
 	    
-	    func estimateFeeForStash<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ stashAddress: M1, resettingRewardDestination: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress, Bool)> where M1.MatchedType == AccountAddress, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress, Bool)>] = [wrap(matchable: stashAddress) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorInputProtocol.self, method: "estimateFeeForStash(_: AccountAddress, resettingRewardDestination: Bool)", parameterMatchers: matchers))
+	    func estimateFeeForStash<M1: Cuckoo.Matchable>(_ stashAddress: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress)> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: stashAddress) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorInputProtocol.self, method: "estimateFeeForStash(_: AccountAddress)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -39758,15 +39758,15 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func submitForStash<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ stashAddress: M1, resettingRewardDestination: M2) -> Cuckoo.__DoNotUse<(AccountAddress, Bool), Void> where M1.MatchedType == AccountAddress, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress, Bool)>] = [wrap(matchable: stashAddress) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return cuckoo_manager.verify("submitForStash(_: AccountAddress, resettingRewardDestination: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func submitForStash<M1: Cuckoo.Matchable>(_ stashAddress: M1) -> Cuckoo.__DoNotUse<(AccountAddress), Void> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: stashAddress) { $0 }]
+	        return cuckoo_manager.verify("submitForStash(_: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func estimateFeeForStash<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ stashAddress: M1, resettingRewardDestination: M2) -> Cuckoo.__DoNotUse<(AccountAddress, Bool), Void> where M1.MatchedType == AccountAddress, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress, Bool)>] = [wrap(matchable: stashAddress) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return cuckoo_manager.verify("estimateFeeForStash(_: AccountAddress, resettingRewardDestination: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func estimateFeeForStash<M1: Cuckoo.Matchable>(_ stashAddress: M1) -> Cuckoo.__DoNotUse<(AccountAddress), Void> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: stashAddress) { $0 }]
+	        return cuckoo_manager.verify("estimateFeeForStash(_: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -39782,11 +39782,11 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func submitForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool)   {
+     func submitForStash(_ stashAddress: AccountAddress)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func estimateFeeForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool)   {
+     func estimateFeeForStash(_ stashAddress: AccountAddress)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -39924,21 +39924,6 @@ import SoraFoundation
     
     
     
-     func didReceivePayee(result: Result<RewardDestinationArg?, Error>)  {
-        
-    return cuckoo_manager.call("didReceivePayee(result: Result<RewardDestinationArg?, Error>)",
-            parameters: (result),
-            escapingParameters: (result),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceivePayee(result: result))
-        
-    }
-    
-    
-    
      func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)  {
         
     return cuckoo_manager.call("didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)",
@@ -40011,11 +39996,6 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorOutputProtocol.self, method: "didReceiveStashItem(result: Result<StashItem?, Error>)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceivePayee<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<RewardDestinationArg?, Error>)> where M1.MatchedType == Result<RewardDestinationArg?, Error> {
-	        let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestinationArg?, Error>)>] = [wrap(matchable: result) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorOutputProtocol.self, method: "didReceivePayee(result: Result<RewardDestinationArg?, Error>)", parameterMatchers: matchers))
-	    }
-	    
 	    func didReceiveActiveEra<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ActiveEraInfo?, Error>)> where M1.MatchedType == Result<ActiveEraInfo?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<ActiveEraInfo?, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemInteractorOutputProtocol.self, method: "didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)", parameterMatchers: matchers))
@@ -40085,12 +40065,6 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didReceivePayee<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<RewardDestinationArg?, Error>), Void> where M1.MatchedType == Result<RewardDestinationArg?, Error> {
-	        let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestinationArg?, Error>)>] = [wrap(matchable: result) { $0 }]
-	        return cuckoo_manager.verify("didReceivePayee(result: Result<RewardDestinationArg?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func didReceiveActiveEra<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ActiveEraInfo?, Error>), Void> where M1.MatchedType == Result<ActiveEraInfo?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<ActiveEraInfo?, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return cuckoo_manager.verify("didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -40136,10 +40110,6 @@ import SoraFoundation
     }
     
      func didReceiveStashItem(result: Result<StashItem?, Error>)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didReceivePayee(result: Result<RewardDestinationArg?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -38,17 +38,9 @@ final class ControllerAccountConfirmationLayout: UIView {
     }
 
     private func setupLayout() {
-        let separator = UIView.createSeparator(color: R.color.colorDarkGray())
-        addSubview(separator)
-        separator.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.separatorHeight)
-        }
-
         addSubview(containerView)
         containerView.snp.makeConstraints { make in
-            make.top.equalTo(separator.snp.bottom)
+            make.top.equalTo(safeAreaLayoutGuide)
             make.leading.bottom.trailing.equalToSuperview()
         }
 

@@ -78,6 +78,7 @@ final class YourValidatorListPresenter {
 
 extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
     func setup() {
+        updateView()
         interactor.setup()
     }
 

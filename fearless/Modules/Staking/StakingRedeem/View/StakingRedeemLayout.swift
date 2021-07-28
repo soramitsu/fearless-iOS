@@ -21,8 +21,6 @@ final class StakingRedeemLayout: UIView {
 
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
-    private(set) var hintView: HintView?
-
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -64,12 +62,6 @@ final class StakingRedeemLayout: UIView {
 
         amountView.fieldText = confirmationViewModel.amount.value(for: locale)
 
-        if confirmationViewModel.shouldResetRewardDestination {
-            setupHintViewIfNeeded()
-        } else {
-            clearHintView()
-        }
-
         setNeedsLayout()
     }
 
@@ -103,8 +95,6 @@ final class StakingRedeemLayout: UIView {
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
-        applyHintText()
-
         networkFeeConfirmView.locale = locale
 
         setNeedsLayout()
@@ -135,37 +125,5 @@ final class StakingRedeemLayout: UIView {
         networkFeeConfirmView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
-    }
-
-    private func setupHintViewIfNeeded() {
-        guard hintView == nil else {
-            return
-        }
-
-        let hintView = HintView()
-
-        stackView.setCustomSpacing(16, after: amountView)
-        stackView.addArrangedSubview(hintView)
-        hintView.snp.makeConstraints { make in
-            make.width.equalTo(stackView)
-        }
-
-        self.hintView = hintView
-
-        applyHintText()
-    }
-
-    private func clearHintView() {
-        if let hintView = hintView {
-            self.hintView = nil
-
-            stackView.removeArrangedSubview(hintView)
-            hintView.removeFromSuperview()
-        }
-    }
-
-    private func applyHintText() {
-        hintView?.titleLabel.text = R.string.localizable
-            .stakingUnbondPayeeResetMessage(preferredLanguages: locale.rLanguages)
     }
 }

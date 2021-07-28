@@ -68,6 +68,7 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
         setupNavigationItem()
         setupTableView()
         setupLocalization()
+        updateChangeButtonState()
 
         presenter.setup()
     }
@@ -344,6 +345,14 @@ extension YourValidatorListViewController: UITableViewDelegate {
             headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
         }
     }
+
+    private func updateChangeButtonState() {
+        if case .validatorList = viewState {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        } else {
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        }
+    }
 }
 
 extension YourValidatorListViewController: ErrorStateViewDelegate {
@@ -398,6 +407,7 @@ extension YourValidatorListViewController: YourValidatorListViewProtocol {
 
         rootView.tableView.reloadData()
         reloadEmptyState(animated: true)
+        updateChangeButtonState()
     }
 }
 
