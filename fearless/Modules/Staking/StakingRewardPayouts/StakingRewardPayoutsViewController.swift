@@ -194,6 +194,7 @@ extension StakingRewardPayoutsViewController: EmptyStateDataSource {
             let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
             errorView.delegate = self
+            errorView.locale = selectedLocale
             return errorView
         case .emptyList:
             let emptyView = EmptyStateView()

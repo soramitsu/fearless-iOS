@@ -437,3 +437,4 @@ Derivation path: %@";
 "staking.your.selected.format" = "Selected (%@)";
 "staking.your.validators.changing.title" = "Your validators will change in the next era.";
 "staking.custom.validators.update.list" = "Update your list";
+"common.retry" = "Retry";

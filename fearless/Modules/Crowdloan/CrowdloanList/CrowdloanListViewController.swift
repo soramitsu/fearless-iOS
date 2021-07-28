@@ -263,6 +263,7 @@ extension CrowdloanListViewController: EmptyStateDataSource {
             let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = message
             errorView.delegate = self
+            errorView.locale = selectedLocale
             return errorView
         case .empty:
             let emptyView = EmptyStateView()

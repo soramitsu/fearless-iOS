@@ -366,6 +366,7 @@ extension YourValidatorListViewController: EmptyStateDataSource {
             let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = error
             errorView.delegate = self
+            errorView.locale = selectedLocale
             return errorView
         case .loading, .validatorList:
             return nil
