@@ -10,7 +10,7 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
 
     typealias RootViewType = SelectValidatorsViewLayout
 
-    let presenter: SelectValidatorsStartPresenterProtocol!
+    let presenter: SelectValidatorsStartPresenterProtocol
     let phase: Phase
 
     private var viewModel: SelectValidatorsStartViewModel?
@@ -47,7 +47,6 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
         configure()
         setupLocalization()
         updateLoadingState()
-        updateSelected()
 
         presenter.setup()
     }
