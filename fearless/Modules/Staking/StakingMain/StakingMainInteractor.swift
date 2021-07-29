@@ -21,6 +21,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let applicationHandler: ApplicationHandlerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+    private var analyticsService: AnalyticsService? // TODO: refactor to operation
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -79,6 +80,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter.didReceive(selectedAddress: address)
+        fetchAnalyticsRewards(accountAddress: address, currentConnection: currentConnection)
     }
 
     func provideMaxNominatorsPerValidator() {
@@ -97,6 +99,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter.didReceive(newChain: chain)
+        fetchAnalyticsRewards(accountAddress: currentAccount?.address, currentConnection: currentConnection)
     }
 
     func provideRewardCalculator() {
@@ -164,5 +167,34 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             }
         }
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
+    }
+
+    private func fetchAnalyticsRewards(accountAddress: AccountAddress?, currentConnection: ConnectionItem?) {
+        guard analyticsService?.address != accountAddress else { return }
+
+        guard
+            let connection = currentConnection,
+            let address = accountAddress
+        else { return }
+
+        let networkType = connection.type
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+        guard
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let subqueryUrl = assetId.subqueryUrl
+        else { return }
+
+        analyticsService?.cancel()
+        analyticsService = AnalyticsService(
+            url: subqueryUrl,
+            address: address,
+            operationManager: operationManager
+        )
+        analyticsService?.start { [weak presenter] result in
+            DispatchQueue.main.async {
+                presenter?.didReceieve(rewardItemData: result)
+            }
+        }
     }
 }

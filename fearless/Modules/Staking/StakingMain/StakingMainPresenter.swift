@@ -298,6 +298,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showRedeem(from: view)
     }
 
+    func performAnalyticsAction() {
+        wireframe.showAnalytics(from: view)
+    }
+
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
         interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
     }
@@ -478,6 +482,22 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(maxNominatorsPerValidator):
             stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
+        switch rewardItemData {
+        case let .success(data):
+            guard let chain = chain else { return }
+            let viewModel = viewModelFacade.createAnalyticsViewModel(
+                from: data,
+                period: .weekly,
+                priceData: priceData,
+                chain: chain
+            )
+            view?.didReceiveAnalytics(viewModel: viewModel)
         case let .failure(error):
             handle(error: error)
         }

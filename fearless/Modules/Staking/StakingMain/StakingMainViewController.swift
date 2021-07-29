@@ -23,6 +23,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private var networkInfoView: NetworkInfoView!
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
+    private lazy var analyticsContainerView = UIView()
+    private lazy var analyticsView = RewardAnalyticsWidgetView()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -41,6 +43,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         setupNetworkInfoView()
         setupAlertsView()
+        setupAnalyticsView()
         setupLocalization()
         presenter.setup()
     }
@@ -123,6 +126,22 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         alertsView.delegate = self
     }
 
+    private func setupAnalyticsView() {
+        analyticsContainerView.translatesAutoresizingMaskIntoConstraints = false
+        analyticsContainerView.addSubview(analyticsView)
+
+        applyConstraints(for: analyticsContainerView, innerView: analyticsView)
+
+        stackView.addArrangedSubview(analyticsContainerView)
+
+        analyticsView.addTarget(self, action: #selector(handleAnalyticsWidgetTap), for: .touchUpInside)
+    }
+
+    @objc
+    private func handleAnalyticsWidgetTap() {
+        presenter.performAnalyticsAction()
+    }
+
     private func configureStoriesView() {
         networkInfoView.collectionView.backgroundView = nil
         networkInfoView.collectionView.backgroundColor = UIColor.clear
@@ -145,6 +164,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateContainerView = nil
         stateView = nil
         alertsContainerView.isHidden = true
+        analyticsContainerView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -311,6 +331,11 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>) {
         networkInfoView.bind(chainName: newChainName)
+    }
+
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
+        analyticsContainerView.isHidden = false
+        analyticsView.bind(viewModel: viewModel)
     }
 
     func didReceive(viewModel: StakingMainViewModelProtocol) {

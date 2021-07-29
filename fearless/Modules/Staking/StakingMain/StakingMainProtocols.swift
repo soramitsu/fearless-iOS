@@ -7,6 +7,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModelProtocol)
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>)
 
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
@@ -24,6 +25,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performSetupValidatorsForBondedAction()
     func performBondMoreAction()
     func performRedeemAction()
+    func performAnalyticsAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
@@ -60,6 +62,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
@@ -103,6 +106,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showAccountsSelection(from view: StakingMainViewProtocol?)
     func showBondMore(from view: ControllerBackedProtocol?)
     func showRedeem(from view: ControllerBackedProtocol?)
+    func showAnalytics(from view: ControllerBackedProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {
