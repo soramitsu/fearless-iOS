@@ -22599,9 +22599,9 @@ import SoraFoundation
     
     
     
-     func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)  {
+     func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>)  {
         
-    return cuckoo_manager.call("didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)",
+    return cuckoo_manager.call("didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>)",
             parameters: (confirmationViewModel),
             escapingParameters: (confirmationViewModel),
             superclassCall:
@@ -22609,6 +22609,21 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.didReceive(confirmationViewModel: confirmationViewModel))
+        
+    }
+    
+    
+    
+     func didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>)  {
+        
+    return cuckoo_manager.call("didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>)",
+            parameters: (hintsViewModel),
+            escapingParameters: (hintsViewModel),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(hintsViewModel: hintsViewModel))
         
     }
     
@@ -22721,9 +22736,14 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(confirmationViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)> where M1.MatchedType == LocalizableResource<SelectValidatorsConfirmViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)>] = [wrap(matchable: confirmationViewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmViewProtocol.self, method: "didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)", parameterMatchers: matchers))
+	    func didReceive<M1: Cuckoo.Matchable>(confirmationViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<SelectValidatorsConfirmViewModel>)> where M1.MatchedType == LocalizableResource<SelectValidatorsConfirmViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<SelectValidatorsConfirmViewModel>)>] = [wrap(matchable: confirmationViewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmViewProtocol.self, method: "didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(hintsViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<[TitleIconViewModel]>)> where M1.MatchedType == LocalizableResource<[TitleIconViewModel]> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<[TitleIconViewModel]>)>] = [wrap(matchable: hintsViewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmViewProtocol.self, method: "didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.Matchable>(assetViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<AssetBalanceViewModelProtocol>)> where M1.MatchedType == LocalizableResource<AssetBalanceViewModelProtocol> {
@@ -22793,9 +22813,15 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(confirmationViewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<SelectValidatorsConfirmViewModelProtocol>), Void> where M1.MatchedType == LocalizableResource<SelectValidatorsConfirmViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)>] = [wrap(matchable: confirmationViewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceive<M1: Cuckoo.Matchable>(confirmationViewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<SelectValidatorsConfirmViewModel>), Void> where M1.MatchedType == LocalizableResource<SelectValidatorsConfirmViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<SelectValidatorsConfirmViewModel>)>] = [wrap(matchable: confirmationViewModel) { $0 }]
+	        return cuckoo_manager.verify("didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(hintsViewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<[TitleIconViewModel]>), Void> where M1.MatchedType == LocalizableResource<[TitleIconViewModel]> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<[TitleIconViewModel]>)>] = [wrap(matchable: hintsViewModel) { $0 }]
+	        return cuckoo_manager.verify("didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -22879,7 +22905,11 @@ import SoraFoundation
     
 
     
-     func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)   {
+     func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModel>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(hintsViewModel: LocalizableResource<[TitleIconViewModel]>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -23354,6 +23384,21 @@ import SoraFoundation
     
     
     
+     func didReceiveStakingDuration(result: Result<StakingDuration, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveStakingDuration(result: Result<StakingDuration, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveStakingDuration(result: result))
+        
+    }
+    
+    
+    
      func didStartNomination()  {
         
     return cuckoo_manager.call("didStartNomination()",
@@ -23466,6 +23511,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmInteractorOutputProtocol.self, method: "didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)", parameterMatchers: matchers))
 	    }
 	    
+	    func didReceiveStakingDuration<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<StakingDuration, Error>)> where M1.MatchedType == Result<StakingDuration, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<StakingDuration, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmInteractorOutputProtocol.self, method: "didReceiveStakingDuration(result: Result<StakingDuration, Error>)", parameterMatchers: matchers))
+	    }
+	    
 	    func didStartNomination() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmInteractorOutputProtocol.self, method: "didStartNomination()", parameterMatchers: matchers))
@@ -23544,6 +23594,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceiveStakingDuration<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<StakingDuration, Error>), Void> where M1.MatchedType == Result<StakingDuration, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<StakingDuration, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveStakingDuration(result: Result<StakingDuration, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didStartNomination() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("didStartNomination()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -23603,6 +23659,10 @@ import SoraFoundation
     }
     
      func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveStakingDuration(result: Result<StakingDuration, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

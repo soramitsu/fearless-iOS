@@ -2,13 +2,15 @@ import Foundation
 import RobinHood
 import BigInt
 
-class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorInputProtocol {
+class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorInputProtocol,
+    StakingDurationFetching {
     weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
     let balanceAccountAddress: AccountAddress
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let extrinsicService: ExtrinsicServiceProtocol
+    let durationOperationFactory: StakingDurationOperationFactoryProtocol
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
     let assetId: WalletAssetId
@@ -25,6 +27,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
+        durationOperationFactory: StakingDurationOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
         chain: Chain,
@@ -34,6 +37,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         self.singleValueProviderFactory = singleValueProviderFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
+        self.durationOperationFactory = durationOperationFactory
         self.operationManager = operationManager
         self.signer = signer
         self.chain = chain
@@ -59,6 +63,14 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
             chain: chain,
             runtimeService: runtimeService
         )
+
+        fetchStakingDuration(
+            runtimeCodingService: runtimeService,
+            operationFactory: durationOperationFactory,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveStakingDuration(result: result)
+        }
     }
 
     func submitNomination(for _: Decimal, lastFee _: Decimal) {}

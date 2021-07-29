@@ -88,31 +88,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         wireframe: SelectValidatorsConfirmWireframeProtocol,
         settings: SettingsManagerProtocol
     ) -> SelectValidatorsConfirmViewProtocol? {
-        let view = SelectValidatorsConfirmViewController(nib: R.nib.selectValidatorsConfirmViewController)
-        view.uiFactory = UIFactory()
-
-        guard let presenter = createPresenter(
-            view: view,
-            wireframe: wireframe,
-            settings: settings
-        ) else {
-            return nil
-        }
-
-        view.presenter = presenter
-        presenter.interactor = interactor
-        interactor.presenter = presenter
-
-        view.localizationManager = LocalizationManager.shared
-
-        return view
-    }
-
-    private static func createPresenter(
-        view: SelectValidatorsConfirmViewProtocol,
-        wireframe: SelectValidatorsConfirmWireframeProtocol,
-        settings: SettingsManagerProtocol
-    ) -> SelectValidatorsConfirmPresenter? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
@@ -138,6 +113,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         )
 
         let presenter = SelectValidatorsConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
             confirmationViewModelFactory: confirmViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
@@ -145,11 +122,17 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             logger: Logger.shared
         )
 
+        let view = SelectValidatorsConfirmViewController(
+            presenter: presenter,
+            quantityFormatter: .quantity,
+            localizationManager: LocalizationManager.shared
+        )
+
         presenter.view = view
-        presenter.wireframe = wireframe
+        interactor.presenter = presenter
         dataValidatingFactory.view = view
 
-        return presenter
+        return view
     }
 
     private static func createInitiatedBondingInteractor(
@@ -190,6 +173,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
+            durationOperationFactory: StakingDurationOperationFactory(),
             operationManager: operationManager,
             signer: signer,
             assetId: assetId,
@@ -240,6 +224,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
+            durationOperationFactory: StakingDurationOperationFactory(),
             operationManager: operationManager,
             signer: signer,
             chain: networkType.chain,

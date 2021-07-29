@@ -54,5 +54,25 @@
         <string>%li дн.</string>
       </dict>
     </dict>
+    <key>common.hours.format</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li час</string>
+        <key>few</key>
+        <string>%li часа</string>
+        <key>many</key>
+        <string>%li часов</string>
+        <key>other</key>
+        <string>%li час</string>
+      </dict>
+    </dict>
   </dict>
 </plist>
