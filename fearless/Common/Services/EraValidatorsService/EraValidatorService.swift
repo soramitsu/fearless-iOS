@@ -22,7 +22,7 @@ final class EraValidatorService {
         qos: .userInitiated
     )
 
-    private(set) var activeEra: UInt32?
+    private(set) var currentEra: UInt32?
     private(set) var chain: Chain?
     private(set) var engine: JSONRPCEngine?
     private var isActive: Bool = false
@@ -76,8 +76,8 @@ final class EraValidatorService {
         logger?.debug("Fulfilled pendings")
     }
 
-    func didReceiveActiveEra(_ era: UInt32) {
-        activeEra = era
+    func didReceiveCurrentEra(_ era: EraIndex) {
+        currentEra = era
     }
 
     private func fetchInfoFactory(
@@ -108,11 +108,8 @@ final class EraValidatorService {
 
             let localFactory = try ChainStorageIdFactory(chain: chain)
 
-            let path = StorageCodingPath.activeEra
-            let key = try StorageKeyFactory().createStorageKey(
-                moduleName: path.moduleName,
-                storageName: path.itemName
-            )
+            let path = StorageCodingPath.currentEra
+            let key = try StorageKeyFactory().key(from: path)
 
             let localKey = localFactory.createIdentifier(for: key)
             let eraDataProvider = providerFactory.createStorageProvider(for: localKey)
@@ -127,7 +124,7 @@ final class EraValidatorService {
                     }
                 }
 
-                self?.didUpdateActiveEraItem(finalValue)
+                self?.didUpdateCurrentEraItem(finalValue)
             }
 
             let failureClosure: (Error) -> Void = { [weak self] error in
@@ -186,7 +183,7 @@ extension EraValidatorService: EraValidatorServiceProtocol {
             }
 
             self.snapshot = nil
-            self.activeEra = nil
+            self.currentEra = nil
             self.engine = engine
             self.chain = chain
 

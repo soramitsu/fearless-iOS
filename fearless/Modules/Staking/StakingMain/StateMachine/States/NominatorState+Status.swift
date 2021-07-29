@@ -22,14 +22,14 @@ extension NominatorState {
                 .reduce(into: Set<Data>()) { $0.insert($1.who) }
 
             if allNominators.contains(accountId) {
-                return .active(era: eraStakers.era)
+                return .active(era: eraStakers.currentEra)
             }
 
-            if nomination.submittedIn >= eraStakers.era {
+            if nomination.submittedIn >= eraStakers.currentEra {
                 return .waiting(eraCountdown: commonData.eraCountdown)
             }
 
-            return .inactive(era: eraStakers.era)
+            return .inactive(era: eraStakers.currentEra)
 
         } catch {
             return .undefined

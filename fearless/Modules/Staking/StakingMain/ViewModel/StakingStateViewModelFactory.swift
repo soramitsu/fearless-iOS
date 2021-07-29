@@ -305,7 +305,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         updateCacheForChain(chain)
 
         let status: NominationViewStatus = {
-            if let era = state.commonData.eraStakersInfo?.era {
+            if let era = state.commonData.eraStakersInfo?.currentEra {
                 return .inactive(era: era)
             } else {
                 return .undefined
