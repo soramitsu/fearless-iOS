@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
+final class ControllerAccountConfirmationVC: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = ControllerAccountConfirmationLayout
 
     let presenter: ControllerAccountConfirmationPresenterProtocol
