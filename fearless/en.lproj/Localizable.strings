@@ -446,3 +446,6 @@ Derivation path: %@";
 "staking.hint.reward.bond.more" = "Your rewards will be increased starting from the next era.";
 "staking.hint.unbond.kills.stash" = "Fearless wallet will change rewards destination \
 to your account to avoid remaining stake.";
+"common.cancel.operation.message" = "Are you sure you want to cancel this operation?";
+"common.cancel.operation.action" = "Cancel operation";
+"common.keep.editing.action" = "Back to operation";

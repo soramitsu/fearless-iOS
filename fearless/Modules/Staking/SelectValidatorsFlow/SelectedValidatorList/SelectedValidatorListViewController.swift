@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class SelectedValidatorListViewController: UIViewController, ViewHolder {
+final class SelectedValidatorListViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = SelectedValidatorListViewLayout
 
     let presenter: SelectedValidatorListPresenterProtocol

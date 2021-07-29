@@ -446,3 +446,6 @@
 "staking.hint.reward.bond.more" = "Ваши вознаграждения увеличатся со следующей эры.";
 "staking.hint.unbond.kills.stash" = "Fearless wallet изменит назначение вознаграждений \
 на ваш аккаунт, чтобы избежать остатка в стейкинге.";
+"common.cancel.operation.message" = "Вы уверены, что хотите отменить операцию?";
+"common.cancel.operation.action" = "Отменить операцию";
+"common.keep.editing.action" = "Вернуться к операции";
