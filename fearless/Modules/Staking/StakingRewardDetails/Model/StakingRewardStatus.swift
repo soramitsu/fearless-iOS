@@ -20,7 +20,7 @@ extension StakingRewardStatus {
     var icon: UIImage? {
         switch self {
         case .claimable:
-            return R.image.iconTxPending()
+            return R.image.iconPending()
         case .received:
             return R.image.iconValid()
         }
