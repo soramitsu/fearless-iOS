@@ -132,9 +132,14 @@ extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
         }
     }
 
-    func didReceive(validatorInfo: ValidatorInfoProtocol) {
-        self.validatorInfo = validatorInfo
-        updateView()
+    func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>) {
+        switch result {
+        case let .success(validatorInfo):
+            self.validatorInfo = validatorInfo
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receive validator info error: \(error)")
+        }
     }
 }
 

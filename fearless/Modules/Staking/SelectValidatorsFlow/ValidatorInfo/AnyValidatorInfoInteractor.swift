@@ -15,6 +15,6 @@ final class AnyValidatorInfoInteractor: ValidatorInfoInteractorBase {
 
     override func setup() {
         super.setup()
-        presenter?.didReceive(validatorInfo: validatorInfo)
+        presenter?.didReceiveValidatorInfo(result: .success(validatorInfo))
     }
 }

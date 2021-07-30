@@ -72,14 +72,37 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
     }
 
     static func createView(with accountAddress: AccountAddress) -> ValidatorInfoViewProtocol? {
-        guard let assetId = createAssetId() else { return nil }
+        guard let engine = WebSocketService.shared.connection,
+              let assetId = createAssetId()
+        else { return nil }
+
+        let settings = SettingsManager.shared
+
+        let chain = settings.selectedConnection.type.chain
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let validatorOperationFactory = ValidatorOperationFactory(
+            chain: chain,
+            eraValidatorService: EraValidatorFacade.sharedService,
+            rewardService: RewardCalculatorFacade.sharedService,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: RuntimeRegistryFacade.sharedService,
+            engine: engine,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+        )
 
         let providerFactory = SingleValueProviderFactory.shared
 
         let interactor = YourValidatorInfoInteractor(
             accountAddress: accountAddress,
             singleValueProviderFactory: providerFactory,
-            walletAssetId: assetId
+            walletAssetId: assetId,
+            validatorOperationFactory: validatorOperationFactory,
+            operationManager: OperationManagerFacade.sharedManager
         )
 
         return createView(with: interactor)
