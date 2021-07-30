@@ -1,6 +1,6 @@
 import SoraFoundation
 
-protocol AnalyticsStakeViewProtocol: ControllerBackedProtocol, Localizable {
+protocol AnalyticsStakeViewProtocol: AnalyticsEmbeddedViewProtocol, Localizable {
     func reload(viewModel: LocalizableResource<AnalyticsStakeViewModel>)
 }
 

@@ -1,16 +1,7 @@
 import BigInt
 import SoraFoundation
 
-protocol AnalyticsViewModelFactoryProtocol {
-    func createRewardsViewModel(
-        from data: [SubqueryRewardItemData],
-        priceData: PriceData?,
-        period: AnalyticsPeriod,
-        periodDelta: Int
-    ) -> LocalizableResource<AnalyticsRewardsViewModel>
-}
-
-final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
+final class AnalyticsRewardsViewModelFactory: AnalyticsRewardsViewModelFactoryProtocol {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 

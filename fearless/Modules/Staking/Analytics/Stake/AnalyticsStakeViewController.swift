@@ -43,6 +43,12 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
         let localizedViewModel = viewModel.value(for: selectedLocale)
         rootView.bind(viewModel: localizedViewModel)
     }
+
+    var localizedTitle: LocalizableResource<String> {
+        LocalizableResource { _ in
+            "Stake"
+        }
+    }
 }
 
 extension AnalyticsStakeViewController: AnalyticsPeriodViewDelegate {

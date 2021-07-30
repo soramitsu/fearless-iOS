@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-final class AnalyticsViewLayout: UIView {
+final class AnalyticsContainerViewLayout: UIView {
     let segmentedControl: PlainSegmentedControl = {
         let segmentedControl = PlainSegmentedControl()
         segmentedControl.selectionWidth = 1
@@ -23,6 +23,8 @@ final class AnalyticsViewLayout: UIView {
         scrollView.bounces = false
         return scrollView
     }()
+
+    let embeddedModulesStackView = UIStackView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -56,13 +58,7 @@ final class AnalyticsViewLayout: UIView {
             $0.height.equalTo(self).inset(88)
         }
 
-        let inner = [rewardsView, stakeContainerView]
-        let scrollContentView = UIStackView(arrangedSubviews: inner)
-        container.addSubview(scrollContentView)
-        scrollContentView.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-        inner.forEach { view in
-            view.snp.makeConstraints { $0.width.equalTo(self) }
-        }
+        container.addSubview(embeddedModulesStackView)
+        embeddedModulesStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }

@@ -1,6 +1,13 @@
 import UIKit
 
 final class AnalyticsRewardsView: UIView {
+    let tableView: UITableView = {
+        let view = UITableView()
+        view.backgroundColor = .clear
+        view.refreshControl = UIRefreshControl()
+        return view
+    }()
+
     private let selectedPeriodLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -62,45 +69,51 @@ final class AnalyticsRewardsView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(scrollView)
-        scrollView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        addSubview(tableView)
 
-        let containerView = UIView()
-        scrollView.addSubview(containerView)
-        containerView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.width.equalTo(self)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(safeAreaLayoutGuide)
         }
 
-        let verticalInsetView = UIView()
-        let statsStack: UIView = .vStack(
-            spacing: 4,
-            [
-                selectedPeriodLabel,
-                .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel, UIView()]),
-                verticalInsetView,
-                chartView
-            ]
-        )
-
-        verticalInsetView.snp.makeConstraints { $0.height.equalTo(16) }
-        chartView.snp.makeConstraints { $0.height.equalTo(168) }
-
-        containerView.addSubview(statsStack)
-        statsStack.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        containerView.addSubview(rewardsStackView)
-        rewardsStackView.snp.makeConstraints { make in
-            make.top.equalTo(statsStack.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
-        }
-
-        addSubview(periodSelectorView)
-        periodSelectorView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-        }
+//        addSubview(scrollView)
+//        scrollView.snp.makeConstraints { $0.edges.equalToSuperview() }
+//
+//        let containerView = UIView()
+//        scrollView.addSubview(containerView)
+//        containerView.snp.makeConstraints {
+//            $0.edges.equalToSuperview()
+//            $0.width.equalTo(self)
+//        }
+//
+//        let verticalInsetView = UIView()
+//        let statsStack: UIView = .vStack(
+//            spacing: 4,
+//            [
+//                selectedPeriodLabel,
+//                .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel, UIView()]),
+//                verticalInsetView,
+//                chartView
+//            ]
+//        )
+//
+//        verticalInsetView.snp.makeConstraints { $0.height.equalTo(16) }
+//        chartView.snp.makeConstraints { $0.height.equalTo(168) }
+//
+//        containerView.addSubview(statsStack)
+//        statsStack.snp.makeConstraints { make in
+//            make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+//        }
+//
+//        containerView.addSubview(rewardsStackView)
+//        rewardsStackView.snp.makeConstraints { make in
+//            make.top.equalTo(statsStack.snp.bottom)
+//            make.leading.trailing.bottom.equalToSuperview()
+//        }
+//
+//        addSubview(periodSelectorView)
+//        periodSelectorView.snp.makeConstraints { make in
+//            make.leading.trailing.bottom.equalToSuperview()
+//        }
     }
 
     func bind(viewModel: AnalyticsRewardsViewModel) {

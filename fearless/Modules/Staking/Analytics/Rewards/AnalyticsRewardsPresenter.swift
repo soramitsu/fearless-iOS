@@ -1,20 +1,20 @@
 import Foundation
 import BigInt
 
-final class AnalyticsPresenter {
-    weak var view: AnalyticsViewProtocol?
-    let wireframe: AnalyticsWireframeProtocol
-    let interactor: AnalyticsInteractorInputProtocol
-    private let viewModelFactory: AnalyticsViewModelFactoryProtocol
+final class AnalyticsRewardsPresenter {
+    weak var view: AnalyticsRewardsViewProtocol?
+    let wireframe: AnalyticsRewardsWireframeProtocol
+    let interactor: AnalyticsRewardsInteractorInputProtocol
+    private let viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol
     private var rewardsData = [SubqueryRewardItemData]()
     private var selectedPeriod = AnalyticsPeriod.default
     private var selectedPeriodDiff = 0
     private var priceData: PriceData?
 
     init(
-        interactor: AnalyticsInteractorInputProtocol,
-        wireframe: AnalyticsWireframeProtocol,
-        viewModelFactory: AnalyticsViewModelFactoryProtocol
+        interactor: AnalyticsRewardsInteractorInputProtocol,
+        wireframe: AnalyticsRewardsWireframeProtocol,
+        viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -32,11 +32,11 @@ final class AnalyticsPresenter {
             period: selectedPeriod,
             periodDelta: selectedPeriodDiff
         )
-        view?.configureRewards(viewModel: viewModel)
+        view?.reload()
     }
 }
 
-extension AnalyticsPresenter: AnalyticsPresenterProtocol {
+extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
         interactor.setup()
     }
@@ -58,7 +58,7 @@ extension AnalyticsPresenter: AnalyticsPresenterProtocol {
     }
 }
 
-extension AnalyticsPresenter: AnalyticsInteractorOutputProtocol {
+extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
         switch rewardItemData {
         case let .success(data):

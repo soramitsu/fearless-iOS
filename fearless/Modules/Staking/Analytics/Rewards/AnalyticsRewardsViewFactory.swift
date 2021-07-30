@@ -1,8 +1,8 @@
 import Foundation
 import SoraKeystore
 
-struct AnalyticsViewFactory {
-    static func createView() -> AnalyticsViewProtocol? {
+struct AnalyticsRewardsViewFactory {
+    static func createView() -> AnalyticsRewardsViewProtocol? {
         let settings = SettingsManager.shared
         let operationManager = OperationManagerFacade.sharedManager
 
@@ -25,12 +25,12 @@ struct AnalyticsViewFactory {
             operationManager: operationManager
         )
 
-        let interactor = AnalyticsInteractor(
+        let interactor = AnalyticsRewardsInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             analyticsService: analyticsService,
             assetId: assetId
         )
-        let wireframe = AnalyticsWireframe()
+        let wireframe = AnalyticsRewardsWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -38,15 +38,14 @@ struct AnalyticsViewFactory {
             limit: StakingConstants.maxAmount
         )
 
-        let viewModelFactory = AnalyticsViewModelFactory(chain: chain, balanceViewModelFactory: balanceViewModelFactory)
-        let presenter = AnalyticsPresenter(
+        let viewModelFactory = AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balanceViewModelFactory)
+        let presenter = AnalyticsRewardsPresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory
         )
 
-        let stakeModule = AnalyticsStakeViewFactory.createView()
-        let view = AnalyticsViewController(presenter: presenter, stakeView: stakeModule)
+        let view = AnalyticsRewardsViewController(presenter: presenter)
 
         presenter.view = view
         interactor.presenter = presenter

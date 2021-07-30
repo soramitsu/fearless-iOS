@@ -1,7 +1,7 @@
 import UIKit
 
-final class AnalyticsInteractor {
-    weak var presenter: AnalyticsInteractorOutputProtocol!
+final class AnalyticsRewardsInteractor {
+    weak var presenter: AnalyticsRewardsInteractorOutputProtocol!
 
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
 
@@ -28,14 +28,14 @@ final class AnalyticsInteractor {
     }
 }
 
-extension AnalyticsInteractor: AnalyticsInteractorInputProtocol {
+extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     func setup() {
         fetchAnalyticsRewards()
         priceProvider = subscribeToPriceProvider(for: assetId)
     }
 }
 
-extension AnalyticsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+extension AnalyticsRewardsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
     }
