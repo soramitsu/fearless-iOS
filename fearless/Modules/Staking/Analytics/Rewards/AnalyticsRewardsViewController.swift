@@ -33,6 +33,7 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     private func setupTable() {
         rootView.tableView.registerClassForCell(AnalyticsHistoryCell.self)
         rootView.tableView.dataSource = self
+        rootView.tableView.delegate = self
         rootView.tableView.refreshControl?.addTarget(
             self,
             action: #selector(refreshControlDidTriggered),
@@ -67,7 +68,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             if !isLoading {
                 rootView.tableView.refreshControl?.endRefreshing()
             }
-        case let .success(viewModel):
+        case let .loaded(viewModel):
             if !viewModel.rewardSections.isEmpty {
                 rootView.periodSelectorView.isHidden = false
                 rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
@@ -82,18 +83,30 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 
 extension AnalyticsRewardsViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard case let .success(viewModel) = viewState else { return 0 }
+        guard case let .loaded(viewModel) = viewState else { return 0 }
         return viewModel.rewardSections[section].items.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(AnalyticsHistoryCell.self, forIndexPath: indexPath)
-        guard case let .success(viewModel) = viewState else {
+        guard case let .loaded(viewModel) = viewState else {
             return cell
         }
         let cellViewModel = viewModel.rewardSections[indexPath.section].items[indexPath.row]
         cell.historyView.bind(model: cellViewModel)
         return cell
+    }
+}
+
+extension AnalyticsRewardsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard case let .loaded(viewModel) = viewState else {
+            return
+        }
+
+        presenter.handleReward(atIndex: indexPath.row)
     }
 }
 

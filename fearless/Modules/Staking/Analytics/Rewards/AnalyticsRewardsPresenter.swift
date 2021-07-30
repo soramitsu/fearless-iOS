@@ -28,7 +28,7 @@ final class AnalyticsRewardsPresenter {
             period: selectedPeriod,
             periodDelta: selectedPeriodDiff
         )
-        view?.reload(viewState: .success(viewModel.value(for: .current)))
+        view?.reload(viewState: .loaded(viewModel.value(for: .current)))
     }
 }
 
@@ -56,6 +56,10 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func didSelectNext() {
         selectedPeriodDiff += 1
         updateView()
+    }
+
+    func handleReward(atIndex _: Int) {
+        wireframe.showRewardDetails(from: view)
     }
 }
 

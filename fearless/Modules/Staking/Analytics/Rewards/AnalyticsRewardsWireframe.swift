@@ -1,7 +1,7 @@
 import SoraFoundation
 
 final class AnalyticsRewardsWireframe: AnalyticsRewardsWireframeProtocol {
-    func showPendingRewards(from _: ControllerBackedProtocol?) {
+    func showRewardDetails(from _: ControllerBackedProtocol?) {
         // TODO: push
     }
 }

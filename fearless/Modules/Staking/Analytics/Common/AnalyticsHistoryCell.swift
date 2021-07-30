@@ -5,7 +5,8 @@ final class AnalyticsHistoryCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .none
+
+        setupBackground()
         setupLayout()
     }
 
@@ -17,5 +18,11 @@ final class AnalyticsHistoryCell: UITableViewCell {
     private func setupLayout() {
         contentView.addSubview(historyView)
         historyView.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+
+    private func setupBackground() {
+        backgroundColor = .clear
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()
     }
 }

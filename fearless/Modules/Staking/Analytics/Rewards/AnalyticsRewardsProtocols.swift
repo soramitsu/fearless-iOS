@@ -10,6 +10,7 @@ protocol AnalyticsRewardsPresenterProtocol: AnyObject {
     func didSelectPeriod(_ period: AnalyticsPeriod)
     func didSelectPrevious()
     func didSelectNext()
+    func handleReward(atIndex index: Int)
 }
 
 protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
@@ -22,7 +23,7 @@ protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
 }
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
-    func showPendingRewards(from view: ControllerBackedProtocol?)
+    func showRewardDetails(from view: ControllerBackedProtocol?)
 }
 
 protocol AnalyticsRewardsViewModelFactoryProtocol {
