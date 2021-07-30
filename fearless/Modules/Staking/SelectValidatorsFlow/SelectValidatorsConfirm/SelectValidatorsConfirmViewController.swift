@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder {
+final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = SelectValidatorsConfirmViewLayout
 
     let presenter: SelectValidatorsConfirmPresenterProtocol

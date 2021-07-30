@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
-final class ValidatorSearchViewController: UIViewController, ViewHolder {
+final class ValidatorSearchViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = ValidatorSearchViewLayout
 
     let presenter: ValidatorSearchPresenterProtocol

@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
-final class ExportGenericViewController: UIViewController {
+final class ExportGenericViewController: UIViewController, ImportantViewProtocol {
     private enum Constants {
         static let verticalSpacing: CGFloat = 16.0
         static let topInset: CGFloat = 12.0

@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingRebondConfirmationViewController: UIViewController, ViewHolder {
+final class StakingRebondConfirmationViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = StakingRebondConfirmationLayout
 
     let presenter: StakingRebondConfirmationPresenterProtocol

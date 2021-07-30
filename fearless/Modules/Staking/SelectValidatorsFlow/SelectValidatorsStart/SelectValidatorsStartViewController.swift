@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class SelectValidatorsStartViewController: UIViewController, ViewHolder {
+final class SelectValidatorsStartViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     enum Phase {
         case setup
         case update
