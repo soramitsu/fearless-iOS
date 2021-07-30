@@ -34,7 +34,11 @@ final class AnalyticsRewardsPresenter {
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
-        view?.didStartLoading()
+        reload()
+    }
+
+    func reload() {
+        view?.reload(viewState: .loading(true))
         interactor.setup()
     }
 
@@ -57,7 +61,7 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
-        view?.didStopLoading()
+        view?.reload(viewState: .loading(false))
 
         switch rewardItemData {
         case let .success(data):

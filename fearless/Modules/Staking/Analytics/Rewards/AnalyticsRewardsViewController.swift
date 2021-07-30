@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class AnalyticsRewardsViewController: UIViewController, ViewHolder, LoadableViewProtocol {
+final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsRewardsView
 
     private let presenter: AnalyticsRewardsPresenterProtocol
@@ -33,11 +33,21 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder, Loadab
     private func setupTable() {
         rootView.tableView.registerClassForCell(AnalyticsHistoryCell.self)
         rootView.tableView.dataSource = self
+        rootView.tableView.refreshControl?.addTarget(
+            self,
+            action: #selector(refreshControlDidTriggered),
+            for: .valueChanged
+        )
     }
 
     private func setupPeriodView() {
         rootView.periodSelectorView.periodView.delegate = self
         rootView.periodSelectorView.delegate = self
+    }
+
+    @objc
+    private func refreshControlDidTriggered() {
+        presenter.reload()
     }
 }
 
@@ -50,14 +60,17 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 
     func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
         self.viewState = viewState
+
         switch viewState {
         case let .loading(isLoading):
             rootView.periodSelectorView.isHidden = true
+            if !isLoading {
+                rootView.tableView.refreshControl?.endRefreshing()
+            }
         case let .success(viewModel):
-            rootView.periodSelectorView.isHidden = false
-            rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
-
             if !viewModel.rewardSections.isEmpty {
+                rootView.periodSelectorView.isHidden = false
+                rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
                 rootView.tableView.reloadData()
             }
         case let .error(error):

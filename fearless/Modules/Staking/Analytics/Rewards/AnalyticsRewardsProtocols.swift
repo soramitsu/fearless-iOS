@@ -1,11 +1,12 @@
 import SoraFoundation
 
-protocol AnalyticsRewardsViewProtocol: AnalyticsEmbeddedViewProtocol, LoadableViewProtocol {
+protocol AnalyticsRewardsViewProtocol: AnalyticsEmbeddedViewProtocol {
     func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>)
 }
 
 protocol AnalyticsRewardsPresenterProtocol: AnyObject {
     func setup()
+    func reload()
     func didSelectPeriod(_ period: AnalyticsPeriod)
     func didSelectPrevious()
     func didSelectNext()
