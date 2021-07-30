@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
+final class AnalyticsRewardsViewController: UIViewController, ViewHolder, LoadableViewProtocol {
     typealias RootViewType = AnalyticsRewardsView
 
     private let presenter: AnalyticsRewardsPresenterProtocol
@@ -57,7 +57,9 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             rootView.periodSelectorView.isHidden = false
             rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
 
-            rootView.tableView.reloadData()
+            if !viewModel.rewardSections.isEmpty {
+                rootView.tableView.reloadData()
+            }
         case let .error(error):
             rootView.periodSelectorView.isHidden = true
             print(error.localizedDescription)

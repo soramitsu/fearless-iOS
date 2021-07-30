@@ -22,12 +22,8 @@ final class AnalyticsRewardsPresenter {
     }
 
     private func updateView() {
-        // TODO: delete stub data
-        let stubData = (1 ..< 100).map {
-            SubqueryRewardItemData(amount: $0.description, isReward: true, timestamp: 1_627_634_443 - $0 * 10000)
-        }
         let viewModel = viewModelFactory.createRewardsViewModel(
-            from: stubData, // rewardsData,
+            from: rewardsData,
             priceData: priceData,
             period: selectedPeriod,
             periodDelta: selectedPeriodDiff
@@ -38,9 +34,8 @@ final class AnalyticsRewardsPresenter {
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
+        view?.didStartLoading()
         interactor.setup()
-        // TODO: delete
-        updateView()
     }
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
@@ -62,11 +57,14 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
+        view?.didStopLoading()
+
         switch rewardItemData {
         case let .success(data):
             rewardsData = data
             updateView()
         case let .failure(error):
+            rewardsData = []
             // handle(error: error)
             print(error)
         }
