@@ -27853,16 +27853,16 @@ import SoraFoundation
     
     
     
-     func didUpdate(_ validatorList: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])  {
+     func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])  {
         
-    return cuckoo_manager.call("didUpdate(_: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])",
-            parameters: (validatorList, selectedValidatorList),
-            escapingParameters: (validatorList, selectedValidatorList),
+    return cuckoo_manager.call("validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])",
+            parameters: (selectedValidatorList),
+            escapingParameters: (selectedValidatorList),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didUpdate(validatorList, selectedValidatorList: selectedValidatorList))
+            defaultCall: __defaultImplStub!.validatorSearchDidUpdate(selectedValidatorList: selectedValidatorList))
         
     }
     
@@ -27875,9 +27875,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didUpdate<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ validatorList: M1, selectedValidatorList: M2) -> Cuckoo.ProtocolStubNoReturnFunction<([SelectedValidatorInfo], [SelectedValidatorInfo])> where M1.MatchedType == [SelectedValidatorInfo], M2.MatchedType == [SelectedValidatorInfo] {
-	        let matchers: [Cuckoo.ParameterMatcher<([SelectedValidatorInfo], [SelectedValidatorInfo])>] = [wrap(matchable: validatorList) { $0.0 }, wrap(matchable: selectedValidatorList) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchDelegate.self, method: "didUpdate(_: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])", parameterMatchers: matchers))
+	    func validatorSearchDidUpdate<M1: Cuckoo.Matchable>(selectedValidatorList: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([SelectedValidatorInfo])> where M1.MatchedType == [SelectedValidatorInfo] {
+	        let matchers: [Cuckoo.ParameterMatcher<([SelectedValidatorInfo])>] = [wrap(matchable: selectedValidatorList) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchDelegate.self, method: "validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -27897,9 +27897,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didUpdate<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ validatorList: M1, selectedValidatorList: M2) -> Cuckoo.__DoNotUse<([SelectedValidatorInfo], [SelectedValidatorInfo]), Void> where M1.MatchedType == [SelectedValidatorInfo], M2.MatchedType == [SelectedValidatorInfo] {
-	        let matchers: [Cuckoo.ParameterMatcher<([SelectedValidatorInfo], [SelectedValidatorInfo])>] = [wrap(matchable: validatorList) { $0.0 }, wrap(matchable: selectedValidatorList) { $0.1 }]
-	        return cuckoo_manager.verify("didUpdate(_: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func validatorSearchDidUpdate<M1: Cuckoo.Matchable>(selectedValidatorList: M1) -> Cuckoo.__DoNotUse<([SelectedValidatorInfo]), Void> where M1.MatchedType == [SelectedValidatorInfo] {
+	        let matchers: [Cuckoo.ParameterMatcher<([SelectedValidatorInfo])>] = [wrap(matchable: selectedValidatorList) { $0 }]
+	        return cuckoo_manager.verify("validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -27911,7 +27911,7 @@ import SoraFoundation
     
 
     
-     func didUpdate(_ validatorList: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])   {
+     func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

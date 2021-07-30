@@ -49,18 +49,18 @@ final class ValidatorOperationFactory {
         self.identityOperationFactory = identityOperationFactory
     }
 
-    private func createSlashesWrapper(
-        dependingOn validators: BaseOperation<EraStakersInfo>,
+    private func createUnappliedSlashesWrapper(
+        dependingOn activeEraClosure: @escaping () throws -> EraIndex,
         runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         slashDefer: BaseOperation<UInt32>
     ) -> UnappliedSlashesWrapper {
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
-            let info = try validators.extractNoCancellableResultData()
+            let activeEra = try activeEraClosure()
             let duration = try slashDefer.extractNoCancellableResultData()
-            let startEra = max(info.activeEra - duration, 0)
-            return (startEra ... info.activeEra).map { String($0) }
+            let startEra = max(activeEra - duration, 0)
+            return (startEra ... activeEra).map { String($0) }
         }
 
         let factory: () throws -> RuntimeCoderFactoryProtocol = {
@@ -463,8 +463,8 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         identityWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
-        let slashingsWrapper = createSlashesWrapper(
-            dependingOn: eraValidatorsOperation,
+        let slashingsWrapper = createUnappliedSlashesWrapper(
+            dependingOn: { try eraValidatorsOperation.extractNoCancellableResultData().activeEra },
             runtime: runtimeOperation,
             slashDefer: slashDeferOperation
         )
@@ -689,6 +689,30 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
     func wannabeValidatorsOperation(
         for accountIdList: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let slashDeferOperation: BaseOperation<UInt32> =
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .slashDeferDuration
+            )
+
+        slashDeferOperation.addDependency(runtimeOperation)
+
+        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
+
+        let slashingsWrapper = createUnappliedSlashesWrapper(
+            dependingOn: { try eraValidatorsOperation.extractNoCancellableResultData().activeEra },
+            runtime: runtimeOperation,
+            slashDefer: slashDeferOperation
+        )
+
+        slashingsWrapper.allOperations.forEach {
+            $0.addDependency(eraValidatorsOperation)
+            $0.addDependency(runtimeOperation)
+            $0.addDependency(slashDeferOperation)
+        }
+
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
             for: { accountIdList },
             engine: engine,
@@ -703,11 +727,18 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let identityList = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
             let validatorPrefsList = try validatorPrefsWrapper.targetOperation.extractNoCancellableResultData()
+            let slashings = try slashingsWrapper.targetOperation.extractNoCancellableResultData()
             let addressFactory = SS58AddressFactory()
 
-            return try accountIdList.compactMap {
+            let slashed: Set<Data> = slashings.reduce(into: Set<Data>()) { result, slashInEra in
+                slashInEra.value?.forEach { slash in
+                    result.insert(slash.validator)
+                }
+            }
+
+            return try accountIdList.compactMap { accountId in
                 let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: $0,
+                    data: accountId,
                     type: addressType
                 )
 
@@ -722,6 +753,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
                         prefs.commission,
                         precision: addressType.precision
                     ) ?? 0.0,
+                    hasSlashes: slashed.contains(accountId),
                     blocked: prefs.blocked
                 )
             }
@@ -729,8 +761,11 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         mergeOperation.addDependency(identitiesWrapper.targetOperation)
         mergeOperation.addDependency(validatorPrefsWrapper.targetOperation)
+        mergeOperation.addDependency(slashingsWrapper.targetOperation)
 
-        let dependencies = identitiesWrapper.allOperations + validatorPrefsWrapper.allOperations
+        let dependencies = [runtimeOperation, slashDeferOperation, eraValidatorsOperation] +
+            identitiesWrapper.allOperations + validatorPrefsWrapper.allOperations +
+            slashingsWrapper.allOperations
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }
 }
