@@ -1,7 +1,7 @@
 import Foundation
 
 struct EraStakersInfo {
-    let era: UInt32
+    let activeEra: EraIndex
     let validators: [EraValidatorInfo]
 }
 

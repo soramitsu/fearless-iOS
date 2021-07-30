@@ -2,16 +2,17 @@ import Foundation
 
 struct EraCountdown {
     let activeEra: EraIndex
+    let currentEra: EraIndex
     let eraLength: SessionIndex
     let sessionLength: SessionIndex
-    let eraStartSessionIndex: SessionIndex
+    let activeEraStartSessionIndex: SessionIndex
     let currentSessionIndex: SessionIndex
     let currentSlot: Slot
     let genesisSlot: Slot
     let blockCreationTime: Moment
     let createdAtDate: Date
 
-    func eraCompletionTime(targetEra: EraIndex) -> TimeInterval {
+    func timeIntervalTillStart(targetEra: EraIndex) -> TimeInterval {
         guard targetEra > activeEra else { return 0 }
 
         let numberOfSlotsPerSession = UInt64(sessionLength)
@@ -20,8 +21,8 @@ struct EraCountdown {
 
         let sessionStartSlot = currentSessionIndexInt * numberOfSlotsPerSession + genesisSlot
         let sessionProgress = currentSlot - sessionStartSlot
-        let eraProgress = (currentSessionIndexInt - UInt64(eraStartSessionIndex)) * numberOfSlotsPerSession
-            + sessionProgress
+        let eraProgress = (currentSessionIndexInt - UInt64(activeEraStartSessionIndex)) *
+            numberOfSlotsPerSession + sessionProgress
         if Int64(eraLengthInSlots) - Int64(eraProgress) < 0 {
             return 0
         }
@@ -36,7 +37,18 @@ struct EraCountdown {
         return max(0.0, TimeInterval(targetEraDuration).seconds + activeEraRemainedTime)
     }
 
-    func eraCompletionTime() -> TimeInterval {
-        eraCompletionTime(targetEra: activeEra + 1)
+    func timeIntervalTillNextActiveEraStart() -> TimeInterval {
+        timeIntervalTillStart(targetEra: activeEra + 1)
+    }
+
+    func timeIntervalTillSet(targetEra: EraIndex) -> TimeInterval {
+        let sessionDuration = TimeInterval(sessionLength * blockCreationTime).seconds
+        let tillEraStart = timeIntervalTillStart(targetEra: targetEra)
+
+        return max(tillEraStart - sessionDuration, 0.0)
+    }
+
+    func timeIntervalTillNextCurrentEraSet() -> TimeInterval {
+        timeIntervalTillSet(targetEra: currentEra + 1)
     }
 }

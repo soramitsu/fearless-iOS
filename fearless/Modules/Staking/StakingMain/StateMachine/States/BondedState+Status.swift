@@ -6,7 +6,7 @@ extension BondedState {
             return .undefined
         }
 
-        return .inactive(era: eraStakers.era)
+        return .inactive(era: eraStakers.activeEra)
     }
 
     func createStatusPresentableViewModel(locale: Locale?) -> AlertPresentableViewModel? {

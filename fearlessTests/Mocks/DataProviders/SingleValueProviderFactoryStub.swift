@@ -13,6 +13,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let validatorPrefs: AnyDataProvider<DecodedValidator>
     let ledgerInfo: AnyDataProvider<DecodedLedgerInfo>
     let activeEra: AnyDataProvider<DecodedActiveEra>
+    let currentEra: AnyDataProvider<DecodedEraIndex>
     let payee: AnyDataProvider<DecodedPayee>
     let blockNumber: AnyDataProvider<DecodedBlockNumber>
     let crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>
@@ -28,6 +29,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          validatorPrefs: AnyDataProvider<DecodedValidator>,
          ledgerInfo: AnyDataProvider<DecodedLedgerInfo>,
          activeEra: AnyDataProvider<DecodedActiveEra>,
+         currentEra: AnyDataProvider<DecodedEraIndex>,
          payee: AnyDataProvider<DecodedPayee>,
          blockNumber: AnyDataProvider<DecodedBlockNumber>,
          minNominatorBond: AnyDataProvider<DecodedBigUInt>,
@@ -42,6 +44,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
         self.validatorPrefs = validatorPrefs
         self.ledgerInfo = ledgerInfo
         self.activeEra = activeEra
+        self.currentEra = currentEra
         self.payee = payee
         self.blockNumber = blockNumber
         self.minNominatorBond = minNominatorBond
@@ -83,6 +86,13 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
                       runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedActiveEra> {
         activeEra
+    }
+
+    func getCurrentEra(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedEraIndex> {
+        currentEra
     }
 
     func getPayee(for address: String,
@@ -146,6 +156,7 @@ extension SingleValueProviderFactoryStub {
         let validatorProvider = DataProviderStub<DecodedValidator>(models: [])
         let ledgerProvider = DataProviderStub(models: [WestendStub.ledgerInfo])
         let activeEra = DataProviderStub(models: [WestendStub.activeEra])
+        let currentEra = DataProviderStub(models: [WestendStub.currentEra])
         let minNominatorBond = DataProviderStub(models: [WestendStub.minNominatorBond])
         let counterForNominators = DataProviderStub(models: [WestendStub.counterForNominators])
         let maxNominatorsCount = DataProviderStub(models: [WestendStub.maxNominatorsCount])
@@ -163,6 +174,7 @@ extension SingleValueProviderFactoryStub {
                                               validatorPrefs: AnyDataProvider(validatorProvider),
                                               ledgerInfo: AnyDataProvider(ledgerProvider),
                                               activeEra: AnyDataProvider(activeEra),
+                                              currentEra: AnyDataProvider(currentEra),
                                               payee: AnyDataProvider(payee),
                                               blockNumber: AnyDataProvider(blockNumber),
                                               minNominatorBond: AnyDataProvider(minNominatorBond),
@@ -189,6 +201,7 @@ extension SingleValueProviderFactoryStub {
                                               validatorPrefs: validatorPrefs,
                                               ledgerInfo: AnyDataProvider(ledgerProviderStub),
                                               activeEra: activeEra,
+                                              currentEra: currentEra,
                                               payee: payee,
                                               blockNumber: blockNumber,
                                               minNominatorBond: minNominatorBond,
@@ -214,6 +227,7 @@ extension SingleValueProviderFactoryStub {
                                               validatorPrefs: validatorPrefs,
                                               ledgerInfo: ledgerInfo,
                                               activeEra: activeEra,
+                                              currentEra: currentEra,
                                               payee: payee,
                                               blockNumber: blockNumber,
                                               minNominatorBond: minNominatorBond,
@@ -239,6 +253,7 @@ extension SingleValueProviderFactoryStub {
                                               validatorPrefs: validatorPrefs,
                                               ledgerInfo: ledgerInfo,
                                               activeEra: activeEra,
+                                              currentEra: currentEra,
                                               payee: payee,
                                               blockNumber: AnyDataProvider(blockProvider),
                                               minNominatorBond: minNominatorBond,
@@ -266,6 +281,7 @@ extension SingleValueProviderFactoryStub {
             validatorPrefs: validatorPrefs,
             ledgerInfo: ledgerInfo,
             activeEra: activeEra,
+            currentEra: currentEra,
             payee: payee,
             blockNumber: blockNumber,
             minNominatorBond: minNominatorBond,
@@ -293,6 +309,7 @@ extension SingleValueProviderFactoryStub {
             validatorPrefs: validatorPrefs,
             ledgerInfo: ledgerInfo,
             activeEra: activeEra,
+            currentEra: currentEra,
             payee: payee,
             blockNumber: blockNumber,
             minNominatorBond: minNominatorBond,

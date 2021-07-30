@@ -59,21 +59,19 @@ final class EraValidatorService {
 
         self.snapshot = snapshot
 
-        guard !pendingRequests.isEmpty else {
-            return
+        if !pendingRequests.isEmpty {
+            let requests = pendingRequests
+            pendingRequests = []
+
+            requests.forEach { deliver(snapshot: snapshot, to: $0) }
+
+            logger?.debug("Fulfilled pendings")
         }
-
-        let requests = pendingRequests
-        pendingRequests = []
-
-        requests.forEach { deliver(snapshot: snapshot, to: $0) }
 
         DispatchQueue.main.async {
             let event = EraStakersInfoChanged()
             self.eventCenter.notify(with: event)
         }
-
-        logger?.debug("Fulfilled pendings")
     }
 
     func didReceiveActiveEra(_ era: UInt32) {

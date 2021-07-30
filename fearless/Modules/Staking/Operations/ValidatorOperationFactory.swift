@@ -59,8 +59,8 @@ final class ValidatorOperationFactory {
         let keyParams: () throws -> [String] = {
             let info = try validators.extractNoCancellableResultData()
             let duration = try slashDefer.extractNoCancellableResultData()
-            let startEra = max(info.era - duration, 0)
-            return (startEra ... info.era).map { String($0) }
+            let startEra = max(info.activeEra - duration, 0)
+            return (startEra ... info.activeEra).map { String($0) }
         }
 
         let factory: () throws -> RuntimeCoderFactoryProtocol = {

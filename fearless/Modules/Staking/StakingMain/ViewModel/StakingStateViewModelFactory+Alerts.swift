@@ -33,7 +33,7 @@ extension StakingStateViewModelFactory {
         ledgerInfo: StakingLedger
     ) -> StakingAlert? {
         guard
-            let era = commonData.eraStakersInfo?.era,
+            let era = commonData.eraStakersInfo?.activeEra,
             let precision = commonData.chain?.addressType.precision,
             let redeemable = Decimal.fromSubstrateAmount(
                 ledgerInfo.redeemable(inEra: era),
