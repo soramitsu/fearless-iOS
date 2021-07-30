@@ -10,7 +10,10 @@ class ImportantFlowNavigationController: FearlessNavigationController, Controlle
     ) {
         self.localizationManager = localizationManager
 
-        super.init(rootViewController: rootViewController)
+        // from iOS 13 we can do init(rootController:) but due to iOS 12 bug need to stick to this approach
+        super.init(nibName: nil, bundle: nil)
+
+        viewControllers = [rootViewController]
     }
 
     @available(*, unavailable)

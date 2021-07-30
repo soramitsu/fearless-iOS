@@ -252,11 +252,7 @@ extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
 // MARK: - ValidatorSearchDelegate
 
 extension CustomValidatorListPresenter: ValidatorSearchDelegate {
-    func didUpdate(
-        _ validatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo]
-    ) {
-        fullValidatorList = validatorList
+    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo]) {
         self.selectedValidatorList.set(selectedValidatorList)
 
         provideViewModels()

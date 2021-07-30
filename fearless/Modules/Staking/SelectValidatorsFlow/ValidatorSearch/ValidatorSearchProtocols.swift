@@ -10,10 +10,7 @@ protocol ValidatorSearchWireframeProtocol: AlertPresentable {
 }
 
 protocol ValidatorSearchDelegate: AnyObject {
-    func didUpdate(
-        _ validatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo]
-    )
+    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])
 }
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
