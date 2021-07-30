@@ -66,4 +66,67 @@ class ValidatorInfoTests: XCTestCase {
 
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
     }
+
+    func testYourValidatorSetup() {
+        // given
+        let chain = Chain.westend
+
+        let settings = InMemorySettingsManager()
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let view = MockValidatorInfoViewProtocol()
+        let wireframe = MockValidatorInfoWireframeProtocol()
+
+        let addressType = settings.selectedConnection.type
+        let asset = primitiveFactory.createAssetForAddressType(addressType)
+
+        let validatorOperationFactory = ValidatorOperationFactoryStub(electedValidatorList: WestendStub.allValidators
+        )
+
+        let interactor = YourValidatorInfoInteractor(
+            accountAddress: validator.address,
+            singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
+            walletAssetId: WalletAssetId(rawValue: asset.identifier)!,
+            validatorOperationFactory: validatorOperationFactory,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
+            iconGenerator: PolkadotIconGenerator(),
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
+        let presenter = ValidatorInfoPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: validatorInfoViewModelFactory,
+            chain: chain,
+            localizationManager: LocalizationManager.shared
+        )
+
+        presenter.view = view
+        interactor.presenter = presenter
+
+        // when
+
+        let expectation = XCTestExpectation()
+
+        stub(view) { stub in
+            when(stub).didRecieve(viewModel: any()).then { _ in
+                expectation.fulfill()
+            }
+        }
+
+        interactor.setup()
+
+        // then
+
+        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+    }
 }

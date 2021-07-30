@@ -38,6 +38,9 @@ final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
                     if let validatorInfo =
                         try operation.targetOperation.extractNoCancellableResultData().first {
                         self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
+                    } else {
+                        let validatorInfo = SelectedValidatorInfo(address: self?.accountAddress ?? "")
+                        self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
                     }
                 } catch {
                     self?.presenter.didReceiveValidatorInfo(result: .failure(error))

@@ -1164,6 +1164,7 @@
 		AE7E5C322615F13D006D5637 /* StoriesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7E5C312615F13D006D5637 /* StoriesTests.swift */; };
 		AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */; };
 		AE805FC726B3E54E00007CE9 /* YourValidatorInfoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */; };
+		AE805FCA26B42AE200007CE9 /* ValidatorOperationFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */; };
 		AE89720825F12143008EC414 /* ValidatorInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */; };
 		AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */; };
 		AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */; };
@@ -2601,6 +2602,7 @@
 		AE7E5C312615F13D006D5637 /* StoriesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesTests.swift; sourceTree = "<group>"; };
 		AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoInteractorBase.swift; sourceTree = "<group>"; };
 		AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorInfoInteractor.swift; sourceTree = "<group>"; };
+		AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactoryStub.swift; sourceTree = "<group>"; };
 		AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModel.swift; sourceTree = "<group>"; };
 		AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListHeaderView.swift; sourceTree = "<group>"; };
@@ -4134,6 +4136,7 @@
 				847CD46526416D0900E1542F /* SlashesOperationFactoryStub.swift */,
 				84F81317265B9E990043FA1D /* CrowdloansOperationFactoryStub.swift */,
 				F4897BB026AED13D0075F291 /* EraCountdownOperationFactoryStub.swift */,
+				AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */,
 			);
 			path = DataProviders;
 			sourceTree = "<group>";
@@ -6336,8 +6339,8 @@
 		AE2C84C825EF984700986716 /* ValidatorInfo */ = {
 			isa = PBXGroup;
 			children = (
+				AE805FC826B41E0E00007CE9 /* Interactor */,
 				84A3034826A834F900E64382 /* ValidatorInfoViewLayout.swift */,
-				AE2C84DE25EF98BA00986716 /* AnyValidatorInfoInteractor.swift */,
 				AE2C84D925EF98A900986716 /* ValidatorInfoPresenter.swift */,
 				AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */,
 				AE2C84E325EF98C700986716 /* ValidatorInfoViewController.swift */,
@@ -6345,8 +6348,6 @@
 				AE2C84D425EF989A00986716 /* ValidatorInfoWireframe.swift */,
 				AE2C850825F0D7A500986716 /* View */,
 				AE2C850925F0D7AE00986716 /* ViewModel */,
-				AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */,
-				AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */,
 			);
 			path = ValidatorInfo;
 			sourceTree = "<group>";
@@ -6447,6 +6448,16 @@
 				AE7E5C312615F13D006D5637 /* StoriesTests.swift */,
 			);
 			path = Stories;
+			sourceTree = "<group>";
+		};
+		AE805FC826B41E0E00007CE9 /* Interactor */ = {
+			isa = PBXGroup;
+			children = (
+				AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */,
+				AE2C84DE25EF98BA00986716 /* AnyValidatorInfoInteractor.swift */,
+				AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */,
+			);
+			path = Interactor;
 			sourceTree = "<group>";
 		};
 		AE8B8833267349A400AB0AA9 /* Model */ = {
@@ -8953,6 +8964,7 @@
 				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
 				1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */,
 				F4BDDCBE2657A57F005336BA /* TransferValidatorTests.swift in Sources */,
+				AE805FCA26B42AE200007CE9 /* ValidatorOperationFactoryStub.swift in Sources */,
 				840C71BA26821D2000B6D9C2 /* StakingRedeemMock.swift in Sources */,
 				84FACB3825F5630000F32ED4 /* RuntimeHelper.swift in Sources */,
 				A565F118B7ED356099662F03 /* ExportMnemonicTests.swift in Sources */,
