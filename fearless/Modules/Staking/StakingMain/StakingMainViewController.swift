@@ -420,6 +420,8 @@ extension StakingMainViewController: NominationViewDelegate {
     }
 }
 
+// MARK: - ValidationViewDelegate
+
 extension StakingMainViewController: ValidationViewDelegate {
     func validationViewDidReceiveMoreAction(_: ValidationView) {
         presenter.performManageStakingAction()

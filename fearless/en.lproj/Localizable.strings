@@ -285,6 +285,7 @@ Derivation path: %@";
 "staking.payout.sent" = "Payout transaction sent";
 "common.transaction.submitted" = "Transaction submitted";
 "staking.your.validators.title" = "Your validators";
+"staking.view.your.validator.title" = "Your validator";
 "staking.rebond.all" = "Rebond all";
 "staking.rebond.last" = "Rebond last";
 "staking.rebond.custom.amount" = "Rebond custom amount";
