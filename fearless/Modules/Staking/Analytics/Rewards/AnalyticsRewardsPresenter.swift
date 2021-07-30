@@ -24,7 +24,7 @@ final class AnalyticsRewardsPresenter {
     private func updateView() {
         // TODO: delete stub data
         let stubData = (1 ..< 100).map {
-            SubqueryRewardItemData(amount: $0.description, isReward: true, timestamp: 1_624_948_052 - $0 * 100_000)
+            SubqueryRewardItemData(amount: $0.description, isReward: true, timestamp: 1_627_634_443 - $0 * 10000)
         }
         let viewModel = viewModelFactory.createRewardsViewModel(
             from: stubData, // rewardsData,
@@ -32,13 +32,15 @@ final class AnalyticsRewardsPresenter {
             period: selectedPeriod,
             periodDelta: selectedPeriodDiff
         )
-        view?.reload()
+        view?.reload(viewState: .success(viewModel.value(for: .current)))
     }
 }
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
         interactor.setup()
+        // TODO: delete
+        updateView()
     }
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {

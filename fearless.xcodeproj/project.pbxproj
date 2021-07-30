@@ -1431,6 +1431,8 @@
 		F4D6FF1326B3DDDF002313AF /* AnalyticsRewardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF1226B3DDDF002313AF /* AnalyticsRewardsViewController.swift */; };
 		F4D6FF3926B3E33E002313AF /* AnalyticsContainerViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF3826B3E33E002313AF /* AnalyticsContainerViewFactory.swift */; };
 		F4D6FF4126B3E4C2002313AF /* AnalyticsRewardsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF4026B3E4C2002313AF /* AnalyticsRewardsWireframe.swift */; };
+		F4D6FF4D26B3EB65002313AF /* AnalyticsHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF4C26B3EB65002313AF /* AnalyticsHistoryCell.swift */; };
+		F4D6FF5226B3ECEB002313AF /* AnalyticsViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF5126B3ECEB002313AF /* AnalyticsViewState.swift */; };
 		F4D96B672637E89300B23D3D /* UIView+Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D96B662637E89300B23D3D /* UIView+Separator.swift */; };
 		F4D96B6C2637EB1300B23D3D /* StakingBalanceActionsWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D96B6B2637EB1300B23D3D /* StakingBalanceActionsWidgetViewModel.swift */; };
 		F4D96B712637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D96B702637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift */; };
@@ -2918,6 +2920,8 @@
 		F4D6FF1226B3DDDF002313AF /* AnalyticsRewardsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsViewController.swift; sourceTree = "<group>"; };
 		F4D6FF3826B3E33E002313AF /* AnalyticsContainerViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContainerViewFactory.swift; sourceTree = "<group>"; };
 		F4D6FF4026B3E4C2002313AF /* AnalyticsRewardsWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsWireframe.swift; sourceTree = "<group>"; };
+		F4D6FF4C26B3EB65002313AF /* AnalyticsHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsHistoryCell.swift; sourceTree = "<group>"; };
+		F4D6FF5126B3ECEB002313AF /* AnalyticsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewState.swift; sourceTree = "<group>"; };
 		F4D96B662637E89300B23D3D /* UIView+Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Separator.swift"; sourceTree = "<group>"; };
 		F4D96B6B2637EB1300B23D3D /* StakingBalanceActionsWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceActionsWidgetViewModel.swift; sourceTree = "<group>"; };
 		F4D96B702637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceWidgetViewModel.swift; sourceTree = "<group>"; };
@@ -7084,6 +7088,8 @@
 			children = (
 				F409669F26B297D6008CD244 /* AnalyticsPeriodView */,
 				F40966A726B297D6008CD244 /* AnalyticsSummaryRewardView.swift */,
+				F4D6FF4C26B3EB65002313AF /* AnalyticsHistoryCell.swift */,
+				F4D6FF5126B3ECEB002313AF /* AnalyticsViewState.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -8208,6 +8214,7 @@
 				84754C942511EB2A00854599 /* ManagedConnectionItem.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				84F98D8A25E3DD3F0040418E /* StorageCodingPath.swift in Sources */,
+				F4D6FF4D26B3EB65002313AF /* AnalyticsHistoryCell.swift in Sources */,
 				84F43C0F25DF016600AEDA56 /* DispatchQueueHelper.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
@@ -9110,6 +9117,7 @@
 				D886425A55425810AD070AB5 /* ControllerAccountConfirmationWireframe.swift in Sources */,
 				0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */,
 				135CEEC5363BE34130958578 /* ControllerAccountConfirmationInteractor.swift in Sources */,
+				F4D6FF5226B3ECEB002313AF /* AnalyticsViewState.swift in Sources */,
 				4040F1394A73AC2FE598242C /* ControllerAccountConfirmationViewController.swift in Sources */,
 				C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */,
 				270C21973CB61F0BF3D2D1E3 /* CrowdloanListProtocols.swift in Sources */,

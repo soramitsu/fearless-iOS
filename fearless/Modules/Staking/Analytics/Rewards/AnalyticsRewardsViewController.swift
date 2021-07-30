@@ -6,6 +6,8 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
 
     private let presenter: AnalyticsRewardsPresenterProtocol
 
+    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel> = .loading(false)
+
     init(presenter: AnalyticsRewardsPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -23,7 +25,13 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupTable()
         presenter.setup()
+    }
+
+    private func setupTable() {
+        rootView.tableView.registerClassForCell(AnalyticsHistoryCell.self)
+        rootView.tableView.dataSource = self
     }
 }
 
@@ -34,5 +42,32 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
         }
     }
 
-    func reload() {}
+    func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
+        self.viewState = viewState
+        switch viewState {
+        case let .loading(isLoading):
+            print(isLoading)
+        case let .success(viewModel):
+            rootView.tableView.reloadData()
+        case let .error(error):
+            print(error.localizedDescription)
+        }
+    }
+}
+
+extension AnalyticsRewardsViewController: UITableViewDataSource {
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard case let .success(viewModel) = viewState else { return 0 }
+        return viewModel.rewardSections[section].items.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithType(AnalyticsHistoryCell.self, forIndexPath: indexPath)
+        guard case let .success(viewModel) = viewState else {
+            return cell
+        }
+        let cellViewModel = viewModel.rewardSections[indexPath.section].items[indexPath.row]
+        cell.historyView.bind(model: cellViewModel)
+        return cell
+    }
 }

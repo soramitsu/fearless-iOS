@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol AnalyticsRewardsViewProtocol: AnalyticsEmbeddedViewProtocol {
-    func reload()
+    func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>)
 }
 
 protocol AnalyticsRewardsPresenterProtocol: AnyObject {

@@ -5,6 +5,7 @@ final class AnalyticsRewardsView: UIView {
         let view = UITableView()
         view.backgroundColor = .clear
         view.refreshControl = UIRefreshControl()
+        view.separatorStyle = .none
         return view
     }()
 
