@@ -391,8 +391,8 @@ extension StakingMainViewController: UICollectionViewDataSource {
             for: indexPath
         )!
 
-        let storiesModel = storiesModel.value(for: selectedLocale)
-        let story = storiesModel.stories[indexPath.row]
+        let model = storiesModel.value(for: selectedLocale)
+        let story = model.stories[indexPath.row]
 
         cell.bind(icon: story.icon, caption: story.title)
         return cell
