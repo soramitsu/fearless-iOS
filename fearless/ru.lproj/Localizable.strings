@@ -216,7 +216,7 @@
 "fee.not.yet.loaded.message" = "Подождите, пока будет рассчитана комиссия";
 "staking.setup.amount.too.low" = "Нельзя застейкать меньше минимального значения (%@)";
 "common.confirm.title" = "Подтверждение";
-"staking.stash.title" = "Аккаунт кошелька";
+"staking.stash.title" = "Аккаунт";
 "staking.setup.sent.message" = "Транзакция на установку стейкинга отправлена";
 "staking.selected.validators.title" = "Выбранные валидаторы";
 "staking.validator.info.title" = "Информация о валидаторе";
@@ -280,7 +280,7 @@
 "staking.warning.tiny.payout" = "Вознаграждение меньше комиссии сети.";
 "staking.unbonding.limit.reached.title" = "Достигнут лимит запросов на вывод из стейка";
 "staking.redeem" = "Забрать";
-"common.balance" = "Остаток средств";
+"common.balance" = "Баланс";
 "staking.balance.title" = "Баланс стейкинга";
 "staking.payout.sent" = "Транзакция на выплату отправлена";
 "common.transaction.submitted" = "Транзакция отправлена";
