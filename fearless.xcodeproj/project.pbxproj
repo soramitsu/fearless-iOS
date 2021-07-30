@@ -178,6 +178,7 @@
 		8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C276252286760049B5C8 /* TransferConfirmAccessoryView.swift */; };
 		8409C279252286B60049B5C8 /* TransferConfirmAccessoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8409C278252286B60049B5C8 /* TransferConfirmAccessoryView.xib */; };
 		8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */; };
+		840AD5FC26B4512100E09D6A /* SelectedLanguageMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840AD5FB26B4512100E09D6A /* SelectedLanguageMigrator.swift */; };
 		840C71B826821C0600B6D9C2 /* StakingRebondMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840C71B726821C0600B6D9C2 /* StakingRebondMock.swift */; };
 		840C71BA26821D2000B6D9C2 /* StakingRedeemMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840C71B926821D2000B6D9C2 /* StakingRedeemMock.swift */; };
 		840D8918262429C900AB231B /* LocalStorageRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840D8917262429C900AB231B /* LocalStorageRequestFactory.swift */; };
@@ -1609,6 +1610,7 @@
 		8409C276252286760049B5C8 /* TransferConfirmAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryView.swift; sourceTree = "<group>"; };
 		8409C278252286B60049B5C8 /* TransferConfirmAccessoryView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransferConfirmAccessoryView.xib; sourceTree = "<group>"; };
 		8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryViewFactory.swift; sourceTree = "<group>"; };
+		840AD5FB26B4512100E09D6A /* SelectedLanguageMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedLanguageMigrator.swift; sourceTree = "<group>"; };
 		840C71B726821C0600B6D9C2 /* StakingRebondMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRebondMock.swift; sourceTree = "<group>"; };
 		840C71B926821D2000B6D9C2 /* StakingRedeemMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemMock.swift; sourceTree = "<group>"; };
 		840D8917262429C900AB231B /* LocalStorageRequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageRequestFactory.swift; sourceTree = "<group>"; };
@@ -6940,6 +6942,7 @@
 				F418E86E264D0F0400699085 /* Migrating.swift */,
 				F418E876264D0F4100699085 /* NetworkConnectionsMigrator.swift */,
 				8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */,
+				840AD5FB26B4512100E09D6A /* SelectedLanguageMigrator.swift */,
 			);
 			path = Migration;
 			sourceTree = "<group>";
@@ -8316,6 +8319,7 @@
 				8460E12B2542357300826F55 /* WalletExtrinsicOpenCommand.swift in Sources */,
 				8490151624AB8C45008F705E /* WalletAccountListConfigurator.swift in Sources */,
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
+				840AD5FC26B4512100E09D6A /* SelectedLanguageMigrator.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
 				8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */,
 				84FFE505261290830054EA63 /* NetworkInfoView.swift in Sources */,

@@ -9,6 +9,9 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let settings = SettingsManager.shared
         let keychain = Keychain()
 
+        let languageMigrator = SelectedLanguageMigrator(
+            localizationManager: LocalizationManager.shared
+        )
         let networkConnectionsMigrator = NetworkConnectionsMigrator(settings: settings)
         let inconsistentStateMigrator = InconsistentStateMigrator(
             settings: settings,
@@ -20,7 +23,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [inconsistentStateMigrator, networkConnectionsMigrator],
+            migrators: [languageMigrator, inconsistentStateMigrator, networkConnectionsMigrator],
             logger: Logger.shared
         )
 
