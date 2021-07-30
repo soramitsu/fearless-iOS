@@ -75,19 +75,7 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
             action: #selector(didTapResetButton)
         )
 
-        let normalAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: R.color.colorWhite()!,
-            .font: UIFont.p0Paragraph
-        ]
-
-        let highlightedAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: R.color.colorDarkGray()!,
-            .font: UIFont.p0Paragraph
-        ]
-
-        resetButton.setTitleTextAttributes(normalAttributes, for: .normal)
-        resetButton.setTitleTextAttributes(highlightedAttributes, for: .highlighted)
-        resetButton.setTitleTextAttributes(highlightedAttributes, for: .disabled)
+        resetButton.setupDefaultTitleStyle(with: .p0Paragraph)
 
         navigationItem.rightBarButtonItem = resetButton
     }

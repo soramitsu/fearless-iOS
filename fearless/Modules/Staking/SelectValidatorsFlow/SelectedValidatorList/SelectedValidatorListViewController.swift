@@ -105,7 +105,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
         } else {
             enabled = true
-            rootView.proceedButton.applyDefaultStyle()
+            rootView.proceedButton.applyEnabledStyle()
             buttonTitle = R.string.localizable
                 .commonContinue(
                     preferredLanguages: selectedLocale.rLanguages
