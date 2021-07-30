@@ -88,18 +88,7 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
             action: #selector(actionChange)
         )
 
-        let normalAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: R.color.colorWhite()!,
-            .font: UIFont.p0Paragraph
-        ]
-
-        let highlightedAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
-            .font: UIFont.p0Paragraph
-        ]
-
-        resetItem.setTitleTextAttributes(normalAttributes, for: .normal)
-        resetItem.setTitleTextAttributes(highlightedAttributes, for: .highlighted)
+        resetItem.setupDefaultTitleStyle(with: UIFont.p0Paragraph)
 
         navigationItem.rightBarButtonItem = resetItem
     }
