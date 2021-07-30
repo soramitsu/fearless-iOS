@@ -19,8 +19,14 @@ class ValidatorInfoTests: XCTestCase {
         let view = MockValidatorInfoViewProtocol()
         let wireframe = MockValidatorInfoWireframeProtocol()
 
-        let priceProvider = SingleValueProviderFactoryStub.westendNominatorStub().price
-        let interactor = ValidatorInfoInteractor(validatorInfo: validator, priceProvider: priceProvider)
+        let addressType = settings.selectedConnection.type
+        let asset = primitiveFactory.createAssetForAddressType(addressType)
+
+        let interactor = AnyValidatorInfoInteractor(
+            validatorInfo: validator,
+            singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
+            walletAssetId: WalletAssetId(rawValue: asset.identifier)!
+        )
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
