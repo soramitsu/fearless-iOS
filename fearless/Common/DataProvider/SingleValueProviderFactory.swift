@@ -11,6 +11,7 @@ typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
+typealias DecodedEraIndex = ChainStorageDecodedItem<EraIndex>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
 typealias DecodedCrowdloanFunds = ChainStorageDecodedItem<CrowdloanFunds>
@@ -35,6 +36,8 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedLedgerInfo>
     func getActiveEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedActiveEra>
+    func getCurrentEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedEraIndex>
     func getPayee(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedPayee>
     func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -330,6 +333,18 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         try getProviderForChain(
             chain,
             path: .activeEra,
+            runtimeService: runtimeService,
+            shouldUseFallback: true
+        )
+    }
+
+    func getCurrentEra(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedEraIndex> {
+        try getProviderForChain(
+            chain,
+            path: .currentEra,
             runtimeService: runtimeService,
             shouldUseFallback: true
         )

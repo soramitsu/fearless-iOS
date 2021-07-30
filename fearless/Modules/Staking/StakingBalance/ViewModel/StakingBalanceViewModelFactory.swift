@@ -182,7 +182,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     ) -> NSAttributedString {
         guard let eraCountdown = eraCountdown else { return .init(string: "") }
 
-        let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: unbondingEra)
+        let eraCompletionTime = eraCountdown.timeIntervalTillStart(targetEra: unbondingEra)
         let daysLeft = eraCompletionTime.daysFromSeconds
 
         let timeLeftText: String = {
