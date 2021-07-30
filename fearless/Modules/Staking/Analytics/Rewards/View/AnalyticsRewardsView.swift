@@ -71,9 +71,13 @@ final class AnalyticsRewardsView: UIView {
 
     private func setupLayout() {
         addSubview(tableView)
-
         tableView.snp.makeConstraints { make in
             make.edges.equalTo(safeAreaLayoutGuide)
+        }
+
+        addSubview(periodSelectorView)
+        periodSelectorView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
         }
 
 //        addSubview(scrollView)
@@ -111,10 +115,6 @@ final class AnalyticsRewardsView: UIView {
 //            make.leading.trailing.bottom.equalToSuperview()
 //        }
 //
-//        addSubview(periodSelectorView)
-//        periodSelectorView.snp.makeConstraints { make in
-//            make.leading.trailing.bottom.equalToSuperview()
-//        }
     }
 
     func bind(viewModel: AnalyticsRewardsViewModel) {

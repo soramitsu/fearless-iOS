@@ -26,12 +26,18 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupTable()
+        setupPeriodView()
         presenter.setup()
     }
 
     private func setupTable() {
         rootView.tableView.registerClassForCell(AnalyticsHistoryCell.self)
         rootView.tableView.dataSource = self
+    }
+
+    private func setupPeriodView() {
+        rootView.periodSelectorView.periodView.delegate = self
+        rootView.periodSelectorView.delegate = self
     }
 }
 
@@ -46,10 +52,14 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
         self.viewState = viewState
         switch viewState {
         case let .loading(isLoading):
-            print(isLoading)
+            rootView.periodSelectorView.isHidden = true
         case let .success(viewModel):
+            rootView.periodSelectorView.isHidden = false
+            rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
+
             rootView.tableView.reloadData()
         case let .error(error):
+            rootView.periodSelectorView.isHidden = true
             print(error.localizedDescription)
         }
     }
@@ -69,5 +79,21 @@ extension AnalyticsRewardsViewController: UITableViewDataSource {
         let cellViewModel = viewModel.rewardSections[indexPath.section].items[indexPath.row]
         cell.historyView.bind(model: cellViewModel)
         return cell
+    }
+}
+
+extension AnalyticsRewardsViewController: AnalyticsPeriodViewDelegate {
+    func didSelect(period: AnalyticsPeriod) {
+        presenter.didSelectPeriod(period)
+    }
+}
+
+extension AnalyticsRewardsViewController: AnalyticsPeriodSelectorViewDelegate {
+    func didSelectNext() {
+        presenter.didSelectNext()
+    }
+
+    func didSelectPrevious() {
+        presenter.didSelectPrevious()
     }
 }
