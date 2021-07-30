@@ -122,18 +122,19 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
 }
 
 extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receive price data error: \(error)")
+        }
+    }
+
     func didReceive(validatorInfo: ValidatorInfoProtocol) {
         self.validatorInfo = validatorInfo
         updateView()
-    }
-
-    func didRecieve(priceData: PriceData?) {
-        self.priceData = priceData
-        updateView()
-    }
-
-    func didReceive(priceError: Error) {
-        logger?.error("Did receive error: \(priceError)")
     }
 }
 

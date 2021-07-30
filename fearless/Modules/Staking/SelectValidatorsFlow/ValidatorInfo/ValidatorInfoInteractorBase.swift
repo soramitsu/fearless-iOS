@@ -21,14 +21,12 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     }
 }
 
-extension ValidatorInfoInteractorBase: SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning {
+extension ValidatorInfoInteractorBase: SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
-        // TODO: Refactor presenter
-        switch result {
-        case let .success(priceData):
-            presenter?.didRecieve(priceData: priceData)
-        case let .failure(error):
-            presenter?.didReceive(priceError: error)
-        }
+        presenter.didReceivePriceData(result: result)
     }
 }
+
+extension ValidatorInfoInteractorBase: SingleValueProviderSubscriber {}
+
+extension ValidatorInfoInteractorBase: AnyProviderAutoCleaning {}

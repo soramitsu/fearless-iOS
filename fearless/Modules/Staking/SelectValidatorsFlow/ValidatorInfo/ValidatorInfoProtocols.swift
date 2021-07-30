@@ -44,8 +44,7 @@ protocol ValidatorInfoInteractorInputProtocol: AnyObject {
 
 protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
     func didReceive(validatorInfo: ValidatorInfoProtocol)
-    func didRecieve(priceData: PriceData?)
-    func didReceive(priceError: Error)
+    func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {
