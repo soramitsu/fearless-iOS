@@ -24,11 +24,10 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         priceData: PriceData?,
         eraCountdown: EraCountdown?
     ) -> LocalizableResource<StakingPayoutViewModel> {
-
         let timerCompletion: TimeInterval?
 
         if let eraCountdown = eraCountdown,
-           let maxPayout = payoutsInfo.payouts.max(by: { $0.era < $1.era } ) {
+           let maxPayout = payoutsInfo.payouts.max(by: { $0.era < $1.era }) {
             timerCompletion = eraCountdown.timeIntervalTillSet(
                 targetEra: maxPayout.era + payoutsInfo.historyDepth + 1
             )

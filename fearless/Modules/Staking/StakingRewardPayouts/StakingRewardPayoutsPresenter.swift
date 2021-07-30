@@ -123,7 +123,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
             self.eraCountdown = eraCountdown
             updateView()
         case .failure:
-            self.eraCountdown = nil
+            eraCountdown = nil
             updateView()
         }
     }
