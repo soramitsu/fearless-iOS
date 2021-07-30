@@ -10,7 +10,6 @@ final class StakingRewardPayoutsPresenter {
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
     private var eraCountdown: EraCountdown?
-    private var eraCompletionTime: TimeInterval?
     private let chain: Chain
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
@@ -124,7 +123,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
             self.eraCountdown = eraCountdown
             updateView()
         case .failure:
-            eraCompletionTime = nil
+            self.eraCountdown = nil
+            updateView()
         }
     }
 }

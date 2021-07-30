@@ -13,9 +13,9 @@ extension ValidatorState {
 
             if eraStakers.validators
                 .first(where: { $0.accountId == accountId }) != nil {
-                return .active(era: eraStakers.currentEra)
+                return .active(era: eraStakers.activeEra)
             }
-            return .inactive(era: eraStakers.currentEra)
+            return .inactive(era: eraStakers.activeEra)
 
         } catch {
             return .undefined

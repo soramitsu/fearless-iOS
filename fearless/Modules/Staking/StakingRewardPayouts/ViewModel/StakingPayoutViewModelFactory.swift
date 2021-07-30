@@ -24,7 +24,19 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         priceData: PriceData?,
         eraCountdown: EraCountdown?
     ) -> LocalizableResource<StakingPayoutViewModel> {
-        LocalizableResource<StakingPayoutViewModel> { locale in
+
+        let timerCompletion: TimeInterval?
+
+        if let eraCountdown = eraCountdown,
+           let maxPayout = payoutsInfo.payouts.max(by: { $0.era < $1.era } ) {
+            timerCompletion = eraCountdown.timeIntervalTillSet(
+                targetEra: maxPayout.era + payoutsInfo.historyDepth + 1
+            )
+        } else {
+            timerCompletion = nil
+        }
+
+        return LocalizableResource<StakingPayoutViewModel> { locale in
             StakingPayoutViewModel(
                 cellViewModels: self.createCellViewModels(
                     for: payoutsInfo,
@@ -32,7 +44,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                     eraCountdown: eraCountdown,
                     locale: locale
                 ),
-                eraComletionTime: eraCountdown?.eraCompletionTime(),
+                eraComletionTime: timerCompletion,
                 bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts, locale: locale)
             )
         }
@@ -112,7 +124,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) -> NSAttributedString {
         guard let eraCountdown = eraCountdown else { return .init(string: "") }
 
-        let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: payoutEra + historyDepth + 1)
+        let eraCompletionTime = eraCountdown.timeIntervalTillSet(targetEra: payoutEra + historyDepth + 1)
         let daysLeft = eraCompletionTime.daysFromSeconds
 
         let timeLeftText: String = {

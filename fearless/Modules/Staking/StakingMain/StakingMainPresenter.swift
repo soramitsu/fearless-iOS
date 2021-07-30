@@ -427,7 +427,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(eraStakersInfo: EraStakersInfo) {
         stateMachine.state.process(eraStakersInfo: eraStakersInfo)
 
-        logger?.debug("Did receive era stakers info: \(eraStakersInfo.currentEra)")
+        logger?.debug("Did receive era stakers info: \(eraStakersInfo.activeEra)")
     }
 
     func didReceive(eraStakersInfoError: Error) {

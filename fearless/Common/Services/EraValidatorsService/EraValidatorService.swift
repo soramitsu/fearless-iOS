@@ -22,7 +22,7 @@ final class EraValidatorService {
         qos: .userInitiated
     )
 
-    private(set) var currentEra: UInt32?
+    private(set) var activeEra: UInt32?
     private(set) var chain: Chain?
     private(set) var engine: JSONRPCEngine?
     private var isActive: Bool = false
@@ -59,25 +59,23 @@ final class EraValidatorService {
 
         self.snapshot = snapshot
 
-        guard !pendingRequests.isEmpty else {
-            return
+        if !pendingRequests.isEmpty {
+            let requests = pendingRequests
+            pendingRequests = []
+
+            requests.forEach { deliver(snapshot: snapshot, to: $0) }
+
+            logger?.debug("Fulfilled pendings")
         }
-
-        let requests = pendingRequests
-        pendingRequests = []
-
-        requests.forEach { deliver(snapshot: snapshot, to: $0) }
 
         DispatchQueue.main.async {
             let event = EraStakersInfoChanged()
             self.eventCenter.notify(with: event)
         }
-
-        logger?.debug("Fulfilled pendings")
     }
 
-    func didReceiveCurrentEra(_ era: EraIndex) {
-        currentEra = era
+    func didReceiveActiveEra(_ era: UInt32) {
+        activeEra = era
     }
 
     private func fetchInfoFactory(
@@ -108,8 +106,11 @@ final class EraValidatorService {
 
             let localFactory = try ChainStorageIdFactory(chain: chain)
 
-            let path = StorageCodingPath.currentEra
-            let key = try StorageKeyFactory().key(from: path)
+            let path = StorageCodingPath.activeEra
+            let key = try StorageKeyFactory().createStorageKey(
+                moduleName: path.moduleName,
+                storageName: path.itemName
+            )
 
             let localKey = localFactory.createIdentifier(for: key)
             let eraDataProvider = providerFactory.createStorageProvider(for: localKey)
@@ -124,7 +125,7 @@ final class EraValidatorService {
                     }
                 }
 
-                self?.didUpdateCurrentEraItem(finalValue)
+                self?.didUpdateActiveEraItem(finalValue)
             }
 
             let failureClosure: (Error) -> Void = { [weak self] error in
@@ -183,7 +184,7 @@ extension EraValidatorService: EraValidatorServiceProtocol {
             }
 
             self.snapshot = nil
-            self.currentEra = nil
+            self.activeEra = nil
             self.engine = engine
             self.chain = chain
 
