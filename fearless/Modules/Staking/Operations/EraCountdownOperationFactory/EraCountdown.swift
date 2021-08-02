@@ -12,32 +12,34 @@ struct EraCountdown {
     let blockCreationTime: Moment
     let createdAtDate: Date
 
+    var blockTimeInSeconds: TimeInterval {
+        TimeInterval(blockCreationTime).seconds
+    }
+
     func timeIntervalTillStart(targetEra: EraIndex) -> TimeInterval {
         guard targetEra > activeEra else { return 0 }
 
         let numberOfSlotsPerSession = UInt64(sessionLength)
         let currentSessionIndexInt = UInt64(currentSessionIndex)
         let eraLengthInSlots = UInt64(sessionLength * eraLength)
-        let blockCreationTimeInterval = TimeInterval(blockCreationTime).seconds
 
         let sessionStartSlot = currentSessionIndexInt * numberOfSlotsPerSession + genesisSlot
         let sessionProgress = currentSlot - sessionStartSlot
         let eraProgress = (currentSessionIndexInt - UInt64(activeEraStartSessionIndex)) *
             numberOfSlotsPerSession + sessionProgress
 
-        if eraLengthInSlots < eraProgress {
+        guard eraLengthInSlots >= eraProgress else {
             return 0
         }
 
         let eraRemained = TimeInterval(eraLengthInSlots - eraProgress)
-        let eraRemainedTimeInterval = eraRemained * blockCreationTimeInterval
+        let eraRemainedTimeInterval = eraRemained * blockTimeInSeconds
 
         let datesTimeinterval = Date().timeIntervalSince(createdAtDate)
         let activeEraRemainedTime = eraRemainedTimeInterval - datesTimeinterval
 
         let distanceBetweenEras = TimeInterval(targetEra - (activeEra + 1))
-        let targetEraDuration = distanceBetweenEras * TimeInterval(eraLengthInSlots) *
-            blockCreationTimeInterval
+        let targetEraDuration = distanceBetweenEras * TimeInterval(eraLengthInSlots) * blockTimeInSeconds
         return max(0.0, targetEraDuration + activeEraRemainedTime)
     }
 
@@ -46,7 +48,7 @@ struct EraCountdown {
     }
 
     func timeIntervalTillSet(targetEra: EraIndex) -> TimeInterval {
-        let sessionDuration = TimeInterval(sessionLength * blockCreationTime).seconds
+        let sessionDuration = TimeInterval(sessionLength) * blockTimeInSeconds
         let tillEraStart = timeIntervalTillStart(targetEra: targetEra)
 
         return max(tillEraStart - sessionDuration, 0.0)
