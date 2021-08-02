@@ -160,7 +160,7 @@
 "connection.delete.title" = "Удалить сеть?";
 "connection.delete.description" = "Подтвердите удаление %@.";
 "connection.delete.confirm" = "Удалить";
-"network.status.connecting" = "Подключение ...";
+"network.status.connecting" = "Подключение...";
 "network.status.connected" = "Подключено";
 "wallet.receive.description" = "Поделитесь этим QR-кодом с отправителем";
 "wallet.search.accounts" = "мои аккаунты";
@@ -331,7 +331,7 @@
 "staking.your.not.allocated.description" = "Другие, которые активны без вашего стейка";
 "staking.your.inactive.description" = "Валидаторы, которые не были избраны в этой эре.";
 "tabbar.crowdloan.title" = "Краудлоуны";
-"crowdloan.list.section.format" = "Выберите парачейны для внесения своего вклада (KSM). Вы получите вознаграждение, если парачейн приобретет слот до конца аукциона.";
+"crowdloan.list.section.format" = "Выберите парачейны для внесения своего вклада %@. Вы получите вознаграждение, если парачейн приобретет слот до конца аукциона.";
 "crowdloan.you.contributions.title" = "Ваш вклад";
 "crowdloan.progress.format" = "Собрано: %@ из %@";
 "crowdloan.active.section.format" = "Активные (%@)";
@@ -347,15 +347,15 @@
 "crowdloan.cap.reached.title" = "Превышена максимальная сумма краудлоуна";
 "crowdloan.too.small.contribution.message" = "Минимально допустимая сумма вклада составляет %@ .";
 "crowdloan.too.small.contribution.title" = "Сумма вклада ";
-"crowdloan.learn" = "Подробнее о краудлоунах";
+"crowdloan.learn" = "О краудлоуне %@";
 "common.time.left" = "Оставшееся время";
-"crowdloan_placeholder" = "Здесь появятся активные краудлоуны";
+"crowdloan.placeholder" = "Здесь появятся активные краудлоуны";
 "crowdloan.contribute.title" = "Внести вклад в краудлоун";
-"crowdloan.unlock.hint" = "Ваши токены будут возвращены обратно после срока лизинга";
+"crowdloan.unlock.hint" = "Ваши %@ токены будут возвращены обратно после срока лизинга парачейна.";
 "crowdloan.info" = "Информация о краундлоуне";
 "crowdloan.raised.amount" = "%@ из %@";
 "crowdloan.raised" = "Собрано";
-"crowdloan.leasing.period" = "Срок лизинга или Период лизинга";
+"crowdloan.leasing.period" = "Период лизинга";
 "common.till.date" = "до %@";
 "crowdloan.reward" = "Примерное вознаграждение";
 "staking.bonded.inactive" = "Вы не номинируете и не валидируете";
@@ -406,7 +406,7 @@
 "staking.validator.search.placeholder" = "Поиск по адресу или имени";
 "common.search.results.number" = "Результаты поиска: %li";
 "common.search.start.title" = "Здесь появятся результаты поиска";
-"staking.validator.search.empty.title" = "Поиск не дал результатов. \n Проверьте, что вы указали полный адрес аккаунта";
+"staking.validator.search.empty.title" = "Поиск не дал результатов.\nПроверьте, что вы указали полный адрес аккаунта";
 "common.filter.sort.header" = "Сортировать по:";
 "staking.recommended.hint3.addition" = "хотя бы с одним контактом";
 "staking.validator.total.stake.token" = "Общий стейк (%@)";
