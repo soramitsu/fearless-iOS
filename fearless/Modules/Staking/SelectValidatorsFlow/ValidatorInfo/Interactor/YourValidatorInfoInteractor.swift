@@ -26,33 +26,43 @@ final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
     }
 
     private func fetchValidatorInfo() {
-        guard let accountId = try? addressFactory.accountId(from: accountAddress) else {
-            return
-        }
+        do {
+            let accountId = try addressFactory.accountId(from: accountAddress)
 
-        let operation = validatorOperationFactory.wannabeValidatorsOperation(for: [accountId])
+            presenter.didStartLoadingValidatorInfo()
 
-        operation.targetOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
-                do {
-                    if let validatorInfo =
-                        try operation.targetOperation.extractNoCancellableResultData().first {
-                        self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
-                    } else {
-                        let validatorInfo = SelectedValidatorInfo(address: self?.accountAddress ?? "")
-                        self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
+            let operation = validatorOperationFactory.wannabeValidatorsOperation(for: [accountId])
+
+            operation.targetOperation.completionBlock = {
+                DispatchQueue.main.async { [weak self] in
+                    do {
+                        if let validatorInfo =
+                            try operation.targetOperation.extractNoCancellableResultData().first {
+                            self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
+                        } else {
+                            let validatorInfo = SelectedValidatorInfo(address: self?.accountAddress ?? "")
+                            self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
+                        }
+                    } catch {
+                        self?.presenter.didReceiveValidatorInfo(result: .failure(error))
                     }
-                } catch {
-                    self?.presenter.didReceiveValidatorInfo(result: .failure(error))
                 }
             }
-        }
 
-        operationManager.enqueue(operations: operation.allOperations, in: .transient)
+            operationManager.enqueue(operations: operation.allOperations, in: .transient)
+        } catch {
+            presenter.didReceiveValidatorInfo(result: .failure(error))
+        }
     }
 
     override func setup() {
         super.setup()
+
+        fetchValidatorInfo()
+    }
+
+    override func reload() {
+        super.reload()
         fetchValidatorInfo()
     }
 }

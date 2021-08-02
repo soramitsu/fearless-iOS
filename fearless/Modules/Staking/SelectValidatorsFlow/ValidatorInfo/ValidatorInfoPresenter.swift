@@ -10,8 +10,8 @@ final class ValidatorInfoPresenter {
     private let chain: Chain
     private let logger: LoggerProtocol?
 
-    private(set) var validatorInfo: ValidatorInfoProtocol?
-    private(set) var priceData: PriceData?
+    private(set) var validatorInfoResult: Result<ValidatorInfoProtocol?, Error>?
+    private(set) var priceDataResult: Result<PriceData?, Error>?
 
     init(
         interactor: ValidatorInfoInteractorInputProtocol,
@@ -57,15 +57,35 @@ final class ValidatorInfoPresenter {
     }
 
     private func updateView() {
-        guard let validatorInfo = self.validatorInfo else { return }
+        guard let validatorInfoResult = self.validatorInfoResult else {
+            view?.didRecieve(state: .empty)
+            return
+        }
 
-        let viewModel = viewModelFactory.createViewModel(
-            from: validatorInfo,
-            priceData: priceData,
-            locale: selectedLocale
-        )
+        do {
+            let priceData = try priceDataResult?.get()
 
-        view?.didRecieve(viewModel: viewModel)
+            if let validatorInfo = try validatorInfoResult.get() {
+                let viewModel = viewModelFactory.createViewModel(
+                    from: validatorInfo,
+                    priceData: priceData,
+                    locale: selectedLocale
+                )
+
+                view?.didRecieve(state: .validatorInfo(viewModel))
+            } else {
+                view?.didRecieve(state: .empty)
+            }
+
+        } catch {
+            logger?.error("Did receive error: \(error)")
+
+            let error = R.string.localizable.commonErrorNoDataRetrieved(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+
+            view?.didRecieve(state: .error(error))
+        }
     }
 }
 
@@ -74,8 +94,12 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         interactor.setup()
     }
 
+    func reload() {
+        interactor.reload()
+    }
+
     func presentAccountOptions() {
-        if let view = view, let validatorInfo = validatorInfo {
+        if let view = view, let validatorInfo = try? validatorInfoResult?.get() {
             wireframe.presentAccountOptions(
                 from: view,
                 address: validatorInfo.address,
@@ -86,7 +110,9 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentTotalStake() {
-        guard let validatorInfo = validatorInfo else { return }
+        guard let validatorInfo = try? validatorInfoResult?.get() else { return }
+
+        let priceData = try? priceDataResult?.get()
 
         wireframe.showStakingAmounts(
             from: view,
@@ -123,23 +149,17 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
 
 extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
     func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-            updateView()
-        case let .failure(error):
-            logger?.error("Did receive price data error: \(error)")
-        }
+        priceDataResult = result
+        updateView()
+    }
+
+    func didStartLoadingValidatorInfo() {
+        view?.didRecieve(state: .loading)
     }
 
     func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>) {
-        switch result {
-        case let .success(validatorInfo):
-            self.validatorInfo = validatorInfo
-            updateView()
-        case let .failure(error):
-            logger?.error("Did receive validator info error: \(error)")
-        }
+        validatorInfoResult = result
+        updateView()
     }
 }
 

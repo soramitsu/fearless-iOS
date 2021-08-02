@@ -17,4 +17,9 @@ final class AnyValidatorInfoInteractor: ValidatorInfoInteractorBase {
         super.setup()
         presenter?.didReceiveValidatorInfo(result: .success(validatorInfo))
     }
+
+    override func reload() {
+        super.reload()
+        presenter?.didReceiveValidatorInfo(result: .success(validatorInfo))
+    }
 }

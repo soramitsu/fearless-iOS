@@ -19,6 +19,10 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     func setup() {
         priceProvider = subscribeToPriceProvider(for: assetId)
     }
+
+    func reload() {
+        priceProvider?.refresh()
+    }
 }
 
 extension ValidatorInfoInteractorBase: SingleValueSubscriptionHandler {
