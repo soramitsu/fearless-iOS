@@ -25,7 +25,7 @@ final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
         )
     }
 
-    private func fetchWannabeValidatorInfo() {
+    private func fetchValidatorInfo() {
         guard let accountId = try? addressFactory.accountId(from: accountAddress) else {
             return
         }
@@ -44,32 +44,6 @@ final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
                     }
                 } catch {
                     self?.presenter.didReceiveValidatorInfo(result: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: operation.allOperations, in: .transient)
-    }
-
-    private func fetchValidatorInfo() {
-        let operation = validatorOperationFactory.allElectedOperation()
-
-        operation.targetOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
-                do {
-                    let electedValidatorList = try operation.targetOperation.extractNoCancellableResultData()
-                    let searchValidatorResult = electedValidatorList.filter { validatorInfo in
-                        validatorInfo.address == self?.accountAddress
-                    }
-
-                    if let electedValidatorInfo = searchValidatorResult.first {
-                        let validatorInfo = electedValidatorInfo.toSelected(for: nil)
-                        self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
-                    } else {
-                        self?.fetchWannabeValidatorInfo()
-                    }
-                } catch {
-                    self?.fetchWannabeValidatorInfo()
                 }
             }
         }
