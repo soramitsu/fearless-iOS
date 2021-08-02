@@ -7660,7 +7660,7 @@
 				F49F49A326A5C45600A25931 /* EraCountdownOperationFactoryTests.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
-				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
+				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
