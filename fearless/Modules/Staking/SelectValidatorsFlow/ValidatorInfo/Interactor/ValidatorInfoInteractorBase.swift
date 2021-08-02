@@ -25,12 +25,8 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     }
 }
 
-extension ValidatorInfoInteractorBase: SingleValueSubscriptionHandler {
+extension ValidatorInfoInteractorBase: SingleValueSubscriptionHandler, SingleValueProviderSubscriber {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
     }
 }
-
-extension ValidatorInfoInteractorBase: SingleValueProviderSubscriber {}
-
-extension ValidatorInfoInteractorBase: AnyProviderAutoCleaning {}

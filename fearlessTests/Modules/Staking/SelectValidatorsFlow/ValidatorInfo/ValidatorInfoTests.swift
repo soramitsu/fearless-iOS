@@ -80,7 +80,8 @@ class ValidatorInfoTests: XCTestCase {
         let addressType = settings.selectedConnection.type
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
-        let validatorOperationFactory = ValidatorOperationFactoryStub(electedValidatorList: WestendStub.allValidators
+        let validatorOperationFactory = ValidatorOperationFactoryStub(
+            electedValidatorList: WestendStub.allValidators
         )
 
         let interactor = YourValidatorInfoInteractor(

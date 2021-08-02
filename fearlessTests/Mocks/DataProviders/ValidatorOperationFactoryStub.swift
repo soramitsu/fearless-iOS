@@ -6,19 +6,11 @@ class ValidatorOperationFactoryStub: ValidatorOperationFactoryProtocol {
     private let selectedValidatorList: [SelectedValidatorInfo]
 
     init(
-        electedValidatorList: [ElectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo]
+        electedValidatorList: [ElectedValidatorInfo] = [],
+        selectedValidatorList: [SelectedValidatorInfo] = []
     ) {
         self.electedValidatorList = electedValidatorList
         self.selectedValidatorList = selectedValidatorList
-    }
-
-    convenience init (electedValidatorList: [ElectedValidatorInfo]) {
-        self.init(electedValidatorList: electedValidatorList, selectedValidatorList: [])
-    }
-
-    convenience init (selectedValidatorList: [SelectedValidatorInfo]) {
-        self.init(electedValidatorList: [], selectedValidatorList: selectedValidatorList)
     }
 
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
