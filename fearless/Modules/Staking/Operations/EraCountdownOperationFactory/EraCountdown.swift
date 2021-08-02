@@ -18,23 +18,27 @@ struct EraCountdown {
         let numberOfSlotsPerSession = UInt64(sessionLength)
         let currentSessionIndexInt = UInt64(currentSessionIndex)
         let eraLengthInSlots = UInt64(sessionLength * eraLength)
+        let blockCreationTimeInterval = TimeInterval(blockCreationTime).seconds
 
         let sessionStartSlot = currentSessionIndexInt * numberOfSlotsPerSession + genesisSlot
         let sessionProgress = currentSlot - sessionStartSlot
         let eraProgress = (currentSessionIndexInt - UInt64(activeEraStartSessionIndex)) *
             numberOfSlotsPerSession + sessionProgress
-        if Int64(eraLengthInSlots) - Int64(eraProgress) < 0 {
+
+        if eraLengthInSlots < eraProgress {
             return 0
         }
-        let eraRemained = eraLengthInSlots - eraProgress
-        let result = eraRemained * UInt64(blockCreationTime)
+
+        let eraRemained = TimeInterval(eraLengthInSlots - eraProgress)
+        let eraRemainedTimeInterval = eraRemained * blockCreationTimeInterval
 
         let datesTimeinterval = Date().timeIntervalSince(createdAtDate)
-        let activeEraRemainedTime = TimeInterval(result).seconds - datesTimeinterval
+        let activeEraRemainedTime = eraRemainedTimeInterval - datesTimeinterval
 
-        let distanceBetweenEras = targetEra - (activeEra + 1)
-        let targetEraDuration = distanceBetweenEras * eraLength * sessionLength * blockCreationTime
-        return max(0.0, TimeInterval(targetEraDuration).seconds + activeEraRemainedTime)
+        let distanceBetweenEras = TimeInterval(targetEra - (activeEra + 1))
+        let targetEraDuration = distanceBetweenEras * TimeInterval(eraLengthInSlots) *
+            blockCreationTimeInterval
+        return max(0.0, targetEraDuration + activeEraRemainedTime)
     }
 
     func timeIntervalTillNextActiveEraStart() -> TimeInterval {
