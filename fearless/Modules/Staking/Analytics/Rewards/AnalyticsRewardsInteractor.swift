@@ -21,8 +21,9 @@ final class AnalyticsRewardsInteractor {
 
     private func fetchAnalyticsRewards() {
         // TODO: delete stub data
+        let timestamp = Int64(Date().timeIntervalSince1970)
         let stubData = (1 ..< 100).map {
-            SubqueryRewardItemData(amount: $0.description, isReward: true, timestamp: 1_627_634_443 - $0 * 10000)
+            SubqueryRewardItemData(amount: $0.description, isReward: true, timestamp: timestamp - $0 * 10000)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             self?.presenter?.didReceieve(rewardItemData: .success(stubData))
