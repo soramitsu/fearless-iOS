@@ -25,11 +25,19 @@ struct AnalyticsRewardsViewFactory {
             operationManager: operationManager
         )
 
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
         let interactor = AnalyticsRewardsInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             analyticsService: analyticsService,
-            assetId: assetId
+            assetId: assetId,
+            substrateProviderFactory: substrateProviderFactory,
+            selectedAccountAddress: accountAddress
         )
+
         let wireframe = AnalyticsRewardsWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(

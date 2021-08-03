@@ -1,4 +1,5 @@
 import UIKit
+import RobinHood
 
 final class AnalyticsRewardsInteractor {
     weak var presenter: AnalyticsRewardsInteractorOutputProtocol!
@@ -7,16 +8,23 @@ final class AnalyticsRewardsInteractor {
 
     private let analyticsService: AnalyticsService?
     private let assetId: WalletAssetId
+    private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    private let selectedAccountAddress: AccountAddress
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var stashControllerProvider: StreamableProvider<StashItem>?
 
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         analyticsService: AnalyticsService?,
-        assetId: WalletAssetId
+        assetId: WalletAssetId,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        selectedAccountAddress: AccountAddress
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.analyticsService = analyticsService
         self.assetId = assetId
+        self.substrateProviderFactory = substrateProviderFactory
+        self.selectedAccountAddress = selectedAccountAddress
     }
 
     private func fetchAnalyticsRewards() {
@@ -29,12 +37,35 @@ final class AnalyticsRewardsInteractor {
             self?.presenter?.didReceieve(rewardItemData: .success(stubData))
         }
     }
+
+    private func subscribeToStashControllerProvider() {
+        let stashControllerProvider = substrateProviderFactory.createStashItemProvider(for: selectedAccountAddress)
+
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
+            let stashItem = changes.reduceToLastChange()
+            self?.presenter.didReceiveStashItem(result: .success(stashItem))
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceiveStashItem(result: .failure(error))
+            return
+        }
+
+        stashControllerProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: changesClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
+    }
 }
 
 extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     func setup() {
         fetchAnalyticsRewards()
         priceProvider = subscribeToPriceProvider(for: assetId)
+        subscribeToStashControllerProvider()
     }
 }
 

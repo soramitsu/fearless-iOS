@@ -10,6 +10,7 @@ final class AnalyticsRewardsPresenter {
     private var selectedPeriod = AnalyticsPeriod.default
     private var selectedPeriodDiff = 0
     private var priceData: PriceData?
+    private var stashItem: StashItem?
 
     init(
         interactor: AnalyticsRewardsInteractorInputProtocol,
@@ -61,6 +62,11 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func handleReward(atIndex _: Int) {
         wireframe.showRewardDetails(from: view)
     }
+
+    func handlePendingRewardsAction() {
+        guard let stashItem = stashItem else { return }
+        wireframe.showPendingRewards(from: view, stashAddress: stashItem.stash)
+    }
 }
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
@@ -83,6 +89,15 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
         case let .success(priceData):
             self.priceData = priceData
             updateView()
+        case let .failure(error):
+            print(error)
+        }
+    }
+
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            self.stashItem = stashItem
         case let .failure(error):
             print(error)
         }

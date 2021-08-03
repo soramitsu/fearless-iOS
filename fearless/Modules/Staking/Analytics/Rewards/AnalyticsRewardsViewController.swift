@@ -40,6 +40,11 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
             action: #selector(refreshControlDidTriggered),
             for: .valueChanged
         )
+        rootView.headerView.pendingRewardsView.addTarget(
+            self,
+            action: #selector(handlePengingRewards),
+            for: .touchUpInside
+        )
     }
 
     private func setupPeriodView() {
@@ -50,6 +55,11 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     @objc
     private func refreshControlDidTriggered() {
         presenter.reload()
+    }
+
+    @objc
+    private func handlePengingRewards() {
+        presenter.handlePendingRewardsAction()
     }
 }
 

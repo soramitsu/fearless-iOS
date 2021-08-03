@@ -11,6 +11,7 @@ protocol AnalyticsRewardsPresenterProtocol: AnyObject {
     func didSelectPrevious()
     func didSelectNext()
     func handleReward(atIndex index: Int)
+    func handlePendingRewardsAction()
 }
 
 protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
@@ -20,10 +21,12 @@ protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
 protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
     func showRewardDetails(from view: ControllerBackedProtocol?)
+    func showPendingRewards(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
 }
 
 protocol AnalyticsRewardsViewModelFactoryProtocol {

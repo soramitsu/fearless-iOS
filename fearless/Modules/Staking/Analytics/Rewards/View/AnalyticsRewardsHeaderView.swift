@@ -24,7 +24,7 @@ final class AnalyticsRewardsHeaderView: UIView {
 
     private let chartView = ChartView()
 
-    private let pendingRewardsView: RowView<TitleValueSelectionView> = {
+    let pendingRewardsView: RowView<TitleValueSelectionView> = {
         let row = RowView(contentView: TitleValueSelectionView(), preferredHeight: 48.0)
         row.borderView.borderType = .bottom
         row.rowContentView.iconView.image = R.image.iconPendingRewards()
