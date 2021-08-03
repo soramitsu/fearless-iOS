@@ -31,6 +31,13 @@ final class AnalyticsRewardsHeaderView: UIView {
         return row
     }()
 
+    private let historyTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p0Paragraph
+        label.textColor = R.color.colorWhite()
+        return label
+    }()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -74,7 +81,14 @@ final class AnalyticsRewardsHeaderView: UIView {
         addSubview(pendingRewardsView)
         pendingRewardsView.snp.makeConstraints { make in
             make.top.equalTo(statsStack.snp.bottom).offset(24)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+        }
+
+        addSubview(historyTitleLabel)
+        historyTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(pendingRewardsView.snp.bottom).offset(24)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(8)
         }
     }
 
@@ -92,5 +106,7 @@ final class AnalyticsRewardsHeaderView: UIView {
     private func applyLocalization() {
         pendingRewardsView.rowContentView.titleLabel.text = R.string.localizable
             .stakingPendingRewards(preferredLanguages: locale.rLanguages)
+        historyTitleLabel.text = R.string.localizable
+            .walletHistoryTitle_v190(preferredLanguages: locale.rLanguages)
     }
 }

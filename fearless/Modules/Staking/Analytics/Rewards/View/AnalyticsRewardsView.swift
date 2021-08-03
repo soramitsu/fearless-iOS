@@ -29,7 +29,7 @@ final class AnalyticsRewardsView: UIView {
         let verticalInset = periodSelectorView.bounds.height
         tableView.contentInset = .init(top: 0, left: 0, bottom: verticalInset, right: 0)
 
-        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 330))
+        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 382))
     }
 
     private func setupLayout() {
