@@ -6,11 +6,13 @@ final class StoriesViewFactory: StoriesViewFactoryProtocol {
         // MARK: - View
 
         let view = StoriesViewController(nib: R.nib.storiesViewController)
-        view.localizationManager = LocalizationManager.shared
+        let localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
 
         // MARK: - Interactor
 
-        let interactor = StoriesInteractor(model: StoriesFactory.createModel())
+        let storiesModel = StoriesFactory.createModel().value(for: localizationManager.selectedLocale)
+        let interactor = StoriesInteractor(model: storiesModel)
 
         // MARK: - Presenter
 

@@ -182,7 +182,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     ) -> NSAttributedString {
         guard let eraCountdown = eraCountdown else { return .init(string: "") }
 
-        let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: unbondingEra)
+        let eraCompletionTime = eraCountdown.timeIntervalTillStart(targetEra: unbondingEra)
         let daysLeft = eraCompletionTime.daysFromSeconds
 
         let timeLeftText: String = {
@@ -190,7 +190,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
             } else {
                 return R.string.localizable
-                    .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+                    .stakingMainLockupPeriodValue(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
         }()
 

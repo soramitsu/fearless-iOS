@@ -121,6 +121,8 @@ final class NetworkInfoView: UIView {
             .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
         lockUpPeriodTitleLabel.text = R.string.localizable
             .stakingMainLockupPeriodTitle_v190(preferredLanguages: languages)
+
+        collectionView.reloadData()
     }
 
     private func applyExpansion(animated: Bool) {

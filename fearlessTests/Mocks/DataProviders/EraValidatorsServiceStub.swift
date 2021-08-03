@@ -22,7 +22,7 @@ final class EraValidatorServiceStub: EraValidatorServiceProtocol {
 
 extension EraValidatorServiceStub {
     static func westendStub() -> EraValidatorServiceProtocol {
-        let info = EraStakersInfo(era: 3131, validators: WestendStub.eraValidators)
+        let info = EraStakersInfo(activeEra: 3131, validators: WestendStub.eraValidators)
         return EraValidatorServiceStub(info: info)
     }
 }

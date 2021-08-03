@@ -82,6 +82,14 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
                 storagePath: .activeEra
             )
 
+        let currentEraWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<EraIndex>>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try keyFactory.key(from: .currentEra)] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .currentEra
+            )
+
         let startSessionWrapper = createEraStartSessionIndex(
             dependingOn: activeEraWrapper.targetOperation,
             codingFactoryOperation: codingFactoryOperation,
@@ -95,6 +103,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
             + currentSlotWrapper.allOperations
             + genesisSlotWrapper.allOperations
             + activeEraWrapper.allOperations
+            + currentEraWrapper.allOperations
             + startSessionWrapper.allOperations
         dependencies.forEach { $0.addDependency(codingFactoryOperation) }
 
@@ -102,6 +111,8 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
             guard
                 let activeEra = try? activeEraWrapper.targetOperation.extractNoCancellableResultData()
                 .first?.value?.index,
+                let currentEra = try? currentEraWrapper.targetOperation.extractNoCancellableResultData()
+                .first?.value?.value,
                 let eraLength = try? eraLengthWrapper.targetOperation.extractNoCancellableResultData(),
                 let sessionLength = try? sessionLengthWrapper.targetOperation.extractNoCancellableResultData(),
                 let babeBlockTime = try? blockTimeWrapper.targetOperation.extractNoCancellableResultData(),
@@ -119,9 +130,10 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
 
             return EraCountdown(
                 activeEra: activeEra,
+                currentEra: currentEra,
                 eraLength: eraLength,
                 sessionLength: sessionLength,
-                eraStartSessionIndex: eraStartSessionIndex,
+                activeEraStartSessionIndex: eraStartSessionIndex,
                 currentSessionIndex: currentSessionIndex,
                 currentSlot: currentSlot,
                 genesisSlot: genesisSlot,
