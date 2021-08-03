@@ -24,9 +24,26 @@ final class AnalyticsRewardsHeaderView: UIView {
 
     private let chartView = ChartView()
 
+    private let pendingRewardsView: RowView<TitleValueSelectionView> = {
+        let row = RowView(contentView: TitleValueSelectionView(), preferredHeight: 48.0)
+        row.borderView.borderType = .bottom
+        row.rowContentView.iconView.image = R.image.iconPendingRewards()
+        return row
+    }()
+
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -35,22 +52,30 @@ final class AnalyticsRewardsHeaderView: UIView {
     }
 
     private func setupLayout() {
-        let verticalInsetView = UIView()
-        let statsStack: UIView = .vStack(
+        let amountsStack = UIView.hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel, UIView()])
+        let statsStack = UIView.vStack(
             spacing: 4,
             [
                 selectedPeriodLabel,
-                .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel, UIView()]),
-                verticalInsetView,
+                amountsStack,
                 chartView
             ]
         )
 
-        verticalInsetView.snp.makeConstraints { $0.height.equalTo(16) }
+        statsStack.setCustomSpacing(24, after: amountsStack)
+        statsStack.setCustomSpacing(24, after: chartView)
         chartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)
-        statsStack.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIConstants.horizontalInset) }
+        statsStack.snp.makeConstraints {
+            $0.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        addSubview(pendingRewardsView)
+        pendingRewardsView.snp.makeConstraints { make in
+            make.top.equalTo(statsStack.snp.bottom).offset(24)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
     }
 
     func bind(
@@ -62,5 +87,10 @@ final class AnalyticsRewardsHeaderView: UIView {
         usdAmountLabel.text = summaryViewModel.usdAmount
 
         chartView.setChartData(chartData)
+    }
+
+    private func applyLocalization() {
+        pendingRewardsView.rowContentView.titleLabel.text = R.string.localizable
+            .stakingPendingRewards(preferredLanguages: locale.rLanguages)
     }
 }
