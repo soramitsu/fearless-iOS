@@ -27,6 +27,10 @@ struct WestendStub {
                                 item: era)
     }()
 
+    static let currentEra: DecodedEraIndex = {
+        DecodedEraIndex(identifier: Chain.westend.genesisHash + "_current_era", item: 777)
+    }()
+
     static let accountInfo: DecodedAccountInfo = {
 
         let data = AccountData(free: BigUInt(1e+13),

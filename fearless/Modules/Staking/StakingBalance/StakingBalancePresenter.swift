@@ -223,7 +223,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         switch eraCountdownResult {
         case let .success(eraCountdown):
             self.eraCountdown = eraCountdown
-            countdownTimer.start(with: eraCountdown.eraCompletionTime(), runLoop: .main, mode: .common)
+            countdownTimer.start(with: eraCountdown.timeIntervalTillNextActiveEraStart(), runLoop: .main, mode: .common)
         case .failure:
             eraCountdown = nil
         }

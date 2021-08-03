@@ -164,4 +164,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         analyticsView.controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(analyticsView.controller, animated: true)
     }
+
+    func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?) {
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(with: stashAddress) else { return }
+        let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }

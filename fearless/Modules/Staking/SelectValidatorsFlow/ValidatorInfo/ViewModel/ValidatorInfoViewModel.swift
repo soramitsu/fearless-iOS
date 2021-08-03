@@ -2,6 +2,13 @@ import UIKit
 import FearlessUtils
 import SoraFoundation
 
+enum ValidatorInfoState {
+    case empty
+    case loading
+    case error(String)
+    case validatorInfo(ValidatorInfoViewModel)
+}
+
 struct StakingAmountViewModel {
     let title: String
     let balance: BalanceViewModelProtocol
