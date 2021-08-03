@@ -2,7 +2,13 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 
-final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
+protocol WalletCommandDecoratorDelegateProtocol {
+    var payload: ConfirmationPayload { get }
+    var localizationManager: LocalizationManagerProtocol { get }
+    var commandFactory: WalletCommandFactoryProtocol? { get set }
+}
+
+final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletCommandDecoratorDelegateProtocol {
     var undelyingCommand: WalletCommandProtocol?
 
     let payload: ConfirmationPayload
@@ -11,17 +17,18 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
-    init(payload: ConfirmationPayload,
-         localizationManager: LocalizationManagerProtocol,
-         commandFactory: WalletCommandFactoryProtocol) {
+    init(
+        payload: ConfirmationPayload,
+        localizationManager: LocalizationManagerProtocol,
+        commandFactory: WalletCommandFactoryProtocol
+    ) {
         self.commandFactory = commandFactory
         self.localizationManager = localizationManager
         self.payload = payload
     }
 
     func execute() throws {
-        guard let context = payload.transferInfo.context,
-            let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain else {
+        guard let context = payload.transferInfo.context else {
             try undelyingCommand?.execute()
             return
         }
@@ -32,7 +39,7 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
         let totalFee = payload.transferInfo.fees.reduce(Decimal(0.0)) { $0 + $1.value.decimalValue }
         let totalAfterTransfer = balanceContext.total - (transferAmount + totalFee)
 
-        guard totalAfterTransfer < chain.existentialDeposit else {
+        guard totalAfterTransfer < balanceContext.minimalBalance else {
             try undelyingCommand?.execute()
             return
         }
@@ -42,9 +49,11 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
         let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
         let message = R.string.localizable.walletSendExistentialWarning(preferredLanguages: locale.rLanguages)
 
-        let alertController = UIAlertController(title: title,
-                                                message: message,
-                                                preferredStyle: .alert)
+        let alertController = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
 
         let continueTitle = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
@@ -56,9 +65,11 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
         alertController.addAction(continueAction)
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let closeAction = UIAlertAction(title: cancelTitle,
-                                        style: .cancel,
-                                        handler: nil)
+        let closeAction = UIAlertAction(
+            title: cancelTitle,
+            style: .cancel,
+            handler: nil
+        )
         alertController.addAction(closeAction)
 
         let presentationCommand = commandFactory?.preparePresentationCommand(for: alertController)

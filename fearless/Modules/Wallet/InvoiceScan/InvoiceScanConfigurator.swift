@@ -14,13 +14,15 @@ final class InvoiceScanConfigurator {
         let message = WalletTextStyle(font: UIFont.h3Title, color: R.color.colorWhite()!)
 
         let uploadTitle = WalletTextStyle(font: UIFont.h5Title, color: R.color.colorWhite()!)
-        let upload = WalletRoundedButtonStyle(background: R.color.colorDarkBlue()!, title: uploadTitle)
+        let upload = WalletRoundedButtonStyle(background: R.color.colorAccent()!, title: uploadTitle)
 
-        return InvoiceScanViewStyle(background: R.color.colorBlack()!,
-                                    title: title,
-                                    message: message,
-                                    maskBackground: R.color.colorBlack()!.withAlphaComponent(0.8),
-                                    upload: upload)
+        return InvoiceScanViewStyle(
+            background: R.color.colorBlack()!,
+            title: title,
+            message: message,
+            maskBackground: R.color.colorBlack()!.withAlphaComponent(0.8),
+            upload: upload
+        )
     }()
 
     func configure(builder: InvoiceScanModuleBuilderProtocol) {

@@ -1,7 +1,7 @@
 import Foundation
 
 struct SocialMessage {
-    var body: String?
-    var subject: String?
-    var recepients: [String] = []
+    let body: String?
+    let subject: String?
+    let recepients: [String]
 }

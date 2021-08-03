@@ -1,8 +1,8 @@
 import Foundation
 
 struct SupportData {
-    var title: String
-    var subject: String
-    var details: String
-    var email: String
+    let title: String
+    let subject: String
+    let details: String
+    let email: String
 }

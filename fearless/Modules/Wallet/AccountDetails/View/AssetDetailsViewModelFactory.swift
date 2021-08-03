@@ -5,21 +5,25 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let priceAsset: WalletAsset
 
-    init(address: String,
-         chain: Chain,
-         purchaseProvider: PurchaseProviderProtocol,
-         amountFormatterFactory: NumberFormatterFactoryProtocol,
-         priceAsset: WalletAsset) {
+    init(
+        address: String,
+        chain: Chain,
+        purchaseProvider: PurchaseProviderProtocol,
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        priceAsset: WalletAsset
+    ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.priceAsset = priceAsset
 
         super.init(address: address, chain: chain, purchaseProvider: purchaseProvider)
     }
 
-    override func createAssetViewModel(for asset: WalletAsset,
-                                       balance: BalanceData,
-                                       commandFactory: WalletCommandFactoryProtocol,
-                                       locale: Locale) -> WalletViewModelProtocol? {
+    override func createAssetViewModel(
+        for asset: WalletAsset,
+        balance: BalanceData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) -> WalletViewModelProtocol? {
         let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
 
@@ -29,7 +33,7 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
         let decimalBalance = balance.balance.decimalValue
         let amount: String
 
-        if let balanceString = amountFormatter.string(from: decimalBalance) {
+        if let balanceString = amountFormatter.stringFromDecimal(decimalBalance) {
             amount = balanceString
         } else {
             amount = balance.balance.stringValue
@@ -37,12 +41,12 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let balanceContext = BalanceContext(context: balance.context ?? [:])
 
-        let priceString = priceFormater.string(from: balanceContext.price) ?? ""
+        let priceString = priceFormater.stringFromDecimal(balanceContext.price) ?? ""
 
         let totalPrice = balanceContext.price * balance.balance.decimalValue
-        let totalPriceString = priceFormater.string(from: totalPrice) ?? ""
+        let totalPriceString = priceFormater.stringFromDecimal(totalPrice) ?? ""
 
-        let priceChangeString = NumberFormatter.percent
+        let priceChangeString = NumberFormatter.signedPercent
             .localizableResource()
             .value(for: locale)
             .string(from: balanceContext.priceChange as NSNumber) ?? ""
@@ -63,11 +67,11 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let leftDetails = numberFormatter
             .value(for: locale)
-            .string(from: context.available as NSNumber) ?? ""
+            .stringFromDecimal(context.available) ?? ""
 
         let rightDetails = numberFormatter
             .value(for: locale)
-            .string(from: context.frozen as NSNumber) ?? ""
+            .stringFromDecimal(context.frozen) ?? ""
 
         let imageViewModel: WalletImageViewModelProtocol?
 
@@ -79,20 +83,24 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let title = asset.platform?.value(for: locale) ?? ""
 
-        let infoDetailsCommand = WalletAccountInfoCommand(balanceContext: balanceContext,
-                                                          amountFormatter: numberFormatter,
-                                                          commandFactory: commandFactory)
+        let infoDetailsCommand = WalletAccountInfoCommand(
+            balanceContext: balanceContext,
+            amountFormatter: numberFormatter,
+            commandFactory: commandFactory
+        )
 
-        return AssetDetailsViewModel(title: title,
-                                     imageViewModel: imageViewModel,
-                                     amount: amount,
-                                     price: priceString,
-                                     priceChangeViewModel: priceChangeViewModel,
-                                     totalVolume: totalPriceString,
-                                     leftTitle: leftTitle,
-                                     leftDetails: leftDetails,
-                                     rightTitle: rightTitle,
-                                     rightDetails: rightDetails,
-                                     infoDetailsCommand: infoDetailsCommand)
+        return AssetDetailsViewModel(
+            title: title,
+            imageViewModel: imageViewModel,
+            amount: amount,
+            price: priceString,
+            priceChangeViewModel: priceChangeViewModel,
+            totalVolume: totalPriceString,
+            leftTitle: leftTitle,
+            leftDetails: leftDetails,
+            rightTitle: rightTitle,
+            rightDetails: rightDetails,
+            infoDetailsCommand: infoDetailsCommand
+        )
     }
 }

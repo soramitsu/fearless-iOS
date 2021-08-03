@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Bold.otf">
+            <string>sora-rc004-0417-Bold</string>
+        </array>
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="StoriesViewController" customModule="fearless" customModuleProvider="target">
+            <connections>
+                <outlet property="contentLabel" destination="6Q8-bt-QvQ" id="4Fx-EI-vMb"/>
+                <outlet property="learnMoreButton" destination="LmP-ld-yUb" id="uf7-LE-7Jc"/>
+                <outlet property="progressBar" destination="P6R-9T-9we" id="fFN-IP-6H8"/>
+                <outlet property="titleLabel" destination="X1J-zO-wC7" id="HZ9-fc-EJZ"/>
+                <outlet property="view" destination="iN0-l3-epB" id="iTs-Wb-lBP"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="backgroundImage" translatesAutoresizingMaskIntoConstraints="NO" id="Dkq-u3-dRe">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yba-Jy-FTL" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
+                            <integer key="value" value="0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
+                            <integer key="value" value="2"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P6R-9T-9we" customClass="StoriesProgressBar" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="16" y="52" width="343" height="2"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="2" id="e8Z-Q6-syw"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="padding">
+                            <real key="value" value="8"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sRK-lH-16C" userLabel="Close Button">
+                    <rect key="frame" x="16" y="78" width="24" height="24"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="HpO-lE-rzO"/>
+                        <constraint firstAttribute="width" constant="24" id="h5I-bf-Cgv"/>
+                    </constraints>
+                    <state key="normal" image="iconClose"/>
+                    <connections>
+                        <action selector="closeButtonTouched" destination="-1" eventType="touchUpInside" id="e8P-Ye-6L1"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰 What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X1J-zO-wC7" userLabel="Title Label">
+                    <rect key="frame" x="16" y="134" width="343" height="38"/>
+                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
+                    <color key="textColor" name="colorWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalCompressionResistancePriority="749" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.75" translatesAutoresizingMaskIntoConstraints="NO" id="6Q8-bt-QvQ" userLabel="Body Label">
+                    <rect key="frame" x="16" y="188" width="343" height="295"/>
+                    <gestureRecognizers/>
+                    <string key="text">Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.</string>
+                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="18"/>
+                    <color key="textColor" name="colorWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LmP-ld-yUb" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="16" y="712" width="343" height="52"/>
+                    <viewLayoutGuide key="safeArea" id="RFf-0L-AkE"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <gestureRecognizers/>
+                    <constraints>
+                        <constraint firstAttribute="height" priority="900" constant="52" id="w2B-3H-fE1"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
+                            <color key="value" name="colorPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                            <color key="value" name="colorHighlightedPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Learn more"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                            <real key="value" value="14"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="learnMoreButtonTouched" destination="-1" eventType="touchUpInside" id="zDg-Mf-2cy"/>
+                    </connections>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="mU8-WX-FPe"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="Dkq-u3-dRe" secondAttribute="bottom" id="0Bf-5W-f3A"/>
+                <constraint firstItem="P6R-9T-9we" firstAttribute="top" secondItem="mU8-WX-FPe" secondAttribute="top" constant="8" id="1RP-fj-tdE"/>
+                <constraint firstItem="Dkq-u3-dRe" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="99m-rI-aPg"/>
+                <constraint firstItem="X1J-zO-wC7" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="9hI-dr-J8o"/>
+                <constraint firstItem="Dkq-u3-dRe" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="AaT-Zd-cGp"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Bsa-bm-63v"/>
+                <constraint firstItem="6Q8-bt-QvQ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="EWK-n7-1uZ"/>
+                <constraint firstAttribute="trailing" secondItem="LmP-ld-yUb" secondAttribute="trailing" constant="16" id="FDx-1H-ZHk"/>
+                <constraint firstItem="sRK-lH-16C" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="24" id="GQ0-bO-eEw"/>
+                <constraint firstItem="LmP-ld-yUb" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="GYp-fH-Nzf"/>
+                <constraint firstAttribute="trailing" secondItem="Dkq-u3-dRe" secondAttribute="trailing" id="KrC-1u-neU"/>
+                <constraint firstAttribute="trailing" secondItem="P6R-9T-9we" secondAttribute="trailing" constant="16" id="N75-MT-Vh0"/>
+                <constraint firstItem="LmP-ld-yUb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="6Q8-bt-QvQ" secondAttribute="bottom" constant="48" id="Nci-mk-Tq8"/>
+                <constraint firstItem="X1J-zO-wC7" firstAttribute="top" secondItem="sRK-lH-16C" secondAttribute="bottom" constant="32" id="XZ3-L4-xBW"/>
+                <constraint firstAttribute="top" secondItem="yba-Jy-FTL" secondAttribute="top" id="cuQ-0N-ZLt"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="fRi-rE-bUx"/>
+                <constraint firstAttribute="trailing" secondItem="X1J-zO-wC7" secondAttribute="trailing" constant="16" id="gri-dR-IHP"/>
+                <constraint firstItem="sRK-lH-16C" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="kkR-vb-Sxb"/>
+                <constraint firstItem="6Q8-bt-QvQ" firstAttribute="top" secondItem="X1J-zO-wC7" secondAttribute="bottom" constant="16" id="nMv-p9-UMX"/>
+                <constraint firstAttribute="trailing" secondItem="6Q8-bt-QvQ" secondAttribute="trailing" constant="16" id="oqJ-zA-zFo"/>
+                <constraint firstItem="P6R-9T-9we" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="rdl-Q5-Y93"/>
+                <constraint firstAttribute="bottomMargin" secondItem="LmP-ld-yUb" secondAttribute="bottom" constant="48" id="vDM-ld-7aH"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailing" id="wVk-qi-mFB"/>
+            </constraints>
+            <point key="canvasLocation" x="137.68115942028987" y="153.34821428571428"/>
+        </view>
+    </objects>
+    <designables>
+        <designable name="LmP-ld-yUb">
+            <size key="intrinsicContentSize" width="96.666666666666671" height="33.666666666666671"/>
+        </designable>
+    </designables>
+    <resources>
+        <image name="backgroundImage" width="375" height="812"/>
+        <image name="iconClose" width="20" height="20"/>
+        <namedColor name="colorHighlightedPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

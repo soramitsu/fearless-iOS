@@ -8,9 +8,11 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
 
     private var subscriptionId: UInt16?
 
-    init(engine: JSONRPCEngine,
-         children: [StorageChildSubscribing],
-         logger: LoggerProtocol) {
+    init(
+        engine: JSONRPCEngine,
+        children: [StorageChildSubscribing],
+        logger: LoggerProtocol
+    ) {
         self.children = children
         self.engine = engine
         self.logger = logger
@@ -26,19 +28,20 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
         do {
             let storageKeys = children.map { $0.remoteStorageKey.toHex(includePrefix: true) }
 
-            let updateClosure: (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void = {
-                [weak self] (update) in
+            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] update in
                 self?.handleUpdate(update.params.result)
             }
 
-            let failureClosure: (Error, Bool) -> Void = { [weak self] (error, unsubscribed) in
+            let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
                 self?.logger.error("Did receive subscription error: \(error) \(unsubscribed)")
             }
 
-            subscriptionId = try engine.subscribe(RPCMethod.storageSubscibe,
-                                                  params: [storageKeys],
-                                                  updateClosure: updateClosure,
-                                                  failureClosure: failureClosure)
+            subscriptionId = try engine.subscribe(
+                RPCMethod.storageSubscibe,
+                params: [storageKeys],
+                updateClosure: updateClosure,
+                failureClosure: failureClosure
+            )
         } catch {
             logger.error("Can't subscribe to storage: \(error)")
         }

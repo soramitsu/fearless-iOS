@@ -36,31 +36,34 @@ open class TriangularedView: ShadowShapeView {
     }
 
     // MARK: Overriden methods
+
     override open var shapePath: UIBezierPath {
         let bezierPath = UIBezierPath()
 
+        let layerBounds: CGRect = bounds
+
         if cornerCut.contains(.topLeft) {
-            bezierPath.move(to: CGPoint(x: bounds.minX + sideLength, y: bounds.minY))
+            bezierPath.move(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY))
         } else {
-            bezierPath.move(to: CGPoint(x: bounds.minX, y: bounds.minY))
+            bezierPath.move(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY))
         }
 
-        bezierPath.addLine(to: CGPoint(x: bounds.maxX, y: bounds.minY))
+        bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY))
 
         if cornerCut.contains(.bottomRight) {
-            bezierPath.addLine(to: CGPoint(x: bounds.maxX, y: bounds.maxY - sideLength))
-            bezierPath.addLine(to: CGPoint(x: bounds.maxX - sideLength, y: bounds.maxY))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY - sideLength))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.maxY))
         } else {
-            bezierPath.addLine(to: CGPoint(x: bounds.maxX, y: bounds.maxY))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY))
         }
 
-        bezierPath.addLine(to: CGPoint(x: bounds.minX, y: bounds.maxY))
+        bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY))
 
         if cornerCut.contains(.topLeft) {
-            bezierPath.addLine(to: CGPoint(x: bounds.minX, y: bounds.minY + sideLength))
-            bezierPath.addLine(to: CGPoint(x: bounds.minX + sideLength, y: bounds.minY))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY))
         } else {
-            bezierPath.addLine(to: CGPoint(x: bounds.minX, y: bounds.minY))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY))
         }
 
         return bezierPath

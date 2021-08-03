@@ -1,6 +1,6 @@
 import Foundation
 import Rswift
 
-protocol SelectionItemViewProtocol: class {
+protocol SelectionItemViewProtocol: AnyObject {
     func bind(viewModel: SelectableViewModelProtocol)
 }

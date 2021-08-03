@@ -4,12 +4,12 @@ import CommonWallet
 import FearlessUtils
 
 final class MainTabBarInteractor {
-	weak var presenter: MainTabBarInteractorOutputProtocol?
+    weak var presenter: MainTabBarInteractorOutputProtocol?
 
     let eventCenter: EventCenterProtocol
     let settings: SettingsManagerProtocol
-    let webSocketService: WebSocketServiceProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
+    let serviceCoordinator: ServiceCoordinatorProtocol
 
     private var currentAccount: AccountItem?
     private var currentConnection: ConnectionItem?
@@ -18,14 +18,16 @@ final class MainTabBarInteractor {
         stopServices()
     }
 
-    init(eventCenter: EventCenterProtocol,
-         settings: SettingsManagerProtocol,
-         webSocketService: WebSocketServiceProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol) {
+    init(
+        eventCenter: EventCenterProtocol,
+        settings: SettingsManagerProtocol,
+        serviceCoordinator: ServiceCoordinatorProtocol,
+        keystoreImportService: KeystoreImportServiceProtocol
+    ) {
         self.eventCenter = eventCenter
         self.settings = settings
-        self.webSocketService = webSocketService
         self.keystoreImportService = keystoreImportService
+        self.serviceCoordinator = serviceCoordinator
 
         updateSelectedItems()
 
@@ -33,26 +35,16 @@ final class MainTabBarInteractor {
     }
 
     private func updateSelectedItems() {
-        self.currentAccount = settings.selectedAccount
-        self.currentConnection = settings.selectedConnection
+        currentAccount = settings.selectedAccount
+        currentConnection = settings.selectedConnection
     }
 
     private func startServices() {
-        webSocketService.setup()
+        serviceCoordinator.setup()
     }
 
     private func stopServices() {
-        webSocketService.throttle()
-    }
-
-    private func updateWebSocketSettings() {
-        let connectionItem = settings.selectedConnection
-        let account = settings.selectedAccount
-
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: account?.address)
-        webSocketService.update(settings: settings)
+        serviceCoordinator.throttle()
     }
 }
 
@@ -68,37 +60,37 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 }
 
 extension MainTabBarInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         if currentAccount != settings.selectedAccount {
-            updateWebSocketSettings()
+            serviceCoordinator.updateOnAccountChange()
             updateSelectedItems()
             presenter?.didReloadSelectedAccount()
         }
     }
 
-    func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
+    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         if currentConnection != settings.selectedConnection {
-            updateWebSocketSettings()
+            serviceCoordinator.updateOnNetworkChange()
             updateSelectedItems()
             presenter?.didReloadSelectedNetwork()
         }
     }
 
-    func processBalanceChanged(event: WalletBalanceChanged) {
+    func processBalanceChanged(event _: WalletBalanceChanged) {
         presenter?.didUpdateWalletInfo()
     }
 
-    func processStakingChanged(event: WalletStakingInfoChanged) {
+    func processStakingChanged(event _: WalletStakingInfoChanged) {
         presenter?.didUpdateWalletInfo()
     }
 
-    func processNewTransaction(event: WalletNewTransactionInserted) {
+    func processNewTransaction(event _: WalletNewTransactionInserted) {
         presenter?.didUpdateWalletInfo()
     }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
-    func didUpdateDefinition(from oldDefinition: KeystoreDefinition?) {
+    func didUpdateDefinition(from _: KeystoreDefinition?) {
         guard keystoreImportService.definition != nil else {
             return
         }

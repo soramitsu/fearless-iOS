@@ -20,12 +20,14 @@ final class AccountInfoInteractor {
     private var pendingUsername: String?
     private var pendingAddress: String?
 
-    init(repository: AnyDataProviderRepository<ManagedAccountItem>,
-         settings: SettingsManagerProtocol,
-         keystore: KeystoreProtocol,
-         eventCenter: EventCenterProtocol,
-         operationManager: OperationManagerProtocol,
-         saveUsernameInterval: TimeInterval = 2.0) {
+    init(
+        repository: AnyDataProviderRepository<ManagedAccountItem>,
+        settings: SettingsManagerProtocol,
+        keystore: KeystoreProtocol,
+        eventCenter: EventCenterProtocol,
+        operationManager: OperationManagerProtocol,
+        saveUsernameInterval: TimeInterval = 2.0
+    ) {
         self.repository = repository
         self.settings = settings
         self.keystore = keystore
@@ -34,9 +36,11 @@ final class AccountInfoInteractor {
         self.saveUsernameInterval = saveUsernameInterval
     }
 
-    private func handleUsernameSave(result: Result<Void, Error>?,
-                                    username: String,
-                                    address: String) {
+    private func handleUsernameSave(
+        result: Result<Void, Error>?,
+        username: String,
+        address: String
+    ) {
         guard let result = result else {
             presenter.didReceive(error: BaseOperationError.parentOperationCancelled)
             return
@@ -52,7 +56,7 @@ final class AccountInfoInteractor {
             }
 
             presenter.didSave(username: username)
-        case .failure(let error):
+        case let .failure(error):
             presenter.didReceive(error: error)
         }
     }
@@ -64,13 +68,13 @@ final class AccountInfoInteractor {
         }
 
         switch result {
-        case .success(let accountItem):
+        case let .success(accountItem):
             if let accountItem = accountItem {
                 presenter.didReceive(accountItem: accountItem)
             } else {
                 presenter.didReceive(error: AccountInfoInteractorError.missingAccount)
             }
-        case .failure(let error):
+        case let .failure(error):
             presenter.didReceive(error: error)
         }
     }
@@ -79,7 +83,8 @@ final class AccountInfoInteractor {
         let fetchOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
         let saveOperation = repository.saveOperation({
             guard let changingAccountItem = try fetchOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            else {
                 throw AccountInfoInteractorError.missingAccount
             }
 
@@ -96,13 +101,15 @@ final class AccountInfoInteractor {
 
         saveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
-                self?.handleUsernameSave(result: saveOperation.result,
-                                         username: username,
-                                         address: address)
+                self?.handleUsernameSave(
+                    result: saveOperation.result,
+                    username: username,
+                    address: address
+                )
             }
         }
 
-        operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .sync)
+        operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .transient)
     }
 
     private func performUsernameFinalizationIfNeeded() {
@@ -125,7 +132,7 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func save(username: String, address: String) {
@@ -164,7 +171,7 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
 }
 
 extension AccountInfoInteractor: SchedulerDelegate {
-    func didTrigger(scheduler: SchedulerProtocol) {
+    func didTrigger(scheduler _: SchedulerProtocol) {
         performUsernameFinalizationIfNeeded()
     }
 }

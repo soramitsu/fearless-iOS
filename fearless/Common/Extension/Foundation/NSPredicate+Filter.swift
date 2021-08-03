@@ -16,14 +16,41 @@ extension NSPredicate {
     }
 
     static func filterTransactionsBySender(address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.sender), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.sender), address)
     }
 
     static func filterTransactionsByReceiver(address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.receiver), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.receiver), address)
     }
 
     static func filterContactsByTarget(address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDContactItem.targetAddress), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDContactItem.targetAddress), address)
+    }
+
+    static func filterRuntimeMetadataItemsBy(identifier: String) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDRuntimeMetadataItem.identifier), identifier)
+    }
+
+    static func filterStorageItemsBy(identifier: String) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDChainStorageItem.identifier), identifier)
+    }
+
+    static func filterByIdPrefix(_ prefix: String) -> NSPredicate {
+        NSPredicate(format: "%K BEGINSWITH %@", #keyPath(CDChainStorageItem.identifier), prefix)
+    }
+
+    static func filterByStash(_ address: String) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDStashItem.stash), address)
+    }
+
+    static func filterByStashOrController(_ address: String) -> NSPredicate {
+        let stash = filterByStash(address)
+        let controller = NSPredicate(format: "%K == %@", #keyPath(CDStashItem.controller), address)
+
+        return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])
+    }
+
+    static func filterAccountItemByAddress(_ address: String) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDAccountItem.identifier), address)
     }
 }

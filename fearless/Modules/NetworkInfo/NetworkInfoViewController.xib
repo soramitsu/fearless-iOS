@@ -188,7 +188,7 @@
                         <userDefinedRuntimeAttribute type="number" keyPath="_horizontalSpacing">
                             <real key="value" value="8"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconKsm"/>
+                        <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconKsmSmallBg"/>
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tqM-kh-6Wz" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
@@ -289,15 +289,15 @@
     </designables>
     <resources>
         <image name="iconCopy" width="24" height="24"/>
-        <image name="iconKsm" width="48" height="48"/>
+        <image name="iconKsmSmallBg" width="24" height="24"/>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorDarkGray">
-            <color red="0.2669999897480011" green="0.2669999897480011" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.26666666666666666" green="0.26666666666666666" blue="0.26666666666666666" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorLightGray">
-            <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

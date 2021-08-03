@@ -6,7 +6,7 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
     var wireframe: PinSetupWireframeProtocol!
 
     func start() {
-        view?.didChangeAccessoryState(enabled: false)
+        view?.didChangeAccessoryState(enabled: false, availableBiometryType: .none)
     }
 
     func activateBiometricAuth() {}
@@ -21,12 +21,11 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
 extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
     func didStartWaitingBiometryDecision(
         type: AvailableBiometryType,
-        completionBlock: @escaping (Bool) -> Void) {
-
+        completionBlock: @escaping (Bool) -> Void
+    ) {
         DispatchQueue.main.async { [weak self] in
             self?.view?.didRequestBiometryUsage(biometryType: type, completionBlock: completionBlock)
         }
-
     }
 
     func didSavePin() {
@@ -35,5 +34,5 @@ extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
         }
     }
 
-    func didChangeState(from: PinSetupInteractor.PinSetupState) {}
+    func didChangeState(from _: PinSetupInteractor.PinSetupState) {}
 }

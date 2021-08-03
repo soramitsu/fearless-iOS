@@ -3,10 +3,11 @@ import CommonWallet
 
 enum FearlessTransferValidatingError: Error {
     case receiverBalanceTooLow
+    case cantPayFee
 }
 
 extension FearlessTransferValidatingError: WalletErrorContentConvertible {
-    public func toErrorContent(for locale: Locale?) -> WalletErrorContentProtocol {
+    func toErrorContent(for locale: Locale?) -> WalletErrorContentProtocol {
         let title: String
         let message: String
 
@@ -16,6 +17,11 @@ extension FearlessTransferValidatingError: WalletErrorContentConvertible {
                 .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .walletSendDeadRecipientMessage(preferredLanguages: locale?.rLanguages)
+        case .cantPayFee:
+            title = R.string.localizable
+                .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
+            message = R.string.localizable
+                .walletFeeOverExistentialDeposit(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)

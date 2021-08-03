@@ -7,19 +7,23 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SettingsManagerProtocol
     private var currentOperation: Operation?
 
-    init(request: AccountCreationRequest,
-         mnemonic: IRMnemonicProtocol,
-         accountOperationFactory: AccountOperationFactoryProtocol,
-         accountRepository: AnyDataProviderRepository<AccountItem>,
-         settings: SettingsManagerProtocol,
-         operationManager: OperationManagerProtocol) {
+    init(
+        request: AccountCreationRequest,
+        mnemonic: IRMnemonicProtocol,
+        accountOperationFactory: AccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        settings: SettingsManagerProtocol,
+        operationManager: OperationManagerProtocol
+    ) {
         self.settings = settings
 
-        super.init(request: request,
-                   mnemonic: mnemonic,
-                   accountOperationFactory: accountOperationFactory,
-                   accountRepository: accountRepository,
-                   operationManager: operationManager)
+        super.init(
+            request: request,
+            mnemonic: mnemonic,
+            accountOperationFactory: accountOperationFactory,
+            accountRepository: accountRepository,
+            operationManager: operationManager
+        )
     }
 
     override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -42,7 +46,8 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
             guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type.rawValue == type.uint8Value }) else {
+                .first(where: { $0.type.rawValue == type.uint8Value })
+            else {
                 throw AccountCreateError.unsupportedNetwork
             }
 
@@ -63,7 +68,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
                     self?.settings.selectedConnection = connectionItem
 
                     self?.presenter?.didCompleteConfirmation()
-                case .failure(let error):
+                case let .failure(error):
                     self?.presenter?.didReceive(error: error)
                 case .none:
                     let error = BaseOperationError.parentOperationCancelled
@@ -72,7 +77,9 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
-                                 in: .sync)
+        operationManager.enqueue(
+            operations: [importOperation, persistentOperation, connectionOperation],
+            in: .transient
+        )
     }
 }

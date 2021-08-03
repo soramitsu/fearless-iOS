@@ -1,10 +1,10 @@
 import IrohaCrypto
 
-protocol ExportMnemonicInteractorInputProtocol: class {
+protocol ExportMnemonicInteractorInputProtocol: AnyObject {
     func fetchExportDataForAddress(_ address: String)
 }
 
-protocol ExportMnemonicInteractorOutputProtocol: class {
+protocol ExportMnemonicInteractorOutputProtocol: AnyObject {
     func didReceive(exportData: ExportMnemonicData)
     func didReceive(error: Error)
 }
@@ -14,6 +14,6 @@ protocol ExportMnemonicWireframeProtocol: ExportGenericWireframeProtocol {
     func openConfirmationForMnemonic(_ mnemonic: IRMnemonicProtocol, from view: ExportGenericViewProtocol?)
 }
 
-protocol ExportMnemonicViewFactoryProtocol: class {
+protocol ExportMnemonicViewFactoryProtocol: AnyObject {
     static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol?
 }

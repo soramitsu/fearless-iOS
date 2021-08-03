@@ -7,7 +7,7 @@ struct ApplicationStatusStyle {
     let titleFont: UIFont
 }
 
-protocol ApplicationStatusPresentable: class {
+protocol ApplicationStatusPresentable: AnyObject {
     func presentStatus(title: String, style: ApplicationStatusStyle, animated: Bool)
     func dismissStatus(title: String?, style: ApplicationStatusStyle?, animated: Bool)
 }

@@ -7,9 +7,9 @@ struct AlertPresentableAction {
         case cancel
     }
 
-    var title: String
-    var handler: (() -> Void)?
-    var style: Style
+    let title: String
+    let handler: (() -> Void)?
+    let style: Style
 
     init(title: String, style: Style = .normal, handler: @escaping () -> Void) {
         self.title = title
@@ -20,6 +20,7 @@ struct AlertPresentableAction {
     init(title: String, style: Style = .normal) {
         self.title = title
         self.style = style
+        handler = nil
     }
 }
 
@@ -30,14 +31,19 @@ struct AlertPresentableViewModel {
     let closeAction: String?
 }
 
-protocol AlertPresentable: class {
-    func present(message: String?, title: String?,
-                 closeAction: String?,
-                 from view: ControllerBackedProtocol?)
+protocol AlertPresentable: AnyObject {
+    func present(
+        message: String?,
+        title: String?,
+        closeAction: String?,
+        from view: ControllerBackedProtocol?
+    )
 
-    func present(viewModel: AlertPresentableViewModel,
-                 style: UIAlertController.Style,
-                 from view: ControllerBackedProtocol?)
+    func present(
+        viewModel: AlertPresentableViewModel,
+        style: UIAlertController.Style,
+        from view: ControllerBackedProtocol?
+    )
 }
 
 extension AlertPresentableAction.Style {
@@ -54,10 +60,12 @@ extension AlertPresentableAction.Style {
 }
 
 extension AlertPresentable {
-    func present(message: String?, title: String?,
-                 closeAction: String?,
-                 from view: ControllerBackedProtocol?) {
-
+    func present(
+        message: String?,
+        title: String?,
+        closeAction: String?,
+        from view: ControllerBackedProtocol?
+    ) {
         var currentController = view?.controller
 
         if currentController == nil {
@@ -68,16 +76,19 @@ extension AlertPresentable {
             return
         }
 
-        UIAlertController.present(message: message,
-                                  title: title,
-                                  closeAction: closeAction,
-                                  with: controller)
+        UIAlertController.present(
+            message: message,
+            title: title,
+            closeAction: closeAction,
+            with: controller
+        )
     }
 
-    func present(viewModel: AlertPresentableViewModel,
-                 style: UIAlertController.Style,
-                 from view: ControllerBackedProtocol?) {
-
+    func present(
+        viewModel: AlertPresentableViewModel,
+        style: UIAlertController.Style,
+        from view: ControllerBackedProtocol?
+    ) {
         var currentController = view?.controller
 
         if currentController == nil {
@@ -88,9 +99,11 @@ extension AlertPresentable {
             return
         }
 
-        let alertView = UIAlertController(title: viewModel.title,
-                                          message: viewModel.message,
-                                          preferredStyle: style)
+        let alertView = UIAlertController(
+            title: viewModel.title,
+            message: viewModel.message,
+            preferredStyle: style
+        )
 
         viewModel.actions.forEach { action in
             let alertAction = UIAlertAction(title: action.title, style: action.style.uialertStyle) { _ in
@@ -101,9 +114,11 @@ extension AlertPresentable {
         }
 
         if let closeAction = viewModel.closeAction {
-            let action = UIAlertAction(title: closeAction,
-                                       style: .cancel,
-                                       handler: nil)
+            let action = UIAlertAction(
+                title: closeAction,
+                style: .cancel,
+                handler: nil
+            )
             alertView.addAction(action)
         }
 
@@ -112,8 +127,12 @@ extension AlertPresentable {
 }
 
 extension UIAlertController {
-    public static func present(message: String?, title: String?,
-                               closeAction: String?, with presenter: UIViewController) {
+    static func present(
+        message: String?,
+        title: String?,
+        closeAction: String?,
+        with presenter: UIViewController
+    ) {
         let alertView = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: closeAction, style: .cancel, handler: nil)
         alertView.addAction(action)

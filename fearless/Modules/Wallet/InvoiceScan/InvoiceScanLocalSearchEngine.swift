@@ -11,18 +11,22 @@ final class InvoiceScanLocalSearchEngine: InvoiceLocalSearchEngineProtocol {
         self.networkType = networkType
     }
 
-    func searchByAccountId(_ accountId: String) -> SearchData? {
-        guard let accountIdData = try? Data(hexString: accountId),
-              accountIdData.count == ExtrinsicConstants.accountIdLength else {
+    func searchByAccountId(_ accountIdHex: String) -> SearchData? {
+        guard let accountId = AccountId.matchHex(accountIdHex) else {
             return nil
         }
 
-        guard let address = try? addressFactory.address(fromPublicKey: AccountIdWrapper(rawData: accountIdData),
-                                                        type: networkType) else {
+        guard let address = try? addressFactory
+            .addressFromAccountId(data: accountId, type: networkType) else {
             return nil
         }
 
         let context = ContactContext(destination: .local)
-        return SearchData(accountId: accountId, firstName: address, lastName: "", context: context.toContext())
+        return SearchData(
+            accountId: accountIdHex,
+            firstName: address,
+            lastName: "",
+            context: context.toContext()
+        )
     }
 }

@@ -15,9 +15,11 @@ final class ManagedAccountItemMapper: CoreDataMapperProtocol {
         #keyPath(CoreDataEntity.identifier)
     }
 
-    func populate(entity: CDAccountItem,
-                  from model: DataProviderModel,
-                  using context: NSManagedObjectContext) throws {
+    func populate(
+        entity: CDAccountItem,
+        from model: DataProviderModel,
+        using _: NSManagedObjectContext
+    ) throws {
         entity.identifier = model.address
         entity.cryptoType = Int16(model.cryptoType.rawValue)
         entity.networkType = Int16(model.networkType.rawValue)
@@ -32,15 +34,18 @@ final class ManagedAccountItemMapper: CoreDataMapperProtocol {
             let username = entity.username,
             let cryptoType = CryptoType(rawValue: UInt8(entity.cryptoType)),
             let networkType = SNAddressType(rawValue: UInt8(entity.networkType)),
-            let publicKeyData = entity.publicKey else {
+            let publicKeyData = entity.publicKey
+        else {
             throw ManagedAccountItemMapperError.invalidEntity
         }
 
-        return ManagedAccountItem(address: address,
-                                  cryptoType: cryptoType,
-                                  networkType: networkType,
-                                  username: username,
-                                  publicKeyData: publicKeyData,
-                                  order: entity.order)
+        return ManagedAccountItem(
+            address: address,
+            cryptoType: cryptoType,
+            networkType: networkType,
+            username: username,
+            publicKeyData: publicKeyData,
+            order: entity.order
+        )
     }
 }

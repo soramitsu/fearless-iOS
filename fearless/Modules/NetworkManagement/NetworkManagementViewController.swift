@@ -3,11 +3,11 @@ import SoraUI
 import SoraFoundation
 
 final class NetworkManagementViewController: UIViewController {
-    private struct Constants {
+    private enum Constants {
         static let cellHeight: CGFloat = 48.0
         static let headerHeight: CGFloat = 33.0
         static let headerId = "networkHeaderId"
-        static let bottomContentHeight: CGFloat = 48
+        static let addActionVerticalInset: CGFloat = 16
     }
 
     enum Section: Int {
@@ -19,9 +19,9 @@ final class NetworkManagementViewController: UIViewController {
 
     @IBOutlet private var tableView: UITableView!
 
-    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
-
-    @IBOutlet private var addActionControl: IconCellControlView!
+    @IBOutlet private var addActionControl: TriangularedButton!
+    @IBOutlet private var addActionHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var addActionBottomConstraint: NSLayoutConstraint!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,17 +33,13 @@ final class NetworkManagementViewController: UIViewController {
         presenter.setup()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
-    }
-
     private func setupNavigationItem() {
-        let rightBarButtonItem = UIBarButtonItem(title: "",
-                                                 style: .plain,
-                                                 target: self,
-                                                 action: #selector(actionEdit))
+        let rightBarButtonItem = UIBarButtonItem(
+            title: "",
+            style: .plain,
+            target: self,
+            action: #selector(actionEdit)
+        )
 
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: R.color.colorWhite()!,
@@ -76,16 +72,22 @@ final class NetworkManagementViewController: UIViewController {
                 .commonDone(preferredLanguages: locale?.rLanguages)
         } else {
             navigationItem.rightBarButtonItem?.title = R.string.localizable
-            .commonEdit(preferredLanguages: locale?.rLanguages)
+                .commonEdit(preferredLanguages: locale?.rLanguages)
         }
     }
 
     private func setupTableView() {
         tableView.tableFooterView = UIView()
+        let bottomInset = addActionBottomConstraint.constant
+            + addActionHeightConstraint.constant
+            + Constants.addActionVerticalInset
+        tableView.contentInset = .init(top: 0, left: 0, bottom: bottomInset, right: 0)
 
         tableView.register(R.nib.connectionTableViewCell)
-        tableView.register(UINib(resource: R.nib.iconTitleHeaderView),
-                           forHeaderFooterViewReuseIdentifier: Constants.headerId)
+        tableView.register(
+            UINib(resource: R.nib.iconTitleHeaderView),
+            forHeaderFooterViewReuseIdentifier: Constants.headerId
+        )
     }
 
     @objc func actionEdit() {
@@ -125,8 +127,8 @@ extension NetworkManagementViewController: NetworkManagementViewProtocol {
 
 // swiftlint:disable force_cast
 extension NetworkManagementViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return presenter.numberOfCustomConnections() > 0 ? 2 : 1
+    func numberOfSections(in _: UITableView) -> Int {
+        presenter.numberOfCustomConnections() > 0 ? 2 : 1
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -151,7 +153,7 @@ extension NetworkManagementViewController: UITableViewDataSource {
         return view
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         let section = Section(rawValue: section)!
 
         switch section {
@@ -163,8 +165,10 @@ extension NetworkManagementViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.connectionCellId,
-                                                 for: indexPath)!
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: R.reuseIdentifier.connectionCellId,
+            for: indexPath
+        )!
 
         cell.delegate = self
 
@@ -186,14 +190,15 @@ extension NetworkManagementViewController: UITableViewDataSource {
         return cell
     }
 }
+
 // swiftlint:enable force_cast
 
 extension NetworkManagementViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         Constants.cellHeight
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
         Constants.headerHeight
     }
 
@@ -212,18 +217,23 @@ extension NetworkManagementViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return indexPath.section == Section.customConnections.rawValue
+    func tableView(_: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        indexPath.section == Section.customConnections.rawValue
     }
 
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath,
-                   to destinationIndexPath: IndexPath) {
+    func tableView(
+        _: UITableView,
+        moveRowAt sourceIndexPath: IndexPath,
+        to destinationIndexPath: IndexPath
+    ) {
         presenter.moveCustomItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
     }
 
-    func tableView(_ tableView: UITableView,
-                   targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath,
-                   toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+    func tableView(
+        _ tableView: UITableView,
+        targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath,
+        toProposedIndexPath proposedDestinationIndexPath: IndexPath
+    ) -> IndexPath {
         if proposedDestinationIndexPath.section < sourceIndexPath.section {
             return IndexPath(row: 0, section: sourceIndexPath.section)
         } else if proposedDestinationIndexPath.section > sourceIndexPath.section {
@@ -234,8 +244,10 @@ extension NetworkManagementViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView,
-                   editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+    func tableView(
+        _: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
         guard let section = Section(rawValue: indexPath.section) else {
             return .none
         }
@@ -248,9 +260,11 @@ extension NetworkManagementViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView,
-                   commit editingStyle: UITableViewCell.EditingStyle,
-                   forRowAt indexPath: IndexPath) {
+    func tableView(
+        _: UITableView,
+        commit _: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
         presenter.removeCustomItem(at: indexPath.row)
     }
 }
@@ -268,7 +282,8 @@ extension NetworkManagementViewController: ConnectionTableViewCellDelegate {
     func didSelectInfo(_ cell: ConnectionTableViewCell) {
         guard
             let indexPath = tableView.indexPath(for: cell),
-            let section = Section(rawValue: indexPath.section) else {
+            let section = Section(rawValue: indexPath.section)
+        else {
             return
         }
 

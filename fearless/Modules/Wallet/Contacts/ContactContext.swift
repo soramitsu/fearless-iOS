@@ -18,7 +18,7 @@ extension ContactContext {
             let destination = ContactDestination(rawValue: value) {
             self.destination = destination
         } else {
-            self.destination = .remote
+            destination = .remote
         }
     }
 

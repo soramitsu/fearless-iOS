@@ -3,6 +3,17 @@ import UIKit
 @IBDesignable
 extension DetailsTriangularedView {
     @IBInspectable
+    var backgroundSideLength: CGFloat {
+        get {
+            triangularedBackgroundView!.sideLength
+        }
+
+        set {
+            triangularedBackgroundView?.sideLength = newValue
+        }
+    }
+
+    @IBInspectable
     var fillColor: UIColor {
         get {
             triangularedBackgroundView!.fillColor
@@ -49,7 +60,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var title: String? {
         get {
-            return titleLabel.text
+            titleLabel.text
         }
 
         set {
@@ -61,7 +72,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var subtitle: String? {
         get {
-            return subtitleLabel?.text
+            subtitleLabel?.text
         }
 
         set {
@@ -73,7 +84,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var titleColor: UIColor? {
         get {
-            return titleLabel.textColor
+            titleLabel.textColor
         }
 
         set {
@@ -84,7 +95,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var highlightedTitleColor: UIColor? {
         get {
-            return titleLabel.highlightedTextColor
+            titleLabel.highlightedTextColor
         }
 
         set {
@@ -95,7 +106,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var subtitleColor: UIColor? {
         get {
-            return subtitleLabel?.textColor
+            subtitleLabel?.textColor
         }
 
         set {
@@ -106,7 +117,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var highlightedSubtitleColor: UIColor? {
         get {
-            return subtitleLabel?.highlightedTextColor
+            subtitleLabel?.highlightedTextColor
         }
 
         set {
@@ -116,6 +127,10 @@ extension DetailsTriangularedView {
 
     @IBInspectable
     private var _titleFontName: String? {
+        get {
+            titleLabel.font.fontName
+        }
+
         set(newValue) {
             guard let fontName = newValue else {
                 titleLabel.font = nil
@@ -128,14 +143,14 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            return titleLabel.font.fontName
-        }
     }
 
     @IBInspectable
     private var _titleFontSize: CGFloat {
+        get {
+            titleLabel.font.pointSize
+        }
+
         set(newValue) {
             let fontName = titleLabel.font.fontName
 
@@ -143,17 +158,17 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            titleLabel.font.pointSize
-        }
     }
 
     @IBInspectable
     private var _subtitleFontName: String? {
+        get {
+            subtitleLabel?.font.fontName
+        }
+
         set(newValue) {
             guard let fontName = newValue else {
-                titleLabel.font = nil
+                subtitleLabel?.font = nil
                 return
             }
 
@@ -163,14 +178,14 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            return titleLabel.font.fontName
-        }
     }
 
     @IBInspectable
     private var _subtitleFontSize: CGFloat {
+        get {
+            subtitleLabel?.font.pointSize ?? 0.0
+        }
+
         set(newValue) {
             guard let fontName = subtitleLabel?.font.fontName else {
                 return
@@ -180,16 +195,12 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            subtitleLabel?.font.pointSize ?? 0.0
-        }
     }
 
     @IBInspectable
     var iconImage: UIImage? {
         get {
-            return iconView.image
+            iconView.image
         }
 
         set {
@@ -200,7 +211,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var actionImage: UIImage? {
         get {
-            return actionView.image
+            actionView.image
         }
 
         set {
@@ -212,7 +223,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var actionTintColor: UIColor? {
         get {
-            return actionView.tintColor
+            actionView.tintColor
         }
 
         set {

@@ -2,12 +2,14 @@ import Foundation
 import IrohaCrypto
 
 extension SNAddressType {
-    func titleForLocale(_ locale: Locale) -> String {
+    func titleForLocale(_: Locale) -> String {
         switch self {
         case .polkadotMain, .polkadotSecondary:
             return "Polkadot"
-        case .kusamaMain, .kusamaSecondary:
+        case .kusamaMain:
             return "Kusama"
+        case .kusamaSecondary:
+            return "Rococo"
         default:
             return "Westend"
         }
@@ -25,6 +27,6 @@ extension SNAddressType {
     }
 
     static var supported: [SNAddressType] {
-        [.kusamaMain, .polkadotMain, .genericSubstrate]
+        [.kusamaMain, .polkadotMain, .genericSubstrate, .kusamaSecondary]
     }
 }

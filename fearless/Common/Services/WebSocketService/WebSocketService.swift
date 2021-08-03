@@ -5,17 +5,26 @@ import IrohaCrypto
 
 final class WebSocketService: WebSocketServiceProtocol {
     static let shared: WebSocketService = {
-
         let connectionItem = SettingsManager.shared.selectedConnection
         let address = SettingsManager.shared.selectedAccount?.address
 
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: address)
-        return WebSocketService(settings: settings,
-                                connectionFactory: WebSocketEngineFactory(),
-                                subscriptionsFactory: WebSocketSubscriptionFactory(),
-                                applicationHandler: ApplicationHandler())
+        let settings = WebSocketServiceSettings(
+            url: connectionItem.url,
+            addressType: connectionItem.type,
+            address: address
+        )
+        let storageFacade = SubstrateDataStorageFacade.shared
+        let subscriptionFactory = WebSocketSubscriptionFactory(
+            storageFacade: storageFacade,
+            runtimeService: RuntimeRegistryFacade.sharedService,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        return WebSocketService(
+            settings: settings,
+            connectionFactory: WebSocketEngineFactory(),
+            subscriptionsFactory: subscriptionFactory,
+            applicationHandler: ApplicationHandler()
+        )
     }()
 
     enum State {
@@ -39,10 +48,12 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     var networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol?
 
-    init(settings: WebSocketServiceSettings,
-         connectionFactory: WebSocketEngineFactoryProtocol,
-         subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
-         applicationHandler: ApplicationHandlerProtocol) {
+    init(
+        settings: WebSocketServiceSettings,
+        connectionFactory: WebSocketEngineFactoryProtocol,
+        subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
+        applicationHandler: ApplicationHandlerProtocol
+    ) {
         self.settings = settings
         self.applicationHandler = applicationHandler
         self.connectionFactory = connectionFactory
@@ -98,18 +109,19 @@ final class WebSocketService: WebSocketServiceProtocol {
         self.engine = engine
 
         if let address = settings.address, let type = settings.addressType {
-            subscriptions = try? subscriptionsFactory.createSubscriptions(address: address,
-                                                                          type: type,
-                                                                          engine: engine)
+            subscriptions = try? subscriptionsFactory.createSubscriptions(
+                address: address,
+                type: type,
+                engine: engine
+            )
         } else {
             subscriptions = nil
         }
-
     }
 }
 
 extension WebSocketService: ApplicationHandlerDelegate {
-    func didReceiveDidBecomeActive(notification: Notification) {
+    func didReceiveDidBecomeActive(notification _: Notification) {
         if !isThrottled, !isActive {
             isActive = true
 
@@ -117,7 +129,7 @@ extension WebSocketService: ApplicationHandlerDelegate {
         }
     }
 
-    func didReceiveDidEnterBackground(notification: Notification) {
+    func didReceiveDidEnterBackground(notification _: Notification) {
         if !isThrottled, isActive {
             isActive = false
 
@@ -127,10 +139,12 @@ extension WebSocketService: ApplicationHandlerDelegate {
 }
 
 extension WebSocketService: WebSocketEngineDelegate {
-    func webSocketDidChangeState(from oldState: WebSocketEngine.State,
-                                 to newState: WebSocketEngine.State) {
+    func webSocketDidChangeState(
+        from _: WebSocketEngine.State,
+        to newState: WebSocketEngine.State
+    ) {
         switch newState {
-        case .connecting(let attempt):
+        case let .connecting(attempt):
             if attempt > 1 {
                 scheduleNetworkUnreachable()
             }

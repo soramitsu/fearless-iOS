@@ -22,5 +22,4 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
         amountView.localizationManager = localizationManager
         return amountView
     }
-
 }

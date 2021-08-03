@@ -1,10 +1,12 @@
 import UIKit
 
 extension UIImage {
-    public static func background(from color: UIColor,
-                                  size: CGSize = CGSize(width: 1.0, height: 1.0),
-                                  cornerRadius: CGFloat = 0.0,
-                                  contentScale: CGFloat = 1.0) -> UIImage? {
+    static func background(
+        from color: UIColor,
+        size: CGSize = CGSize(width: 1.0, height: 1.0),
+        cornerRadius: CGFloat = 0.0,
+        contentScale: CGFloat = 1.0
+    ) -> UIImage? {
         let rect = CGRect(origin: .zero, size: size)
         let bezierPath = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
 
@@ -46,8 +48,10 @@ extension UIImage {
 
         let contextRect = CGRect(origin: .zero, size: targetSize)
 
-        let drawingOrigin = CGPoint(x: contextRect.midX - drawingSize.width / 2.0,
-                                    y: contextRect.midY - drawingSize.height / 2.0)
+        let drawingOrigin = CGPoint(
+            x: contextRect.midX - drawingSize.width / 2.0,
+            y: contextRect.midY - drawingSize.height / 2.0
+        )
         let drawingRect = CGRect(origin: drawingOrigin, size: drawingSize)
 
         let scaledCornerRadius = cornerRadius
@@ -63,7 +67,7 @@ extension UIImage {
         return image
     }
 
-    func tinted(with color: UIColor, opaque: Bool = false) -> UIImage? {
+    func tinted(with color: UIColor, opaque _: Bool = false) -> UIImage? {
         let templateImage = withRenderingMode(.alwaysTemplate)
 
         UIGraphicsBeginImageContextWithOptions(size, false, scale)

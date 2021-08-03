@@ -6,67 +6,67 @@ extension TriangularedButton {
     @IBInspectable
     private var _fillColor: UIColor {
         get {
-            return self.triangularedView!.fillColor
+            triangularedView!.fillColor
         }
 
         set(newValue) {
-            self.triangularedView!.fillColor = newValue
+            triangularedView!.fillColor = newValue
         }
     }
 
     @IBInspectable
     private var _highlightedFillColor: UIColor {
         get {
-            return self.triangularedView!.highlightedFillColor
+            triangularedView!.highlightedFillColor
         }
 
         set(newValue) {
-            self.triangularedView!.highlightedFillColor = newValue
+            triangularedView!.highlightedFillColor = newValue
         }
     }
 
     @IBInspectable
     private var _strokeColor: UIColor {
         get {
-            return self.triangularedView!.strokeColor
+            triangularedView!.strokeColor
         }
 
         set(newValue) {
-            self.triangularedView!.strokeColor = newValue
+            triangularedView!.strokeColor = newValue
         }
     }
 
     @IBInspectable
     private var _highlightedStrokeColor: UIColor {
         get {
-            return self.triangularedView!.highlightedStrokeColor
+            triangularedView!.highlightedStrokeColor
         }
 
         set(newValue) {
-            self.triangularedView!.highlightedStrokeColor = newValue
+            triangularedView!.highlightedStrokeColor = newValue
         }
     }
 
     @IBInspectable
     private var _strokeWidth: CGFloat {
         get {
-            return self.triangularedView!.strokeWidth
+            triangularedView!.strokeWidth
         }
 
         set(newValue) {
-            self.triangularedView!.strokeWidth = newValue
+            triangularedView!.strokeWidth = newValue
         }
     }
 
     @IBInspectable
     private var _layoutType: UInt8 {
         get {
-            return self.imageWithTitleView!.layoutType.rawValue
+            imageWithTitleView!.layoutType.rawValue
         }
 
         set(newValue) {
             if let layoutType = ImageWithTitleView.LayoutType(rawValue: newValue) {
-                self.imageWithTitleView!.layoutType = layoutType
+                imageWithTitleView!.layoutType = layoutType
             }
         }
     }
@@ -74,67 +74,67 @@ extension TriangularedButton {
     @IBInspectable
     private var _title: String? {
         get {
-            return self.imageWithTitleView!.title
+            imageWithTitleView!.title
         }
 
         set(newValue) {
-            self.imageWithTitleView!.title = newValue
-            self.invalidateLayout()
+            imageWithTitleView!.title = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _titleColor: UIColor? {
         get {
-            return self.imageWithTitleView!.titleColor
+            imageWithTitleView!.titleColor
         }
 
         set(newValue) {
-            self.imageWithTitleView!.titleColor = newValue
-            self.invalidateLayout()
+            imageWithTitleView!.titleColor = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _highlightedTitleColor: UIColor? {
         get {
-            return self.imageWithTitleView!.highlightedTitleColor
+            imageWithTitleView!.highlightedTitleColor
         }
 
         set(newValue) {
-            self.imageWithTitleView!.highlightedTitleColor = newValue
-            self.invalidateLayout()
+            imageWithTitleView!.highlightedTitleColor = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _iconImage: UIImage? {
         get {
-            return self.imageWithTitleView!.iconImage
+            imageWithTitleView!.iconImage
         }
 
         set(newValue) {
-            self.imageWithTitleView!.iconImage = newValue
-            self.invalidateLayout()
+            imageWithTitleView!.iconImage = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _highlightedIconImage: UIImage? {
         get {
-            return self.imageWithTitleView!.highlightedIconImage
+            imageWithTitleView!.highlightedIconImage
         }
 
         set(newValue) {
-            self.imageWithTitleView!.highlightedIconImage = newValue
-            self.invalidateLayout()
+            imageWithTitleView!.highlightedIconImage = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _iconTintColor: UIColor? {
         get {
-            return imageWithTitleView!.iconTintColor
+            imageWithTitleView!.iconTintColor
         }
 
         set(newValue) {
@@ -144,121 +144,121 @@ extension TriangularedButton {
 
     @IBInspectable
     private var _titleFontName: String? {
-        set(newValue) {
-            guard let fontName = newValue else {
-                self.imageWithTitleView?.titleFont = nil
-                return
-            }
-
-            guard let pointSize = self.imageWithTitleView!.titleFont?.pointSize else {
-                self.imageWithTitleView!.titleFont = UIFont(name: fontName, size: UIFont.buttonFontSize)
-                return
-            }
-
-            self.imageWithTitleView!.titleFont = UIFont(name: fontName, size: pointSize)
-
-            self.invalidateLayout()
+        get {
+            imageWithTitleView!.titleFont?.fontName
         }
 
-        get {
-            return self.imageWithTitleView!.titleFont?.fontName
+        set(newValue) {
+            guard let fontName = newValue else {
+                imageWithTitleView?.titleFont = nil
+                return
+            }
+
+            guard let pointSize = imageWithTitleView!.titleFont?.pointSize else {
+                imageWithTitleView!.titleFont = UIFont(name: fontName, size: UIFont.buttonFontSize)
+                return
+            }
+
+            imageWithTitleView!.titleFont = UIFont(name: fontName, size: pointSize)
+
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _titleFontSize: CGFloat {
-        set(newValue) {
-            guard let fontName = self.imageWithTitleView!.titleFont?.fontName else {
-                self.imageWithTitleView!.titleFont = UIFont.systemFont(ofSize: newValue)
-                return
-            }
-
-            self.imageWithTitleView!.titleFont = UIFont(name: fontName, size: newValue)
-
-            self.invalidateLayout()
-        }
-
         get {
-            if let pointSize = self.imageWithTitleView!.titleFont?.pointSize {
+            if let pointSize = imageWithTitleView!.titleFont?.pointSize {
                 return pointSize
             } else {
                 return 0.0
             }
+        }
+
+        set(newValue) {
+            guard let fontName = imageWithTitleView!.titleFont?.fontName else {
+                imageWithTitleView!.titleFont = UIFont.systemFont(ofSize: newValue)
+                return
+            }
+
+            imageWithTitleView!.titleFont = UIFont(name: fontName, size: newValue)
+
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _shadowColor: UIColor {
         get {
-            return self.triangularedView!.shadowColor
+            triangularedView!.shadowColor
         }
 
         set(newValue) {
-            self.triangularedView!.shadowColor = newValue
-            self.invalidateLayout()
+            triangularedView!.shadowColor = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _shadowOffset: CGSize {
         get {
-            return self.triangularedView!.shadowOffset
+            triangularedView!.shadowOffset
         }
 
         set(newValue) {
-            self.triangularedView!.shadowOffset = newValue
+            triangularedView!.shadowOffset = newValue
         }
     }
 
     @IBInspectable
     private var _shadowRadius: CGFloat {
         get {
-            return self.triangularedView!.shadowRadius
+            triangularedView!.shadowRadius
         }
 
         set(newValue) {
-            self.triangularedView!.shadowRadius = newValue
+            triangularedView!.shadowRadius = newValue
         }
     }
 
     @IBInspectable
     private var _shadowOpacity: Float {
         get {
-            return self.triangularedView!.shadowOpacity
+            triangularedView!.shadowOpacity
         }
 
         set(newValue) {
-            self.triangularedView!.shadowOpacity = newValue
+            triangularedView!.shadowOpacity = newValue
         }
     }
 
     @IBInspectable
     private var _sideLength: CGFloat {
         get {
-            return self.triangularedView!.sideLength
+            triangularedView!.sideLength
         }
 
         set(newValue) {
-            self.triangularedView!.sideLength = newValue
+            triangularedView!.sideLength = newValue
         }
     }
 
     @IBInspectable
     private var _spacingBetweenItems: CGFloat {
         get {
-            return self.imageWithTitleView!.spacingBetweenLabelAndIcon
+            imageWithTitleView!.spacingBetweenLabelAndIcon
         }
 
         set(newValue) {
-            self.imageWithTitleView!.spacingBetweenLabelAndIcon = newValue
-            self.invalidateLayout()
+            imageWithTitleView!.spacingBetweenLabelAndIcon = newValue
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _contentOpacityWhenHighlighted: CGFloat {
         get {
-            return contentOpacityWhenHighlighted
+            contentOpacityWhenHighlighted
         }
 
         set(newValue) {
@@ -269,7 +269,7 @@ extension TriangularedButton {
     @IBInspectable
     private var _contentOpacityWhenDisabled: CGFloat {
         get {
-            return contentOpacityWhenDisabled
+            contentOpacityWhenDisabled
         }
 
         set(newValue) {
@@ -280,7 +280,7 @@ extension TriangularedButton {
     @IBInspectable
     private var _changesContentOpacityWhenHighlighted: Bool {
         get {
-            return changesContentOpacityWhenHighlighted
+            changesContentOpacityWhenHighlighted
         }
 
         set(newValue) {
@@ -291,7 +291,7 @@ extension TriangularedButton {
     @IBInspectable
     private var _displacementBetweenLabelAndIcon: CGFloat {
         get {
-            return imageWithTitleView!.displacementBetweenLabelAndIcon
+            imageWithTitleView!.displacementBetweenLabelAndIcon
         }
 
         set(newValue) {

@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import SoraUI
 import SoraFoundation
+import SoraKeystore
 
 final class ReceiveConfigurator: AdaptiveDesignable {
     let receiveFactory: ReceiveViewFactory
@@ -18,22 +19,35 @@ final class ReceiveConfigurator: AdaptiveDesignable {
 
     let shareFactory: AccountShareFactoryProtocol
 
-    init(account: AccountItem, chain: Chain, assets: [WalletAsset], localizationManager: LocalizationManagerProtocol) {
-        receiveFactory = ReceiveViewFactory(account: account,
-                                            chain: chain,
-                                            localizationManager: localizationManager)
-        shareFactory = AccountShareFactory(address: account.address,
-                                           assets: assets,
-                                           localizationManager: localizationManager)
+    init(
+        settings: SettingsManagerProtocol,
+        assets: [WalletAsset],
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        let accountViewModel = ReceiveAccountViewModel(settings: settings)
+        let chain = settings.selectedConnection.type.chain
+
+        receiveFactory = ReceiveViewFactory(
+            accountViewModel: accountViewModel,
+            chain: chain,
+            localizationManager: localizationManager
+        )
+        shareFactory = AccountShareFactory(
+            accountViewModel: accountViewModel,
+            assets: assets,
+            localizationManager: localizationManager
+        )
     }
 
     func configure(builder: ReceiveAmountModuleBuilderProtocol) {
         let margin: CGFloat = 24.0
         let qrSize: CGFloat = 280.0 * designScaleRatio.width + 2.0 * margin
-        let style = ReceiveStyle(qrBackgroundColor: .clear,
-                                 qrMode: .scaleAspectFit,
-                                 qrSize: CGSize(width: qrSize, height: qrSize),
-                                 qrMargin: margin)
+        let style = ReceiveStyle(
+            qrBackgroundColor: .clear,
+            qrMode: .scaleAspectFit,
+            qrSize: CGSize(width: qrSize, height: qrSize),
+            qrMargin: margin
+        )
 
         let title = LocalizableResource { locale in
             R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages)

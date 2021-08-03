@@ -27,18 +27,22 @@ final class ExportSeedPresenter {
 
         if let derivationPath = viewModel.derivationPath {
             text = R.string.localizable
-                .exportSeedWithDpTemplate(viewModel.networkType.titleForLocale(locale),
-                                          viewModel.data,
-                                          derivationPath,
-                                          preferredLanguages: locale.rLanguages)
+                .exportSeedWithDpTemplate(
+                    viewModel.networkType.titleForLocale(locale),
+                    viewModel.data,
+                    derivationPath,
+                    preferredLanguages: locale.rLanguages
+                )
         } else {
             text = R.string.localizable
-                .exportSeedWithoutDpTemplate(viewModel.networkType.titleForLocale(locale),
-                                             viewModel.data,
-                                             preferredLanguages: locale.rLanguages)
+                .exportSeedWithoutDpTemplate(
+                    viewModel.networkType.titleForLocale(locale),
+                    viewModel.data,
+                    preferredLanguages: locale.rLanguages
+                )
         }
 
-        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] (completed) in
+        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
             if completed {
                 self?.wireframe.close(view: self?.view)
             }
@@ -63,10 +67,12 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: message,
-                                                  actions: [exportAction],
-                                                  closeAction: cancelTitle)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [exportAction],
+            closeAction: cancelTitle
+        )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
@@ -74,11 +80,13 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
 
 extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
     func didReceive(exportData: ExportSeedData) {
-        let viewModel = ExportStringViewModel(option: .seed,
-                                              networkType: exportData.networkType,
-                                              derivationPath: exportData.derivationPath,
-                                              cryptoType: exportData.account.cryptoType,
-                                              data: exportData.seed.toHex(includePrefix: true))
+        let viewModel = ExportStringViewModel(
+            option: .seed,
+            networkType: exportData.networkType,
+            derivationPath: exportData.derivationPath,
+            cryptoType: exportData.account.cryptoType,
+            data: exportData.seed.toHex(includePrefix: true)
+        )
 
         exportViewModel = viewModel
 
@@ -87,9 +95,11 @@ extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 }

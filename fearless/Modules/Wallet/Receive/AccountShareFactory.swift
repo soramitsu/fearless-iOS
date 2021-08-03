@@ -1,15 +1,20 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import SoraKeystore
 
 final class AccountShareFactory: AccountShareFactoryProtocol {
-    let address: String
+    let accountViewModel: ReceiveAccountViewModelProtocol
     let assets: [WalletAsset]
     let localizationManager: LocalizationManagerProtocol
 
-    init(address: String, assets: [WalletAsset], localizationManager: LocalizationManagerProtocol) {
+    init(
+        accountViewModel: ReceiveAccountViewModelProtocol,
+        assets: [WalletAsset],
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.assets = assets
-        self.address = address
+        self.accountViewModel = accountViewModel
         self.localizationManager = localizationManager
     }
 
@@ -23,6 +28,6 @@ final class AccountShareFactory: AccountShareFactoryProtocol {
         let message = R.string.localizable
             .walletReceiveShareMessage(platform, symbol, preferredLanguages: locale.rLanguages)
 
-        return [qrImage, message, address]
+        return [qrImage, message, accountViewModel.address]
     }
 }

@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-protocol KeyboardAdoptable: class {
+protocol KeyboardAdoptable: AnyObject {
     var keyboardHandler: KeyboardHandler? { get set }
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect)
@@ -32,7 +32,7 @@ protocol KeyboardViewAdoptable: KeyboardAdoptable {
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat
 }
 
-private struct KeyboardViewAdoptableConstants {
+private enum KeyboardViewAdoptableConstants {
     static var keyboardHandlerKey: String = "co.jp.fearless.keyboard.handler"
     static var keyboardFrameKey: String = "co.jp.fearless.keyboard.frame"
 }
@@ -40,35 +40,39 @@ private struct KeyboardViewAdoptableConstants {
 extension KeyboardViewAdoptable where Self: UIViewController {
     var keyboardHandler: KeyboardHandler? {
         get {
-            return objc_getAssociatedObject(self, &KeyboardViewAdoptableConstants.keyboardHandlerKey)
+            objc_getAssociatedObject(self, &KeyboardViewAdoptableConstants.keyboardHandlerKey)
                 as? KeyboardHandler
         }
 
         set {
-            objc_setAssociatedObject(self,
-                                     &KeyboardViewAdoptableConstants.keyboardHandlerKey,
-                                     newValue,
-                                     .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(
+                self,
+                &KeyboardViewAdoptableConstants.keyboardHandlerKey,
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN
+            )
         }
     }
 
     var currentKeyboardFrame: CGRect? {
         get {
-            return objc_getAssociatedObject(self, &KeyboardViewAdoptableConstants.keyboardFrameKey)
+            objc_getAssociatedObject(self, &KeyboardViewAdoptableConstants.keyboardFrameKey)
                 as? CGRect
         }
 
         set {
-            objc_setAssociatedObject(self,
-                                     &KeyboardViewAdoptableConstants.keyboardFrameKey,
-                                     newValue,
-                                     .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(
+                self,
+                &KeyboardViewAdoptableConstants.keyboardFrameKey,
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN
+            )
         }
     }
 
     var shouldApplyKeyboardFrame: Bool { true }
 
-    func updateWhileKeyboardFrameChanging(_ keyboardFrame: CGRect) {}
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 
     func setupKeyboardHandler() {
         guard keyboardHandler == nil else {

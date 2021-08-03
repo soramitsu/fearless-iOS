@@ -18,13 +18,15 @@ extension AddConnectionError: ErrorContentConvertible {
         case .invalidConnection:
             message = R.string.localizable
                 .connectionAddInvalidError(preferredLanguages: locale?.rLanguages)
-        case .unsupportedChain(let supported):
+        case let .unsupportedChain(supported):
             let supported: String = supported
                 .map { $0.titleForLocale(locale ?? Locale.current) }
                 .joined(separator: ", ")
 
-            message = R.string.localizable.connectionAddUnsupportedError(supported,
-                                                                         preferredLanguages: locale?.rLanguages)
+            message = R.string.localizable.connectionAddUnsupportedError(
+                supported,
+                preferredLanguages: locale?.rLanguages
+            )
         }
 
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)

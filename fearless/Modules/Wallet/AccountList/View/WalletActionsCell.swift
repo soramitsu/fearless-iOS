@@ -36,7 +36,7 @@ final class WalletActionsCell: UICollectionViewCell {
 
 extension WalletActionsCell: WalletViewProtocol {
     var viewModel: WalletViewModelProtocol? {
-        return actionsViewModel
+        actionsViewModel
     }
 
     func bind(viewModel: WalletViewModelProtocol) {

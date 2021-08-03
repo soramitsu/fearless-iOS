@@ -5,7 +5,7 @@ struct JSONScaleDecodable<T: ScaleDecodable>: Decodable {
     let underlyingValue: T?
 
     init(value: T?) {
-        self.underlyingValue = value
+        underlyingValue = value
     }
 
     init(from decoder: Decoder) throws {
@@ -17,7 +17,7 @@ struct JSONScaleDecodable<T: ScaleDecodable>: Decodable {
             let value = try container.decode(String.self)
             let data = try Data(hexString: value)
             let scaleDecoder = try ScaleDecoder(data: data)
-            underlyingValue = try T.init(scaleDecoder: scaleDecoder)
+            underlyingValue = try T(scaleDecoder: scaleDecoder)
         }
     }
 }

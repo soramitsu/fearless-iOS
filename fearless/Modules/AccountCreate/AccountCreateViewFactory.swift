@@ -4,62 +4,49 @@ import SoraFoundation
 import SoraKeystore
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
-    static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol? {
-        let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
-        let presenter = AccountCreatePresenter(username: username)
-
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                 supportedNetworkTypes: Chain.allCases,
-                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
+    static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
         let wireframe = AccountCreateWireframe()
 
-        view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
-        interactor.presenter = presenter
-
-        let localizationManager = LocalizationManager.shared
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
-
-        return view
+        return createViewForUsername(
+            model: model,
+            wireframe: wireframe
+        )
     }
 
-    static func createViewForAdding(username: String) -> AccountCreateViewProtocol? {
-        let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
-        let presenter = AccountCreatePresenter(username: username)
+    static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
+        let wireframe = AddAccount.AccountCreateWireframe()
 
-        let defaultAddressType = SettingsManager.shared.selectedConnection.type
-
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                 supportedNetworkTypes: Chain.allCases,
-                                                 defaultNetwork: defaultAddressType.chain)
-        let wireframe = AddCreationWireframe()
-
-        view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
-        interactor.presenter = presenter
-
-        let localizationManager = LocalizationManager.shared
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
-
-        return view
+        return createViewForUsername(
+            model: model,
+            wireframe: wireframe
+        )
     }
 
-    static func createViewForConnection(item: ConnectionItem,
-                                        username: String) -> AccountCreateViewProtocol? {
+    static func createViewForConnection(
+        item: ConnectionItem,
+        model: UsernameSetupModel
+    ) -> AccountCreateViewProtocol? {
+        let wireframe = SelectConnection.AccountCreateWireframe(connectionItem: item)
+
+        return createViewForUsername(
+            model: model,
+            wireframe: wireframe
+        )
+    }
+
+    static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
+        let wireframe = SwitchAccount.AccountCreateWireframe()
+        return createViewForUsername(model: model, wireframe: wireframe)
+    }
+
+    static func createViewForUsername(
+        model: UsernameSetupModel,
+        wireframe: AccountCreateWireframeProtocol
+    ) -> AccountCreateViewProtocol? {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
-        let presenter = AccountCreatePresenter(username: username)
+        let presenter = AccountCreatePresenter(usernameSetup: model)
 
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                 supportedNetworkTypes: [item.type.chain],
-                                                 defaultNetwork: item.type.chain)
-
-        let wireframe = ConnectionAccountCreateWireframe(connectionItem: item)
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
 
         view.presenter = presenter
         presenter.view = view

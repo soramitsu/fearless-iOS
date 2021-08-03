@@ -9,7 +9,7 @@ final class DetailsDisplayTableViewCell: UITableViewCell, ModalPickerCellProtoco
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var detailsLabel: UILabel!
 
-    func bind(model: TitleWithSubtitleViewModel) {
+    func bind(model: Model) {
         titleLabel.text = model.title
         detailsLabel.text = model.subtitle
     }

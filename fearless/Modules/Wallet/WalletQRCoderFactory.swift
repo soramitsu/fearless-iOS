@@ -20,12 +20,16 @@ final class WalletQREncoder: WalletQREncoderProtocol {
     func encode(receiverInfo: ReceiveInfo) throws -> Data {
         let accountId = try Data(hexString: receiverInfo.accountId)
 
-        let address = try addressFactory.address(fromPublicKey: AccountIdWrapper(rawData: accountId),
-                                                 type: networkType)
+        let address = try addressFactory.address(
+            fromPublicKey: AccountIdWrapper(rawData: accountId),
+            type: networkType
+        )
 
-        let info = SubstrateQRInfo(address: address,
-                                   rawPublicKey: publicKey,
-                                   username: username)
+        let info = SubstrateQRInfo(
+            address: address,
+            rawPublicKey: publicKey,
+            username: username
+        )
         return try substrateEncoder.encode(info: info)
     }
 }
@@ -36,20 +40,24 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
     private let assets: [WalletAsset]
 
     init(networkType: SNAddressType, assets: [WalletAsset]) {
-        substrateDecoder = SubstrateQRDecoder(networkType: networkType)
+        substrateDecoder = SubstrateQRDecoder(chainType: ChainType(networkType.rawValue))
         self.assets = assets
     }
 
     func decode(data: Data) throws -> ReceiveInfo {
         let info = try substrateDecoder.decode(data: data)
 
-        let accountId = try addressFactory.accountId(fromAddress: info.address,
-                                                     type: substrateDecoder.networkType)
+        let accountId = try addressFactory.accountId(
+            fromAddress: info.address,
+            type: substrateDecoder.chainType
+        )
 
-        return ReceiveInfo(accountId: accountId.toHex(),
-                           assetId: assets.first?.identifier,
-                           amount: nil,
-                           details: nil)
+        return ReceiveInfo(
+            accountId: accountId.toHex(),
+            assetId: assets.first?.identifier,
+            amount: nil,
+            details: nil
+        )
     }
 }
 
@@ -67,9 +75,11 @@ final class WalletQRCoderFactory: WalletQRCoderFactoryProtocol {
     }
 
     func createEncoder() -> WalletQREncoderProtocol {
-        WalletQREncoder(networkType: networkType,
-                        publicKey: publicKey,
-                        username: username)
+        WalletQREncoder(
+            networkType: networkType,
+            publicKey: publicKey,
+            username: username
+        )
     }
 
     func createDecoder() -> WalletQRDecoderProtocol {

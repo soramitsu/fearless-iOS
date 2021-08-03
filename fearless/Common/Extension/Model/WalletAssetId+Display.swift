@@ -9,6 +9,8 @@ extension WalletAssetId {
             return R.image.iconKsmSmallBg()
         case .westend:
             return R.image.iconWestendSmallBg()
+        case .roc:
+            return R.image.iconKsmSmallBg()
         case .usd:
             return nil
         }
@@ -22,12 +24,14 @@ extension WalletAssetId {
             return R.image.iconKsmAsset()
         case .westend:
             return R.image.iconWestendAsset()
+        case .roc:
+            return R.image.iconKsmAsset()
         case .usd:
             return nil
         }
     }
 
-    func titleForLocale(_ locale: Locale) -> String {
+    func titleForLocale(_: Locale) -> String {
         switch self {
         case .dot:
             return "Polkadot"
@@ -35,6 +39,8 @@ extension WalletAssetId {
             return "Kusama"
         case .westend:
             return "Westend"
+        case .roc:
+            return "Rococo"
         case .usd:
             return "Usd"
         }

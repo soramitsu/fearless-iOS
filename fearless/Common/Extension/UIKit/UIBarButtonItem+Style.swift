@@ -2,23 +2,30 @@ import Foundation
 import UIKit
 
 extension UIBarButtonItem {
-    func setupDefaultTitleStyle() {
-        var normalTextAttributes = [NSAttributedString.Key: Any]()
-        normalTextAttributes[.foregroundColor] = R.color.colorWhite()
-        normalTextAttributes[.font] = UIFont.h5Title
+    func setupDefaultTitleStyle(with font: UIFont) {
+        let normalTextAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorWhite() as Any,
+            .font: font
+        ]
 
         setTitleTextAttributes(normalTextAttributes, for: .normal)
 
-        var highlightedTextAttributes = [NSAttributedString.Key: Any]()
-        highlightedTextAttributes[.foregroundColor] = R.color.colorGray()
-        highlightedTextAttributes[.font] = UIFont.h5Title
+        let highlightedTextAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorGray() as Any,
+            .font: font
+        ]
 
         setTitleTextAttributes(highlightedTextAttributes, for: .highlighted)
 
-        var disabledTextAttributes = [NSAttributedString.Key: Any]()
-        disabledTextAttributes[.foregroundColor] = R.color.colorDarkGray()
-        disabledTextAttributes[.font] = UIFont.h5Title
+        let disabledTextAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorDarkGray() as Any,
+            .font: font
+        ]
 
         setTitleTextAttributes(disabledTextAttributes, for: .disabled)
+    }
+
+    func setupDefaultTitleStyle() {
+        setupDefaultTitleStyle(with: .h5Title)
     }
 }

@@ -15,17 +15,24 @@ final class AccountImportJsonFactory {
         if let definitionGenesisHashString = definition.meta?.genesisHash,
            let definitionGenesisHash = try? Data(hexString: definitionGenesisHashString),
            let genesisBasedChain = Chain.allCases
-            .first(where: { definitionGenesisHash == (try? Data(hexString: $0.genesisHash)) }) {
+           .first(where: { definitionGenesisHash == (try? Data(hexString: $0.genesisHash)) }) {
             chain = genesisBasedChain
             networkTypeConfirmed = true
         } else {
-            chain = info.addressType?.chain
+            if let chainType = info.chainType {
+                chain = SNAddressType(rawValue: UInt8(chainType))?.chain
+            } else {
+                chain = nil
+            }
+
             networkTypeConfirmed = false
         }
 
-        return AccountImportPreferredInfo(username: info.meta?.name,
-                                          networkType: chain,
-                                          cryptoType: CryptoType(info.cryptoType),
-                                          networkTypeConfirmed: networkTypeConfirmed)
+        return AccountImportPreferredInfo(
+            username: info.meta?.name,
+            networkType: chain,
+            cryptoType: CryptoType(info.cryptoType),
+            networkTypeConfirmed: networkTypeConfirmed
+        )
     }
 }

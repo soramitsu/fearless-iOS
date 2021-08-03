@@ -1,0 +1,15 @@
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  branches:
+    - "develop"
+
+ignore:
+  - "**/*View.swift"
+  - "**/*Factory.swift"
+  - "**/*ViewController.swift"
+  - "**/*Cell.swift"
+  - "**/*Wireframe.swift"
+  - "fearless/Common/Protocols"
+  - "fearless/Common/View"
+  - "fearless/Common/ViewController"

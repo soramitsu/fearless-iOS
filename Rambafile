@@ -32,4 +32,4 @@ podfile_path: Podfile
 catalogs:
 - 'https://github.com/ERussel/GenerambaTemplates'
 templates:
-- {name: sora-viper}
+- {name: viper-code-layout}

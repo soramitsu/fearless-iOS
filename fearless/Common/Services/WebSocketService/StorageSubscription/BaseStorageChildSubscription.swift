@@ -8,11 +8,13 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
     let storage: AnyDataProviderRepository<ChainStorageItem>
     let operationManager: OperationManagerProtocol
 
-    init(remoteStorageKey: Data,
-         localStorageKey: String,
-         storage: AnyDataProviderRepository<ChainStorageItem>,
-         operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol) {
+    init(
+        remoteStorageKey: Data,
+        localStorageKey: String,
+        storage: AnyDataProviderRepository<ChainStorageItem>,
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol
+    ) {
         self.remoteStorageKey = remoteStorageKey
         self.localStorageKey = localStorageKey
         self.storage = storage
@@ -20,36 +22,39 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
         self.logger = logger
     }
 
-    func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash: Data?) {
+    func handle(result _: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash _: Data?) {
         logger.warning("Must be overriden after inheritance")
     }
 
     func processUpdate(_ data: Data?, blockHash: Data?) {
         let identifier = localStorageKey
 
-        let fetchOperation = storage.fetchOperation(by: identifier,
-                                                    options: RepositoryFetchOptions())
+        let fetchOperation = storage.fetchOperation(
+            by: identifier,
+            options: RepositoryFetchOptions()
+        )
 
         let processingOperation: BaseOperation<DataProviderChange<ChainStorageItem>?> =
             ClosureOperation {
-            let newItem: ChainStorageItem?
+                let newItem: ChainStorageItem?
 
-            if let newData = data {
-                newItem = ChainStorageItem(identifier: identifier, data: newData)
-            } else {
-                newItem = nil
+                if let newData = data {
+                    newItem = ChainStorageItem(identifier: identifier, data: newData)
+                } else {
+                    newItem = nil
+                }
+
+                let currentItem = try fetchOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+                return DataProviderChange<ChainStorageItem>
+                    .change(value1: currentItem, value2: newItem)
             }
-
-            let currentItem = try fetchOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            return DataProviderChange<ChainStorageItem>
-                .change(value1: currentItem, value2: newItem)
-        }
 
         let saveOperation = storage.saveOperation({
             guard let update = try processingOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            else {
                 return []
             }
 
@@ -60,11 +65,12 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
             }
         }, {
             guard let update = try processingOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            else {
                 return []
             }
 
-            if case .delete(let identifier) = update {
+            if case let .delete(identifier) = update {
                 return [identifier]
             } else {
                 return []
@@ -82,8 +88,9 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
             self?.handle(result: changeResult, blockHash: blockHash)
         }
 
-        operationManager.enqueue(operations: [fetchOperation, processingOperation, saveOperation],
-                                 in: .sync)
+        operationManager.enqueue(
+            operations: [fetchOperation, processingOperation, saveOperation],
+            in: .transient
+        )
     }
-
 }

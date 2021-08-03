@@ -21,10 +21,12 @@ final class AboutPresenter {
 
 extension AboutPresenter: AboutPresenterProtocol {
     func setup() {
-        let viewModel = AboutViewModel(website: about.websiteUrl.absoluteString,
-                                       version: about.version,
-                                       social: about.socialUrl.absoluteString,
-                                       email: about.writeUs.email)
+        let viewModel = AboutViewModel(
+            website: about.websiteUrl.absoluteString,
+            version: about.version,
+            social: about.socialUrl.absoluteString,
+            email: about.writeUs.email
+        )
         view?.didReceive(viewModel: viewModel)
     }
 
@@ -50,17 +52,21 @@ extension AboutPresenter: AboutPresenterProtocol {
 
     func activateWriteUs() {
         if let view = view {
-            let message = SocialMessage(body: nil,
-                                        subject: about.writeUs.subject,
-                                        recepients: [about.writeUs.email])
+            let message = SocialMessage(
+                body: nil,
+                subject: about.writeUs.subject,
+                recepients: [about.writeUs.email]
+            )
             if !wireframe.writeEmail(with: message, from: view, completionHandler: nil) {
-                wireframe.present(message: R.string.localizable
-                    .noEmailBoundErrorMessage(preferredLanguages: locale.rLanguages),
-                                  title: R.string.localizable
-                                    .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
-                                  closeAction: R.string.localizable
-                                    .commonClose(preferredLanguages: locale.rLanguages),
-                                  from: view)
+                wireframe.present(
+                    message: R.string.localizable
+                        .noEmailBoundErrorMessage(preferredLanguages: locale.rLanguages),
+                    title: R.string.localizable
+                        .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
+                    closeAction: R.string.localizable
+                        .commonClose(preferredLanguages: locale.rLanguages),
+                    from: view
+                )
             }
         }
     }

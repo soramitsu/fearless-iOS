@@ -11,11 +11,13 @@ final class AccountManagementInteractor {
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
 
-    init(repository: AnyDataProviderRepository<ManagedAccountItem>,
-         repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>,
-         settings: SettingsManagerProtocol,
-         operationManager: OperationManagerProtocol,
-         eventCenter: EventCenterProtocol) {
+    init(
+        repository: AnyDataProviderRepository<ManagedAccountItem>,
+        repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>,
+        settings: SettingsManagerProtocol,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol
+    ) {
         self.repository = repository
         self.repositoryObservable = repositoryObservable
         self.settings = settings
@@ -41,7 +43,7 @@ final class AccountManagementInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 }
 
@@ -67,33 +69,46 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     }
 
     func select(item: ManagedAccountItem) {
+        let connectionChanged: Bool
+
         if item.networkType != settings.selectedConnection.type {
             guard let newConnection = ConnectionItem
-                .supportedConnections.first(where: { $0.type == item.networkType }) else {
+                .supportedConnections.first(where: { $0.type == item.networkType })
+            else {
                 return
             }
 
             settings.selectedConnection = newConnection
+
+            connectionChanged = true
+        } else {
+            connectionChanged = false
         }
 
-        let newSelectedAccountItem = AccountItem(address: item.address,
-                                             cryptoType: item.cryptoType,
-                                             username: item.username,
-                                             publicKeyData: item.publicKeyData)
+        let newSelectedAccountItem = AccountItem(
+            address: item.address,
+            cryptoType: item.cryptoType,
+            username: item.username,
+            publicKeyData: item.publicKeyData
+        )
 
         settings.selectedAccount = newSelectedAccountItem
         presenter?.didReceiveSelected(item: newSelectedAccountItem)
+
+        if connectionChanged {
+            eventCenter.notify(with: SelectedConnectionChanged())
+        }
 
         eventCenter.notify(with: SelectedAccountChanged())
     }
 
     func save(items: [ManagedAccountItem]) {
         let operation = repository.saveOperation({ items }, { [] })
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func remove(item: ManagedAccountItem) {
         let operation = repository.saveOperation({ [] }, { [item.address] })
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 }

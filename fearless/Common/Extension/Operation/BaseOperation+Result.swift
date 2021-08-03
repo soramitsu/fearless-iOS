@@ -13,4 +13,8 @@ extension BaseOperation {
         operation.result = .success(result)
         return operation
     }
+
+    func extractNoCancellableResultData() throws -> ResultType {
+        try extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+    }
 }

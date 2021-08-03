@@ -21,14 +21,16 @@ final class WalletInputAmountView: WalletBaseAmountView {
     }
 
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric,
-               height: 52.0 + contentInsets.top + contentInsets.bottom)
+        CGSize(
+            width: UIView.noIntrinsicMetric,
+            height: 52.0 + contentInsets.top + contentInsets.bottom
+        )
     }
 
     var inputViewModel: AmountInputViewModelProtocol?
 
     override var isFirstResponder: Bool {
-        return animatedTextField.isFirstResponder
+        animatedTextField.isFirstResponder
     }
 
     override func resignFirstResponder() -> Bool {
@@ -64,9 +66,11 @@ extension WalletInputAmountView: AmountInputViewModelObserver {
 }
 
 extension WalletInputAmountView: AnimatedTextFieldDelegate {
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
+    func animatedTextField(
+        _: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard let model = inputViewModel else {
             return false
         }
@@ -74,8 +78,8 @@ extension WalletInputAmountView: AnimatedTextFieldDelegate {
         return model.didReceiveReplacement(string, for: range)
     }
 
-    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
-        return true
+    func animatedTextFieldShouldReturn(_: AnimatedTextField) -> Bool {
+        true
     }
 }
 

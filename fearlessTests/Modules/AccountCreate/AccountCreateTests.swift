@@ -14,12 +14,10 @@ class AccountCreateTests: XCTestCase {
         let wireframe = MockAccountCreateWireframeProtocol()
 
         let mnemonicCreator = IRMnemonicCreator()
-        let interactor = AccountCreateInteractor(mnemonicCreator: mnemonicCreator,
-                                                 supportedNetworkTypes: Chain.allCases,
-                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
+        let interactor = AccountCreateInteractor(mnemonicCreator: mnemonicCreator)
 
-        let expectedUsername = "myname"
-        let presenter = AccountCreatePresenter(username: expectedUsername)
+        let usernameSetup = UsernameSetupModel(username: "myname", selectedNetwork: .westend)
+        let presenter = AccountCreatePresenter(usernameSetup: usernameSetup)
         presenter.view = view
         presenter.wireframe = wireframe
         presenter.interactor = interactor
@@ -29,7 +27,6 @@ class AccountCreateTests: XCTestCase {
 
         stub(view) { stub in
             when(stub).didCompleteCryptoTypeSelection().thenDoNothing()
-            when(stub).didCompleteNetworkTypeSelection().thenDoNothing()
             when(stub).didValidateDerivationPath(any()).thenDoNothing()
             when(stub).isSetup.get.thenReturn(false, true)
 
@@ -38,7 +35,6 @@ class AccountCreateTests: XCTestCase {
             }
 
             when(stub).setSelectedCrypto(model: any()).thenDoNothing()
-            when(stub).setSelectedNetwork(model: any()).thenDoNothing()
             when(stub).setDerivationPath(viewModel: any()).thenDoNothing()
         }
 
@@ -65,6 +61,7 @@ class AccountCreateTests: XCTestCase {
 
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
 
-        XCTAssertEqual(receivedRequest?.username, expectedUsername)
+        XCTAssertEqual(receivedRequest?.username, usernameSetup.username)
+        XCTAssertEqual(receivedRequest?.type, usernameSetup.selectedNetwork)
     }
 }

@@ -16,13 +16,17 @@ extension CompoundAttributedStringDecorator {
 
         let termsConditions = R.string.localizable
             .onboardingTermsAndConditions2(preferredLanguages: locale?.rLanguages)
-        let termDecorator = HighlightingAttributedStringDecorator(pattern: termsConditions,
-                                                                           attributes: highlightAttributes)
+        let termDecorator = HighlightingAttributedStringDecorator(
+            pattern: termsConditions,
+            attributes: highlightAttributes
+        )
 
         let privacyPolicy = R.string.localizable
             .onboardingPrivacyPolicy(preferredLanguages: locale?.rLanguages)
-        let privacyDecorator = HighlightingAttributedStringDecorator(pattern: privacyPolicy,
-                                                                     attributes: highlightAttributes)
+        let privacyDecorator = HighlightingAttributedStringDecorator(
+            pattern: privacyPolicy,
+            attributes: highlightAttributes
+        )
 
         return CompoundAttributedStringDecorator(decorators: [rangeDecorator, termDecorator, privacyDecorator])
     }

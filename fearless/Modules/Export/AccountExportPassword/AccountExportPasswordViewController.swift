@@ -2,8 +2,8 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class AccountExportPasswordViewController: UIViewController {
-    private struct Constants {
+final class AccountExportPasswordViewController: UIViewController, ImportantViewProtocol {
+    private enum Constants {
         static let bottomOffset: CGFloat = 8.0
     }
 
@@ -85,16 +85,20 @@ final class AccountExportPasswordViewController: UIViewController {
         passwordInputField.textField.isSecureTextEntry = true
         passwordInputField.textField.returnKeyType = .done
         passwordInputField.delegate = self
-        passwordInputField.addTarget(self,
-                                     action: #selector(actionPasswordInputChange),
-                                     for: .editingChanged)
+        passwordInputField.addTarget(
+            self,
+            action: #selector(actionPasswordInputChange),
+            for: .editingChanged
+        )
 
         passwordConfirmField.textField.isSecureTextEntry = true
         passwordConfirmField.textField.returnKeyType = .done
         passwordConfirmField.delegate = self
-        passwordConfirmField.addTarget(self,
-                                       action: #selector(actionConfirmationInputChange),
-                                       for: .editingChanged)
+        passwordConfirmField.addTarget(
+            self,
+            action: #selector(actionConfirmationInputChange),
+            for: .editingChanged
+        )
     }
 
     private func setupErrorView() {
@@ -107,8 +111,10 @@ final class AccountExportPasswordViewController: UIViewController {
         view.titleFont = UIFont.p2Paragraph
 
         view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,
-                                  constant: -Constants.bottomOffset).isActive = true
+        view.bottomAnchor.constraint(
+            equalTo: contentView.bottomAnchor,
+            constant: -Constants.bottomOffset
+        ).isActive = true
 
         errorView = view
 
@@ -188,12 +194,12 @@ final class AccountExportPasswordViewController: UIViewController {
 
 extension AccountExportPasswordViewController: AccountExportPasswordViewProtocol {
     func setPasswordInputViewModel(_ viewModel: InputViewModelProtocol) {
-        self.passwordInputViewModel = viewModel
+        passwordInputViewModel = viewModel
         updateNextButton()
     }
 
     func setPasswordConfirmationViewModel(_ viewModel: InputViewModelProtocol) {
-        self.passwordConfirmViewModel = viewModel
+        passwordConfirmViewModel = viewModel
         updateNextButton()
     }
 
@@ -222,9 +228,11 @@ extension AccountExportPasswordViewController: AnimatedTextFieldDelegate {
         return false
     }
 
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         let viewModel: InputViewModelProtocol?
 
         if textField === passwordInputField {
@@ -269,8 +277,10 @@ extension AccountExportPasswordViewController: KeyboardAdoptable {
             }
 
             if let firstResponderView = targetView {
-                let fieldFrame = scrollView.convert(firstResponderView.frame,
-                                                    from: firstResponderView.superview)
+                let fieldFrame = scrollView.convert(
+                    firstResponderView.frame,
+                    from: firstResponderView.superview
+                )
 
                 scrollView.scrollRectToVisible(fieldFrame, animated: true)
             }

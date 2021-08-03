@@ -8,7 +8,7 @@ protocol AccountManagementViewProtocol: ControllerBackedProtocol {
     func didRemoveSection(at section: Int)
 }
 
-protocol AccountManagementPresenterProtocol: class {
+protocol AccountManagementPresenterProtocol: AnyObject {
     func setup()
 
     func numberOfSections() -> Int
@@ -24,14 +24,14 @@ protocol AccountManagementPresenterProtocol: class {
     func removeSection(at index: Int)
 }
 
-protocol AccountManagementInteractorInputProtocol: class {
+protocol AccountManagementInteractorInputProtocol: AnyObject {
     func setup()
     func select(item: ManagedAccountItem)
     func save(items: [ManagedAccountItem])
     func remove(item: ManagedAccountItem)
 }
 
-protocol AccountManagementInteractorOutputProtocol: class {
+protocol AccountManagementInteractorOutputProtocol: AnyObject {
     func didReceiveSelected(item: AccountItem)
     func didReceive(changes: [DataProviderChange<ManagedAccountItem>])
     func didReceive(error: Error)
@@ -43,6 +43,7 @@ protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable 
     func complete(from view: AccountManagementViewProtocol?)
 }
 
-protocol AccountManagementViewFactoryProtocol: class {
-	static func createView() -> AccountManagementViewProtocol?
+protocol AccountManagementViewFactoryProtocol: AnyObject {
+    static func createViewForSettings() -> AccountManagementViewProtocol?
+    static func createViewForSwitch() -> AccountManagementViewProtocol?
 }

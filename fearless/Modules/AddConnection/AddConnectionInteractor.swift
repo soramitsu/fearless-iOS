@@ -9,9 +9,11 @@ final class AddConnectionInteractor {
     private let operationManager: OperationManagerProtocol
     private let substrateOperationFactory: SubstrateOperationFactoryProtocol
 
-    init(repository: AnyDataProviderRepository<ManagedConnectionItem>,
-         operationManager: OperationManagerProtocol,
-         substrateOperationFactory: SubstrateOperationFactoryProtocol) {
+    init(
+        repository: AnyDataProviderRepository<ManagedConnectionItem>,
+        operationManager: OperationManagerProtocol,
+        substrateOperationFactory: SubstrateOperationFactoryProtocol
+    ) {
         self.repository = repository
         self.operationManager = operationManager
         self.substrateOperationFactory = substrateOperationFactory
@@ -21,11 +23,13 @@ final class AddConnectionInteractor {
         switch result {
         case .success:
             presenter.didCompleteAdding(url: url)
-        case .failure(let error):
+        case let .failure(error):
             presenter.didReceiveError(error: error, for: url)
         case .none:
-            presenter.didReceiveError(error: BaseOperationError.parentOperationCancelled,
-                                      for: url)
+            presenter.didReceiveError(
+                error: BaseOperationError.parentOperationCancelled,
+                for: url
+            )
         }
     }
 }
@@ -49,7 +53,7 @@ extension AddConnectionInteractor: AddConnectionInteractorInputProtocol {
         let fetchNetworkOperation = substrateOperationFactory.fetchChainOperation(url)
 
         let saveOperation = repository.saveOperation({
-            guard case .success(let rawType) = fetchNetworkOperation.result else {
+            guard case let .success(rawType) = fetchNetworkOperation.result else {
                 throw AddConnectionError.invalidConnection
             }
 
@@ -58,19 +62,22 @@ extension AddConnectionInteractor: AddConnectionInteractorInputProtocol {
             }
 
             guard try searchOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) == nil else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) == nil
+            else {
                 throw AddConnectionError.alreadyExists
             }
 
             let maxOrder = try maxOrderOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 .first?.order
-            ?? 0
+                ?? 0
 
-            let connectionItem = ManagedConnectionItem(title: name,
-                                                       url: url,
-                                                       type: SNAddressType(chain: chain),
-                                                       order: maxOrder + 1)
+            let connectionItem = ManagedConnectionItem(
+                title: name,
+                url: url,
+                type: SNAddressType(chain: chain),
+                order: maxOrder + 1
+            )
 
             return [connectionItem]
 
@@ -87,7 +94,9 @@ extension AddConnectionInteractor: AddConnectionInteractorInputProtocol {
         }
 
         let operations = [searchOperation, maxOrderOperation, fetchNetworkOperation, saveOperation]
-        operationManager.enqueue(operations: operations,
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: operations,
+            in: .transient
+        )
     }
 }

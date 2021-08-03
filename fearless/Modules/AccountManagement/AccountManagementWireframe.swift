@@ -6,7 +6,7 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
             return
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: infoView.controller)
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: infoView.controller)
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
@@ -26,7 +26,9 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
             return
         }
 
-        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
-                                                           animated: true)
+        MainTransitionHelper.transitToMainTabBarController(
+            closing: navigationController,
+            animated: true
+        )
     }
 }

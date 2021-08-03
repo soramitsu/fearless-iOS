@@ -1,7 +1,11 @@
 import Foundation
 import CommonWallet
+import RobinHood
+import SoraFoundation
 
 final class ContactViewModel: ContactsLocalSearchResultProtocol {
+    var command: WalletCommandProtocol?
+
     var cellReuseIdentifier: String { ContactsConstants.contactCellIdentifier }
     var itemHeight: CGFloat { ContactsConstants.contactCellHeight }
 
@@ -11,27 +15,17 @@ final class ContactViewModel: ContactsLocalSearchResultProtocol {
     let image: UIImage?
     let name: String
 
-    weak var delegate: ContactViewModelDelegate?
-
-    init(firstName: String,
-         lastName: String,
-         accountId: String,
-         image: UIImage?,
-         name: String,
-         delegate: ContactViewModelDelegate?) {
+    init(
+        firstName: String,
+        lastName: String,
+        accountId: String,
+        image: UIImage?,
+        name: String
+    ) {
         self.firstName = firstName
         self.lastName = lastName
         self.accountId = accountId
         self.image = image
         self.name = name
-        self.delegate = delegate
-    }
-}
-
-extension ContactViewModel: WalletCommandProtocol {
-    var command: WalletCommandProtocol? { self }
-
-    func execute() throws {
-        delegate?.didSelect(contact: self)
     }
 }

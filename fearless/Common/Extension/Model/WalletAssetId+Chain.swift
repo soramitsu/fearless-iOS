@@ -10,6 +10,8 @@ extension WalletAssetId {
             return .kusama
         case .westend:
             return .westend
+        case .roc:
+            return .rococo
         case .usd:
             return nil
         }

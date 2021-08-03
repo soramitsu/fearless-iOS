@@ -6,16 +6,16 @@ protocol AddConnectionViewProtocol: ControllerBackedProtocol, LoadableViewProtoc
     func set(nodeViewModel: InputViewModelProtocol)
 }
 
-protocol AddConnectionPresenterProtocol: class {
+protocol AddConnectionPresenterProtocol: AnyObject {
     func setup()
     func add()
 }
 
-protocol AddConnectionInteractorInputProtocol: class {
+protocol AddConnectionInteractorInputProtocol: AnyObject {
     func addConnection(url: URL, name: String)
 }
 
-protocol AddConnectionInteractorOutputProtocol: class {
+protocol AddConnectionInteractorOutputProtocol: AnyObject {
     func didStartAdding(url: URL)
     func didCompleteAdding(url: URL)
     func didReceiveError(error: Error, for url: URL)
@@ -25,6 +25,6 @@ protocol AddConnectionWireframeProtocol: AlertPresentable, ErrorPresentable {
     func close(view: AddConnectionViewProtocol?)
 }
 
-protocol AddConnectionViewFactoryProtocol: class {
-	static func createView() -> AddConnectionViewProtocol?
+protocol AddConnectionViewFactoryProtocol: AnyObject {
+    static func createView() -> AddConnectionViewProtocol?
 }

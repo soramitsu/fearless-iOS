@@ -3,30 +3,41 @@ import CommonWallet
 
 struct WalletCommonStyleConfigurator {
     let navigationBarStyle: WalletNavigationBarStyleProtocol = {
-        var navigationBarStyle = WalletNavigationBarStyle(barColor: .clear,
-                                                          shadowColor: .clear,
-                                                          itemTintColor: R.color.colorWhite()!,
-                                                          titleColor: R.color.colorWhite()!,
-                                                          titleFont: UIFont.h3Title)
+        var navigationBarStyle = WalletNavigationBarStyle(
+            barColor: .clear,
+            shadowColor: .clear,
+            itemTintColor: R.color.colorWhite()!,
+            titleColor: R.color.colorWhite()!,
+            titleFont: UIFont.h3Title,
+            backButtonImage: R.image.iconBack()
+        )
         return navigationBarStyle
     }()
 
     let accessoryStyle: WalletAccessoryStyleProtocol = {
-        let title = WalletTextStyle(font: UIFont.p1Paragraph,
-                                    color: R.color.colorWhite()!)
+        let title = WalletTextStyle(
+            font: UIFont.p1Paragraph,
+            color: R.color.colorWhite()!
+        )
 
-        let buttonTitle = WalletTextStyle(font: UIFont.h5Title,
-                                          color: R.color.colorWhite()!)
+        let buttonTitle = WalletTextStyle(
+            font: UIFont.h5Title,
+            color: R.color.colorWhite()!
+        )
 
-        let buttonStyle = WalletRoundedButtonStyle(background: R.color.colorDarkBlue()!,
-                                                   title: buttonTitle)
+        let buttonStyle = WalletRoundedButtonStyle(
+            background: R.color.colorAccent()!,
+            title: buttonTitle
+        )
 
         let separator = WalletStrokeStyle(color: .clear, lineWidth: 0.0)
 
-        return WalletAccessoryStyle(title: title,
-                                    action: buttonStyle,
-                                    separator: separator,
-                                    background: R.color.colorBlack()!)
+        return WalletAccessoryStyle(
+            title: title,
+            action: buttonStyle,
+            separator: separator,
+            background: R.color.colorBlack()!
+        )
     }()
 }
 

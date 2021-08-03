@@ -1,22 +1,26 @@
 import Foundation
 import LocalAuthentication
+import UIKit.UIImage
 
-public enum AvailableBiometryType {
+enum AvailableBiometryType {
     case none
     case touchId
     case faceId
 }
 
-public protocol BiometryAuthProtocol {
+protocol BiometryAuthProtocol {
     var availableBiometryType: AvailableBiometryType { get }
-    func authenticate(localizedReason: String, completionQueue: DispatchQueue,
-                      completionBlock: @escaping (Bool) -> Void)
+    func authenticate(
+        localizedReason: String,
+        completionQueue: DispatchQueue,
+        completionBlock: @escaping (Bool) -> Void
+    )
 }
 
-public class BiometryAuth: BiometryAuthProtocol {
-    private lazy var context: LAContext = LAContext()
+class BiometryAuth: BiometryAuthProtocol {
+    private lazy var context = LAContext()
 
-    public var availableBiometryType: AvailableBiometryType {
+    var availableBiometryType: AvailableBiometryType {
         let available = context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: nil)
         guard available else { return .none }
 
@@ -36,8 +40,11 @@ public class BiometryAuth: BiometryAuthProtocol {
         }
     }
 
-    public func authenticate(localizedReason: String, completionQueue: DispatchQueue,
-                             completionBlock: @escaping (Bool) -> Void) {
+    func authenticate(
+        localizedReason: String,
+        completionQueue: DispatchQueue,
+        completionBlock: @escaping (Bool) -> Void
+    ) {
         guard availableBiometryType != .none else {
             completionQueue.async {
                 completionBlock(false)
@@ -45,11 +52,26 @@ public class BiometryAuth: BiometryAuthProtocol {
             return
         }
 
-        context.evaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics,
-                               localizedReason: localizedReason) { (result: Bool, _: Error?) -> Void in
+        context.evaluatePolicy(
+            LAPolicy.deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: localizedReason
+        ) { (result: Bool, _: Error?) -> Void in
             completionQueue.async {
                 completionBlock(result)
             }
+        }
+    }
+}
+
+extension AvailableBiometryType {
+    var accessoryIcon: UIImage? {
+        switch self {
+        case .faceId:
+            return R.image.pinFaceId()
+        case .touchId:
+            return R.image.pinFingerprint()
+        case .none:
+            return nil
         }
     }
 }

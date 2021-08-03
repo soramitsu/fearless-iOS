@@ -4,14 +4,13 @@ import SoraFoundation
 import FearlessUtils
 
 final class AccountInfoViewController: UIViewController {
-    private struct Constants {
+    private enum Constants {
         static let bottomContentHeight: CGFloat = 48
     }
 
     var presenter: AccountInfoPresenterProtocol!
 
-    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
-    @IBOutlet private var addActionControl: IconCellControlView!
+    @IBOutlet private var addActionControl: TriangularedButton!
 
     @IBOutlet private var usernameDetailsTextField: AnimatedTextField!
 
@@ -44,12 +43,6 @@ final class AccountInfoViewController: UIViewController {
         presenter.finalizeUsername()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
-    }
-
     private func setupAddressView() {
         addressView.addTarget(self, action: #selector(actionAddress), for: .touchUpInside)
 
@@ -67,10 +60,12 @@ final class AccountInfoViewController: UIViewController {
     }
 
     private func setupNavigationItem() {
-        let closeBarItem = UIBarButtonItem(image: R.image.iconClose(),
-                                                style: .plain,
-                                                target: self,
-                                                action: #selector(actionClose))
+        let closeBarItem = UIBarButtonItem(
+            image: R.image.iconClose(),
+            style: .plain,
+            target: self,
+            action: #selector(actionClose)
+        )
 
         navigationItem.leftBarButtonItem = closeBarItem
     }
@@ -118,10 +113,11 @@ final class AccountInfoViewController: UIViewController {
 }
 
 extension AccountInfoViewController: AnimatedTextFieldDelegate {
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
-
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard let viewModel = usernameViewModel else {
             return true
         }
@@ -153,9 +149,11 @@ extension AccountInfoViewController: AccountInfoViewProtocol {
 
         addressView.iconImage = try? iconGenerating?
             .generateFromAddress(address)
-            .imageWithFillColor(R.color.colorWhite()!,
-                                size: UIConstants.smallAddressIconSize,
-                                contentScale: UIScreen.main.scale)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
     }
 
     func set(networkType: Chain) {

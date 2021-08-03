@@ -1,10 +1,10 @@
 import SoraUI
 
 final class PlusIndicatorView: ActionControlIndicatorView {
-    private let verticalView: UIView = UIView()
-    private let horizontalView: UIView = UIView()
+    private let verticalView = UIView()
+    private let horizontalView = UIView()
 
-    var preferredSize: CGSize = CGSize(width: 20.0, height: 20.0) {
+    var preferredSize = CGSize(width: 20.0, height: 20.0) {
         didSet {
             invalidateIntrinsicContentSize()
             setNeedsLayout()
@@ -60,15 +60,19 @@ final class PlusIndicatorView: ActionControlIndicatorView {
 
         verticalView.transform = .identity
 
-        verticalView.frame = CGRect(x: bounds.midX - strokeWidth / 2.0,
-                                    y: bounds.minY,
-                                    width: strokeWidth,
-                                    height: bounds.width)
+        verticalView.frame = CGRect(
+            x: bounds.midX - strokeWidth / 2.0,
+            y: bounds.minY,
+            width: strokeWidth,
+            height: bounds.width
+        )
 
-        horizontalView.frame = CGRect(x: bounds.minX,
-                                      y: bounds.midY - strokeWidth / 2.0,
-                                      width: bounds.width,
-                                      height: strokeWidth)
+        horizontalView.frame = CGRect(
+            x: bounds.minX,
+            y: bounds.midY - strokeWidth / 2.0,
+            width: bounds.width,
+            height: strokeWidth
+        )
 
         if isActivated {
             verticalView.transform = CGAffineTransform(rotationAngle: CGFloat.pi / 2.0)

@@ -7,7 +7,7 @@ enum WebPresentableStyle {
     case modal
 }
 
-protocol WebPresentable: class {
+protocol WebPresentable: AnyObject {
     func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)
 }
 
@@ -18,7 +18,7 @@ extension WebPresentable {
     }
 }
 
-final class WebViewFactory {
+enum WebViewFactory {
     static func createWebViewController(for url: URL, style: WebPresentableStyle) -> UIViewController {
         let webController = SFSafariViewController(url: url)
         webController.preferredControlTintColor = R.color.colorWhite()!

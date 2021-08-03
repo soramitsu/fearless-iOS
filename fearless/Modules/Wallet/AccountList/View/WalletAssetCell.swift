@@ -2,7 +2,7 @@ import UIKit
 import CommonWallet
 
 final class WalletAssetCell: UICollectionViewCell {
-    private struct Constants {
+    private enum Constants {
         static let contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
     }
 
@@ -35,17 +35,17 @@ extension WalletAssetCell: WalletViewProtocol {
             totalPriceLabel.text = assetViewModel.accessoryDetails
 
             switch assetViewModel.priceChangeViewModel {
-            case .goingUp(let displayString):
+            case let .goingUp(displayString):
                 changeLabel.text = displayString
                 changeLabel.textColor = R.color.colorGreen()!
-            case .goingDown(let displayString):
+            case let .goingDown(displayString):
                 changeLabel.text = displayString
                 changeLabel.textColor = R.color.colorRed()!
             }
 
             iconView.image = nil
 
-            assetViewModel.imageViewModel?.loadImage { [weak self] (image, _)  in
+            assetViewModel.imageViewModel?.loadImage { [weak self] image, _ in
                 self?.iconView.image = image
             }
         }

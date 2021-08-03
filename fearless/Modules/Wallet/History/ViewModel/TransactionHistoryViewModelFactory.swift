@@ -8,34 +8,42 @@ enum TransactionHistoryViewModelFactoryError: Error {
     case unsupportedType
 }
 
-final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProtocol {
+final class TransactionHistoryViewModelFactory {
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let dateFormatter: LocalizableResource<DateFormatter>
     let assets: [WalletAsset]
+    let chain: Chain
 
-    let iconGenerator: PolkadotIconGenerator = PolkadotIconGenerator()
+    let iconGenerator = PolkadotIconGenerator()
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol,
-         dateFormatter: LocalizableResource<DateFormatter>,
-         assets: [WalletAsset]) {
+    init(
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        dateFormatter: LocalizableResource<DateFormatter>,
+        assets: [WalletAsset],
+        chain: Chain
+    ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.dateFormatter = dateFormatter
         self.assets = assets
+        self.chain = chain
     }
 
-    func createItemFromData(_ data: AssetTransactionData,
-                            commandFactory: WalletCommandFactoryProtocol,
-                            locale: Locale) throws -> WalletViewModelProtocol {
+    private func createTransferItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale,
+        txType: TransactionType
+    ) throws -> WalletViewModelProtocol {
         guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
             throw TransactionHistoryViewModelFactoryError.missingAsset
         }
 
         let amount = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
-            .string(from: data.amount.decimalValue)
+            .stringFromDecimal(data.amount.decimalValue)
             ?? ""
 
-        let details = dateFormatter.value(for: locale)
+        let time = dateFormatter.value(for: locale)
             .string(from: Date(timeIntervalSince1970: TimeInterval(data.timestamp)))
 
         let imageViewModel: WalletImageViewModelProtocol?
@@ -43,9 +51,11 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
 
         if let address = data.peerName {
             icon = try? iconGenerator.generateFromAddress(address)
-                .imageWithFillColor(R.color.colorWhite()!,
-                                    size: CGSize(width: 32.0, height: 32.0),
-                                    contentScale: UIScreen.main.scale)
+                .imageWithFillColor(
+                    R.color.colorWhite()!,
+                    size: UIConstants.normalAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
         } else {
             icon = nil
         }
@@ -56,18 +66,141 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
             imageViewModel = nil
         }
 
-        guard let transactionType = TransactionType(rawValue: data.type) else {
-            throw TransactionHistoryViewModelFactoryError.unsupportedType
+        let command = commandFactory.prepareTransactionDetailsCommand(with: data)
+
+        let subtitle = R.string.localizable.transferTitle(preferredLanguages: locale.rLanguages)
+
+        return HistoryItemViewModel(
+            title: data.peerName ?? "",
+            subtitle: subtitle,
+            amount: amount,
+            time: time,
+            type: txType,
+            status: data.status,
+            imageViewModel: imageViewModel,
+            command: command
+        )
+    }
+
+    private func createRewardOrSlashItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale,
+        txType: TransactionType
+    ) throws -> WalletViewModelProtocol {
+        guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
+            throw TransactionHistoryViewModelFactoryError.missingAsset
+        }
+
+        let amount = amountFormatterFactory.createTokenFormatter(for: asset)
+            .value(for: locale)
+            .stringFromDecimal(data.amount.decimalValue)
+            ?? ""
+
+        let time = dateFormatter.value(for: locale)
+            .string(from: Date(timeIntervalSince1970: TimeInterval(data.timestamp)))
+
+        let imageViewModel: WalletImageViewModelProtocol?
+
+        if let icon = R.image.iconRewardAndSlashes() {
+            imageViewModel = WalletStaticImageViewModel(staticImage: icon)
+        } else {
+            imageViewModel = nil
         }
 
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
-        return HistoryItemViewModel(title: data.peerName ?? "",
-                                    details: details,
-                                    amount: amount,
-                                    direction: transactionType,
-                                    status: data.status,
-                                    imageViewModel: imageViewModel,
-                                    command: command)
+        let title = txType == .reward ?
+            R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages) :
+            R.string.localizable.stakingSlash(preferredLanguages: locale.rLanguages)
+
+        let subtitle = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
+
+        return HistoryItemViewModel(
+            title: title,
+            subtitle: subtitle,
+            amount: amount,
+            time: time,
+            type: txType,
+            status: data.status,
+            imageViewModel: imageViewModel,
+            command: command
+        )
+    }
+
+    private func createExtrinsicItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale,
+        txType: TransactionType
+    ) throws -> WalletViewModelProtocol {
+        guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
+            throw TransactionHistoryViewModelFactoryError.missingAsset
+        }
+
+        let amount = amountFormatterFactory.createTokenFormatter(for: asset)
+            .value(for: locale)
+            .stringFromDecimal(data.amount.decimalValue)
+            ?? ""
+
+        let time = dateFormatter.value(for: locale)
+            .string(from: Date(timeIntervalSince1970: TimeInterval(data.timestamp)))
+
+        let imageViewModel: WalletImageViewModelProtocol?
+
+        if let icon = chain.extrinsicIcon {
+            imageViewModel = WalletStaticImageViewModel(staticImage: icon)
+        } else {
+            imageViewModel = nil
+        }
+
+        let command = commandFactory.prepareTransactionDetailsCommand(with: data)
+
+        return HistoryItemViewModel(
+            title: data.peerLastName?.displayCall ?? "",
+            subtitle: data.peerFirstName?.displayModule ?? "",
+            amount: amount,
+            time: time,
+            type: txType,
+            status: data.status,
+            imageViewModel: imageViewModel,
+            command: command
+        )
+    }
+}
+
+extension TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProtocol {
+    func createItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) throws -> WalletViewModelProtocol {
+        guard let transactionType = TransactionType(rawValue: data.type) else {
+            throw TransactionHistoryViewModelFactoryError.unsupportedType
+        }
+
+        switch transactionType {
+        case .incoming, .outgoing:
+            return try createTransferItemFromData(
+                data,
+                commandFactory: commandFactory,
+                locale: locale,
+                txType: transactionType
+            )
+        case .reward, .slash:
+            return try createRewardOrSlashItemFromData(
+                data,
+                commandFactory: commandFactory,
+                locale: locale,
+                txType: transactionType
+            )
+        case .extrinsic:
+            return try createExtrinsicItemFromData(
+                data,
+                commandFactory: commandFactory,
+                locale: locale,
+                txType: transactionType
+            )
+        }
     }
 }

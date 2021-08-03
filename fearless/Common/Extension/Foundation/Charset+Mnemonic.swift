@@ -2,7 +2,7 @@ import Foundation
 
 extension CharacterSet {
     static var englishMnemonic: CharacterSet {
-        return CharacterSet(charactersIn: "a"..."z")
-            .union(.whitespaces)
+        CharacterSet(charactersIn: "a" ... "z")
+            .union(.whitespacesAndNewlines)
     }
 }

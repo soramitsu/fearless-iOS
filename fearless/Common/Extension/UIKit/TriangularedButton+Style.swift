@@ -3,16 +3,8 @@ import SoraUI
 
 extension TriangularedButton {
     func applyDefaultStyle() {
-        triangularedView?.shadowOpacity = 0.0
-        triangularedView?.fillColor = R.color.colorDarkBlue()!
-        triangularedView?.highlightedFillColor = R.color.colorDarkBlue()!
-        triangularedView?.strokeColor = .clear
-        triangularedView?.highlightedStrokeColor = .clear
-
-        imageWithTitleView?.titleColor = R.color.colorWhite()!
         imageWithTitleView?.titleFont = UIFont.h5Title
-
-        changesContentOpacityWhenHighlighted = true
+        applyEnabledStyle()
     }
 
     func applyAccessoryStyle() {
@@ -27,5 +19,29 @@ extension TriangularedButton {
         imageWithTitleView?.titleFont = UIFont.h5Title
 
         changesContentOpacityWhenHighlighted = true
+    }
+
+    func applyEnabledStyle() {
+        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.fillColor = R.color.colorAccent()!
+        triangularedView?.highlightedFillColor = R.color.colorAccent()!
+        triangularedView?.strokeColor = .clear
+        triangularedView?.highlightedStrokeColor = .clear
+
+        imageWithTitleView?.titleColor = R.color.colorWhite()!
+
+        changesContentOpacityWhenHighlighted = true
+    }
+
+    func applyDisabledStyle() {
+        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.fillColor = R.color.colorDarkGray()!
+        triangularedView?.highlightedFillColor = R.color.colorDarkGray()!
+        triangularedView?.strokeColor = .clear
+        triangularedView?.highlightedStrokeColor = .clear
+
+        imageWithTitleView?.titleColor = R.color.colorStrokeGray()
+
+        contentOpacityWhenDisabled = 1.0
     }
 }

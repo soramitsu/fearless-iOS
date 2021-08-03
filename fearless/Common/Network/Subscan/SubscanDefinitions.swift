@@ -3,18 +3,20 @@ import IrohaCrypto
 
 struct SubscanApi {
     static let price = "api/open/price"
-    static let history = "api/scan/transfers"
+    static let transfers = "api/scan/transfers"
+    static let rewardsAndSlashes = "api/scan/account/reward_slash"
+    static let extrinsics = "/api/scan/extrinsics"
 }
 
 extension WalletAssetId {
     var subscanUrl: URL? {
         switch self {
         case .dot:
-            return URL(string: "https://polkadot.subscan.io/")
+            return URL(string: "https://polkadot.api.subscan.io/")
         case .kusama:
-            return URL(string: "https://kusama.subscan.io/")
+            return URL(string: "https://kusama.api.subscan.io/")
         case .westend:
-            return URL(string: "https://westend.subscan.io/")
+            return URL(string: "https://westend.api.subscan.io/")
         default:
             return nil
         }
@@ -24,7 +26,7 @@ extension WalletAssetId {
         switch self {
         case .dot, .kusama:
             return true
-        case .usd, .westend:
+        case .usd, .westend, .roc:
             return false
         }
     }

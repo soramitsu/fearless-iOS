@@ -1,6 +1,6 @@
 import Foundation
 
-struct HistoryInfo: Codable {
+struct HistoryInfo: Encodable {
     let address: String
     let row: Int
     let page: Int

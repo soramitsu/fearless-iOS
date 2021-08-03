@@ -5,6 +5,8 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import xxHash_Swift
+import SoraKeystore
+import SoraFoundation
 
 class JSONRPCTests: XCTestCase {
     struct RpcInterface: Decodable {
@@ -177,157 +179,6 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
-    func testWestendExistentialDeposit() throws {
-        let balanceData = try Data(hexString: "0x00e40b54020000000000000000000000")
-
-        let scaleDecoder = try ScaleDecoder(data: balanceData)
-        let balance = try Balance(scaleDecoder: scaleDecoder)
-
-        let decimalBalance = Decimal.fromSubstrateAmount(balance.value, precision: 12)!
-        Logger.shared.debug("Existential deposit on westend: \(decimalBalance.stringWithPointSeparator)")
-    }
-
-    func testKusamaExistentialDeposit() throws {
-        let balanceData = try Data(hexString: "0xaa505763000000000000000000000000")
-
-        let scaleDecoder = try ScaleDecoder(data: balanceData)
-        let balance = try Balance(scaleDecoder: scaleDecoder)
-
-        Logger.shared.debug("Kusama balance: \(balance)")
-
-        let decimalBalance = Decimal.fromSubstrateAmount(balance.value, precision: 12)!
-        Logger.shared.debug("Existential deposit on kusama: \(decimalBalance.stringWithPointSeparator)")
-    }
-
-    func testPolkadotExistentialDeposit() throws {
-        let balanceData = try Data(hexString: "0x00e40b54020000000000000000000000")
-
-        let scaleDecoder = try ScaleDecoder(data: balanceData)
-        let balance = try Balance(scaleDecoder: scaleDecoder)
-
-        let decimalBalance = Decimal.fromSubstrateAmount(balance.value, precision: 10)!
-        Logger.shared.debug("Existential deposit on polkadot: \(decimalBalance.stringWithPointSeparator)")
-    }
-
-    func testAccountInfoWestend() throws {
-        try performAccountInfoTest(url: URL(string: "wss://westend-rpc.polkadot.io/")!,
-                                   address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-                                   type: .genericSubstrate,
-                                   precision: 12)
-    }
-
-    func testAccountInfoKusama() throws {
-        try performAccountInfoTest(url: URL(string: "wss://kusama-rpc.polkadot.io")!,
-                                   address: "DayVh23V32nFhvm2WojKx2bYZF1CirRgW2Jti9TXN9zaiH5",
-                                   type: .kusamaMain,
-                                   precision: 12)
-    }
-
-    func testAccountInfoPolkadot() throws {
-        try performAccountInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
-                                   address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
-                                   type: .polkadotMain,
-                                   precision: 10)
-    }
-
-    func performAccountInfoTest(url: URL, address: String, type: SNAddressType, precision: Int16) throws {
-        // given
-
-        let logger = Logger.shared
-        let operationQueue = OperationQueue()
-
-        let engine = WebSocketEngine(url: url, logger: logger)
-
-        // when
-
-        let identifier = try SS58AddressFactory().accountId(fromAddress: address,
-                                                            type: type)
-
-        let key = try StorageKeyFactory().accountInfoKeyForId(identifier).toHex(includePrefix: true)
-
-        let operation = JSONRPCListOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
-                                                                              method: RPCMethod.getStorage,
-                                                                              parameters: [key])
-
-        operationQueue.addOperations([operation], waitUntilFinished: true)
-
-        // then
-
-        do {
-            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            guard let accountData = result.underlyingValue?.data else {
-                XCTFail("Empty account id")
-                return
-            }
-
-            Logger.shared.debug("Free: \(Decimal.fromSubstrateAmount(accountData.free.value, precision: precision)!)")
-            Logger.shared.debug("Reserved: \(Decimal.fromSubstrateAmount(accountData.reserved.value, precision: precision)!)")
-            Logger.shared.debug("Misc Frozen: \(Decimal.fromSubstrateAmount(accountData.miscFrozen.value, precision: precision)!)")
-            Logger.shared.debug("Fee Frozen: \(Decimal.fromSubstrateAmount(accountData.feeFrozen.value, precision: precision)!)")
-
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-    }
-
-    func testStakingLedgerPolkadot() throws {
-        try performStakingInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
-                                   address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
-                                   type: .polkadotMain,
-                                   precision: 10)
-    }
-
-    func testStakingLedgerWestend() throws {
-        try performStakingInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
-                                   address: "5D5MT5A7256hM48Y2cMDQy5v1wPHowxgriANQmv376d9Hw2T",
-                                   type: .genericSubstrate,
-                                   precision: 12)
-    }
-
-    func performStakingInfoTest(url: URL, address: String, type: SNAddressType, precision: Int16) throws {
-        // given
-
-        let logger = Logger.shared
-        let operationQueue = OperationQueue()
-
-        let engine = WebSocketEngine(url: url, logger: logger)
-
-        // when
-
-        let identifier = try SS58AddressFactory().accountId(fromAddress: address,
-                                                            type: type)
-
-        let key = try StorageKeyFactory().stakingInfoForControllerId(identifier).toHex(includePrefix: true)
-
-        let operation = JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
-                                                                                method: RPCMethod.getStorage,
-                                                                                parameters: [key])
-
-        operationQueue.addOperations([operation], waitUntilFinished: true)
-
-        // then
-
-        do {
-            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            guard let stakingLedger = result.underlyingValue else {
-                XCTFail("Empty account id")
-                return
-            }
-
-            Logger.shared.debug("Total: \(Decimal.fromSubstrateAmount(stakingLedger.total, precision: precision)!)")
-            Logger.shared.debug("Active: \(Decimal.fromSubstrateAmount(stakingLedger.active, precision: precision)!)")
-
-            for unlocking in stakingLedger.unlocking {
-                Logger.shared.debug("Unlocking: \(Decimal.fromSubstrateAmount(unlocking.value, precision: precision)!) at: \(unlocking.era)")
-            }
-
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-    }
-
     func testPolkadotActiveEra() {
         performGetActiveEra(url: URL(string: "wss://rpc.polkadot.io/")!)
     }
@@ -342,10 +193,10 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let moduleKeyHash = "Staking".data(using: .utf8)!.xxh128()
-        let serviceKeyHash = "ActiveEra".data(using: .utf8)!.xxh128()
-
-        let key = (moduleKeyHash + serviceKeyHash).toHex(includePrefix: true)
+        let storageFactory = StorageKeyFactory()
+        let key = try! storageFactory
+            .createStorageKey(moduleName: "Staking", storageName: "ActiveEra")
+            .toHex(includePrefix: true)
 
         let operation = JSONRPCListOperation<JSONScaleDecodable<UInt32>>(engine: engine,
                                                                          method: RPCMethod.getStorage,
@@ -359,11 +210,53 @@ class JSONRPCTests: XCTestCase {
             let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             guard let activeEra = result.underlyingValue else {
-                XCTFail("Empty account id")
+                XCTFail("Empty Active Era")
                 return
             }
 
             Logger.shared.debug("Active Era: \(activeEra)")
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testPolkadotCurrentEra() {
+        performGetCurrentEra(url: URL(string: "wss://rpc.polkadot.io/")!)
+    }
+
+    func performGetCurrentEra(url: URL) {
+        // given
+
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let storageFactory = StorageKeyFactory()
+        let key = try! storageFactory
+            .createStorageKey(moduleName: "Staking", storageName: "CurrentEra")
+            .toHex(includePrefix: true)
+
+        let operation = JSONRPCListOperation<JSONScaleDecodable<UInt32>>(engine: engine,
+                                                                         method: RPCMethod.getStorage,
+                                                                         parameters: [key])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            guard let currentEra = result.underlyingValue else {
+                XCTFail("Empty Current Era")
+                return
+            }
+
+            Logger.shared.debug("Current Era: \(currentEra)")
 
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -397,233 +290,209 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
-    func testGetPendingTransactions() {
+    func testWestendStakersFetch() throws {
         // given
 
-        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
-        let logger = Logger.shared
-        let operationQueue = OperationQueue()
+        let settings = InMemorySettingsManager()
+        let keychain = InMemoryKeychain()
+        let chain = Chain.westend
+        let storageFacade = SubstrateStorageTestFacade()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
+                                                            networkType: chain,
+                                                            keychain: keychain,
+                                                            settings: settings)
+
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let runtimeService = try createRuntimeService(from: storageFacade,
+                                                      operationManager: operationManager,
+                                                      chain: chain,
+                                                      logger: Logger.shared)
+
+        runtimeService.setup()
+
+        let webSocketService = createWebSocketService(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            settings: settings
+        )
+
+        webSocketService.setup()
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let hexKeys: [String] = ["0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f000003adc196911e491e08264834504a64ace1373f0c8ed5d57381ddf54a2f67a318fa42b1352681606d", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00000b1caab63c52abf8bc92ae6f12477a9c52d97b17bf3cf98158c081c69f8010d08f25b2dfce727940", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f000016d5103a6adeae4fc21ad1e5198cc0dc3b0f9f43a50f292678f63235ea321e59385d7ee45a720836", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00002726099619673eb6a0bcc553cb33f8b4676e6b6e812cafd86ea962dd99e5c765663a0a673e43704e", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00004245138345ca3fd8aebb0211dbb07b4d335a657257b8ac5e53794c901e4f616d4a254f2490c43934", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00004f0f0dc89f14ad14767f36484b1e2acf5c265c7a64bfb46e95259c66a8189bbcd216195def436852", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f00005c69b53821debaa39ae581fef1fc06828723715731adcf810e42ce4dadad629b1b7fa5c3c144a81d", "0x5f3e4907f716ac89b6347d15ececedca8bde0a0ea8864605e3b68ed9cb2da01b69ce245bbdafd3b0150f0000ce6a96a3775ab416f268995cc38974ce0686df1364875f26f2c32b246ddc18835512c3f9969f5836"]
+
+        let keys: () throws -> [Data] = {
+            return try hexKeys.map { try Data(hexString: $0) }
+        }
+
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
+            try coderFactoryOperation.extractNoCancellableResultData()
+        }
 
         // when
 
-        let operation = JSONRPCListOperation<[String]>(engine: engine,
-                                                       method: "author_pendingExtrinsics",
-                                                       parameters: [])
+        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
+            engine: webSocketService.connection!,
+            keys: keys,
+            factory: factoryClosure,
+            storagePath: .erasStakers
+        )
 
-        operationQueue.addOperations([operation], waitUntilFinished: true)
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        OperationQueue().addOperations(
+            [coderFactoryOperation] + wrapper.allOperations,
+            waitUntilFinished: true
+        )
+
+        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
 
         // then
 
-        do {
-            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            for extrinsicHex in result {
-                guard let extrisicData = try? Data(hexString: extrinsicHex) else {
-                    continue
-                }
-
-                guard
-                    let decoder = try? ScaleDecoder(data: extrisicData),
-                    let extrinsic = try? Extrinsic(scaleDecoder: decoder) else {
-                    continue
-                }
-
-                logger.debug("Did receive: \(extrinsic)")
-            }
-
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
+        XCTAssertEqual(hexKeys.count, resultsCount)
     }
 
-    func testTransfer() throws {
-        do {
-            let operationQueue = OperationQueue()
-
-            let url = URL(string: "wss://westend-rpc.polkadot.io/")!
-            let engine = WebSocketEngine(url: url, logger: Logger.shared)
-
-            let privateKeyData = try Data(hexString: "f3923eea431177cd21906d4308aea61c037055fb00575cae687217c6d8b2397f")
-
-            let accountId = try Data(hexString: "fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168")
-
-            let privateKey = try EDPrivateKey(rawData: privateKeyData)
-
-            let extrinsicData = try generateExtrinsicToAccount("5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-                                                               from: accountId,
-                                                               amount: Decimal(0.21).toSubstrateAmount()!,
-                                                               nonce: 0,
-                                                               privateKey: privateKey)
-            let operation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
-                                                                      method: "author_submitExtrinsic",
-                                                                      parameters: [extrinsicData.toHex(includePrefix: true)])
-
-            operationQueue.addOperations([operation], waitUntilFinished: true)
-
-            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            Logger.shared.debug("Received response: \(result)")
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-
+    func testMultipleChangesQuery() throws {
+        try performTestMultipleChangesQuery(keysCount: 100)
+        try performTestMultipleChangesQuery(keysCount: 1000)
+        try performTestMultipleChangesQuery(keysCount: 1999)
+        try performTestMultipleChangesQuery(keysCount: 3000)
+        try performTestMultipleChangesQuery(keysCount: 3001)
+        try performTestMultipleChangesQuery(keysCount: 1001)
+        try performTestMultipleChangesQuery(keysCount: 0)
     }
 
-    func testGetPaymentInfo() throws {
+    func performTestMultipleChangesQuery(keysCount: Int) throws {
         // given
 
-        let seed = Data(repeating: 0, count: 32)
-        let keypair = try SNKeyFactory().createKeypair(fromSeed: seed)
-        let logger = Logger.shared
-        let addressFactory = SS58AddressFactory()
-        let publicKey = try Data(hexString: "fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168")
-        let address = try addressFactory.address(fromPublicKey: try EDPublicKey(rawData: publicKey),
-                                                 type: .genericSubstrate)
+        let settings = InMemorySettingsManager()
+        let keychain = InMemoryKeychain()
+        let chain = Chain.kusama
+        let storageFacade = SubstrateStorageTestFacade()
 
-        logger.debug("Transfer from: \(address)")
+        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
+                                                            networkType: chain,
+                                                            keychain: keychain,
+                                                            settings: settings)
 
-        let operationQueue = OperationQueue()
+        let operationManager = OperationManagerFacade.sharedManager
 
-        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let runtimeService = try createRuntimeService(from: storageFacade,
+                                                      operationManager: operationManager,
+                                                      chain: chain)
+
+        runtimeService.setup()
+
+        let webSocketService = createWebSocketService(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            settings: settings
+        )
+
+        webSocketService.setup()
+
+        let address = "GqpApQStgzzGxYa1XQZQUq9L3aXhukxDWABccbeHEh7zPYR"
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let accountId = try SS58AddressFactory().accountId(from: address)
+
+        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
+            (0..<EraIndex(keysCount)).map { StringScaleMapper(value: $0) }
+        }
+
+        let keyParams2: () throws -> [AccountId] = {
+            (0..<keysCount).map { _ in accountId }
+        }
+
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
+            try coderFactoryOperation.extractNoCancellableResultData()
+        }
 
         // when
 
-        guard let amount = Decimal(string: "1.01")?.toSubstrateAmount() else {
-            XCTFail("Unexpected nil amount")
-            return
-        }
+        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
+            engine: webSocketService.connection!,
+            keyParams1: keyParams1,
+            keyParams2: keyParams2,
+            factory: factoryClosure,
+            storagePath: .erasStakers
+        )
 
-        let extrinsicData = try generateExtrinsicToAccount("5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-                                                           amount: amount,
-                                                           nonce: 6,
-                                                           keypair: keypair)
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
 
-        Logger.shared.debug("Extrinsic: \(extrinsicData.toHex())")
+        OperationQueue().addOperations(
+            [coderFactoryOperation] + wrapper.allOperations,
+            waitUntilFinished: true
+        )
 
-        let operation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
-                                                                  method: "payment_queryInfo",
-                                                                  parameters: [extrinsicData.toHex(includePrefix: true)])
-
-        operationQueue.addOperations([operation], waitUntilFinished: true)
+        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
 
         // then
 
-        do {
-            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            logger.debug("Received response: \(result)")
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
+        XCTAssertEqual(keysCount, resultsCount)
     }
 
-    // MARK: Private
+    private func createRuntimeService(from storageFacade: StorageFacadeProtocol,
+                                      operationManager: OperationManagerProtocol,
+                                      chain: Chain,
+                                      logger: LoggerProtocol? = nil) throws
+    -> RuntimeRegistryService {
+        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                           operationManager: operationManager,
+                                                           logger: logger)
 
-    func generateExtrinsicToAccount(_ address: String,
-                                    amount: BigUInt,
-                                    nonce: UInt32,
-                                    keypair: SNKeypairProtocol) throws -> Data {
-        let genesisHash = try Data(hexString: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e")
+        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
+            FileManager.default.temporaryDirectory
+        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
+        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
+                                                          directoryPath: runtimeDirectory)
 
-        let addressFactory = SS58AddressFactory()
-        let receiverAccountId = try addressFactory.accountId(fromAddress: address,
-                                                             type: .genericSubstrate)
-        let transferCall = TransferCallV27(receiver: receiverAccountId,
-                                           amount: amount)
-
-        let callEncoder = ScaleEncoder()
-        try transferCall.encode(scaleEncoder: callEncoder)
-        let callArguments = callEncoder.encode()
-
-        let call = Call(moduleIndex: 4, callIndex: 0, arguments: callArguments)
-
-        let era = Era.immortal
-        let tip = BigUInt(0)
-
-        let payload = ExtrinsicPayload(call: call,
-                                       era: era,
-                                       nonce: nonce,
-                                       tip: tip,
-                                       specVersion: 44,
-                                       transactionVersion: 3,
-                                       genesisHash: genesisHash,
-                                       blockHash: genesisHash)
-
-        let payloadEncoder = ScaleEncoder()
-        try payload.encode(scaleEncoder: payloadEncoder)
-
-        let signer = SNSigner(keypair: keypair)
-        let signature = try signer.sign(payloadEncoder.encode())
-
-        let transaction = TransactionV27(accountId: receiverAccountId,
-                                         signatureVersion: 0,
-                                         signature: signature.rawData(),
-                                         era: era,
-                                         nonce: nonce,
-                                         tip: tip)
-
-        let extrinsic = ExtrinsicV27(version: 132,
-                                     transaction: transaction,
-                                     call: call)
-
-        let extrinsicCoder = ScaleEncoder()
-        try extrinsic.encode(scaleEncoder: extrinsicCoder)
-
-        return extrinsicCoder.encode()
+        return RuntimeRegistryService(chain: chain,
+                                      metadataProviderFactory: providerFactory,
+                                      dataOperationFactory: DataOperationFactory(),
+                                      filesOperationFacade: filesRepository,
+                                      operationManager: operationManager,
+                                      eventCenter: EventCenter.shared,
+                                      logger: logger)
     }
 
-    func generateExtrinsicToAccount(_ address: String,
-                                    from accountId: Data,
-                                    amount: BigUInt,
-                                    nonce: UInt32,
-                                    privateKey: EDPrivateKey) throws -> Data {
-        let genesisHash = try Data(hexString: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e")
+    private func createWebSocketService(storageFacade: StorageFacadeProtocol,
+                                        runtimeService: RuntimeCodingServiceProtocol,
+                                        operationManager: OperationManagerProtocol,
+                                        settings: SettingsManagerProtocol
+    ) -> WebSocketServiceProtocol {
+        let connectionItem = settings.selectedConnection
+        let address = settings.selectedAccount?.address
 
-        let addressFactory = SS58AddressFactory()
-        let receiverAccountId = try addressFactory.accountId(fromAddress: address,
-                                                             type: .genericSubstrate)
-        let transferCall = TransferCallV27(receiver: receiverAccountId,
-                                           amount: amount)
+        let settings = WebSocketServiceSettings(url: connectionItem.url,
+                                                addressType: connectionItem.type,
+                                                address: address)
 
-        let callEncoder = ScaleEncoder()
-        try transferCall.encode(scaleEncoder: callEncoder)
-        let callArguments = callEncoder.encode()
+        let factory = WebSocketSubscriptionFactory(
+            storageFacade: storageFacade,
+            runtimeService: runtimeService,
+            operationManager: operationManager
+        )
 
-        let call = Call(moduleIndex: 4, callIndex: 0, arguments: callArguments)
-
-        let era = Era.immortal
-        let tip = BigUInt(0)
-
-        let payload = ExtrinsicPayload(call: call,
-                                       era: era,
-                                       nonce: nonce,
-                                       tip: tip,
-                                       specVersion: 44,
-                                       transactionVersion: 3,
-                                       genesisHash: genesisHash,
-                                       blockHash: genesisHash)
-
-        let payloadEncoder = ScaleEncoder()
-        try payload.encode(scaleEncoder: payloadEncoder)
-
-        let signer = EDSigner(privateKey: privateKey)
-        let signature = try signer.sign(payloadEncoder.encode())
-
-        let transaction = TransactionV27(accountId: accountId,
-                                         signatureVersion: 0,
-                                         signature: signature.rawData(),
-                                         era: era,
-                                         nonce: nonce,
-                                         tip: tip)
-
-        let extrinsic = ExtrinsicV27(version: 132,
-                                     transaction: transaction,
-                                     call: call)
-
-        let extrinsicCoder = ScaleEncoder()
-        try extrinsic.encode(scaleEncoder: extrinsicCoder)
-
-        return extrinsicCoder.encode()
+        return WebSocketService(settings: settings,
+                                connectionFactory: WebSocketEngineFactory(),
+                                subscriptionsFactory: factory,
+                                applicationHandler: ApplicationHandler())
     }
 }

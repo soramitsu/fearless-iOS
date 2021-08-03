@@ -23,7 +23,7 @@ final class ScaleDecoderOperation<T: ScaleDecodable>: BaseOperation<T?> {
 
         do {
             let decoder = try ScaleDecoder(data: data)
-            let item = try T.init(scaleDecoder: decoder)
+            let item = try T(scaleDecoder: decoder)
             result = .success(item)
         } catch {
             result = .failure(error)

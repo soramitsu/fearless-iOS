@@ -5,6 +5,7 @@ enum Chain: String, Codable, CaseIterable {
     case kusama = "Kusama"
     case polkadot = "Polkadot"
     case westend = "Westend"
+    case rococo = "Rococo"
 }
 
 extension Chain {
@@ -16,19 +17,8 @@ extension Chain {
             return .kusamaMain
         case .westend:
             return .genericSubstrate
+        case .rococo:
+            return .kusamaSecondary
         }
     }
-
-    var balanceModuleIndex: UInt8 {
-        switch self {
-        case .polkadot:
-            return 5
-        default:
-            return 4
-        }
-    }
-
-    var transferCallIndex: UInt8 { 0 }
-
-    var keepAliveTransferCallIndex: UInt8 { 3 }
 }

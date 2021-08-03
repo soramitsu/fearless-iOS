@@ -20,7 +20,7 @@ final class PinChangeWireframe: PinSetupWireframeProtocol, ModalAlertPresenting 
         }
     }
 
-    public func showSignup(from view: PinSetupViewProtocol?) {
+    func showSignup(from _: PinSetupViewProtocol?) {
         guard let signupViewController = OnboardingMainViewFactory.createViewForOnboarding()?.controller else {
             return
         }

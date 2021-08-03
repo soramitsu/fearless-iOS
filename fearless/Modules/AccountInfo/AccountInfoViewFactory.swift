@@ -13,13 +13,17 @@ final class AccountInfoViewFactory: AccountInfoViewFactoryProtocol {
         let view = AccountInfoViewController(nib: R.nib.accountInfoViewController)
         view.iconGenerating = PolkadotIconGenerator()
 
-        let presenter = AccountInfoPresenter(address: address,
-                                             localizationManager: LocalizationManager.shared)
-        let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
-                                               settings: SettingsManager.shared,
-                                               keystore: Keychain(),
-                                               eventCenter: EventCenter.shared,
-                                               operationManager: OperationManagerFacade.sharedManager)
+        let presenter = AccountInfoPresenter(
+            address: address,
+            localizationManager: LocalizationManager.shared
+        )
+        let interactor = AccountInfoInteractor(
+            repository: AnyDataProviderRepository(repository),
+            settings: SettingsManager.shared,
+            keystore: Keychain(),
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
         let wireframe = AccountInfoWireframe()
 
         view.presenter = presenter

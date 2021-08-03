@@ -5,7 +5,7 @@ import IrohaCrypto
 import FearlessUtils
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
-	static func createView() -> ProfileViewProtocol? {
+    static func createView() -> ProfileViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
         let profileViewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
@@ -14,9 +14,11 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         view.iconGenerating = PolkadotIconGenerator()
 
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
-        let interactor = ProfileInteractor(settingsManager: SettingsManager.shared,
-                                           eventCenter: EventCenter.shared,
-                                           logger: Logger.shared)
+        let interactor = ProfileInteractor(
+            settingsManager: SettingsManager.shared,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
         let wireframe = ProfileWireframe()
 
         view.presenter = presenter
@@ -30,5 +32,5 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         presenter.logger = Logger.shared
 
         return view
-	}
+    }
 }

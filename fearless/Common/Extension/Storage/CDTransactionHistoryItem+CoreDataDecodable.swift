@@ -3,18 +3,23 @@ import RobinHood
 import CoreData
 
 extension CDTransactionHistoryItem: CoreDataCodable {
-    public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+    public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let container = try decoder.container(keyedBy: TransactionHistoryItem.CodingKeys.self)
 
         identifier = try container.decode(String.self, forKey: .txHash)
         sender = try container.decode(String.self, forKey: .sender)
-        receiver = try container.decode(String.self, forKey: .receiver)
+        receiver = try container.decodeIfPresent(String.self, forKey: .receiver)
         status = try container.decode(Int16.self, forKey: .status)
         timestamp = try container.decode(Int64.self, forKey: .timestamp)
-        amount = try container.decode(String.self, forKey: .amount)
         fee = try container.decode(String.self, forKey: .fee)
 
-        if let number = try container.decodeIfPresent(Int64.self, forKey: .blockNumber) {
+        let callPath = try container.decode(CallCodingPath.self, forKey: .callPath)
+        callName = callPath.callName
+        moduleName = callPath.moduleName
+
+        call = try container.decodeIfPresent(Data.self, forKey: .call)
+
+        if let number = try container.decodeIfPresent(UInt64.self, forKey: .blockNumber) {
             blockNumber = NSNumber(value: number)
         } else {
             blockNumber = nil
@@ -35,9 +40,15 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         try container.encodeIfPresent(receiver, forKey: .receiver)
         try container.encodeIfPresent(status, forKey: .status)
         try container.encodeIfPresent(timestamp, forKey: .timestamp)
-        try container.encodeIfPresent(amount, forKey: .amount)
         try container.encodeIfPresent(fee, forKey: .fee)
-        try container.encodeIfPresent(blockNumber?.int64Value, forKey: .blockNumber)
+        try container.encodeIfPresent(blockNumber?.uint64Value, forKey: .blockNumber)
         try container.encodeIfPresent(txIndex?.int16Value, forKey: .txIndex)
+
+        if let moduleName = moduleName, let callName = callName {
+            let callPath = CallCodingPath(moduleName: moduleName, callName: callName)
+            try container.encode(callPath, forKey: .callPath)
+        }
+
+        try container.encodeIfPresent(call, forKey: .call)
     }
 }

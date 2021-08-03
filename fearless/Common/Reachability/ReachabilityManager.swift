@@ -1,7 +1,7 @@
 import Foundation
 import Reachability
 
-protocol ReachabilityListenerDelegate: class {
+protocol ReachabilityListenerDelegate: AnyObject {
     func didChangeReachability(by manager: ReachabilityManagerProtocol)
 }
 
@@ -12,7 +12,7 @@ protocol ReachabilityManagerProtocol {
     func remove(listener: ReachabilityListenerDelegate)
 }
 
-fileprivate final class ReachabilityListenerWrapper {
+private final class ReachabilityListenerWrapper {
     weak var listener: ReachabilityListenerDelegate?
 
     init(listener: ReachabilityListenerDelegate) {
@@ -33,13 +33,13 @@ final class ReachabilityManager {
 
         reachability = newReachability
 
-        reachability.whenReachable = { [weak self] (reachability) in
+        reachability.whenReachable = { [weak self] _ in
             if let strongSelf = self {
                 self?.listeners.forEach { $0.listener?.didChangeReachability(by: strongSelf) }
             }
         }
 
-        reachability.whenUnreachable = { [weak self] (reachability) in
+        reachability.whenUnreachable = { [weak self] _ in
             if let strongSelf = self {
                 self?.listeners.forEach { $0.listener?.didChangeReachability(by: strongSelf) }
             }
@@ -48,13 +48,12 @@ final class ReachabilityManager {
 }
 
 extension ReachabilityManager: ReachabilityManagerProtocol {
-
     var isReachable: Bool {
-        return reachability.connection != .unavailable
+        reachability.connection != .unavailable
     }
 
     func add(listener: ReachabilityListenerDelegate) throws {
-        if listeners.count == 0 {
+        if listeners.isEmpty {
             try reachability.startNotifier()
         }
 
@@ -69,7 +68,7 @@ extension ReachabilityManager: ReachabilityManagerProtocol {
     func remove(listener: ReachabilityListenerDelegate) {
         listeners = listeners.filter { $0.listener != nil && $0.listener !== listener }
 
-        if listeners.count == 0 {
+        if listeners.isEmpty {
             reachability.stopNotifier()
         }
     }

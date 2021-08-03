@@ -6,7 +6,7 @@ open class TriangularedBlurView: UIView {
     private(set) var blurMaskView: TriangularedView?
     private(set) var overlayView: TriangularedView!
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
 
         configure()
@@ -20,7 +20,7 @@ open class TriangularedBlurView: UIView {
 
     var sideLength: CGFloat = 10.0 {
         didSet {
-            blurMaskView?.sideLength  = sideLength
+            blurMaskView?.sideLength = sideLength
             overlayView.sideLength = sideLength
         }
     }
@@ -32,7 +32,7 @@ open class TriangularedBlurView: UIView {
         }
     }
 
-    var blurStyle: UIBlurEffect.Style = .regular {
+    var blurStyle: UIBlurEffect.Style = .dark {
         didSet {
             removeBlurView()
             addBlurView()
@@ -86,7 +86,7 @@ open class TriangularedBlurView: UIView {
         }
     }
 
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
 
         blurMaskView?.frame = CGRect(origin: .zero, size: bounds.size)

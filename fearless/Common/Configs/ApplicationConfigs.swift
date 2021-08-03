@@ -12,13 +12,17 @@ protocol ApplicationConfigProtocol {
     var version: String { get }
     var opensourceURL: URL { get }
     var appName: String { get }
-    var logoUrl: URL { get }
+    var logoURL: URL { get }
     var purchaseAppName: String { get }
+    var moonPayApiKey: String { get }
     var purchaseRedirect: URL { get }
+    var phishingListURL: URL { get }
+    var learnPayoutURL: URL { get }
+    var learnControllerAccountURL: URL { get }
 }
 
 final class ApplicationConfig {
-    static let shared: ApplicationConfig! = ApplicationConfig()
+    static let shared = ApplicationConfig()
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol {
@@ -50,7 +54,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://t.me/fearlesswallet")!
     }
 
-    //swiftlint:disable force_cast
+    // swiftlint:disable force_cast
     var version: String {
         let bundle = Bundle(for: ApplicationConfig.self)
 
@@ -59,31 +63,48 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
         return "\(mainVersion).\(buildNumber)"
     }
-    //swiftlint:enable force_cast
+
+    // swiftlint:enable force_cast
 
     var opensourceURL: URL {
         URL(string: "https://github.com/soramitsu/fearless-iOS")!
     }
 
-    //swiftlint:disable force_cast
+    // swiftlint:disable force_cast
     var appName: String {
         let bundle = Bundle(for: ApplicationConfig.self)
         return bundle.infoDictionary?["CFBundleDisplayName"] as! String
     }
-    //swiftlint:enable force_cast
 
-    //swiftlint:disable line_length
-    var logoUrl: URL {
+    // swiftlint:enable force_cast
+
+    // swiftlint:disable line_length
+    var logoURL: URL {
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }
-    //swiftlint:enable line_length
 
     var purchaseAppName: String {
-        return "Fearless Wallet"
+        "Fearless Wallet"
+    }
+
+    var moonPayApiKey: String {
+        "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
     }
 
     var purchaseRedirect: URL {
-        return URL(string: "fearless://fearless.io/redirect")!
+        URL(string: "fearless://fearless.io/redirect")!
+    }
+
+    var phishingListURL: URL {
+        URL(string: "https://polkadot.js.org/phishing/address.json")!
+    }
+
+    var learnPayoutURL: URL {
+        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
+    }
+
+    var learnControllerAccountURL: URL {
+        URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
     }
 }

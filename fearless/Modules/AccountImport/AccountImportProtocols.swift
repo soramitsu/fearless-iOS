@@ -18,7 +18,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func didValidateDerivationPath(_ status: FieldStatus)
 }
 
-protocol AccountImportPresenterProtocol: class {
+protocol AccountImportPresenterProtocol: AnyObject {
     func setup()
     func selectSourceType()
     func selectCryptoType()
@@ -28,7 +28,7 @@ protocol AccountImportPresenterProtocol: class {
     func proceed()
 }
 
-protocol AccountImportInteractorInputProtocol: class {
+protocol AccountImportInteractorInputProtocol: AnyObject {
     func setup()
     func importAccountWithMnemonic(request: AccountImportMnemonicRequest)
     func importAccountWithSeed(request: AccountImportSeedRequest)
@@ -36,7 +36,7 @@ protocol AccountImportInteractorInputProtocol: class {
     func deriveMetadataFromKeystore(_ keystore: String)
 }
 
-protocol AccountImportInteractorOutputProtocol: class {
+protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didReceiveAccountImport(metadata: AccountImportMetadata)
     func didCompleteAccountImport()
     func didReceiveAccountImport(error: Error)
@@ -46,27 +46,34 @@ protocol AccountImportInteractorOutputProtocol: class {
 protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceed(from view: AccountImportViewProtocol?)
 
-    func presentSourceTypeSelection(from view: AccountImportViewProtocol?,
-                                    availableSources: [AccountImportSource],
-                                    selectedSource: AccountImportSource,
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?)
+    func presentSourceTypeSelection(
+        from view: AccountImportViewProtocol?,
+        availableSources: [AccountImportSource],
+        selectedSource: AccountImportSource,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
 
-    func presentCryptoTypeSelection(from view: AccountImportViewProtocol?,
-                                    availableTypes: [CryptoType],
-                                    selectedType: CryptoType,
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?)
+    func presentCryptoTypeSelection(
+        from view: AccountImportViewProtocol?,
+        availableTypes: [CryptoType],
+        selectedType: CryptoType,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
 
-    func presentNetworkTypeSelection(from view: AccountImportViewProtocol?,
-                                     availableTypes: [Chain],
-                                     selectedType: Chain,
-                                     delegate: ModalPickerViewControllerDelegate?,
-                                     context: AnyObject?)
+    func presentNetworkTypeSelection(
+        from view: AccountImportViewProtocol?,
+        availableTypes: [Chain],
+        selectedType: Chain,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
 }
 
-protocol AccountImportViewFactoryProtocol: class {
-	static func createViewForOnboarding() -> AccountImportViewProtocol?
+protocol AccountImportViewFactoryProtocol: AnyObject {
+    static func createViewForOnboarding() -> AccountImportViewProtocol?
     static func createViewForAdding() -> AccountImportViewProtocol?
     static func createViewForConnection(item: ConnectionItem) -> AccountImportViewProtocol?
+    static func createViewForSwitch() -> AccountImportViewProtocol?
 }

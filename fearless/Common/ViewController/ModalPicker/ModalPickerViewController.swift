@@ -2,15 +2,15 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-protocol ModalPickerViewControllerDelegate: class {
+protocol ModalPickerViewControllerDelegate: AnyObject {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?)
     func modalPickerDidCancel(context: AnyObject?)
     func modalPickerDidSelectAction(context: AnyObject?)
 }
 
 extension ModalPickerViewControllerDelegate {
-    func modalPickerDidCancel(context: AnyObject?) {}
-    func modalPickerDidSelectAction(context: AnyObject?) {}
+    func modalPickerDidCancel(context _: AnyObject?) {}
+    func modalPickerDidSelectAction(context _: AnyObject?) {}
 }
 
 enum ModalPickerViewAction {
@@ -19,8 +19,9 @@ enum ModalPickerViewAction {
 }
 
 class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>: UIViewController,
-    ModalViewProtocol, UITableViewDelegate, UITableViewDataSource where T == C.Model {
-
+    ModalViewProtocol,
+    UITableViewDelegate,
+    UITableViewDataSource where T == C.Model {
     @IBOutlet private var headerView: ImageWithTitleView!
     @IBOutlet private var headerBackgroundView: BorderedContainerView!
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
@@ -41,6 +42,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var allowsSelection: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
+    var separatorStyle: UITableViewCell.SeparatorStyle = .none
+    var separatorColor: UIColor?
 
     weak var delegate: ModalPickerViewControllerDelegate?
     weak var presenter: ModalPresenterProtocol?
@@ -62,6 +65,11 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         }
 
         tableView.allowsSelection = allowsSelection
+        tableView.separatorStyle = separatorStyle
+
+        if let separatorColor = separatorColor {
+            tableView.separatorColor = separatorColor
+        }
 
         headerHeightConstraint.constant = headerHeight
 
@@ -109,8 +117,10 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     }
 
     private func centerHeader() {
-        headerView.trailingAnchor.constraint(equalTo: headerBackgroundView.trailingAnchor,
-                                             constant: -20.0).isActive = true
+        headerView.trailingAnchor.constraint(
+            equalTo: headerBackgroundView.trailingAnchor,
+            constant: -20.0
+        ).isActive = true
     }
 
     private func configureCloseItem() {
@@ -148,22 +158,22 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
             selectedIndex = indexPath.row
 
-            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
             presenter?.hide(view: self, animated: true)
+            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cellHeight
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        cellHeight
     }
 
     // MARK: Table View Data Source
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModels.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        viewModels.count
     }
 
-    //swiftlint:disable force_cast
+    // swiftlint:disable force_cast
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! C
 
@@ -174,7 +184,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         return cell
     }
-    //swiftlint:enable force_cast
+
+    // swiftlint:enable force_cast
 
     @objc private func handleAction() {
         delegate?.modalPickerDidSelectAction(context: context)
@@ -197,7 +208,7 @@ extension ModalPickerViewController: Localizable {
 }
 
 extension ModalPickerViewController: ModalPresenterDelegate {
-    func presenterDidHide(_ presenter: ModalPresenterProtocol) {
+    func presenterDidHide(_: ModalPresenterProtocol) {
         delegate?.modalPickerDidCancel(context: context)
     }
 }

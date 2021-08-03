@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-protocol ConnectionTableViewCellDelegate: class {
+protocol ConnectionTableViewCellDelegate: AnyObject {
     func didSelectInfo(_ cell: ConnectionTableViewCell)
 }
 
@@ -26,7 +26,7 @@ final class ConnectionTableViewCell: UITableViewCell {
         }
 
         if reordering {
-            recolorReoderControl(R.color.colorWhite()!)
+            recolorReorderControl(R.color.colorWhite()!)
         }
     }
 
@@ -34,7 +34,7 @@ final class ConnectionTableViewCell: UITableViewCell {
         super.awakeFromNib()
 
         let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = R.color.colorDarkBlue()!.withAlphaComponent(0.3)
+        selectedBackgroundView.backgroundColor = R.color.colorAccent()!.withAlphaComponent(0.3)
         self.selectedBackgroundView = selectedBackgroundView
 
         showsReorderControl = false
@@ -59,5 +59,4 @@ final class ConnectionTableViewCell: UITableViewCell {
     @IBAction private func actionInfo() {
         delegate?.didSelectInfo(self)
     }
-
 }

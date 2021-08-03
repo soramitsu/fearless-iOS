@@ -14,6 +14,12 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
     }
 
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?) {
+        if let view = view {
+            MainTabBarViewFactory.reloadCrowdloanView(on: view)
+        }
+    }
+
     func reloadWalletContent() {
         try? walletContext.prepareAccountUpdateCommand().execute()
     }
@@ -28,7 +34,8 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
 
         guard let importController = AccountImportViewFactory
-            .createViewForAdding()?.controller else {
+            .createViewForAdding()?.controller
+        else {
             return
         }
 
