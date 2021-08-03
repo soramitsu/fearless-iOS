@@ -60,10 +60,14 @@ final class AnalyticsPeriodSelectorView: UIView {
         addSubview(verticalStack)
         verticalStack.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview()
+        }
+
+        separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
+        periodView.snp.makeConstraints { make in
+            make.height.equalTo(24)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
-        separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
-        periodView.snp.makeConstraints { $0.height.equalTo(24) }
     }
 
     @objc

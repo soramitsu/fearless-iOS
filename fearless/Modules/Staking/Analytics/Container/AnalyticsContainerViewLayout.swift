@@ -54,8 +54,7 @@ final class AnalyticsContainerViewLayout: UIView {
         let container = UIView()
         horizontalScrollView.addSubview(container)
         container.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.height.equalTo(self).inset(88)
+            $0.edges.height.equalToSuperview()
         }
 
         container.addSubview(embeddedModulesStackView)
