@@ -32,6 +32,7 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.registerClassForCell(AnalyticsHistoryCell.self)
+        rootView.tableView.registerHeaderFooterView(withClass: AnalyticsSectionHeader.self)
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
         rootView.tableView.refreshControl?.addTarget(
@@ -83,6 +84,11 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 }
 
 extension AnalyticsRewardsViewController: UITableViewDataSource {
+    func numberOfSections(in _: UITableView) -> Int {
+        guard case let .loaded(viewModel) = viewState else { return 0 }
+        return viewModel.rewardSections.count
+    }
+
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard case let .loaded(viewModel) = viewState else { return 0 }
         return viewModel.rewardSections[section].items.count
@@ -96,6 +102,13 @@ extension AnalyticsRewardsViewController: UITableViewDataSource {
         let cellViewModel = viewModel.rewardSections[indexPath.section].items[indexPath.row]
         cell.historyView.bind(model: cellViewModel)
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard case let .loaded(viewModel) = viewState else { return nil }
+        let header: AnalyticsSectionHeader = tableView.dequeueReusableHeaderFooterView()
+        header.label.text = viewModel.rewardSections[section].title
+        return header
     }
 }
 

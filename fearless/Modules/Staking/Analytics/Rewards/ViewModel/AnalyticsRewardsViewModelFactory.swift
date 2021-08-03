@@ -128,7 +128,9 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsRewardsViewModelFactoryPr
         locale: Locale
     ) -> [AnalyticsRewardSection] {
         let formatter = DateFormatter.txHistory.value(for: locale)
-        let dateTitleFormatter = DateFormatter.shortDate.value(for: locale)
+        let dateTitleFormatter = DateFormatter()
+        dateTitleFormatter.locale = locale
+        dateTitleFormatter.dateFormat = "MMM d"
 
         return rewardsData
             .groupedBy(dateComponents: [.day])
@@ -157,7 +159,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsRewardsViewModelFactoryPr
                     )
                 }
 
-                let title = dateTitleFormatter.string(from: date)
+                let title = dateTitleFormatter.string(from: date).uppercased()
 
                 return AnalyticsRewardSection(
                     title: title,
