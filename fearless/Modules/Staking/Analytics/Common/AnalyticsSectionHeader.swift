@@ -4,7 +4,7 @@ final class AnalyticsSectionHeader: UITableViewHeaderFooterView {
     let label: UILabel = {
         let label = UILabel()
         label.font = .capsTitle
-        label.textColor = R.color.colorGray()
+        label.textColor = R.color.colorLightGray()
         return label
     }()
 

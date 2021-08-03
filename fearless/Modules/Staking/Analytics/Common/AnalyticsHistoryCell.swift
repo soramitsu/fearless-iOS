@@ -8,6 +8,7 @@ final class AnalyticsHistoryCell: UITableViewCell {
 
         setupBackground()
         setupLayout()
+        configureColors()
     }
 
     @available(*, unavailable)
@@ -24,5 +25,10 @@ final class AnalyticsHistoryCell: UITableViewCell {
         backgroundColor = .clear
         selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()
+    }
+
+    private func configureColors() {
+        historyView.daysLeftLabel.textColor = R.color.colorStrokeGray()
+        historyView.usdAmountLabel.textColor = R.color.colorStrokeGray()
     }
 }
