@@ -233,6 +233,7 @@
 		8424308D265B1814003E07EC /* CrowdloanOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8424308C265B1814003E07EC /* CrowdloanOperationFactory.swift */; };
 		84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84243094265B1888003E07EC /* CrowdloanMetadata.swift */; };
 		8424A8C7262EC0E50091BFB1 /* PayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8424A8C6262EC0E50091BFB1 /* PayoutInfo.swift */; };
+		8424DB0B26B8466A008C834F /* ValidatorOperationFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8424DB0A26B8466A008C834F /* ValidatorOperationFactoryProtocol.swift */; };
 		8425EA8B25EA7AF200C307C9 /* UnappliedSlashes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8425EA8A25EA7AF200C307C9 /* UnappliedSlashes.swift */; };
 		8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8425EA8F25EA7E5800C307C9 /* ElectedValidatorInfo.swift */; };
 		8425EA9525EA82CE00C307C9 /* AccountIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8425EA9425EA82CE00C307C9 /* AccountIdentity.swift */; };
@@ -789,6 +790,7 @@
 		849E689526AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E689426AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift */; };
 		84A15489262888CA0050D557 /* IdentityOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A15488262888CA0050D557 /* IdentityOperationFactory.swift */; };
 		84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */; };
+		84A2A60A26B82B35000C6C6C /* ValidatorOperationFactory+Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2A60926B82B35000C6C6C /* ValidatorOperationFactory+Protocol.swift */; };
 		84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90124E07E440020D3B7 /* CryptoType+Utils.swift */; };
 		84A2C90424E07F400020D3B7 /* AccountOperationFactoryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90324E07F400020D3B7 /* AccountOperationFactoryError.swift */; };
 		84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */; };
@@ -1136,7 +1138,7 @@
 		AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */; };
 		AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84D425EF989A00986716 /* ValidatorInfoWireframe.swift */; };
 		AE2C84DA25EF98A900986716 /* ValidatorInfoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84D925EF98A900986716 /* ValidatorInfoPresenter.swift */; };
-		AE2C84DF25EF98BA00986716 /* ValidatorInfoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84DE25EF98BA00986716 /* ValidatorInfoInteractor.swift */; };
+		AE2C84DF25EF98BA00986716 /* AnyValidatorInfoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84DE25EF98BA00986716 /* AnyValidatorInfoInteractor.swift */; };
 		AE2C84E425EF98C700986716 /* ValidatorInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84E325EF98C700986716 /* ValidatorInfoViewController.swift */; };
 		AE2C84E925EF98D500986716 /* ValidatorInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84E825EF98D500986716 /* ValidatorInfoViewFactory.swift */; };
 		AE4A71D42607B1440017C663 /* NetworkStakingInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE4A71D32607B1440017C663 /* NetworkStakingInfoViewModel.swift */; };
@@ -1163,6 +1165,9 @@
 		AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */; };
 		AE7E5BFE2615D23A006D5637 /* ProgressView + Manage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7E5BFD2615D23A006D5637 /* ProgressView + Manage.swift */; };
 		AE7E5C322615F13D006D5637 /* StoriesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7E5C312615F13D006D5637 /* StoriesTests.swift */; };
+		AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */; };
+		AE805FC726B3E54E00007CE9 /* YourValidatorInfoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */; };
+		AE805FCA26B42AE200007CE9 /* ValidatorOperationFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */; };
 		AE89720825F12143008EC414 /* ValidatorInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */; };
 		AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */; };
 		AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */; };
@@ -1665,6 +1670,7 @@
 		8424308C265B1814003E07EC /* CrowdloanOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanOperationFactory.swift; sourceTree = "<group>"; };
 		84243094265B1888003E07EC /* CrowdloanMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanMetadata.swift; sourceTree = "<group>"; };
 		8424A8C6262EC0E50091BFB1 /* PayoutInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PayoutInfo.swift; sourceTree = "<group>"; };
+		8424DB0A26B8466A008C834F /* ValidatorOperationFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactoryProtocol.swift; sourceTree = "<group>"; };
 		8425EA8A25EA7AF200C307C9 /* UnappliedSlashes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnappliedSlashes.swift; sourceTree = "<group>"; };
 		8425EA8F25EA7E5800C307C9 /* ElectedValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectedValidatorInfo.swift; sourceTree = "<group>"; };
 		8425EA9425EA82CE00C307C9 /* AccountIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountIdentity.swift; sourceTree = "<group>"; };
@@ -2228,6 +2234,7 @@
 		849E689426AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ElectedValidatorInfo+Selected.swift"; sourceTree = "<group>"; };
 		84A15488262888CA0050D557 /* IdentityOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityOperationFactory.swift; sourceTree = "<group>"; };
 		84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+Keystore.swift"; sourceTree = "<group>"; };
+		84A2A60926B82B35000C6C6C /* ValidatorOperationFactory+Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ValidatorOperationFactory+Protocol.swift"; sourceTree = "<group>"; };
 		84A2C90124E07E440020D3B7 /* CryptoType+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+Utils.swift"; sourceTree = "<group>"; };
 		84A2C90324E07F400020D3B7 /* AccountOperationFactoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactoryError.swift; sourceTree = "<group>"; };
 		84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountOperationFactoryError+Presentable.swift"; sourceTree = "<group>"; };
@@ -2571,7 +2578,7 @@
 		AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoProtocols.swift; sourceTree = "<group>"; };
 		AE2C84D425EF989A00986716 /* ValidatorInfoWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoWireframe.swift; sourceTree = "<group>"; };
 		AE2C84D925EF98A900986716 /* ValidatorInfoPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoPresenter.swift; sourceTree = "<group>"; };
-		AE2C84DE25EF98BA00986716 /* ValidatorInfoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoInteractor.swift; sourceTree = "<group>"; };
+		AE2C84DE25EF98BA00986716 /* AnyValidatorInfoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyValidatorInfoInteractor.swift; sourceTree = "<group>"; };
 		AE2C84E325EF98C700986716 /* ValidatorInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewController.swift; sourceTree = "<group>"; };
 		AE2C84E825EF98D500986716 /* ValidatorInfoViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewFactory.swift; sourceTree = "<group>"; };
 		AE4A71D32607B1440017C663 /* NetworkStakingInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfoViewModel.swift; sourceTree = "<group>"; };
@@ -2599,6 +2606,9 @@
 		AE74EC1F25FCF0A600C494E7 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		AE7E5BFD2615D23A006D5637 /* ProgressView + Manage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProgressView + Manage.swift"; sourceTree = "<group>"; };
 		AE7E5C312615F13D006D5637 /* StoriesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesTests.swift; sourceTree = "<group>"; };
+		AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoInteractorBase.swift; sourceTree = "<group>"; };
+		AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorInfoInteractor.swift; sourceTree = "<group>"; };
+		AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactoryStub.swift; sourceTree = "<group>"; };
 		AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModel.swift; sourceTree = "<group>"; };
 		AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListHeaderView.swift; sourceTree = "<group>"; };
@@ -3571,9 +3581,9 @@
 		841E6B0825EC1B560007DDFE /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				84A2A60826B82B1C000C6C6C /* ValidatorOperationFactory */,
 				F4FDA0F626A57613003D753B /* EraCountdownOperationFactory */,
 				84A15488262888CA0050D557 /* IdentityOperationFactory.swift */,
-				841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */,
 				AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */,
 				84690796264154E80030E693 /* SlashesOperationFactory.swift */,
 				846C372D26B199D10098F303 /* StakingDurationOperationFactory.swift */,
@@ -4132,6 +4142,7 @@
 				847CD46526416D0900E1542F /* SlashesOperationFactoryStub.swift */,
 				84F81317265B9E990043FA1D /* CrowdloansOperationFactoryStub.swift */,
 				F4897BB026AED13D0075F291 /* EraCountdownOperationFactoryStub.swift */,
+				AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */,
 			);
 			path = DataProviders;
 			sourceTree = "<group>";
@@ -5522,6 +5533,16 @@
 			path = InvoiceScan;
 			sourceTree = "<group>";
 		};
+		84A2A60826B82B1C000C6C6C /* ValidatorOperationFactory */ = {
+			isa = PBXGroup;
+			children = (
+				841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */,
+				84A2A60926B82B35000C6C6C /* ValidatorOperationFactory+Protocol.swift */,
+				8424DB0A26B8466A008C834F /* ValidatorOperationFactoryProtocol.swift */,
+			);
+			path = ValidatorOperationFactory;
+			sourceTree = "<group>";
+		};
 		84A2C90524E09DA60020D3B7 /* Operation */ = {
 			isa = PBXGroup;
 			children = (
@@ -6334,8 +6355,8 @@
 		AE2C84C825EF984700986716 /* ValidatorInfo */ = {
 			isa = PBXGroup;
 			children = (
+				AE805FC826B41E0E00007CE9 /* Interactor */,
 				84A3034826A834F900E64382 /* ValidatorInfoViewLayout.swift */,
-				AE2C84DE25EF98BA00986716 /* ValidatorInfoInteractor.swift */,
 				AE2C84D925EF98A900986716 /* ValidatorInfoPresenter.swift */,
 				AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */,
 				AE2C84E325EF98C700986716 /* ValidatorInfoViewController.swift */,
@@ -6443,6 +6464,16 @@
 				AE7E5C312615F13D006D5637 /* StoriesTests.swift */,
 			);
 			path = Stories;
+			sourceTree = "<group>";
+		};
+		AE805FC826B41E0E00007CE9 /* Interactor */ = {
+			isa = PBXGroup;
+			children = (
+				AE805FC626B3E54E00007CE9 /* YourValidatorInfoInteractor.swift */,
+				AE2C84DE25EF98BA00986716 /* AnyValidatorInfoInteractor.swift */,
+				AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */,
+			);
+			path = Interactor;
 			sourceTree = "<group>";
 		};
 		AE8B8833267349A400AB0AA9 /* Model */ = {
@@ -7525,7 +7556,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/ModuleMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME}\" \\\n--exclude \"RootPresenterFactoryProtocol, UsernameSetupViewFactoryProtocol, OnboardingMainViewFactoryProtocol, AccountCreateViewFactoryProtocol, AccountImportViewFactoryProtocol, AccountConfirmViewFactoryProtocol, PinViewFactoryProtocol, ProfileViewFactoryProtocol, AccountManagementViewFactoryProtocol, AccountInfoViewFactoryProtocol, NetworkManagementViewFactoryProtocol, NetworkInfoViewFactoryProtocol, AddConnectionViewFactoryProtocol, AccountExportPasswordViewFactoryProtocol, ExportRestoreJsonViewFactoryProtocol, ExportMnemonicViewFactoryProtocol, StakingMainViewFactoryProtocol, SelectValidatorsStartViewFactoryProtocol, SelectValidatorsConfirmViewFactoryProtocol, RecommendedValidatorListViewFactoryProtocol, SelectedValidatorListViewFactoryProtocol, CustomValidatorListViewFactoryProtocol, ValidatorInfoViewFactoryProtocol, StoriesViewFactoryProtocol, StoriesFactoryProtocol, WalletHistoryFilterViewFactoryProtocol, StakingPayoutConfirmationViewFactoryProtocol, StakingRewardDetailsViewFactoryProtocol, StakingRewardPayoutsViewFactoryProtocol, StakingPayoutConfirmViewModelFactoryProtocol, YourValidatorListViewFactoryProtocol, StakingUnbondSetupViewFactoryProtocol, StakingUnbondConfirmViewFactoryProtocol, StakingRedeemViewFactoryProtocol, StakingBondMoreViewFactoryProtocol, StakingRebondSetupViewFactoryProtocol, ValidatorListFilterViewFactoryProtocol, ValidatorSearchViewFactoryProtocol\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/../Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/LoadableViewProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/ControllerBackedProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/WebPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/AlertPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/ModalAlertPresenting.swift\" \\\n\"$INPUT_DIR/Common/Protocols/SharingPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/AccountSelectionPresentable.swift\" \\\n\"$INPUT_DIR/Modules/Root/RootProtocol.swift\" \\\n\"$INPUT_DIR/Modules/UsernameSetup/UsernameSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/OnbordingMain/OnboardingMainProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountCreate/AccountCreateProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountImport/AccountImportProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountConfirm/AccountConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Pincode/PinSetup/PinSetupProtocol.swift\" \\\n\"$INPUT_DIR/Modules/Profile/ProfileProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountManagement/AccountManagementProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountInfo/AccountInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/NetworkManagement/NetworkManagementProtocols.swift\" \\\n\"$INPUT_DIR/Modules/NetworkInfo/NetworkInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AddConnection/AddConnectionProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/AccountExportPassword/AccountExportPasswordProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/ExportGenericView/ExportGenericProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/ExportMnemonic/ExportMnemonicProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/ExportRestoreJson/ExportRestoreJsonProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Wallet/HistoryFilter/WalletHistoryFilterProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Operations/ValidatorOperationFactory.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingMain/StakingMainProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Operations/NetworkStakingInfoOperationFactory.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Stories/StoriesProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingPayoutConfirmation/StakingPayoutConfirmationProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardDetails/StakingRewardDetailsProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardPayouts/StakingRewardPayoutsProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingBalance/StakingBalanceProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingUnbondSetup/StakingUnbondSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingUnbondConfirm/StakingUnbondConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRedeem/StakingRedeemProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingBondMore/StakingBondMoreProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingBondMoreConfirmation/StakingBondMoreConfirmationProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRebondSetup/StakingRebondSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRebondConfirmation/StakingRebondConfirmationProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/ControllerAccount/ControllerAccountProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardDestinationSetup/StakingRewardDestSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardDestConfirm/StakingRewardDestConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/SelectValidatorsStart/SelectValidatorsStartProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/YourValidatorList/YourValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/ValidatorListFilter/ValidatorListFilterProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/ValidatorSearch/ValidatorSearchProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/SelectValidatorsConfirm/SelectValidatorsConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/RecommendedValidatorList/RecommendedValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/SelectedValidatorList/SelectedValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/CustomValidatorList/CustomValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/ValidatorInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanList/CrowdloanListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanContribution/CrowdloanContributionProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanContributionSetup/CrowdloanContributionSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanContributionConfirm/CrowdloanContributionConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CustomCrowdloan/CustomCrowdloanDelegate.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/ReferralCrowdloan/ReferralCrowdloanProtocols.swift\" \\\n";
+			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/ModuleMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME}\" \\\n--exclude \"RootPresenterFactoryProtocol, UsernameSetupViewFactoryProtocol, OnboardingMainViewFactoryProtocol, AccountCreateViewFactoryProtocol, AccountImportViewFactoryProtocol, AccountConfirmViewFactoryProtocol, PinViewFactoryProtocol, ProfileViewFactoryProtocol, AccountManagementViewFactoryProtocol, AccountInfoViewFactoryProtocol, NetworkManagementViewFactoryProtocol, NetworkInfoViewFactoryProtocol, AddConnectionViewFactoryProtocol, AccountExportPasswordViewFactoryProtocol, ExportRestoreJsonViewFactoryProtocol, ExportMnemonicViewFactoryProtocol, StakingMainViewFactoryProtocol, SelectValidatorsStartViewFactoryProtocol, SelectValidatorsConfirmViewFactoryProtocol, RecommendedValidatorListViewFactoryProtocol, SelectedValidatorListViewFactoryProtocol, CustomValidatorListViewFactoryProtocol, ValidatorInfoViewFactoryProtocol, StoriesViewFactoryProtocol, StoriesFactoryProtocol, WalletHistoryFilterViewFactoryProtocol, StakingPayoutConfirmationViewFactoryProtocol, StakingRewardDetailsViewFactoryProtocol, StakingRewardPayoutsViewFactoryProtocol, StakingPayoutConfirmViewModelFactoryProtocol, YourValidatorListViewFactoryProtocol, StakingUnbondSetupViewFactoryProtocol, StakingUnbondConfirmViewFactoryProtocol, StakingRedeemViewFactoryProtocol, StakingBondMoreViewFactoryProtocol, StakingRebondSetupViewFactoryProtocol, ValidatorListFilterViewFactoryProtocol, ValidatorSearchViewFactoryProtocol\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/../Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/LoadableViewProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/ControllerBackedProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/WebPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/AlertPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/ModalAlertPresenting.swift\" \\\n\"$INPUT_DIR/Common/Protocols/SharingPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/AccountSelectionPresentable.swift\" \\\n\"$INPUT_DIR/Modules/Root/RootProtocol.swift\" \\\n\"$INPUT_DIR/Modules/UsernameSetup/UsernameSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/OnbordingMain/OnboardingMainProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountCreate/AccountCreateProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountImport/AccountImportProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountConfirm/AccountConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Pincode/PinSetup/PinSetupProtocol.swift\" \\\n\"$INPUT_DIR/Modules/Profile/ProfileProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountManagement/AccountManagementProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountInfo/AccountInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/NetworkManagement/NetworkManagementProtocols.swift\" \\\n\"$INPUT_DIR/Modules/NetworkInfo/NetworkInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AddConnection/AddConnectionProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/AccountExportPassword/AccountExportPasswordProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/ExportGenericView/ExportGenericProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/ExportMnemonic/ExportMnemonicProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Export/ExportRestoreJson/ExportRestoreJsonProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Wallet/HistoryFilter/WalletHistoryFilterProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Operations/ValidatorOperationFactory/ValidatorOperationFactoryProtocol.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingMain/StakingMainProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Operations/NetworkStakingInfoOperationFactory.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Stories/StoriesProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingPayoutConfirmation/StakingPayoutConfirmationProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardDetails/StakingRewardDetailsProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardPayouts/StakingRewardPayoutsProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingBalance/StakingBalanceProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingUnbondSetup/StakingUnbondSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingUnbondConfirm/StakingUnbondConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRedeem/StakingRedeemProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingBondMore/StakingBondMoreProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingBondMoreConfirmation/StakingBondMoreConfirmationProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRebondSetup/StakingRebondSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRebondConfirmation/StakingRebondConfirmationProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/ControllerAccount/ControllerAccountProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardDestinationSetup/StakingRewardDestSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/StakingRewardDestConfirm/StakingRewardDestConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/SelectValidatorsStart/SelectValidatorsStartProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/YourValidatorList/YourValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/ValidatorListFilter/ValidatorListFilterProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/ValidatorSearch/ValidatorSearchProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/SelectValidatorsConfirm/SelectValidatorsConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/RecommendedValidatorList/RecommendedValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/SelectedValidatorList/SelectedValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/CustomValidatorList/CustomValidatorListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/ValidatorInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanList/CrowdloanListProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanContribution/CrowdloanContributionProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanContributionSetup/CrowdloanContributionSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CrowdloanContributionConfirm/CrowdloanContributionConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/CustomCrowdloan/CustomCrowdloanDelegate.swift\" \\\n\"$INPUT_DIR/Modules/Crowdloan/ReferralCrowdloan/ReferralCrowdloanProtocols.swift\" \\\n";
 		};
 		842D1E8924D207D900C30A7A /* Common Mock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7660,7 +7691,7 @@
 				F49F49A326A5C45600A25931 /* EraCountdownOperationFactoryTests.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
-				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */
+				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7722,6 +7753,7 @@
 				843C49DB24DF373000B71DDA /* AccountImportRequest.swift in Sources */,
 				843910C1253F36F300E3C217 /* BaseStorageChildSubscription.swift in Sources */,
 				84FAB0812543A7EE00319F74 /* ReceiveConfigurator.swift in Sources */,
+				AE805FC726B3E54E00007CE9 /* YourValidatorInfoInteractor.swift in Sources */,
 				84644AC52567EC05004EAA4B /* MultilineTriangularedView.swift in Sources */,
 				84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */,
 				840882B62514A5ED00177E20 /* SelectConnection+UsernameSetupWireframe.swift in Sources */,
@@ -8264,6 +8296,7 @@
 				8494424A265306BD0016E7BD /* ChangeRewardDestinationViewModel.swift in Sources */,
 				F4DCAE4726207EF900CCA6BF /* PayoutRewardsServiceProtocol.swift in Sources */,
 				8463A6F925E2F82E003B8160 /* CDSingleValue+CoreDataCodable.swift in Sources */,
+				8424DB0B26B8466A008C834F /* ValidatorOperationFactoryProtocol.swift in Sources */,
 				848FFE6625E6742400652AA5 /* EraValidatorService.swift in Sources */,
 				84729758260AA519009B86D0 /* SelectValidatorsConfirmInteractorBase.swift in Sources */,
 				846CD24D2656FEB800A2E4B6 /* StorageKeysQueryService.swift in Sources */,
@@ -8367,10 +8400,11 @@
 				AEA0C8A4267B6B1900F9666F /* SelectedValidatorListProtocols.swift in Sources */,
 				8475AE34258B934F00B058F3 /* TransferValidatingError.swift in Sources */,
 				8494D8552524633300614D8F /* WalletTransferTokenView.swift in Sources */,
-				AE2C84DF25EF98BA00986716 /* ValidatorInfoInteractor.swift in Sources */,
+				AE2C84DF25EF98BA00986716 /* AnyValidatorInfoInteractor.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
 				84F2FF0725E7AF8F008338D5 /* EraValidatorInfo.swift in Sources */,
 				843939902636F88F0087658D /* YourValidatorsModel.swift in Sources */,
+				84A2A60A26B82B35000C6C6C /* ValidatorOperationFactory+Protocol.swift in Sources */,
 				8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */,
 				84DA3B1924C8200E00B5E27F /* ConnectionItem+Default.swift in Sources */,
 				84D331AF2519E8080078D044 /* TriangularedView+Style.swift in Sources */,
@@ -8453,6 +8487,7 @@
 				8419378125442FEE00CFA50C /* WalletQRCoderFactory.swift in Sources */,
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
 				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
+				AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */,
 				F4D96B712637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift in Sources */,
 				AEE5FB0526415E5D002B8FDC /* StakingRebondSetupViewFactory.swift in Sources */,
 				84C7435B251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift in Sources */,
@@ -8949,6 +8984,7 @@
 				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
 				1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */,
 				F4BDDCBE2657A57F005336BA /* TransferValidatorTests.swift in Sources */,
+				AE805FCA26B42AE200007CE9 /* ValidatorOperationFactoryStub.swift in Sources */,
 				840C71BA26821D2000B6D9C2 /* StakingRedeemMock.swift in Sources */,
 				84FACB3825F5630000F32ED4 /* RuntimeHelper.swift in Sources */,
 				A565F118B7ED356099662F03 /* ExportMnemonicTests.swift in Sources */,
