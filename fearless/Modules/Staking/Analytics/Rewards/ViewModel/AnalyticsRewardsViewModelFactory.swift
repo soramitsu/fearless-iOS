@@ -67,19 +67,6 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsRewardsViewModelFactoryPr
                 usdAmount: totalReceivedToken.price,
                 indicatorColor: nil
             )
-            let receivedViewModel = AnalyticsSummaryRewardViewModel(
-                title: "Received",
-                tokenAmount: totalReceivedToken.amount,
-                usdAmount: totalReceivedToken.price,
-                indicatorColor: R.color.colorGray()
-            )
-
-            let payableViewModel = AnalyticsSummaryRewardViewModel(
-                title: "Payable",
-                tokenAmount: "0.0 KSM",
-                usdAmount: nil,
-                indicatorColor: R.color.colorAccent()
-            )
 
             let canSelectNextPeriod = data.contains(where: { $0.timestamp > timestampInterval.1 })
             let periodViewModel = AnalyticsPeriodViewModel(
@@ -97,8 +84,6 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsRewardsViewModelFactoryPr
             return AnalyticsRewardsViewModel(
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
-                receivedViewModel: receivedViewModel,
-                payableViewModel: payableViewModel,
                 periodViewModel: periodViewModel,
                 rewardSections: rewardSections
             )

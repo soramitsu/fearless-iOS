@@ -9,7 +9,6 @@ final class ChartView: BarChartView {
     lazy var formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 4
-        formatter.positivePrefix = "$"
         return formatter
     }()
 
