@@ -14,8 +14,6 @@ final class AnalyticsContainerViewLayout: UIView {
 
     let rewardsView = AnalyticsRewardsView()
 
-    let stakeContainerView = UIView()
-
     let horizontalScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isPagingEnabled = true

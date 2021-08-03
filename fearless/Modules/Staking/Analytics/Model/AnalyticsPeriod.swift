@@ -42,11 +42,11 @@ extension AnalyticsPeriod {
             let interval: TimeInterval = {
                 switch self {
                 case .weekly:
-                    return 60 * 60 * 24 * 7
+                    return .secondsInDay * 7
                 case .monthly:
-                    return 60 * 60 * 24 * 31
+                    return .secondsInDay * 31
                 case .yearly:
-                    return 60 * 60 * 24 * 31 * 12
+                    return .secondsInDay * 31 * 12
                 }
             }()
             return Date().addingTimeInterval(interval * Double(periodDelta))

@@ -53,7 +53,6 @@ final class AnalyticsContainerViewController: UIViewController, ViewHolder, Anal
             rootView.embeddedModulesStackView.addArrangedSubview(view)
             view.snp.makeConstraints {
                 $0.width.equalTo(rootView)
-                // $0.edges.equalToSuperview()
             }
             controller.didMove(toParent: self)
         }
@@ -67,22 +66,6 @@ extension AnalyticsContainerViewController: Localizable {
         }
     }
 }
-
-// extension AnalyticsViewController: AnalyticsPeriodViewDelegate {
-//    func didSelect(period: AnalyticsPeriod) {
-//        presenter.didSelectPeriod(period)
-//    }
-// }
-//
-// extension AnalyticsViewController: AnalyticsPeriodSelectorViewDelegate {
-//    func didSelectNext() {
-//        presenter.didSelectNext()
-//    }
-//
-//    func didSelectPrevious() {
-//        presenter.didSelectPrevious()
-//    }
-// }
 
 extension AnalyticsContainerViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
