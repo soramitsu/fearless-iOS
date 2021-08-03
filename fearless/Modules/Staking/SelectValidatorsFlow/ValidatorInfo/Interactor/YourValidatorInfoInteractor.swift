@@ -33,8 +33,8 @@ final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
 
             let operation = validatorOperationFactory.wannabeValidatorsOperation(for: [accountId])
 
-            operation.targetOperation.completionBlock = {
-                DispatchQueue.main.async { [weak self] in
+            operation.targetOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
                     do {
                         if let validatorInfo =
                             try operation.targetOperation.extractNoCancellableResultData().first {
