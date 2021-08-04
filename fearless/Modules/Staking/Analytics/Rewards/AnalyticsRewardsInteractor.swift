@@ -1,5 +1,5 @@
-import UIKit
 import RobinHood
+import BigInt
 
 final class AnalyticsRewardsInteractor {
     weak var presenter: AnalyticsRewardsInteractorOutputProtocol!
@@ -31,7 +31,11 @@ final class AnalyticsRewardsInteractor {
         // TODO: delete stub data
         let timestamp = Int64(Date().timeIntervalSince1970)
         let stubData = (1 ..< 100).map {
-            SubqueryRewardItemData(amount: $0.description, isReward: true, timestamp: timestamp - $0 * 10000)
+            SubqueryRewardItemData(
+                amount: BigUInt(integerLiteral: UInt64($0)),
+                isReward: true,
+                timestamp: timestamp - $0 * 1_000_000
+            )
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             self?.presenter?.didReceieve(rewardItemData: .success(stubData))

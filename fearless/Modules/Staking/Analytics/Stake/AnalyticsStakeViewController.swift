@@ -6,7 +6,7 @@ final class AnalyticsStakeViewController: UIViewController, ViewHolder {
 
     private let presenter: AnalyticsStakePresenterProtocol
 
-    private var viewState: AnalyticsViewState<AnalyticsStakeViewModel> = .loading(false)
+    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel> = .loading(false)
 
     init(presenter: AnalyticsStakePresenterProtocol) {
         self.presenter = presenter
@@ -60,7 +60,7 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
         }
     }
 
-    func reload(viewState: AnalyticsViewState<AnalyticsStakeViewModel>) {
+    func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
         self.viewState = viewState
 
         switch viewState {

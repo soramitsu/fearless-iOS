@@ -45,7 +45,7 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
     ) -> LocalizableResource<RewardAnalyticsWidgetViewModel> {
         let balanceViewModelFactory = createBalanceViewModelFactory(for: chain)
         let viewModelFactory = AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balanceViewModelFactory)
-        let fullViewModel = viewModelFactory.createRewardsViewModel(
+        let fullViewModel = viewModelFactory.createViewModel(
             from: data,
             priceData: priceData,
             period: period,

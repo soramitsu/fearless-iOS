@@ -23,7 +23,7 @@ final class AnalyticsRewardsPresenter {
     }
 
     private func updateView() {
-        let viewModel = viewModelFactory.createRewardsViewModel(
+        let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
             period: selectedPeriod,

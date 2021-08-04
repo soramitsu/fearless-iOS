@@ -30,7 +30,7 @@ protocol AnalyticsRewardsWireframeProtocol: AnyObject {
 }
 
 protocol AnalyticsRewardsViewModelFactoryProtocol {
-    func createRewardsViewModel(
+    func createViewModel(
         from data: [SubqueryRewardItemData],
         priceData: PriceData?,
         period: AnalyticsPeriod,

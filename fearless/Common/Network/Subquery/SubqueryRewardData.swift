@@ -3,7 +3,7 @@ import FearlessUtils
 import BigInt
 
 struct SubqueryRewardItemData: Codable {
-    let amount: String
+    let amount: BigUInt
     let isReward: Bool
     let timestamp: Int64
 
@@ -11,7 +11,8 @@ struct SubqueryRewardItemData: Codable {
         guard
             let json = json,
             let isReward = json.isReward?.boolValue,
-            let amount = json.amount?.stringValue
+            let amountString = json.amount?.stringValue,
+            let amount = BigUInt(amountString)
         else { return nil }
 
         self.amount = amount
@@ -20,7 +21,7 @@ struct SubqueryRewardItemData: Codable {
     }
 
     // TODO: delete init
-    init(amount: String, isReward: Bool, timestamp: Int64) {
+    init(amount: BigUInt, isReward: Bool, timestamp: Int64) {
         self.amount = amount
         self.isReward = isReward
         self.timestamp = timestamp

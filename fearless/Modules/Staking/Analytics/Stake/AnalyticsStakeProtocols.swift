@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol AnalyticsStakeViewProtocol: AnalyticsEmbeddedViewProtocol {
-    func reload(viewState: AnalyticsViewState<AnalyticsStakeViewModel>)
+    func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>)
 }
 
 protocol AnalyticsStakePresenterProtocol: AnyObject {
@@ -25,4 +25,13 @@ protocol AnalyticsStakeInteractorOutputProtocol: AnyObject {
 
 protocol AnalyticsStakeWireframeProtocol: AnyObject {
     func showRewardDetails(from view: ControllerBackedProtocol?)
+}
+
+protocol AnalyticsStakeViewModelFactoryProtocol {
+    func createViewModel(
+        from data: [SubqueryStakeChangeData],
+        priceData: PriceData?,
+        period: AnalyticsPeriod,
+        periodDelta: Int
+    ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }
