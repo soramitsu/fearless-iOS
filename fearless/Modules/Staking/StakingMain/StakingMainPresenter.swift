@@ -132,6 +132,8 @@ final class StakingMainPresenter {
     }
 }
 
+// MARK: - StakingMainPresenterProtocol
+
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
         provideState()
@@ -204,6 +206,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
+        // TODO: add view your validator action
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 return [
@@ -228,6 +231,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 .stakingBalance,
                 .pendingRewards,
                 .rewardDestination,
+                .yourValidator,
                 .controllerAccount
             ]
         }()
@@ -427,7 +431,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(eraStakersInfo: EraStakersInfo) {
         stateMachine.state.process(eraStakersInfo: eraStakersInfo)
 
-        logger?.debug("Did receive era stakers info: \(eraStakersInfo.era)")
+        logger?.debug("Did receive era stakers info: \(eraStakersInfo.activeEra)")
     }
 
     func didReceive(eraStakersInfoError: Error) {
@@ -525,6 +529,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 }
 
+// MARK: - ModalPickerViewControllerDelegate
+
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
@@ -560,6 +566,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             }
         case .controllerAccount:
             wireframe.showControllerAccount(from: view)
+        case .yourValidator:
+            if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
+                let stashAddress = validatorState.stashItem.stash
+                wireframe.showYourValidatorInfo(stashAddress, from: view)
+            }
         }
     }
 }

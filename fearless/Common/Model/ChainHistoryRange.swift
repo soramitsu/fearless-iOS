@@ -6,6 +6,8 @@ struct ChainHistoryRange {
     let historyDepth: UInt32
 
     var erasRange: [EraIndex] {
-        Array(currentEra - historyDepth ... activeEra - 1)
+        let start = max(currentEra - historyDepth, 0)
+        let end = max(activeEra - 1, 0)
+        return Array(start ... end)
     }
 }

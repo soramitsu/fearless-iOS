@@ -40,7 +40,7 @@ extension EraValidatorService {
         }
 
         let snapshot = EraStakersInfo(
-            era: activeEra,
+            activeEra: activeEra,
             validators: validators
         )
 
@@ -48,8 +48,6 @@ extension EraValidatorService {
     }
 
     private func createPrefsWrapper(
-        chain _: Chain,
-        activeEra _: UInt32,
         identifiersClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
@@ -76,8 +74,6 @@ extension EraValidatorService {
     }
 
     private func createExposureWrapper(
-        chain _: Chain,
-        activeEra _: UInt32,
         keysClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> {
@@ -189,8 +185,6 @@ extension EraValidatorService {
         }
 
         let exposureWrapper = createExposureWrapper(
-            chain: chain,
-            activeEra: activeEra,
             keysClosure: keysClosure,
             codingFactory: codingFactory
         )
@@ -203,8 +197,6 @@ extension EraValidatorService {
         }
 
         let prefsWrapper = createPrefsWrapper(
-            chain: chain,
-            activeEra: activeEra,
             identifiersClosure: identifiersClosure,
             codingFactory: codingFactory
         )
@@ -287,8 +279,6 @@ extension EraValidatorService {
         let identifiersClosure = { try validators.map { try Data(hexString: $0.identifier).getAccountIdFromKey() } }
 
         let prefs = createPrefsWrapper(
-            chain: chain,
-            activeEra: activeEra,
             identifiersClosure: identifiersClosure,
             codingFactory: codingFactory
         )

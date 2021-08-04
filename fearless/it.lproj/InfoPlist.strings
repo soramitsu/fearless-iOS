@@ -1,4 +1,0 @@
-"NSCameraUsageDescription" = "La fotocamera viene utilizzata per acquisire il codice QR";
-"NSFaceIDUsageDescription" = "Face ID viene utilizzato per autorizzare le richieste nell'applicazione.";
-"NSPhotoLibraryUsageDescription" = "Carica foto dalla galleria";
-"NSPhotoLibraryAddUsageDescription" = "Salva la richiesta di trasferimento come codice QR";

@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingPayoutConfirmationViewController: UIViewController, ViewHolder {
+final class StakingPayoutConfirmationViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = StakingPayoutConfirmationViewLayout
 
     let presenter: StakingPayoutConfirmationPresenterProtocol
@@ -75,6 +75,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 extension StakingPayoutConfirmationViewController: Localizable {
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        rootView.locale = locale
 
         setupTitleLocalization(locale)
         setupConfirmViewLocalization(locale)

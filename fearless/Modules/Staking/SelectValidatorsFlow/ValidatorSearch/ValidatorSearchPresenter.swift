@@ -159,10 +159,7 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     }
 
     func applyChanges() {
-        delegate?.didUpdate(
-            fullValidatorList,
-            selectedValidatorList: selectedValidatorList
-        )
+        delegate?.validatorSearchDidUpdate(selectedValidatorList: selectedValidatorList)
 
         wireframe.close(view)
     }

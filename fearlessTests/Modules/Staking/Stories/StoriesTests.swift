@@ -1,13 +1,17 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import SoraFoundation
 
 class StoriesTests: XCTestCase {
     func testSetup() {
         // given
         let view = MockStoriesViewProtocol()
         let wireframe = MockStoriesWireframeProtocol()
-        let model = StoriesFactory.createModel()
+
+        let locale = LocalizationManager.shared.selectedLocale
+        let model = StoriesFactory.createModel().value(for: locale)
+        
         let interactor = StoriesInteractor(model: model)
         let selectedIndex = 2
 

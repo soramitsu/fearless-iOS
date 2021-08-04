@@ -63,7 +63,7 @@ final class TransactionHistoryConfigurator {
     func configure(builder: HistoryModuleBuilderProtocol) {
         let title = LocalizableResource { locale in
             R.string.localizable
-                .walletHistoryTitleV1(preferredLanguages: locale.rLanguages)
+                .walletHistoryTitle_v190(preferredLanguages: locale.rLanguages)
         }
 
         builder

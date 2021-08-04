@@ -191,7 +191,7 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
                 amountLabel.textColor = R.color.colorTransparentText()
             case .pending:
                 addStatusViewIfNeeded()
-                statusImageView?.image = R.image.iconTxPending()
+                statusImageView?.image = R.image.iconPending()
                 amountLabel.textColor = R.color.colorWhite()
             }
 

@@ -26,7 +26,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
-    private lazy var storiesModel: StoriesModel = StoriesFactory.createModel()
+    private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -379,7 +379,7 @@ extension StakingMainViewController: KeyboardAdoptable {
 
 extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
-        storiesModel.stories.count
+        storiesModel.value(for: selectedLocale).stories.count
     }
 
     func collectionView(
@@ -391,7 +391,8 @@ extension StakingMainViewController: UICollectionViewDataSource {
             for: indexPath
         )!
 
-        let story = storiesModel.stories[indexPath.row]
+        let model = storiesModel.value(for: selectedLocale)
+        let story = model.stories[indexPath.row]
 
         cell.bind(icon: story.icon, caption: story.title)
         return cell
@@ -419,6 +420,8 @@ extension StakingMainViewController: NominationViewDelegate {
         presenter.performNominationStatusAction()
     }
 }
+
+// MARK: - ValidationViewDelegate
 
 extension StakingMainViewController: ValidationViewDelegate {
     func validationViewDidReceiveMoreAction(_: ValidationView) {

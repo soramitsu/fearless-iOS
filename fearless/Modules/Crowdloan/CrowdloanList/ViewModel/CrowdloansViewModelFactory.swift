@@ -148,7 +148,7 @@ final class CrowdloansViewModelFactory {
             )
 
             if remainedTime.daysFromSeconds > 0 {
-                return R.string.localizable.stakingPayoutsDaysLeft(
+                return R.string.localizable.stakingMainLockupPeriodValue(
                     format: remainedTime.daysFromSeconds,
                     preferredLanguages: locale.rLanguages
                 )

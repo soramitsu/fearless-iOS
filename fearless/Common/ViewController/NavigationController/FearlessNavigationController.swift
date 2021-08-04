@@ -12,7 +12,7 @@ protocol NavigationControlling: AnyObject {
     func setNavigationBarHidden(_ hidden: Bool, animated: Bool)
 }
 
-final class FearlessNavigationController: UINavigationController, UINavigationControllerDelegate {
+class FearlessNavigationController: UINavigationController, UINavigationControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 

@@ -2,26 +2,6 @@ import Foundation
 import RobinHood
 import IrohaCrypto
 
-protocol ValidatorOperationFactoryProtocol {
-    func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>
-    func allSelectedOperation(
-        by nomination: Nomination,
-        nominatorAddress: AccountAddress
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
-
-    func activeValidatorsOperation(
-        for nominatorAddress: AccountAddress
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
-
-    func pendingValidatorsOperation(
-        for accountIds: [AccountId]
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
-
-    func wannabeValidatorsOperation(
-        for accountIdList: [AccountId]
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
-}
-
 final class ValidatorOperationFactory {
     let chain: Chain
     let eraValidatorService: EraValidatorServiceProtocol
@@ -49,18 +29,18 @@ final class ValidatorOperationFactory {
         self.identityOperationFactory = identityOperationFactory
     }
 
-    private func createSlashesWrapper(
-        dependingOn validators: BaseOperation<EraStakersInfo>,
+    func createUnappliedSlashesWrapper(
+        dependingOn activeEraClosure: @escaping () throws -> EraIndex,
         runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         slashDefer: BaseOperation<UInt32>
     ) -> UnappliedSlashesWrapper {
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
-            let info = try validators.extractNoCancellableResultData()
+            let activeEra = try activeEraClosure()
             let duration = try slashDefer.extractNoCancellableResultData()
-            let startEra = max(info.era - duration, 0)
-            return (startEra ... info.era).map { String($0) }
+            let startEra = max(activeEra - duration, 0)
+            return (startEra ... activeEra).map { String($0) }
         }
 
         let factory: () throws -> RuntimeCoderFactoryProtocol = {
@@ -75,7 +55,7 @@ final class ValidatorOperationFactory {
         )
     }
 
-    private func createConstOperation<T>(
+    func createConstOperation<T>(
         dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         path: ConstantCodingPath
     ) -> PrimitiveConstantOperation<T> where T: LosslessStringConvertible {
@@ -92,7 +72,7 @@ final class ValidatorOperationFactory {
         return operation
     }
 
-    private func createSlashesOperation(
+    func createSlashesOperation(
         for validatorIds: [AccountId],
         nomination: Nomination
     ) -> CompoundOperationWrapper<[Bool]> {
@@ -130,7 +110,7 @@ final class ValidatorOperationFactory {
         )
     }
 
-    private func createStatusesOperation(
+    func createStatusesOperation(
         for validatorIds: [AccountId],
         electedValidatorsOperation: BaseOperation<EraStakersInfo>,
         nominatorAddress: AccountAddress
@@ -181,7 +161,7 @@ final class ValidatorOperationFactory {
         )
     }
 
-    private func createValidatorPrefsWrapper(for accountIdList: [AccountId])
+    func createValidatorPrefsWrapper(for accountIdList: [AccountId])
         -> CompoundOperationWrapper<[AccountAddress: ValidatorPrefs]> {
         let addressType = chain.addressType
 
@@ -224,7 +204,7 @@ final class ValidatorOperationFactory {
         )
     }
 
-    private func createValidatorsStakeInfoWrapper(
+    func createValidatorsStakeInfoWrapper(
         for validatorIds: [AccountId],
         electedValidatorsOperation: BaseOperation<EraStakersInfo>
     ) -> CompoundOperationWrapper<[ValidatorStakeInfo?]> {
@@ -297,7 +277,7 @@ final class ValidatorOperationFactory {
         )
     }
 
-    private func createActiveValidatorsStakeInfo(
+    func createActiveValidatorsStakeInfo(
         for nominatorAddress: AccountAddress,
         electedValidatorsOperation: BaseOperation<EraStakersInfo>
     ) -> CompoundOperationWrapper<[AccountId: ValidatorStakeInfo]> {
@@ -376,7 +356,7 @@ final class ValidatorOperationFactory {
         )
     }
 
-    private func createElectedValidatorsMergeOperation(
+    func createElectedValidatorsMergeOperation(
         dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
         rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
         maxNominatorsOperation: BaseOperation<UInt32>,
@@ -426,311 +406,5 @@ final class ValidatorOperationFactory {
                 )
             }
         }
-    }
-}
-
-extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
-    func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
-        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let slashDeferOperation: BaseOperation<UInt32> =
-            createConstOperation(
-                dependingOn: runtimeOperation,
-                path: .slashDeferDuration
-            )
-
-        let maxNominatorsOperation: BaseOperation<UInt32> =
-            createConstOperation(
-                dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
-            )
-
-        slashDeferOperation.addDependency(runtimeOperation)
-        maxNominatorsOperation.addDependency(runtimeOperation)
-
-        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
-
-        let accountIdsClosure: () throws -> [AccountId] = {
-            try eraValidatorsOperation.extractNoCancellableResultData().validators.map(\.accountId)
-        }
-
-        let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: accountIdsClosure,
-            engine: engine,
-            runtimeService: runtimeService,
-            chain: chain
-        )
-
-        identityWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
-
-        let slashingsWrapper = createSlashesWrapper(
-            dependingOn: eraValidatorsOperation,
-            runtime: runtimeOperation,
-            slashDefer: slashDeferOperation
-        )
-
-        slashingsWrapper.allOperations.forEach {
-            $0.addDependency(eraValidatorsOperation)
-            $0.addDependency(runtimeOperation)
-            $0.addDependency(slashDeferOperation)
-        }
-
-        let rewardOperation = rewardService.fetchCalculatorOperation()
-
-        let mergeOperation = createElectedValidatorsMergeOperation(
-            dependingOn: eraValidatorsOperation,
-            rewardOperation: rewardOperation,
-            maxNominatorsOperation: maxNominatorsOperation,
-            slashesOperation: slashingsWrapper.targetOperation,
-            identitiesOperation: identityWrapper.targetOperation
-        )
-
-        mergeOperation.addDependency(slashingsWrapper.targetOperation)
-        mergeOperation.addDependency(identityWrapper.targetOperation)
-        mergeOperation.addDependency(maxNominatorsOperation)
-        mergeOperation.addDependency(rewardOperation)
-
-        let baseOperations = [
-            runtimeOperation,
-            eraValidatorsOperation,
-            slashDeferOperation,
-            maxNominatorsOperation,
-            rewardOperation
-        ]
-
-        let dependencies = baseOperations + identityWrapper.allOperations + slashingsWrapper.allOperations
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
-    }
-
-    func allSelectedOperation(
-        by nomination: Nomination,
-        nominatorAddress: AccountAddress
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { nomination.targets },
-            engine: engine,
-            runtimeService: runtimeService,
-            chain: chain
-        )
-
-        let electedValidatorsOperation = eraValidatorService.fetchInfoOperation()
-
-        let statusesWrapper = createStatusesOperation(
-            for: nomination.targets,
-            electedValidatorsOperation: electedValidatorsOperation,
-            nominatorAddress: nominatorAddress
-        )
-
-        statusesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
-
-        let slashesWrapper = createSlashesOperation(for: nomination.targets, nomination: nomination)
-
-        slashesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
-
-        let validatorsStakingInfoWrapper = createValidatorsStakeInfoWrapper(
-            for: nomination.targets,
-            electedValidatorsOperation: electedValidatorsOperation
-        )
-
-        validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
-
-        let addressType = chain.addressType
-
-        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
-            let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
-            let slashes = try slashesWrapper.targetOperation.extractNoCancellableResultData()
-            let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
-            let validatorsStakingInfo = try validatorsStakingInfoWrapper.targetOperation
-                .extractNoCancellableResultData()
-
-            let addressFactory = SS58AddressFactory()
-
-            return try nomination.targets.enumerated().map { index, accountId in
-                let address = try addressFactory.addressFromAccountId(data: accountId, type: addressType)
-
-                return SelectedValidatorInfo(
-                    address: address,
-                    identity: identities[address],
-                    stakeInfo: validatorsStakingInfo[index],
-                    myNomination: statuses[index],
-                    hasSlashes: slashes[index]
-                )
-            }
-        }
-
-        mergeOperation.addDependency(identityWrapper.targetOperation)
-        mergeOperation.addDependency(statusesWrapper.targetOperation)
-        mergeOperation.addDependency(slashesWrapper.targetOperation)
-        mergeOperation.addDependency(validatorsStakingInfoWrapper.targetOperation)
-
-        let dependecies = [electedValidatorsOperation] + identityWrapper.allOperations +
-            statusesWrapper.allOperations + slashesWrapper.allOperations +
-            validatorsStakingInfoWrapper.allOperations
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies)
-    }
-
-    func activeValidatorsOperation(
-        for nominatorAddress: AccountAddress
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
-        let activeValidatorsStakeInfoWrapper = createActiveValidatorsStakeInfo(
-            for: nominatorAddress,
-            electedValidatorsOperation: eraValidatorsOperation
-        )
-
-        activeValidatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
-
-        let validatorIds: () throws -> [AccountId] = {
-            try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().map(\.key)
-        }
-
-        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: validatorIds,
-            engine: engine,
-            runtimeService: runtimeService,
-            chain: chain
-        )
-
-        identitiesWrapper.allOperations.forEach {
-            $0.addDependency(activeValidatorsStakeInfoWrapper.targetOperation)
-        }
-
-        let addressType = chain.addressType
-
-        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
-            let validatorStakeInfo = try activeValidatorsStakeInfoWrapper.targetOperation
-                .extractNoCancellableResultData()
-            let identities = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
-
-            return try validatorStakeInfo.compactMap { validatorAccountId, validatorStakeInfo in
-                guard let nominatorIndex = validatorStakeInfo.nominators
-                    .firstIndex(where: { $0.address == nominatorAddress }) else {
-                    return nil
-                }
-
-                let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: validatorAccountId,
-                    type: addressType
-                )
-
-                let nominatorInfo = validatorStakeInfo.nominators[nominatorIndex]
-                let isRewarded = nominatorIndex < validatorStakeInfo.maxNominatorsRewarded
-                let allocation = ValidatorTokenAllocation(amount: nominatorInfo.stake, isRewarded: isRewarded)
-
-                return SelectedValidatorInfo(
-                    address: validatorAddress,
-                    identity: identities[validatorAddress],
-                    stakeInfo: validatorStakeInfo,
-                    myNomination: .active(allocation: allocation)
-                )
-            }
-        }
-
-        mergeOperation.addDependency(identitiesWrapper.targetOperation)
-        let dependencies = [eraValidatorsOperation] + activeValidatorsStakeInfoWrapper.allOperations +
-            identitiesWrapper.allOperations
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
-    }
-
-    func pendingValidatorsOperation(
-        for accountIds: [AccountId]
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
-        let validatorsStakeInfoWrapper = createValidatorsStakeInfoWrapper(
-            for: accountIds,
-            electedValidatorsOperation: eraValidatorsOperation
-        )
-
-        validatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
-
-        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { accountIds },
-            engine: engine,
-            runtimeService: runtimeService,
-            chain: chain
-        )
-
-        let addressType = chain.addressType
-
-        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
-            let validatorsStakeInfo = try validatorsStakeInfoWrapper.targetOperation
-                .extractNoCancellableResultData()
-            let identities = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
-
-            return try validatorsStakeInfo.enumerated().map { index, validatorStakeInfo in
-                let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: accountIds[index],
-                    type: addressType
-                )
-
-                return SelectedValidatorInfo(
-                    address: validatorAddress,
-                    identity: identities[validatorAddress],
-                    stakeInfo: validatorStakeInfo,
-                    myNomination: nil
-                )
-            }
-        }
-
-        mergeOperation.addDependency(identitiesWrapper.targetOperation)
-        mergeOperation.addDependency(validatorsStakeInfoWrapper.targetOperation)
-
-        let dependencies = [eraValidatorsOperation] + validatorsStakeInfoWrapper.allOperations +
-            identitiesWrapper.allOperations
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
-    }
-
-    func wannabeValidatorsOperation(
-        for accountIdList: [AccountId]
-    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { accountIdList },
-            engine: engine,
-            runtimeService: runtimeService,
-            chain: chain
-        )
-
-        let validatorPrefsWrapper = createValidatorPrefsWrapper(for: accountIdList)
-
-        let addressType = chain.addressType
-
-        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
-            let identityList = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
-            let validatorPrefsList = try validatorPrefsWrapper.targetOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
-
-            return try accountIdList.compactMap {
-                let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: $0,
-                    type: addressType
-                )
-
-                guard let prefs = validatorPrefsList[validatorAddress] else { return nil }
-
-                return SelectedValidatorInfo(
-                    address: validatorAddress,
-                    identity: identityList[validatorAddress],
-                    stakeInfo: nil,
-                    myNomination: nil,
-                    commission: Decimal.fromSubstrateAmount(
-                        prefs.commission,
-                        precision: addressType.precision
-                    ) ?? 0.0,
-                    blocked: prefs.blocked
-                )
-            }
-        }
-
-        mergeOperation.addDependency(identitiesWrapper.targetOperation)
-        mergeOperation.addDependency(validatorPrefsWrapper.targetOperation)
-
-        let dependencies = identitiesWrapper.allOperations + validatorPrefsWrapper.allOperations
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }
 }

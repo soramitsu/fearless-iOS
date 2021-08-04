@@ -4,8 +4,8 @@ import BigInt
 
 final class SelectValidatorsConfirmPresenter {
     weak var view: SelectValidatorsConfirmViewProtocol?
-    var wireframe: SelectValidatorsConfirmWireframeProtocol!
-    var interactor: SelectValidatorsConfirmInteractorInputProtocol!
+    let wireframe: SelectValidatorsConfirmWireframeProtocol
+    let interactor: SelectValidatorsConfirmInteractorInputProtocol
 
     private var balance: Decimal?
     private var priceData: PriceData?
@@ -14,6 +14,7 @@ final class SelectValidatorsConfirmPresenter {
     private var minNominatorBond: Decimal?
     private var counterForNominators: UInt32?
     private var maxNominatorsCount: UInt32?
+    private var stakingDuration: StakingDuration?
 
     var state: SelectValidatorsConfirmationModel?
     let logger: LoggerProtocol?
@@ -23,12 +24,16 @@ final class SelectValidatorsConfirmPresenter {
     let asset: WalletAsset
 
     init(
+        interactor: SelectValidatorsConfirmInteractorInputProtocol,
+        wireframe: SelectValidatorsConfirmWireframeProtocol,
         confirmationViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
     ) {
+        self.interactor = interactor
+        self.wireframe = wireframe
         self.confirmationViewModelFactory = confirmationViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
@@ -47,6 +52,15 @@ final class SelectValidatorsConfirmPresenter {
         } catch {
             logger?.error("Did receive error: \(error)")
         }
+    }
+
+    private func provideHints() {
+        guard let duration = stakingDuration else {
+            return
+        }
+
+        let viewModel = confirmationViewModelFactory.createHints(from: duration)
+        view?.didReceive(hintsViewModel: viewModel)
     }
 
     private func provideFee() {
@@ -236,6 +250,16 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
         switch result {
         case let .success(counterForNominators):
             self.counterForNominators = counterForNominators
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveStakingDuration(result: Result<StakingDuration, Error>) {
+        switch result {
+        case let .success(duration):
+            stakingDuration = duration
+            provideHints()
         case let .failure(error):
             handle(error: error)
         }

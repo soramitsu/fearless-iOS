@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class AccountExportPasswordViewController: UIViewController {
+final class AccountExportPasswordViewController: UIViewController, ImportantViewProtocol {
     private enum Constants {
         static let bottomOffset: CGFloat = 8.0
     }

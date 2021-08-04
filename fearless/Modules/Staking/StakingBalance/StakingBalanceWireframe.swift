@@ -1,7 +1,7 @@
 final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     func showBondMore(from view: ControllerBackedProtocol?) {
         guard let bondMoreView = StakingBondMoreViewFactory.createView() else { return }
-        let navigationController = FearlessNavigationController(rootViewController: bondMoreView.controller)
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: bondMoreView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
@@ -10,7 +10,7 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
             return
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: unbondView.controller)
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: unbondView.controller)
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
@@ -20,7 +20,7 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
             return
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: redeemView.controller)
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: redeemView.controller)
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
@@ -41,9 +41,7 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
             return
         }
 
-        let navigationController = FearlessNavigationController(
-            rootViewController: controller
-        )
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: controller)
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }

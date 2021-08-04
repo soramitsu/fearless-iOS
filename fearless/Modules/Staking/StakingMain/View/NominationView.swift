@@ -58,9 +58,9 @@ final class NominationView: UIView, LocalizableViewProtocol {
         titleLabel.text = R.string.localizable
             .stakingYourStake(preferredLanguages: locale.rLanguages)
         stakedTitleLabel.text = R.string.localizable
-            .stakingMainTotalStakedTitle(preferredLanguages: locale.rLanguages)
+            .stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
-            .stakingTotalRewards(preferredLanguages: locale.rLanguages)
+            .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
     }
 
     private func applyViewModel() {
@@ -86,8 +86,11 @@ final class NominationView: UIView, LocalizableViewProtocol {
             presentActiveStatus(for: era)
         case let .inactive(era):
             presentInactiveStatus(for: era)
-        case let .waiting(eraCountdown):
-            presentWaitingStatus(remainingTime: eraCountdown?.eraCompletionTime())
+        case let .waiting(eraCountdown, nominationEra):
+            let remainingTime: TimeInterval? = eraCountdown.map { countdown in
+                countdown.timeIntervalTillStart(targetEra: nominationEra + 1)
+            }
+            presentWaitingStatus(remainingTime: remainingTime)
         }
     }
 

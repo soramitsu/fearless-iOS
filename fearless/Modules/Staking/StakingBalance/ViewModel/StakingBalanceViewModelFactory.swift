@@ -68,7 +68,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         ) ?? 0.0
         let unbondedViewModel = createWidgetItemViewModel(
             amount: unbondedDecimal,
-            title: R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
             priceData: balanceData.priceData,
             locale: locale
         )
@@ -123,9 +123,9 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         )
         return StakingBalanceUnbondingWidgetViewModel(
             title: R.string.localizable
-                .walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
+                .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
             emptyListDescription: R.string.localizable
-                .stakingUnbondingEmptyList(preferredLanguages: locale.rLanguages),
+                .stakingUnbondingEmptyList_v190(preferredLanguages: locale.rLanguages),
             unbondings: viewModels
         )
     }
@@ -153,7 +153,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 )
 
                 return UnbondingItemViewModel(
-                    addressOrName: R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages),
+                    addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
                     daysLeftText: timeLeft,
                     tokenAmountText: tokenAmount,
                     usdAmountText: usdAmount
@@ -182,7 +182,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     ) -> NSAttributedString {
         guard let eraCountdown = eraCountdown else { return .init(string: "") }
 
-        let eraCompletionTime = eraCountdown.eraCompletionTime(targetEra: unbondingEra)
+        let eraCompletionTime = eraCountdown.timeIntervalTillStart(targetEra: unbondingEra)
         let daysLeft = eraCompletionTime.daysFromSeconds
 
         let timeLeftText: String = {
@@ -190,7 +190,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
             } else {
                 return R.string.localizable
-                    .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+                    .stakingMainLockupPeriodValue(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
         }()
 

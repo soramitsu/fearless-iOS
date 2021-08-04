@@ -21,7 +21,7 @@ final class StakingUnbondConfirmLayout: UIView {
 
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
-    private(set) var hintView: HintView?
+    private(set) var hintViews: [UIView] = []
 
     var locale = Locale.current {
         didSet {
@@ -64,11 +64,7 @@ final class StakingUnbondConfirmLayout: UIView {
 
         amountView.fieldText = confirmationViewModel.amount.value(for: locale)
 
-        if confirmationViewModel.shouldResetRewardDestination {
-            setupHintViewIfNeeded()
-        } else {
-            clearHintView()
-        }
+        apply(hints: confirmationViewModel.hints.value(for: locale))
 
         setNeedsLayout()
     }
@@ -97,13 +93,37 @@ final class StakingUnbondConfirmLayout: UIView {
         setNeedsLayout()
     }
 
+    private func apply(hints: [TitleIconViewModel]) {
+        hintViews.forEach { $0.removeFromSuperview() }
+
+        hintViews = hints.map { hint in
+            let view = IconDetailsView()
+            view.iconWidth = 24.0
+            view.detailsLabel.text = hint.title
+            view.imageView.image = hint.icon
+            return view
+        }
+
+        for (index, view) in hintViews.enumerated() {
+            if index > 0 {
+                stackView.insertArranged(view: view, after: hintViews[index - 1])
+            } else {
+                stackView.insertArranged(view: view, after: amountView)
+            }
+
+            view.snp.makeConstraints { make in
+                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            }
+
+            stackView.setCustomSpacing(9, after: view)
+        }
+    }
+
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-
-        applyHintText()
 
         networkFeeConfirmView.locale = locale
 
@@ -130,42 +150,12 @@ final class StakingUnbondConfirmLayout: UIView {
             make.height.equalTo(72.0)
         }
 
+        stackView.setCustomSpacing(16.0, after: amountView)
+
         addSubview(networkFeeConfirmView)
 
         networkFeeConfirmView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
-    }
-
-    private func setupHintViewIfNeeded() {
-        guard hintView == nil else {
-            return
-        }
-
-        let hintView = HintView()
-
-        stackView.setCustomSpacing(16, after: amountView)
-        stackView.addArrangedSubview(hintView)
-        hintView.snp.makeConstraints { make in
-            make.width.equalTo(stackView)
-        }
-
-        self.hintView = hintView
-
-        applyHintText()
-    }
-
-    private func clearHintView() {
-        if let hintView = hintView {
-            self.hintView = nil
-
-            stackView.removeArrangedSubview(hintView)
-            hintView.removeFromSuperview()
-        }
-    }
-
-    private func applyHintText() {
-        hintView?.titleLabel.text = R.string.localizable
-            .stakingUnbondPayeeResetMessage(preferredLanguages: locale.rLanguages)
     }
 }

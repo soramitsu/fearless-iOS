@@ -19,6 +19,14 @@ final class StakingBMConfirmationViewLayout: UIView {
         return view
     }()
 
+    let hintView: IconDetailsView = {
+        let view = IconDetailsView()
+        view.iconWidth = 24.0
+        view.imageView.contentMode = .top
+        view.imageView.image = R.image.iconGeneralReward()
+        return view
+    }()
+
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
     var locale = Locale.current {
@@ -95,6 +103,10 @@ final class StakingBMConfirmationViewLayout: UIView {
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
+        hintView.detailsLabel.text = R.string.localizable.stakingHintRewardBondMore(
+            preferredLanguages: locale.rLanguages
+        )
+
         networkFeeConfirmView.locale = locale
 
         setNeedsLayout()
@@ -118,6 +130,12 @@ final class StakingBMConfirmationViewLayout: UIView {
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
             make.height.equalTo(72.0)
+        }
+
+        stackView.setCustomSpacing(16.0, after: amountView)
+        stackView.addArrangedSubview(hintView)
+        hintView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
         }
 
         addSubview(networkFeeConfirmView)

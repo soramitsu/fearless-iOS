@@ -44,7 +44,8 @@ final class CrowdloanContributionConfirmVC: UIViewController, ViewHolder {
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.commonConfirm(preferredLanguages: selectedLocale.rLanguages)
+        title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
+        rootView.locale = selectedLocale
     }
 
     @objc func actionConfirm() {

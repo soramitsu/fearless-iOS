@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class SelectedValidatorListViewController: UIViewController, ViewHolder {
+final class SelectedValidatorListViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = SelectedValidatorListViewLayout
 
     let presenter: SelectedValidatorListPresenterProtocol
@@ -105,7 +105,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder {
 
         } else {
             enabled = true
-            rootView.proceedButton.applyDefaultStyle()
+            rootView.proceedButton.applyEnabledStyle()
             buttonTitle = R.string.localizable
                 .commonContinue(
                     preferredLanguages: selectedLocale.rLanguages

@@ -50,7 +50,7 @@ final class TransactionDetailsViewModelFactory {
                 title: title,
                 titleIcon: nil,
                 details: details,
-                detailsIcon: R.image.iconTxPending()
+                detailsIcon: R.image.iconPending()
             )
         case .rejected:
             let details = R.string.localizable
