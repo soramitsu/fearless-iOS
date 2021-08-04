@@ -49,9 +49,8 @@ final class FWLineChartView: LineChartView {
 
 extension FWLineChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData) {
-        var dataEntries = [ChartDataEntry]()
-        for (index, amount) in data.amounts.enumerated() {
-            dataEntries.append(ChartDataEntry(x: Double(index), y: amount))
+        let dataEntries = data.amounts.enumerated().map { index, amount in
+            ChartDataEntry(x: Double(index), y: amount)
         }
 
         let dataSet = LineChartDataSet(entries: dataEntries)

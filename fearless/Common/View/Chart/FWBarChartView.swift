@@ -55,9 +55,8 @@ final class FWBarChartView: BarChartView {
 
 extension FWBarChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData) {
-        var dataEntries = [BarChartDataEntry]()
-        for (index, amount) in data.amounts.enumerated() {
-            dataEntries.append(BarChartDataEntry(x: Double(index), yValues: [amount]))
+        let dataEntries = data.amounts.enumerated().map { index, amount in
+            BarChartDataEntry(x: Double(index), yValues: [amount])
         }
 
         let set = BarChartDataSet(entries: dataEntries)
