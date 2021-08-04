@@ -465,3 +465,13 @@ Fearless Wallet также заботится о децентрализации,
 "common.cancel.operation.action" = "Отменить операцию";
 "common.keep.editing.action" = "Вернуться к операции";
 "staking.view.your.validator.title" = "Ваш валидатор";
+"staking.analytics.title" = "";
+"staking.rewards.title" = "";
+"staking.stake.title" = "";
+"staking.analytics.reward" = "";
+"staking.analytics.period.weekly" = "";
+"staking.analytics.period.monthly" = "";
+"staking.analytics.period.yearly" = "";
+"staking.analytics.stake.more" = "";
+"staking.analytics.unstake" = "";
+"staking.analytics.slash" = "";
