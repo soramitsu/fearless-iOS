@@ -33,7 +33,7 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
         return label
     }()
 
-    let chartView = ChartView()
+    let barChartView: FWChartViewProtocol = FWBarChartView()
 
     private let payableIndicatorView: UIView = {
         let view = UIView()
@@ -132,7 +132,7 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
                         )
                     ]
                 ),
-                chartView,
+                barChartView,
                 .hStack(
                     alignment: .center,
                     spacing: 16,
@@ -155,7 +155,7 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
         arrowView.snp.makeConstraints { $0.size.equalTo(24) }
         separatorView.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
-        chartView.snp.makeConstraints { $0.height.equalTo(100) }
+        barChartView.snp.makeConstraints { $0.height.equalTo(100) }
         payableIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
         receivedIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
 
@@ -174,7 +174,7 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
         let localizedViewModel = viewModel.value(for: locale)
 
-        chartView.setChartData(localizedViewModel.chartData)
+        barChartView.setChartData(localizedViewModel.chartData)
         usdAmountLabel.text = localizedViewModel.summary.usdAmount
         tokenAmountLabel.text = localizedViewModel.summary.tokenAmount
         periodLabel.text = localizedViewModel.summary.title

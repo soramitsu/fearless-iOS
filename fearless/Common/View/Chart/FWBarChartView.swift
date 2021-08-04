@@ -1,11 +1,11 @@
 import UIKit
 import Charts
 
-protocol ChartViewProtocol: AnyObject {
+protocol FWChartViewProtocol where Self: UIView {
     func setChartData(_ data: ChartData)
 }
 
-final class ChartView: BarChartView {
+final class FWBarChartView: BarChartView {
     lazy var formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 4
@@ -53,7 +53,7 @@ final class ChartView: BarChartView {
     }
 }
 
-extension ChartView: ChartViewProtocol {
+extension FWBarChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData) {
         var dataEntries = [BarChartDataEntry]()
         for (index, amount) in data.amounts.enumerated() {

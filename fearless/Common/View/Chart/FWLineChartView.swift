@@ -1,7 +1,7 @@
 import UIKit
 import Charts
 
-final class FearlessLineChartView: LineChartView {
+final class FWLineChartView: LineChartView {
     lazy var formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 4
@@ -47,7 +47,7 @@ final class FearlessLineChartView: LineChartView {
     }
 }
 
-extension FearlessLineChartView: ChartViewProtocol {
+extension FWLineChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData) {
         var dataEntries = [ChartDataEntry]()
         for (index, amount) in data.amounts.enumerated() {

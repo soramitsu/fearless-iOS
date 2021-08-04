@@ -22,7 +22,7 @@ final class AnalyticsStakeViewLayout: UIView {
         return label
     }()
 
-    private let lineChartView = FearlessLineChartView()
+    private let lineChartView: FWChartViewProtocol = FWLineChartView()
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()

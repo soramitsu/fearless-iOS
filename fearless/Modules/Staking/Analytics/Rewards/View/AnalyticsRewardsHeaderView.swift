@@ -22,7 +22,7 @@ final class AnalyticsRewardsHeaderView: UIView {
         return label
     }()
 
-    private let chartView = ChartView()
+    private let barChartView: FWChartViewProtocol = FWBarChartView()
 
     let pendingRewardsView: RowView<TitleValueSelectionView> = {
         let row = RowView(contentView: TitleValueSelectionView(), preferredHeight: 48.0)
@@ -65,13 +65,13 @@ final class AnalyticsRewardsHeaderView: UIView {
             [
                 selectedPeriodLabel,
                 amountsStack,
-                chartView
+                barChartView
             ]
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
-        statsStack.setCustomSpacing(24, after: chartView)
-        chartView.snp.makeConstraints { $0.height.equalTo(168) }
+        statsStack.setCustomSpacing(24, after: barChartView)
+        barChartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)
         statsStack.snp.makeConstraints {
@@ -100,7 +100,7 @@ final class AnalyticsRewardsHeaderView: UIView {
         tokenAmountLabel.text = summaryViewModel.tokenAmount
         usdAmountLabel.text = summaryViewModel.usdAmount
 
-        chartView.setChartData(chartData)
+        barChartView.setChartData(chartData)
     }
 
     private func applyLocalization() {

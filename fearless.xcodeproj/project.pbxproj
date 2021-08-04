@@ -1369,8 +1369,8 @@
 		F40966F526B299FC008CD244 /* SubqueryRewardsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966F226B299FB008CD244 /* SubqueryRewardsSource.swift */; };
 		F40966F626B299FC008CD244 /* SubqueryStakeSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966F326B299FC008CD244 /* SubqueryStakeSource.swift */; };
 		F40966FE26B29A58008CD244 /* ChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966FB26B29A58008CD244 /* ChartData.swift */; };
-		F40966FF26B29A58008CD244 /* ChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966FC26B29A58008CD244 /* ChartView.swift */; };
-		F409670026B29A58008CD244 /* FearlessLineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966FD26B29A58008CD244 /* FearlessLineChartView.swift */; };
+		F40966FF26B29A58008CD244 /* FWBarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966FC26B29A58008CD244 /* FWBarChartView.swift */; };
+		F409670026B29A58008CD244 /* FWLineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966FD26B29A58008CD244 /* FWLineChartView.swift */; };
 		F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409672526B29B04008CD244 /* UIScrollView+ScrollToPage.swift */; };
 		F409672B26B29C3B008CD244 /* RewardAnalyticsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409672A26B29C3B008CD244 /* RewardAnalyticsWidgetView.swift */; };
 		F409673326B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409673226B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift */; };
@@ -2859,8 +2859,8 @@
 		F40966F226B299FB008CD244 /* SubqueryRewardsSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryRewardsSource.swift; sourceTree = "<group>"; };
 		F40966F326B299FC008CD244 /* SubqueryStakeSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryStakeSource.swift; sourceTree = "<group>"; };
 		F40966FB26B29A58008CD244 /* ChartData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartData.swift; sourceTree = "<group>"; };
-		F40966FC26B29A58008CD244 /* ChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartView.swift; sourceTree = "<group>"; };
-		F40966FD26B29A58008CD244 /* FearlessLineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessLineChartView.swift; sourceTree = "<group>"; };
+		F40966FC26B29A58008CD244 /* FWBarChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FWBarChartView.swift; sourceTree = "<group>"; };
+		F40966FD26B29A58008CD244 /* FWLineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FWLineChartView.swift; sourceTree = "<group>"; };
 		F409672526B29B04008CD244 /* UIScrollView+ScrollToPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIScrollView+ScrollToPage.swift"; sourceTree = "<group>"; };
 		F409672A26B29C3B008CD244 /* RewardAnalyticsWidgetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardAnalyticsWidgetView.swift; sourceTree = "<group>"; };
 		F409673226B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RewardAnalyticsWidgetViewModel.swift; sourceTree = "<group>"; };
@@ -7198,8 +7198,8 @@
 			isa = PBXGroup;
 			children = (
 				F40966FB26B29A58008CD244 /* ChartData.swift */,
-				F40966FC26B29A58008CD244 /* ChartView.swift */,
-				F40966FD26B29A58008CD244 /* FearlessLineChartView.swift */,
+				F40966FC26B29A58008CD244 /* FWBarChartView.swift */,
+				F40966FD26B29A58008CD244 /* FWLineChartView.swift */,
 			);
 			path = Chart;
 			sourceTree = "<group>";
@@ -8148,7 +8148,7 @@
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,
 				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
 				84A3034926A834F900E64382 /* ValidatorInfoViewLayout.swift in Sources */,
-				F409670026B29A58008CD244 /* FearlessLineChartView.swift in Sources */,
+				F409670026B29A58008CD244 /* FWLineChartView.swift in Sources */,
 				842876C124AE2A5C00D91AD8 /* ConnectionItem.swift in Sources */,
 				84EBC55024F660A700459D15 /* EventCenter.swift in Sources */,
 				849ABE862628154900011A2A /* SubscanRawExtrinsicData.swift in Sources */,
@@ -8577,7 +8577,7 @@
 				84729758260AA519009B86D0 /* SelectValidatorsConfirmInteractorBase.swift in Sources */,
 				846CD24D2656FEB800A2E4B6 /* StorageKeysQueryService.swift in Sources */,
 				846AF8402525B94D00868F37 /* WalletNetworkFacade+Protocol.swift in Sources */,
-				F40966FF26B29A58008CD244 /* ChartView.swift in Sources */,
+				F40966FF26B29A58008CD244 /* FWBarChartView.swift in Sources */,
 				8468B86C24F63CEF00B76BC6 /* AddAccount+AccountConfirmInteractor.swift in Sources */,
 				84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */,
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
