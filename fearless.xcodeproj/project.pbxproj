@@ -1347,7 +1347,6 @@
 		F40966C126B297D6008CD244 /* AnalyticsPeriodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */; };
 		F40966C226B297D6008CD244 /* AnalyticsPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A426B297D6008CD244 /* AnalyticsPeriod.swift */; };
 		F40966C326B297D6008CD244 /* AnalyticsContainerViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A626B297D6008CD244 /* AnalyticsContainerViewLayout.swift */; };
-		F40966C426B297D6008CD244 /* AnalyticsSummaryRewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A726B297D6008CD244 /* AnalyticsSummaryRewardView.swift */; };
 		F40966C626B297D6008CD244 /* AnalyticsRewardsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A926B297D6008CD244 /* AnalyticsRewardsInteractor.swift */; };
 		F40966C726B297D6008CD244 /* AnalyticsRewardsViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966AA26B297D6008CD244 /* AnalyticsRewardsViewFactory.swift */; };
 		F40966C826B297D6008CD244 /* AnalyticsStakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966AC26B297D6008CD244 /* AnalyticsStakeView.swift */; };
@@ -2838,7 +2837,6 @@
 		F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodView.swift; sourceTree = "<group>"; };
 		F40966A426B297D6008CD244 /* AnalyticsPeriod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriod.swift; sourceTree = "<group>"; };
 		F40966A626B297D6008CD244 /* AnalyticsContainerViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsContainerViewLayout.swift; sourceTree = "<group>"; };
-		F40966A726B297D6008CD244 /* AnalyticsSummaryRewardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsSummaryRewardView.swift; sourceTree = "<group>"; };
 		F40966A926B297D6008CD244 /* AnalyticsRewardsInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsInteractor.swift; sourceTree = "<group>"; };
 		F40966AA26B297D6008CD244 /* AnalyticsRewardsViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsViewFactory.swift; sourceTree = "<group>"; };
 		F40966AC26B297D6008CD244 /* AnalyticsStakeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsStakeView.swift; sourceTree = "<group>"; };
@@ -7127,7 +7125,6 @@
 			isa = PBXGroup;
 			children = (
 				F409669F26B297D6008CD244 /* AnalyticsPeriodView */,
-				F40966A726B297D6008CD244 /* AnalyticsSummaryRewardView.swift */,
 				F4D6FF4C26B3EB65002313AF /* AnalyticsHistoryCell.swift */,
 				F4D6FF5126B3ECEB002313AF /* AnalyticsViewState.swift */,
 				F408E9BD26B80FD30043CFE0 /* AnalyticsSectionHeader.swift */,
@@ -9113,7 +9110,6 @@
 				84CFF1E326526FBC00DB7CF7 /* StakingBondMoreProtocols.swift in Sources */,
 				5FE687B860FC10AB08518A6E /* WalletHistoryFilterPresenter.swift in Sources */,
 				640A79BD1335394818E70366 /* WalletHistoryFilterViewController.swift in Sources */,
-				F40966C426B297D6008CD244 /* AnalyticsSummaryRewardView.swift in Sources */,
 				DD090C2ED91726FF7779F6C7 /* WalletHistoryFilterViewFactory.swift in Sources */,
 				AE6F7FE82685F2F0002BBC3E /* ValidatorListFilterViewModelFactory.swift in Sources */,
 				F022F1444E0F75CCA42F4648 /* YourValidatorListProtocols.swift in Sources */,
