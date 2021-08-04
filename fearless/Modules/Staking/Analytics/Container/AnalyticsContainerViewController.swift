@@ -27,15 +27,14 @@ final class AnalyticsContainerViewController: UIViewController, ViewHolder, Anal
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Analytics"
         setupEmbeddedModules()
         configureSegmentedControl()
+        applyLocalization()
         rootView.horizontalScrollView.delegate = self
     }
 
     private func configureSegmentedControl() {
         rootView.segmentedControl.configure()
-        rootView.segmentedControl.titles = embeddedModules.map { $0.localizedTitle.value(for: selectedLocale) }
         rootView.segmentedControl.addTarget(self, action: #selector(segmentedControlChanged), for: .valueChanged)
     }
 
@@ -62,7 +61,8 @@ final class AnalyticsContainerViewController: UIViewController, ViewHolder, Anal
 extension AnalyticsContainerViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            // TODO:
+            title = R.string.localizable.stakingAnalyticsTitle(preferredLanguages: selectedLocale.rLanguages)
+            rootView.segmentedControl.titles = embeddedModules.map { $0.localizedTitle.value(for: selectedLocale) }
         }
     }
 }

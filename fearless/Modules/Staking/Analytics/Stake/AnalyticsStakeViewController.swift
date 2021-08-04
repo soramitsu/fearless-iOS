@@ -55,8 +55,8 @@ final class AnalyticsStakeViewController: UIViewController, ViewHolder {
 
 extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
     var localizedTitle: LocalizableResource<String> {
-        LocalizableResource { _ in
-            "Stake"
+        LocalizableResource { locale in
+            R.string.localizable.stakingStakeTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
