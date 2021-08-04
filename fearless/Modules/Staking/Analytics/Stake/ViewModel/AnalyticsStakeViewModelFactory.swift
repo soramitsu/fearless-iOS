@@ -88,8 +88,8 @@ final class AnalyticsStakeViewModelFactory: AnalyticsStakeViewModelFactoryProtoc
             let viewModel = AnalyticsStakeViewModel(
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
-                sections: sections,
-                periodViewModel: periodViewModel
+                periodViewModel: periodViewModel,
+                rewardSections: sections
             )
             return viewModel
         }

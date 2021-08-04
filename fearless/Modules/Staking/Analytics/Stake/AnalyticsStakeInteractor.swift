@@ -1,4 +1,5 @@
 import RobinHood
+import BigInt
 
 final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
@@ -33,6 +34,16 @@ final class AnalyticsStakeInteractor {
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        fetchStakeData()
+        // fetchStakeData()
+        let timestamp = Int64(Date().timeIntervalSince1970)
+        let data = (0 ... 100).map { index in
+            SubqueryStakeChangeData(
+                timestamp: timestamp - Int64(index) * 10000,
+                address: "",
+                amount: BigUInt(integerLiteral: UInt64(index * 10_000_000)),
+                type: .bonded
+            )
+        }
+        presenter.didReceieve(stakeDataResult: .success(data))
     }
 }

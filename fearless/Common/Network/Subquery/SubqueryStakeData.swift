@@ -32,6 +32,13 @@ struct SubqueryStakeChangeData {
         self.amount = amount
         self.type = type
     }
+
+    init(timestamp: Int64, address: AccountAddress, amount: BigUInt, type: SubqueryStakeChangeType) {
+        self.timestamp = timestamp
+        self.address = address
+        self.amount = amount
+        self.type = type
+    }
 }
 
 extension SubqueryStakeChangeData.SubqueryStakeChangeType {

@@ -1,3 +1,7 @@
 import Foundation
 
-final class AnalyticsStakeWireframe: AnalyticsStakeWireframeProtocol {}
+final class AnalyticsStakeWireframe: AnalyticsStakeWireframeProtocol {
+    func showRewardDetails(from _: ControllerBackedProtocol?) {
+        // TODO:
+    }
+}
