@@ -5,7 +5,6 @@ final class FWLineChartView: LineChartView {
     lazy var formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 4
-        formatter.positivePrefix = "$"
         return formatter
     }()
 
