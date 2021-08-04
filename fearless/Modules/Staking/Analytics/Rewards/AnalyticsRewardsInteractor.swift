@@ -5,25 +5,25 @@ final class AnalyticsRewardsInteractor {
     weak var presenter: AnalyticsRewardsInteractorOutputProtocol!
 
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
     private let analyticsService: AnalyticsService?
     private let assetId: WalletAssetId
-    private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     private let selectedAccountAddress: AccountAddress
     private var priceProvider: AnySingleValueProvider<PriceData>?
-    private var stashControllerProvider: StreamableProvider<StashItem>?
+    private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         analyticsService: AnalyticsService?,
         assetId: WalletAssetId,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         selectedAccountAddress: AccountAddress
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
+        self.substrateProviderFactory = substrateProviderFactory
         self.analyticsService = analyticsService
         self.assetId = assetId
-        self.substrateProviderFactory = substrateProviderFactory
         self.selectedAccountAddress = selectedAccountAddress
     }
 
@@ -41,40 +41,29 @@ final class AnalyticsRewardsInteractor {
             self?.presenter?.didReceieve(rewardItemData: .success(stubData))
         }
     }
-
-    private func subscribeToStashControllerProvider() {
-        let stashControllerProvider = substrateProviderFactory.createStashItemProvider(for: selectedAccountAddress)
-
-        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
-            let stashItem = changes.reduceToLastChange()
-            self?.presenter.didReceiveStashItem(result: .success(stashItem))
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceiveStashItem(result: .failure(error))
-            return
-        }
-
-        stashControllerProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: changesClosure,
-            failing: failureClosure,
-            options: StreamableProviderObserverOptions.substrateSource()
-        )
-    }
 }
 
 extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     func setup() {
         fetchAnalyticsRewards()
         priceProvider = subscribeToPriceProvider(for: assetId)
-        subscribeToStashControllerProvider()
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
     }
 }
 
 extension AnalyticsRewardsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
+    }
+}
+
+extension AnalyticsRewardsInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            presenter.didReceiveStashItem(result: .success(stashItem))
+        case let .failure(error):
+            presenter.didReceiveStashItem(result: .failure(error))
+        }
     }
 }

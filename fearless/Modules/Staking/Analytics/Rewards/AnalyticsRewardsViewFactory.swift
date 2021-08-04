@@ -32,9 +32,9 @@ struct AnalyticsRewardsViewFactory {
 
         let interactor = AnalyticsRewardsInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
+            substrateProviderFactory: substrateProviderFactory,
             analyticsService: analyticsService,
             assetId: assetId,
-            substrateProviderFactory: substrateProviderFactory,
             selectedAccountAddress: accountAddress
         )
 
@@ -46,7 +46,11 @@ struct AnalyticsRewardsViewFactory {
             limit: StakingConstants.maxAmount
         )
 
-        let viewModelFactory = AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balanceViewModelFactory)
+        let viewModelFactory = AnalyticsRewardsViewModelFactory(
+            chain: chain,
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
         let presenter = AnalyticsRewardsPresenter(
             interactor: interactor,
             wireframe: wireframe,
