@@ -230,15 +230,19 @@ extension StakingRewardPayoutsViewController: ErrorStateViewDelegate {
 
 extension StakingRewardPayoutsViewController: CountdownTimerDelegate {
     func updateView() {
-        guard let indexPathsForVisibleRows = rootView.tableView.indexPathsForVisibleRows else { return }
+        let visiblePayoutCells = rootView.tableView.visibleCells.compactMap { cell in
+            cell as? StakingRewardHistoryTableCell
+        }
 
-        let historyCells = indexPathsForVisibleRows
-            .compactMap { rootView.tableView.cellForRow(at: $0) as? StakingRewardHistoryTableCell }
+        visiblePayoutCells.forEach { cell in
+            guard let indexPath = rootView.tableView.indexPath(for: cell) else {
+                return
+            }
 
-        for (index, cell) in historyCells.enumerated() {
-            guard let timeLeftText = presenter.getTimeLeftString(
-                at: indexPathsForVisibleRows[index].row
-            ) else { return }
+            guard let timeLeftText = presenter.getTimeLeftString(at: indexPath.row) else {
+                return
+            }
+
             cell.bind(timeLeftText: timeLeftText.value(for: selectedLocale))
         }
     }
