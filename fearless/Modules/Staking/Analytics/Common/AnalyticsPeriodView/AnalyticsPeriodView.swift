@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 protocol AnalyticsPeriodViewDelegate: AnyObject {
     func didSelect(period: AnalyticsPeriod)
@@ -63,45 +64,25 @@ final class AnalyticsPeriodView: UIView {
     private func handlePeriodButton(button _: AnalyticsPeriodButton) {}
 }
 
-// extension AnalyticsPeriodView: UICollectionViewDelegateFlowLayout {
-//    func collectionView(
-//        _ collectionView: UICollectionView,
-//        layout _: UICollectionViewLayout,
-//        insetForSectionAt _: Int
-//    ) -> UIEdgeInsets {
-//        let cellCount = periods.count
-//        let cellSpacing = 8.0
-//        let totalCellWidth = 67.0 * Double(cellCount)
-//        let totalSpacingWidth = cellSpacing * Double(cellCount - 1)
-//
-//        let collectionViewWidth = collectionView.bounds.width
-//        let leftInset = (collectionViewWidth - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
-//        let rightInset = leftInset
-//
-//        return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
-//    }
-// }
-
-private class AnalyticsPeriodButton: UIButton {
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
-                backgroundColor = R.color.colorWhite()?.withAlphaComponent(0.16)
-                titleLabel?.textColor = R.color.colorWhite()
-            } else {
-                backgroundColor = .clear
-                titleLabel?.textColor = R.color.colorTransparentText()
-            }
-        }
-    }
-
+private class AnalyticsPeriodButton: RoundedButton {
     let period: AnalyticsPeriod
 
     init(period: AnalyticsPeriod) {
         self.period = period
         super.init(frame: .zero)
-        titleLabel?.font = .capsTitle
-        setTitle(period.title(for: .current), for: .normal)
+
+        roundedBackgroundView?.cornerRadius = 20
+        roundedBackgroundView?.shadowOpacity = 0.0
+
+        // contentInsets = UIEdgeInsets(top: 5.5, left: 12, bottom: 5.5, right: 12)
+        roundedBackgroundView?.fillColor = .clear
+        roundedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+
+        imageWithTitleView?.titleColor = R.color.colorTransparentText()
+        imageWithTitleView?.highlightedTitleColor = R.color.colorWhite()!
+        imageWithTitleView?.title = period.title(for: .current)
+        imageWithTitleView?.titleFont = .capsTitle
+        changesContentOpacityWhenHighlighted = true
     }
 
     @available(*, unavailable)
