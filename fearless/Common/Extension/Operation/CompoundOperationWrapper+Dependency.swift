@@ -10,7 +10,7 @@ extension CompoundOperationWrapper {
         }
     }
 
-    func addDependency(wrapper: CompoundOperationWrapper) {
+    func addDependency<T>(wrapper: CompoundOperationWrapper<T>) {
         addDependency(operations: wrapper.allOperations)
     }
 }
