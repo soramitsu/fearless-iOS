@@ -2,13 +2,13 @@ import Foundation
 
 protocol ConnectionPoolProtocol {
     func getConnection(for chain: ChainModel) throws -> JSONRPCEngine
-    func getConnectionsState() throws -> [ConnectionPoolState]
+    func getConnectionStates() throws -> [ConnectionPoolState]
 }
 
 class ConnectionPool {
     let logger: LoggerProtocol
 
-    private var mutex: NSLock = NSLock()
+    private var mutex = NSLock()
 
     private var connections: [ChainModel.Id: WeakWrapper] = [:]
 
@@ -41,7 +41,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         return connection
     }
 
-    func getConnectionsState() throws -> [ConnectionPoolState] {
+    func getConnectionStates() throws -> [ConnectionPoolState] {
         mutex.lock()
 
         defer {
@@ -50,8 +50,14 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         clearUnusedConnections()
 
-        let states = connections.compactMap { (chainId, weakWrapper) in
-            
+        let states: [ConnectionPoolState] = connections.compactMap { chainId, weakWrapper in
+            guard let connection = weakWrapper.target as? WebSocketEngine else {
+                return nil
+            }
+
+            return ConnectionPoolState(chainId: chainId, state: connection.state)
         }
+
+        return states
     }
 }
