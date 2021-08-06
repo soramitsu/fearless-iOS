@@ -204,26 +204,137 @@ final class PayoutValidatorsForNominatorFactory {
 
 extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
     func createResolutionOperation(for address: AccountAddress) -> CompoundOperationWrapper<[AccountId]> {
-        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
+//        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
+//
+//        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
+//            operationManager: operationManager
+//        ) {
+//            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
+//            let wrapper = try self.createValidatorsQueryWrapper(controllers: controllers)
+//
+//            return [wrapper]
+//        }.longrunOperation()
+//
+//        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
+//
+//        let mapOperation = ClosureOperation<[AccountId]> {
+//            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
+//        }
+//
+//        mapOperation.addDependency(validatorsOperation)
+//        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
+//
+//        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+        let operation = SQEraStakersInfoSource(url: URL(string: "http://localhost:3000/")!, address: address).fetch()
+        return operation
+    }
+}
 
-        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
-            operationManager: operationManager
-        ) {
-            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
-            let wrapper = try self.createValidatorsQueryWrapper(controllers: controllers)
+struct SQEraValidatorInfo {
+    let address: String
+    let era: String
+    let total: String
+    let own: String
+    let others: [SQIndividualExposure]
 
-            return [wrapper]
-        }.longrunOperation()
+    init?(from json: JSON) {
+        guard
+            let era = json.era?.stringValue,
+            let address = json.address?.stringValue,
+            let total = json.total?.stringValue,
+            let own = json.own?.stringValue,
+            let others = json.others?.arrayValue?.compactMap({ SQIndividualExposure(from: $0) })
+        else { return nil }
 
-        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
+        self.era = era
+        self.address = address
+        self.total = total
+        self.own = own
+        self.others = others
+    }
+}
 
-        let mapOperation = ClosureOperation<[AccountId]> {
-            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
+struct SQIndividualExposure {
+    let who: String
+    let value: String
+
+    init?(from json: JSON) {
+        guard
+            let who = json.who?.stringValue,
+            let value = json.value?.stringValue
+        else { return nil }
+        self.who = who
+        self.value = value
+    }
+}
+
+final class SQEraStakersInfoSource {
+    let url: URL
+    let address: AccountAddress
+
+    init(url: URL, address: AccountAddress) {
+        self.url = url
+        self.address = address
+    }
+
+    func fetch() -> CompoundOperationWrapper<[AccountId]> {
+        let requestFactory = BlockNetworkRequestFactory {
+            var request = URLRequest(url: self.url)
+
+            let params = self.requestParams(accountAddress: self.address)
+            let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
+            request.httpBody = try JSONEncoder().encode(info)
+            request.setValue(
+                HttpContentType.json.rawValue,
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
+            request.httpMethod = HttpMethod.post.rawValue
+            return request
         }
 
-        mapOperation.addDependency(validatorsOperation)
-        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
+        let resultFactory = AnyNetworkResultFactory<[AccountId]> { data in
+            guard let resultData = try? JSONDecoder().decode(JSON.self, from: data) else { return [] }
 
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+            let factory = SS58AddressFactory()
+            guard
+                let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
+            else { return [AccountId]() }
+
+            let validators = nodes
+                .compactMap { SQEraValidatorInfo(from: $0) }
+                .compactMap { validatorInfo -> AccountAddress? in
+                    let contains = validatorInfo.others.contains(where: { $0.who == self.address })
+                    return contains ? validatorInfo.address : nil
+                }
+                .compactMap { accountAddress -> AccountId? in
+                    try? factory.accountId(from: accountAddress)
+                }
+
+            return validators
+        }
+
+        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
+        return CompoundOperationWrapper(targetOperation: operation)
+    }
+
+    private func requestParams(accountAddress: AccountAddress) -> String {
+        """
+        {
+          query {
+            eraValidatorInfos(
+              filter:{others:{contains:[{who:\"\(accountAddress)\"}]}}
+            ) {
+              nodes {
+                id
+                address
+                era
+                total
+                own
+                others
+              }
+            }
+          }
+        }
+        """
     }
 }
