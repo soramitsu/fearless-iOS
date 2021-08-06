@@ -108,10 +108,6 @@ final class ExtrinsicOperationFactory {
         )
     }
 
-    private func createCodingFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        runtimeRegistry.fetchCoderFactoryOperation()
-    }
-
     private func createBlockHashOperation(
         connection: JSONRPCEngine,
         for numberClosure: @escaping () throws -> BlockNumber
@@ -133,6 +129,7 @@ final class ExtrinsicOperationFactory {
         return requestOperation
     }
 
+    // swiftlint:disable function_body_length
     private func createExtrinsicOperation(
         customClosure: @escaping ExtrinsicBuilderIndexedClosure,
         numberOfExtrinsics: Int,
