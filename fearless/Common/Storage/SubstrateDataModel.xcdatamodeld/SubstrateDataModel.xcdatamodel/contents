@@ -14,7 +14,7 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
-        <attribute name="chainId" attributeType="Binary"/>
+        <attribute name="chainId" attributeType="String"/>
         <attribute name="isEthereum" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="preferredNode" optional="YES" attributeType="URI"/>
         <attribute name="prefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -81,6 +81,9 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
+        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="119"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="119"/>
+        <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="89"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
         <element name="CDPhishingItem" positionX="-36" positionY="90" width="128" height="74"/>
@@ -88,8 +91,5 @@
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="119"/>
-        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="119"/>
-        <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="89"/>
     </elements>
 </model>

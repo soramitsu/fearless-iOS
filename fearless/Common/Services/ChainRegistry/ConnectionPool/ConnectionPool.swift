@@ -1,28 +1,28 @@
 import Foundation
 
 protocol ConnectionPoolProtocol {
-    func getConnection(for chain: ChainModel) throws -> JSONRPCEngine
+    func setupConnection(for chain: ChainModel) throws -> JSONRPCEngine
     func getConnectionStates() throws -> [ConnectionPoolState]
 }
 
 class ConnectionPool {
-    let logger: LoggerProtocol
+    let connectionFactory: ConnectionFactoryProtocol
 
     private var mutex = NSLock()
 
-    private var connections: [ChainModel.Id: WeakWrapper] = [:]
+    private(set) var connections: [ChainModel.Id: WeakWrapper] = [:]
 
     private func clearUnusedConnections() {
         connections = connections.filter { $0.value.target != nil }
     }
 
-    init(logger: LoggerProtocol) {
-        self.logger = logger
+    init(connectionFactory: ConnectionFactoryProtocol) {
+        self.connectionFactory = connectionFactory
     }
 }
 
 extension ConnectionPool: ConnectionPoolProtocol {
-    func getConnection(for chain: ChainModel) throws -> JSONRPCEngine {
+    func setupConnection(for chain: ChainModel) throws -> JSONRPCEngine {
         mutex.lock()
 
         defer {
@@ -32,10 +32,11 @@ extension ConnectionPool: ConnectionPoolProtocol {
         clearUnusedConnections()
 
         if let connection = connections[chain.chainId]?.target as? JSONRPCEngine {
+            // TODO: Update connection nodes here
             return connection
         }
 
-        let connection = try WebSocketEngine.createFrom(chain: chain, logger: logger)
+        let connection = try connectionFactory.createConnection(for: chain)
         connections[chain.chainId] = WeakWrapper(target: connection)
 
         return connection

@@ -17,6 +17,7 @@ protocol ApplicationConfigProtocol {
     var moonPayApiKey: String { get }
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
+    var chainListURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
 }
@@ -97,6 +98,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var phishingListURL: URL {
+        URL(string: "https://polkadot.js.org/phishing/address.json")!
+    }
+
+    var chainListURL: URL {
         URL(string: "https://polkadot.js.org/phishing/address.json")!
     }
 
