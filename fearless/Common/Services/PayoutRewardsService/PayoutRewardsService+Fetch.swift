@@ -6,7 +6,7 @@ import IrohaCrypto
 extension PayoutRewardsService {
     func createChainHistoryRangeOperationWrapper(
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<ChainHistoryRange> {
+    ) -> CompoundOperationWrapper<ChainHistoryRange> {
         let keyFactory = StorageKeyFactory()
 
         let currentEraWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =

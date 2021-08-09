@@ -203,29 +203,17 @@ final class PayoutValidatorsForNominatorFactory {
 }
 
 extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
-    func createResolutionOperation(for address: AccountAddress) -> CompoundOperationWrapper<[AccountId]> {
-//        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
-//
-//        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
-//            operationManager: operationManager
-//        ) {
-//            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
-//            let wrapper = try self.createValidatorsQueryWrapper(controllers: controllers)
-//
-//            return [wrapper]
-//        }.longrunOperation()
-//
-//        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
-//
-//        let mapOperation = ClosureOperation<[AccountId]> {
-//            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
-//        }
-//
-//        mapOperation.addDependency(validatorsOperation)
-//        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
-//
-//        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
-        let operation = SQEraStakersInfoSource(url: URL(string: "http://localhost:3000/")!, address: address).fetch()
+    func createResolutionOperation(
+        for address: AccountAddress,
+        dependingOn historyRangeOperation: BaseOperation<ChainHistoryRange>
+    ) -> CompoundOperationWrapper<[AccountId]> {
+        // TODO: delete localhost
+        let source = SQEraStakersInfoSource(url: URL(string: "http://localhost:3000/")!, address: address)
+        let operation = source.fetch {
+            try? historyRangeOperation.extractNoCancellableResultData()
+        }
+        operation.addDependency(operations: [historyRangeOperation])
+
         return operation
     }
 }
@@ -277,11 +265,12 @@ final class SQEraStakersInfoSource {
         self.address = address
     }
 
-    func fetch() -> CompoundOperationWrapper<[AccountId]> {
+    func fetch(historyRange: @escaping () -> ChainHistoryRange?) -> CompoundOperationWrapper<[AccountId]> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: self.url)
 
-            let params = self.requestParams(accountAddress: self.address)
+            let erasRange = historyRange()?.erasRange
+            let params = self.requestParams(accountAddress: self.address, erasRange: erasRange)
             let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
             request.httpBody = try JSONEncoder().encode(info)
             request.setValue(
@@ -317,12 +306,20 @@ final class SQEraStakersInfoSource {
         return CompoundOperationWrapper(targetOperation: operation)
     }
 
-    private func requestParams(accountAddress: AccountAddress) -> String {
-        """
+    private func requestParams(accountAddress: AccountAddress, erasRange: [EraIndex]?) -> String {
+        let eraFilter: String = {
+            guard let range = erasRange, range.count >= 2 else { return "" }
+            return "era:{greaterThanOrEqualTo: \"\(range.first!)\", lessThanOrEqualTo: \"\(range.last!)\"},"
+        }()
+
+        return """
         {
           query {
             eraValidatorInfos(
-              filter:{others:{contains:[{who:\"\(accountAddress)\"}]}}
+              filter:{
+                \(eraFilter)
+                others:{contains:[{who:\"\(accountAddress)\"}]}
+              }
             ) {
               nodes {
                 id

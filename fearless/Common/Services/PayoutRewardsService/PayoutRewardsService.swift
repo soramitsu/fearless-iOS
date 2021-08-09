@@ -44,14 +44,17 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         do {
             let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
-            let historyRangeWrapper = try createChainHistoryRangeOperationWrapper(
+            let historyRangeWrapper = createChainHistoryRangeOperationWrapper(
                 codingFactoryOperation: codingFactoryOperation
             )
 
             historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-            let validatorsWrapper = validatorsResolutionFactory
-                .createResolutionOperation(for: selectedAccountAddress)
+            let validatorsWrapper = validatorsResolutionFactory.createResolutionOperation(
+                for: selectedAccountAddress,
+                dependingOn: historyRangeWrapper.targetOperation
+            )
+            validatorsWrapper.allOperations.forEach { $0.addDependency(historyRangeWrapper.targetOperation) }
 
             let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(
                 dependingOn: validatorsWrapper.targetOperation,
