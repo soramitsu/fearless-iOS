@@ -10,20 +10,13 @@ extension WebSocket: WebSocketConnectionProtocol {}
 
 protocol WebSocketEngineDelegate: AnyObject {
     func webSocketDidChangeState(
-        from oldState: WebSocketEngine.State,
-        to newState: WebSocketEngine.State
+        from oldState: ConnectionState,
+        to newState: ConnectionState
     )
 }
 
 final class WebSocketEngine {
     static let sharedProcessingQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.ws.processing")
-
-    enum State {
-        case notConnected
-        case connecting(attempt: Int)
-        case waitingReconnection(attempt: Int)
-        case connected
-    }
 
     let connection: WebSocketConnectionProtocol
     let version: String
@@ -32,7 +25,7 @@ final class WebSocketEngine {
     let completionQueue: DispatchQueue
     let pingInterval: TimeInterval
 
-    private(set) var state: State = .notConnected {
+    private(set) var state: ConnectionState = .notConnected {
         didSet {
             if let delegate = delegate {
                 let oldState = oldValue
@@ -200,7 +193,7 @@ final class WebSocketEngine {
 // MARK: Internal
 
 extension WebSocketEngine {
-    func changeState(_ newState: State) {
+    func changeState(_ newState: ConnectionState) {
         state = newState
     }
 

@@ -1405,6 +1405,234 @@ import Cuckoo
 import Foundation
 
 
+ class MockConnectionAutobalancing: ConnectionAutobalancing, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ConnectionAutobalancing
+    
+     typealias Stubbing = __StubbingProxy_ConnectionAutobalancing
+     typealias Verification = __VerificationProxy_ConnectionAutobalancing
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ConnectionAutobalancing?
+
+     func enableDefaultImplementation(_ stub: ConnectionAutobalancing) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var ranking: [ConnectionRank] {
+        get {
+            return cuckoo_manager.getter("ranking",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.ranking)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func set(ranking: [ConnectionRank])  {
+        
+    return cuckoo_manager.call("set(ranking: [ConnectionRank])",
+            parameters: (ranking),
+            escapingParameters: (ranking),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.set(ranking: ranking))
+        
+    }
+    
+
+	 struct __StubbingProxy_ConnectionAutobalancing: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var ranking: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockConnectionAutobalancing, [ConnectionRank]> {
+	        return .init(manager: cuckoo_manager, name: "ranking")
+	    }
+	    
+	    
+	    func set<M1: Cuckoo.Matchable>(ranking: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ConnectionRank])> where M1.MatchedType == [ConnectionRank] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ConnectionRank])>] = [wrap(matchable: ranking) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionAutobalancing.self, method: "set(ranking: [ConnectionRank])", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ConnectionAutobalancing: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var ranking: Cuckoo.VerifyReadOnlyProperty<[ConnectionRank]> {
+	        return .init(manager: cuckoo_manager, name: "ranking", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func set<M1: Cuckoo.Matchable>(ranking: M1) -> Cuckoo.__DoNotUse<([ConnectionRank]), Void> where M1.MatchedType == [ConnectionRank] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ConnectionRank])>] = [wrap(matchable: ranking) { $0 }]
+	        return cuckoo_manager.verify("set(ranking: [ConnectionRank])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ConnectionAutobalancingStub: ConnectionAutobalancing {
+    
+    
+     var ranking: [ConnectionRank] {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ([ConnectionRank]).self)
+        }
+        
+    }
+    
+
+    
+
+    
+     func set(ranking: [ConnectionRank])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+
+
+ class MockConnectionStateReporting: ConnectionStateReporting, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ConnectionStateReporting
+    
+     typealias Stubbing = __StubbingProxy_ConnectionStateReporting
+     typealias Verification = __VerificationProxy_ConnectionStateReporting
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ConnectionStateReporting?
+
+     func enableDefaultImplementation(_ stub: ConnectionStateReporting) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var state: ConnectionState {
+        get {
+            return cuckoo_manager.getter("state",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.state)
+        }
+        
+    }
+    
+
+    
+
+    
+
+	 struct __StubbingProxy_ConnectionStateReporting: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var state: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockConnectionStateReporting, ConnectionState> {
+	        return .init(manager: cuckoo_manager, name: "state")
+	    }
+	    
+	    
+	}
+
+	 struct __VerificationProxy_ConnectionStateReporting: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var state: Cuckoo.VerifyReadOnlyProperty<ConnectionState> {
+	        return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	}
+}
+
+ class ConnectionStateReportingStub: ConnectionStateReporting {
+    
+    
+     var state: ConnectionState {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (ConnectionState).self)
+        }
+        
+    }
+    
+
+    
+
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+
+
  class MockJSONRPCResponseHandling: JSONRPCResponseHandling, Cuckoo.ProtocolMock {
     
      typealias MocksType = JSONRPCResponseHandling
@@ -2030,6 +2258,103 @@ import RobinHood
     
      func fetchChainOperation(_ url: URL) -> BaseOperation<String>  {
         return DefaultValueRegistry.defaultValue(for: (BaseOperation<String>).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+
+
+ class MockConnectionFactoryProtocol: ConnectionFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ConnectionFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_ConnectionFactoryProtocol
+     typealias Verification = __VerificationProxy_ConnectionFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ConnectionFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: ConnectionFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func createConnection(for chain: ChainModel) throws -> ChainConnection {
+        
+    return try cuckoo_manager.callThrows("createConnection(for: ChainModel) throws -> ChainConnection",
+            parameters: (chain),
+            escapingParameters: (chain),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createConnection(for: chain))
+        
+    }
+    
+
+	 struct __StubbingProxy_ConnectionFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func createConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.ProtocolStubThrowingFunction<(ChainModel), ChainConnection> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionFactoryProtocol.self, method: "createConnection(for: ChainModel) throws -> ChainConnection", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ConnectionFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func createConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.__DoNotUse<(ChainModel), ChainConnection> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return cuckoo_manager.verify("createConnection(for: ChainModel) throws -> ChainConnection", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ConnectionFactoryProtocolStub: ConnectionFactoryProtocol {
+    
+
+    
+
+    
+     func createConnection(for chain: ChainModel) throws -> ChainConnection  {
+        return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
     }
     
 }
