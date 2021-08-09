@@ -1,4 +1,4 @@
-protocol AnalyticsValidatorsViewProtocol: AnyObject {}
+protocol AnalyticsValidatorsViewProtocol: AnalyticsEmbeddedViewProtocol {}
 
 protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
     func setup()

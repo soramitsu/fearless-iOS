@@ -1,6 +1,6 @@
 import UIKit
 
-final class AnalyticsValidatorsViewLayout: UIView {
+final class AnalyticsValidatorsHeaderView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
     }

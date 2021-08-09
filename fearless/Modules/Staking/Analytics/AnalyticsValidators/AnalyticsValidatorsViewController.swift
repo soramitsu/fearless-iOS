@@ -1,7 +1,8 @@
 import UIKit
+import SoraFoundation
 
 final class AnalyticsValidatorsViewController: UIViewController {
-    typealias RootViewType = AnalyticsValidatorsViewLayout
+    typealias RootViewType = AnalyticsValidatorsView
 
     let presenter: AnalyticsValidatorsPresenterProtocol
 
@@ -16,7 +17,7 @@ final class AnalyticsValidatorsViewController: UIViewController {
     }
 
     override func loadView() {
-        view = AnalyticsValidatorsViewLayout()
+        view = AnalyticsValidatorsView()
     }
 
     override func viewDidLoad() {
@@ -26,4 +27,10 @@ final class AnalyticsValidatorsViewController: UIViewController {
     }
 }
 
-extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {}
+extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
+    var localizedTitle: LocalizableResource<String> {
+        LocalizableResource { _ in
+            "Validators"
+        }
+    }
+}
