@@ -100,7 +100,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 )
             ),
             BigNumberAbbreviation(
-                threshold: 1000,
+                threshold: 10,
                 divisor: 1.0,
                 suffix: "",
                 formatter: NumberFormatter.decimalFormatter(
@@ -110,7 +110,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 )
             ),
             BigNumberAbbreviation(
-                threshold: 10000,
+                threshold: 1000,
                 divisor: 1.0,
                 suffix: "",
                 formatter: nil
