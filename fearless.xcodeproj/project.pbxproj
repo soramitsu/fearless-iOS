@@ -315,6 +315,7 @@
 		842D1E9624D2DD6700C30A7A /* MnemonicDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E9524D2DD6700C30A7A /* MnemonicDisplayView.swift */; };
 		84300B2826C107AD00D64514 /* ConnectionAutobalancing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84300B2726C107AD00D64514 /* ConnectionAutobalancing.swift */; };
 		84300B2C26C10C9B00D64514 /* ConnectionStateReporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84300B2B26C10C9B00D64514 /* ConnectionStateReporting.swift */; };
+		84300B2F26C1112300D64514 /* ConnectionPoolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84300B2E26C1112300D64514 /* ConnectionPoolTests.swift */; };
 		8430AACC2602249B005B1066 /* InitialStakingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430AACB2602249B005B1066 /* InitialStakingState.swift */; };
 		8430AAD42602285B005B1066 /* StakingStateCommonData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430AAD32602285B005B1066 /* StakingStateCommonData.swift */; };
 		8430AADC26022C58005B1066 /* NoStashState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430AADB26022C58005B1066 /* NoStashState.swift */; };
@@ -387,6 +388,9 @@
 		8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8443FDB02554B7640092893D /* TitledMnemonicView.swift */; };
 		8443FDB6255540570092893D /* ExportMnemonicData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8443FDB5255540570092893D /* ExportMnemonicData.swift */; };
 		8443FE24255586230092893D /* ExportMnemonicConfirmProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8443FE23255586230092893D /* ExportMnemonicConfirmProtocols.swift */; };
+		84443BA026C121BA00C33B5D /* MockConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84443B9F26C121BA00C33B5D /* MockConnection.swift */; };
+		84443BA226C123F100C33B5D /* Data+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84443BA126C123F100C33B5D /* Data+Random.swift */; };
+		84443BA426C13D6900C33B5D /* ChainModelGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84443BA326C13D6900C33B5D /* ChainModelGenerator.swift */; };
 		8444D137267117A200AF6D8C /* BifrostBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8444D136267117A200AF6D8C /* BifrostBonusService.swift */; };
 		8444D13F267133CF00AF6D8C /* CrowdloanAddMemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8444D13E267133CF00AF6D8C /* CrowdloanAddMemo.swift */; };
 		8444D1742671372800AF6D8C /* BytesCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8444D1732671372800AF6D8C /* BytesCodable.swift */; };
@@ -1765,6 +1769,7 @@
 		842D1E9524D2DD6700C30A7A /* MnemonicDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MnemonicDisplayView.swift; sourceTree = "<group>"; };
 		84300B2726C107AD00D64514 /* ConnectionAutobalancing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionAutobalancing.swift; sourceTree = "<group>"; };
 		84300B2B26C10C9B00D64514 /* ConnectionStateReporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateReporting.swift; sourceTree = "<group>"; };
+		84300B2E26C1112300D64514 /* ConnectionPoolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionPoolTests.swift; sourceTree = "<group>"; };
 		8430AACB2602249B005B1066 /* InitialStakingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialStakingState.swift; sourceTree = "<group>"; };
 		8430AAD32602285B005B1066 /* StakingStateCommonData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingStateCommonData.swift; sourceTree = "<group>"; };
 		8430AADB26022C58005B1066 /* NoStashState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoStashState.swift; sourceTree = "<group>"; };
@@ -1840,6 +1845,9 @@
 		8443FDB02554B7640092893D /* TitledMnemonicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitledMnemonicView.swift; sourceTree = "<group>"; };
 		8443FDB5255540570092893D /* ExportMnemonicData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportMnemonicData.swift; sourceTree = "<group>"; };
 		8443FE23255586230092893D /* ExportMnemonicConfirmProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportMnemonicConfirmProtocols.swift; sourceTree = "<group>"; };
+		84443B9F26C121BA00C33B5D /* MockConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockConnection.swift; sourceTree = "<group>"; };
+		84443BA126C123F100C33B5D /* Data+Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Random.swift"; sourceTree = "<group>"; };
+		84443BA326C13D6900C33B5D /* ChainModelGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainModelGenerator.swift; sourceTree = "<group>"; };
 		8444D136267117A200AF6D8C /* BifrostBonusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BifrostBonusService.swift; sourceTree = "<group>"; };
 		8444D13E267133CF00AF6D8C /* CrowdloanAddMemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAddMemo.swift; sourceTree = "<group>"; };
 		8444D1732671372800AF6D8C /* BytesCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BytesCodable.swift; sourceTree = "<group>"; };
@@ -3847,6 +3855,16 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		84300B2D26C110C400D64514 /* ChainRegistry */ = {
+			isa = PBXGroup;
+			children = (
+				84300B2E26C1112300D64514 /* ConnectionPoolTests.swift */,
+				84443B9F26C121BA00C33B5D /* MockConnection.swift */,
+				84443BA326C13D6900C33B5D /* ChainModelGenerator.swift */,
+			);
+			path = ChainRegistry;
+			sourceTree = "<group>";
+		};
 		8430AACA26022423005B1066 /* States */ = {
 			isa = PBXGroup;
 			children = (
@@ -4136,6 +4154,7 @@
 		84452F8725D5E6CC00F47EC5 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				84300B2D26C110C400D64514 /* ChainRegistry */,
 				84452F8825D5E6D200F47EC5 /* RuntimeRegistryService */,
 				8454C2822632FC2500657DAD /* ExtrinsicProcessingTests.swift */,
 			);
@@ -5112,6 +5131,7 @@
 				84FACCD825F8C22A00F32ED4 /* BigInt+Hex.swift */,
 				AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */,
 				84D33995262250B800130A89 /* String+Substrate.swift */,
+				84443BA126C123F100C33B5D /* Data+Random.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -7629,7 +7649,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/Common/Network/JSONRPC/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n";
+			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/Common/Network/JSONRPC/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionAutobalancing.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionStateReporting.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionFactory.swift\" \\\n";
 		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -8303,6 +8323,7 @@
 				8467FCFC24E5C3BD005D486C /* URLHandlingService.swift in Sources */,
 				84FB1F6F2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
+				84443BA226C123F100C33B5D /* Data+Random.swift in Sources */,
 				84C6800E24D6ECE800006BF5 /* ExpandableActionControl.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				2AD0A19025D3D1E100312428 /* GitHubPhishingServiceFactory.swift in Sources */,
@@ -8994,6 +9015,7 @@
 				F47F6403263BD90000FF67E9 /* StubBalanceViewModelFactory.swift in Sources */,
 				84EAC2F82642EA52003CC2ED /* StakingRebondConfirmationTests.swift in Sources */,
 				84F4387A25D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift in Sources */,
+				84300B2F26C1112300D64514 /* ConnectionPoolTests.swift in Sources */,
 				84F4A93725504E6E000CF0A3 /* AccountInfoExportTests.swift in Sources */,
 				84CE69ED25667A5600559427 /* ByteLengthEncodingTests.swift in Sources */,
 				84563D0924F46B7F0055591D /* ManagedAccountItemMapperTests.swift in Sources */,
@@ -9037,6 +9059,7 @@
 				848DB998260639C70055DDE7 /* TotalRewardMock.swift in Sources */,
 				84FACB1725F559F200F32ED4 /* WestendStub.swift in Sources */,
 				036183230C5F04D0D199330C /* AccountInfoTests.swift in Sources */,
+				84443BA426C13D6900C33B5D /* ChainModelGenerator.swift in Sources */,
 				1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */,
 				AE2C101E267A6271004AA8E9 /* CustomValidatorListComposerTests.swift in Sources */,
 				8489EDDA264DE42500FF997E /* InconsistentStateMigrationTests.swift in Sources */,
@@ -9065,6 +9088,7 @@
 				845C7F01263C44B70024E797 /* AnyProviderAutoClearTests.swift in Sources */,
 				76C5FD0685615E602696B23D /* SelectValidatorsConfirmTests.swift in Sources */,
 				AEA0C8CB26813AE400F9666F /* SelectedValidatorListTests.swift in Sources */,
+				84443BA026C121BA00C33B5D /* MockConnection.swift in Sources */,
 				AEF5072A26236F9E0098574D /* WalletPurchaseProvidersTests.swift in Sources */,
 				AE5A205F26A5A54800925400 /* ExtrinsicOperationFactoryStub.swift in Sources */,
 				9174AA8CEB0D79C25842EC52 /* RecommendedValidatorListTests.swift in Sources */,
