@@ -1,7 +1,8 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
-final class ValidatorInfoViewController: UIViewController, ViewHolder {
+final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableViewProtocol {
     typealias RootViewType = ValidatorInfoViewLayout
 
     let presenter: ValidatorInfoPresenterProtocol
@@ -12,6 +13,8 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder {
     }
 
     private var linkPairs: [LinkPair] = []
+
+    private var state: ValidatorInfoState?
 
     // MARK: Lifecycle -
 
@@ -42,6 +45,29 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder {
     private func setupLocalization() {
         title = R.string.localizable
             .stakingValidatorInfoTitle(preferredLanguages: selectedLocale.rLanguages)
+    }
+
+    func applyState() {
+        guard let state = state else {
+            return
+        }
+
+        didStopLoading()
+
+        switch state {
+        case .empty:
+            rootView.contentView.isHidden = true
+        case .error:
+            rootView.contentView.isHidden = true
+        case .loading:
+            rootView.contentView.isHidden = true
+            didStartLoading()
+        case let .validatorInfo(viewModel):
+            rootView.contentView.isHidden = false
+            apply(viewModel: viewModel)
+        }
+
+        reloadEmptyState(animated: true)
     }
 
     func apply(viewModel: ValidatorInfoViewModel) {
@@ -124,8 +150,50 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder {
 // MARK: - ValidatorInfoViewProtocol
 
 extension ValidatorInfoViewController: ValidatorInfoViewProtocol {
-    func didRecieve(viewModel: ValidatorInfoViewModel) {
-        apply(viewModel: viewModel)
+    func didRecieve(state: ValidatorInfoState) {
+        self.state = state
+
+        applyState()
+    }
+}
+
+extension ValidatorInfoViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension ValidatorInfoViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = state else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error
+            errorView.delegate = self
+            errorView.locale = selectedLocale
+            return errorView
+        case .loading, .validatorInfo, .empty:
+            return nil
+        }
+    }
+}
+
+extension ValidatorInfoViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = state else { return false }
+        switch state {
+        case .error:
+            return true
+        case .loading, .validatorInfo, .empty:
+            return false
+        }
+    }
+}
+
+extension ValidatorInfoViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
     }
 }
 

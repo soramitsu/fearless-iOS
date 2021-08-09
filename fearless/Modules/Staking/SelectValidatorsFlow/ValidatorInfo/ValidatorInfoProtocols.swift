@@ -27,28 +27,31 @@ protocol ValidatorInfoProtocol {
 
 protocol ValidatorInfoViewFactoryProtocol: AnyObject {
     static func createView(with validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoViewProtocol?
+    static func createView(with validatorAccountAddress: AccountAddress) -> ValidatorInfoViewProtocol?
 }
 
 protocol ValidatorInfoViewProtocol: ControllerBackedProtocol, Localizable {
-    func didRecieve(viewModel: ValidatorInfoViewModel)
+    func didRecieve(state: ValidatorInfoState)
 }
 
 // MARK: - Interactor
 
 protocol ValidatorInfoInteractorInputProtocol: AnyObject {
     func setup()
+    func reload()
 }
 
 // MARK: - Presenter
 
 protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
-    func didReceive(validatorInfo: ValidatorInfoProtocol)
-    func didRecieve(priceData: PriceData?)
-    func didReceive(priceError: Error)
+    func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didStartLoadingValidatorInfo()
+    func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)
 }
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
+    func reload()
 
     func presentAccountOptions()
     func presentTotalStake()
@@ -60,7 +63,8 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 protocol ValidatorInfoWireframeProtocol: WebPresentable,
     EmailPresentable,
     AlertPresentable,
-    AddressOptionsPresentable {
+    AddressOptionsPresentable,
+    ErrorPresentable {
     func showStakingAmounts(
         from view: ValidatorInfoViewProtocol?,
         items: [LocalizableResource<StakingAmountViewModel>]

@@ -28,4 +28,12 @@ extension BlockNumber {
         let seconds = diffBlock * durationInSeconds
         return seconds
     }
+
+    func toHex() -> String {
+        var blockNumber = self
+
+        return Data(
+            Data(bytes: &blockNumber, count: MemoryLayout<UInt32>.size).reversed()
+        ).toHex(includePrefix: true)
+    }
 }

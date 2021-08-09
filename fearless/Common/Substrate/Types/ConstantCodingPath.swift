@@ -42,11 +42,19 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Babe", constantName: "EpochDuration")
     }
 
+    static var minimumPeriodBetweenBlocks: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Timestamp", constantName: "MinimumPeriod")
+    }
+
     static var minimumContribution: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Crowdloan", constantName: "MinContribution")
     }
 
     static var blockWeights: ConstantCodingPath {
         ConstantCodingPath(moduleName: "System", constantName: "BlockWeights")
+    }
+
+    static var blockHashCount: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "System", constantName: "BlockHashCount")
     }
 }

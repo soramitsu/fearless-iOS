@@ -464,4 +464,4 @@ Fearless Wallet также заботится о децентрализации,
 "common.cancel.operation.message" = "Вы уверены, что хотите отменить операцию?";
 "common.cancel.operation.action" = "Отменить операцию";
 "common.keep.editing.action" = "Вернуться к операции";
-"staking.your.validator.title" = "Ваш валидатор";
+"staking.view.your.validator.title" = "Ваш валидатор";

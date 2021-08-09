@@ -20627,7 +20627,6 @@ import Cuckoo
 @testable import fearless
 
 import Foundation
-import IrohaCrypto
 import RobinHood
 
 
@@ -26171,16 +26170,16 @@ import SoraFoundation
     
     
     
-     func didRecieve(viewModel: ValidatorInfoViewModel)  {
+     func didRecieve(state: ValidatorInfoState)  {
         
-    return cuckoo_manager.call("didRecieve(viewModel: ValidatorInfoViewModel)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
+    return cuckoo_manager.call("didRecieve(state: ValidatorInfoState)",
+            parameters: (state),
+            escapingParameters: (state),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didRecieve(viewModel: viewModel))
+            defaultCall: __defaultImplStub!.didRecieve(state: state))
         
     }
     
@@ -26223,9 +26222,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didRecieve<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoViewModel)> where M1.MatchedType == ValidatorInfoViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoViewProtocol.self, method: "didRecieve(viewModel: ValidatorInfoViewModel)", parameterMatchers: matchers))
+	    func didRecieve<M1: Cuckoo.Matchable>(state: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoState)> where M1.MatchedType == ValidatorInfoState {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoState)>] = [wrap(matchable: state) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoViewProtocol.self, method: "didRecieve(state: ValidatorInfoState)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -26265,9 +26264,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didRecieve<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(ValidatorInfoViewModel), Void> where M1.MatchedType == ValidatorInfoViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didRecieve(viewModel: ValidatorInfoViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didRecieve<M1: Cuckoo.Matchable>(state: M1) -> Cuckoo.__DoNotUse<(ValidatorInfoState), Void> where M1.MatchedType == ValidatorInfoState {
+	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoState)>] = [wrap(matchable: state) { $0 }]
+	        return cuckoo_manager.verify("didRecieve(state: ValidatorInfoState)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -26311,7 +26310,7 @@ import SoraFoundation
     
 
     
-     func didRecieve(viewModel: ValidatorInfoViewModel)   {
+     func didRecieve(state: ValidatorInfoState)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26361,6 +26360,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func reload()  {
+        
+    return cuckoo_manager.call("reload()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload())
+        
+    }
+    
 
 	 struct __StubbingProxy_ValidatorInfoInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -26373,6 +26387,11 @@ import SoraFoundation
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorInputProtocol.self, method: "reload()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -26397,6 +26416,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func reload() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -26407,6 +26432,10 @@ import SoraFoundation
 
     
      func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func reload()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26439,46 +26468,46 @@ import SoraFoundation
     
     
     
-     func didReceive(validatorInfo: ValidatorInfoProtocol)  {
+     func didReceivePriceData(result: Result<PriceData?, Error>)  {
         
-    return cuckoo_manager.call("didReceive(validatorInfo: ValidatorInfoProtocol)",
-            parameters: (validatorInfo),
-            escapingParameters: (validatorInfo),
+    return cuckoo_manager.call("didReceivePriceData(result: Result<PriceData?, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceive(validatorInfo: validatorInfo))
+            defaultCall: __defaultImplStub!.didReceivePriceData(result: result))
         
     }
     
     
     
-     func didRecieve(priceData: PriceData?)  {
+     func didStartLoadingValidatorInfo()  {
         
-    return cuckoo_manager.call("didRecieve(priceData: PriceData?)",
-            parameters: (priceData),
-            escapingParameters: (priceData),
+    return cuckoo_manager.call("didStartLoadingValidatorInfo()",
+            parameters: (),
+            escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didRecieve(priceData: priceData))
+            defaultCall: __defaultImplStub!.didStartLoadingValidatorInfo())
         
     }
     
     
     
-     func didReceive(priceError: Error)  {
+     func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)  {
         
-    return cuckoo_manager.call("didReceive(priceError: Error)",
-            parameters: (priceError),
-            escapingParameters: (priceError),
+    return cuckoo_manager.call("didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceive(priceError: priceError))
+            defaultCall: __defaultImplStub!.didReceiveValidatorInfo(result: result))
         
     }
     
@@ -26491,19 +26520,19 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(validatorInfo: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoProtocol)> where M1.MatchedType == ValidatorInfoProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoProtocol)>] = [wrap(matchable: validatorInfo) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorOutputProtocol.self, method: "didReceive(validatorInfo: ValidatorInfoProtocol)", parameterMatchers: matchers))
+	    func didReceivePriceData<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<PriceData?, Error>)> where M1.MatchedType == Result<PriceData?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<PriceData?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorOutputProtocol.self, method: "didReceivePriceData(result: Result<PriceData?, Error>)", parameterMatchers: matchers))
 	    }
 	    
-	    func didRecieve<M1: Cuckoo.OptionalMatchable>(priceData: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(PriceData?)> where M1.OptionalMatchedType == PriceData {
-	        let matchers: [Cuckoo.ParameterMatcher<(PriceData?)>] = [wrap(matchable: priceData) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorOutputProtocol.self, method: "didRecieve(priceData: PriceData?)", parameterMatchers: matchers))
+	    func didStartLoadingValidatorInfo() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorOutputProtocol.self, method: "didStartLoadingValidatorInfo()", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(priceError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: priceError) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorOutputProtocol.self, method: "didReceive(priceError: Error)", parameterMatchers: matchers))
+	    func didReceiveValidatorInfo<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ValidatorInfoProtocol?, Error>)> where M1.MatchedType == Result<ValidatorInfoProtocol?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<ValidatorInfoProtocol?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoInteractorOutputProtocol.self, method: "didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -26523,21 +26552,21 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(validatorInfo: M1) -> Cuckoo.__DoNotUse<(ValidatorInfoProtocol), Void> where M1.MatchedType == ValidatorInfoProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoProtocol)>] = [wrap(matchable: validatorInfo) { $0 }]
-	        return cuckoo_manager.verify("didReceive(validatorInfo: ValidatorInfoProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceivePriceData<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<PriceData?, Error>), Void> where M1.MatchedType == Result<PriceData?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<PriceData?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceivePriceData(result: Result<PriceData?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func didRecieve<M1: Cuckoo.OptionalMatchable>(priceData: M1) -> Cuckoo.__DoNotUse<(PriceData?), Void> where M1.OptionalMatchedType == PriceData {
-	        let matchers: [Cuckoo.ParameterMatcher<(PriceData?)>] = [wrap(matchable: priceData) { $0 }]
-	        return cuckoo_manager.verify("didRecieve(priceData: PriceData?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didStartLoadingValidatorInfo() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("didStartLoadingValidatorInfo()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(priceError: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: priceError) { $0 }]
-	        return cuckoo_manager.verify("didReceive(priceError: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceiveValidatorInfo<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ValidatorInfoProtocol?, Error>), Void> where M1.MatchedType == Result<ValidatorInfoProtocol?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<ValidatorInfoProtocol?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -26549,15 +26578,15 @@ import SoraFoundation
     
 
     
-     func didReceive(validatorInfo: ValidatorInfoProtocol)   {
+     func didReceivePriceData(result: Result<PriceData?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didRecieve(priceData: PriceData?)   {
+     func didStartLoadingValidatorInfo()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceive(priceError: Error)   {
+     func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26600,6 +26629,21 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func reload()  {
+        
+    return cuckoo_manager.call("reload()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload())
         
     }
     
@@ -26662,6 +26706,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
+	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "reload()", parameterMatchers: matchers))
+	    }
+	    
 	    func presentAccountOptions() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentAccountOptions()", parameterMatchers: matchers))
@@ -26700,6 +26749,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func reload() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func presentAccountOptions() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("presentAccountOptions()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -26727,6 +26782,10 @@ import SoraFoundation
 
     
      func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func reload()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -35430,6 +35489,21 @@ import SoraFoundation
     
     
     
+     func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("showYourValidatorInfo(_: AccountAddress, from: ControllerBackedProtocol?)",
+            parameters: (stashAddress, view),
+            escapingParameters: (stashAddress, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showYourValidatorInfo(stashAddress, from: view))
+        
+    }
+    
+    
+    
      func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)",
@@ -35535,6 +35609,11 @@ import SoraFoundation
 	    func showRedeem<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRedeem(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	    func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ stashAddress: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress, ControllerBackedProtocol?)> where M1.MatchedType == AccountAddress, M2.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress, ControllerBackedProtocol?)>] = [wrap(matchable: stashAddress) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showYourValidatorInfo(_: AccountAddress, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
@@ -35648,6 +35727,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ stashAddress: M1, from view: M2) -> Cuckoo.__DoNotUse<(AccountAddress, ControllerBackedProtocol?), Void> where M1.MatchedType == AccountAddress, M2.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress, ControllerBackedProtocol?)>] = [wrap(matchable: stashAddress) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return cuckoo_manager.verify("showYourValidatorInfo(_: AccountAddress, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.__DoNotUse<(String?, String?, String?, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return cuckoo_manager.verify("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -35721,6 +35806,10 @@ import SoraFoundation
     }
     
      func showRedeem(from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
