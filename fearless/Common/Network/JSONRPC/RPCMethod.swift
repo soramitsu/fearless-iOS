@@ -13,6 +13,8 @@ enum RPCMethod {
     static let getRuntimeVersion = "chain_getRuntimeVersion"
     static let getRuntimeMetadata = "state_getMetadata"
     static let getChainBlock = "chain_getBlock"
+    static let getFinalizedBlockHash = "chain_getFinalizedHead"
+    static let getBlockHeader = "chain_getHeader"
     static let getExtrinsicNonce = "system_accountNextIndex"
     static let helthCheck = "system_health"
     static let runtimeVersionSubscribe = "state_subscribeRuntimeVersion"
