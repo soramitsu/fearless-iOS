@@ -10,7 +10,6 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     ) -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
-        let operationManager = OperationManagerFacade.sharedManager
 
         let chain = connection.type.chain
 
@@ -25,9 +24,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
             chain: chain,
-            subscanBaseURL: subscanUrl,
-            subscanOperationFactory: SubscanOperationFactory(),
-            operationManager: operationManager
+            subqueryURL: URL(string: "http://localhost:3000/")! // TODO: delete stub url
         )
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
