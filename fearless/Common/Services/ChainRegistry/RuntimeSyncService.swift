@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 protocol RuntimeSyncServiceProtocol {
-    func register(chain: ChainModel, with connection: JSONRPCEngine)
+    func register(chain: ChainModel, with connection: ChainConnection)
     func apply(version: RuntimeVersion, for chainId: ChainModel.Id)
 }
 
@@ -36,7 +36,7 @@ final class RuntimeSyncService {
 }
 
 extension RuntimeSyncService: RuntimeSyncServiceProtocol {
-    func register(chain: ChainModel, with connection: JSONRPCEngine) {
+    func register(chain: ChainModel, with connection: ChainConnection) {
         mutex.lock()
 
         defer {
