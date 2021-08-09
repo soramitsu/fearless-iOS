@@ -31,7 +31,7 @@ extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
     }
 }
 
-// TODO move to /Common/Network/Subquery when Analytics will be done
+// TODO: move to /Common/Network/Subquery when Analytics will be done
 struct SQEraValidatorInfo {
     let address: String
     let era: String
@@ -70,7 +70,7 @@ struct SQIndividualExposure {
     }
 }
 
-// TODO move to /Common/DataProvider/Subquery when Analytics will be done
+// TODO: move to /Common/DataProvider/Subquery when Analytics will be done
 final class SQEraStakersInfoSource {
     let url: URL
     let address: AccountAddress
@@ -81,7 +81,17 @@ final class SQEraStakersInfoSource {
     }
 
     func fetch(historyRange: @escaping () -> ChainHistoryRange?) -> CompoundOperationWrapper<[AccountId]> {
-        let requestFactory = BlockNetworkRequestFactory {
+        let requestFactory = createRequestFactory(historyRange: historyRange)
+        let resultFactory = createResultFactory()
+
+        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
+        return CompoundOperationWrapper(targetOperation: operation)
+    }
+
+    private func createRequestFactory(
+        historyRange: @escaping () -> ChainHistoryRange?
+    ) -> NetworkRequestFactoryProtocol {
+        BlockNetworkRequestFactory {
             var request = URLRequest(url: self.url)
 
             let erasRange = historyRange()?.erasRange
@@ -95,15 +105,17 @@ final class SQEraStakersInfoSource {
             request.httpMethod = HttpMethod.post.rawValue
             return request
         }
+    }
 
-        let resultFactory = AnyNetworkResultFactory<[AccountId]> { data in
+    private func createResultFactory() -> AnyNetworkResultFactory<[AccountId]> {
+        AnyNetworkResultFactory<[AccountId]> { data in
             guard let resultData = try? JSONDecoder().decode(JSON.self, from: data) else { return [] }
 
-            let factory = SS58AddressFactory()
             guard
                 let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
             else { return [AccountId]() }
 
+            let addressFactory = SS58AddressFactory()
             let validators = nodes
                 .compactMap { SQEraValidatorInfo(from: $0) }
                 .compactMap { validatorInfo -> AccountAddress? in
@@ -111,14 +123,11 @@ final class SQEraStakersInfoSource {
                     return contains ? validatorInfo.address : nil
                 }
                 .compactMap { accountAddress -> AccountId? in
-                    try? factory.accountId(from: accountAddress)
+                    try? addressFactory.accountId(from: accountAddress)
                 }
 
             return validators
         }
-
-        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
-        return CompoundOperationWrapper(targetOperation: operation)
     }
 
     private func requestParams(accountAddress: AccountAddress, erasRange: [EraIndex]?) -> String {
