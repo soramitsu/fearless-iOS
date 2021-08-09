@@ -309,7 +309,7 @@ final class SQEraStakersInfoSource {
     private func requestParams(accountAddress: AccountAddress, erasRange: [EraIndex]?) -> String {
         let eraFilter: String = {
             guard let range = erasRange, range.count >= 2 else { return "" }
-            return "era:{greaterThanOrEqualTo: \"\(range.first!)\", lessThanOrEqualTo: \"\(range.last!)\"},"
+            return "era:{greaterThanOrEqualTo: \(range.first!), lessThanOrEqualTo: \(range.last!)},"
         }()
 
         return """
