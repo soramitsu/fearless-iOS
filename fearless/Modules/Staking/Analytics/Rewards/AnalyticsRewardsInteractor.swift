@@ -38,7 +38,8 @@ final class AnalyticsRewardsInteractor {
             )
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.presenter?.didReceieve(rewardItemData: .success(stubData))
+            // self?.presenter?.didReceieve(rewardItemData: .success(stubData))
+            self?.presenter?.didReceieve(rewardItemData: .failure(StakingPayoutConfirmError.extrinsicFailed))
         }
     }
 }

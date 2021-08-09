@@ -1,12 +1,13 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsRewardsView
 
     private let presenter: AnalyticsRewardsPresenterProtocol
 
-    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel> = .loading(false)
+    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel>?
 
     init(presenter: AnalyticsRewardsPresenterProtocol) {
         self.presenter = presenter
@@ -76,20 +77,62 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
         switch viewState {
         case let .loading(isLoading):
             rootView.periodSelectorView.isHidden = true
+            rootView.tableView.isHidden = true
             if !isLoading {
                 rootView.tableView.refreshControl?.endRefreshing()
             }
         case let .loaded(viewModel):
             if !viewModel.rewardSections.isEmpty {
                 rootView.periodSelectorView.isHidden = false
+                rootView.tableView.isHidden = false
                 rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
                 rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
                 rootView.tableView.reloadData()
             }
         case let .error(error):
+            rootView.tableView.isHidden = true
             rootView.periodSelectorView.isHidden = true
-            print(error.localizedDescription)
         }
+        reloadEmptyState(animated: true)
+    }
+}
+
+extension AnalyticsRewardsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension AnalyticsRewardsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = viewState else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error
+            errorView.delegate = self
+            return errorView
+        case .loading, .loaded:
+            return nil
+        }
+    }
+}
+
+extension AnalyticsRewardsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = viewState else { return false }
+        switch state {
+        case .error:
+            return true
+        case .loading, .loaded:
+            return false
+        }
+    }
+}
+
+extension AnalyticsRewardsViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
     }
 }
 

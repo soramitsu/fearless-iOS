@@ -76,9 +76,8 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
                 rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
                 rootView.tableView.reloadData()
             }
-        case let .error(error):
+        case let .error:
             rootView.periodSelectorView.isHidden = true
-            print(error.localizedDescription)
         }
     }
 }

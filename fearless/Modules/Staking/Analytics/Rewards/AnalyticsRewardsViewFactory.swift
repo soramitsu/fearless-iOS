@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import SoraFoundation
 
 struct AnalyticsRewardsViewFactory {
     static func createView() -> AnalyticsRewardsViewProtocol? {
@@ -54,7 +55,9 @@ struct AnalyticsRewardsViewFactory {
         let presenter = AnalyticsRewardsPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            localizationManager: LocalizationManager.shared,
+            logger: Logger.shared
         )
 
         let view = AnalyticsRewardsViewController(presenter: presenter)
