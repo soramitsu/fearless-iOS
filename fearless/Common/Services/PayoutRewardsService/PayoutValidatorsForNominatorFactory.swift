@@ -31,6 +31,7 @@ extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
     }
 }
 
+// TODO move to /Common/Network/Subquery when Analytics will be done
 struct SQEraValidatorInfo {
     let address: String
     let era: String
@@ -69,6 +70,7 @@ struct SQIndividualExposure {
     }
 }
 
+// TODO move to /Common/DataProvider/Subquery when Analytics will be done
 final class SQEraStakersInfoSource {
     let url: URL
     let address: AccountAddress
