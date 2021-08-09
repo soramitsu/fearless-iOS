@@ -1,7 +1,9 @@
 import Foundation
 
+typealias ChainConnection = JSONRPCEngine & ConnectionAutobalancing & ConnectionStateReporting
+
 protocol ConnectionFactoryProtocol {
-    func createConnection(for chain: ChainModel) throws -> JSONRPCEngine
+    func createConnection(for chain: ChainModel) throws -> ChainConnection
 }
 
 final class ConnectionFactory {
@@ -13,7 +15,7 @@ final class ConnectionFactory {
 }
 
 extension ConnectionFactory: ConnectionFactoryProtocol {
-    func createConnection(for chain: ChainModel) throws -> JSONRPCEngine {
+    func createConnection(for chain: ChainModel) throws -> ChainConnection {
         guard let url = chain.nodes.first?.url else {
             throw JSONRPCEngineError.unknownError
         }

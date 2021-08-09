@@ -31,8 +31,9 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         clearUnusedConnections()
 
-        if let connection = connections[chain.chainId]?.target as? JSONRPCEngine {
-            // TODO: Update connection nodes here
+        if let connection = connections[chain.chainId]?.target as? ChainConnection {
+            let ranking = chain.nodes.map { ConnectionRank(chainNode: $0) }
+            connection.set(ranking: ranking)
             return connection
         }
 
@@ -52,7 +53,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         clearUnusedConnections()
 
         let states: [ConnectionPoolState] = connections.compactMap { chainId, weakWrapper in
-            guard let connection = weakWrapper.target as? WebSocketEngine else {
+            guard let connection = weakWrapper.target as? ConnectionStateReporting else {
                 return nil
             }
 

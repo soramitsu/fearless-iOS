@@ -1,5 +1,18 @@
 import Foundation
 
+extension WebSocketEngine: ConnectionAutobalancing {
+    var ranking: [ConnectionRank] {
+        // TODO: FWL-1153
+        []
+    }
+
+    func set(ranking _: [ConnectionRank]) {
+        // TODO: FWL-1153
+    }
+}
+
+extension WebSocketEngine: ConnectionStateReporting {}
+
 extension WebSocketEngine: JSONRPCEngine {
     func callMethod<P: Encodable, T: Decodable>(
         _ method: String,

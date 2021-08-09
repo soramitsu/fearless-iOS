@@ -140,8 +140,8 @@ extension WebSocketService: ApplicationHandlerDelegate {
 
 extension WebSocketService: WebSocketEngineDelegate {
     func webSocketDidChangeState(
-        from _: WebSocketEngine.State,
-        to newState: WebSocketEngine.State
+        from _: ConnectionState,
+        to newState: ConnectionState
     ) {
         switch newState {
         case let .connecting(attempt):
