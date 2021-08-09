@@ -109,11 +109,10 @@ final class SQEraStakersInfoSource {
 
     private func createResultFactory() -> AnyNetworkResultFactory<[AccountId]> {
         AnyNetworkResultFactory<[AccountId]> { data in
-            guard let resultData = try? JSONDecoder().decode(JSON.self, from: data) else { return [] }
-
             guard
+                let resultData = try? JSONDecoder().decode(JSON.self, from: data),
                 let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
-            else { return [AccountId]() }
+            else { return [] }
 
             let addressFactory = SS58AddressFactory()
             let validators = nodes
