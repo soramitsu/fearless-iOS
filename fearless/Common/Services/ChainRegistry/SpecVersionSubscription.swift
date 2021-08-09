@@ -1,5 +1,7 @@
 import Foundation
 
+// TODO: Will be implemented in FLW-1194
+
 protocol SpecVersionSubscriptionProtocol: AnyObject {}
 
 final class SpecVersionSubscription {

@@ -30,7 +30,9 @@ final class RuntimeSyncService {
         self.operationQueue = operationQueue
     }
 
-    private func performSync(for _: ChainModel.Id, newVersion _: RuntimeVersion? = nil) {}
+    private func performSync(for _: ChainModel.Id, newVersion _: RuntimeVersion? = nil) {
+        // TODO: Will be implemented in FLW-1193
+    }
 }
 
 extension RuntimeSyncService: RuntimeSyncServiceProtocol {

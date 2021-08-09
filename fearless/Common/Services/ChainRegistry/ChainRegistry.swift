@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
 
+// TODO: Will be implemented in FLW-1194
+
 protocol ChainRegistryProtocol: AnyObject {
     func syncUp()
 }

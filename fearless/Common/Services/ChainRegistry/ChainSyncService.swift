@@ -22,5 +22,7 @@ final class ChainSyncService {
 }
 
 extension ChainSyncService: ChainSyncServiceProtocol {
-    func syncUp() {}
+    func syncUp() {
+        // TODO: Will be implemented in FLW-1190
+    }
 }

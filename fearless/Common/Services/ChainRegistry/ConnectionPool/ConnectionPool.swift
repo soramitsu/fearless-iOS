@@ -1,7 +1,7 @@
 import Foundation
 
 protocol ConnectionPoolProtocol {
-    func setupConnection(for chain: ChainModel) throws -> JSONRPCEngine
+    func setupConnection(for chain: ChainModel) throws -> ChainConnection
     func getConnectionStates() throws -> [ConnectionPoolState]
 }
 
@@ -22,7 +22,7 @@ class ConnectionPool {
 }
 
 extension ConnectionPool: ConnectionPoolProtocol {
-    func setupConnection(for chain: ChainModel) throws -> JSONRPCEngine {
+    func setupConnection(for chain: ChainModel) throws -> ChainConnection {
         mutex.lock()
 
         defer {

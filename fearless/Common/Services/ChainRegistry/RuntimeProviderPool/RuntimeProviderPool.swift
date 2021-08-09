@@ -1,5 +1,7 @@
 import Foundation
 
+// TODO: Will be implemented in FLW-1192
+
 protocol RuntimeProviderPoolProtocol {
     func getWalletRuntime(for chain: ChainModel) -> RuntimeProviderProtocol
     func getFullRuntime(for chain: ChainModel) -> RuntimeProviderProtocol
