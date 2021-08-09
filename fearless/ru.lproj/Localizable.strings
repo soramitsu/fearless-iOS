@@ -328,7 +328,7 @@
 "wallet.send.balance.minimal" = "Минимальный баланс";
 "wallet.fee.over.existential.deposit" = "У вас должны быть средства для оплаты комиссии и оставаться выше минимального баланса.";
 "staking.your.allocated.description" = "Ваш стейк распределяется между этими валидаторами.";
-"staking.your.not.allocated.description" = "Другие, которые активны без распределения вашей доли.";
+"staking.your.not.allocated.description" = "Другие, которые активны без вашего стейка.";
 "staking.your.inactive.description" = "Валидаторы, которые не были избраны в этой эре.";
 "tabbar.crowdloan.title" = "Краудлоуны";
 "crowdloan.list.section.format" = "Выберите парачейны для внесения своего вклада %@. Вы получите вознаграждение, если парачейн приобретет слот до конца аукциона.";
@@ -370,7 +370,7 @@
 "staking.add.controller" = "Чтобы выполнить это действие, добавьте контроллер аккаунт %@ в приложение";
 "crowdloan.empty.bonus.title" = "Получите специальный бонус";
 "staking.select.validators.recommended.title" = "Стейкинг с рекоммендованными валидаторами";
-"staking.select.validators.custom.title" = "Стейкинг со знакомыми валидаторами";
+"staking.select.validators.custom.title" = "Стейкинг с выбранными валидаторами";
 "common.applied" = "Применено";
 "karura.terms.action" = "Соглашаюсь с Условиями использования";
 "crowdloan.referral.code.invalid" = "Реферальный код недействителен. Пожалуйста, попробуйте другой.";
