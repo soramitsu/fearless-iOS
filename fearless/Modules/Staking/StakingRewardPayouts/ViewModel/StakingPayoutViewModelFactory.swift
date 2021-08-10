@@ -135,7 +135,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 return R.string.localizable.commonTimeLeftFormat(formattedTime)
             } else {
                 return R.string.localizable
-                    .stakingMainLockupPeriodValue(format: daysLeft, preferredLanguages: locale.rLanguages)
+                    .commonDaysLeftFormat(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
         }()
 
