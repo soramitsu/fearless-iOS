@@ -6,29 +6,38 @@ protocol ChainSyncServiceProtocol {
 }
 
 final class ChainSyncService {
+    struct SyncChanges {
+        let newOrUpdatedItems: [ChainModel]
+        let removedItems: [ChainModel]
+    }
+
     let url: URL
     let repository: AnyDataProviderRepository<ChainModel>
     let dataFetchFactory: DataOperationFactoryProtocol
+    let eventCenter: EventCenterProtocol
     let operationQueue: OperationQueue
+
+    private(set) var isSyncing: Bool = false
+    private let mutex = NSLock()
 
     init(
         url: URL,
         dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
+        eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue
     ) {
         self.url = url
         self.dataFetchFactory = dataFetchFactory
         self.repository = repository
+        self.eventCenter = eventCenter
         self.operationQueue = operationQueue
     }
-}
 
-extension ChainSyncService: ChainSyncServiceProtocol {
-    func syncUp() {
+    private func executeSync() {
         let remoteFetchOperation = dataFetchFactory.fetchData(from: url)
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
-        let processingOperation: BaseOperation<([ChainModel], [ChainModel])> = ClosureOperation {
+        let processingOperation: BaseOperation<SyncChanges> = ClosureOperation {
             let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
             let remoteChains = try JSONDecoder().decode([ChainModel].self, from: remoteData)
 
@@ -41,7 +50,7 @@ extension ChainSyncService: ChainSyncServiceProtocol {
                 mapping[item.chainId] = item
             }
 
-            let updateOrNewItems: [ChainModel] = remoteChains.compactMap { remoteItem in
+            let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
                 if let localItem = localMapping[remoteItem.chainId] {
                     return localItem != remoteItem ? remoteItem : nil
                 } else {
@@ -49,28 +58,91 @@ extension ChainSyncService: ChainSyncServiceProtocol {
                 }
             }
 
-            let removedItems = localChains.compactMap { localItem in
+            let removed = localChains.compactMap { localItem in
                 remoteMapping[localItem.chainId] == nil ? localItem : nil
             }
 
-            return (updateOrNewItems, removedItems)
+            return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
         }
 
         processingOperation.addDependency(remoteFetchOperation)
         processingOperation.addDependency(localFetchOperation)
 
         let localSaveOperation = repository.saveOperation({
-            let (newOrUpdatedItems, _) = try processingOperation.extractNoCancellableResultData()
-            return newOrUpdatedItems
+            let changes = try processingOperation.extractNoCancellableResultData()
+            return changes.newOrUpdatedItems
         }, {
-            let (_, removedItems) = try processingOperation.extractNoCancellableResultData()
-            return removedItems.map(\.identifier)
+            let changes = try processingOperation.extractNoCancellableResultData()
+            return changes.removedItems.map(\.identifier)
         })
 
         localSaveOperation.addDependency(processingOperation)
 
+        let mapOperation: BaseOperation<SyncChanges> = ClosureOperation {
+            _ = try localSaveOperation.extractNoCancellableResultData()
+
+            return try processingOperation.extractNoCancellableResultData()
+        }
+
+        mapOperation.addDependency(localSaveOperation)
+
+        mapOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                self?.complete(result: mapOperation.result)
+            }
+        }
+
         operationQueue.addOperations([
-            remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation
+            remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation, mapOperation
         ], waitUntilFinished: false)
+    }
+
+    private func complete(result: Result<SyncChanges, Error>?) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        isSyncing = false
+
+        switch result {
+        case let .success(changes):
+            let event = ChainSyncDidComplete(
+                newOrUpdatedChains: changes.newOrUpdatedItems,
+                removedChains: changes.removedItems
+            )
+
+            eventCenter.notify(with: event)
+        case let .failure(error):
+            let event = ChainSyncDidFail(error: error)
+            eventCenter.notify(with: event)
+        case .none:
+            let event = ChainSyncDidFail(error: BaseOperationError.unexpectedDependentResult)
+            eventCenter.notify(with: event)
+        }
+    }
+}
+
+extension ChainSyncService: ChainSyncServiceProtocol {
+    func syncUp() {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        guard !isSyncing else {
+            return
+        }
+
+        isSyncing = true
+
+        DispatchQueue.main.async { [weak self] in
+            let event = ChainSyncDidStart()
+            self?.eventCenter.notify(with: event)
+        }
+
+        executeSync()
     }
 }

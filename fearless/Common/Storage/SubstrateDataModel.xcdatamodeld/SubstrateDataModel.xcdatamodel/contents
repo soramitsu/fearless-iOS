@@ -2,22 +2,18 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
         <attribute name="assetId" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="isUtility" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="symbol" attributeType="String"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="assets" inverseEntity="CDChain"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="assetId"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
     </entity>
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
+        <attribute name="addressPrefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="chainId" attributeType="String"/>
-        <attribute name="isEthereum" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="preferredNode" optional="YES" attributeType="URI"/>
-        <attribute name="prefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="icon" attributeType="URI"/>
+        <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="types" optional="YES" attributeType="URI"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
         <relationship name="nodes" optional="YES" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="CDChainNode" inverseName="chain" inverseEntity="CDChainNode"/>
         <uniquenessConstraints>
@@ -28,7 +24,6 @@
     </entity>
     <entity name="CDChainNode" representedClassName="CDChainNode" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String" defaultValueString=""/>
-        <attribute name="rank" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="url" optional="YES" attributeType="URI"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="nodes" inverseEntity="CDChain"/>
         <uniquenessConstraints>
@@ -82,8 +77,8 @@
     </entity>
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="119"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="119"/>
-        <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="89"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="134"/>
+        <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="74"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
         <element name="CDPhishingItem" positionX="-36" positionY="90" width="128" height="74"/>

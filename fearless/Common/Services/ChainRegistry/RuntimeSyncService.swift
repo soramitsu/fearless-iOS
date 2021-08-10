@@ -44,12 +44,12 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
         }
 
         guard let syncInfo = knownChains[chain.chainId] else {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.typesURL, connection: connection)
+            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types, connection: connection)
             return
         }
 
-        if syncInfo.typesURL != chain.typesURL {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.typesURL, connection: connection)
+        if syncInfo.typesURL != chain.types {
+            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types, connection: connection)
 
             performSync(for: chain.chainId)
         }

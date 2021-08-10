@@ -4,5 +4,4 @@ struct ChainNodeModel: Codable, Equatable {
     let chainId: ChainModel.Id
     let url: URL
     let name: String
-    let rank: Int32
 }

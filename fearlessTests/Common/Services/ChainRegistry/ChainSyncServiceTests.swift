@@ -8,14 +8,19 @@ class ChainSyncServiceTests: XCTestCase {
         // given
 
         let storageFacade = SubstrateStorageTestFacade()
-        let repository: CoreDataRepository<ChainModel, CDChain> = storageFacade.createRepository()
+
+        let mapper = ChainModelMapper()
+        let repository: CoreDataRepository<ChainModel, CDChain> =
+            storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
         let dataOperationFactory = MockDataOperationFactoryProtocol()
         let operationQueue = OperationQueue()
+        let eventCenter = MockEventCenterProtocol()
 
         let chainService = ChainSyncService(
             url: URL(string: "https://github.com")!,
             dataFetchFactory: dataOperationFactory,
             repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
             operationQueue: operationQueue
         )
 
@@ -41,9 +46,21 @@ class ChainSyncServiceTests: XCTestCase {
 
         operationQueue.addOperations([repositoryPresetOperation], waitUntilFinished: true)
 
+        let completionExpectation = XCTestExpectation()
+
+        stub(eventCenter) { stub in
+            stub.notify(with: any()).then { event in
+                if event is ChainSyncDidComplete {
+                    completionExpectation.fulfill()
+                }
+            }
+        }
+
         chainService.syncUp()
 
         // then
+
+        wait(for: [completionExpectation], timeout: 10)
 
         let localItemsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([localItemsOperation], waitUntilFinished: true)
