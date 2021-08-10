@@ -1394,12 +1394,16 @@
 		F418E891264D318C00699085 /* AlertsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F418E890264D318C00699085 /* AlertsView.swift */; };
 		F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */; };
 		F429324F26280F6B00752C2C /* StakingRewardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */; };
+		F42D125F26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42D125E26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift */; };
 		F43A8A95265B9CF400A8A5A8 /* CustomValidatorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43A8A94265B9CF400A8A5A8 /* CustomValidatorCell.swift */; };
 		F43A8A9E265BA03500A8A5A8 /* CustomValidatorListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43A8A9D265BA03500A8A5A8 /* CustomValidatorListViewModel.swift */; };
 		F441BE0E263984DD0096B67B /* BondExtraCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F441BE0D263984DD0096B67B /* BondExtraCall.swift */; };
 		F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F441BE12263986BE0096B67B /* ExtrinsicServiceTests.swift */; };
 		F4433D5F26C166470002A91E /* AnalyticsValidatorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D5E26C166470002A91E /* AnalyticsValidatorsView.swift */; };
 		F4433D6726C1668E0002A91E /* AnalyticsValidatorsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D6626C1668E0002A91E /* AnalyticsValidatorsHeaderView.swift */; };
+		F4433D6F26C1696A0002A91E /* AnalyticsValidatorsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D6E26C1696A0002A91E /* AnalyticsValidatorsCell.swift */; };
+		F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D7426C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift */; };
+		F4433D7A26C16D070002A91E /* AnalyticsValidatorsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D7926C16D070002A91E /* AnalyticsValidatorsViewModel.swift */; };
 		F4488CF226143E0000AEE6DB /* EraRewardPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */; };
 		F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CD8F326242825005DDF23 /* PayoutRewardsService+Fetch.swift */; };
 		F458D3982642911B0055CB75 /* ControllerAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F458D3972642911B0055CB75 /* ControllerAccountViewModel.swift */; };
@@ -2898,12 +2902,16 @@
 		F418E890264D318C00699085 /* AlertsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsView.swift; sourceTree = "<group>"; };
 		F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewLayout.swift; sourceTree = "<group>"; };
 		F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewModel.swift; sourceTree = "<group>"; };
+		F42D125E26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewModelFactory.swift; sourceTree = "<group>"; };
 		F43A8A94265B9CF400A8A5A8 /* CustomValidatorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorCell.swift; sourceTree = "<group>"; };
 		F43A8A9D265BA03500A8A5A8 /* CustomValidatorListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewModel.swift; sourceTree = "<group>"; };
 		F441BE0D263984DD0096B67B /* BondExtraCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BondExtraCall.swift; sourceTree = "<group>"; };
 		F441BE12263986BE0096B67B /* ExtrinsicServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicServiceTests.swift; sourceTree = "<group>"; };
 		F4433D5E26C166470002A91E /* AnalyticsValidatorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsView.swift; sourceTree = "<group>"; };
 		F4433D6626C1668E0002A91E /* AnalyticsValidatorsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsHeaderView.swift; sourceTree = "<group>"; };
+		F4433D6E26C1696A0002A91E /* AnalyticsValidatorsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsCell.swift; sourceTree = "<group>"; };
+		F4433D7426C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorItemViewModel.swift; sourceTree = "<group>"; };
+		F4433D7926C16D070002A91E /* AnalyticsValidatorsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewModel.swift; sourceTree = "<group>"; };
 		F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraRewardPoints.swift; sourceTree = "<group>"; };
 		F44CD8F326242825005DDF23 /* PayoutRewardsService+Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PayoutRewardsService+Fetch.swift"; sourceTree = "<group>"; };
 		F44CD8F826244EC3005DDF23 /* PayoutRewardsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutRewardsServiceTests.swift; sourceTree = "<group>"; };
@@ -3136,6 +3144,7 @@
 		0E49D587557F94D42A0F76D6 /* AnalyticsValidators */ = {
 			isa = PBXGroup;
 			children = (
+				F4433D7326C16BE30002A91E /* ViewModel */,
 				F4433D5D26C166350002A91E /* View */,
 				1F3B726402D4DB25059EF156 /* AnalyticsValidatorsProtocols.swift */,
 				6B896BA49EE0D4C77401D097 /* AnalyticsValidatorsWireframe.swift */,
@@ -7305,8 +7314,19 @@
 			children = (
 				F4433D5E26C166470002A91E /* AnalyticsValidatorsView.swift */,
 				F4433D6626C1668E0002A91E /* AnalyticsValidatorsHeaderView.swift */,
+				F4433D6E26C1696A0002A91E /* AnalyticsValidatorsCell.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		F4433D7326C16BE30002A91E /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				F4433D7426C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift */,
+				F4433D7926C16D070002A91E /* AnalyticsValidatorsViewModel.swift */,
+				F42D125E26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		F453C1B1260B50450095E23F /* StakingManage */ = {
@@ -8289,6 +8309,7 @@
 				84452F9D25D6768000F47EC5 /* RuntimeMetadataItem.swift in Sources */,
 				849842FE26592C2B006BBB9F /* StatusSectionView.swift in Sources */,
 				84DA3B1624C81ECE00B5E27F /* AccountItem.swift in Sources */,
+				F42D125F26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift in Sources */,
 				8461CC7F26BBFEEA007460E4 /* ExtrinsicEraOperationFactory.swift in Sources */,
 				84F4A90A254CC863000CF0A3 /* KeystoreExportWrapper.swift in Sources */,
 				8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */,
@@ -8863,6 +8884,7 @@
 				84A2C90424E07F400020D3B7 /* AccountOperationFactoryError.swift in Sources */,
 				AE6DE7322627EA930018D5B5 /* PayoutCall.swift in Sources */,
 				84DD5F26263D72C400425ACF /* ExtrinsicFeeProxy.swift in Sources */,
+				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
 				847C96492553614F002D288F /* ExportRestoreJsonPresenter.swift in Sources */,
 				8463A71225E30C95003B8160 /* BalanceViewModelFactory.swift in Sources */,
 				6D315EFF2B664235D297674E /* AccountImportProtocols.swift in Sources */,
@@ -9201,6 +9223,7 @@
 				4FBD73DD27CAA339727616B5 /* StakingUnbondSetupPresenter.swift in Sources */,
 				F40966C926B297D6008CD244 /* AnalyticsStakeViewModelFactory.swift in Sources */,
 				84CFF1F026526FBC00DB7CF7 /* StakingBondMoreConfirmationViewLayout.swift in Sources */,
+				F4433D6F26C1696A0002A91E /* AnalyticsValidatorsCell.swift in Sources */,
 				F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */,
 				F418E891264D318C00699085 /* AlertsView.swift in Sources */,
 				CCF5A7CED175D5E43B2C9971 /* StakingUnbondSetupViewController.swift in Sources */,
@@ -9280,6 +9303,7 @@
 				2B0FC94B4AE9AFE9532F493F /* ReferralCrowdloanViewFactory.swift in Sources */,
 				B58B2D9494687F357821D53D /* AnalyticsValidatorsProtocols.swift in Sources */,
 				8BBA871751CAB9F0A8506317 /* AnalyticsValidatorsWireframe.swift in Sources */,
+				F4433D7A26C16D070002A91E /* AnalyticsValidatorsViewModel.swift in Sources */,
 				340AC2484415B10F247C135E /* AnalyticsValidatorsPresenter.swift in Sources */,
 				C9A608AFCFF4030D63D1FB4F /* AnalyticsValidatorsInteractor.swift in Sources */,
 				8BF525D6B5DFB7CF6C03B015 /* AnalyticsValidatorsViewController.swift in Sources */,
