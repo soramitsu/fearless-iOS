@@ -16,7 +16,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     progressText: "29% (25 eras)"
                 )
             }
-            return AnalyticsValidatorsViewModel(validators: validators)
+            let chartData = ChartData(amounts: [1, 2], xAxisValues: ["a", "b"])
+            return AnalyticsValidatorsViewModel(chartData: chartData, validators: validators)
         }
     }
 }

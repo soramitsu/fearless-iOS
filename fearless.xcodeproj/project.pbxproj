@@ -1432,6 +1432,7 @@
 		F47BBD852631888C0087DA11 /* StakingBalanceActionsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */; };
 		F47BBD8B263189DB0087DA11 /* StakingBalanceAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD8A263189DB0087DA11 /* StakingBalanceAction.swift */; };
 		F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */; };
+		F47D328226C260CC00CF35A2 /* FWPieChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47D328126C260CC00CF35A2 /* FWPieChartView.swift */; };
 		F47F5A7A2626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */; };
 		F47F5A822626FDB9009BCFF4 /* StakingPayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */; };
 		F47F6403263BD90000FF67E9 /* StubBalanceViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F6402263BD90000FF67E9 /* StubBalanceViewModelFactory.swift */; };
@@ -2941,6 +2942,7 @@
 		F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceActionsWidgetView.swift; sourceTree = "<group>"; };
 		F47BBD8A263189DB0087DA11 /* StakingBalanceAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceAction.swift; sourceTree = "<group>"; };
 		F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceUnbondingWidgetView.swift; sourceTree = "<group>"; };
+		F47D328126C260CC00CF35A2 /* FWPieChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWPieChartView.swift; sourceTree = "<group>"; };
 		F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryViewModel.swift; sourceTree = "<group>"; };
 		F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutViewModel.swift; sourceTree = "<group>"; };
 		F47F6402263BD90000FF67E9 /* StubBalanceViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubBalanceViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7265,6 +7267,7 @@
 				F40966FB26B29A58008CD244 /* ChartData.swift */,
 				F40966FC26B29A58008CD244 /* FWBarChartView.swift */,
 				F40966FD26B29A58008CD244 /* FWLineChartView.swift */,
+				F47D328126C260CC00CF35A2 /* FWPieChartView.swift */,
 			);
 			path = Chart;
 			sourceTree = "<group>";
@@ -9274,6 +9277,7 @@
 				B51AD1836313CE26F369ED3F /* CustomValidatorListWireframe.swift in Sources */,
 				D565DB5ED3B8B4D9BCFB4C21 /* CustomValidatorListPresenter.swift in Sources */,
 				8AEF593AFE8F59F7DC0A5753 /* CustomValidatorListInteractor.swift in Sources */,
+				F47D328226C260CC00CF35A2 /* FWPieChartView.swift in Sources */,
 				78D94A761EFECED60F38232D /* CustomValidatorListViewController.swift in Sources */,
 				7401E7CAEEE6890BE74ACCE1 /* CustomValidatorListViewLayout.swift in Sources */,
 				D83B47B07C0D40A327AC44F7 /* CustomValidatorListViewFactory.swift in Sources */,

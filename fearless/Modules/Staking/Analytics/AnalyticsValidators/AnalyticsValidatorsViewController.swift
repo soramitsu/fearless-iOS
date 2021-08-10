@@ -82,6 +82,8 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
         case let .loaded(viewModel):
             if !viewModel.validators.isEmpty {
                 rootView.tableView.isHidden = false
+                rootView.headerView.titleLabel.text = "Rewards"
+                rootView.headerView.pieChart.setChartData(viewModel.chartData)
                 rootView.tableView.reloadData()
             }
         case let .error(error):

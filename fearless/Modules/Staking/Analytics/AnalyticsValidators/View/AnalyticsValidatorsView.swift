@@ -23,13 +23,14 @@ final class AnalyticsValidatorsView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 303))
+        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 295))
     }
 
     private func setupLayout() {
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.trailing.bottom.equalToSuperview()
         }
 
         tableView.tableHeaderView = headerView
