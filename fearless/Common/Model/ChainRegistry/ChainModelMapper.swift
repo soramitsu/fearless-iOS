@@ -74,6 +74,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             assetEntity.name = asset.name
             assetEntity.precision = Int16(bitPattern: asset.precision)
             assetEntity.icon = asset.icon
+            assetEntity.symbol = asset.symbol
         }
 
         model.nodes.forEach { node in

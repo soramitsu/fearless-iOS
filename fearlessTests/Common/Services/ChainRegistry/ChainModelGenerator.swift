@@ -17,7 +17,7 @@ final class ChainModelGenerator {
 
             let node = ChainNodeModel(
                 chainId: chainId,
-                url: URL(string: "wss://node.io")!,
+                url: URL(string: "wss://node.io/\(chainId)")!,
                 name: chainId
             )
 
