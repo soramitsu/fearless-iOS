@@ -1,6 +1,6 @@
 import Foundation
 
-struct AssetModel: Codable {
+struct AssetModel: Codable, Equatable {
     typealias Id = UInt32
 
     let assetId: Id
