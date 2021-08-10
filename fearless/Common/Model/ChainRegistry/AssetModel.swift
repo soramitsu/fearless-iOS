@@ -1,6 +1,6 @@
 import Foundation
 
-struct AssetModel: Codable, Equatable {
+struct AssetModel: Codable, Hashable {
     // swiftlint:disable type_name
     typealias Id = UInt32
 

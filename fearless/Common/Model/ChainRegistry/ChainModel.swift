@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct ChainModel: Codable, Equatable {
+struct ChainModel: Codable, Hashable {
     // swiftlint:disable type_name
     typealias Id = String
 

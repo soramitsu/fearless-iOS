@@ -4,6 +4,7 @@ import RobinHood
 import Cuckoo
 
 class ChainSyncServiceTests: XCTestCase {
+
     func testFetchedChainListApplied() throws {
         // given
 
@@ -65,14 +66,8 @@ class ChainSyncServiceTests: XCTestCase {
         let localItemsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([localItemsOperation], waitUntilFinished: true)
 
-        let sortedLocalItems = (try localItemsOperation.extractNoCancellableResultData()).sorted {
-            $0.identifier.lexicographicallyPrecedes($1.identifier)
-        }
+        let localItems = try localItemsOperation.extractNoCancellableResultData()
 
-        let sortedRemoteItems = allItems.sorted {
-            $0.identifier.lexicographicallyPrecedes($1.identifier)
-        }
-
-        XCTAssertEqual(sortedLocalItems, sortedRemoteItems)
+        XCTAssertEqual(Set(localItems), Set(allItems))
     }
 }
