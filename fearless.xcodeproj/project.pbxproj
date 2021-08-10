@@ -180,6 +180,7 @@
 		8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */; };
 		840AD5FC26B4512100E09D6A /* SelectedLanguageMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840AD5FB26B4512100E09D6A /* SelectedLanguageMigrator.swift */; };
 		840BF22326C1584800E3A955 /* chainsResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 840BF22226C1584800E3A955 /* chainsResponse.json */; };
+		840BF22526C2653100E3A955 /* ChainSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840BF22426C2653100E3A955 /* ChainSyncServiceTests.swift */; };
 		840C71B826821C0600B6D9C2 /* StakingRebondMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840C71B726821C0600B6D9C2 /* StakingRebondMock.swift */; };
 		840C71BA26821D2000B6D9C2 /* StakingRedeemMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840C71B926821D2000B6D9C2 /* StakingRedeemMock.swift */; };
 		840D8918262429C900AB231B /* LocalStorageRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840D8917262429C900AB231B /* LocalStorageRequestFactory.swift */; };
@@ -1645,6 +1646,7 @@
 		8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryViewFactory.swift; sourceTree = "<group>"; };
 		840AD5FB26B4512100E09D6A /* SelectedLanguageMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedLanguageMigrator.swift; sourceTree = "<group>"; };
 		840BF22226C1584800E3A955 /* chainsResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chainsResponse.json; sourceTree = "<group>"; };
+		840BF22426C2653100E3A955 /* ChainSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainSyncServiceTests.swift; sourceTree = "<group>"; };
 		840C71B726821C0600B6D9C2 /* StakingRebondMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRebondMock.swift; sourceTree = "<group>"; };
 		840C71B926821D2000B6D9C2 /* StakingRedeemMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemMock.swift; sourceTree = "<group>"; };
 		840D8917262429C900AB231B /* LocalStorageRequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageRequestFactory.swift; sourceTree = "<group>"; };
@@ -3883,6 +3885,7 @@
 				84300B2E26C1112300D64514 /* ConnectionPoolTests.swift */,
 				84443B9F26C121BA00C33B5D /* MockConnection.swift */,
 				84443BA326C13D6900C33B5D /* ChainModelGenerator.swift */,
+				840BF22426C2653100E3A955 /* ChainSyncServiceTests.swift */,
 			);
 			path = ChainRegistry;
 			sourceTree = "<group>";
@@ -7699,7 +7702,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/Common/Network/JSONRPC/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionAutobalancing.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionStateReporting.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionFactory.swift\" \\\n";
+			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/Common/Network/JSONRPC/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionAutobalancing.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionStateReporting.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/DataOperationFactory.swift\" \\\n";
 		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -9145,6 +9148,7 @@
 				AE4C53E8268CD61E00B03CE8 /* ValidatorListFilterTests.swift in Sources */,
 				6A895389D78655DD5EC55CDD /* StartSelectValidatorsTests.swift in Sources */,
 				848DB99E26063BC40055DDE7 /* RewardDataSourceTests.swift in Sources */,
+				840BF22526C2653100E3A955 /* ChainSyncServiceTests.swift in Sources */,
 				845C7F01263C44B70024E797 /* AnyProviderAutoClearTests.swift in Sources */,
 				76C5FD0685615E602696B23D /* SelectValidatorsConfirmTests.swift in Sources */,
 				AEA0C8CB26813AE400F9666F /* SelectedValidatorListTests.swift in Sources */,

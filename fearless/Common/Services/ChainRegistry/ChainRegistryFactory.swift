@@ -39,7 +39,8 @@ final class ChainRegistryFactory {
         let chainSyncService = ChainSyncService(
             url: ApplicationConfig.shared.chainListURL,
             dataFetchFactory: DataOperationFactory(),
-            repository: AnyDataProviderRepository(chainRepository)
+            repository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedQueue
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(

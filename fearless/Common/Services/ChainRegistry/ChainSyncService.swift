@@ -32,12 +32,12 @@ extension ChainSyncService: ChainSyncServiceProtocol {
             let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
             let remoteChains = try JSONDecoder().decode([ChainModel].self, from: remoteData)
 
-            let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { (mapping, item) in
+            let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
                 mapping[item.chainId] = item
             }
 
             let localChains = try localFetchOperation.extractNoCancellableResultData()
-            let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { (mapping, item) in
+            let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
                 mapping[item.chainId] = item
             }
 
@@ -64,7 +64,7 @@ extension ChainSyncService: ChainSyncServiceProtocol {
             return newOrUpdatedItems
         }, {
             let (_, removedItems) = try processingOperation.extractNoCancellableResultData()
-            return removedItems.map { $0.identifier }
+            return removedItems.map(\.identifier)
         })
 
         localSaveOperation.addDependency(processingOperation)
