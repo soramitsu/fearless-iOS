@@ -13,47 +13,47 @@ extension StoriesFactory: StoriesFactoryProtocol {
             let slides1 = [
                 StorySlide(
                     description: R.string.localizable.stakingStoryStakingPage1(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-staking"
+                    urlString: "https://wiki.polkadot.network/docs/learn-staking"
                 ),
 
                 StorySlide(
                     description: R.string.localizable.stakingStoryStakingPage2(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-staking"
+                    urlString: "https://wiki.polkadot.network/docs/learn-staking"
                 )
             ]
 
             let slides2 = [
                 StorySlide(
                     description: R.string.localizable.stakingStoryNominatorPage1(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-nominator"
+                    urlString: "https://wiki.polkadot.network/docs/learn-nominator"
                 ),
                 StorySlide(
                     description: R.string.localizable.stakingStoryNominatorPage2(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-nominator"
+                    urlString: "https://wiki.polkadot.network/docs/learn-nominator"
                 )
             ]
 
             let slides3 = [
                 StorySlide(
                     description: R.string.localizable.stakingStoryValidatorPage1(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-validator"
+                    urlString: "https://wiki.polkadot.network/docs/learn-validator"
                 ),
 
                 StorySlide(
                     description: R.string.localizable.stakingStoryValidatorPage2(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-validator"
+                    urlString: "https://wiki.polkadot.network/docs/learn-validator"
                 )
             ]
 
             let slides4 = [
                 StorySlide(
                     description: R.string.localizable.stakingStoryRewardPage1(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-simple-payouts"
+                    urlString: "https://wiki.polkadot.network/docs/learn-simple-payouts"
                 ),
 
                 StorySlide(
                     description: R.string.localizable.stakingStoryRewardPage2(preferredLanguages: locale.rLanguages),
-                    urlString: "https://wiki.polkadot.network/docs/en/learn-simple-payouts"
+                    urlString: "https://wiki.polkadot.network/docs/learn-simple-payouts"
                 )
             ]
             // swiftlint:enable line_length
