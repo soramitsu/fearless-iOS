@@ -4,7 +4,9 @@ import FearlessUtils
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    func createViewModel() -> LocalizableResource<AnalyticsValidatorsViewModel> {
+    func createViewModel(
+        identitiesByAddress _: [AccountAddress: AccountIdentity]?
+    ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
         LocalizableResource { _ in
             let validators: [AnalyticsValidatorItemViewModel] = (0 ... 20).map { _ in
                 let address = "5GNy7frYA4BwWpKwxKAFWt4eBsZ9oAvXrp9SyDj6qzJAaNzB"

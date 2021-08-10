@@ -13,12 +13,16 @@ protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {}
+protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
+    func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>)
+}
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
     func showValidatorInfo(address: AccountAddress, view: ControllerBackedProtocol?)
 }
 
 protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
-    func createViewModel() -> LocalizableResource<AnalyticsValidatorsViewModel>
+    func createViewModel(
+        identitiesByAddress: [AccountAddress: AccountIdentity]?
+    ) -> LocalizableResource<AnalyticsValidatorsViewModel>
 }

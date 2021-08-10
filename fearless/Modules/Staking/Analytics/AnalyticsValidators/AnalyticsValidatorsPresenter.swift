@@ -9,6 +9,8 @@ final class AnalyticsValidatorsPresenter {
     private let localizationManager: LocalizationManager
     private let logger: LoggerProtocol?
 
+    private var identitiesByAddress: [AccountAddress: AccountIdentity]?
+
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
         wireframe: AnalyticsValidatorsWireframeProtocol,
@@ -24,7 +26,7 @@ final class AnalyticsValidatorsPresenter {
     }
 
     private func updateView() {
-        let viewModel = viewModelFactory.createViewModel()
+        let viewModel = viewModelFactory.createViewModel(identitiesByAddress: identitiesByAddress)
         let localizedViewModel = viewModel.value(for: selectedLocale)
         view?.reload(viewState: .loaded(localizedViewModel))
     }
@@ -32,8 +34,7 @@ final class AnalyticsValidatorsPresenter {
 
 extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
     func setup() {
-        // TODO:
-        updateView()
+        interactor.setup()
     }
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
@@ -47,4 +48,14 @@ extension AnalyticsValidatorsPresenter: Localizable {
     }
 }
 
-extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProtocol {}
+extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProtocol {
+    func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>) {
+        switch identitiesByAddressResult {
+        case let .success(identitiesByAddress):
+            self.identitiesByAddress = identitiesByAddress
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receive identitiesByAddress error: \(error.localizedDescription)")
+        }
+    }
+}
