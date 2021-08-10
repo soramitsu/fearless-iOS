@@ -35,6 +35,10 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
         // TODO:
         updateView()
     }
+
+    func handleValidatorInfoAction(validatorAddress: AccountAddress) {
+        wireframe.showValidatorInfo(address: validatorAddress, view: view)
+    }
 }
 
 extension AnalyticsValidatorsPresenter: Localizable {

@@ -2,7 +2,13 @@ import UIKit
 import FearlessUtils
 import SoraUI
 
+protocol AnalyticsValidatorsCellDelegate: AnyObject {
+    func didTapInfoButton(in cell: AnalyticsValidatorsCell)
+}
+
 final class AnalyticsValidatorsCell: UITableViewCell {
+    weak var delegate: AnalyticsValidatorsCellDelegate?
+
     let iconView: PolkadotIconView = {
         let view = PolkadotIconView()
         view.backgroundColor = .clear
@@ -36,6 +42,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupLayout()
         setupBackground()
+        infoButton.addTarget(self, action: #selector(tapInfoButton), for: .touchUpInside)
     }
 
     @available(*, unavailable)
@@ -47,6 +54,11 @@ final class AnalyticsValidatorsCell: UITableViewCell {
         super.layoutSubviews()
 
         separatorInset = .init(top: 0, left: UIConstants.horizontalInset, bottom: 0, right: UIConstants.horizontalInset)
+    }
+
+    @objc
+    private func tapInfoButton() {
+        delegate?.didTapInfoButton(in: self)
     }
 
     private func setupLayout() {

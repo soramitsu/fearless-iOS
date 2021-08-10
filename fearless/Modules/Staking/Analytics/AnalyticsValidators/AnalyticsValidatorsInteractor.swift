@@ -4,4 +4,6 @@ final class AnalyticsValidatorsInteractor {
     weak var presenter: AnalyticsValidatorsInteractorOutputProtocol!
 }
 
-extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {}
+extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
+    func setup() {}
+}

@@ -49,6 +49,7 @@ extension AnalyticsValidatorsViewController: UITableViewDataSource {
         }
         let cellViewModel = viewModel.validators[indexPath.row]
         cell.bind(viewModel: cellViewModel)
+        cell.delegate = self
         return cell
     }
 }
@@ -89,5 +90,18 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
         case let .error(error):
             rootView.tableView.isHidden = true
         }
+    }
+}
+
+extension AnalyticsValidatorsViewController: AnalyticsValidatorsCellDelegate {
+    func didTapInfoButton(in cell: AnalyticsValidatorsCell) {
+        guard
+            let indexPath = rootView.tableView.indexPath(for: cell),
+            case let .loaded(viewModel) = state else {
+            return
+        }
+        let cellViewModel = viewModel.validators[indexPath.row]
+
+        presenter.handleValidatorInfoAction(validatorAddress: cellViewModel.validatorAddress)
     }
 }

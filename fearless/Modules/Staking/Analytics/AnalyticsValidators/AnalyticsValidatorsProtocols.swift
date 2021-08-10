@@ -6,13 +6,18 @@ protocol AnalyticsValidatorsViewProtocol: AnalyticsEmbeddedViewProtocol {
 
 protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
     func setup()
+    func handleValidatorInfoAction(validatorAddress: AccountAddress)
 }
 
-protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {}
+protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
 protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {}
 
-protocol AnalyticsValidatorsWireframeProtocol: AnyObject {}
+protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
+    func showValidatorInfo(address: AccountAddress, view: ControllerBackedProtocol?)
+}
 
 protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
     func createViewModel() -> LocalizableResource<AnalyticsValidatorsViewModel>
