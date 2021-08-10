@@ -172,24 +172,20 @@ final class StakingPayoutConfirmationInteractor {
 
         let feeOperation = extrinsicOperationFactory.estimateFeeOperation(
             feeClosure,
-            numberOfExtrinsics: batches.count
+            numberOfExtrinsics: feeBatches.count
         )
 
         let dependencies = feeOperation.allOperations
+        let precision = chain.addressType.precision
 
         let mergeOperation = ClosureOperation<Decimal> {
             let results = try feeOperation.targetOperation.extractNoCancellableResultData()
 
             let fees: [Decimal] = try results.map { result in
-                switch result {
-                case let .success(dispatchInfo):
-                    return BigUInt(dispatchInfo.fee).map {
-                        Decimal.fromSubstrateAmount($0, precision: self.chain.addressType.precision) ?? 0.0
-                    } ?? 0.0
-
-                case let .failure(error):
-                    throw error
-                }
+                let dispatchInfo = try result.get()
+                return BigUInt(dispatchInfo.fee).map {
+                    Decimal.fromSubstrateAmount($0, precision: precision) ?? 0.0
+                } ?? 0.0
             }
 
             return (fees.first ?? 0.0) * Decimal(batches.count - 1) + (fees.last ?? 0.0)
@@ -203,38 +199,40 @@ final class StakingPayoutConfirmationInteractor {
         )
     }
 
-    private func createBatchesOperationWrapper() -> CompoundOperationWrapper<[Batch]>? {
+    private func createBatchesOperationWrapper(
+        from payouts: [PayoutInfo]
+    ) -> CompoundOperationWrapper<[Batch]>? {
         guard let firstPayout = payouts.first,
               let feeClosure = createExtrinsicBuilderClosure(for: [firstPayout])
         else { return nil }
 
-        let blockWeightsOperation = createBlockWeightsOperation()
-        let feeOperation = extrinsicOperationFactory.estimateFeeOperation(feeClosure)
+        let blockWeightsWrapper = createBlockWeightsWrapper()
+        let feeWrapper = extrinsicOperationFactory.estimateFeeOperation(feeClosure)
 
         let batchesOperationWrapper = ClosureOperation<[Batch]> {
-            let blockWeights = try blockWeightsOperation.extractNoCancellableResultData()
-            let fee = try feeOperation.targetOperation.extractNoCancellableResultData()
+            let blockWeights = try blockWeightsWrapper.targetOperation.extractNoCancellableResultData()
+            let fee = try feeWrapper.targetOperation.extractNoCancellableResultData()
 
             let batchSize = Int(Double(blockWeights.maxBlock) / Double(fee.weight) * 0.64)
-            let batches = stride(from: 0, to: self.payouts.count, by: batchSize).map {
-                Array(self.payouts[$0 ..< Swift.min($0 + batchSize, self.payouts.count)])
+            let batches = stride(from: 0, to: payouts.count, by: batchSize).map {
+                Array(payouts[$0 ..< Swift.min($0 + batchSize, payouts.count)])
             }
 
             return batches
         }
 
-        batchesOperationWrapper.addDependency(blockWeightsOperation)
-        batchesOperationWrapper.addDependency(feeOperation.targetOperation)
+        batchesOperationWrapper.addDependency(blockWeightsWrapper.targetOperation)
+        batchesOperationWrapper.addDependency(feeWrapper.targetOperation)
+
+        let dependencies = blockWeightsWrapper.allOperations + feeWrapper.allOperations
 
         return CompoundOperationWrapper(
             targetOperation: batchesOperationWrapper,
-            dependencies: [blockWeightsOperation] +
-                blockWeightsOperation.dependencies +
-                feeOperation.allOperations
+            dependencies: dependencies
         )
     }
 
-    private func createBlockWeightsOperation() -> BaseOperation<BlockWeights> {
+    private func createBlockWeightsWrapper() -> CompoundOperationWrapper<BlockWeights> {
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let blockWeightsOperation = StorageConstantOperation<BlockWeights>(path: .blockWeights)
@@ -248,11 +246,14 @@ final class StakingPayoutConfirmationInteractor {
 
         blockWeightsOperation.addDependency(codingFactoryOperation)
 
-        return blockWeightsOperation
+        return CompoundOperationWrapper(
+            targetOperation: blockWeightsOperation,
+            dependencies: [codingFactoryOperation]
+        )
     }
 
     private func generateBatches(completion closure: @escaping () -> Void) {
-        guard let batchesOperation = createBatchesOperationWrapper() else {
+        guard let batchesOperation = createBatchesOperationWrapper(from: payouts) else {
             return
         }
 
