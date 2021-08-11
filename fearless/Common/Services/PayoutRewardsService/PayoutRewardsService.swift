@@ -51,7 +51,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
             let validatorsWrapper = validatorsResolutionFactory
-                .createResolutionOperation(for: selectedAccountAddress)
+                .createResolutionOperation(for: selectedAccountAddress, dependingOn: historyRangeWrapper.targetOperation)
 
             let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(
                 dependingOn: validatorsWrapper.targetOperation,

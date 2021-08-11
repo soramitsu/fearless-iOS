@@ -25,9 +25,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
             chain: chain,
-            subscanBaseURL: subscanUrl,
-            subscanOperationFactory: SubscanOperationFactory(),
-            operationManager: operationManager
+            subqueryURL: URL(string: "http://localhost:3000/")! // TODO: delete stub url
         )
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
