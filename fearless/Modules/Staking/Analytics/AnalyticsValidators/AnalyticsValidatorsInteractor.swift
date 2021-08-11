@@ -7,6 +7,7 @@ final class AnalyticsValidatorsInteractor {
     weak var presenter: AnalyticsValidatorsInteractorOutputProtocol!
     let selectedAddress: AccountAddress
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let engine: JSONRPCEngine
@@ -15,11 +16,13 @@ final class AnalyticsValidatorsInteractor {
     let chain: Chain
 
     private var stashItemProvider: StreamableProvider<StashItem>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var identitiesByAddress: [AccountAddress: AccountIdentity]?
 
     init(
         selectedAddress: AccountAddress,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         engine: JSONRPCEngine,
@@ -29,6 +32,7 @@ final class AnalyticsValidatorsInteractor {
     ) {
         self.selectedAddress = selectedAddress
         self.substrateProviderFactory = substrateProviderFactory
+        self.singleValueProviderFactory = singleValueProviderFactory
         self.identityOperationFactory = identityOperationFactory
         self.operationManager = operationManager
         self.engine = engine
@@ -174,6 +178,15 @@ final class AnalyticsValidatorsInteractor {
         }
         operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
     }
+
+    private func handleStashAddress(_ stashAddress: AccountAddress) {
+        fetchHistoryRange(stashAddress: stashAddress)
+        nominationProvider = subscribeToNominationProvider(
+            for: stashAddress,
+            runtimeService: runtimeService
+        )
+        fetchRewards(stashAddress: stashAddress)
+    }
 }
 
 extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
@@ -188,11 +201,16 @@ extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateP
         case let .success(stashItem):
             presenter.didReceive(stashItemResult: .success(stashItem))
             if let stashAddress = stashItem?.stash {
-                fetchHistoryRange(stashAddress: stashAddress)
-                fetchRewards(stashAddress: stashAddress)
+                handleStashAddress(stashAddress)
             }
         case let .failure(error):
             presenter.didReceive(stashItemResult: .failure(error))
         }
+    }
+}
+
+extension AnalyticsValidatorsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+    func handleNomination(result: Result<Nomination?, Error>, address _: AccountAddress) {
+        presenter.didReceive(nominationResult: result)
     }
 }

@@ -19,6 +19,7 @@ protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
     func didReceive(eraValidatorInfosResult: Result<[SQEraValidatorInfo], Error>)
     func didReceive(stashItemResult: Result<StashItem?, Error>)
     func didReceive(rewardsResult: Result<[SubqueryRewardItemData], Error>)
+    func didReceive(nominationResult: Result<Nomination?, Error>)
 }
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {

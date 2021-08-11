@@ -13,6 +13,7 @@ final class AnalyticsValidatorsPresenter {
     private var selectedPage: AnalyticsValidatorsPage = .activity
     private var eraValidatorInfos: [SQEraValidatorInfo]?
     private var stashItem: StashItem?
+    private var nomination: Nomination?
     private var rewards: [SubqueryRewardItemData]?
 
     init(
@@ -109,6 +110,15 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
             updateView()
         case let .failure(error):
             // TODO: handleError - retry
+            logger?.error(error.localizedDescription)
+        }
+    }
+
+    func didReceive(nominationResult: Result<Nomination?, Error>) {
+        switch nominationResult {
+        case let .success(nomination):
+            self.nomination = nomination
+        case let .failure(error):
             logger?.error(error.localizedDescription)
         }
     }

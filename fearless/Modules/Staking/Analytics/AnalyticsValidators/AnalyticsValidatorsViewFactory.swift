@@ -30,6 +30,7 @@ struct AnalyticsValidatorsViewFactory {
         let interactor = AnalyticsValidatorsInteractor(
             selectedAddress: selectedAddress,
             substrateProviderFactory: substrateProviderFactory,
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
             identityOperationFactory: identityOperationFactory,
             operationManager: operationManager,
             engine: engine,
