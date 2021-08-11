@@ -15,23 +15,54 @@ final class ChainSyncService {
     let repository: AnyDataProviderRepository<ChainModel>
     let dataFetchFactory: DataOperationFactoryProtocol
     let eventCenter: EventCenterProtocol
+    let retryStrategy: ReconnectionStrategyProtocol
     let operationQueue: OperationQueue
+    let logger: LoggerProtocol?
 
+    private(set) var retryAttempt: Int = 0
     private(set) var isSyncing: Bool = false
     private let mutex = NSLock()
+
+    private lazy var scheduler: Scheduler = {
+        let scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
+        return scheduler
+    }()
 
     init(
         url: URL,
         dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
+        logger: LoggerProtocol? = nil
     ) {
         self.url = url
         self.dataFetchFactory = dataFetchFactory
         self.repository = repository
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
+        self.retryStrategy = retryStrategy
+        self.logger = logger
+    }
+
+    private func performSyncUpIfNeeded() {
+        guard !isSyncing else {
+            logger?.debug("Tried to sync up chains but already syncing")
+            return
+        }
+
+        isSyncing = true
+        retryAttempt += 1
+
+        logger?.debug("Will start chain sync with attempt \(retryAttempt)")
+
+        DispatchQueue.main.async { [weak self] in
+            let event = ChainSyncDidStart()
+            self?.eventCenter.notify(with: event)
+        }
+
+        executeSync()
     }
 
     private func executeSync() {
@@ -108,6 +139,15 @@ final class ChainSyncService {
 
         switch result {
         case let .success(changes):
+            logger?.debug(
+                """
+                Sync completed: \(changes.newOrUpdatedItems) (new or updated),
+                \(changes.removedItems) (removed)
+                """
+            )
+
+            retryAttempt = 0
+
             let event = ChainSyncDidComplete(
                 newOrUpdatedChains: changes.newOrUpdatedItems,
                 removedChains: changes.removedItems
@@ -115,11 +155,27 @@ final class ChainSyncService {
 
             eventCenter.notify(with: event)
         case let .failure(error):
+            logger?.error("Sync failed with error: \(error)")
+
             let event = ChainSyncDidFail(error: error)
             eventCenter.notify(with: event)
+
+            retry()
         case .none:
+            logger?.error("Sync failed with no result")
+
             let event = ChainSyncDidFail(error: BaseOperationError.unexpectedDependentResult)
             eventCenter.notify(with: event)
+
+            retry()
+        }
+    }
+
+    private func retry() {
+        if let nextDelay = retryStrategy.reconnectAfter(attempt: retryAttempt) {
+            logger?.debug("Scheduling chain sync retry after \(nextDelay)")
+
+            scheduler.notifyAfter(nextDelay)
         }
     }
 }
@@ -132,17 +188,22 @@ extension ChainSyncService: ChainSyncServiceProtocol {
             mutex.unlock()
         }
 
-        guard !isSyncing else {
-            return
+        if retryAttempt > 0 {
+            scheduler.cancel()
         }
 
-        isSyncing = true
+        performSyncUpIfNeeded()
+    }
+}
 
-        DispatchQueue.main.async { [weak self] in
-            let event = ChainSyncDidStart()
-            self?.eventCenter.notify(with: event)
+extension ChainSyncService: SchedulerDelegate {
+    func didTrigger(scheduler _: SchedulerProtocol) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
         }
 
-        executeSync()
+        performSyncUpIfNeeded()
     }
 }
