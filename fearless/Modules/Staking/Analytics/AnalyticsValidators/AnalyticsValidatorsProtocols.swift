@@ -31,6 +31,7 @@ protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
         eraValidatorInfos: [SQEraValidatorInfo],
         stashAddress: AccountAddress,
         rewards: [SubqueryRewardItemData],
+        nomination: Nomination,
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel>

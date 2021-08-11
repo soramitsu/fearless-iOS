@@ -34,13 +34,15 @@ final class AnalyticsValidatorsPresenter {
         guard
             let eraValidatorInfos = eraValidatorInfos,
             let stashAddress = stashItem?.stash,
-            let rewards = rewards
+            let rewards = rewards,
+            let nomination = nomination
         else { return }
 
         let viewModel = viewModelFactory.createViewModel(
             eraValidatorInfos: eraValidatorInfos,
             stashAddress: stashAddress,
             rewards: rewards,
+            nomination: nomination,
             identitiesByAddress: identitiesByAddress,
             page: selectedPage
         )

@@ -1,6 +1,7 @@
 import SoraFoundation
 import FearlessUtils
 import BigInt
+import IrohaCrypto
 
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
@@ -20,6 +21,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         eraValidatorInfos: [SQEraValidatorInfo],
         stashAddress: AccountAddress,
         rewards: [SubqueryRewardItemData],
+        nomination: Nomination,
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
@@ -28,8 +30,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
             let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
 
-            let validators: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
-
+            let validatorsWhoOwnedStake: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
                 let icon = try? self.iconGenerator.generateFromAddress(address)
                 let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
                 let (progress, progressText): (Double, String) = {
@@ -70,12 +71,37 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             }
             .sorted(by: { $0.progress > $1.progress })
 
+            let addressFactory = SS58AddressFactory()
+            let validatorsWhoDontOwnStake: [AnalyticsValidatorItemViewModel] = nomination
+                .targets
+                .compactMap { validatorId in
+                    let validatorAddress = try? addressFactory.addressFromAccountId(
+                        data: validatorId,
+                        type: self.chain.addressType
+                    )
+                    guard
+                        let address = validatorAddress,
+                        !distinctValidators.contains(address)
+                    else { return nil }
+
+                    let icon = try? self.iconGenerator.generateFromAddress(address)
+                    // TODO: fetch identites for nomination targets
+                    let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
+                    return AnalyticsValidatorItemViewModel(
+                        icon: icon,
+                        validatorName: validatorName,
+                        progress: 0,
+                        progressText: "0",
+                        validatorAddress: address
+                    )
+                }
+
             let chartData = ChartData(amounts: [1, 2], xAxisValues: ["a", "b"])
             let listTitle = self.determineListTitle(page: page, locale: locale)
             return AnalyticsValidatorsViewModel(
                 chartData: chartData,
                 listTitle: listTitle,
-                validators: validators,
+                validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
                 selectedPage: page
             )
         }
