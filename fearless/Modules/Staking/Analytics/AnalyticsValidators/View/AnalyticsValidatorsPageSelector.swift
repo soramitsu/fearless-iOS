@@ -11,10 +11,16 @@ final class AnalyticsValidatorsPageSelector: UIView {
     private let activityButton = AnalyticsPageButton(page: .activity)
     private let rewardsButton = AnalyticsPageButton(page: .rewards)
 
+    lazy var contentView: UIView = {
+        UIView.hStack([activityButton, rewardsButton])
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorAlmostBlack()
         setupLayout()
+        activityButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
+        rewardsButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
     }
 
     @available(*, unavailable)
@@ -23,14 +29,19 @@ final class AnalyticsValidatorsPageSelector: UIView {
     }
 
     private func setupLayout() {
-        let stackView = UIView.hStack([activityButton, rewardsButton])
-        addSubview(stackView)
-        stackView.snp.makeConstraints { make in
+        addSubview(contentView)
+        contentView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(16)
             make.height.equalTo(24)
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(8)
+            make.bottom.equalToSuperview()
         }
+    }
+
+    @objc
+    private func handleButton(sender: UIControl) {
+        guard let button = sender as? AnalyticsPageButton else { return }
+        delegate?.didSelectPage(button.page)
     }
 }
 

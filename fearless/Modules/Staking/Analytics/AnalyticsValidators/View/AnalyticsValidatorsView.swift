@@ -45,5 +45,8 @@ final class AnalyticsValidatorsView: UIView {
         pageSelector.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
         }
+        pageSelector.contentView.snp.makeConstraints { make in
+            make.bottom.equalTo(safeAreaLayoutGuide)
+        }
     }
 }
