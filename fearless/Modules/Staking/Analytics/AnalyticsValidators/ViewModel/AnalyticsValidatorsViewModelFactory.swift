@@ -6,21 +6,19 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    private let selectedAddress: AccountAddress
     private let chain: Chain
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        selectedAddress: AccountAddress,
         chain: Chain
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.selectedAddress = selectedAddress
         self.chain = chain
     }
 
     func createViewModel(
         eraValidatorInfos: [SQEraValidatorInfo],
+        stashAddress: AccountAddress,
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
@@ -44,7 +42,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         return (Double(percents), "\(percents)% (\(distinctErasCount) eras)")
                     case .rewards:
                         let infos = eraValidatorInfos.filter { $0.address == address }
-                        let aaa = infos.flatMap(\.others).filter { $0.who == self.selectedAddress }
+                        let aaa = infos.flatMap(\.others).filter { $0.who == stashAddress }
                         let totalAmount = aaa.reduce(Decimal(0)) { amount, info in
                             let amountBigInt = BigUInt(stringLiteral: info.value)
                             let decimal = Decimal.fromSubstrateAmount(amountBigInt, precision: self.chain.addressType.precision)

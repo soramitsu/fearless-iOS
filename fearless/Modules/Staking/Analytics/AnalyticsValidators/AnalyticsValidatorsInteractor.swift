@@ -5,6 +5,8 @@ import FearlessUtils
 
 final class AnalyticsValidatorsInteractor {
     weak var presenter: AnalyticsValidatorsInteractorOutputProtocol!
+    let selectedAddress: AccountAddress
+    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let engine: JSONRPCEngine
@@ -12,9 +14,12 @@ final class AnalyticsValidatorsInteractor {
     let storageRequestFactory: StorageRequestFactoryProtocol
     let chain: Chain
 
+    private var stashItemProvider: StreamableProvider<StashItem>?
     private var identitiesByAddress: [AccountAddress: AccountIdentity]?
 
     init(
+        selectedAddress: AccountAddress,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         engine: JSONRPCEngine,
@@ -22,6 +27,8 @@ final class AnalyticsValidatorsInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         chain: Chain
     ) {
+        self.selectedAddress = selectedAddress
+        self.substrateProviderFactory = substrateProviderFactory
         self.identityOperationFactory = identityOperationFactory
         self.operationManager = operationManager
         self.engine = engine
@@ -107,15 +114,14 @@ final class AnalyticsValidatorsInteractor {
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies)
     }
 
-    private func fetchHistoryRange() {
+    private func fetchHistoryRange(stashAddress: AccountAddress) {
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
         let historyRangeWrapper = createChainHistoryRangeOperationWrapper(codingFactoryOperation: codingFactoryOperation)
         historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let address = "FFnTujhiUdTbhvwcBwQ2V3UtFMdpzg4r8SYT6J7qxhwW1s3"
         let source = SQEraStakersInfoSource(
             url: URL(string: "http://localhost:3000/")!,
-            address: address
+            address: stashAddress
         )
         let operation = source.fetch {
             try? historyRangeWrapper.targetOperation.extractNoCancellableResultData()
@@ -133,7 +139,7 @@ final class AnalyticsValidatorsInteractor {
                 let addressFactory = SS58AddressFactory()
                 let accountIds = erasInfo
                     .compactMap { validatorInfo -> AccountAddress? in
-                        let contains = validatorInfo.others.contains(where: { $0.who == address })
+                        let contains = validatorInfo.others.contains(where: { $0.who == stashAddress })
                         return contains ? validatorInfo.address : nil
                     }
                     .compactMap { accountAddress -> AccountId? in
@@ -155,6 +161,20 @@ final class AnalyticsValidatorsInteractor {
 
 extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
     func setup() {
-        fetchHistoryRange()
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAddress)
+    }
+}
+
+extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            presenter.didReceive(stashItemResult: .success(stashItem))
+            if let stashAddress = stashItem?.stash {
+                fetchHistoryRange(stashAddress: stashAddress)
+            }
+        case let .failure(error):
+            presenter.didReceive(stashItemResult: .failure(error))
+        }
     }
 }

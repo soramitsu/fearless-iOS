@@ -21,8 +21,15 @@ struct AnalyticsValidatorsViewFactory {
             operationManager: operationManager
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: requestFactory)
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager,
+            logger: logger
+        )
 
         let interactor = AnalyticsValidatorsInteractor(
+            selectedAddress: selectedAddress,
+            substrateProviderFactory: substrateProviderFactory,
             identityOperationFactory: identityOperationFactory,
             operationManager: operationManager,
             engine: engine,
@@ -41,7 +48,6 @@ struct AnalyticsValidatorsViewFactory {
         )
         let viewModelFactory = AnalyticsValidatorsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
-            selectedAddress: selectedAddress,
             chain: chain
         )
 

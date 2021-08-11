@@ -12,6 +12,7 @@ final class AnalyticsValidatorsPresenter {
     private var identitiesByAddress: [AccountAddress: AccountIdentity]?
     private var selectedPage: AnalyticsValidatorsPage = .activity
     private var eraValidatorInfos: [SQEraValidatorInfo]?
+    private var stashItem: StashItem?
 
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
@@ -28,9 +29,14 @@ final class AnalyticsValidatorsPresenter {
     }
 
     private func updateView() {
-        guard let eraValidatorInfos = eraValidatorInfos else { return }
+        guard
+            let eraValidatorInfos = eraValidatorInfos,
+            let stashAddress = stashItem?.stash
+        else { return }
+
         let viewModel = viewModelFactory.createViewModel(
             eraValidatorInfos: eraValidatorInfos,
+            stashAddress: stashAddress,
             identitiesByAddress: identitiesByAddress,
             page: selectedPage
         )
@@ -80,6 +86,16 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         case let .failure(error):
             // TODO: handleError - retry
             logger?.error("Did receive eraValidatorInfos error: \(error.localizedDescription)")
+        }
+    }
+
+    func didReceive(stashItemResult: Result<StashItem?, Error>) {
+        switch stashItemResult {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+            updateView()
+        case let .failure(error):
+            logger?.error(error.localizedDescription)
         }
     }
 }
