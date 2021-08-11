@@ -112,9 +112,10 @@ final class AnalyticsValidatorsInteractor {
         let historyRangeWrapper = createChainHistoryRangeOperationWrapper(codingFactoryOperation: codingFactoryOperation)
         historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
+        let address = "FFnTujhiUdTbhvwcBwQ2V3UtFMdpzg4r8SYT6J7qxhwW1s3"
         let source = SQEraStakersInfoSource(
             url: URL(string: "http://localhost:3000/")!,
-            address: "FFnTujhiUdTbhvwcBwQ2V3UtFMdpzg4r8SYT6J7qxhwW1s3"
+            address: address
         )
         let operation = source.fetch {
             try? historyRangeWrapper.targetOperation.extractNoCancellableResultData()
@@ -123,8 +124,18 @@ final class AnalyticsValidatorsInteractor {
 
         operation.targetOperation.completionBlock = { [weak self] in
             do {
-                let aaa = try operation.targetOperation.extractNoCancellableResultData()
-                self?.fetchValidatorIdentity(accountIds: aaa)
+                let erasInfo = try operation.targetOperation.extractNoCancellableResultData()
+
+                let addressFactory = SS58AddressFactory()
+                let accountIds = erasInfo
+                    .compactMap { validatorInfo -> AccountAddress? in
+                        let contains = validatorInfo.others.contains(where: { $0.who == address })
+                        return contains ? validatorInfo.address : nil
+                    }
+                    .compactMap { accountAddress -> AccountId? in
+                        try? addressFactory.accountId(from: accountAddress)
+                    }
+                self?.fetchValidatorIdentity(accountIds: accountIds)
             } catch {
                 print(error)
             }
