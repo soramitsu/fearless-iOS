@@ -9,7 +9,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
-        LocalizableResource { _ in
+        LocalizableResource { locale in
             let validators: [AnalyticsValidatorItemViewModel] = eraValidatorInfos.map { info in
                 let address = info.address
                 let icon = try? self.iconGenerator.generateFromAddress(address)
@@ -24,7 +24,22 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 )
             }
             let chartData = ChartData(amounts: [1, 2], xAxisValues: ["a", "b"])
-            return AnalyticsValidatorsViewModel(chartData: chartData, validators: validators, selectedPage: page)
+            let listTitle = self.determineListTitle(page: page, locale: locale)
+            return AnalyticsValidatorsViewModel(
+                chartData: chartData,
+                listTitle: listTitle,
+                validators: validators,
+                selectedPage: page
+            )
+        }
+    }
+
+    private func determineListTitle(page: AnalyticsValidatorsPage, locale _: Locale) -> String {
+        switch page {
+        case .activity:
+            return "stake allocation".uppercased()
+        case .rewards:
+            return "Rewards".uppercased()
         }
     }
 }
