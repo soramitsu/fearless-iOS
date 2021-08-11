@@ -9,7 +9,7 @@ final class AnalyticsValidatorsPresenter {
     private let localizationManager: LocalizationManager
     private let logger: LoggerProtocol?
 
-    private var identitiesByAddress: [AccountAddress: AccountIdentity]?
+    private var identitiesByAddress = [AccountAddress: AccountIdentity]()
     private var selectedPage: AnalyticsValidatorsPage = .activity
     private var eraValidatorInfos: [SQEraValidatorInfo]?
     private var stashItem: StashItem?
@@ -77,7 +77,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
     func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>) {
         switch identitiesByAddressResult {
         case let .success(identitiesByAddress):
-            self.identitiesByAddress = identitiesByAddress
+            self.identitiesByAddress.merge(identitiesByAddress) { current, _ in current }
             updateView()
         case let .failure(error):
             logger?.error("Did receive identitiesByAddress error: \(error.localizedDescription)")

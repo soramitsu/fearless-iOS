@@ -212,5 +212,8 @@ extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateP
 extension AnalyticsValidatorsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
     func handleNomination(result: Result<Nomination?, Error>, address _: AccountAddress) {
         presenter.didReceive(nominationResult: result)
+        if let nomination = try? result.get() {
+            fetchValidatorIdentity(accountIds: nomination.targets)
+        }
     }
 }

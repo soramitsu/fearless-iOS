@@ -85,7 +85,6 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     else { return nil }
 
                     let icon = try? self.iconGenerator.generateFromAddress(address)
-                    // TODO: fetch identites for nomination targets
                     let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
                     return AnalyticsValidatorItemViewModel(
                         icon: icon,
