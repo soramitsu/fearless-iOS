@@ -24,6 +24,7 @@ struct AnalyticsValidatorsViewFactory {
             operationManager: operationManager,
             engine: engine,
             runtimeService: RuntimeRegistryFacade.sharedService,
+            storageRequestFactory: requestFactory,
             chain: chain
         )
 
