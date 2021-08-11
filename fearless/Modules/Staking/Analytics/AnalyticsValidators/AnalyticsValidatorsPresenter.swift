@@ -11,6 +11,7 @@ final class AnalyticsValidatorsPresenter {
 
     private var identitiesByAddress: [AccountAddress: AccountIdentity]?
     private var selectedPage: AnalyticsValidatorsPage = .activity
+    private var eraValidatorInfos: [SQEraValidatorInfo]?
 
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
@@ -27,7 +28,9 @@ final class AnalyticsValidatorsPresenter {
     }
 
     private func updateView() {
+        guard let eraValidatorInfos = eraValidatorInfos else { return }
         let viewModel = viewModelFactory.createViewModel(
+            eraValidatorInfos: eraValidatorInfos,
             identitiesByAddress: identitiesByAddress,
             page: selectedPage
         )
@@ -66,6 +69,17 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
             updateView()
         case let .failure(error):
             logger?.error("Did receive identitiesByAddress error: \(error.localizedDescription)")
+        }
+    }
+
+    func didReceive(eraValidatorInfosResult: Result<[SQEraValidatorInfo], Error>) {
+        switch eraValidatorInfosResult {
+        case let .success(eraValidatorInfos):
+            self.eraValidatorInfos = eraValidatorInfos
+            updateView()
+        case let .failure(error):
+            // TODO: handleError - retry
+            logger?.error("Did receive eraValidatorInfos error: \(error.localizedDescription)")
         }
     }
 }

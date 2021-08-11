@@ -5,16 +5,19 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     func createViewModel(
-        identitiesByAddress _: [AccountAddress: AccountIdentity]?,
+        eraValidatorInfos: [SQEraValidatorInfo],
+        identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
         LocalizableResource { _ in
-            let validators: [AnalyticsValidatorItemViewModel] = (0 ... 20).map { _ in
-                let address = "5GNy7frYA4BwWpKwxKAFWt4eBsZ9oAvXrp9SyDj6qzJAaNzB"
+            let validators: [AnalyticsValidatorItemViewModel] = eraValidatorInfos.map { info in
+                let address = info.address
                 let icon = try? self.iconGenerator.generateFromAddress(address)
+                let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
+
                 return .init(
                     icon: icon,
-                    validatorName: "✨👍✨ Day7 ✨👍✨",
+                    validatorName: validatorName,
                     progress: 0.29,
                     progressText: "29% (25 eras)",
                     validatorAddress: address

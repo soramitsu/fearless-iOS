@@ -16,6 +16,7 @@ protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
 
 protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
     func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>)
+    func didReceive(eraValidatorInfosResult: Result<[SQEraValidatorInfo], Error>)
 }
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
@@ -24,6 +25,7 @@ protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
 
 protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
     func createViewModel(
+        eraValidatorInfos: [SQEraValidatorInfo],
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel>

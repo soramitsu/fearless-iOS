@@ -7,6 +7,7 @@ final class AnalyticsValidatorsView: UIView {
         let view = UITableView()
         view.backgroundColor = .clear
         view.refreshControl = UIRefreshControl()
+        view.tableFooterView = UIView()
         return view
     }()
 

@@ -126,6 +126,10 @@ final class AnalyticsValidatorsInteractor {
             do {
                 let erasInfo = try operation.targetOperation.extractNoCancellableResultData()
 
+                DispatchQueue.main.async {
+                    self?.presenter.didReceive(eraValidatorInfosResult: .success(erasInfo))
+                }
+
                 let addressFactory = SS58AddressFactory()
                 let accountIds = erasInfo
                     .compactMap { validatorInfo -> AccountAddress? in
@@ -137,7 +141,9 @@ final class AnalyticsValidatorsInteractor {
                     }
                 self?.fetchValidatorIdentity(accountIds: accountIds)
             } catch {
-                print(error)
+                DispatchQueue.main.async {
+                    self?.presenter.didReceive(eraValidatorInfosResult: .failure(error))
+                }
             }
         }
         operationManager.enqueue(
