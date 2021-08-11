@@ -7,8 +7,21 @@ final class ChainRegistryFactory {
 
         let runtimVersionRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
+
+        let dataFetchOperationFactory = DataOperationFactory()
+
+        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
+            FileManager.default.temporaryDirectory
+        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
+        let filesOperationFactory = RuntimeFilesOperationFactory(
+            repository: FileRepository(),
+            directoryPath: runtimeDirectory
+        )
+
         let runtimeSyncService = RuntimeSyncService(
-            repository: AnyDataProviderRepository(runtimVersionRepository)
+            repository: AnyDataProviderRepository(runtimVersionRepository),
+            filesOperationFactory: filesOperationFactory,
+            dataOperationFactory: dataFetchOperationFactory
         )
 
         let runtimeProviderFactory = RuntimeProviderFactory(runtimeSyncService: runtimeSyncService)
@@ -40,7 +53,7 @@ final class ChainRegistryFactory {
 
         let chainSyncService = ChainSyncService(
             url: ApplicationConfig.shared.chainListURL,
-            dataFetchFactory: DataOperationFactory(),
+            dataFetchFactory: dataFetchOperationFactory,
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
             operationQueue: OperationManagerFacade.sharedQueue

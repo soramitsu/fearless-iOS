@@ -43,7 +43,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             assets: assets,
             nodes: nodes,
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
-            types: entity.types!,
+            types: entity.types,
             icon: entity.icon!,
             isEthereumBased: entity.isEthereumBased
         )

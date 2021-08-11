@@ -9,7 +9,7 @@ struct ChainModel: Codable, Hashable {
     let assets: [AssetModel]
     let nodes: [ChainNodeModel]
     let addressPrefix: UInt16
-    let types: URL
+    let types: URL?
     let icon: URL
     let isEthereumBased: Bool
 }
