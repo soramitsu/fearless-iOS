@@ -5,7 +5,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     func createViewModel(
-        identitiesByAddress _: [AccountAddress: AccountIdentity]?
+        identitiesByAddress _: [AccountAddress: AccountIdentity]?,
+        page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
         LocalizableResource { _ in
             let validators: [AnalyticsValidatorItemViewModel] = (0 ... 20).map { _ in
@@ -20,7 +21,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 )
             }
             let chartData = ChartData(amounts: [1, 2], xAxisValues: ["a", "b"])
-            return AnalyticsValidatorsViewModel(chartData: chartData, validators: validators)
+            return AnalyticsValidatorsViewModel(chartData: chartData, validators: validators, selectedPage: page)
         }
     }
 }

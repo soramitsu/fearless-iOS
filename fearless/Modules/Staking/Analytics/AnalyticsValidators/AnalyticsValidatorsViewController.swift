@@ -26,6 +26,7 @@ final class AnalyticsValidatorsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupTable()
+        rootView.pageSelector.delegate = self
         presenter.setup()
     }
 
@@ -103,5 +104,11 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsCellDelegate {
         let cellViewModel = viewModel.validators[indexPath.row]
 
         presenter.handleValidatorInfoAction(validatorAddress: cellViewModel.validatorAddress)
+    }
+}
+
+extension AnalyticsValidatorsViewController: AnalyticsValidatorsPageSelectorDelegate {
+    func didSelectPage(_ page: AnalyticsValidatorsPage) {
+        presenter.handlePageAction(page: page)
     }
 }

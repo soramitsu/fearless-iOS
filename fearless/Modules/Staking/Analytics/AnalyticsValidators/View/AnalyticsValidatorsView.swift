@@ -10,6 +10,8 @@ final class AnalyticsValidatorsView: UIView {
         return view
     }()
 
+    let pageSelector = AnalyticsValidatorsPageSelector()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -23,6 +25,9 @@ final class AnalyticsValidatorsView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
+        let verticalInset = pageSelector.bounds.height
+        tableView.contentInset = .init(top: 0, left: 0, bottom: verticalInset, right: 0)
+
         headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 295))
     }
 
@@ -34,5 +39,10 @@ final class AnalyticsValidatorsView: UIView {
         }
 
         tableView.tableHeaderView = headerView
+
+        addSubview(pageSelector)
+        pageSelector.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+        }
     }
 }

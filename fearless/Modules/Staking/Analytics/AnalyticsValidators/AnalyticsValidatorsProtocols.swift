@@ -7,6 +7,7 @@ protocol AnalyticsValidatorsViewProtocol: AnalyticsEmbeddedViewProtocol {
 protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
     func setup()
     func handleValidatorInfoAction(validatorAddress: AccountAddress)
+    func handlePageAction(page: AnalyticsValidatorsPage)
 }
 
 protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
@@ -23,6 +24,7 @@ protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
 
 protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
     func createViewModel(
-        identitiesByAddress: [AccountAddress: AccountIdentity]?
+        identitiesByAddress: [AccountAddress: AccountIdentity]?,
+        page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel>
 }

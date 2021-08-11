@@ -10,6 +10,7 @@ final class AnalyticsValidatorsPresenter {
     private let logger: LoggerProtocol?
 
     private var identitiesByAddress: [AccountAddress: AccountIdentity]?
+    private var selectedPage: AnalyticsValidatorsPage = .activity
 
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
@@ -26,7 +27,10 @@ final class AnalyticsValidatorsPresenter {
     }
 
     private func updateView() {
-        let viewModel = viewModelFactory.createViewModel(identitiesByAddress: identitiesByAddress)
+        let viewModel = viewModelFactory.createViewModel(
+            identitiesByAddress: identitiesByAddress,
+            page: selectedPage
+        )
         let localizedViewModel = viewModel.value(for: selectedLocale)
         view?.reload(viewState: .loaded(localizedViewModel))
     }
@@ -39,6 +43,12 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
         wireframe.showValidatorInfo(address: validatorAddress, view: view)
+    }
+
+    func handlePageAction(page: AnalyticsValidatorsPage) {
+        guard selectedPage != page else { return }
+        selectedPage = page
+        updateView()
     }
 }
 
