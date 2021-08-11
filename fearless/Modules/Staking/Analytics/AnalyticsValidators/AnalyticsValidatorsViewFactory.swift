@@ -10,7 +10,10 @@ struct AnalyticsValidatorsViewFactory {
         let logger = Logger.shared
         let operationManager = OperationManagerFacade.sharedManager
 
-        let chain = settings.selectedConnection.type.chain
+        let selectedConnection = settings.selectedConnection
+        let selectedType = selectedConnection.type
+        let chain = selectedType.chain
+        guard let selectedAddress = settings.selectedAccount?.address else { return nil }
         guard let engine = WebSocketService.shared.connection else { return nil }
 
         let requestFactory = StorageRequestFactory(
@@ -29,7 +32,19 @@ struct AnalyticsValidatorsViewFactory {
         )
 
         let wireframe = AnalyticsValidatorsWireframe()
-        let viewModelFactory = AnalyticsValidatorsViewModelFactory()
+
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: selectedType,
+            limit: StakingConstants.maxAmount
+        )
+        let viewModelFactory = AnalyticsValidatorsViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory,
+            selectedAddress: selectedAddress,
+            chain: chain
+        )
+
         let presenter = AnalyticsValidatorsPresenter(
             interactor: interactor,
             wireframe: wireframe,
