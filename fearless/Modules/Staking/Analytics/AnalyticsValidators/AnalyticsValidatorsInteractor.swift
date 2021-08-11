@@ -157,6 +157,23 @@ final class AnalyticsValidatorsInteractor {
             in: .transient
         )
     }
+
+    private func fetchRewards(stashAddress: AccountAddress) {
+        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: URL(string: "http://localhost:3000/")!)
+        let fetchOperation = subqueryRewardsSource.fetchOperation()
+
+        fetchOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
+                    self?.presenter.didReceive(rewardsResult: .success(response))
+                } catch {
+                    self?.presenter.didReceive(rewardsResult: .failure(error))
+                }
+            }
+        }
+        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
+    }
 }
 
 extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
@@ -172,6 +189,7 @@ extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateP
             presenter.didReceive(stashItemResult: .success(stashItem))
             if let stashAddress = stashItem?.stash {
                 fetchHistoryRange(stashAddress: stashAddress)
+                fetchRewards(stashAddress: stashAddress)
             }
         case let .failure(error):
             presenter.didReceive(stashItemResult: .failure(error))

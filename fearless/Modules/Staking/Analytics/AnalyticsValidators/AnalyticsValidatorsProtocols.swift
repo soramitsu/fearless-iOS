@@ -18,6 +18,7 @@ protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
     func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>)
     func didReceive(eraValidatorInfosResult: Result<[SQEraValidatorInfo], Error>)
     func didReceive(stashItemResult: Result<StashItem?, Error>)
+    func didReceive(rewardsResult: Result<[SubqueryRewardItemData], Error>)
 }
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
@@ -28,6 +29,7 @@ protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         eraValidatorInfos: [SQEraValidatorInfo],
         stashAddress: AccountAddress,
+        rewards: [SubqueryRewardItemData],
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel>

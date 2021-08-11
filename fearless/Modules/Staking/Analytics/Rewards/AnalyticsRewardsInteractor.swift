@@ -7,6 +7,7 @@ final class AnalyticsRewardsInteractor {
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
+    let operationManager: OperationManagerProtocol
     private let analyticsService: AnalyticsService?
     private let assetId: WalletAssetId
     private let selectedAccountAddress: AccountAddress
@@ -16,37 +17,39 @@ final class AnalyticsRewardsInteractor {
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        operationManager: OperationManagerProtocol,
         analyticsService: AnalyticsService?,
         assetId: WalletAssetId,
         selectedAccountAddress: AccountAddress
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
+        self.operationManager = operationManager
         self.analyticsService = analyticsService
         self.assetId = assetId
         self.selectedAccountAddress = selectedAccountAddress
     }
 
-    private func fetchAnalyticsRewards() {
-        // TODO: delete stub data
-        let timestamp = Int64(Date().timeIntervalSince1970)
-        let stubData = (1 ..< 100).map {
-            SubqueryRewardItemData(
-                amount: BigUInt(integerLiteral: UInt64($0)),
-                isReward: true,
-                timestamp: timestamp - $0 * 1_000_000
-            )
+    private func fetchRewards(stashAddress: AccountAddress) {
+        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: URL(string: "http://localhost:3000/")!)
+        let fetchOperation = subqueryRewardsSource.fetchOperation()
+
+        fetchOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
+                    self?.presenter.didReceieve(rewardItemData: .success(response))
+                } catch {
+                    self?.presenter.didReceieve(rewardItemData: .failure(error))
+                }
+            }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            // self?.presenter?.didReceieve(rewardItemData: .success(stubData))
-            self?.presenter?.didReceieve(rewardItemData: .failure(StakingPayoutConfirmError.extrinsicFailed))
-        }
+        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
     }
 }
 
 extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     func setup() {
-        fetchAnalyticsRewards()
         priceProvider = subscribeToPriceProvider(for: assetId)
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
     }
@@ -63,6 +66,9 @@ extension AnalyticsRewardsInteractor: SubstrateProviderSubscriber, SubstrateProv
         switch result {
         case let .success(stashItem):
             presenter.didReceiveStashItem(result: .success(stashItem))
+            if let stashAddress = stashItem?.stash {
+                fetchRewards(stashAddress: stashAddress)
+            }
         case let .failure(error):
             presenter.didReceiveStashItem(result: .failure(error))
         }

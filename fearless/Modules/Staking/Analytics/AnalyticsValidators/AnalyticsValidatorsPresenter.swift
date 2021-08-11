@@ -13,6 +13,7 @@ final class AnalyticsValidatorsPresenter {
     private var selectedPage: AnalyticsValidatorsPage = .activity
     private var eraValidatorInfos: [SQEraValidatorInfo]?
     private var stashItem: StashItem?
+    private var rewards: [SubqueryRewardItemData]?
 
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
@@ -31,12 +32,14 @@ final class AnalyticsValidatorsPresenter {
     private func updateView() {
         guard
             let eraValidatorInfos = eraValidatorInfos,
-            let stashAddress = stashItem?.stash
+            let stashAddress = stashItem?.stash,
+            let rewards = rewards
         else { return }
 
         let viewModel = viewModelFactory.createViewModel(
             eraValidatorInfos: eraValidatorInfos,
             stashAddress: stashAddress,
+            rewards: rewards,
             identitiesByAddress: identitiesByAddress,
             page: selectedPage
         )
@@ -95,6 +98,17 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
             self.stashItem = stashItem
             updateView()
         case let .failure(error):
+            logger?.error(error.localizedDescription)
+        }
+    }
+
+    func didReceive(rewardsResult: Result<[SubqueryRewardItemData], Error>) {
+        switch rewardsResult {
+        case let .success(rewards):
+            self.rewards = rewards
+            updateView()
+        case let .failure(error):
+            // TODO: handleError - retry
             logger?.error(error.localizedDescription)
         }
     }

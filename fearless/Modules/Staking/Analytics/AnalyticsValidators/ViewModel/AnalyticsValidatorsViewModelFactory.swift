@@ -19,6 +19,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     func createViewModel(
         eraValidatorInfos: [SQEraValidatorInfo],
         stashAddress: AccountAddress,
+        rewards: [SubqueryRewardItemData],
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
@@ -41,11 +42,15 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         let percents = Int(Double(distinctErasCount) / Double(totalEras) * 100.0)
                         return (Double(percents), "\(percents)% (\(distinctErasCount) eras)")
                     case .rewards:
-                        let infos = eraValidatorInfos.filter { $0.address == address }
-                        let aaa = infos.flatMap(\.others).filter { $0.who == stashAddress }
-                        let totalAmount = aaa.reduce(Decimal(0)) { amount, info in
-                            let amountBigInt = BigUInt(stringLiteral: info.value)
-                            let decimal = Decimal.fromSubstrateAmount(amountBigInt, precision: self.chain.addressType.precision)
+                        let rewardsOfValidator = rewards.filter { reward in
+                            reward.stashAddress == stashAddress && reward.validatorAddress == address
+                            // TODO: && filter by era
+                        }
+                        let totalAmount = rewardsOfValidator.reduce(Decimal(0)) { amount, info in
+                            let decimal = Decimal.fromSubstrateAmount(
+                                info.amount,
+                                precision: self.chain.addressType.precision
+                            )
                             return amount + (decimal ?? 0.0)
                         }
                         let totalAmounText = self.balanceViewModelFactory

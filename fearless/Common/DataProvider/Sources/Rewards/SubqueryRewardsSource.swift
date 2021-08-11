@@ -39,8 +39,7 @@ extension SubqueryRewardsSource: SingleValueProviderSourceProtocol {
 
             let nodes = resultData.data?.query?.historyElements?.nodes
             return nodes?.arrayValue?
-                .compactMap { SubqueryHistoryElementData(from: $0) }
-                .compactMap(\.reward)
+                .compactMap { SubqueryRewardItemData(from: $0) }
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)

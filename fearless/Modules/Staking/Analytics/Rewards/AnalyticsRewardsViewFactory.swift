@@ -34,6 +34,7 @@ struct AnalyticsRewardsViewFactory {
         let interactor = AnalyticsRewardsInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
+            operationManager: operationManager,
             analyticsService: analyticsService,
             assetId: assetId,
             selectedAccountAddress: accountAddress
