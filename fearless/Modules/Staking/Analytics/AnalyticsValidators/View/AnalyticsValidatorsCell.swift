@@ -28,7 +28,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
     let progressValueLabel: UILabel = {
         let label = UILabel()
         label.font = .p3Paragraph
-        label.textColor = R.color.colorAccent()
+        label.textColor = R.color.colorLightGray()
         return label
     }()
 

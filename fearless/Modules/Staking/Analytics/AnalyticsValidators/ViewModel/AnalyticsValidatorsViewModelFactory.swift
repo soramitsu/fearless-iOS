@@ -12,16 +12,25 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         LocalizableResource { locale in
             let totalEras = self.totalErasCount(eraValidatorInfos: eraValidatorInfos)
 
-            let validators: [AnalyticsValidatorItemViewModel] = eraValidatorInfos.map { info in
-                let address = info.address
+            let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
+
+            let validators: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
+
                 let icon = try? self.iconGenerator.generateFromAddress(address)
                 let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-                let progressText = self.progressDescription(
-                    page: page,
-                    validatorInfo: info,
-                    totalErasCount: totalEras,
-                    locale: locale
-                )
+                let progressText: String = {
+                    switch page {
+                    case .activity:
+                        let infos = eraValidatorInfos.filter { $0.address == address }
+                        let distinctEras = Set<EraIndex>(infos.map(\.era))
+                        let distinctErasCount = distinctEras.count
+
+                        let percents = Int(Double(distinctErasCount) / Double(totalEras) * 100.0)
+                        return "\(percents)% (\(distinctErasCount) eras)"
+                    case .rewards:
+                        return "0 KSM"
+                    }
+                }()
 
                 return .init(
                     icon: icon,
