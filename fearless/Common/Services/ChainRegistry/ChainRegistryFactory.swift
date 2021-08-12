@@ -21,7 +21,8 @@ final class ChainRegistryFactory {
         let runtimeSyncService = RuntimeSyncService(
             repository: AnyDataProviderRepository(runtimVersionRepository),
             filesOperationFactory: filesOperationFactory,
-            dataOperationFactory: dataFetchOperationFactory
+            dataOperationFactory: dataFetchOperationFactory,
+            eventCenter: EventCenter.shared
         )
 
         let runtimeProviderFactory = RuntimeProviderFactory(runtimeSyncService: runtimeSyncService)

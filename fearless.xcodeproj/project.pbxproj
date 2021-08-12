@@ -800,6 +800,7 @@
 		849DEC5925ED756F00C64C19 /* SubstrateCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */; };
 		849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */; };
 		849DF02D26C40B7900B702F4 /* RuntimeFilesOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DF02C26C40B7900B702F4 /* RuntimeFilesOperationFactory.swift */; };
+		849DF02F26C53DB900B702F4 /* RuntimeSyncEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */; };
 		849E0CD025CFDDB700B33506 /* StorageUpdateData+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */; };
 		849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */; };
 		849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */; };
@@ -2274,6 +2275,7 @@
 		849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactory.swift; sourceTree = "<group>"; };
 		849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOptionsPresentable.swift; sourceTree = "<group>"; };
 		849DF02C26C40B7900B702F4 /* RuntimeFilesOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeFilesOperationFactory.swift; sourceTree = "<group>"; };
+		849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeSyncEvents.swift; sourceTree = "<group>"; };
 		849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageUpdateData+Decoding.swift"; sourceTree = "<group>"; };
 		849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanConfigurator.swift; sourceTree = "<group>"; };
 		849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanLocalSearchEngine.swift; sourceTree = "<group>"; };
@@ -4358,6 +4360,7 @@
 				8461CC8926BD2F07007460E4 /* RuntimeProviderPool.swift */,
 				84CA68D026BE99ED003B9453 /* RuntimeProviderFactory.swift */,
 				84CA68D226BE9A35003B9453 /* RuntimeProvider.swift */,
+				84CA68CE26BD6872003B9453 /* RuntimeSyncService.swift */,
 			);
 			path = RuntimeProviderPool;
 			sourceTree = "<group>";
@@ -5870,7 +5873,6 @@
 			children = (
 				8461CC8826BD2EE8007460E4 /* RuntimeProviderPool */,
 				84243B2926B9676500581AB7 /* ConnectionPool */,
-				84CA68CE26BD6872003B9453 /* RuntimeSyncService.swift */,
 				84CA68D426BE9E62003B9453 /* ChainRegistry.swift */,
 				84CA68D626BE9E6F003B9453 /* ChainSyncService.swift */,
 				84CA68D826BE9E7F003B9453 /* SpecVersionSubscription.swift */,
@@ -6146,6 +6148,7 @@
 				84F4386525D9B8C600AEDA56 /* TypeRegistryPrepared.swift */,
 				AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */,
 				840BF22626C2C8A600E3A955 /* ChainSyncEvents.swift */,
+				849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -8174,6 +8177,7 @@
 				84754C9C2513B26000854599 /* AccountPickerTableViewCell.swift in Sources */,
 				8472C5B1265CF9C500E2481B /* StakingRewardDestConfirmViewFactory.swift in Sources */,
 				F4488CF226143E0000AEE6DB /* EraRewardPoints.swift in Sources */,
+				849DF02F26C53DB900B702F4 /* RuntimeSyncEvents.swift in Sources */,
 				84265E042523D20A005EEE2D /* WalletBaseAmountView.swift in Sources */,
 				84155DF12539DC0300A27058 /* WebSocketServiceProtocol.swift in Sources */,
 				844DD65525EAF32D00B1DA97 /* SelectValidatorsStartViewModel.swift in Sources */,

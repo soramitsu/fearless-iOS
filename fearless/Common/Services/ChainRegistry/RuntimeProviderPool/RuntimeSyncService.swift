@@ -4,6 +4,7 @@ import FearlessUtils
 
 protocol RuntimeSyncServiceProtocol {
     func register(chain: ChainModel, with connection: ChainConnection)
+    func unregister(chainId: ChainModel.Id)
     func apply(version: RuntimeVersion, for chainId: ChainModel.Id)
 }
 
@@ -17,25 +18,48 @@ final class RuntimeSyncService {
         let connection: JSONRPCEngine
     }
 
+    struct SyncResult {
+        let chainId: ChainModel.Id
+        let typesSyncResult: Result<String, Error>?
+        let metadataSyncResult: Result<Void, Error>?
+        let runtimeVersion: RuntimeVersion?
+    }
+
+    struct RetryAttempt {
+        let chainId: ChainModel.Id
+        let shouldSyncTypes: Bool
+        let runtimeVersion: RuntimeVersion?
+        let attempt: Int
+    }
+
     let repository: AnyDataProviderRepository<RuntimeMetadataItem>
     let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
     let dataOperationFactory: DataOperationFactoryProtocol
+    let eventCenter: EventCenterProtocol
+    let retryStrategy: ReconnectionStrategyProtocol
     let operationQueue: OperationQueue
     let dataHasher: StorageHasher
 
     private(set) var knownChains: [ChainModel.Id: SyncInfo] = [:]
+    private(set) var syncingChains: [ChainModel.Id: CompoundOperationWrapper<SyncResult>] = [:]
+    private(set) var retryAttempts: [ChainModel.Id: RetryAttempt] = [:]
     private var mutex = NSLock()
+    private var retryScheduler: Scheduler?
 
     init(
         repository: AnyDataProviderRepository<RuntimeMetadataItem>,
         filesOperationFactory: RuntimeFilesOperationFactoryProtocol,
         dataOperationFactory: DataOperationFactoryProtocol,
+        eventCenter: EventCenterProtocol,
+        retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
         maxConcurrentSyncRequests: Int = 8,
         dataHasher: StorageHasher = .twox256
     ) {
         self.repository = repository
         self.filesOperationFactory = filesOperationFactory
         self.dataOperationFactory = dataOperationFactory
+        self.retryStrategy = retryStrategy
+        self.eventCenter = eventCenter
         self.dataHasher = dataHasher
 
         let operationQueue = OperationQueue()
@@ -66,70 +90,128 @@ final class RuntimeSyncService {
         }
 
         if chainTypesSyncWrapper == nil, metadataSyncWrapper == nil {
-            // TODO: Handle nothing todo case
             return
         }
 
         let dependencies = (chainTypesSyncWrapper?.allOperations ?? []) +
             (metadataSyncWrapper?.allOperations ?? [])
 
-        let processingOperation = ClosureOperation<Void> {}
+        let processingOperation = ClosureOperation<SyncResult> {
+            SyncResult(
+                chainId: chainId,
+                typesSyncResult: chainTypesSyncWrapper?.targetOperation.result,
+                metadataSyncResult: metadataSyncWrapper?.targetOperation.result,
+                runtimeVersion: newVersion
+            )
+        }
 
         dependencies.forEach { processingOperation.addDependency($0) }
 
         processingOperation.completionBlock = { [weak self] in
             DispatchQueue.global().async {
-                self?.processSyncResult(
-                    for: chainTypesSyncWrapper?.targetOperation.result,
-                    metadataSyncResult: metadataSyncWrapper?.targetOperation.result,
-                    runtimeVersion: newVersion
-                )
+                do {
+                    let result = try processingOperation.extractNoCancellableResultData()
+                    self?.processSyncResult(result)
+                } catch let error as BaseOperationError where error == .parentOperationCancelled {
+                    return
+                } catch {
+                    let result = SyncResult(
+                        chainId: chainId,
+                        typesSyncResult: .failure(error),
+                        metadataSyncResult: .failure(error),
+                        runtimeVersion: newVersion
+                    )
+
+                    self?.processSyncResult(result)
+                }
             }
         }
 
-        operationQueue.addOperations(dependencies + [processingOperation], waitUntilFinished: false)
+        let wrapper = CompoundOperationWrapper(
+            targetOperation: processingOperation,
+            dependencies: dependencies
+        )
+
+        syncingChains[chainId] = wrapper
+
+        operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: false)
     }
 
-    private func processSyncResult(
-        for typesSyncResult: Result<String, Error>?,
-        metadataSyncResult: Result<Void, Error>?,
-        runtimeVersion: RuntimeVersion?
-    ) {
+    private func processSyncResult(_ result: SyncResult) {
         mutex.lock()
 
         defer {
             mutex.unlock()
         }
 
-        addRetryRequestIfNeeded(
-            for: typesSyncResult,
-            metadataSyncResult: metadataSyncResult,
-            runtimeVersion: runtimeVersion
-        )
+        syncingChains[result.chainId] = nil
+
+        addRetryRequestIfNeeded(for: result)
 
         DispatchQueue.main.async { [weak self] in
-            self?.notifyCompletion(
-                for: typesSyncResult,
-                metadataSyncResult: metadataSyncResult,
-                runtimeVersion: runtimeVersion
-            )
+            self?.notifyCompletion(for: result)
         }
     }
 
-    private func addRetryRequestIfNeeded(
-        for typesSyncResult: Result<String, Error>?,
-        metadataSyncResult: Result<Void, Error>?,
-        runtimeVersion: RuntimeVersion?
-    ) {
+    private func addRetryRequestIfNeeded(for result: SyncResult) {
+        let shouldSyncTypes: Bool
 
+        if case .failure = result.typesSyncResult {
+            shouldSyncTypes = true
+        } else {
+            shouldSyncTypes = false
+        }
+
+        let runtimeSyncVersion: RuntimeVersion?
+
+        if let version = result.runtimeVersion, case .failure = result.metadataSyncResult {
+            runtimeSyncVersion = version
+        } else {
+            runtimeSyncVersion = nil
+        }
+
+        if shouldSyncTypes || (runtimeSyncVersion != nil) {
+            let nextAttempt = retryAttempts[result.chainId].map { $0.attempt + 1 } ?? 1
+
+            let retryAttempt = RetryAttempt(
+                chainId: result.chainId,
+                shouldSyncTypes: shouldSyncTypes,
+                runtimeVersion: runtimeSyncVersion,
+                attempt: nextAttempt
+            )
+
+            retryAttempts[result.chainId] = retryAttempt
+        } else {
+            retryAttempts[result.chainId] = nil
+        }
     }
 
-    private func notifyCompletion(
-        for typesSyncResult: Result<String, Error>?,
-        metadataSyncResult: Result<Void, Error>?,
-        runtimeVersion: RuntimeVersion?
-    ) {
+    private func rescheduleRetryIfNeeded() {
+        guard retryScheduler == nil else {
+            return
+        }
 
+        guard let maxAttempt = retryAttempts.max(by: { $0.value.attempt < $1.value.attempt })?
+            .value.attempt else {
+            return
+        }
+
+        if let delay = retryStrategy.reconnectAfter(attempt: maxAttempt) {
+            retryScheduler = Scheduler(with: self)
+            retryScheduler?.notifyAfter(delay)
+        }
+    }
+
+    private func notifyCompletion(for result: SyncResult) {
+        if case let .success(fileHash) = result.typesSyncResult {
+            let event = RuntimeChainTypesSyncCompleted(chainId: result.chainId, fileHash: fileHash)
+            eventCenter.notify(with: event)
+        }
+
+        if case .success = result.metadataSyncResult, let version = result.runtimeVersion {
+            let event = RuntimeMetadataSyncCompleted(chainId: result.chainId, version: version)
+            eventCenter.notify(with: event)
+        }
     }
 
     private func createChainTypesSyncOperation(
@@ -220,6 +302,35 @@ final class RuntimeSyncService {
             dependencies: [localMetadataOperation, remoteMetadaOperation, saveMetadataOperation]
         )
     }
+
+    func clearOperations(for chainId: ChainModel.Id) {
+        if let existingOperation = syncingChains[chainId] {
+            syncingChains[chainId] = nil
+            existingOperation.cancel()
+        }
+
+        retryAttempts[chainId] = nil
+    }
+}
+
+extension RuntimeSyncService: SchedulerDelegate {
+    func didTrigger(scheduler _: SchedulerProtocol) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        retryScheduler = nil
+
+        for requestKeyValue in retryAttempts where syncingChains[requestKeyValue.key] == nil {
+            performSync(
+                for: requestKeyValue.key,
+                shouldSyncTypes: requestKeyValue.value.shouldSyncTypes,
+                newVersion: requestKeyValue.value.runtimeVersion
+            )
+        }
+    }
 }
 
 extension RuntimeSyncService: RuntimeSyncServiceProtocol {
@@ -242,12 +353,25 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
         }
     }
 
+    func unregister(chainId: ChainModel.Id) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        clearOperations(for: chainId)
+        knownChains[chainId] = nil
+    }
+
     func apply(version: RuntimeVersion, for chainId: ChainModel.Id) {
         mutex.lock()
 
         defer {
             mutex.unlock()
         }
+
+        clearOperations(for: chainId)
 
         performSync(for: chainId, shouldSyncTypes: true, newVersion: version)
     }
