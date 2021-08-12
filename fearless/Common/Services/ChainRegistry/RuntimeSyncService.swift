@@ -58,7 +58,11 @@ final class RuntimeSyncService {
         } : nil
 
         let metadataSyncWrapper = newVersion.map {
-            createMetadataSyncOperation(for: chainId, runtimeVersion: $0, connection: syncInfo.connection)
+            createMetadataSyncOperation(
+                for: chainId,
+                runtimeVersion: $0,
+                connection: syncInfo.connection
+            )
         }
 
         if chainTypesSyncWrapper == nil, metadataSyncWrapper == nil {
@@ -96,6 +100,36 @@ final class RuntimeSyncService {
         defer {
             mutex.unlock()
         }
+
+        addRetryRequestIfNeeded(
+            for: typesSyncResult,
+            metadataSyncResult: metadataSyncResult,
+            runtimeVersion: runtimeVersion
+        )
+
+        DispatchQueue.main.async { [weak self] in
+            self?.notifyCompletion(
+                for: typesSyncResult,
+                metadataSyncResult: metadataSyncResult,
+                runtimeVersion: runtimeVersion
+            )
+        }
+    }
+
+    private func addRetryRequestIfNeeded(
+        for typesSyncResult: Result<String, Error>?,
+        metadataSyncResult: Result<Void, Error>?,
+        runtimeVersion: RuntimeVersion?
+    ) {
+
+    }
+
+    private func notifyCompletion(
+        for typesSyncResult: Result<String, Error>?,
+        metadataSyncResult: Result<Void, Error>?,
+        runtimeVersion: RuntimeVersion?
+    ) {
+
     }
 
     private func createChainTypesSyncOperation(
