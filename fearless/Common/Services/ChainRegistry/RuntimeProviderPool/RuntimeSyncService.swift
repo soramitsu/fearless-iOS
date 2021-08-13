@@ -6,6 +6,9 @@ protocol RuntimeSyncServiceProtocol {
     func register(chain: ChainModel, with connection: ChainConnection)
     func unregister(chainId: ChainModel.Id)
     func apply(version: RuntimeVersion, for chainId: ChainModel.Id)
+
+    func hasChain(with chainId: ChainModel.Id) -> Bool
+    func isChainSyncing(_ chainId: ChainModel.Id) -> Bool
 }
 
 enum RuntimeSyncServiceError: Error {
@@ -181,6 +184,8 @@ final class RuntimeSyncService {
             )
 
             retryAttempts[result.chainId] = retryAttempt
+
+            rescheduleRetryIfNeeded()
         } else {
             retryAttempts[result.chainId] = nil
         }
@@ -374,5 +379,25 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
         clearOperations(for: chainId)
 
         performSync(for: chainId, shouldSyncTypes: true, newVersion: version)
+    }
+
+    func hasChain(with chainId: ChainModel.Id) -> Bool {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        return knownChains[chainId] != nil
+    }
+
+    func isChainSyncing(_ chainId: ChainModel.Id) -> Bool {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        return (syncingChains[chainId] != nil) || (retryAttempts[chainId] != nil)
     }
 }
