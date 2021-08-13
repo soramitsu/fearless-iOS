@@ -21,12 +21,17 @@ final class ChainModelGenerator {
                 name: chainId
             )
 
+            let types = withTypes ? ChainModel.TypesSettings(
+                url: URL(string: "https://github.com")!,
+                overridesCommon: false
+            ) : nil
+
             return ChainModel(
                 chainId: chainId,
                 assets: [asset],
                 nodes: [node],
                 addressPrefix: UInt16(index),
-                types: withTypes ? URL(string: "https://github.com")! : nil,
+                types: types,
                 icon: URL(string: "https://github.com")!,
                 isEthereumBased: false
             )

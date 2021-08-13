@@ -347,12 +347,12 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
         }
 
         guard let syncInfo = knownChains[chain.chainId] else {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types, connection: connection)
+            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
             return
         }
 
-        if syncInfo.typesURL != chain.types {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types, connection: connection)
+        if syncInfo.typesURL != chain.types?.url {
+            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
 
             performSync(for: chain.chainId, shouldSyncTypes: true)
         }
