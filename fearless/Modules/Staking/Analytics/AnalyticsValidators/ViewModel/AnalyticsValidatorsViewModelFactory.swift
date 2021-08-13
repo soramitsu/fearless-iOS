@@ -33,7 +33,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let validatorsWhoOwnedStake: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
                 let icon = try? self.iconGenerator.generateFromAddress(address)
                 let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-                let (progress, progressText): (Double, String) = {
+                let (progress, distinctErasCount, progressText): (Double, Int, String) = {
                     switch page {
                     case .activity:
                         let infos = eraValidatorInfos.filter { $0.address == address }
@@ -41,7 +41,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         let distinctErasCount = distinctEras.count
 
                         let percents = Int(Double(distinctErasCount) / Double(totalEras) * 100.0)
-                        return (Double(percents), "\(percents)% (\(distinctErasCount) eras)")
+                        return (Double(percents), distinctErasCount, "\(percents)% (\(distinctErasCount) eras)")
                     case .rewards:
                         let rewardsOfValidator = rewards.filter { reward in
                             reward.stashAddress == stashAddress && reward.validatorAddress == address
@@ -57,7 +57,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         let totalAmounText = self.balanceViewModelFactory
                             .amountFromValue(totalAmount).value(for: locale)
                         let double = NSDecimalNumber(decimal: totalAmount).doubleValue
-                        return (double, totalAmounText)
+                        return (double, 0, totalAmounText)
                     }
                 }()
 
@@ -65,6 +65,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     icon: icon,
                     validatorName: validatorName,
                     progress: progress,
+                    distinctErasCount: distinctErasCount,
                     progressText: progressText,
                     validatorAddress: address
                 )
@@ -90,15 +91,24 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         icon: icon,
                         validatorName: validatorName,
                         progress: 0,
+                        distinctErasCount: 0,
                         progressText: "0",
                         validatorAddress: address
                     )
                 }
 
-            let chartData = ChartData(amounts: [1, 2], xAxisValues: ["a", "b"])
+            let amounts = validatorsWhoOwnedStake.map(\.progress)
+            let chartData = ChartData(amounts: amounts, xAxisValues: ["a", "b"])
             let listTitle = self.determineListTitle(page: page, locale: locale)
+            let chartCenterText = self.createChartCenterText(
+                validators: validatorsWhoOwnedStake,
+                totalEras: totalEras,
+                locale: locale
+            )
+
             return AnalyticsValidatorsViewModel(
                 chartData: chartData,
+                chartCenterText: chartCenterText,
                 listTitle: listTitle,
                 validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
                 selectedPage: page
@@ -113,6 +123,54 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         case .rewards:
             return "Rewards".uppercased()
         }
+    }
+
+    private func createChartCenterText(
+        validators: [AnalyticsValidatorItemViewModel],
+        totalEras: Int,
+        locale: Locale
+    ) -> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = NSTextAlignment.center
+
+        let activeStakingText = NSAttributedString(
+            string: "Active staking".uppercased(),
+            attributes: [
+                NSAttributedString.Key.foregroundColor: R.color.colorAccent()!,
+                NSAttributedString.Key.font: UIFont.capsTitle,
+                NSAttributedString.Key.paragraphStyle: paragraphStyle
+            ]
+        )
+
+        let maxDistinctErasCount = validators.map(\.distinctErasCount).max() ?? 0
+        let activeStakingErasPercents = Double(maxDistinctErasCount) / Double(totalEras)
+        let percentFormatter = NumberFormatter.percent
+        percentFormatter.locale = locale
+        let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
+        let percentsText = NSAttributedString(
+            string: percentageString,
+            attributes: [
+                NSAttributedString.Key.foregroundColor: R.color.colorWhite()!,
+                NSAttributedString.Key.font: UIFont.h2Title,
+                NSAttributedString.Key.paragraphStyle: paragraphStyle
+            ]
+        )
+
+        let erasRangeText = NSAttributedString(
+            string: String(format: "%i of %i eras", maxDistinctErasCount, totalEras),
+            attributes: [
+                NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!,
+                NSAttributedString.Key.font: UIFont.h5Title,
+                NSAttributedString.Key.paragraphStyle: paragraphStyle
+            ]
+        )
+
+        let result = NSMutableAttributedString(attributedString: activeStakingText)
+        result.append(.init(string: "\n"))
+        result.append(percentsText)
+        result.append(.init(string: "\n"))
+        result.append(erasRangeText)
+        return result
     }
 
     func totalErasCount(eraValidatorInfos: [SQEraValidatorInfo]) -> Int {

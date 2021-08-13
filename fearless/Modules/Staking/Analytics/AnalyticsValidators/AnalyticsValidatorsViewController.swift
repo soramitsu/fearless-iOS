@@ -86,6 +86,7 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
                 rootView.tableView.isHidden = false
                 rootView.headerView.titleLabel.text = "Rewards"
                 rootView.headerView.pieChart.setChartData(viewModel.chartData)
+                rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
                 rootView.headerView.titleLabel.text = viewModel.listTitle
                 rootView.tableView.reloadData()
             }
