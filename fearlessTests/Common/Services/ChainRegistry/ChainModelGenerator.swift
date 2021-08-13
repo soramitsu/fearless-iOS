@@ -9,27 +9,26 @@ final class ChainModelGenerator {
             let asset = AssetModel(
                 assetId: UInt32(index),
                 chainId: chainId,
+                icon: nil,
                 name: chainId,
                 symbol: chainId.prefix(3).uppercased(),
-                precision: 12,
-                isUtility: true
+                precision: 12
             )
 
             let node = ChainNodeModel(
                 chainId: chainId,
-                url: URL(string: "wss://node.io")!,
-                name: chainId,
-                rank: Int32(index)
+                url: URL(string: "wss://node.io/\(chainId)")!,
+                name: chainId
             )
 
             return ChainModel(
                 chainId: chainId,
                 assets: [asset],
                 nodes: [node],
-                prefix: UInt16(index),
-                typesURL: URL(string: "https://github.com")!,
-                preferredUrl: nil,
-                isEthereum: false
+                addressPrefix: UInt16(index),
+                types: URL(string: "https://github.com")!,
+                icon: URL(string: "https://github.com")!,
+                isEthereumBased: false
             )
         }
     }

@@ -21,7 +21,9 @@ final class ChainRegistryFactory {
             connectionFactory: ConnectionFactory(logger: Logger.shared)
         )
 
-        let chainRepository: CoreDataRepository<ChainModel, CDChain> = repositoryFacade.createRepository()
+        let mapper = ChainModelMapper()
+        let chainRepository: CoreDataRepository<ChainModel, CDChain> =
+            repositoryFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
 
         let chainObserver = CoreDataContextObservable(
             service: repositoryFacade.databaseService,
@@ -39,7 +41,9 @@ final class ChainRegistryFactory {
         let chainSyncService = ChainSyncService(
             url: ApplicationConfig.shared.chainListURL,
             dataFetchFactory: DataOperationFactory(),
-            repository: AnyDataProviderRepository(chainRepository)
+            repository: AnyDataProviderRepository(chainRepository),
+            eventCenter: EventCenter.shared,
+            operationQueue: OperationManagerFacade.sharedQueue
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(

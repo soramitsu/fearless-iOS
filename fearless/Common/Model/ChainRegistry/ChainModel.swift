@@ -1,17 +1,17 @@
 import Foundation
 import RobinHood
 
-struct ChainModel: Codable {
+struct ChainModel: Codable, Hashable {
     // swiftlint:disable type_name
     typealias Id = String
 
     let chainId: Id
     let assets: [AssetModel]
     let nodes: [ChainNodeModel]
-    let prefix: UInt16
-    let typesURL: URL
-    let preferredUrl: URL?
-    let isEthereum: Bool
+    let addressPrefix: UInt16
+    let types: URL
+    let icon: URL
+    let isEthereumBased: Bool
 }
 
 extension ChainModel: Identifiable {

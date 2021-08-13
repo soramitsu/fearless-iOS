@@ -101,8 +101,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://polkadot.js.org/phishing/address.json")!
     }
 
+    // swiftlint:disable line_length
     var chainListURL: URL {
-        URL(string: "https://polkadot.js.org/phishing/address.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/chains/chains.json")!
     }
 
     var learnPayoutURL: URL {

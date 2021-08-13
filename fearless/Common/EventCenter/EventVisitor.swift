@@ -10,6 +10,10 @@ protocol EventVisitorProtocol: AnyObject {
     func processPurchaseCompletion(event: PurchaseCompleted)
     func processTypeRegistryPrepared(event: TypeRegistryPrepared)
     func processEraStakersInfoChanged(event: EraStakersInfoChanged)
+
+    func processChainSyncDidStart(event: ChainSyncDidStart)
+    func processChainSyncDidComplete(event: ChainSyncDidComplete)
+    func processChainSyncDidFail(event: ChainSyncDidFail)
 }
 
 extension EventVisitorProtocol {
@@ -22,4 +26,8 @@ extension EventVisitorProtocol {
     func processPurchaseCompletion(event _: PurchaseCompleted) {}
     func processTypeRegistryPrepared(event _: TypeRegistryPrepared) {}
     func processEraStakersInfoChanged(event _: EraStakersInfoChanged) {}
+
+    func processChainSyncDidStart(event _: ChainSyncDidStart) {}
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {}
+    func processChainSyncDidFail(event _: ChainSyncDidFail) {}
 }

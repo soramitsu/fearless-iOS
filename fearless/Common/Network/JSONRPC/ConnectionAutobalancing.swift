@@ -13,6 +13,6 @@ protocol ConnectionAutobalancing {
 extension ConnectionRank {
     init(chainNode: ChainNodeModel) {
         url = chainNode.url
-        rank = chainNode.rank
+        rank = 0
     }
 }
