@@ -1,7 +1,7 @@
 import Foundation
 
 struct AssetModel: Codable, Hashable {
-    // swiftlint:disable type_name
+    // swiftlint:disable:next type_name
     typealias Id = UInt32
 
     let assetId: Id

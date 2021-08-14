@@ -18,6 +18,9 @@ protocol EventVisitorProtocol: AnyObject {
     func processRuntimeBaseTypesSyncCompleted(event: RuntimeBaseTypesSyncCompleted)
     func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted)
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
+
+    func processRuntimeCoderReady(event: RuntimeCoderCreated)
+    func processRuntimeCoderCreationFailed(event: RuntimeCoderCreationFailed)
 }
 
 extension EventVisitorProtocol {
@@ -38,4 +41,7 @@ extension EventVisitorProtocol {
     func processRuntimeBaseTypesSyncCompleted(event _: RuntimeBaseTypesSyncCompleted) {}
     func processRuntimeChainTypesSyncCompleted(event _: RuntimeChainTypesSyncCompleted) {}
     func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
+
+    func processRuntimeCoderReady(event _: RuntimeCoderCreated) {}
+    func processRuntimeCoderCreationFailed(event _: RuntimeCoderCreationFailed) {}
 }

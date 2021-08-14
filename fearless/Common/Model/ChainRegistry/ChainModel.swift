@@ -2,12 +2,18 @@ import Foundation
 import RobinHood
 
 struct ChainModel: Codable, Hashable {
-    // swiftlint:disable type_name
+    // swiftlint:disable:next type_name
     typealias Id = String
 
     struct TypesSettings: Codable, Hashable {
         let url: URL
         let overridesCommon: Bool
+    }
+
+    enum TypesUsage {
+        case onlyCommon
+        case both
+        case onlyOwn
     }
 
     let chainId: Id
@@ -17,6 +23,14 @@ struct ChainModel: Codable, Hashable {
     let types: TypesSettings?
     let icon: URL
     let isEthereumBased: Bool
+
+    var typesUsage: TypesUsage {
+        if let types = types {
+            return types.overridesCommon ? .onlyOwn : .both
+        } else {
+            return .onlyCommon
+        }
+    }
 }
 
 extension ChainModel: Identifiable {

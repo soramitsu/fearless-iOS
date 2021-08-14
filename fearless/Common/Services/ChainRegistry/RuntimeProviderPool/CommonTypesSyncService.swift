@@ -99,7 +99,7 @@ class CommonTypesSyncService {
         }
     }
 
-    private func handleFailure(with error: Error) {
+    private func handleFailure(with _: Error) {
         mutex.lock()
 
         defer {
@@ -116,7 +116,7 @@ class CommonTypesSyncService {
 }
 
 extension CommonTypesSyncService: SchedulerDelegate {
-    func didTrigger(scheduler: SchedulerProtocol) {
+    func didTrigger(scheduler _: SchedulerProtocol) {
         mutex.lock()
 
         defer {
