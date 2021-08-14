@@ -2,7 +2,7 @@ import Foundation
 @testable import fearless
 
 final class ChainModelGenerator {
-    static func generate(count: Int) -> [ChainModel] {
+    static func generate(count: Int, withTypes: Bool = true) -> [ChainModel] {
         (0..<count).map { index in
             let chainId = Data.random(of: 32)!.toHex()
 
@@ -21,12 +21,17 @@ final class ChainModelGenerator {
                 name: chainId
             )
 
+            let types = withTypes ? ChainModel.TypesSettings(
+                url: URL(string: "https://github.com")!,
+                overridesCommon: false
+            ) : nil
+
             return ChainModel(
                 chainId: chainId,
                 assets: [asset],
                 nodes: [node],
                 addressPrefix: UInt16(index),
-                types: URL(string: "https://github.com")!,
+                types: types,
                 icon: URL(string: "https://github.com")!,
                 isEthereumBased: false
             )

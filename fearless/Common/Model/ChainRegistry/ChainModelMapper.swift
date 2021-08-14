@@ -38,12 +38,20 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             )
         } ?? []
 
+        let types: ChainModel.TypesSettings?
+
+        if let url = entity.types, let overridesCommon = entity.typesOverrideCommon {
+            types = .init(url: url, overridesCommon: overridesCommon.boolValue)
+        } else {
+            types = nil
+        }
+
         return ChainModel(
             chainId: entity.chainId!,
             assets: assets,
             nodes: nodes,
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
-            types: entity.types!,
+            types: types,
             icon: entity.icon!,
             isEthereumBased: entity.isEthereumBased
         )
@@ -51,7 +59,9 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
     func populate(entity: CDChain, from model: ChainModel, using context: NSManagedObjectContext) throws {
         entity.chainId = model.chainId
-        entity.types = model.types
+        entity.types = model.types?.url
+        entity.typesOverrideCommon = model.types.map { NSNumber(value: $0.overridesCommon) }
+
         entity.addressPrefix = Int16(bitPattern: model.addressPrefix)
         entity.icon = model.icon
         entity.isEthereumBased = model.isEthereumBased

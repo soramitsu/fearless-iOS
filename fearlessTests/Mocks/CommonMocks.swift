@@ -2457,3 +2457,191 @@ import Foundation
     
 }
 
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+import RobinHood
+
+
+ class MockRuntimeFilesOperationFactoryProtocol: RuntimeFilesOperationFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = RuntimeFilesOperationFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_RuntimeFilesOperationFactoryProtocol
+     typealias Verification = __VerificationProxy_RuntimeFilesOperationFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: RuntimeFilesOperationFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: RuntimeFilesOperationFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?> {
+        
+    return cuckoo_manager.call("fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.fetchBaseTypesOperation())
+        
+    }
+    
+    
+    
+     func fetchChainTypesOperation(for chainId: ChainModel.Id) -> CompoundOperationWrapper<Data?> {
+        
+    return cuckoo_manager.call("fetchChainTypesOperation(for: ChainModel.Id) -> CompoundOperationWrapper<Data?>",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.fetchChainTypesOperation(for: chainId))
+        
+    }
+    
+    
+    
+     func saveBaseTypesOperation(data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+        
+    return cuckoo_manager.call("saveBaseTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>",
+            parameters: (closure),
+            escapingParameters: (closure),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.saveBaseTypesOperation(data: closure))
+        
+    }
+    
+    
+    
+     func saveChainTypesOperation(for chainId: ChainModel.Id, data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+        
+    return cuckoo_manager.call("saveChainTypesOperation(for: ChainModel.Id, data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>",
+            parameters: (chainId, closure),
+            escapingParameters: (chainId, closure),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.saveChainTypesOperation(for: chainId, data: closure))
+        
+    }
+    
+
+	 struct __StubbingProxy_RuntimeFilesOperationFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func fetchBaseTypesOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<Data?>> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>", parameterMatchers: matchers))
+	    }
+	    
+	    func fetchChainTypesOperation<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), CompoundOperationWrapper<Data?>> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "fetchChainTypesOperation(for: ChainModel.Id) -> CompoundOperationWrapper<Data?>", parameterMatchers: matchers))
+	    }
+	    
+	    func saveBaseTypesOperation<M1: Cuckoo.Matchable>(data closure: M1) -> Cuckoo.ProtocolStubFunction<(() throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == () throws -> Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(() throws -> Data)>] = [wrap(matchable: closure) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "saveBaseTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", parameterMatchers: matchers))
+	    }
+	    
+	    func saveChainTypesOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for chainId: M1, data closure: M2) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id, () throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == ChainModel.Id, M2.MatchedType == () throws -> Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, () throws -> Data)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: closure) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "saveChainTypesOperation(for: ChainModel.Id, data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_RuntimeFilesOperationFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func fetchBaseTypesOperation() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<Data?>> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func fetchChainTypesOperation<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), CompoundOperationWrapper<Data?>> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("fetchChainTypesOperation(for: ChainModel.Id) -> CompoundOperationWrapper<Data?>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func saveBaseTypesOperation<M1: Cuckoo.Matchable>(data closure: M1) -> Cuckoo.__DoNotUse<(() throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == () throws -> Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(() throws -> Data)>] = [wrap(matchable: closure) { $0 }]
+	        return cuckoo_manager.verify("saveBaseTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func saveChainTypesOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for chainId: M1, data closure: M2) -> Cuckoo.__DoNotUse<(ChainModel.Id, () throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == ChainModel.Id, M2.MatchedType == () throws -> Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, () throws -> Data)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: closure) { $0.1 }]
+	        return cuckoo_manager.verify("saveChainTypesOperation(for: ChainModel.Id, data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class RuntimeFilesOperationFactoryProtocolStub: RuntimeFilesOperationFactoryProtocol {
+    
+
+    
+
+    
+     func fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Data?>).self)
+    }
+    
+     func fetchChainTypesOperation(for chainId: ChainModel.Id) -> CompoundOperationWrapper<Data?>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Data?>).self)
+    }
+    
+     func saveBaseTypesOperation(data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Void>).self)
+    }
+    
+     func saveChainTypesOperation(for chainId: ChainModel.Id, data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Void>).self)
+    }
+    
+}
+
