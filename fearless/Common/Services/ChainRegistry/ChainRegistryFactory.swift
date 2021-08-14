@@ -68,7 +68,8 @@ final class ChainRegistryFactory {
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(
-            runtimeSyncService: runtimeSyncService
+            runtimeSyncService: runtimeSyncService,
+            logger: Logger.shared
         )
 
         return ChainRegistry(
