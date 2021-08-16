@@ -908,6 +908,7 @@
 		84CE69ED25667A5600559427 /* ByteLengthEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */; };
 		84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */; };
 		84CE9AE726CA993900B4EF62 /* CommonTypesSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE9AE626CA993900B4EF62 /* CommonTypesSyncTests.swift */; };
+		84CE9AE926CAA83100B4EF62 /* RuntimeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */; };
 		84CFF1E326526FBC00DB7CF7 /* StakingBondMoreProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CFF1CF26526FBC00DB7CF7 /* StakingBondMoreProtocols.swift */; };
 		84CFF1E426526FBC00DB7CF7 /* StakingBondMorePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CFF1D026526FBC00DB7CF7 /* StakingBondMorePresenter.swift */; };
 		84CFF1E526526FBC00DB7CF7 /* StakingBondMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CFF1D126526FBC00DB7CF7 /* StakingBondMoreViewController.swift */; };
@@ -2390,6 +2391,7 @@
 		84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteLengthEncodingTests.swift; sourceTree = "<group>"; };
 		84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ByteLengthProcessor+Username.swift"; sourceTree = "<group>"; };
 		84CE9AE626CA993900B4EF62 /* CommonTypesSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTypesSyncTests.swift; sourceTree = "<group>"; };
+		84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeProviderTests.swift; sourceTree = "<group>"; };
 		84CFF1CF26526FBC00DB7CF7 /* StakingBondMoreProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingBondMoreProtocols.swift; sourceTree = "<group>"; };
 		84CFF1D026526FBC00DB7CF7 /* StakingBondMorePresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingBondMorePresenter.swift; sourceTree = "<group>"; };
 		84CFF1D126526FBC00DB7CF7 /* StakingBondMoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingBondMoreViewController.swift; sourceTree = "<group>"; };
@@ -3904,6 +3906,7 @@
 				840BF22426C2653100E3A955 /* ChainSyncServiceTests.swift */,
 				84AA004226C5DFD800BCB4DC /* RuntimeSyncServiceTests.swift */,
 				84CE9AE626CA993900B4EF62 /* CommonTypesSyncTests.swift */,
+				84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */,
 			);
 			path = ChainRegistry;
 			sourceTree = "<group>";
@@ -9121,6 +9124,7 @@
 				AE528E522685D57A0058935A /* ValidatorSearchTests.swift in Sources */,
 				842D1E8D24D2091A00C30A7A /* ModuleMocks.swift in Sources */,
 				842D1E9024D20B1500C30A7A /* Constants.swift in Sources */,
+				84CE9AE926CAA83100B4EF62 /* RuntimeProviderTests.swift in Sources */,
 				8467FD0D24E5E585005D486C /* KeystoreImportTests.swift in Sources */,
 				8476CA0B25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift in Sources */,
 				F418E87C264D14DA00699085 /* NetworkConnectionsMigratorTests.swift in Sources */,
