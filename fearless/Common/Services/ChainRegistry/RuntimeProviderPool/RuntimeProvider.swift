@@ -2,7 +2,9 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
-protocol RuntimeProviderProtocol {
+protocol RuntimeProviderProtocol: AnyObject {
+    var chainId: ChainModel.Id { get }
+
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()

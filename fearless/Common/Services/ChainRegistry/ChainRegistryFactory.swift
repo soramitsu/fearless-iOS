@@ -34,7 +34,6 @@ final class ChainRegistryFactory {
         )
 
         let runtimeProviderPool = RuntimeProviderPool(
-            cacheLimit: 4,
             runtimeProviderFactory: runtimeProviderFactory
         )
 
