@@ -7,11 +7,6 @@ protocol CommonTypesSyncServiceProtocol {
 }
 
 class CommonTypesSyncService {
-    private struct PendingRequest {
-        let resultClosure: (TypeRegistryProtocol) -> Void
-        let queue: DispatchQueue?
-    }
-
     let url: URL
     let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
     let dataOperationFactory: DataOperationFactoryProtocol
