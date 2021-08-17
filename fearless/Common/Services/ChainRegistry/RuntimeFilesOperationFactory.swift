@@ -2,10 +2,10 @@ import Foundation
 import RobinHood
 
 protocol RuntimeFilesOperationFactoryProtocol {
-    func fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>
+    func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>
     func fetchChainTypesOperation(for chainId: ChainModel.Id) -> CompoundOperationWrapper<Data?>
 
-    func saveBaseTypesOperation(
+    func saveCommonTypesOperation(
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void>
 
@@ -57,18 +57,18 @@ final class RuntimeFilesOperationFactory {
 }
 
 extension RuntimeFilesOperationFactory: RuntimeFilesOperationFactoryProtocol {
-    func fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?> {
-        fetchFileOperation(for: "base-types")
+    func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?> {
+        fetchFileOperation(for: "common-types")
     }
 
     func fetchChainTypesOperation(for chainId: ChainModel.Id) -> CompoundOperationWrapper<Data?> {
         fetchFileOperation(for: "\(chainId)-types")
     }
 
-    func saveBaseTypesOperation(
+    func saveCommonTypesOperation(
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
-        saveFileOperation(for: "base-types", data: closure)
+        saveFileOperation(for: "common-types", data: closure)
     }
 
     func saveChainTypesOperation(

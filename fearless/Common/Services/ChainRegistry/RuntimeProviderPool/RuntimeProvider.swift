@@ -209,7 +209,7 @@ extension RuntimeProvider: EventVisitorProtocol {
             mutex.unlock()
         }
 
-        guard snapshot?.localNetworkHash != event.fileHash else {
+        guard snapshot?.localChainHash != event.fileHash else {
             return
         }
 
@@ -247,7 +247,7 @@ extension RuntimeProvider: EventVisitorProtocol {
             mutex.unlock()
         }
 
-        guard snapshot?.localBaseHash != event.fileHash else {
+        guard snapshot?.localCommonHash != event.fileHash else {
             return
         }
 

@@ -42,7 +42,7 @@ class CommonTypesSyncTests: XCTestCase {
             var currentFailuresCount: Int = 0
 
             stub(filesOperationFactory) { stub in
-                stub.saveBaseTypesOperation(data: any()).then { dataClosure in
+                stub.saveCommonTypesOperation(data: any()).then { dataClosure in
                     let saveOperation = ClosureOperation<Void> {
                         do {
                             let actualData = try dataClosure()

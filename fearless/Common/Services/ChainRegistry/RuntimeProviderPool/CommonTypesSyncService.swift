@@ -51,7 +51,7 @@ class CommonTypesSyncService {
         isSyncing = true
 
         let fetchOperation = dataOperationFactory.fetchData(from: url)
-        let saveOperation = filesOperationFactory.saveBaseTypesOperation {
+        let saveOperation = filesOperationFactory.saveCommonTypesOperation {
             try fetchOperation.extractNoCancellableResultData()
         }
 

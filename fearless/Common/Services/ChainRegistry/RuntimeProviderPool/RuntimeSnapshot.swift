@@ -2,8 +2,8 @@ import Foundation
 import FearlessUtils
 
 struct RuntimeSnapshot {
-    let localBaseHash: String?
-    let localNetworkHash: String?
+    let localCommonHash: String?
+    let localChainHash: String?
     let typeRegistryCatalog: TypeRegistryCatalogProtocol
     let specVersion: UInt32
     let txVersion: UInt32
