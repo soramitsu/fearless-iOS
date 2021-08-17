@@ -76,7 +76,8 @@ final class ChainRegistryFactory {
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
             chainProvider: chainProvider,
-            specVersionSubscriptionFactory: specVersionSubscriptionFactory
+            specVersionSubscriptionFactory: specVersionSubscriptionFactory,
+            logger: Logger.shared
         )
     }
 }

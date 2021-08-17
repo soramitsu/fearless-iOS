@@ -2,6 +2,7 @@ import Foundation
 
 protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
+    func getConnetion(for chainId: ChainModel.Id) -> ChainConnection?
     func getConnectionStates() throws -> [ConnectionPoolState]
 }
 
@@ -41,6 +42,16 @@ extension ConnectionPool: ConnectionPoolProtocol {
         connections[chain.chainId] = WeakWrapper(target: connection)
 
         return connection
+    }
+
+    func getConnetion(for chainId: ChainModel.Id) -> ChainConnection? {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        return connections[chainId]?.target as? ChainConnection
     }
 
     func getConnectionStates() throws -> [ConnectionPoolState] {

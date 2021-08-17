@@ -284,7 +284,7 @@ class RuntimeProviderTests: XCTestCase {
         XCTAssertNotNil(runtimeProvider.snapshot)
     }
 
-    private func testCanReceiveSnapshot() throws {
+    func testCanReceiveSnapshot() throws {
         // given
 
         let commonTypesUrl = Bundle.main.url(forResource: "runtime-default", withExtension: "json")!
