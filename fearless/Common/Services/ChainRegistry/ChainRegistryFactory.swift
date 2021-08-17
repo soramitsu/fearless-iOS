@@ -5,7 +5,7 @@ final class ChainRegistryFactory {
     static func createDefaultRegistry() -> ChainRegistryProtocol {
         let repositoryFacade = SubstrateDataStorageFacade.shared
 
-        let runtimVersionRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
 
         let dataFetchOperationFactory = DataOperationFactory()
@@ -19,15 +19,21 @@ final class ChainRegistryFactory {
         )
 
         let runtimeSyncService = RuntimeSyncService(
-            repository: AnyDataProviderRepository(runtimVersionRepository),
+            repository: AnyDataProviderRepository(runtimeMetadataRepository),
             filesOperationFactory: filesOperationFactory,
             dataOperationFactory: dataFetchOperationFactory,
             eventCenter: EventCenter.shared
         )
 
-        let runtimeProviderFactory = RuntimeProviderFactory(runtimeSyncService: runtimeSyncService)
+        let runtimeProviderFactory = RuntimeProviderFactory(
+            fileOperationFactory: filesOperationFactory,
+            repository: AnyDataProviderRepository(runtimeMetadataRepository),
+            dataOperationFactory: dataFetchOperationFactory,
+            eventCenter: EventCenter.shared,
+            operationQueue: OperationManagerFacade.runtimeBuildingQueue
+        )
+
         let runtimeProviderPool = RuntimeProviderPool(
-            cacheLimit: 4,
             runtimeProviderFactory: runtimeProviderFactory
         )
 
@@ -61,7 +67,8 @@ final class ChainRegistryFactory {
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(
-            runtimeSyncService: runtimeSyncService
+            runtimeSyncService: runtimeSyncService,
+            logger: Logger.shared
         )
 
         return ChainRegistry(

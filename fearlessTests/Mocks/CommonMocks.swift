@@ -2491,16 +2491,16 @@ import RobinHood
     
     
     
-     func fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?> {
+     func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?> {
         
-    return cuckoo_manager.call("fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>",
+    return cuckoo_manager.call("fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>",
             parameters: (),
             escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.fetchBaseTypesOperation())
+            defaultCall: __defaultImplStub!.fetchCommonTypesOperation())
         
     }
     
@@ -2521,16 +2521,16 @@ import RobinHood
     
     
     
-     func saveBaseTypesOperation(data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+     func saveCommonTypesOperation(data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
         
-    return cuckoo_manager.call("saveBaseTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>",
+    return cuckoo_manager.call("saveCommonTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>",
             parameters: (closure),
             escapingParameters: (closure),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.saveBaseTypesOperation(data: closure))
+            defaultCall: __defaultImplStub!.saveCommonTypesOperation(data: closure))
         
     }
     
@@ -2558,9 +2558,9 @@ import RobinHood
 	    }
 	    
 	    
-	    func fetchBaseTypesOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<Data?>> {
+	    func fetchCommonTypesOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<Data?>> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>", parameterMatchers: matchers))
 	    }
 	    
 	    func fetchChainTypesOperation<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), CompoundOperationWrapper<Data?>> where M1.MatchedType == ChainModel.Id {
@@ -2568,9 +2568,9 @@ import RobinHood
 	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "fetchChainTypesOperation(for: ChainModel.Id) -> CompoundOperationWrapper<Data?>", parameterMatchers: matchers))
 	    }
 	    
-	    func saveBaseTypesOperation<M1: Cuckoo.Matchable>(data closure: M1) -> Cuckoo.ProtocolStubFunction<(() throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == () throws -> Data {
+	    func saveCommonTypesOperation<M1: Cuckoo.Matchable>(data closure: M1) -> Cuckoo.ProtocolStubFunction<(() throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == () throws -> Data {
 	        let matchers: [Cuckoo.ParameterMatcher<(() throws -> Data)>] = [wrap(matchable: closure) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "saveBaseTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeFilesOperationFactoryProtocol.self, method: "saveCommonTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", parameterMatchers: matchers))
 	    }
 	    
 	    func saveChainTypesOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for chainId: M1, data closure: M2) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id, () throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == ChainModel.Id, M2.MatchedType == () throws -> Data {
@@ -2595,9 +2595,9 @@ import RobinHood
 	
 	    
 	    @discardableResult
-	    func fetchBaseTypesOperation() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<Data?>> {
+	    func fetchCommonTypesOperation() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<Data?>> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -2607,9 +2607,9 @@ import RobinHood
 	    }
 	    
 	    @discardableResult
-	    func saveBaseTypesOperation<M1: Cuckoo.Matchable>(data closure: M1) -> Cuckoo.__DoNotUse<(() throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == () throws -> Data {
+	    func saveCommonTypesOperation<M1: Cuckoo.Matchable>(data closure: M1) -> Cuckoo.__DoNotUse<(() throws -> Data), CompoundOperationWrapper<Void>> where M1.MatchedType == () throws -> Data {
 	        let matchers: [Cuckoo.ParameterMatcher<(() throws -> Data)>] = [wrap(matchable: closure) { $0 }]
-	        return cuckoo_manager.verify("saveBaseTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("saveCommonTypesOperation(data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -2627,7 +2627,7 @@ import RobinHood
     
 
     
-     func fetchBaseTypesOperation() -> CompoundOperationWrapper<Data?>  {
+     func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>  {
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Data?>).self)
     }
     
@@ -2635,7 +2635,7 @@ import RobinHood
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Data?>).self)
     }
     
-     func saveBaseTypesOperation(data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>  {
+     func saveCommonTypesOperation(data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>  {
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Void>).self)
     }
     
