@@ -284,6 +284,45 @@ class RuntimeProviderTests: XCTestCase {
         XCTAssertNotNil(runtimeProvider.snapshot)
     }
 
+    private func testCanReceiveSnapshot() throws {
+        // given
+
+        let commonTypesUrl = Bundle.main.url(forResource: "runtime-default", withExtension: "json")!
+        let commonTypes = try Data(contentsOf: commonTypesUrl)
+
+        let chainTypeUrl = Bundle.main.url(forResource: "runtime-westend", withExtension: "json")!
+        let chainTypes = try Data(contentsOf: chainTypeUrl)
+
+        let metadataUrl = Bundle(for: type(of: self)).url(
+            forResource: "westend-metadata",
+            withExtension: ""
+        )!
+
+        let hex = try String(contentsOf: metadataUrl)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let metadata = try Data(hexString: hex)
+
+        // when
+
+        let runtimeProvider = performSetup(with: { _ in }, commonTypesFetchClosure: {
+            return CompoundOperationWrapper.createWithResult(commonTypes)
+        }, chainTypesFetchClosure: {
+            return CompoundOperationWrapper.createWithResult(chainTypes)
+        }, runtimeMetadataClosure: {
+            metadata
+        })
+
+        runtimeProvider.setup()
+
+        // then
+
+        let fetchCoderFactoryOperation = runtimeProvider.fetchCoderFactoryOperation()
+
+        OperationQueue().addOperations([fetchCoderFactoryOperation], waitUntilFinished: true)
+
+        XCTAssertNoThrow(try fetchCoderFactoryOperation.extractNoCancellableResultData())
+    }
+
     private func performSetup(
         with eventHandlingClosure: @escaping (EventProtocol) -> (),
         commonTypesFetchClosure: @escaping () -> CompoundOperationWrapper<Data?>,
