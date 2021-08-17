@@ -76,7 +76,7 @@ class CommonTypesSyncTests: XCTestCase {
 
             stub(eventCenter) { stub in
                 stub.notify(with: any()).then { event in
-                    if let syncEvent = event as? RuntimeBaseTypesSyncCompleted {
+                    if let syncEvent = event as? RuntimeCommonTypesSyncCompleted {
                         XCTAssertEqual(expectedHash, syncEvent.fileHash)
                         eventDeliveredExpectation.fulfill()
                     }

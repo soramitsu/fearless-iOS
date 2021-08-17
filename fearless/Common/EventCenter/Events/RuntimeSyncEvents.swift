@@ -1,10 +1,10 @@
 import Foundation
 
-struct RuntimeBaseTypesSyncCompleted: EventProtocol {
+struct RuntimeCommonTypesSyncCompleted: EventProtocol {
     let fileHash: String
 
     func accept(visitor: EventVisitorProtocol) {
-        visitor.processRuntimeBaseTypesSyncCompleted(event: self)
+        visitor.processRuntimeCommonTypesSyncCompleted(event: self)
     }
 }
 

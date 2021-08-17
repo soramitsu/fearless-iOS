@@ -89,7 +89,7 @@ class CommonTypesSyncService {
         retryAttempt = 0
 
         DispatchQueue.main.async { [weak self] in
-            let event = RuntimeBaseTypesSyncCompleted(fileHash: remoteHash.toHex())
+            let event = RuntimeCommonTypesSyncCompleted(fileHash: remoteHash.toHex())
             self?.eventCenter.notify(with: event)
         }
     }

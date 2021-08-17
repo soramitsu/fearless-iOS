@@ -236,7 +236,7 @@ extension RuntimeProvider: EventVisitorProtocol {
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
 
-    func processRuntimeBaseTypesSyncCompleted(event: RuntimeBaseTypesSyncCompleted) {
+    func processRuntimeCommonTypesSyncCompleted(event: RuntimeCommonTypesSyncCompleted) {
         guard typesUsage != .onlyOwn else {
             return
         }
