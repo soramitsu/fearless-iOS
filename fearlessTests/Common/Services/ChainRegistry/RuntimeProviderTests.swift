@@ -8,28 +8,6 @@ class RuntimeProviderTests: XCTestCase {
     func testTypeCatalogSuccessfullCreated() throws {
         // given
 
-        let chainModel = ChainModelGenerator.generate(count: 1, withTypes: true).first!
-        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-        let eventCenter = MockEventCenterProtocol()
-
-        let storageFacade = SubstrateStorageTestFacade()
-        let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
-
-        let snapshotOperationFactory = RuntimeSnapshotFactory(
-            chainId: chainModel.chainId,
-            filesOperationFactory: filesOperationFactory,
-            repository: AnyDataProviderRepository(repository)
-        )
-
-        let operationQueue = OperationQueue()
-
-        let runtimeProvider = RuntimeProvider(
-            chainModel: chainModel,
-            snapshotOperationFactory: snapshotOperationFactory,
-            eventCenter: eventCenter,
-            operationQueue: operationQueue
-        )
-
         let commonTypesUrl = Bundle.main.url(forResource: "runtime-default", withExtension: "json")!
         let commonTypes = try Data(contentsOf: commonTypesUrl)
 
@@ -51,38 +29,19 @@ class RuntimeProviderTests: XCTestCase {
         let chainTypesFetched = XCTestExpectation()
         let eventSent = XCTestExpectation()
 
-        stub(filesOperationFactory) { stub in
-            stub.fetchCommonTypesOperation().then {
-                commonTypesFetched.fulfill()
-                return CompoundOperationWrapper.createWithResult(commonTypes)
+        let runtimeProvider = performSetup(with: { event in
+            if event is RuntimeCoderCreated {
+                eventSent.fulfill()
             }
-
-            stub.fetchChainTypesOperation(for: any()).then { chainId in
-                chainTypesFetched.fulfill()
-                return CompoundOperationWrapper.createWithResult(chainTypes)
-            }
-        }
-
-        stub(eventCenter) { stub in
-            stub.notify(with: any()).then { event in
-                if event is RuntimeCoderCreated {
-                    eventSent.fulfill()
-                }
-            }
-        }
-
-        let metadataItemSaveOperation = repository.saveOperation({
-            let item = RuntimeMetadataItem(
-                chain: chainModel.chainId,
-                version: 1,
-                txVersion: 1,
-                metadata: metadata
-            )
-
-            return [item]
-        }, { [] })
-
-        operationQueue.addOperations([metadataItemSaveOperation], waitUntilFinished: true)
+        }, commonTypesFetchClosure: {
+            commonTypesFetched.fulfill()
+            return CompoundOperationWrapper.createWithResult(commonTypes)
+        }, chainTypesFetchClosure: {
+            chainTypesFetched.fulfill()
+            return CompoundOperationWrapper.createWithResult(chainTypes)
+        }, runtimeMetadataClosure: {
+            metadata
+        })
 
         runtimeProvider.setup()
 
@@ -97,28 +56,6 @@ class RuntimeProviderTests: XCTestCase {
     func testTypeCatalogCreationFailureIsHandled() throws {
         // given
 
-        let chainModel = ChainModelGenerator.generate(count: 1, withTypes: true).first!
-        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-        let eventCenter = MockEventCenterProtocol()
-
-        let storageFacade = SubstrateStorageTestFacade()
-        let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
-
-        let snapshotOperationFactory = RuntimeSnapshotFactory(
-            chainId: chainModel.chainId,
-            filesOperationFactory: filesOperationFactory,
-            repository: AnyDataProviderRepository(repository)
-        )
-
-        let operationQueue = OperationQueue()
-
-        let runtimeProvider = RuntimeProvider(
-            chainModel: chainModel,
-            snapshotOperationFactory: snapshotOperationFactory,
-            eventCenter: eventCenter,
-            operationQueue: operationQueue
-        )
-
         let chainTypeUrl = Bundle.main.url(forResource: "runtime-westend", withExtension: "json")!
         let chainTypes = try Data(contentsOf: chainTypeUrl)
 
@@ -128,25 +65,19 @@ class RuntimeProviderTests: XCTestCase {
         let chainTypesFetched = XCTestExpectation()
         let eventSent = XCTestExpectation()
 
-        stub(filesOperationFactory) { stub in
-            stub.fetchCommonTypesOperation().then {
-                commonTypesFetched.fulfill()
-                return CompoundOperationWrapper.createWithError(BaseOperationError.unexpectedDependentResult)
+        let runtimeProvider = performSetup(with: { event in
+            if event is RuntimeCoderCreationFailed {
+                eventSent.fulfill()
             }
-
-            stub.fetchChainTypesOperation(for: any()).then { chainId in
-                chainTypesFetched.fulfill()
-                return CompoundOperationWrapper.createWithResult(chainTypes)
-            }
-        }
-
-        stub(eventCenter) { stub in
-            stub.notify(with: any()).then { event in
-                if event is RuntimeCoderCreationFailed {
-                    eventSent.fulfill()
-                }
-            }
-        }
+        }, commonTypesFetchClosure: {
+            commonTypesFetched.fulfill()
+            return CompoundOperationWrapper.createWithError(BaseOperationError.unexpectedDependentResult)
+        }, chainTypesFetchClosure: {
+            chainTypesFetched.fulfill()
+            return CompoundOperationWrapper.createWithResult(chainTypes)
+        }, runtimeMetadataClosure: {
+            nil
+        })
 
         runtimeProvider.setup()
 
