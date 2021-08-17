@@ -2463,6 +2463,226 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+
+
+ class MockConnectionPoolProtocol: ConnectionPoolProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = ConnectionPoolProtocol
+    
+     typealias Stubbing = __StubbingProxy_ConnectionPoolProtocol
+     typealias Verification = __VerificationProxy_ConnectionPoolProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: ConnectionPoolProtocol?
+
+     func enableDefaultImplementation(_ stub: ConnectionPoolProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setupConnection(for chain: ChainModel) throws -> ChainConnection {
+        
+    return try cuckoo_manager.callThrows("setupConnection(for: ChainModel) throws -> ChainConnection",
+            parameters: (chain),
+            escapingParameters: (chain),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setupConnection(for: chain))
+        
+    }
+    
+    
+    
+     func getConnetion(for chainId: ChainModel.Id) -> ChainConnection? {
+        
+    return cuckoo_manager.call("getConnetion(for: ChainModel.Id) -> ChainConnection?",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.getConnetion(for: chainId))
+        
+    }
+    
+
+	 struct __StubbingProxy_ConnectionPoolProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setupConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.ProtocolStubThrowingFunction<(ChainModel), ChainConnection> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method: "setupConnection(for: ChainModel) throws -> ChainConnection", parameterMatchers: matchers))
+	    }
+	    
+	    func getConnetion<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method: "getConnetion(for: ChainModel.Id) -> ChainConnection?", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_ConnectionPoolProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setupConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.__DoNotUse<(ChainModel), ChainConnection> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return cuckoo_manager.verify("setupConnection(for: ChainModel) throws -> ChainConnection", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func getConnetion<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("getConnetion(for: ChainModel.Id) -> ChainConnection?", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class ConnectionPoolProtocolStub: ConnectionPoolProtocol {
+    
+
+    
+
+    
+     func setupConnection(for chain: ChainModel) throws -> ChainConnection  {
+        return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
+    }
+    
+     func getConnetion(for chainId: ChainModel.Id) -> ChainConnection?  {
+        return DefaultValueRegistry.defaultValue(for: (ChainConnection?).self)
+    }
+    
+}
+
+
+
+ class MockConnectionPool: ConnectionPool, Cuckoo.ClassMock {
+    
+     typealias MocksType = ConnectionPool
+    
+     typealias Stubbing = __StubbingProxy_ConnectionPool
+     typealias Verification = __VerificationProxy_ConnectionPool
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    
+    private var __defaultImplStub: ConnectionPool?
+
+     func enableDefaultImplementation(_ stub: ConnectionPool) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     override var connections: [ChainModel.Id: WeakWrapper] {
+        get {
+            return cuckoo_manager.getter("connections",
+                superclassCall:
+                    
+                    super.connections
+                    ,
+                defaultCall: __defaultImplStub!.connections)
+        }
+        
+    }
+    
+
+    
+
+    
+
+	 struct __StubbingProxy_ConnectionPool: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var connections: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockConnectionPool, [ChainModel.Id: WeakWrapper]> {
+	        return .init(manager: cuckoo_manager, name: "connections")
+	    }
+	    
+	    
+	}
+
+	 struct __VerificationProxy_ConnectionPool: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var connections: Cuckoo.VerifyReadOnlyProperty<[ChainModel.Id: WeakWrapper]> {
+	        return .init(manager: cuckoo_manager, name: "connections", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	}
+}
+
+ class ConnectionPoolStub: ConnectionPool {
+    
+    
+     override var connections: [ChainModel.Id: WeakWrapper] {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ([ChainModel.Id: WeakWrapper]).self)
+        }
+        
+    }
+    
+
+    
+
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
 import RobinHood
 
 
@@ -2641,6 +2861,1112 @@ import RobinHood
     
      func saveChainTypesOperation(for chainId: ChainModel.Id, data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>  {
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<Void>).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import FearlessUtils
+import Foundation
+import RobinHood
+
+
+ class MockCommonTypesSyncServiceProtocol: CommonTypesSyncServiceProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = CommonTypesSyncServiceProtocol
+    
+     typealias Stubbing = __StubbingProxy_CommonTypesSyncServiceProtocol
+     typealias Verification = __VerificationProxy_CommonTypesSyncServiceProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: CommonTypesSyncServiceProtocol?
+
+     func enableDefaultImplementation(_ stub: CommonTypesSyncServiceProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func syncUp()  {
+        
+    return cuckoo_manager.call("syncUp()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.syncUp())
+        
+    }
+    
+
+	 struct __StubbingProxy_CommonTypesSyncServiceProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func syncUp() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCommonTypesSyncServiceProtocol.self, method: "syncUp()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_CommonTypesSyncServiceProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func syncUp() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("syncUp()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class CommonTypesSyncServiceProtocolStub: CommonTypesSyncServiceProtocol {
+    
+
+    
+
+    
+     func syncUp()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockCommonTypesSyncService: CommonTypesSyncService, Cuckoo.ClassMock {
+    
+     typealias MocksType = CommonTypesSyncService
+    
+     typealias Stubbing = __StubbingProxy_CommonTypesSyncService
+     typealias Verification = __VerificationProxy_CommonTypesSyncService
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+
+    
+    private var __defaultImplStub: CommonTypesSyncService?
+
+     func enableDefaultImplementation(_ stub: CommonTypesSyncService) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     override var isSyncing: Bool {
+        get {
+            return cuckoo_manager.getter("isSyncing",
+                superclassCall:
+                    
+                    super.isSyncing
+                    ,
+                defaultCall: __defaultImplStub!.isSyncing)
+        }
+        
+    }
+    
+    
+    
+     override var retryAttempt: Int {
+        get {
+            return cuckoo_manager.getter("retryAttempt",
+                superclassCall:
+                    
+                    super.retryAttempt
+                    ,
+                defaultCall: __defaultImplStub!.retryAttempt)
+        }
+        
+    }
+    
+
+    
+
+    
+
+	 struct __StubbingProxy_CommonTypesSyncService: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var isSyncing: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockCommonTypesSyncService, Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSyncing")
+	    }
+	    
+	    
+	    var retryAttempt: Cuckoo.ClassToBeStubbedReadOnlyProperty<MockCommonTypesSyncService, Int> {
+	        return .init(manager: cuckoo_manager, name: "retryAttempt")
+	    }
+	    
+	    
+	}
+
+	 struct __VerificationProxy_CommonTypesSyncService: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var isSyncing: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSyncing", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var retryAttempt: Cuckoo.VerifyReadOnlyProperty<Int> {
+	        return .init(manager: cuckoo_manager, name: "retryAttempt", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	}
+}
+
+ class CommonTypesSyncServiceStub: CommonTypesSyncService {
+    
+    
+     override var isSyncing: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        
+    }
+    
+    
+     override var retryAttempt: Int {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Int).self)
+        }
+        
+    }
+    
+
+    
+
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import FearlessUtils
+import Foundation
+import RobinHood
+
+
+ class MockRuntimeProviderProtocol: RuntimeProviderProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = RuntimeProviderProtocol
+    
+     typealias Stubbing = __StubbingProxy_RuntimeProviderProtocol
+     typealias Verification = __VerificationProxy_RuntimeProviderProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: RuntimeProviderProtocol?
+
+     func enableDefaultImplementation(_ stub: RuntimeProviderProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var chainId: ChainModel.Id {
+        get {
+            return cuckoo_manager.getter("chainId",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.chainId)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)  {
+        
+    return cuckoo_manager.call("replaceTypesUsage(_: ChainModel.TypesUsage)",
+            parameters: (newTypeUsage),
+            escapingParameters: (newTypeUsage),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.replaceTypesUsage(newTypeUsage))
+        
+    }
+    
+    
+    
+     func cleanup()  {
+        
+    return cuckoo_manager.call("cleanup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.cleanup())
+        
+    }
+    
+
+	 struct __StubbingProxy_RuntimeProviderProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var chainId: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockRuntimeProviderProtocol, ChainModel.Id> {
+	        return .init(manager: cuckoo_manager, name: "chainId")
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func replaceTypesUsage<M1: Cuckoo.Matchable>(_ newTypeUsage: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.TypesUsage)> where M1.MatchedType == ChainModel.TypesUsage {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.TypesUsage)>] = [wrap(matchable: newTypeUsage) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method: "replaceTypesUsage(_: ChainModel.TypesUsage)", parameterMatchers: matchers))
+	    }
+	    
+	    func cleanup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method: "cleanup()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_RuntimeProviderProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var chainId: Cuckoo.VerifyReadOnlyProperty<ChainModel.Id> {
+	        return .init(manager: cuckoo_manager, name: "chainId", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func replaceTypesUsage<M1: Cuckoo.Matchable>(_ newTypeUsage: M1) -> Cuckoo.__DoNotUse<(ChainModel.TypesUsage), Void> where M1.MatchedType == ChainModel.TypesUsage {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.TypesUsage)>] = [wrap(matchable: newTypeUsage) { $0 }]
+	        return cuckoo_manager.verify("replaceTypesUsage(_: ChainModel.TypesUsage)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func cleanup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("cleanup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class RuntimeProviderProtocolStub: RuntimeProviderProtocol {
+    
+    
+     var chainId: ChainModel.Id {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (ChainModel.Id).self)
+        }
+        
+    }
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func cleanup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockRuntimeCodingProtocol: RuntimeCodingProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = RuntimeCodingProtocol
+    
+     typealias Stubbing = __StubbingProxy_RuntimeCodingProtocol
+     typealias Verification = __VerificationProxy_RuntimeCodingProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: RuntimeCodingProtocol?
+
+     func enableDefaultImplementation(_ stub: RuntimeCodingProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        
+    return cuckoo_manager.call("fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol>",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.fetchCoderFactoryOperation())
+        
+    }
+    
+
+	 struct __StubbingProxy_RuntimeCodingProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func fetchCoderFactoryOperation() -> Cuckoo.ProtocolStubFunction<(), BaseOperation<RuntimeCoderFactoryProtocol>> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeCodingProtocol.self, method: "fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_RuntimeCodingProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func fetchCoderFactoryOperation() -> Cuckoo.__DoNotUse<(), BaseOperation<RuntimeCoderFactoryProtocol>> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class RuntimeCodingProtocolStub: RuntimeCodingProtocol {
+    
+
+    
+
+    
+     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol>  {
+        return DefaultValueRegistry.defaultValue(for: (BaseOperation<RuntimeCoderFactoryProtocol>).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+
+
+ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = RuntimeProviderPoolProtocol
+    
+     typealias Stubbing = __StubbingProxy_RuntimeProviderPoolProtocol
+     typealias Verification = __VerificationProxy_RuntimeProviderPoolProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: RuntimeProviderPoolProtocol?
+
+     func enableDefaultImplementation(_ stub: RuntimeProviderPoolProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setupRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol {
+        
+    return cuckoo_manager.call("setupRuntimeProvider(for: ChainModel) -> RuntimeProviderProtocol",
+            parameters: (chain),
+            escapingParameters: (chain),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setupRuntimeProvider(for: chain))
+        
+    }
+    
+    
+    
+     func destroyRuntimeProvider(for chainId: ChainModel.Id)  {
+        
+    return cuckoo_manager.call("destroyRuntimeProvider(for: ChainModel.Id)",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.destroyRuntimeProvider(for: chainId))
+        
+    }
+    
+    
+    
+     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+        
+    return cuckoo_manager.call("getRuntimeProvider(for: ChainModel.Id) -> RuntimeProviderProtocol?",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.getRuntimeProvider(for: chainId))
+        
+    }
+    
+
+	 struct __StubbingProxy_RuntimeProviderPoolProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setupRuntimeProvider<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel), RuntimeProviderProtocol> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self, method: "setupRuntimeProvider(for: ChainModel) -> RuntimeProviderProtocol", parameterMatchers: matchers))
+	    }
+	    
+	    func destroyRuntimeProvider<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.Id)> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self, method: "destroyRuntimeProvider(for: ChainModel.Id)", parameterMatchers: matchers))
+	    }
+	    
+	    func getRuntimeProvider<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self, method: "getRuntimeProvider(for: ChainModel.Id) -> RuntimeProviderProtocol?", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_RuntimeProviderPoolProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setupRuntimeProvider<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.__DoNotUse<(ChainModel), RuntimeProviderProtocol> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return cuckoo_manager.verify("setupRuntimeProvider(for: ChainModel) -> RuntimeProviderProtocol", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func destroyRuntimeProvider<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Void> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("destroyRuntimeProvider(for: ChainModel.Id)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func getRuntimeProvider<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("getRuntimeProvider(for: ChainModel.Id) -> RuntimeProviderProtocol?", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class RuntimeProviderPoolProtocolStub: RuntimeProviderPoolProtocol {
+    
+
+    
+
+    
+     func setupRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol  {
+        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol).self)
+    }
+    
+     func destroyRuntimeProvider(for chainId: ChainModel.Id)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?  {
+        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol?).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import FearlessUtils
+import Foundation
+import RobinHood
+
+
+ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = RuntimeSyncServiceProtocol
+    
+     typealias Stubbing = __StubbingProxy_RuntimeSyncServiceProtocol
+     typealias Verification = __VerificationProxy_RuntimeSyncServiceProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: RuntimeSyncServiceProtocol?
+
+     func enableDefaultImplementation(_ stub: RuntimeSyncServiceProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func register(chain: ChainModel, with connection: ChainConnection)  {
+        
+    return cuckoo_manager.call("register(chain: ChainModel, with: ChainConnection)",
+            parameters: (chain, connection),
+            escapingParameters: (chain, connection),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.register(chain: chain, with: connection))
+        
+    }
+    
+    
+    
+     func unregister(chainId: ChainModel.Id)  {
+        
+    return cuckoo_manager.call("unregister(chainId: ChainModel.Id)",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.unregister(chainId: chainId))
+        
+    }
+    
+    
+    
+     func apply(version: RuntimeVersion, for chainId: ChainModel.Id)  {
+        
+    return cuckoo_manager.call("apply(version: RuntimeVersion, for: ChainModel.Id)",
+            parameters: (version, chainId),
+            escapingParameters: (version, chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.apply(version: version, for: chainId))
+        
+    }
+    
+    
+    
+     func hasChain(with chainId: ChainModel.Id) -> Bool {
+        
+    return cuckoo_manager.call("hasChain(with: ChainModel.Id) -> Bool",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.hasChain(with: chainId))
+        
+    }
+    
+    
+    
+     func isChainSyncing(_ chainId: ChainModel.Id) -> Bool {
+        
+    return cuckoo_manager.call("isChainSyncing(_: ChainModel.Id) -> Bool",
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.isChainSyncing(chainId))
+        
+    }
+    
+
+	 struct __StubbingProxy_RuntimeSyncServiceProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func register<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chain: M1, with connection: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel, ChainConnection)> where M1.MatchedType == ChainModel, M2.MatchedType == ChainConnection {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel, ChainConnection)>] = [wrap(matchable: chain) { $0.0 }, wrap(matchable: connection) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self, method: "register(chain: ChainModel, with: ChainConnection)", parameterMatchers: matchers))
+	    }
+	    
+	    func unregister<M1: Cuckoo.Matchable>(chainId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.Id)> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self, method: "unregister(chainId: ChainModel.Id)", parameterMatchers: matchers))
+	    }
+	    
+	    func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(version: M1, for chainId: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(RuntimeVersion, ChainModel.Id)> where M1.MatchedType == RuntimeVersion, M2.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(RuntimeVersion, ChainModel.Id)>] = [wrap(matchable: version) { $0.0 }, wrap(matchable: chainId) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self, method: "apply(version: RuntimeVersion, for: ChainModel.Id)", parameterMatchers: matchers))
+	    }
+	    
+	    func hasChain<M1: Cuckoo.Matchable>(with chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), Bool> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self, method: "hasChain(with: ChainModel.Id) -> Bool", parameterMatchers: matchers))
+	    }
+	    
+	    func isChainSyncing<M1: Cuckoo.Matchable>(_ chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), Bool> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self, method: "isChainSyncing(_: ChainModel.Id) -> Bool", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_RuntimeSyncServiceProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func register<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chain: M1, with connection: M2) -> Cuckoo.__DoNotUse<(ChainModel, ChainConnection), Void> where M1.MatchedType == ChainModel, M2.MatchedType == ChainConnection {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel, ChainConnection)>] = [wrap(matchable: chain) { $0.0 }, wrap(matchable: connection) { $0.1 }]
+	        return cuckoo_manager.verify("register(chain: ChainModel, with: ChainConnection)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func unregister<M1: Cuckoo.Matchable>(chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Void> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("unregister(chainId: ChainModel.Id)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(version: M1, for chainId: M2) -> Cuckoo.__DoNotUse<(RuntimeVersion, ChainModel.Id), Void> where M1.MatchedType == RuntimeVersion, M2.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(RuntimeVersion, ChainModel.Id)>] = [wrap(matchable: version) { $0.0 }, wrap(matchable: chainId) { $0.1 }]
+	        return cuckoo_manager.verify("apply(version: RuntimeVersion, for: ChainModel.Id)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func hasChain<M1: Cuckoo.Matchable>(with chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Bool> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("hasChain(with: ChainModel.Id) -> Bool", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func isChainSyncing<M1: Cuckoo.Matchable>(_ chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Bool> where M1.MatchedType == ChainModel.Id {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+	        return cuckoo_manager.verify("isChainSyncing(_: ChainModel.Id) -> Bool", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class RuntimeSyncServiceProtocolStub: RuntimeSyncServiceProtocol {
+    
+
+    
+
+    
+     func register(chain: ChainModel, with connection: ChainConnection)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func unregister(chainId: ChainModel.Id)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func apply(version: RuntimeVersion, for chainId: ChainModel.Id)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func hasChain(with chainId: ChainModel.Id) -> Bool  {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+    
+     func isChainSyncing(_ chainId: ChainModel.Id) -> Bool  {
+        return DefaultValueRegistry.defaultValue(for: (Bool).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+
+
+ class MockSpecVersionSubscriptionProtocol: SpecVersionSubscriptionProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = SpecVersionSubscriptionProtocol
+    
+     typealias Stubbing = __StubbingProxy_SpecVersionSubscriptionProtocol
+     typealias Verification = __VerificationProxy_SpecVersionSubscriptionProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: SpecVersionSubscriptionProtocol?
+
+     func enableDefaultImplementation(_ stub: SpecVersionSubscriptionProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func subscribe()  {
+        
+    return cuckoo_manager.call("subscribe()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.subscribe())
+        
+    }
+    
+    
+    
+     func unsubscribe()  {
+        
+    return cuckoo_manager.call("unsubscribe()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.unsubscribe())
+        
+    }
+    
+
+	 struct __StubbingProxy_SpecVersionSubscriptionProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func subscribe() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockSpecVersionSubscriptionProtocol.self, method: "subscribe()", parameterMatchers: matchers))
+	    }
+	    
+	    func unsubscribe() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockSpecVersionSubscriptionProtocol.self, method: "unsubscribe()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_SpecVersionSubscriptionProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func subscribe() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("subscribe()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func unsubscribe() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("unsubscribe()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class SpecVersionSubscriptionProtocolStub: SpecVersionSubscriptionProtocol {
+    
+
+    
+
+    
+     func subscribe()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func unsubscribe()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+
+
+ class MockSpecVersionSubscriptionFactoryProtocol: SpecVersionSubscriptionFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = SpecVersionSubscriptionFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_SpecVersionSubscriptionFactoryProtocol
+     typealias Verification = __VerificationProxy_SpecVersionSubscriptionFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: SpecVersionSubscriptionFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: SpecVersionSubscriptionFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func createSubscription(for chainId: ChainModel.Id, connection: JSONRPCEngine) -> SpecVersionSubscriptionProtocol {
+        
+    return cuckoo_manager.call("createSubscription(for: ChainModel.Id, connection: JSONRPCEngine) -> SpecVersionSubscriptionProtocol",
+            parameters: (chainId, connection),
+            escapingParameters: (chainId, connection),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createSubscription(for: chainId, connection: connection))
+        
+    }
+    
+
+	 struct __StubbingProxy_SpecVersionSubscriptionFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func createSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for chainId: M1, connection: M2) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id, JSONRPCEngine), SpecVersionSubscriptionProtocol> where M1.MatchedType == ChainModel.Id, M2.MatchedType == JSONRPCEngine {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, JSONRPCEngine)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: connection) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSpecVersionSubscriptionFactoryProtocol.self, method: "createSubscription(for: ChainModel.Id, connection: JSONRPCEngine) -> SpecVersionSubscriptionProtocol", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_SpecVersionSubscriptionFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func createSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for chainId: M1, connection: M2) -> Cuckoo.__DoNotUse<(ChainModel.Id, JSONRPCEngine), SpecVersionSubscriptionProtocol> where M1.MatchedType == ChainModel.Id, M2.MatchedType == JSONRPCEngine {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, JSONRPCEngine)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: connection) { $0.1 }]
+	        return cuckoo_manager.verify("createSubscription(for: ChainModel.Id, connection: JSONRPCEngine) -> SpecVersionSubscriptionProtocol", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class SpecVersionSubscriptionFactoryProtocolStub: SpecVersionSubscriptionFactoryProtocol {
+    
+
+    
+
+    
+     func createSubscription(for chainId: ChainModel.Id, connection: JSONRPCEngine) -> SpecVersionSubscriptionProtocol  {
+        return DefaultValueRegistry.defaultValue(for: (SpecVersionSubscriptionProtocol).self)
     }
     
 }

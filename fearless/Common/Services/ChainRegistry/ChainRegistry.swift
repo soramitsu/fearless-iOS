@@ -1,15 +1,19 @@
 import Foundation
 import RobinHood
 
-typealias ChainRegistrySetupClosure = (Set<ChainModel.Id>) -> Void
-
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 
-    func waitForSetupCompletion(with closure: @escaping ChainRegistrySetupClosure)
+    func chainsSubscribe(
+        _ target: AnyObject,
+        updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void,
+        runningInQueue: DispatchQueue
+    )
+
+    func chainsUnsubscribe(_ target: AnyObject)
 
     func syncUp()
 }
@@ -21,11 +25,10 @@ final class ChainRegistry {
     let commonTypesSyncService: CommonTypesSyncServiceProtocol
     let chainProvider: StreamableProvider<ChainModel>
     let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
+    let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
     let logger: LoggerProtocol?
 
-    private(set) var waiters: [ChainRegistrySetupClosure] = []
-
-    private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol]?
+    private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
     private let mutex = NSLock()
 
@@ -81,14 +84,8 @@ final class ChainRegistry {
             mutex.unlock()
         }
 
-        let isSetup: Bool
-
-        if runtimeVersionSubscriptions == nil {
-            runtimeVersionSubscriptions = [:]
-
-            isSetup = true
-        } else {
-            isSetup = false
+        guard !changes.isEmpty else {
+            return
         }
 
         changes.forEach { change in
@@ -110,10 +107,6 @@ final class ChainRegistry {
                 logger?.error("Unexpected error on handling chains update: \(error)")
             }
         }
-
-        if isSetup {
-            resolverWaiterIfNeeded()
-        }
     }
 
     private func setupRuntimeVersionSubscription(for chain: ChainModel, connection: ChainConnection) {
@@ -124,35 +117,15 @@ final class ChainRegistry {
 
         subscription.subscribe()
 
-        runtimeVersionSubscriptions?[chain.chainId] = subscription
+        runtimeVersionSubscriptions[chain.chainId] = subscription
     }
 
     private func clearRuntimeSubscription(for chainId: ChainModel.Id) {
-        if let subscription = runtimeVersionSubscriptions?[chainId] {
+        if let subscription = runtimeVersionSubscriptions[chainId] {
             subscription.unsubscribe()
         }
 
-        runtimeVersionSubscriptions?[chainId] = nil
-    }
-
-    private func collectAvailableChains() -> Set<ChainModel.Id>? {
-        runtimeVersionSubscriptions?.reduce(into: Set<String>()) { allKeys, keyValue in
-            allKeys.insert(keyValue.key)
-        }
-    }
-
-    private func resolverWaiterIfNeeded() {
-        guard !waiters.isEmpty, let availableChains = collectAvailableChains() else {
-            return
-        }
-
-        let waitersToResolver = waiters
-
-        waiters = []
-
-        waitersToResolver.forEach { waiterClosure in
-            waiterClosure(availableChains)
-        }
+        runtimeVersionSubscriptions[chainId] = nil
     }
 
     private func syncUpServices() {
@@ -169,7 +142,7 @@ extension ChainRegistry: ChainRegistryProtocol {
             mutex.unlock()
         }
 
-        return collectAvailableChains()
+        return Set(runtimeVersionSubscriptions.keys)
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
@@ -192,22 +165,38 @@ extension ChainRegistry: ChainRegistryProtocol {
         return runtimeProviderPool.getRuntimeProvider(for: chainId)
     }
 
-    func waitForSetupCompletion(with closure: @escaping ChainRegistrySetupClosure) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        if let availableChains = collectAvailableChains() {
-            DispatchQueue.main.async {
-                closure(availableChains)
+    func chainsSubscribe(
+        _ target: AnyObject,
+        updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void,
+        runningInQueue: DispatchQueue
+    ) {
+        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { changes in
+            runningInQueue.async {
+                updateClosure(changes)
             }
-
-            return
         }
 
-        waiters.append(closure)
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.logger?.error("Unexpected error chains listener setup: \(error)")
+        }
+
+        let options = StreamableProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false,
+            refreshWhenEmpty: false
+        )
+
+        chainProvider.addObserver(
+            target,
+            deliverOn: processingQueue,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func chainsUnsubscribe(_ target: AnyObject) {
+        chainProvider.removeObserver(target)
     }
 
     func syncUp() {

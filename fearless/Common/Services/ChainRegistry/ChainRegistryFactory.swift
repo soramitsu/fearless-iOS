@@ -51,6 +51,12 @@ final class ChainRegistryFactory {
             predicate: { _ in true }
         )
 
+        chainObserver.start { error in
+            if let error = error {
+                Logger.shared.error("Chain database observer unexpectedly failed: \(error)")
+            }
+        }
+
         let chainProvider = StreamableProvider(
             source: AnyStreamableSource(EmptyStreamableSource<ChainModel>()),
             repository: AnyDataProviderRepository(chainRepository),
@@ -71,10 +77,19 @@ final class ChainRegistryFactory {
             logger: Logger.shared
         )
 
+        let commonTypesSyncService = CommonTypesSyncService(
+            url: ApplicationConfig.shared.commonTypesURL,
+            filesOperationFactory: filesOperationFactory,
+            dataOperationFactory: dataFetchOperationFactory,
+            eventCenter: EventCenter.shared,
+            operationQueue: OperationManagerFacade.sharedQueue
+        )
+
         return ChainRegistry(
             runtimeProviderPool: runtimeProviderPool,
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
+            commonTypesSyncService: commonTypesSyncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
             logger: Logger.shared
