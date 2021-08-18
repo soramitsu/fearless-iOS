@@ -20,7 +20,6 @@
                 <outlet property="hintLabel" destination="aza-85-hKb" id="HWt-R8-abD"/>
                 <outlet property="inputField" destination="uF4-Wx-nXk" id="vFA-Q8-dZe"/>
                 <outlet property="networkView" destination="ssW-2f-pZr" id="SYG-ZS-0eu"/>
-                <outlet property="nextBottom" destination="tEr-hq-Bse" id="13c-Eu-CU9"/>
                 <outlet property="nextButton" destination="21e-dk-cnQ" id="wS2-jY-vlv"/>
                 <outlet property="view" destination="iN0-l3-epB" id="XUN-6R-GIy"/>
             </connections>
@@ -197,7 +196,7 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="P7s-un-WJk" secondAttribute="trailing" constant="16" id="Ham-im-itW"/>
                 <constraint firstItem="P7s-un-WJk" firstAttribute="top" secondItem="ssW-2f-pZr" secondAttribute="bottom" constant="16" id="ab3-c2-Dqk"/>
                 <constraint firstItem="ssW-2f-pZr" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="26" id="kmr-fb-S8F"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="21e-dk-cnQ" secondAttribute="bottom" constant="16" id="tEr-hq-Bse"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="21e-dk-cnQ" secondAttribute="bottom" constant="16" id="q4s-He-5WG"/>
                 <constraint firstItem="aza-85-hKb" firstAttribute="top" secondItem="P7s-un-WJk" secondAttribute="bottom" constant="8" id="uwM-YF-EYs"/>
                 <constraint firstItem="P7s-un-WJk" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="yQo-CU-K06"/>
             </constraints>
