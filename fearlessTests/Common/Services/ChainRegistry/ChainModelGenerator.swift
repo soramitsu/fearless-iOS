@@ -28,12 +28,13 @@ final class ChainModelGenerator {
 
             return ChainModel(
                 chainId: chainId,
+                parentId: nil,
                 assets: [asset],
                 nodes: [node],
                 addressPrefix: UInt16(index),
                 types: types,
                 icon: URL(string: "https://github.com")!,
-                isEthereumBased: false
+                options: []
             )
         }
     }

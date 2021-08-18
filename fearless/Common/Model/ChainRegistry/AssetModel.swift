@@ -7,7 +7,7 @@ struct AssetModel: Codable, Hashable {
     let assetId: Id
     let chainId: ChainModel.Id
     let icon: URL?
-    let name: String
+    let name: String?
     let symbol: String
     let precision: UInt16
 

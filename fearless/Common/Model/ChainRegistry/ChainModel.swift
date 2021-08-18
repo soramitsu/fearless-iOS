@@ -17,12 +17,21 @@ struct ChainModel: Codable, Hashable {
     }
 
     let chainId: Id
+    let parentId: Id?
     let assets: [AssetModel]
     let nodes: [ChainNodeModel]
     let addressPrefix: UInt16
     let types: TypesSettings?
     let icon: URL
-    let isEthereumBased: Bool
+    let options: [ChainOptions]?
+
+    var isEthereumBased: Bool {
+        options?.contains(.ethereumBased) ?? false
+    }
+
+    var isTestnet: Bool {
+        options?.contains(.testnet) ?? false
+    }
 
     var typesUsage: TypesUsage {
         if let types = types {
@@ -35,4 +44,9 @@ struct ChainModel: Codable, Hashable {
 
 extension ChainModel: Identifiable {
     var identifier: String { chainId }
+}
+
+enum ChainOptions: String, Codable {
+    case ethereumBased
+    case testnet
 }
