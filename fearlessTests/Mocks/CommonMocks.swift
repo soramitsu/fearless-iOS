@@ -3377,6 +3377,104 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+import RobinHood
+
+
+ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = RuntimeProviderFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_RuntimeProviderFactoryProtocol
+     typealias Verification = __VerificationProxy_RuntimeProviderFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: RuntimeProviderFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: RuntimeProviderFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol {
+        
+    return cuckoo_manager.call("createRuntimeProvider(for: ChainModel) -> RuntimeProviderProtocol",
+            parameters: (chain),
+            escapingParameters: (chain),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createRuntimeProvider(for: chain))
+        
+    }
+    
+
+	 struct __StubbingProxy_RuntimeProviderFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func createRuntimeProvider<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel), RuntimeProviderProtocol> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderFactoryProtocol.self, method: "createRuntimeProvider(for: ChainModel) -> RuntimeProviderProtocol", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_RuntimeProviderFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func createRuntimeProvider<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.__DoNotUse<(ChainModel), RuntimeProviderProtocol> where M1.MatchedType == ChainModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
+	        return cuckoo_manager.verify("createRuntimeProvider(for: ChainModel) -> RuntimeProviderProtocol", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class RuntimeProviderFactoryProtocolStub: RuntimeProviderFactoryProtocol {
+    
+
+    
+
+    
+     func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol  {
+        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
 
 
  class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.ProtocolMock {
