@@ -3,7 +3,7 @@
     <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
         <attribute name="assetId" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="icon" optional="YES" attributeType="URI"/>
-        <attribute name="name" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="symbol" attributeType="String"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="assets" inverseEntity="CDChain"/>
@@ -13,7 +13,8 @@
         <attribute name="chainId" attributeType="String"/>
         <attribute name="icon" attributeType="URI"/>
         <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="isTestnet" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="name" attributeType="String"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
@@ -27,7 +28,7 @@
     </entity>
     <entity name="CDChainNode" representedClassName="CDChainNode" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String" defaultValueString=""/>
-        <attribute name="url" optional="YES" attributeType="URI"/>
+        <attribute name="url" attributeType="URI"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="nodes" inverseEntity="CDChain"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -80,7 +81,7 @@
     </entity>
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="119"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="179"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="194"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="74"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>

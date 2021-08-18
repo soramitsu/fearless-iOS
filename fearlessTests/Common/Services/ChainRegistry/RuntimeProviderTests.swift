@@ -28,6 +28,7 @@ class RuntimeProviderTests: XCTestCase {
         let commonTypesFetched = XCTestExpectation()
         let chainTypesFetched = XCTestExpectation()
         let eventSent = XCTestExpectation()
+        let visitorAdd = XCTestExpectation()
 
         let runtimeProvider = performSetup(with: { event in
             if event is RuntimeCoderCreated {
@@ -41,13 +42,15 @@ class RuntimeProviderTests: XCTestCase {
             return CompoundOperationWrapper.createWithResult(chainTypes)
         }, runtimeMetadataClosure: {
             metadata
+        }, eventVisitorClosure: { _ in
+            visitorAdd.fulfill()
         })
 
         runtimeProvider.setup()
 
         // then
 
-        wait(for: [commonTypesFetched, chainTypesFetched, eventSent], timeout: 10)
+        wait(for: [visitorAdd, commonTypesFetched, chainTypesFetched, eventSent], timeout: 10)
 
         XCTAssertNotNil(runtimeProvider.snapshot)
 
@@ -77,7 +80,7 @@ class RuntimeProviderTests: XCTestCase {
             return CompoundOperationWrapper.createWithResult(chainTypes)
         }, runtimeMetadataClosure: {
             nil
-        })
+        }, eventVisitorClosure: nil)
 
         runtimeProvider.setup()
 
@@ -132,7 +135,7 @@ class RuntimeProviderTests: XCTestCase {
             return CompoundOperationWrapper.createWithResult(chainTypes)
         }, runtimeMetadataClosure: {
             return metadata
-        })
+        }, eventVisitorClosure: nil)
 
         // when
 
@@ -192,7 +195,7 @@ class RuntimeProviderTests: XCTestCase {
             return CompoundOperationWrapper.createWithResult(chainTypes)
         }, runtimeMetadataClosure: {
             return metadata
-        })
+        }, eventVisitorClosure: nil)
 
         // when
 
@@ -260,7 +263,7 @@ class RuntimeProviderTests: XCTestCase {
             }
         }, runtimeMetadataClosure: {
             return metadata
-        })
+        }, eventVisitorClosure: nil)
 
         // when
 
@@ -310,7 +313,7 @@ class RuntimeProviderTests: XCTestCase {
             return CompoundOperationWrapper.createWithResult(chainTypes)
         }, runtimeMetadataClosure: {
             metadata
-        })
+        }, eventVisitorClosure: nil)
 
         runtimeProvider.setup()
 
@@ -327,11 +330,23 @@ class RuntimeProviderTests: XCTestCase {
         with eventHandlingClosure: @escaping (EventProtocol) -> (),
         commonTypesFetchClosure: @escaping () -> CompoundOperationWrapper<Data?>,
         chainTypesFetchClosure: @escaping () -> CompoundOperationWrapper<Data?>,
-        runtimeMetadataClosure: @escaping () -> Data?
+        runtimeMetadataClosure: @escaping () -> Data?,
+        eventVisitorClosure: ((EventVisitorProtocol) -> ())?
     ) -> RuntimeProvider {
         let chainModel = ChainModelGenerator.generate(count: 1, withTypes: true).first!
         let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
+
         let eventCenter = MockEventCenterProtocol()
+
+        stub(eventCenter) { stub in
+            stub.notify(with: any()).then { event in
+                eventHandlingClosure(event)
+            }
+
+            stub.add(observer: any(), dispatchIn: any()).then { (visitor, queue) in
+                eventVisitorClosure?(visitor)
+            }
+        }
 
         let storageFacade = SubstrateStorageTestFacade()
         let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
@@ -358,12 +373,6 @@ class RuntimeProviderTests: XCTestCase {
 
             stub.fetchChainTypesOperation(for: any()).then { chainId in
                 return chainTypesFetchClosure()
-            }
-        }
-
-        stub(eventCenter) { stub in
-            stub.notify(with: any()).then { event in
-                eventHandlingClosure(event)
             }
         }
 

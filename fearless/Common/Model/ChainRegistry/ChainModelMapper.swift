@@ -18,7 +18,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
             return AssetModel(
                 assetId: UInt32(bitPattern: asset.assetId),
-                chainId: entity.chainId!,
                 icon: asset.icon,
                 name: asset.name,
                 symbol: asset.symbol!,
@@ -32,7 +31,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             }
 
             return ChainNodeModel(
-                chainId: entity.chainId!,
                 url: node.url!,
                 name: node.name!
             )
@@ -59,6 +57,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         return ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
+            name: entity.name!,
             assets: assets,
             nodes: nodes,
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
@@ -71,6 +70,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
     func populate(entity: CDChain, from model: ChainModel, using context: NSManagedObjectContext) throws {
         entity.chainId = model.chainId
         entity.parentId = model.parentId
+        entity.name = model.name
         entity.types = model.types?.url
         entity.typesOverrideCommon = model.types.map { NSNumber(value: $0.overridesCommon) }
 

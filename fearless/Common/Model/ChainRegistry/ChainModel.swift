@@ -18,6 +18,7 @@ struct ChainModel: Codable, Hashable {
 
     let chainId: Id
     let parentId: Id?
+    let name: String
     let assets: [AssetModel]
     let nodes: [ChainNodeModel]
     let addressPrefix: UInt16

@@ -9,8 +9,8 @@ protocol ChainRegistryProtocol: AnyObject {
 
     func chainsSubscribe(
         _ target: AnyObject,
-        updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void,
-        runningInQueue: DispatchQueue
+        runningInQueue: DispatchQueue,
+        updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
 
     func chainsUnsubscribe(_ target: AnyObject)
@@ -22,6 +22,7 @@ final class ChainRegistry {
     let runtimeProviderPool: RuntimeProviderPoolProtocol
     let connectionPool: ConnectionPoolProtocol
     let chainSyncService: ChainSyncServiceProtocol
+    let runtimeSyncService: RuntimeSyncServiceProtocol
     let commonTypesSyncService: CommonTypesSyncServiceProtocol
     let chainProvider: StreamableProvider<ChainModel>
     let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
@@ -36,6 +37,7 @@ final class ChainRegistry {
         runtimeProviderPool: RuntimeProviderPoolProtocol,
         connectionPool: ConnectionPoolProtocol,
         chainSyncService: ChainSyncServiceProtocol,
+        runtimeSyncService: RuntimeSyncServiceProtocol,
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
@@ -44,6 +46,7 @@ final class ChainRegistry {
         self.runtimeProviderPool = runtimeProviderPool
         self.connectionPool = connectionPool
         self.chainSyncService = chainSyncService
+        self.runtimeSyncService = runtimeSyncService
         self.commonTypesSyncService = commonTypesSyncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
@@ -95,6 +98,8 @@ final class ChainRegistry {
                     let connection = try connectionPool.setupConnection(for: newChain)
                     _ = runtimeProviderPool.setupRuntimeProvider(for: newChain)
 
+                    runtimeSyncService.register(chain: newChain, with: connection)
+
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
                 case let .update(updatedChain):
                     _ = try connectionPool.setupConnection(for: updatedChain)
@@ -102,6 +107,8 @@ final class ChainRegistry {
                 case let .delete(chainId):
                     runtimeProviderPool.destroyRuntimeProvider(for: chainId)
                     clearRuntimeSubscription(for: chainId)
+
+                    runtimeSyncService.unregister(chainId: chainId)
                 }
             } catch {
                 logger?.error("Unexpected error on handling chains update: \(error)")
@@ -167,8 +174,8 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func chainsSubscribe(
         _ target: AnyObject,
-        updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void,
-        runningInQueue: DispatchQueue
+        runningInQueue: DispatchQueue,
+        updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     ) {
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { changes in
             runningInQueue.async {

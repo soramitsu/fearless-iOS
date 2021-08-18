@@ -4,7 +4,12 @@ import RobinHood
 final class ChainRegistryFactory {
     static func createDefaultRegistry() -> ChainRegistryProtocol {
         let repositoryFacade = SubstrateDataStorageFacade.shared
+        return createDefaultRegistry(from: repositoryFacade)
+    }
 
+    static func createDefaultRegistry(
+        from repositoryFacade: StorageFacadeProtocol
+    ) -> ChainRegistryProtocol {
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
 
@@ -22,7 +27,8 @@ final class ChainRegistryFactory {
             repository: AnyDataProviderRepository(runtimeMetadataRepository),
             filesOperationFactory: filesOperationFactory,
             dataOperationFactory: dataFetchOperationFactory,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
         )
 
         let runtimeProviderFactory = RuntimeProviderFactory(
@@ -30,7 +36,8 @@ final class ChainRegistryFactory {
             repository: AnyDataProviderRepository(runtimeMetadataRepository),
             dataOperationFactory: dataFetchOperationFactory,
             eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.runtimeBuildingQueue
+            operationQueue: OperationManagerFacade.runtimeBuildingQueue,
+            logger: Logger.shared
         )
 
         let runtimeProviderPool = RuntimeProviderPool(
@@ -69,7 +76,8 @@ final class ChainRegistryFactory {
             dataFetchFactory: dataFetchOperationFactory,
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.sharedQueue
+            operationQueue: OperationManagerFacade.sharedQueue,
+            logger: Logger.shared
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(
@@ -89,6 +97,7 @@ final class ChainRegistryFactory {
             runtimeProviderPool: runtimeProviderPool,
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
+            runtimeSyncService: runtimeSyncService,
             commonTypesSyncService: commonTypesSyncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,

@@ -10,6 +10,12 @@ class ChainRegistryTests: XCTestCase {
         let runtimeProviderPool = MockRuntimeProviderPoolProtocol()
         let connectionPool = MockConnectionPoolProtocol()
         let specVersionSubscriptionFactory = MockSpecVersionSubscriptionFactoryProtocol()
+        let runtimeSyncService = MockRuntimeSyncServiceProtocol()
+
+        stub(runtimeSyncService) { stub in
+            stub.register(chain: any(), with: any()).thenDoNothing()
+            stub.unregister(chainId: any()).thenDoNothing()
+        }
 
         let commonTypesSyncService = MockCommonTypesSyncServiceProtocol()
 
@@ -94,6 +100,7 @@ class ChainRegistryTests: XCTestCase {
             runtimeProviderPool: runtimeProviderPool,
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
+            runtimeSyncService: runtimeSyncService,
             commonTypesSyncService: commonTypesSyncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory
@@ -105,7 +112,7 @@ class ChainRegistryTests: XCTestCase {
 
         let expectation = XCTestExpectation()
 
-        registry.chainsSubscribe(self, updateClosure: { changes in
+        registry.chainsSubscribe(self, runningInQueue: .main) { changes in
             guard !changes.isEmpty else {
                 return
             }
@@ -117,8 +124,7 @@ class ChainRegistryTests: XCTestCase {
             }
 
             expectation.fulfill()
-        },
-        runningInQueue: .main)
+        }
 
         // then
 
@@ -131,5 +137,7 @@ class ChainRegistryTests: XCTestCase {
             XCTAssertNotNil(registry.getConnection(for: chain.chainId))
             XCTAssertNotNil(registry.getRuntimeProvider(for: chain.chainId))
         }
+
+        verify(runtimeSyncService, times(chainCount)).register(chain: any(), with: any())
     }
 }
