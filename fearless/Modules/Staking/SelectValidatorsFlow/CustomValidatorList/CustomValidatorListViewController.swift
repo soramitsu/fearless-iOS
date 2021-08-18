@@ -135,7 +135,6 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
 
         if selectedValidatorsCount == 0 {
             enabled = false
-            rootView.proceedButton.applyDisabledStyle()
 
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
@@ -145,7 +144,6 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
 
         } else {
             enabled = true
-            rootView.proceedButton.applyDefaultStyle()
 
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonEnabledTitle(

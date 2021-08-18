@@ -96,7 +96,6 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
         if cellViewModels.count > selectedValidatorsLimit {
             enabled = false
-            rootView.proceedButton.applyDisabledStyle()
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
                     selectedValidatorsLimit,
@@ -105,7 +104,6 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
         } else {
             enabled = true
-            rootView.proceedButton.applyEnabledStyle()
             buttonTitle = R.string.localizable
                 .commonContinue(
                     preferredLanguages: selectedLocale.rLanguages
