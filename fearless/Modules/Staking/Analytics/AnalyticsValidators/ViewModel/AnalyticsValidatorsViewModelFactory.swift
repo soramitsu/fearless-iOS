@@ -85,6 +85,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let chartData = ChartData(amounts: amounts, xAxisValues: ["a", "b"])
             let listTitle = self.determineListTitle(page: page, locale: locale)
             let chartCenterText = self.createChartCenterText(
+                page: page,
                 validators: validatorsWhoOwnedStake,
                 totalEras: totalEras,
                 locale: locale
@@ -146,15 +147,47 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     }
 
     private func createChartCenterText(
+        page: AnalyticsValidatorsPage,
         validators: [AnalyticsValidatorItemViewModel],
         totalEras: Int,
+        locale: Locale
+    ) -> NSAttributedString {
+        switch page {
+        case .activity:
+            let maxDistinctErasCount = validators.map(\.distinctErasCount).max() ?? 0
+            let activeStakingErasPercents = Double(maxDistinctErasCount) / Double(totalEras)
+            let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
+
+            return createChartCenterText(
+                firstLine: "Active staking".uppercased(),
+                secondLine: percentageString,
+                thirdLine: String(format: "%i of %i eras", maxDistinctErasCount, totalEras),
+                locale: locale
+            )
+        case .rewards:
+            let totalRewards = validators.map(\.progress).reduce(0.0, +)
+            let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards))
+                .value(for: locale)
+            return createChartCenterText(
+                firstLine: "Received rewards".uppercased(),
+                secondLine: totalRewardsText,
+                thirdLine: "100%",
+                locale: locale
+            )
+        }
+    }
+
+    private func createChartCenterText(
+        firstLine: String,
+        secondLine: String,
+        thirdLine: String,
         locale _: Locale
     ) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = NSTextAlignment.center
 
         let activeStakingText = NSAttributedString(
-            string: "Active staking".uppercased(),
+            string: firstLine,
             attributes: [
                 NSAttributedString.Key.foregroundColor: R.color.colorAccent()!,
                 NSAttributedString.Key.font: UIFont.capsTitle,
@@ -162,11 +195,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             ]
         )
 
-        let maxDistinctErasCount = validators.map(\.distinctErasCount).max() ?? 0
-        let activeStakingErasPercents = Double(maxDistinctErasCount) / Double(totalEras)
-        let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
         let percentsText = NSAttributedString(
-            string: percentageString,
+            string: secondLine,
             attributes: [
                 NSAttributedString.Key.foregroundColor: R.color.colorWhite()!,
                 NSAttributedString.Key.font: UIFont.h2Title,
@@ -175,7 +205,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         )
 
         let erasRangeText = NSAttributedString(
-            string: String(format: "%i of %i eras", maxDistinctErasCount, totalEras),
+            string: thirdLine,
             attributes: [
                 NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!,
                 NSAttributedString.Key.font: UIFont.h5Title,
