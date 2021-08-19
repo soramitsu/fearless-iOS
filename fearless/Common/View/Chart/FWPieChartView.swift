@@ -10,7 +10,7 @@ final class FWPieChartView: PieChartView {
         super.init(frame: frame)
 
         drawEntryLabelsEnabled = false
-        holeRadiusPercent = 0.8
+        holeRadiusPercent = 0.85
         holeColor = .clear
         drawEntryLabelsEnabled = false
         usePercentValuesEnabled = false
@@ -25,10 +25,7 @@ final class FWPieChartView: PieChartView {
 
 extension FWPieChartView: FWPieChartViewProtocol {
     func setChartData(_ data: ChartData) {
-        let entries = data.amounts.map { amount -> PieChartDataEntry in
-            // IMPORTANT: In a PieChart, no values (Entry) should have the same xIndex (even if from different DataSets), since no values can be drawn above each other.
-            PieChartDataEntry(value: amount)
-        }
+        let entries = data.amounts.map { PieChartDataEntry(value: $0) }
 
         let set = PieChartDataSet(entries: entries)
         set.drawIconsEnabled = false

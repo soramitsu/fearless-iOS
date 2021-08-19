@@ -25,12 +25,12 @@ final class AnalyticsValidatorsHeaderView: UIView {
         pieChart.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(32)
             make.centerX.equalToSuperview()
-            make.size.equalTo(200)
+            make.size.equalTo(240)
         }
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(pieChart.snp.bottom).offset(32)
+            make.top.equalTo(pieChart.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(8)
         }
