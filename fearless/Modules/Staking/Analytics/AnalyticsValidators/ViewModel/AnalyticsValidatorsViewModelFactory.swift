@@ -77,9 +77,11 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             .sorted(by: { $0.amount > $1.amount })
 
             let validatorsWhoDontOwnStake = self.findValidatorsWhoDontOwnStake(
+                page: page,
                 nomination: nomination,
                 distinctValidators: distinctValidators,
-                identitiesByAddress: identitiesByAddress
+                identitiesByAddress: identitiesByAddress,
+                locale: locale
             )
 
             let listTitle = self.determineListTitle(page: page, locale: locale)
@@ -114,11 +116,21 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     }
 
     private func findValidatorsWhoDontOwnStake(
+        page: AnalyticsValidatorsPage,
         nomination: Nomination,
         distinctValidators: Set<String>,
-        identitiesByAddress: [AccountAddress: AccountIdentity]?
+        identitiesByAddress: [AccountAddress: AccountIdentity]?,
+        locale: Locale
     ) -> [AnalyticsValidatorItemViewModel] {
         let addressFactory = SS58AddressFactory()
+        let progressText: String = {
+            switch page {
+            case .activity:
+                return activityProgressDescription(percents: 0, erasCount: 0)
+            case .rewards:
+                return balanceViewModelFactory.amountFromValue(0).value(for: locale)
+            }
+        }()
         return nomination
             .targets
             .compactMap { validatorId in
@@ -138,7 +150,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     validatorName: validatorName,
                     amount: 0,
                     progressPercents: 0,
-                    progressText: self.activityProgressDescription(percents: 0, erasCount: 0),
+                    progressText: progressText,
                     validatorAddress: address
                 )
             }
