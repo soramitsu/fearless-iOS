@@ -8,7 +8,6 @@ struct AnalyticsValidatorsViewFactory {
     static func createView() -> AnalyticsValidatorsViewProtocol? {
         let settings = SettingsManager.shared
         let logger = Logger.shared
-        let operationManager = OperationManagerFacade.sharedManager
 
         let selectedConnection = settings.selectedConnection
         let selectedType = selectedConnection.type
@@ -16,29 +15,7 @@ struct AnalyticsValidatorsViewFactory {
         guard let selectedAddress = settings.selectedAccount?.address else { return nil }
         guard let engine = WebSocketService.shared.connection else { return nil }
 
-        let requestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: requestFactory)
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let interactor = AnalyticsValidatorsInteractor(
-            selectedAddress: selectedAddress,
-            substrateProviderFactory: substrateProviderFactory,
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            identityOperationFactory: identityOperationFactory,
-            operationManager: operationManager,
-            engine: engine,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            storageRequestFactory: requestFactory,
-            chain: chain
-        )
-
+        let interactor = createInteractor(selectedAddress: selectedAddress, chain: chain, engine: engine)
         let wireframe = AnalyticsValidatorsWireframe()
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -66,5 +43,38 @@ struct AnalyticsValidatorsViewFactory {
         interactor.presenter = presenter
 
         return view
+    }
+
+    private static func createInteractor(
+        selectedAddress: AccountAddress,
+        chain: Chain,
+        engine: JSONRPCEngine
+    ) -> AnalyticsValidatorsInteractor {
+        let operationManager = OperationManagerFacade.sharedManager
+        let logger = Logger.shared
+
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: requestFactory)
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let interactor = AnalyticsValidatorsInteractor(
+            selectedAddress: selectedAddress,
+            substrateProviderFactory: substrateProviderFactory,
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            identityOperationFactory: identityOperationFactory,
+            operationManager: operationManager,
+            engine: engine,
+            runtimeService: RuntimeRegistryFacade.sharedService,
+            storageRequestFactory: requestFactory,
+            chain: chain
+        )
+        return interactor
     }
 }
