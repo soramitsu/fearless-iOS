@@ -88,10 +88,8 @@ class CommonTypesSyncService {
         isSyncing = false
         retryAttempt = 0
 
-        DispatchQueue.main.async { [weak self] in
-            let event = RuntimeCommonTypesSyncCompleted(fileHash: remoteHash.toHex())
-            self?.eventCenter.notify(with: event)
-        }
+        let event = RuntimeCommonTypesSyncCompleted(fileHash: remoteHash.toHex())
+        eventCenter.notify(with: event)
     }
 
     private func handleFailure(with _: Error) {

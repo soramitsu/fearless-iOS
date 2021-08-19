@@ -102,9 +102,7 @@ class ChainRegistryIntegrationTests: XCTestCase {
                 queryExpectation.fulfill()
             }
 
-            operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: false)
-
-            wait(for: [queryExpectation], timeout: 10.0)
+            operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: true)
 
             do {
                 let accountInfo = try wrapper.targetOperation.extractNoCancellableResultData()

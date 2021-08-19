@@ -91,20 +91,16 @@ final class RuntimeProvider {
 
                 resolveRequests()
 
-                DispatchQueue.main.async {
-                    let event = RuntimeCoderCreated(chainId: self.chainId)
-                    self.eventCenter.notify(with: event)
-                }
+                let event = RuntimeCoderCreated(chainId: chainId)
+                eventCenter.notify(with: event)
             }
         case let .failure(error):
             currentWrapper = nil
 
             logger?.debug("Failed to build snapshot for \(chainId): \(error)")
 
-            DispatchQueue.main.async {
-                let event = RuntimeCoderCreationFailed(chainId: self.chainId, error: error)
-                self.eventCenter.notify(with: event)
-            }
+            let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
+            eventCenter.notify(with: event)
         case .none:
             break
         }
@@ -204,6 +200,27 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 
         resolveRequests()
     }
+
+    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        ClosureOperation { [weak self] in
+            var fetchedFactory: RuntimeCoderFactoryProtocol?
+
+            let semaphore = DispatchSemaphore(value: 0)
+
+            self?.fetchCoderFactory(runCompletionIn: nil) { [weak semaphore] factory in
+                fetchedFactory = factory
+                semaphore?.signal()
+            }
+
+            semaphore.wait()
+
+            guard let factory = fetchedFactory else {
+                throw RuntimeProviderError.providerUnavailable
+            }
+
+            return factory
+        }
+    }
 }
 
 extension RuntimeProvider: EventVisitorProtocol {
@@ -270,26 +287,5 @@ extension RuntimeProvider: EventVisitorProtocol {
         logger?.debug("Will start building snapshot after common types update for \(chainId)")
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
-    }
-
-    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        ClosureOperation { [weak self] in
-            var fetchedFactory: RuntimeCoderFactoryProtocol?
-
-            let semaphore = DispatchSemaphore(value: 0)
-
-            self?.fetchCoderFactory(runCompletionIn: nil) { [weak semaphore] factory in
-                fetchedFactory = factory
-                semaphore?.signal()
-            }
-
-            semaphore.wait()
-
-            guard let factory = fetchedFactory else {
-                throw RuntimeProviderError.providerUnavailable
-            }
-
-            return factory
-        }
     }
 }

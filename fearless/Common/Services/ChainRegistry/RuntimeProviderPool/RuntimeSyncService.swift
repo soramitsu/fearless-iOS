@@ -114,7 +114,7 @@ final class RuntimeSyncService {
         dependencies.forEach { processingOperation.addDependency($0) }
 
         processingOperation.completionBlock = { [weak self] in
-            DispatchQueue.global().async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     let result = try processingOperation.extractNoCancellableResultData()
                     self?.processSyncResult(result)
@@ -154,9 +154,7 @@ final class RuntimeSyncService {
 
         addRetryRequestIfNeeded(for: result)
 
-        DispatchQueue.main.async { [weak self] in
-            self?.notifyCompletion(for: result)
-        }
+        notifyCompletion(for: result)
     }
 
     private func addRetryRequestIfNeeded(for result: SyncResult) {

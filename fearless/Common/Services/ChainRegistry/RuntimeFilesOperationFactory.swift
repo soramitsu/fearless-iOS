@@ -8,7 +8,7 @@ import RobinHood
 
 protocol RuntimeFilesOperationFactoryProtocol {
     /**
-     *  Constructs an operations wrapper that fetches data of the
+     *  Constructs an operations wrapper that fetches data of
      *  common runtime types from corresponding file.
      *
      *  - Returns: `CompoundOperationWrapper` which produces data
