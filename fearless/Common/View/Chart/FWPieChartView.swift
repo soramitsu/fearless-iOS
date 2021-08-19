@@ -32,6 +32,7 @@ extension FWPieChartView: FWPieChartViewProtocol {
 
         let set = PieChartDataSet(entries: entries)
         set.drawIconsEnabled = false
+        set.drawValuesEnabled = false
         set.sliceSpace = 4
 
         set.colors = [R.color.colorAccent()!]
