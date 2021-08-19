@@ -30,13 +30,13 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             self.percentFormatter.locale = locale
 
             let totalEras = self.totalErasCount(eraValidatorInfos: eraValidatorInfos)
-
+            let totalRewards = self.totalRewardOfStash(address: stashAddress, rewards: rewards)
             let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
 
             let validatorsWhoOwnedStake: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
                 let icon = try? self.iconGenerator.generateFromAddress(address)
                 let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-                let (progress, distinctErasCount, progressText): (Double, Int, String) = {
+                let (progressPercents, amount, progressText): (Double, Double, String) = {
                     switch page {
                     case .activity:
                         let infos = eraValidatorInfos.filter { $0.address == address }
@@ -45,7 +45,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
                         let percents = Double(distinctErasCount) / Double(totalEras)
                         let text = self.activityProgressDescription(percents: percents, erasCount: distinctErasCount)
-                        return (percents, distinctErasCount, text)
+                        return (percents, Double(distinctErasCount), text)
                     case .rewards:
                         let rewardsOfValidator = rewards.filter { reward in
                             reward.stashAddress == stashAddress && reward.validatorAddress == address
@@ -57,23 +57,24 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                             )
                             return amount + (decimal ?? 0.0)
                         }
-                        let totalAmounText = self.balanceViewModelFactory
+                        let totalAmountText = self.balanceViewModelFactory
                             .amountFromValue(totalAmount).value(for: locale)
-                        let double = NSDecimalNumber(decimal: totalAmount).doubleValue
-                        return (double, 0, totalAmounText)
+                        let amountDouble = NSDecimalNumber(decimal: totalAmount).doubleValue
+                        let percents = amountDouble / totalRewards
+                        return (percents, amountDouble, totalAmountText)
                     }
                 }()
 
                 return .init(
                     icon: icon,
                     validatorName: validatorName,
-                    progress: progress,
-                    distinctErasCount: distinctErasCount,
+                    amount: amount,
+                    progressPercents: progressPercents,
                     progressText: progressText,
                     validatorAddress: address
                 )
             }
-            .sorted(by: { $0.progress > $1.progress })
+            .sorted(by: { $0.amount > $1.amount })
 
             let validatorsWhoDontOwnStake = self.findValidatorsWhoDontOwnStake(
                 nomination: nomination,
@@ -81,7 +82,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 identitiesByAddress: identitiesByAddress
             )
 
-            let amounts = validatorsWhoOwnedStake.map(\.progress)
+            let amounts = validatorsWhoOwnedStake.map(\.amount)
             let chartData = ChartData(amounts: amounts, xAxisValues: ["a", "b"])
             let listTitle = self.determineListTitle(page: page, locale: locale)
             let chartCenterText = self.createChartCenterText(
@@ -129,8 +130,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 return AnalyticsValidatorItemViewModel(
                     icon: icon,
                     validatorName: validatorName,
-                    progress: 0,
-                    distinctErasCount: 0,
+                    amount: 0,
+                    progressPercents: 0,
                     progressText: self.activityProgressDescription(percents: 0, erasCount: 0),
                     validatorAddress: address
                 )
@@ -154,7 +155,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     ) -> NSAttributedString {
         switch page {
         case .activity:
-            let maxDistinctErasCount = validators.map(\.distinctErasCount).max() ?? 0
+            let maxDistinctErasCount = validators.map(\.amount).max() ?? 0
             let activeStakingErasPercents = Double(maxDistinctErasCount) / Double(totalEras)
             let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
 
@@ -165,7 +166,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 locale: locale
             )
         case .rewards:
-            let totalRewards = validators.map(\.progress).reduce(0.0, +)
+            let totalRewards = validators.map(\.amount).reduce(0.0, +)
             let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards))
                 .value(for: locale)
             return createChartCenterText(
@@ -224,5 +225,20 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     func totalErasCount(eraValidatorInfos: [SQEraValidatorInfo]) -> Int {
         let distinctEras = Set<EraIndex>(eraValidatorInfos.map(\.era))
         return distinctEras.count
+    }
+
+    func totalRewardOfStash(
+        address: AccountAddress,
+        rewards: [SubqueryRewardItemData]
+    ) -> Double {
+        let rewardsOfStash = rewards.filter { $0.stashAddress == address }
+        let totalAmount = rewardsOfStash.reduce(Decimal(0)) { amount, info in
+            let decimal = Decimal.fromSubstrateAmount(
+                info.amount,
+                precision: self.chain.addressType.precision
+            )
+            return amount + (decimal ?? 0.0)
+        }
+        return NSDecimalNumber(decimal: totalAmount).doubleValue
     }
 }

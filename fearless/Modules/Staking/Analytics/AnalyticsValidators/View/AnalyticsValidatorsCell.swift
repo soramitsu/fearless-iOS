@@ -30,7 +30,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
         return view
     }()
 
-    private var progressValue: Double = 0.0
+    private var progressPercents: Double = 0.0
     private var widthConstraint: Constraint?
 
     let progressValueLabel: UILabel = {
@@ -69,7 +69,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        progressValue = 0
+        progressPercents = 0
     }
 
     private enum Constants {
@@ -82,7 +82,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
 
         separatorInset = .init(top: 0, left: UIConstants.horizontalInset, bottom: 0, right: UIConstants.horizontalInset)
 
-        guard progressValue > 0 else {
+        guard progressPercents > 0 else {
             widthConstraint?.update(offset: 0)
             progressStackView.setCustomSpacing(0, after: progressView)
             return
@@ -95,7 +95,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
             - progressValueLabel.bounds.width
 
         progressStackView.setCustomSpacing(Constants.progressValueSpacing, after: progressView)
-        let progressViewWidth = totalWidth * CGFloat(progressValue)
+        let progressViewWidth = totalWidth * CGFloat(progressPercents)
         widthConstraint?.update(offset: progressViewWidth)
     }
 
@@ -124,7 +124,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
         iconView.snp.makeConstraints { $0.size.equalTo(24) }
         progressView.snp.makeConstraints { make in
             make.height.equalTo(4)
-            widthConstraint = make.width.equalTo(progressValue).constraint
+            widthConstraint = make.width.equalTo(progressPercents).constraint
         }
         contentView.addSubview(content)
         content.snp.makeConstraints { make in
@@ -145,6 +145,6 @@ final class AnalyticsValidatorsCell: UITableViewCell {
         }
         nameLabel.text = viewModel.validatorName
         progressValueLabel.text = viewModel.progressText
-        progressValue = viewModel.progress
+        progressPercents = viewModel.progressPercents
     }
 }
