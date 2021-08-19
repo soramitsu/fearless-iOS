@@ -1,23 +1,89 @@
 import Foundation
 import RobinHood
 
+/**
+ *  Protocol is designed for fetching and saving files representing runtime
+ *  types.
+ */
+
 protocol RuntimeFilesOperationFactoryProtocol {
+    /**
+     *  Constructs an operations wrapper that fetches data of the
+     *  common runtime types from corresponding file.
+     *
+     *  - Returns: `CompoundOperationWrapper` which produces data
+     *  in case file exists on device and `nil` otherwise.
+     */
     func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>
+
+    /**
+     *  Constructs an operations wrapper that fetches data of the
+     *  runtime types from a file which matches concrete chain's id.
+     *
+     *  - Parameters:
+     *      - chainId: Idetifier of a chain for which runtime types data
+     *  must be fetched.
+     *
+     *  - Returns: `CompoundOperationWrapper` which produces data
+     *  in case file exists on device and `nil` otherwise.
+     */
     func fetchChainTypesOperation(for chainId: ChainModel.Id) -> CompoundOperationWrapper<Data?>
 
+    /**
+     *  Constructs an operations wrapper that saves data of the
+     *  runtime types to the corresponding file.
+     *
+     *  - Parameters:
+     *      - closure: A closure that returns file's data on call. It is guaranteed that
+     *       the closure will be called as part of the wrapper execution and not earlier.
+     *       This allows to make save wrapper to depend on another operation which fetches
+     *       the file from another source asynchroniously.
+     *
+     *  - Returns: `CompoundOperationWrapper` which produces nothing if completes successfully.
+     */
     func saveCommonTypesOperation(
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void>
 
+    /**
+     *  Constructs an operations wrapper that saves data of the
+     *  chain's specific runtime types to the corresponding file.
+     *
+     *  - Parameters:
+     *      - chainId: Identifier of the chain for which runtime types must be stored
+     *      - closure: A closure that returns file's data on call. It is guaranteed that
+     *       the closure will be called as part of the wrapper execution and not earlier.
+     *       This allows to make save wrapper to depend on another operation which fetches
+     *       the file from another source asynchroniously.
+     *
+     *  - Returns: `CompoundOperationWrapper` which produces nothing if completes successfully.
+     */
     func saveChainTypesOperation(
         for chainId: ChainModel.Id,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void>
 }
 
+/**
+ *  Class is designed to provide runtime types file management functions. Instance of the class
+ *  contains instance of the `FileRepositoryProtocol` which performs file reading and
+ *  writing and directory where files should be stored.
+ */
+
 final class RuntimeFilesOperationFactory {
+    /// Engine that reads and writes files from filesystem
     let repository: FileRepositoryProtocol
+
+    /// Path to the directory where files are stored
     let directoryPath: String
+
+    /**
+     *  Creates instance a new instance for runtime types management.
+     *
+     *  - Parameters:
+     *      - repository: Engine that reads and writes files from filesystem;
+     *      - directory: Path to the directory where files are stored.
+     */
 
     init(repository: FileRepositoryProtocol, directoryPath: String) {
         self.repository = repository
