@@ -8,6 +8,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let chain: Chain
+    private let percentFormatter = NumberFormatter.percent
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
@@ -26,6 +27,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         page: AnalyticsValidatorsPage
     ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
         LocalizableResource { locale in
+            self.percentFormatter.locale = locale
+
             let totalEras = self.totalErasCount(eraValidatorInfos: eraValidatorInfos)
 
             let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
@@ -40,12 +43,12 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         let distinctEras = Set<EraIndex>(infos.map(\.era))
                         let distinctErasCount = distinctEras.count
 
-                        let percents = Int(Double(distinctErasCount) / Double(totalEras) * 100.0)
-                        return (Double(percents), distinctErasCount, "\(percents)% (\(distinctErasCount) eras)")
+                        let percents = Double(distinctErasCount) / Double(totalEras)
+                        let text = self.activityProgressDescription(percents: percents, erasCount: distinctErasCount)
+                        return (percents, distinctErasCount, text)
                     case .rewards:
                         let rewardsOfValidator = rewards.filter { reward in
                             reward.stashAddress == stashAddress && reward.validatorAddress == address
-                            // TODO: && filter by era
                         }
                         let totalAmount = rewardsOfValidator.reduce(Decimal(0)) { amount, info in
                             let decimal = Decimal.fromSubstrateAmount(
@@ -72,30 +75,11 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             }
             .sorted(by: { $0.progress > $1.progress })
 
-            let addressFactory = SS58AddressFactory()
-            let validatorsWhoDontOwnStake: [AnalyticsValidatorItemViewModel] = nomination
-                .targets
-                .compactMap { validatorId in
-                    let validatorAddress = try? addressFactory.addressFromAccountId(
-                        data: validatorId,
-                        type: self.chain.addressType
-                    )
-                    guard
-                        let address = validatorAddress,
-                        !distinctValidators.contains(address)
-                    else { return nil }
-
-                    let icon = try? self.iconGenerator.generateFromAddress(address)
-                    let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-                    return AnalyticsValidatorItemViewModel(
-                        icon: icon,
-                        validatorName: validatorName,
-                        progress: 0,
-                        distinctErasCount: 0,
-                        progressText: "0",
-                        validatorAddress: address
-                    )
-                }
+            let validatorsWhoDontOwnStake = self.findValidatorsWhoDontOwnStake(
+                nomination: nomination,
+                distinctValidators: distinctValidators,
+                identitiesByAddress: identitiesByAddress
+            )
 
             let amounts = validatorsWhoOwnedStake.map(\.progress)
             let chartData = ChartData(amounts: amounts, xAxisValues: ["a", "b"])
@@ -116,6 +100,42 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         }
     }
 
+    private func activityProgressDescription(percents: Double, erasCount: Int) -> String {
+        let percentsString = percentFormatter.string(from: percents as NSNumber) ?? ""
+        return percentsString + " (\(erasCount) eras)"
+    }
+
+    private func findValidatorsWhoDontOwnStake(
+        nomination: Nomination,
+        distinctValidators: Set<String>,
+        identitiesByAddress: [AccountAddress: AccountIdentity]?
+    ) -> [AnalyticsValidatorItemViewModel] {
+        let addressFactory = SS58AddressFactory()
+        return nomination
+            .targets
+            .compactMap { validatorId in
+                let validatorAddress = try? addressFactory.addressFromAccountId(
+                    data: validatorId,
+                    type: self.chain.addressType
+                )
+                guard
+                    let address = validatorAddress,
+                    !distinctValidators.contains(address)
+                else { return nil }
+
+                let icon = try? self.iconGenerator.generateFromAddress(address)
+                let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
+                return AnalyticsValidatorItemViewModel(
+                    icon: icon,
+                    validatorName: validatorName,
+                    progress: 0,
+                    distinctErasCount: 0,
+                    progressText: self.activityProgressDescription(percents: 0, erasCount: 0),
+                    validatorAddress: address
+                )
+            }
+    }
+
     private func determineListTitle(page: AnalyticsValidatorsPage, locale _: Locale) -> String {
         switch page {
         case .activity:
@@ -128,7 +148,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     private func createChartCenterText(
         validators: [AnalyticsValidatorItemViewModel],
         totalEras: Int,
-        locale: Locale
+        locale _: Locale
     ) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = NSTextAlignment.center
@@ -144,8 +164,6 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         let maxDistinctErasCount = validators.map(\.distinctErasCount).max() ?? 0
         let activeStakingErasPercents = Double(maxDistinctErasCount) / Double(totalEras)
-        let percentFormatter = NumberFormatter.percent
-        percentFormatter.locale = locale
         let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
         let percentsText = NSAttributedString(
             string: percentageString,
@@ -176,31 +194,5 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     func totalErasCount(eraValidatorInfos: [SQEraValidatorInfo]) -> Int {
         let distinctEras = Set<EraIndex>(eraValidatorInfos.map(\.era))
         return distinctEras.count
-    }
-
-    func progressDescription(
-        page: AnalyticsValidatorsPage,
-        validatorInfo: SQEraValidatorInfo,
-        totalErasCount: Int,
-        locale: Locale
-    ) -> String {
-        switch page {
-        case .activity:
-            return progressDescriptionStake(
-                validatorInfo: validatorInfo,
-                totalErasCount: totalErasCount,
-                locale: locale
-            )
-        case .rewards:
-            return "0 KSM"
-        }
-    }
-
-    func progressDescriptionStake(
-        validatorInfo _: SQEraValidatorInfo,
-        totalErasCount: Int,
-        locale _: Locale
-    ) -> String {
-        "(\(totalErasCount) eras)"
     }
 }

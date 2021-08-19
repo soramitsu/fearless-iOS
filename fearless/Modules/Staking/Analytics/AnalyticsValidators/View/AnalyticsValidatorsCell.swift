@@ -95,7 +95,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
             - progressValueLabel.bounds.width
 
         progressStackView.setCustomSpacing(Constants.progressValueSpacing, after: progressView)
-        let progressViewWidth = totalWidth * CGFloat(progressValue / 100.0)
+        let progressViewWidth = totalWidth * CGFloat(progressValue)
         widthConstraint?.update(offset: progressViewWidth)
     }
 
