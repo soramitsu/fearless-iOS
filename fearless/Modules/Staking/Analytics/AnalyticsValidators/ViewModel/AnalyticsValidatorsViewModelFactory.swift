@@ -82,8 +82,6 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 identitiesByAddress: identitiesByAddress
             )
 
-            let amounts = validatorsWhoOwnedStake.map(\.amount)
-            let chartData = ChartData(amounts: amounts, xAxisValues: ["a", "b"])
             let listTitle = self.determineListTitle(page: page, locale: locale)
             let chartCenterText = self.createChartCenterText(
                 page: page,
@@ -92,8 +90,16 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 locale: locale
             )
 
+            let amounts = validatorsWhoOwnedStake.map(\.progressPercents)
+            let inactiveSegmentValue = self.findInactiveSegmentValue(
+                page: page,
+                eraValidatorInfos: eraValidatorInfos,
+                totalEras: totalEras
+            )
+
             return AnalyticsValidatorsViewModel(
-                chartData: chartData,
+                pieChartSegmentValues: amounts,
+                pieChartInactiveSegmentValue: inactiveSegmentValue,
                 chartCenterText: chartCenterText,
                 listTitle: listTitle,
                 validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
@@ -162,7 +168,10 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             return createChartCenterText(
                 firstLine: "Active staking".uppercased(),
                 secondLine: percentageString,
-                thirdLine: String(format: "%i of %i eras", maxDistinctErasCount, totalEras),
+                thirdLine: String(
+                    format: "%@ of %@ eras",
+                    Int(maxDistinctErasCount).description, totalEras.description
+                ),
                 locale: locale
             )
         case .rewards:
@@ -240,5 +249,23 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             return amount + (decimal ?? 0.0)
         }
         return NSDecimalNumber(decimal: totalAmount).doubleValue
+    }
+
+    private func findInactiveSegmentValue(
+        page: AnalyticsValidatorsPage,
+        eraValidatorInfos: [SQEraValidatorInfo],
+        totalEras: Int
+    ) -> Double? {
+        guard case .activity = page else {
+            return nil
+        }
+        let erasRange: Range<EraIndex> = {
+            let eras = eraValidatorInfos.map(\.era)
+            return (eras.min() ?? 0) ..< (eras.max() ?? 0)
+        }()
+        let setOfEras: Set<EraIndex> = Set(erasRange)
+
+        let inactiveErasCount = totalEras - setOfEras.count
+        return Double(inactiveErasCount) / Double(setOfEras.count)
     }
 }

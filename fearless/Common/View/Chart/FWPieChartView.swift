@@ -1,7 +1,8 @@
 import UIKit
 import Charts
 
-protocol FWPieChartViewProtocol: FWChartViewProtocol {
+protocol FWPieChartViewProtocol {
+    func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?)
     func setCenterText(_ text: NSAttributedString)
 }
 
@@ -24,17 +25,21 @@ final class FWPieChartView: PieChartView {
 }
 
 extension FWPieChartView: FWPieChartViewProtocol {
-    func setChartData(_ data: ChartData) {
-        let entries = data.amounts.map { PieChartDataEntry(value: $0) }
+    func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?) {
+        let entries = segmentValues.map { PieChartDataEntry(value: $0) }
 
         let set = PieChartDataSet(entries: entries)
         set.drawIconsEnabled = false
         set.drawValuesEnabled = false
         set.sliceSpace = 4
 
-        set.colors = [R.color.colorAccent()!]
+        set.colors = segmentValues.map { _ in R.color.colorAccent()! }
 
         let data = PieChartData(dataSet: set)
+        if let inactiveSegmentValue = inactiveSegmentValue {
+            set.append(PieChartDataEntry(value: inactiveSegmentValue))
+            set.colors.append(R.color.colorDarkGray()!)
+        }
         self.data = data
     }
 

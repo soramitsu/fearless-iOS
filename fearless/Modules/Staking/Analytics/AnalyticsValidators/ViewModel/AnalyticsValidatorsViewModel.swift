@@ -1,7 +1,8 @@
 import Foundation
 
 struct AnalyticsValidatorsViewModel {
-    let chartData: ChartData
+    let pieChartSegmentValues: [Double]
+    let pieChartInactiveSegmentValue: Double?
     let chartCenterText: NSAttributedString
     let listTitle: String
     let validators: [AnalyticsValidatorItemViewModel]
