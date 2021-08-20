@@ -27,7 +27,7 @@ final class ChainRegistryFactory {
     // swiftlint:disable function_body_length
 
     /**
-     *  Creates chain registry with provided database manager. This function must used when
+     *  Creates chain registry with provided database manager. This function must be used when
      *  there is a need to override `createDefaultRegistry()` behavior that stores database on disk.
      *  For example, in tests it is more conveinent to use in-memory database.
      *
