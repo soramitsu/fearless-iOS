@@ -12,6 +12,8 @@ class ChainRegistryIntegrationTests: XCTestCase {
             from: SubstrateStorageTestFacade()
         )
 
+        chainRegistry.syncUp()
+
         var availableChains: [ChainModel.Id: ChainModel] = [:]
 
         let syncExpectation = XCTestExpectation()

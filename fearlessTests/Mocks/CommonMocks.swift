@@ -2505,16 +2505,16 @@ import Foundation
     
     
     
-     func getConnetion(for chainId: ChainModel.Id) -> ChainConnection? {
+     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
         
-    return cuckoo_manager.call("getConnetion(for: ChainModel.Id) -> ChainConnection?",
+    return cuckoo_manager.call("getConnection(for: ChainModel.Id) -> ChainConnection?",
             parameters: (chainId),
             escapingParameters: (chainId),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.getConnetion(for: chainId))
+            defaultCall: __defaultImplStub!.getConnection(for: chainId))
         
     }
     
@@ -2532,9 +2532,9 @@ import Foundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method: "setupConnection(for: ChainModel) throws -> ChainConnection", parameterMatchers: matchers))
 	    }
 	    
-	    func getConnetion<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+	    func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
 	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method: "getConnetion(for: ChainModel.Id) -> ChainConnection?", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method: "getConnection(for: ChainModel.Id) -> ChainConnection?", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -2560,9 +2560,9 @@ import Foundation
 	    }
 	    
 	    @discardableResult
-	    func getConnetion<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+	    func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
 	        let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
-	        return cuckoo_manager.verify("getConnetion(for: ChainModel.Id) -> ChainConnection?", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("getConnection(for: ChainModel.Id) -> ChainConnection?", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -2578,7 +2578,7 @@ import Foundation
         return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
     }
     
-     func getConnetion(for chainId: ChainModel.Id) -> ChainConnection?  {
+     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?  {
         return DefaultValueRegistry.defaultValue(for: (ChainConnection?).self)
     }
     

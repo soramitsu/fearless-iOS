@@ -53,7 +53,6 @@ final class ChainRegistry {
         self.logger = logger
 
         subscribeToChains()
-        syncUpServices()
     }
 
     private func subscribeToChains() {
@@ -159,7 +158,7 @@ extension ChainRegistry: ChainRegistryProtocol {
             mutex.unlock()
         }
 
-        return connectionPool.getConnetion(for: chainId)
+        return connectionPool.getConnection(for: chainId)
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {

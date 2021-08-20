@@ -2,7 +2,7 @@ import Foundation
 
 protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
-    func getConnetion(for chainId: ChainModel.Id) -> ChainConnection?
+    func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
 }
 
 class ConnectionPool {
@@ -43,7 +43,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         return connection
     }
 
-    func getConnetion(for chainId: ChainModel.Id) -> ChainConnection? {
+    func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
         mutex.lock()
 
         defer {

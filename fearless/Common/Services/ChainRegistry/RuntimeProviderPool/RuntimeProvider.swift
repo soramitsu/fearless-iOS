@@ -207,9 +207,9 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            self?.fetchCoderFactory(runCompletionIn: nil) { [weak semaphore] factory in
+            self?.fetchCoderFactory(runCompletionIn: nil) { factory in
                 fetchedFactory = factory
-                semaphore?.signal()
+                semaphore.signal()
             }
 
             semaphore.wait()

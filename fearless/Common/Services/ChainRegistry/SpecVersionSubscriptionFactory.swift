@@ -28,7 +28,7 @@ protocol SpecVersionSubscriptionFactoryProtocol: AnyObject {
 
 final class SpecVersionSubscriptionFactory {
     let runtimeSyncService: RuntimeSyncServiceProtocol
-    let logger: LoggerProtocol
+    let logger: LoggerProtocol?
 
     /**
      *  Creates new subscription factory
@@ -38,7 +38,7 @@ final class SpecVersionSubscriptionFactory {
      *      subscriptions created by the factory;
      *      - logger: logger to provide info for debugging.
      */
-    init(runtimeSyncService: RuntimeSyncServiceProtocol, logger: LoggerProtocol) {
+    init(runtimeSyncService: RuntimeSyncServiceProtocol, logger: LoggerProtocol? = nil) {
         self.runtimeSyncService = runtimeSyncService
         self.logger = logger
     }

@@ -49,7 +49,7 @@ class ChainRegistryTests: XCTestCase {
         stub(connectionPool) { stub in
             let connection = MockConnection()
             stub.setupConnection(for: any()).thenReturn(connection)
-            stub.getConnetion(for: any()).thenReturn(connection)
+            stub.getConnection(for: any()).thenReturn(connection)
         }
 
         let mockSubscription = MockSpecVersionSubscriptionProtocol()
@@ -105,6 +105,8 @@ class ChainRegistryTests: XCTestCase {
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory
         )
+
+        registry.syncUp()
 
         // when
 

@@ -84,7 +84,7 @@ final class RuntimeFilesOperationFactory {
      *
      *  - Parameters:
      *      - repository: Engine that reads and writes files from filesystem;
-     *      - directory: Path to the directory where files are stored.
+     *      - directoryPath: Path to the directory where files are stored.
      */
 
     init(repository: FileRepositoryProtocol, directoryPath: String) {
