@@ -68,6 +68,8 @@ protocol RuntimeFilesOperationFactoryProtocol {
  *  Class is designed to provide runtime types file management functions. Instance of the class
  *  contains instance of the `FileRepositoryProtocol` which performs file reading and
  *  writing and directory where files should be stored.
+ *
+ *  Common types file has `common-types` name. Chain type file hash $(chainId)-types name.
  */
 
 final class RuntimeFilesOperationFactory {
