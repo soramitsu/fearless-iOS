@@ -57,10 +57,8 @@ final class ChainSyncService {
 
         logger?.debug("Will start chain sync with attempt \(retryAttempt)")
 
-        DispatchQueue.main.async { [weak self] in
-            let event = ChainSyncDidStart()
-            self?.eventCenter.notify(with: event)
-        }
+        let event = ChainSyncDidStart()
+        eventCenter.notify(with: event)
 
         executeSync()
     }
@@ -118,7 +116,7 @@ final class ChainSyncService {
         mapOperation.addDependency(localSaveOperation)
 
         mapOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 self?.complete(result: mapOperation.result)
             }
         }

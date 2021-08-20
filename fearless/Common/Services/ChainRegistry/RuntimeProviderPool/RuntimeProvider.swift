@@ -8,9 +8,7 @@ protocol RuntimeProviderProtocol: AnyObject {
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()
-}
 
-protocol RuntimeCodingProtocol {
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol>
 }
 
@@ -31,6 +29,7 @@ final class RuntimeProvider {
     let eventCenter: EventCenterProtocol
     let operationQueue: OperationQueue
     let dataHasher: StorageHasher
+    let logger: LoggerProtocol?
 
     private(set) var snapshot: RuntimeSnapshot?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -42,7 +41,8 @@ final class RuntimeProvider {
         snapshotOperationFactory: RuntimeSnapshotFactoryProtocol,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
-        dataHasher: StorageHasher = .twox256
+        dataHasher: StorageHasher = .twox256,
+        logger: LoggerProtocol? = nil
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -50,6 +50,9 @@ final class RuntimeProvider {
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
         self.dataHasher = dataHasher
+        self.logger = logger
+
+        eventCenter.add(observer: self, dispatchIn: DispatchQueue.global())
     }
 
     private func buildSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
@@ -82,20 +85,22 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
+
+                logger?.debug("Did complete snapshot for: \(chainId)")
+                logger?.debug("Will notify waiters: \(pendingRequests.count)")
+
                 resolveRequests()
 
-                DispatchQueue.main.async {
-                    let event = RuntimeCoderCreated(chainId: self.chainId)
-                    self.eventCenter.notify(with: event)
-                }
+                let event = RuntimeCoderCreated(chainId: chainId)
+                eventCenter.notify(with: event)
             }
         case let .failure(error):
             currentWrapper = nil
 
-            DispatchQueue.main.async {
-                let event = RuntimeCoderCreationFailed(chainId: self.chainId, error: error)
-                self.eventCenter.notify(with: event)
-            }
+            logger?.debug("Failed to build snapshot for \(chainId): \(error)")
+
+            let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
+            eventCenter.notify(with: event)
         case .none:
             break
         }
@@ -195,6 +200,27 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 
         resolveRequests()
     }
+
+    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        ClosureOperation { [weak self] in
+            var fetchedFactory: RuntimeCoderFactoryProtocol?
+
+            let semaphore = DispatchSemaphore(value: 0)
+
+            self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+                fetchedFactory = factory
+                semaphore.signal()
+            }
+
+            semaphore.wait()
+
+            guard let factory = fetchedFactory else {
+                throw RuntimeProviderError.providerUnavailable
+            }
+
+            return factory
+        }
+    }
 }
 
 extension RuntimeProvider: EventVisitorProtocol {
@@ -216,6 +242,8 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper?.cancel()
         currentWrapper = nil
 
+        logger?.debug("Will start building snapshot after chain types update for \(chainId)")
+
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
 
@@ -232,6 +260,8 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         currentWrapper?.cancel()
         currentWrapper = nil
+
+        logger?.debug("Will start building snapshot after metadata update for \(chainId)")
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
@@ -254,29 +284,8 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper?.cancel()
         currentWrapper = nil
 
+        logger?.debug("Will start building snapshot after common types update for \(chainId)")
+
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
-    }
-}
-
-extension RuntimeProvider: RuntimeCodingProtocol {
-    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        ClosureOperation { [weak self] in
-            var fetchedFactory: RuntimeCoderFactoryProtocol?
-
-            let semaphore = DispatchSemaphore(value: 0)
-
-            self?.fetchCoderFactory(runCompletionIn: nil) { [weak semaphore] factory in
-                fetchedFactory = factory
-                semaphore?.signal()
-            }
-
-            semaphore.wait()
-
-            guard let factory = fetchedFactory else {
-                throw RuntimeProviderError.providerUnavailable
-            }
-
-            return factory
-        }
     }
 }

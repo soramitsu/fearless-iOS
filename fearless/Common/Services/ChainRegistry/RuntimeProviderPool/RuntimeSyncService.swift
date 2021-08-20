@@ -42,6 +42,7 @@ final class RuntimeSyncService {
     let retryStrategy: ReconnectionStrategyProtocol
     let operationQueue: OperationQueue
     let dataHasher: StorageHasher
+    let logger: LoggerProtocol?
 
     private(set) var knownChains: [ChainModel.Id: SyncInfo] = [:]
     private(set) var syncingChains: [ChainModel.Id: CompoundOperationWrapper<SyncResult>] = [:]
@@ -56,7 +57,8 @@ final class RuntimeSyncService {
         eventCenter: EventCenterProtocol,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
         maxConcurrentSyncRequests: Int = 8,
-        dataHasher: StorageHasher = .twox256
+        dataHasher: StorageHasher = .twox256,
+        logger: LoggerProtocol? = nil
     ) {
         self.repository = repository
         self.filesOperationFactory = filesOperationFactory
@@ -64,6 +66,7 @@ final class RuntimeSyncService {
         self.retryStrategy = retryStrategy
         self.eventCenter = eventCenter
         self.dataHasher = dataHasher
+        self.logger = logger
 
         let operationQueue = OperationQueue()
         operationQueue.maxConcurrentOperationCount = maxConcurrentSyncRequests
@@ -111,7 +114,7 @@ final class RuntimeSyncService {
         dependencies.forEach { processingOperation.addDependency($0) }
 
         processingOperation.completionBlock = { [weak self] in
-            DispatchQueue.global().async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     let result = try processingOperation.extractNoCancellableResultData()
                     self?.processSyncResult(result)
@@ -151,9 +154,7 @@ final class RuntimeSyncService {
 
         addRetryRequestIfNeeded(for: result)
 
-        DispatchQueue.main.async { [weak self] in
-            self?.notifyCompletion(for: result)
-        }
+        notifyCompletion(for: result)
     }
 
     private func addRetryRequestIfNeeded(for result: SyncResult) {
@@ -208,12 +209,18 @@ final class RuntimeSyncService {
     }
 
     private func notifyCompletion(for result: SyncResult) {
+        logger?.debug("Did complete sync \(result)")
+
         if case let .success(fileHash) = result.typesSyncResult {
+            logger?.debug("Did sync chain type: \(result.chainId)")
+
             let event = RuntimeChainTypesSyncCompleted(chainId: result.chainId, fileHash: fileHash)
             eventCenter.notify(with: event)
         }
 
         if case .success = result.metadataSyncResult, let version = result.runtimeVersion {
+            logger?.debug("Did sync metadata: \(result.chainId)")
+
             let event = RuntimeMetadataSyncCompleted(chainId: result.chainId, version: version)
             eventCenter.notify(with: event)
         }

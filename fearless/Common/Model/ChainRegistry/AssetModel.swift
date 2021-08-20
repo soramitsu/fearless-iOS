@@ -5,9 +5,8 @@ struct AssetModel: Codable, Hashable {
     typealias Id = UInt32
 
     let assetId: Id
-    let chainId: ChainModel.Id
     let icon: URL?
-    let name: String
+    let name: String?
     let symbol: String
     let precision: UInt16
 

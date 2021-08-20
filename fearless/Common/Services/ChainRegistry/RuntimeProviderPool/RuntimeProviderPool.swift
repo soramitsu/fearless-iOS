@@ -31,6 +31,11 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             return runtimeProvider
         } else {
             let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(for: chain)
+
+            runtimeProviders[chain.chainId] = runtimeProvider
+
+            runtimeProvider.setup()
+
             return runtimeProvider
         }
     }

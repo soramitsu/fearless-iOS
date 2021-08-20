@@ -2,7 +2,7 @@ import Foundation
 
 protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
-    func getConnectionStates() throws -> [ConnectionPoolState]
+    func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
 }
 
 class ConnectionPool {
@@ -43,23 +43,13 @@ extension ConnectionPool: ConnectionPoolProtocol {
         return connection
     }
 
-    func getConnectionStates() throws -> [ConnectionPoolState] {
+    func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
         mutex.lock()
 
         defer {
             mutex.unlock()
         }
 
-        clearUnusedConnections()
-
-        let states: [ConnectionPoolState] = connections.compactMap { chainId, weakWrapper in
-            guard let connection = weakWrapper.target as? ConnectionStateReporting else {
-                return nil
-            }
-
-            return ConnectionPoolState(chainId: chainId, state: connection.state)
-        }
-
-        return states
+        return connections[chainId]?.target as? ChainConnection
     }
 }

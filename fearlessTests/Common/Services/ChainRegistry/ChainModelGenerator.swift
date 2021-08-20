@@ -8,7 +8,6 @@ final class ChainModelGenerator {
 
             let asset = AssetModel(
                 assetId: UInt32(index),
-                chainId: chainId,
                 icon: nil,
                 name: chainId,
                 symbol: chainId.prefix(3).uppercased(),
@@ -16,7 +15,6 @@ final class ChainModelGenerator {
             )
 
             let node = ChainNodeModel(
-                chainId: chainId,
                 url: URL(string: "wss://node.io/\(chainId)")!,
                 name: chainId
             )
@@ -28,12 +26,14 @@ final class ChainModelGenerator {
 
             return ChainModel(
                 chainId: chainId,
+                parentId: nil,
+                name: String(chainId.reversed()),
                 assets: [asset],
                 nodes: [node],
                 addressPrefix: UInt16(index),
                 types: types,
                 icon: URL(string: "https://github.com")!,
-                isEthereumBased: false
+                options: []
             )
         }
     }

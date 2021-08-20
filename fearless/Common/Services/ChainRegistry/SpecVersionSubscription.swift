@@ -35,6 +35,7 @@ extension SpecVersionSubscription: SpecVersionSubscriptionProtocol {
                 }
 
                 let runtimeVersion = update.params.result
+                strongSelf.logger?.debug("For chain: \(strongSelf.chainId)")
                 strongSelf.logger?.debug("Did receive spec version: \(runtimeVersion.specVersion)")
                 strongSelf.logger?.debug("Did receive tx version: \(runtimeVersion.transactionVersion)")
 
@@ -45,7 +46,7 @@ extension SpecVersionSubscription: SpecVersionSubscriptionProtocol {
             }
 
             let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
-                self?.logger?.error("Did receive subscription error: \(error) \(unsubscribed)")
+                self?.logger?.error("Unexpected failure after subscription: \(error) \(unsubscribed)")
             }
 
             let params: [String] = []
@@ -56,7 +57,7 @@ extension SpecVersionSubscription: SpecVersionSubscriptionProtocol {
                 failureClosure: failureClosure
             )
         } catch {
-            logger?.error("Can't subscribe to storage: \(error)")
+            logger?.error("Unexpected chain \(chainId) subscription failure: \(error)")
         }
     }
 

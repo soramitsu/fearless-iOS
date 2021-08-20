@@ -18,9 +18,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
             return AssetModel(
                 assetId: UInt32(bitPattern: asset.assetId),
-                chainId: entity.chainId!,
                 icon: asset.icon,
-                name: asset.name!,
+                name: asset.name,
                 symbol: asset.symbol!,
                 precision: UInt16(bitPattern: asset.precision)
             )
@@ -32,7 +31,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             }
 
             return ChainNodeModel(
-                chainId: entity.chainId!,
                 url: node.url!,
                 name: node.name!
             )
@@ -46,25 +44,40 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             types = nil
         }
 
+        var options: [ChainOptions] = []
+
+        if entity.isEthereumBased {
+            options.append(.ethereumBased)
+        }
+
+        if entity.isTestnet {
+            options.append(.testnet)
+        }
+
         return ChainModel(
             chainId: entity.chainId!,
+            parentId: entity.parentId,
+            name: entity.name!,
             assets: assets,
             nodes: nodes,
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon!,
-            isEthereumBased: entity.isEthereumBased
+            options: options
         )
     }
 
     func populate(entity: CDChain, from model: ChainModel, using context: NSManagedObjectContext) throws {
         entity.chainId = model.chainId
+        entity.parentId = model.parentId
+        entity.name = model.name
         entity.types = model.types?.url
         entity.typesOverrideCommon = model.types.map { NSNumber(value: $0.overridesCommon) }
 
         entity.addressPrefix = Int16(bitPattern: model.addressPrefix)
         entity.icon = model.icon
         entity.isEthereumBased = model.isEthereumBased
+        entity.isTestnet = model.isTestnet
 
         model.assets.forEach { asset in
             let assetEntity: CDAsset
