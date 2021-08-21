@@ -53,8 +53,8 @@ final class SubqueryEraStakersInfoSource {
 
     private func requestParams(accountAddress: AccountAddress, erasRange: [EraIndex]?) -> String {
         let eraFilter: String = {
-            guard let range = erasRange, range.count >= 2 else { return "" }
-            return "era:{greaterThanOrEqualTo: \(range.first!), lessThanOrEqualTo: \(range.last!)},"
+            guard let fistRange = erasRange?.first, let lastRange = erasRange?.last else { return "" }
+            return "era:{greaterThanOrEqualTo: \(fistRange), lessThanOrEqualTo: \(lastRange)},"
         }()
 
         return """
