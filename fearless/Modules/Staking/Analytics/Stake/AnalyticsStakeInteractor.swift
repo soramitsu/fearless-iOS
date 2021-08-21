@@ -37,10 +37,10 @@ extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
     }
 
-    func fetchRewards(stashAddress: AccountAddress) {
+    func fetchStakeHistory(stashAddress: AccountAddress) {
         guard let analyticsURL = chain.analyticsURL else { return }
-        let subqueryRewardsSource = SubqueryStakeSource(address: stashAddress, url: analyticsURL)
-        let fetchOperation = subqueryRewardsSource.fetchOperation()
+        let subqueryStakeHistorySource = SubqueryStakeSource(address: stashAddress, url: analyticsURL)
+        let fetchOperation = subqueryStakeHistorySource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
