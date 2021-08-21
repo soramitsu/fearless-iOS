@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class AnalyticsValidatorsViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsValidatorsView
@@ -104,10 +105,50 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
                 rootView.headerView.titleLabel.text = viewModel.listTitle
                 rootView.tableView.reloadData()
             }
-        case let .error(error):
+        case .error:
             rootView.tableView.refreshControl?.endRefreshing()
             rootView.tableView.isHidden = true
         }
+        reloadEmptyState(animated: true)
+    }
+}
+
+extension AnalyticsValidatorsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension AnalyticsValidatorsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = state else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error
+            errorView.delegate = self
+            return errorView
+        case .loading, .loaded:
+            return nil
+        }
+    }
+}
+
+extension AnalyticsValidatorsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = state else { return false }
+        switch state {
+        case .error:
+            return true
+        case .loading, .loaded:
+            return false
+        }
+    }
+}
+
+extension AnalyticsValidatorsViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
     }
 }
 

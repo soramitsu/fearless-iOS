@@ -89,7 +89,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
                 rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
                 rootView.tableView.reloadData()
             }
-        case let .error(error):
+        case .error:
             rootView.tableView.refreshControl?.endRefreshing()
             rootView.tableView.isHidden = true
             rootView.periodSelectorView.isHidden = true

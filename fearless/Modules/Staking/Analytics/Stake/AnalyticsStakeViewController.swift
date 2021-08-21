@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class AnalyticsStakeViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsStakeView
@@ -77,10 +78,50 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
                 rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
                 rootView.tableView.reloadData()
             }
-        case let .error:
+        case .error:
             rootView.tableView.refreshControl?.endRefreshing()
             rootView.periodSelectorView.isHidden = true
         }
+        reloadEmptyState(animated: true)
+    }
+}
+
+extension AnalyticsStakeViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension AnalyticsStakeViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = viewState else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error
+            errorView.delegate = self
+            return errorView
+        case .loading, .loaded:
+            return nil
+        }
+    }
+}
+
+extension AnalyticsStakeViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = viewState else { return false }
+        switch state {
+        case .error:
+            return true
+        case .loading, .loaded:
+            return false
+        }
+    }
+}
+
+extension AnalyticsStakeViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
     }
 }
 
