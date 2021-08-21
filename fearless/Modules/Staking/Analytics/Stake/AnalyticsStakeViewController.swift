@@ -6,7 +6,7 @@ final class AnalyticsStakeViewController: UIViewController, ViewHolder {
 
     private let presenter: AnalyticsStakePresenterProtocol
 
-    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel> = .loading(false)
+    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel>?
 
     init(presenter: AnalyticsStakePresenterProtocol) {
         self.presenter = presenter
@@ -64,12 +64,13 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
         self.viewState = viewState
 
         switch viewState {
-        case let .loading(isLoading):
-            rootView.periodSelectorView.isHidden = true
-            if !isLoading {
-                rootView.tableView.refreshControl?.endRefreshing()
+        case .loading:
+            if !(rootView.tableView.refreshControl?.isRefreshing ?? true) {
+                rootView.periodSelectorView.isHidden = true
+                rootView.tableView.refreshControl?.beginRefreshing()
             }
         case let .loaded(viewModel):
+            rootView.tableView.refreshControl?.endRefreshing()
             if !viewModel.rewardSections.isEmpty {
                 rootView.periodSelectorView.isHidden = false
                 rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
@@ -77,6 +78,7 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
                 rootView.tableView.reloadData()
             }
         case let .error:
+            rootView.tableView.refreshControl?.endRefreshing()
             rootView.periodSelectorView.isHidden = true
         }
     }

@@ -53,7 +53,15 @@ final class AnalyticsValidatorsPresenter {
 
 extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
     func setup() {
+        view?.reload(viewState: .loading)
         interactor.setup()
+    }
+
+    func reload() {
+        view?.reload(viewState: .loading)
+        if let stash = stashItem?.stash {
+            interactor.fetchRewards(stashAddress: stash)
+        }
     }
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
@@ -99,7 +107,9 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         switch stashItemResult {
         case let .success(stashItem):
             self.stashItem = stashItem
-            updateView()
+            if let stash = stashItem?.stash {
+                interactor.fetchRewards(stashAddress: stash)
+            }
         case let .failure(error):
             logger?.error(error.localizedDescription)
         }

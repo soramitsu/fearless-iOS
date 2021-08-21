@@ -43,12 +43,15 @@ final class AnalyticsRewardsPresenter {
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
-        reload()
+        view?.reload(viewState: .loading)
+        interactor.setup()
     }
 
     func reload() {
-        view?.reload(viewState: .loading(true))
-        interactor.setup()
+        view?.reload(viewState: .loading)
+        if let stash = stashItem?.stash {
+            interactor.fetchRewards(stashAddress: stash)
+        }
     }
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
@@ -85,8 +88,6 @@ extension AnalyticsRewardsPresenter: Localizable {
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
-        view?.reload(viewState: .loading(false))
-
         switch rewardItemData {
         case let .success(data):
             rewardsData = data
@@ -114,6 +115,9 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
         switch result {
         case let .success(stashItem):
             self.stashItem = stashItem
+            if let stash = stashItem?.stash {
+                interactor.fetchRewards(stashAddress: stash)
+            }
         case let .failure(error):
             logger?.error("Did receive stash item error: \(error)")
         }

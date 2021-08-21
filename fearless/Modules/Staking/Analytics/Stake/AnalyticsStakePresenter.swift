@@ -39,7 +39,7 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
     }
 
     func reload() {
-        view?.reload(viewState: .loading(true))
+        view?.reload(viewState: .loading)
         interactor.setup()
     }
 
@@ -66,8 +66,6 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
 
 extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
     func didReceieve(stakeDataResult: Result<[SubqueryStakeChangeData], Error>) {
-        view?.reload(viewState: .loading(false))
-
         switch stakeDataResult {
         case let .success(data):
             rewardsData = data

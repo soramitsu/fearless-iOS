@@ -29,8 +29,15 @@ final class AnalyticsRewardsInteractor {
         self.assetId = assetId
         self.selectedAccountAddress = selectedAccountAddress
     }
+}
 
-    private func fetchRewards(stashAddress: AccountAddress) {
+extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
+    func setup() {
+        priceProvider = subscribeToPriceProvider(for: assetId)
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
+    }
+
+    func fetchRewards(stashAddress: AccountAddress) {
         let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: URL(string: "http://localhost:3000/")!)
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
@@ -48,13 +55,6 @@ final class AnalyticsRewardsInteractor {
     }
 }
 
-extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
-    func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
-    }
-}
-
 extension AnalyticsRewardsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
@@ -63,14 +63,6 @@ extension AnalyticsRewardsInteractor: SingleValueProviderSubscriber, SingleValue
 
 extension AnalyticsRewardsInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            presenter.didReceiveStashItem(result: .success(stashItem))
-            if let stashAddress = stashItem?.stash {
-                fetchRewards(stashAddress: stashAddress)
-            }
-        case let .failure(error):
-            presenter.didReceiveStashItem(result: .failure(error))
-        }
+        presenter.didReceiveStashItem(result: result)
     }
 }

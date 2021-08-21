@@ -75,13 +75,13 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
         self.viewState = viewState
 
         switch viewState {
-        case let .loading(isLoading):
-            rootView.periodSelectorView.isHidden = true
-            rootView.tableView.isHidden = true
-            if !isLoading {
-                rootView.tableView.refreshControl?.endRefreshing()
+        case .loading:
+            if !(rootView.tableView.refreshControl?.isRefreshing ?? true) {
+                rootView.periodSelectorView.isHidden = true
+                rootView.tableView.refreshControl?.beginRefreshing()
             }
         case let .loaded(viewModel):
+            rootView.tableView.refreshControl?.endRefreshing()
             if !viewModel.rewardSections.isEmpty {
                 rootView.periodSelectorView.isHidden = false
                 rootView.tableView.isHidden = false
@@ -90,6 +90,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
                 rootView.tableView.reloadData()
             }
         case let .error(error):
+            rootView.tableView.refreshControl?.endRefreshing()
             rootView.tableView.isHidden = true
             rootView.periodSelectorView.isHidden = true
         }

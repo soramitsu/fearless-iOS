@@ -162,7 +162,21 @@ final class AnalyticsValidatorsInteractor {
         )
     }
 
-    private func fetchRewards(stashAddress: AccountAddress) {
+    private func handleStashAddress(_ stashAddress: AccountAddress) {
+        fetchHistoryRange(stashAddress: stashAddress)
+        nominationProvider = subscribeToNominationProvider(
+            for: stashAddress,
+            runtimeService: runtimeService
+        )
+    }
+}
+
+extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
+    func setup() {
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAddress)
+    }
+
+    func fetchRewards(stashAddress: AccountAddress) {
         let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: URL(string: "http://localhost:3000/")!)
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
@@ -177,21 +191,6 @@ final class AnalyticsValidatorsInteractor {
             }
         }
         operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
-    }
-
-    private func handleStashAddress(_ stashAddress: AccountAddress) {
-        fetchHistoryRange(stashAddress: stashAddress)
-        nominationProvider = subscribeToNominationProvider(
-            for: stashAddress,
-            runtimeService: runtimeService
-        )
-        fetchRewards(stashAddress: stashAddress)
-    }
-}
-
-extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
-    func setup() {
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAddress)
     }
 }
 

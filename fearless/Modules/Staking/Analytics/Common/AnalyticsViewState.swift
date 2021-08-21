@@ -1,5 +1,5 @@
 enum AnalyticsViewState<ViewModel> {
-    case loading(Bool)
+    case loading
     case loaded(ViewModel)
     case error(String)
 }

@@ -34,6 +34,16 @@ final class AnalyticsValidatorsViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(AnalyticsValidatorsCell.self)
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+        rootView.tableView.refreshControl?.addTarget(
+            self,
+            action: #selector(refreshControlDidTriggered),
+            for: .valueChanged
+        )
+    }
+
+    @objc
+    private func refreshControlDidTriggered() {
+        presenter.reload()
     }
 }
 
@@ -77,12 +87,12 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
         state = viewState
 
         switch viewState {
-        case let .loading(isLoading):
-            rootView.tableView.isHidden = true
-            if !isLoading {
-                rootView.tableView.refreshControl?.endRefreshing()
+        case .loading:
+            if !(rootView.tableView.refreshControl?.isRefreshing ?? true) {
+                rootView.tableView.refreshControl?.beginRefreshing()
             }
         case let .loaded(viewModel):
+            rootView.tableView.refreshControl?.endRefreshing()
             if !viewModel.validators.isEmpty {
                 rootView.tableView.isHidden = false
                 rootView.headerView.titleLabel.text = "Rewards"
@@ -95,6 +105,7 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
                 rootView.tableView.reloadData()
             }
         case let .error(error):
+            rootView.tableView.refreshControl?.endRefreshing()
             rootView.tableView.isHidden = true
         }
     }

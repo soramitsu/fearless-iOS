@@ -16,6 +16,7 @@ protocol AnalyticsRewardsPresenterProtocol: AnyObject {
 
 protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
     func setup()
+    func fetchRewards(stashAddress: AccountAddress)
 }
 
 protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {

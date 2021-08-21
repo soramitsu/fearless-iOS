@@ -6,12 +6,14 @@ protocol AnalyticsValidatorsViewProtocol: AnalyticsEmbeddedViewProtocol {
 
 protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
     func setup()
+    func reload()
     func handleValidatorInfoAction(validatorAddress: AccountAddress)
     func handlePageAction(page: AnalyticsValidatorsPage)
 }
 
 protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
     func setup()
+    func fetchRewards(stashAddress: AccountAddress)
 }
 
 protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
