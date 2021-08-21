@@ -177,7 +177,8 @@ extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProto
     }
 
     func fetchRewards(stashAddress: AccountAddress) {
-        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: URL(string: "http://localhost:3000/")!)
+        guard let analyticsURL = chain.analyticsURL else { return }
+        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: analyticsURL)
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
