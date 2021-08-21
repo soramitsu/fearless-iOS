@@ -42,16 +42,16 @@ struct SubqueryStakeChangeData {
 }
 
 extension SubqueryStakeChangeData.SubqueryStakeChangeType {
-    func title(for _: Locale) -> String {
+    func title(for locale: Locale) -> String {
         switch self {
         case .bonded:
-            return "Bonded"
+            return R.string.localizable.stakingBondMore_v190(preferredLanguages: locale.rLanguages)
         case .unbonded:
-            return "Unstake"
+            return R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages)
         case .rewarded:
-            return "Reward"
+            return R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages)
         case .slashed:
-            return "Stash"
+            return R.string.localizable.stakingSlash(preferredLanguages: locale.rLanguages)
         }
     }
 }

@@ -9,14 +9,14 @@ enum AnalyticsPeriod: CaseIterable {
 extension AnalyticsPeriod {
     static let `default` = AnalyticsPeriod.monthly
 
-    func title(for _: Locale) -> String {
+    func title(for locale: Locale) -> String {
         switch self {
         case .weekly:
-            return "weekly".uppercased()
+            return R.string.localizable.stakingAnalyticsPeriodWeekly(preferredLanguages: locale.rLanguages).uppercased()
         case .monthly:
-            return "monthly".uppercased()
+            return R.string.localizable.stakingAnalyticsPeriodMonthly(preferredLanguages: locale.rLanguages).uppercased()
         case .yearly:
-            return "yearly".uppercased()
+            return R.string.localizable.stakingAnalyticsPeriodYearly(preferredLanguages: locale.rLanguages).uppercased()
         }
     }
 

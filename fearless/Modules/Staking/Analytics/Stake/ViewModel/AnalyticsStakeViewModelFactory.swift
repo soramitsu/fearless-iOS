@@ -31,8 +31,8 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
                     let txTimeText = formatter.string(from: txDate)
 
                     return AnalyticsRewardsItemViewModel(
-                        addressOrName: "Reward",
-                        daysLeftText: .init(string: "Staking"),
+                        addressOrName: itemData.type.title(for: locale),
+                        daysLeftText: .init(string: R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)),
                         tokenAmountText: "+\(tokenAmountText)",
                         usdAmountText: txTimeText
                     )

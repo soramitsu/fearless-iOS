@@ -67,7 +67,7 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
 extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
     var localizedTitle: LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.stakingAnalyticsReward(preferredLanguages: locale.rLanguages)
+            R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)
         }
     }
 

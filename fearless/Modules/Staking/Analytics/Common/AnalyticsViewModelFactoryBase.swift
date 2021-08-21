@@ -67,8 +67,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let summaryViewModel = AnalyticsSummaryRewardViewModel(
                 title: periodText,
                 tokenAmount: totalReceivedToken.amount,
-                usdAmount: totalReceivedToken.price,
-                indicatorColor: nil
+                usdAmount: totalReceivedToken.price
             )
 
             let sections = createSections(rewardsData: data, locale: locale)

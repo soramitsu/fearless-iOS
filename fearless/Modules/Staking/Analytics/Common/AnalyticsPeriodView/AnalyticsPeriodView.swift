@@ -19,17 +19,6 @@ final class AnalyticsPeriodView: UIView {
         return stackView
     }()
 
-//    let collectionView: UICollectionView = {
-//        let layout = UICollectionViewFlowLayout()
-//        layout.scrollDirection = .horizontal
-//        layout.estimatedItemSize = .init(width: 83, height: 24)
-//        layout.minimumInteritemSpacing = 8
-//        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-//        collectionView.showsHorizontalScrollIndicator = false
-//        collectionView.backgroundColor = .clear
-//        return collectionView
-//    }()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
