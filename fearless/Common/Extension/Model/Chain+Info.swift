@@ -82,6 +82,19 @@ extension Chain {
         }
     }
 
+    var analyticsURL: URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet")
+        case .kusama:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-ksm")
+        case .westend:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend__ZWYxc")
+        case .rococo:
+            return nil
+        }
+    }
+
     func preparedDefaultTypeDefPath() -> String? {
         R.file.runtimeDefaultJson.path()
     }

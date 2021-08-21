@@ -14,17 +14,10 @@ struct AnalyticsRewardsViewFactory {
         let chain = addressType.chain
         guard
             let accountAddress = settings.selectedAccount?.address,
-            let assetId = WalletAssetId(rawValue: asset.identifier),
-            let subqueryUrl = assetId.subqueryUrl
+            let assetId = WalletAssetId(rawValue: asset.identifier)
         else {
             return nil
         }
-
-        let analyticsService = AnalyticsService(
-            url: subqueryUrl,
-            address: accountAddress,
-            operationManager: operationManager
-        )
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
@@ -35,8 +28,8 @@ struct AnalyticsRewardsViewFactory {
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
             operationManager: operationManager,
-            analyticsService: analyticsService,
             assetId: assetId,
+            chain: chain,
             selectedAccountAddress: accountAddress
         )
 

@@ -8,8 +8,8 @@ final class AnalyticsRewardsInteractor {
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
     let operationManager: OperationManagerProtocol
-    private let analyticsService: AnalyticsService?
     private let assetId: WalletAssetId
+    private let chain: Chain
     private let selectedAccountAddress: AccountAddress
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
@@ -18,15 +18,15 @@ final class AnalyticsRewardsInteractor {
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        analyticsService: AnalyticsService?,
         assetId: WalletAssetId,
+        chain: Chain,
         selectedAccountAddress: AccountAddress
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
-        self.analyticsService = analyticsService
         self.assetId = assetId
+        self.chain = chain
         self.selectedAccountAddress = selectedAccountAddress
     }
 }
@@ -38,7 +38,8 @@ extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     }
 
     func fetchRewards(stashAddress: AccountAddress) {
-        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: URL(string: "http://localhost:3000/")!)
+        guard let analyticsURL = chain.analyticsURL else { return }
+        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: analyticsURL)
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
