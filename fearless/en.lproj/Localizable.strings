@@ -469,3 +469,8 @@ to your account to avoid remaining stake.";
 "staking.analytics.period.weekly" = "weekly";
 "staking.analytics.period.monthly" = "monthly";
 "staking.analytics.period.yearly" = "yearly";
+"staking.analytics.activity" = "Activity";
+"staking.analytics.active.staking" = "Active staking";
+"staking.analytics.eras.range" = "%@ of %@ eras";
+"staking.analytics.received.rewards" = "Received rewards";
+"staking.analytics.stake.allocation" = "Stake allocation";

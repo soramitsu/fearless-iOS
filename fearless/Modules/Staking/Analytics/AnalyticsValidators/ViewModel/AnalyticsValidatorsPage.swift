@@ -7,12 +7,14 @@ enum AnalyticsValidatorsPage {
 }
 
 extension AnalyticsValidatorsPage {
-    func title(for _: Locale) -> String {
+    func title(for locale: Locale) -> String {
         switch self {
         case .activity:
-            return "activity"
+            return R.string.localizable
+                .stakingAnalyticsActivity(preferredLanguages: locale.rLanguages).uppercased()
         case .rewards:
-            return "rewards"
+            return R.string.localizable
+                .stakingRewardsTitle(preferredLanguages: locale.rLanguages).uppercased()
         }
     }
 }

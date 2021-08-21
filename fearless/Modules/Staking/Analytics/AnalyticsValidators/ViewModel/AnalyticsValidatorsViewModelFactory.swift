@@ -156,12 +156,12 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             }
     }
 
-    private func determineListTitle(page: AnalyticsValidatorsPage, locale _: Locale) -> String {
+    private func determineListTitle(page: AnalyticsValidatorsPage, locale: Locale) -> String {
         switch page {
         case .activity:
-            return "stake allocation".uppercased()
+            return R.string.localizable.stakingAnalyticsStakeAllocation(preferredLanguages: locale.rLanguages)
         case .rewards:
-            return "Rewards".uppercased()
+            return R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -178,11 +178,15 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
 
             return createChartCenterText(
-                firstLine: "Active staking".uppercased(),
+                firstLine: R.string.localizable
+                    .stakingAnalyticsActiveStaking(preferredLanguages: locale.rLanguages).uppercased(),
                 secondLine: percentageString,
                 thirdLine: String(
-                    format: "%@ of %@ eras",
-                    Int(maxDistinctErasCount).description, totalEras.description
+                    format: R.string.localizable.stakingAnalyticsErasRange(
+                        Int(maxDistinctErasCount).description,
+                        totalEras.description,
+                        preferredLanguages: locale.rLanguages
+                    )
                 ),
                 locale: locale
             )
@@ -191,7 +195,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards))
                 .value(for: locale)
             return createChartCenterText(
-                firstLine: "Received rewards".uppercased(),
+                firstLine: R.string.localizable.stakingAnalyticsReceivedRewards(preferredLanguages: locale.rLanguages),
                 secondLine: totalRewardsText,
                 thirdLine: "100%",
                 locale: locale

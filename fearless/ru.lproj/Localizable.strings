@@ -469,3 +469,8 @@
 "staking.analytics.period.weekly" = "";
 "staking.analytics.period.monthly" = "";
 "staking.analytics.period.yearly" = "";
+"staking.analytics.activity" = "";
+"staking.analytics.active.staking" = "";
+"staking.analytics.eras.range" = "";
+"staking.analytics.received.rewards" = "";
+"staking.analytics.stake.allocation" = "";
