@@ -70,7 +70,7 @@ final class StakingUnbondSetupPresenter {
                 return ""
             }
 
-            return R.string.localizable.stakingMainLockupPeriodValue(
+            return R.string.localizable.commonDaysFormat(
                 format: daysCount,
                 preferredLanguages: locale.rLanguages
             )

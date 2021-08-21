@@ -24,7 +24,7 @@ final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmView
                 preferredLanguages: locale.rLanguages
             )
 
-            let unlockingDurationString = R.string.localizable.stakingMainLockupPeriodValue(
+            let unlockingDurationString = R.string.localizable.commonDaysFormat(
                 format: duration.unlocking.daysFromSeconds,
                 preferredLanguages: locale.rLanguages
             )

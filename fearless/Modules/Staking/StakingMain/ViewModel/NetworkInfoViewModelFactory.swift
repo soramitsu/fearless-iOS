@@ -101,7 +101,7 @@ final class NetworkInfoViewModelFactory {
         let lockUpPeriodInDays = Int(networkStakingInfo.lockUpPeriod) / chain.erasPerDay
 
         return LocalizableResource { locale in
-            R.string.localizable.stakingMainLockupPeriodValue(
+            R.string.localizable.commonDaysFormat(
                 format: lockUpPeriodInDays,
                 preferredLanguages: locale.rLanguages
             )
