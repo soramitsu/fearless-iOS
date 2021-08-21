@@ -79,7 +79,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter.didReceive(selectedAddress: address)
-        fetchAnalyticsRewards()
     }
 
     func provideMaxNominatorsPerValidator() {
@@ -98,7 +97,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter.didReceive(newChain: chain)
-        fetchAnalyticsRewards()
     }
 
     func provideRewardCalculator() {
@@ -166,27 +164,5 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             }
         }
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
-    }
-
-    private func fetchAnalyticsRewards() {
-        guard
-            let analyticsURL = currentConnection?.type.chain.analyticsURL,
-            let address = currentAccount?.address
-        else { return }
-
-        let subqueryRewardsSource = SubqueryRewardsSource(address: address, url: analyticsURL)
-        let fetchOperation = subqueryRewardsSource.fetchOperation()
-
-        fetchOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
-                    self?.presenter.didReceieve(rewardItemData: .success(response))
-                } catch {
-                    self?.presenter.didReceieve(rewardItemData: .failure(error))
-                }
-            }
-        }
-        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
     }
 }
