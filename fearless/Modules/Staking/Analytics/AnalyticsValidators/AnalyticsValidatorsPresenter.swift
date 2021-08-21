@@ -98,7 +98,10 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
             self.eraValidatorInfos = eraValidatorInfos
             updateView()
         case let .failure(error):
-            // TODO: handleError - retry
+            let errorText = R.string.localizable.commonErrorNoDataRetrieved(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+            view?.reload(viewState: .error(errorText))
             logger?.error("Did receive eraValidatorInfos error: \(error.localizedDescription)")
         }
     }
@@ -111,7 +114,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
                 interactor.fetchRewards(stashAddress: stash)
             }
         case let .failure(error):
-            logger?.error(error.localizedDescription)
+            logger?.error("Did receive stashItem error: \(error)")
         }
     }
 
@@ -121,8 +124,11 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
             self.rewards = rewards
             updateView()
         case let .failure(error):
-            // TODO: handleError - retry
-            logger?.error(error.localizedDescription)
+            let errorText = R.string.localizable.commonErrorNoDataRetrieved(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+            view?.reload(viewState: .error(errorText))
+            logger?.error("Did receive rewards error: \(error.localizedDescription)")
         }
     }
 
@@ -131,7 +137,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         case let .success(nomination):
             self.nomination = nomination
         case let .failure(error):
-            logger?.error(error.localizedDescription)
+            logger?.error("Did receive nomination error: \(error.localizedDescription)")
         }
     }
 }

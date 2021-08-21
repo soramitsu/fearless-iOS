@@ -1,12 +1,16 @@
 import Foundation
 import BigInt
+import SoraFoundation
 
 final class AnalyticsStakePresenter {
     weak var view: AnalyticsStakeViewProtocol?
     let wireframe: AnalyticsStakeWireframeProtocol
     let interactor: AnalyticsStakeInteractorInputProtocol
     private let viewModelFactory: AnalyticsStakeViewModelFactoryProtocol
-    private var rewardsData = [SubqueryStakeChangeData]()
+    private let localizationManager: LocalizationManagerProtocol
+    private let logger: LoggerProtocol?
+
+    private var rewardsData: [SubqueryStakeChangeData]?
     private var selectedPeriod = AnalyticsPeriod.default
     private var selectedPeriodDiff = 0
     private var priceData: PriceData?
@@ -15,21 +19,26 @@ final class AnalyticsStakePresenter {
     init(
         interactor: AnalyticsStakeInteractorInputProtocol,
         wireframe: AnalyticsStakeWireframeProtocol,
-        viewModelFactory: AnalyticsStakeViewModelFactoryProtocol
+        viewModelFactory: AnalyticsStakeViewModelFactoryProtocol,
+        localizationManager: LocalizationManagerProtocol,
+        logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.localizationManager = localizationManager
+        self.logger = logger
     }
 
     private func updateView() {
+        guard let rewardsData = rewardsData else { return }
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
             period: selectedPeriod,
             periodDelta: selectedPeriodDiff
         )
-        view?.reload(viewState: .loaded(viewModel.value(for: .current)))
+        view?.reload(viewState: .loaded(viewModel.value(for: selectedLocale)))
     }
 }
 
@@ -64,6 +73,12 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
     }
 }
 
+extension AnalyticsStakePresenter: Localizable {
+    func applyLocalization() {
+        updateView()
+    }
+}
+
 extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
     func didReceieve(stakeDataResult: Result<[SubqueryStakeChangeData], Error>) {
         switch stakeDataResult {
@@ -71,9 +86,11 @@ extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
             rewardsData = data
             updateView()
         case let .failure(error):
-            rewardsData = []
-            // handle(error: error)
-            print(error)
+            let errorText = R.string.localizable.commonErrorNoDataRetrieved(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+            view?.reload(viewState: .error(errorText))
+            logger?.error("Did receive stake error: \(error)")
         }
     }
 
@@ -83,7 +100,7 @@ extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
             self.priceData = priceData
             updateView()
         case let .failure(error):
-            print(error)
+            logger?.error("Did receive price error: \(error)")
         }
     }
 
@@ -95,7 +112,7 @@ extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
                 interactor.fetchRewards(stashAddress: stash)
             }
         case let .failure(error):
-            print(error)
+            logger?.error("Did receive stashItem error: \(error)")
         }
     }
 }

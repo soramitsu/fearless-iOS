@@ -1451,6 +1451,7 @@
 		F4AE12A6268DDC780097D1C7 /* MnemonicTextNormalizerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AE12A5268DDC780097D1C7 /* MnemonicTextNormalizerTest.swift */; };
 		F4B06BFA264509E8003214D5 /* SetControllerCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B06BF9264509E8003214D5 /* SetControllerCall.swift */; };
 		F4BDDCBE2657A57F005336BA /* TransferValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BDDCBD2657A57F005336BA /* TransferValidatorTests.swift */; };
+		F4C086B826D10E3400716AEC /* UIRefreshControl+ProgramaticallyBeginRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C086B726D10E3400716AEC /* UIRefreshControl+ProgramaticallyBeginRefresh.swift */; };
 		F4D551A12643DD240002363F /* AccountSelectionPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D551A02643DD240002363F /* AccountSelectionPresentable.swift */; };
 		F4D6FF0E26B3DD6E002313AF /* AnalyticsRewardsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF0D26B3DD6E002313AF /* AnalyticsRewardsProtocols.swift */; };
 		F4D6FF1326B3DDDF002313AF /* AnalyticsRewardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D6FF1226B3DDDF002313AF /* AnalyticsRewardsViewController.swift */; };
@@ -2967,6 +2968,7 @@
 		F4AE12A5268DDC780097D1C7 /* MnemonicTextNormalizerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MnemonicTextNormalizerTest.swift; sourceTree = "<group>"; };
 		F4B06BF9264509E8003214D5 /* SetControllerCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetControllerCall.swift; sourceTree = "<group>"; };
 		F4BDDCBD2657A57F005336BA /* TransferValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferValidatorTests.swift; sourceTree = "<group>"; };
+		F4C086B726D10E3400716AEC /* UIRefreshControl+ProgramaticallyBeginRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIRefreshControl+ProgramaticallyBeginRefresh.swift"; sourceTree = "<group>"; };
 		F4D551A02643DD240002363F /* AccountSelectionPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectionPresentable.swift; sourceTree = "<group>"; };
 		F4D6FF0D26B3DD6E002313AF /* AnalyticsRewardsProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsProtocols.swift; sourceTree = "<group>"; };
 		F4D6FF1226B3DDDF002313AF /* AnalyticsRewardsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsViewController.swift; sourceTree = "<group>"; };
@@ -5177,6 +5179,7 @@
 				84981CC22666D95F00C4C691 /* GradientButton+Style.swift */,
 				84BB3CF2267D24B000676FFE /* UIStackView+Manage.swift */,
 				845FC93326B09EDB0021EC48 /* RoundedButton+Style.swift */,
+				F4C086B726D10E3400716AEC /* UIRefreshControl+ProgramaticallyBeginRefresh.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -8226,6 +8229,7 @@
 				F40966CF26B297D7008CD244 /* AnalyticsStakeViewFactory.swift in Sources */,
 				842349C02624E7B40066ACFE /* SubstrateAccountId.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
+				F4C086B826D10E3400716AEC /* UIRefreshControl+ProgramaticallyBeginRefresh.swift in Sources */,
 				AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */,
 				F471897626C297AA006487AD /* AnalyticsValidatorsPage.swift in Sources */,
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,

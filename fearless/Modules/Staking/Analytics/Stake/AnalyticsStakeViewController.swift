@@ -66,9 +66,8 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
 
         switch viewState {
         case .loading:
-            if !(rootView.tableView.refreshControl?.isRefreshing ?? true) {
-                rootView.periodSelectorView.isHidden = true
-                rootView.tableView.refreshControl?.beginRefreshing()
+            if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
+                refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()

@@ -89,14 +89,13 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
 
         switch viewState {
         case .loading:
-            if !(rootView.tableView.refreshControl?.isRefreshing ?? true) {
-                rootView.tableView.refreshControl?.beginRefreshing()
+            if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
+                refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
             if !viewModel.validators.isEmpty {
-                rootView.tableView.isHidden = false
-                rootView.headerView.titleLabel.text = "Rewards"
+                rootView.pageSelector.isHidden = false
                 rootView.headerView.pieChart.setAmounts(
                     segmentValues: viewModel.pieChartSegmentValues,
                     inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue
@@ -107,7 +106,7 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
             }
         case .error:
             rootView.tableView.refreshControl?.endRefreshing()
-            rootView.tableView.isHidden = true
+            rootView.pageSelector.isHidden = true
         }
         reloadEmptyState(animated: true)
     }

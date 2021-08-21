@@ -76,22 +76,20 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 
         switch viewState {
         case .loading:
-            if !(rootView.tableView.refreshControl?.isRefreshing ?? true) {
+            if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
+                refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
                 rootView.periodSelectorView.isHidden = true
-                rootView.tableView.refreshControl?.beginRefreshing()
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
             if !viewModel.rewardSections.isEmpty {
                 rootView.periodSelectorView.isHidden = false
-                rootView.tableView.isHidden = false
                 rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
                 rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
                 rootView.tableView.reloadData()
             }
         case .error:
             rootView.tableView.refreshControl?.endRefreshing()
-            rootView.tableView.isHidden = true
             rootView.periodSelectorView.isHidden = true
         }
         reloadEmptyState(animated: true)
