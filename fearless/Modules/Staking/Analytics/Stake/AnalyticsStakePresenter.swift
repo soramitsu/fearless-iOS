@@ -91,6 +91,9 @@ extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
         switch result {
         case let .success(stashItem):
             self.stashItem = stashItem
+            if let stash = stashItem?.stash {
+                interactor.fetchRewards(stashAddress: stash)
+            }
         case let .failure(error):
             print(error)
         }

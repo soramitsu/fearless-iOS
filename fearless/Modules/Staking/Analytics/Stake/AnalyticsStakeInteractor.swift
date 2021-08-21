@@ -4,46 +4,66 @@ import BigInt
 final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
 
-    let subqueryStakeSource: SubqueryStakeSource
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
+    private let assetId: WalletAssetId
+    private let chain: Chain
+    private let selectedAccountAddress: AccountAddress
+
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
-        subqueryStakeSource: SubqueryStakeSource,
-        operationManager: OperationManagerProtocol
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        selectedAccountAddress: AccountAddress,
+        assetId: WalletAssetId,
+        chain: Chain
     ) {
-        self.subqueryStakeSource = subqueryStakeSource
+        self.singleValueProviderFactory = singleValueProviderFactory
+        self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
-    }
-
-    private func fetchStakeData() {
-        let fetchOperation = subqueryStakeSource.fetchOperation()
-        fetchOperation.targetOperation.completionBlock = { [weak presenter] in
-            DispatchQueue.main.async {
-                do {
-                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
-                    presenter?.didReceieve(stakeDataResult: .success(response))
-                } catch {
-                    presenter?.didReceieve(stakeDataResult: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
+        self.selectedAccountAddress = selectedAccountAddress
+        self.assetId = assetId
+        self.chain = chain
     }
 }
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        // fetchStakeData()
-        let timestamp = Int64(Date().timeIntervalSince1970)
-        let data = (0 ... 100).map { index in
-            SubqueryStakeChangeData(
-                timestamp: timestamp - Int64(index) * 10000,
-                address: "",
-                amount: BigUInt(integerLiteral: UInt64(index * 10_000_000)),
-                type: .bonded
-            )
+        priceProvider = subscribeToPriceProvider(for: assetId)
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
+    }
+
+    func fetchRewards(stashAddress: AccountAddress) {
+        guard let analyticsURL = chain.analyticsURL else { return }
+        let subqueryRewardsSource = SubqueryStakeSource(address: stashAddress, url: analyticsURL)
+        let fetchOperation = subqueryRewardsSource.fetchOperation()
+
+        fetchOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
+                    self?.presenter.didReceieve(stakeDataResult: .success(response))
+                } catch {
+                    self?.presenter.didReceieve(stakeDataResult: .failure(error))
+                }
+            }
         }
-        presenter.didReceieve(stakeDataResult: .success(data))
+        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
+    }
+}
+
+extension AnalyticsStakeInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        presenter.didReceivePriceData(result: result)
+    }
+}
+
+extension AnalyticsStakeInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>) {
+        presenter.didReceiveStashItem(result: result)
     }
 }

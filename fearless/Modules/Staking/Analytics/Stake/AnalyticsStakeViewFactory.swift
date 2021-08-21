@@ -13,15 +13,22 @@ struct AnalyticsStakeViewFactory {
         let chain = addressType.chain
         guard
             let accountAddress = settings.selectedAccount?.address,
-            let analyticsURL = chain.analyticsURL
+            let assetId = WalletAssetId(rawValue: asset.identifier)
         else {
             return nil
         }
 
-        let subqueryStakeSource = SubqueryStakeSource(address: accountAddress, url: analyticsURL)
-        let interactor = AnalyticsStakeInteractor(
-            subqueryStakeSource: subqueryStakeSource,
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
             operationManager: operationManager
+        )
+        let interactor = AnalyticsStakeInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            substrateProviderFactory: substrateProviderFactory,
+            operationManager: operationManager,
+            selectedAccountAddress: accountAddress,
+            assetId: assetId,
+            chain: chain
         )
         let wireframe = AnalyticsStakeWireframe()
 

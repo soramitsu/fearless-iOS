@@ -15,6 +15,7 @@ protocol AnalyticsStakePresenterProtocol: AnyObject {
 
 protocol AnalyticsStakeInteractorInputProtocol: AnyObject {
     func setup()
+    func fetchRewards(stashAddress: AccountAddress)
 }
 
 protocol AnalyticsStakeInteractorOutputProtocol: AnyObject {
