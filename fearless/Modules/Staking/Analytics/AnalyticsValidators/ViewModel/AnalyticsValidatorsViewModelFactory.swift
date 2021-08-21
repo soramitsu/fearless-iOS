@@ -19,7 +19,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     }
 
     func createViewModel(
-        eraValidatorInfos: [SQEraValidatorInfo],
+        eraValidatorInfos: [SubqueryEraValidatorInfo],
         stashAddress: AccountAddress,
         rewards: [SubqueryRewardItemData],
         nomination: Nomination,
@@ -243,7 +243,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         return result
     }
 
-    func totalErasCount(eraValidatorInfos: [SQEraValidatorInfo]) -> Int {
+    func totalErasCount(eraValidatorInfos: [SubqueryEraValidatorInfo]) -> Int {
         let distinctEras = Set<EraIndex>(eraValidatorInfos.map(\.era))
         return distinctEras.count
     }
@@ -265,7 +265,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     private func findInactiveSegmentValue(
         page: AnalyticsValidatorsPage,
-        eraValidatorInfos: [SQEraValidatorInfo],
+        eraValidatorInfos: [SubqueryEraValidatorInfo],
         totalEras: Int
     ) -> Double? {
         guard case .activity = page else {

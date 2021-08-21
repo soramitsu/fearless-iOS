@@ -11,7 +11,7 @@ final class AnalyticsValidatorsPresenter {
 
     private var identitiesByAddress = [AccountAddress: AccountIdentity]()
     private var selectedPage: AnalyticsValidatorsPage = .activity
-    private var eraValidatorInfos: [SQEraValidatorInfo]?
+    private var eraValidatorInfos: [SubqueryEraValidatorInfo]?
     private var stashItem: StashItem?
     private var nomination: Nomination?
     private var rewards: [SubqueryRewardItemData]?
@@ -92,7 +92,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         }
     }
 
-    func didReceive(eraValidatorInfosResult: Result<[SQEraValidatorInfo], Error>) {
+    func didReceive(eraValidatorInfosResult: Result<[SubqueryEraValidatorInfo], Error>) {
         switch eraValidatorInfosResult {
         case let .success(eraValidatorInfos):
             self.eraValidatorInfos = eraValidatorInfos

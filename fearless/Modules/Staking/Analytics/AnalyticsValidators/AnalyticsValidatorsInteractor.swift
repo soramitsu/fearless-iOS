@@ -119,14 +119,12 @@ final class AnalyticsValidatorsInteractor {
     }
 
     private func fetchHistoryRange(stashAddress: AccountAddress) {
+        guard let analyticsURL = chain.analyticsURL else { return }
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
         let historyRangeWrapper = createChainHistoryRangeOperationWrapper(codingFactoryOperation: codingFactoryOperation)
         historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let source = SQEraStakersInfoSource(
-            url: URL(string: "http://localhost:3000/")!,
-            address: stashAddress
-        )
+        let source = SubqueryEraStakersInfoSource(url: analyticsURL, address: stashAddress)
         let operation = source.fetch {
             try? historyRangeWrapper.targetOperation.extractNoCancellableResultData()
         }
