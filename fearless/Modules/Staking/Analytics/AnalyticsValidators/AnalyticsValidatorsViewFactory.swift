@@ -7,36 +7,13 @@ import FearlessUtils
 struct AnalyticsValidatorsViewFactory {
     static func createView() -> AnalyticsValidatorsViewProtocol? {
         let settings = SettingsManager.shared
-        let logger = Logger.shared
-
-        let selectedConnection = settings.selectedConnection
-        let selectedType = selectedConnection.type
-        let chain = selectedType.chain
+        let chain = settings.selectedConnection.type.chain
         guard let selectedAddress = settings.selectedAccount?.address else { return nil }
         guard let engine = WebSocketService.shared.connection else { return nil }
 
         let interactor = createInteractor(selectedAddress: selectedAddress, chain: chain, engine: engine)
         let wireframe = AnalyticsValidatorsWireframe()
-
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: selectedType,
-            limit: StakingConstants.maxAmount
-        )
-        let viewModelFactory = AnalyticsValidatorsViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory,
-            chain: chain
-        )
-
-        let presenter = AnalyticsValidatorsPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            viewModelFactory: viewModelFactory,
-            localizationManager: LocalizationManager.shared,
-            logger: logger
-        )
-
+        let presenter = createPresenter(interactor: interactor, wireframe: wireframe)
         let view = AnalyticsValidatorsViewController(presenter: presenter)
 
         presenter.view = view
@@ -76,5 +53,34 @@ struct AnalyticsValidatorsViewFactory {
             chain: chain
         )
         return interactor
+    }
+
+    private static func createPresenter(
+        interactor: AnalyticsValidatorsInteractor,
+        wireframe: AnalyticsValidatorsWireframe
+    ) -> AnalyticsValidatorsPresenter {
+        let settings = SettingsManager.shared
+        let selectedType = settings.selectedConnection.type
+        let chain = selectedType.chain
+
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: selectedType,
+            limit: StakingConstants.maxAmount
+        )
+        let viewModelFactory = AnalyticsValidatorsViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory,
+            chain: chain
+        )
+
+        let presenter = AnalyticsValidatorsPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory,
+            localizationManager: LocalizationManager.shared,
+            logger: Logger.shared
+        )
+        return presenter
     }
 }
