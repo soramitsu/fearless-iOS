@@ -21,7 +21,7 @@ final class WebSocketService: WebSocketServiceProtocol {
         )
         return WebSocketService(
             settings: settings,
-            connectionFactory: WebSocketEngineFactory(),
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
             subscriptionsFactory: subscriptionFactory,
             applicationHandler: ApplicationHandler()
         )
@@ -36,7 +36,7 @@ final class WebSocketService: WebSocketServiceProtocol {
     var connection: JSONRPCEngine? { engine }
 
     let applicationHandler: ApplicationHandlerProtocol
-    let connectionFactory: WebSocketEngineFactoryProtocol
+    let chainRegistry: ChainRegistryProtocol
     let subscriptionsFactory: WebSocketSubscriptionFactoryProtocol
 
     private(set) var settings: WebSocketServiceSettings
@@ -50,13 +50,13 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     init(
         settings: WebSocketServiceSettings,
-        connectionFactory: WebSocketEngineFactoryProtocol,
+        chainRegistry: ChainRegistryProtocol,
         subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol
     ) {
         self.settings = settings
         self.applicationHandler = applicationHandler
-        self.connectionFactory = connectionFactory
+        self.chainRegistry = chainRegistry
         self.subscriptionsFactory = subscriptionsFactory
     }
 
@@ -104,17 +104,21 @@ final class WebSocketService: WebSocketServiceProtocol {
     }
 
     private func setupConnection() {
-        let engine = connectionFactory.createEngine(for: settings.url, autoconnect: isActive)
-        engine.delegate = self
-        self.engine = engine
+        if
+            let address = settings.address,
+            let type = settings.addressType,
+            let engine = chainRegistry.getConnection(for: type.chain.genesisHash) as? WebSocketEngine {
+            engine.delegate = self
+            self.engine = engine
 
-        if let address = settings.address, let type = settings.addressType {
             subscriptions = try? subscriptionsFactory.createSubscriptions(
                 address: address,
                 type: type,
                 engine: engine
             )
         } else {
+            engine?.delegate = nil
+            engine = nil
             subscriptions = nil
         }
     }

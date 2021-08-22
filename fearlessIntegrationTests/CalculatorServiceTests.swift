@@ -669,23 +669,9 @@ class CalculatorServiceTests: XCTestCase {
                                       chain: Chain,
                                       logger: LoggerProtocol? = nil) throws
     -> RuntimeRegistryService {
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager,
-                                                           logger: logger)
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: SubstrateStorageTestFacade())
 
-        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
-            FileManager.default.temporaryDirectory
-        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
-        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
-                                                          directoryPath: runtimeDirectory)
-
-        return RuntimeRegistryService(chain: chain,
-                                      metadataProviderFactory: providerFactory,
-                                      dataOperationFactory: DataOperationFactory(),
-                                      filesOperationFacade: filesRepository,
-                                      operationManager: operationManager,
-                                      eventCenter: EventCenter.shared,
-                                      logger: logger)
+        return RuntimeRegistryService(chain: chain, chainRegistry: chainRegistry)
     }
 
     private func createWebSocketService(storageFacade: StorageFacadeProtocol,
