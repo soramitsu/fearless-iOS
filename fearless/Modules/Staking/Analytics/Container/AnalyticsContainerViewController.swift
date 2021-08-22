@@ -45,15 +45,32 @@ final class AnalyticsContainerViewController: UIViewController, ViewHolder, Anal
     }
 
     private func setupEmbeddedModules() {
-        embeddedModules.forEach { module in
+        var lastView: UIView?
+
+        for module in embeddedModules {
             let controller = module.controller
             addChild(controller)
             let view = controller.view!
-            rootView.embeddedModulesStackView.addArrangedSubview(view)
-            view.snp.makeConstraints {
-                $0.width.equalTo(rootView)
+            rootView.horizontalScrollView.addSubview(view)
+
+            view.snp.makeConstraints { make in
+                make.top.bottom.equalToSuperview()
+                make.width.equalTo(rootView)
+
+                if let leftView = lastView {
+                    make.left.equalTo(leftView.snp.right)
+                } else {
+                    make.left.equalTo(rootView.horizontalScrollView)
+                }
             }
             controller.didMove(toParent: self)
+
+            lastView = view
+        }
+
+        lastView?.snp.makeConstraints { make in
+            make.height.equalToSuperview()
+            make.trailing.equalToSuperview()
         }
     }
 }

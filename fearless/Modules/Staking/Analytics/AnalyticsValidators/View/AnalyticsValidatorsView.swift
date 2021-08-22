@@ -35,18 +35,15 @@ final class AnalyticsValidatorsView: UIView {
     private func setupLayout() {
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.edges.equalTo(safeAreaLayoutGuide)
         }
 
         tableView.tableHeaderView = headerView
 
         addSubview(pageSelector)
         pageSelector.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-        }
-        pageSelector.contentView.snp.makeConstraints { make in
-            make.bottom.equalTo(safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
         }
     }
 }

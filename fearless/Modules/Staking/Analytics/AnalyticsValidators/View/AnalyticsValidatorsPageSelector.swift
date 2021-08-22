@@ -32,9 +32,9 @@ final class AnalyticsValidatorsPageSelector: UIView {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(16)
-            make.height.equalTo(24)
+            make.height.equalTo(24.0)
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
 

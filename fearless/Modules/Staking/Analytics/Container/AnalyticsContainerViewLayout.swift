@@ -22,8 +22,6 @@ final class AnalyticsContainerViewLayout: UIView {
         return scrollView
     }()
 
-    let embeddedModulesStackView = UIStackView()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorBlack()
@@ -48,14 +46,5 @@ final class AnalyticsContainerViewLayout: UIView {
             make.top.equalTo(segmentedControl.snp.bottom)
             make.leading.bottom.trailing.equalToSuperview()
         }
-
-        let container = UIView()
-        horizontalScrollView.addSubview(container)
-        container.snp.makeConstraints {
-            $0.edges.height.equalToSuperview()
-        }
-
-        container.addSubview(embeddedModulesStackView)
-        embeddedModulesStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }
