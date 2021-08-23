@@ -14,8 +14,6 @@ final class AnalyticsPeriodView: UIView {
     private let buttonsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.spacing = 8
-        stackView.alignment = .center
-        stackView.distribution = .fillEqually
         return stackView
     }()
 
@@ -68,35 +66,22 @@ private class AnalyticsPeriodButton: RoundedButton {
 
         roundedBackgroundView?.cornerRadius = 20
         roundedBackgroundView?.shadowOpacity = 0.0
-
-        // contentInsets = UIEdgeInsets(top: 5.5, left: 12, bottom: 5.5, right: 12)
+        roundedBackgroundView?.strokeColor = R.color.colorDarkGray()!
+        roundedBackgroundView?.highlightedStrokeColor = R.color.colorDarkGray()!
+        roundedBackgroundView?.strokeWidth = 1.0
         roundedBackgroundView?.fillColor = .clear
         roundedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
 
+        contentInsets = UIEdgeInsets(top: 5.5, left: 12, bottom: 5.5, right: 12)
+
         imageWithTitleView?.titleColor = R.color.colorTransparentText()
-        imageWithTitleView?.highlightedTitleColor = R.color.colorWhite()!
+        imageWithTitleView?.highlightedTitleColor = .white
         imageWithTitleView?.title = period.title(for: .current)
         imageWithTitleView?.titleFont = .capsTitle
-        changesContentOpacityWhenHighlighted = true
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-//
-//    private func setupLayout() {
-//        contentView.addSubview(titleLabel)
-//        titleLabel.snp.makeConstraints { make in
-//            make.leading.trailing.equalToSuperview().inset(12)
-//            make.top.bottom.equalToSuperview().inset(5.5)
-//        }
-//    }
-
-//    private func setupBorder() {
-//        contentView.layer.cornerRadius = 12
-//        contentView.clipsToBounds = true
-//        contentView.layer.borderWidth = 2
-//        contentView.layer.borderColor = R.color.colorWhite()?.withAlphaComponent(0.16).cgColor
-//    }
 }

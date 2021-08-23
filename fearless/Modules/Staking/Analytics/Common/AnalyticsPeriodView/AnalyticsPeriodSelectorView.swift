@@ -53,7 +53,11 @@ final class AnalyticsPeriodSelectorView: UIView {
                     [previousButton, UIView(), periodLabel, UIView(), nextButton]
                 ),
                 separator,
-                periodView
+                .hStack(
+                    alignment: .top,
+                    distribution: .equalSpacing,
+                    [UIView(), periodView, UIView()]
+                )
             ]
         )
 
