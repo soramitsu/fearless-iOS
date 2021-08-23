@@ -32,9 +32,7 @@ class PayoutRewardsServiceTests: XCTestCase {
         )
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
             chain: chain,
-            subscanBaseURL: assetId.subscanUrl!,
-            subscanOperationFactory: SubscanOperationFactory(),
-            operationManager: operationManager
+            subqueryURL: chain.analyticsURL!
         )
 
         let identityOperation = IdentityOperationFactory(requestFactory: storageRequestFactory)

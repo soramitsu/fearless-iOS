@@ -485,9 +485,9 @@ extension StakingMainInteractor {
             DispatchQueue.main.async {
                 do {
                     let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
-                    self?.presenter.didReceieve(rewardItemData: .success(response), period: period)
+                    self?.presenter?.didReceieve(rewardItemData: .success(response), period: period)
                 } catch {
-                    self?.presenter.didReceieve(rewardItemData: .failure(error), period: period)
+                    self?.presenter?.didReceieve(rewardItemData: .failure(error), period: period)
                 }
             }
         }

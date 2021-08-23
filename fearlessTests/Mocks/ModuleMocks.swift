@@ -34708,16 +34708,16 @@ import SoraFoundation
     
     
     
-     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)  {
+     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod)  {
         
-    return cuckoo_manager.call("didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)",
-            parameters: (rewardItemData),
-            escapingParameters: (rewardItemData),
+    return cuckoo_manager.call("didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod)",
+            parameters: (rewardItemData, period),
+            escapingParameters: (rewardItemData, period),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceieve(rewardItemData: rewardItemData))
+            defaultCall: __defaultImplStub!.didReceieve(rewardItemData: rewardItemData, period: period))
         
     }
     
@@ -34955,9 +34955,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChain: Chain)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceieve<M1: Cuckoo.Matchable>(rewardItemData: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[SubqueryRewardItemData], Error>)> where M1.MatchedType == Result<[SubqueryRewardItemData], Error> {
-	        let matchers: [Cuckoo.ParameterMatcher<(Result<[SubqueryRewardItemData], Error>)>] = [wrap(matchable: rewardItemData) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)", parameterMatchers: matchers))
+	    func didReceieve<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(rewardItemData: M1, period: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[SubqueryRewardItemData], Error>, AnalyticsPeriod)> where M1.MatchedType == Result<[SubqueryRewardItemData], Error>, M2.MatchedType == AnalyticsPeriod {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<[SubqueryRewardItemData], Error>, AnalyticsPeriod)>] = [wrap(matchable: rewardItemData) { $0.0 }, wrap(matchable: period) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveMinNominatorBond<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<BigUInt?, Error>)> where M1.MatchedType == Result<BigUInt?, Error> {
@@ -35156,9 +35156,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didReceieve<M1: Cuckoo.Matchable>(rewardItemData: M1) -> Cuckoo.__DoNotUse<(Result<[SubqueryRewardItemData], Error>), Void> where M1.MatchedType == Result<[SubqueryRewardItemData], Error> {
-	        let matchers: [Cuckoo.ParameterMatcher<(Result<[SubqueryRewardItemData], Error>)>] = [wrap(matchable: rewardItemData) { $0 }]
-	        return cuckoo_manager.verify("didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceieve<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(rewardItemData: M1, period: M2) -> Cuckoo.__DoNotUse<(Result<[SubqueryRewardItemData], Error>, AnalyticsPeriod), Void> where M1.MatchedType == Result<[SubqueryRewardItemData], Error>, M2.MatchedType == AnalyticsPeriod {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<[SubqueryRewardItemData], Error>, AnalyticsPeriod)>] = [wrap(matchable: rewardItemData) { $0.0 }, wrap(matchable: period) { $0.1 }]
+	        return cuckoo_manager.verify("didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -35308,7 +35308,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)   {
+     func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
