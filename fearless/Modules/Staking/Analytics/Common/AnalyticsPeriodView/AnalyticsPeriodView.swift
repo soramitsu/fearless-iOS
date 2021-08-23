@@ -43,14 +43,20 @@ final class AnalyticsPeriodView: UIView {
             view.removeFromSuperview()
         }
         let buttons = periods.map { AnalyticsPeriodButton(period: $0) }
-        buttons.forEach { buttonsStackView.addArrangedSubview($0) }
+        buttons.forEach { button in
+            button.addTarget(self, action: #selector(handlePeriodButton(button:)), for: .touchUpInside)
+            buttonsStackView.addArrangedSubview(button)
+        }
         setNeedsLayout()
         let selectedButton = buttons.first(where: { $0.period == selected })
         selectedButton?.isSelected = true
     }
 
     @objc
-    private func handlePeriodButton(button _: AnalyticsPeriodButton) {}
+    private func handlePeriodButton(button: UIControl) {
+        guard let button = button as? AnalyticsPeriodButton else { return }
+        delegate?.didSelect(period: button.period)
+    }
 }
 
 private class AnalyticsPeriodButton: RoundedButton {
