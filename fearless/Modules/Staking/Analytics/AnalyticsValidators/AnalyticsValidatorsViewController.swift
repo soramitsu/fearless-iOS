@@ -89,6 +89,7 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
 
         switch viewState {
         case .loading:
+            rootView.pageSelector.isHidden = true
             if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
                 refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
             }
@@ -96,6 +97,7 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
             rootView.tableView.refreshControl?.endRefreshing()
             if !viewModel.validators.isEmpty {
                 rootView.pageSelector.isHidden = false
+                rootView.pageSelector.bind(selectedPage: viewModel.selectedPage)
                 rootView.headerView.pieChart.setAmounts(
                     segmentValues: viewModel.pieChartSegmentValues,
                     inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue

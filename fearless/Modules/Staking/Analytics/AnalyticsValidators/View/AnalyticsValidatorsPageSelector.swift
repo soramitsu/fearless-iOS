@@ -8,12 +8,9 @@ protocol AnalyticsValidatorsPageSelectorDelegate: AnyObject {
 final class AnalyticsValidatorsPageSelector: UIView {
     weak var delegate: AnalyticsValidatorsPageSelectorDelegate?
 
-    private let activityButton = AnalyticsPageButton(page: .activity)
-    private let rewardsButton = AnalyticsPageButton(page: .rewards)
-
-    lazy var contentView: UIView = {
-        UIView.hStack([activityButton, rewardsButton])
-    }()
+    typealias Button = AnalyticsBottomSheetButton<AnalyticsValidatorsPage>
+    private let activityButton = Button(model: .activity)
+    private let rewardsButton = Button(model: .rewards)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -29,6 +26,9 @@ final class AnalyticsValidatorsPageSelector: UIView {
     }
 
     private func setupLayout() {
+        let contentView = UIView.hStack([activityButton, rewardsButton])
+        contentView.spacing = 8
+
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(16)
@@ -40,49 +40,14 @@ final class AnalyticsValidatorsPageSelector: UIView {
 
     @objc
     private func handleButton(sender: UIControl) {
-        guard let button = sender as? AnalyticsPageButton else { return }
-        delegate?.didSelectPage(button.page)
+        guard let button = sender as? Button else { return }
+        delegate?.didSelectPage(button.model)
+    }
+
+    func bind(selectedPage: AnalyticsValidatorsPage) {
+        let selectedButton = [activityButton, rewardsButton].first(where: { $0.model == selectedPage })
+        selectedButton?.isSelected = true
     }
 }
 
-private class AnalyticsPageButton: RoundedButton {
-    let page: AnalyticsValidatorsPage
-
-    init(page: AnalyticsValidatorsPage) {
-        self.page = page
-        super.init(frame: .zero)
-
-        roundedBackgroundView?.cornerRadius = 20
-        roundedBackgroundView?.shadowOpacity = 0.0
-
-        // contentInsets = UIEdgeInsets(top: 5.5, left: 12, bottom: 5.5, right: 12)
-        roundedBackgroundView?.fillColor = .clear
-        roundedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
-
-        imageWithTitleView?.titleColor = R.color.colorTransparentText()
-        imageWithTitleView?.highlightedTitleColor = R.color.colorWhite()!
-        imageWithTitleView?.title = page.title(for: .current)
-        imageWithTitleView?.titleFont = .capsTitle
-        changesContentOpacityWhenHighlighted = true
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    //
-    //    private func setupLayout() {
-    //        contentView.addSubview(titleLabel)
-    //        titleLabel.snp.makeConstraints { make in
-    //            make.leading.trailing.equalToSuperview().inset(12)
-    //            make.top.bottom.equalToSuperview().inset(5.5)
-    //        }
-    //    }
-
-    //    private func setupBorder() {
-    //        contentView.layer.cornerRadius = 12
-    //        contentView.clipsToBounds = true
-    //        contentView.layer.borderWidth = 2
-    //        contentView.layer.borderColor = R.color.colorWhite()?.withAlphaComponent(0.16).cgColor
-    //    }
-}
+extension AnalyticsValidatorsPage: AnalyticsBottomSheetButtonModel {}
