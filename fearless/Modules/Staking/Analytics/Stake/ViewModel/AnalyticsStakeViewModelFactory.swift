@@ -12,8 +12,15 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         dateTitleFormatter.locale = locale
         dateTitleFormatter.dateFormat = "MMM d"
 
-        return rewardsData
-            .groupedBy(dateComponents: [.day])
+        let groupedByDay = rewardsData
+            .groupedBy(dateComponents: [.year, .month, .day])
+        let sortedByDay: [(Date, [SubqueryStakeChangeData])] = groupedByDay.keys
+            .map { (key: Date) in
+                (key, groupedByDay[key]!)
+            }
+            .sorted(by: { $0.0 > $1.0 })
+
+        return sortedByDay
             .map { date, rewards in
                 let items: [AnalyticsRewardsItemViewModel] = rewards.compactMap { itemData in
                     guard
@@ -29,10 +36,11 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
 
                     let txDate = Date(timeIntervalSince1970: TimeInterval(itemData.timestamp))
                     let txTimeText = formatter.string(from: txDate)
+                    let subtitle = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
 
                     return AnalyticsRewardsItemViewModel(
                         addressOrName: itemData.type.title(for: locale),
-                        daysLeftText: .init(string: R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)),
+                        daysLeftText: .init(string: subtitle),
                         tokenAmountText: "+\(tokenAmountText)",
                         usdAmountText: txTimeText
                     )
