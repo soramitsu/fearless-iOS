@@ -93,7 +93,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     private func updateActionButton() {
         let isEnabled = (assetViewModel != nil)
-        rootView.networkFeeConfirmView.actionButton.isEnabled = isEnabled
+        rootView.networkFeeConfirmView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyConfirmationViewModel() {

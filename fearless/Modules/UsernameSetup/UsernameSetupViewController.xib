@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -20,7 +20,6 @@
                 <outlet property="hintLabel" destination="aza-85-hKb" id="HWt-R8-abD"/>
                 <outlet property="inputField" destination="uF4-Wx-nXk" id="vFA-Q8-dZe"/>
                 <outlet property="networkView" destination="ssW-2f-pZr" id="SYG-ZS-0eu"/>
-                <outlet property="nextBottom" destination="tEr-hq-Bse" id="13c-Eu-CU9"/>
                 <outlet property="nextButton" destination="21e-dk-cnQ" id="wS2-jY-vlv"/>
                 <outlet property="view" destination="iN0-l3-epB" id="XUN-6R-GIy"/>
             </connections>
@@ -31,7 +30,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ssW-2f-pZr" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="17" y="26.000000000000004" width="380" height="56.333333333333343"/>
+                    <rect key="frame" x="17" y="26.000000000000004" width="380" height="58.333333333333343"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
@@ -64,7 +63,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P7s-un-WJk" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="98.333333333333329" width="382" height="51.999999999999986"/>
+                    <rect key="frame" x="16" y="100.33333333333333" width="382" height="51.999999999999986"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uF4-Wx-nXk" customClass="AnimatedTextField" customModule="SoraUI">
                             <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
@@ -146,14 +145,14 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aza-85-hKb">
-                    <rect key="frame" x="16" y="158.33333333333334" width="382" height="42"/>
+                    <rect key="frame" x="16" y="160.33333333333334" width="382" height="45.666666666666657"/>
                     <string key="text">The name for this account and how it will appear under your addresses. With an on-chain identity, it can be made available to others.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="21e-dk-cnQ" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="660" width="382" height="52"/>
+                    <rect key="frame" x="16" y="668" width="382" height="52"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="L1o-LP-3OX"/>
@@ -197,7 +196,7 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="P7s-un-WJk" secondAttribute="trailing" constant="16" id="Ham-im-itW"/>
                 <constraint firstItem="P7s-un-WJk" firstAttribute="top" secondItem="ssW-2f-pZr" secondAttribute="bottom" constant="16" id="ab3-c2-Dqk"/>
                 <constraint firstItem="ssW-2f-pZr" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="26" id="kmr-fb-S8F"/>
-                <constraint firstItem="21e-dk-cnQ" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" constant="-24" id="tEr-hq-Bse"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="21e-dk-cnQ" secondAttribute="bottom" constant="16" id="q4s-He-5WG"/>
                 <constraint firstItem="aza-85-hKb" firstAttribute="top" secondItem="P7s-un-WJk" secondAttribute="bottom" constant="8" id="uwM-YF-EYs"/>
                 <constraint firstItem="P7s-un-WJk" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="yQo-CU-K06"/>
             </constraints>
@@ -206,10 +205,10 @@
     </objects>
     <designables>
         <designable name="21e-dk-cnQ">
-            <size key="intrinsicContentSize" width="43.333333333333329" height="31.666666666666664"/>
+            <size key="intrinsicContentSize" width="51.333333333333336" height="33.666666666666671"/>
         </designable>
         <designable name="ssW-2f-pZr">
-            <size key="intrinsicContentSize" width="213.33333333333331" height="56.333333333333336"/>
+            <size key="intrinsicContentSize" width="238.66666666666666" height="58.333333333333336"/>
         </designable>
     </designables>
     <resources>
