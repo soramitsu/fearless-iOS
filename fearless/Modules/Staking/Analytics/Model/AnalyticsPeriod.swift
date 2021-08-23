@@ -12,11 +12,14 @@ extension AnalyticsPeriod {
     func title(for locale: Locale) -> String {
         switch self {
         case .weekly:
-            return R.string.localizable.stakingAnalyticsPeriodWeekly(preferredLanguages: locale.rLanguages).uppercased()
+            return R.string.localizable
+                .stakingAnalyticsPeriodWeekly(preferredLanguages: locale.rLanguages).uppercased()
         case .monthly:
-            return R.string.localizable.stakingAnalyticsPeriodMonthly(preferredLanguages: locale.rLanguages).uppercased()
+            return R.string.localizable
+                .stakingAnalyticsPeriodMonthly(preferredLanguages: locale.rLanguages).uppercased()
         case .yearly:
-            return R.string.localizable.stakingAnalyticsPeriodYearly(preferredLanguages: locale.rLanguages).uppercased()
+            return R.string.localizable
+                .stakingAnalyticsPeriodYearly(preferredLanguages: locale.rLanguages).uppercased()
         }
     }
 
