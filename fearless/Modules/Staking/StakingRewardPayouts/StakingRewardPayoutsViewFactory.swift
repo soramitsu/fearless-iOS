@@ -10,22 +10,13 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     ) -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
-        let operationManager = OperationManagerFacade.sharedManager
-
         let chain = connection.type.chain
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier),
-              let subscanUrl = assetId.subscanUrl else {
-            return nil
-        }
+        guard let analyticsURL = chain.analyticsURL else { return nil }
 
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
             chain: chain,
-            subqueryURL: URL(string: "http://localhost:3000/")! // TODO: delete stub url
+            subqueryURL: analyticsURL
         )
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
