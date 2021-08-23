@@ -54,7 +54,6 @@ final class AnalyticsPeriodSelectorView: UIView {
                 ),
                 separator,
                 .hStack(
-                    alignment: .top,
                     distribution: .equalSpacing,
                     [UIView(), periodView, UIView()]
                 )
@@ -69,7 +68,7 @@ final class AnalyticsPeriodSelectorView: UIView {
 
         separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
         periodView.snp.makeConstraints { make in
-            make.height.equalTo(24)
+            make.centerX.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
     }
@@ -86,7 +85,7 @@ final class AnalyticsPeriodSelectorView: UIView {
 
     func bind(viewModel: AnalyticsPeriodViewModel) {
         periodLabel.text = viewModel.periodTitle
-        periodView.configure(periods: viewModel.periods, selected: viewModel.selectedPeriod)
+        periodView.bind(selectedPeriod: viewModel.selectedPeriod)
         nextButton.isEnabled = viewModel.canSelectNextPeriod
         previousButton.isEnabled = viewModel.canSelectPreviousPeriod
     }

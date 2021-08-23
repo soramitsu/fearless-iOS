@@ -9,18 +9,19 @@ protocol AnalyticsPeriodViewDelegate: AnyObject {
 final class AnalyticsPeriodView: UIView {
     weak var delegate: AnalyticsPeriodViewDelegate?
 
-    private var periods: [AnalyticsPeriod] = []
-    private var selectedPeriod: AnalyticsPeriod?
+    typealias Button = AnalyticsBottomSheetButton<AnalyticsPeriod>
+    private let weeklyButton = Button(model: .weekly)
+    private let monthlyButton = Button(model: .monthly)
+    private let yearlyButton = Button(model: .yearly)
 
-    private let buttonsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.spacing = 8
-        return stackView
-    }()
+    private var buttons: [AnalyticsBottomSheetButton<AnalyticsPeriod>] {
+        [weeklyButton, monthlyButton, yearlyButton]
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        buttons.forEach { $0.addTarget(self, action: #selector(handlePeriodButton(button:)), for: .touchUpInside) }
     }
 
     @available(*, unavailable)
@@ -29,6 +30,10 @@ final class AnalyticsPeriodView: UIView {
     }
 
     private func setupLayout() {
+        let buttonsStackView: UIView = .hStack(
+            spacing: 8,
+            [weeklyButton, monthlyButton, yearlyButton]
+        )
         addSubview(buttonsStackView)
         buttonsStackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -36,18 +41,9 @@ final class AnalyticsPeriodView: UIView {
         }
     }
 
-    func configure(periods: [AnalyticsPeriod], selected: AnalyticsPeriod) {
-        self.periods = periods
-        buttonsStackView.arrangedSubviews.forEach { view in
-            view.removeFromSuperview()
-        }
-        let buttons = periods.map { AnalyticsBottomSheetButton<AnalyticsPeriod>(model: $0) }
-        buttons.forEach { button in
-            button.addTarget(self, action: #selector(handlePeriodButton(button:)), for: .touchUpInside)
-            buttonsStackView.addArrangedSubview(button)
-        }
-        setNeedsLayout()
-        let selectedButton = buttons.first(where: { $0.model == selected })
+    func bind(selectedPeriod: AnalyticsPeriod) {
+        buttons.forEach { $0.isSelected = false }
+        let selectedButton = buttons.first(where: { $0.model == selectedPeriod })
         selectedButton?.isSelected = true
     }
 
