@@ -27,6 +27,7 @@ final class FWBarChartView: BarChartView {
         drawBarShadowEnabled = false
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
+        highlightPerTapEnabled = false
 
         xAxis.gridLineDashLengths = [2.5, 2.5]
         xAxis.gridLineDashPhase = 0

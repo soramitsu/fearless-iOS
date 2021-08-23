@@ -18,6 +18,7 @@ final class FWLineChartView: LineChartView {
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
+        highlightPerTapEnabled = false
         dragEnabled = false
         maxVisibleCount = 40
 

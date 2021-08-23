@@ -16,6 +16,7 @@ final class FWPieChartView: PieChartView {
         drawEntryLabelsEnabled = false
         usePercentValuesEnabled = false
         legend.enabled = false
+        highlightPerTapEnabled = false
     }
 
     @available(*, unavailable)
