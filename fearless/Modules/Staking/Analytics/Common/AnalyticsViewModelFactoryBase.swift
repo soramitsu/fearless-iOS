@@ -73,11 +73,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let sections = createSections(rewardsData: data, locale: locale)
 
             let canSelectNextPeriod = data.contains(where: { $0.timestamp > timestampInterval.1 })
+            let canSelectPreviousPeriod = data.contains(where: { $0.timestamp < timestampInterval.0 })
             let periodViewModel = AnalyticsPeriodViewModel(
                 periods: AnalyticsPeriod.allCases,
                 selectedPeriod: period,
                 periodTitle: periodText,
-                canSelectNextPeriod: canSelectNextPeriod
+                canSelectNextPeriod: canSelectNextPeriod,
+                canSelectPreviousPeriod: canSelectPreviousPeriod
             )
 
             let viewModel = AnalyticsRewardsViewModel(

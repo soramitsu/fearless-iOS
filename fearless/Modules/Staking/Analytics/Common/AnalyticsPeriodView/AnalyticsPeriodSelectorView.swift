@@ -84,5 +84,6 @@ final class AnalyticsPeriodSelectorView: UIView {
         periodLabel.text = viewModel.periodTitle
         periodView.configure(periods: viewModel.periods, selected: viewModel.selectedPeriod)
         nextButton.isEnabled = viewModel.canSelectNextPeriod
+        previousButton.isEnabled = viewModel.canSelectPreviousPeriod
     }
 }

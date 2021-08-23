@@ -3,4 +3,5 @@ struct AnalyticsPeriodViewModel {
     let selectedPeriod: AnalyticsPeriod
     let periodTitle: String
     let canSelectNextPeriod: Bool
+    let canSelectPreviousPeriod: Bool
 }
