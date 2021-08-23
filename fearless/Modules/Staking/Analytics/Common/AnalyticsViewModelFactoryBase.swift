@@ -55,7 +55,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 usdAmount: totalReceivedToken.price
             )
 
-            let sections = createSections(rewardsData: data, locale: locale)
+            let sections = createSections(rewardsData: rewardItemsWithinLimits, locale: locale)
 
             let canSelectNextPeriod = data.contains(where: { $0.timestamp > timestampInterval.1 })
             let canSelectPreviousPeriod = data.contains(where: { $0.timestamp < timestampInterval.0 })
@@ -95,11 +95,64 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         return dateFormatter
     }
 
-    func createSections(
-        rewardsData _: [T],
-        locale _: Locale
+    private func createViewModelItems(
+        rewardsData: [T],
+        locale: Locale
+    ) -> [AnalyticsRewardsItemViewModel] {
+        let txFormatter = DateFormatter.txHistory.value(for: locale)
+
+        return rewardsData.compactMap { itemData in
+            let title = getHistoryItemTitle(data: itemData, locale: locale)
+            let subtitle = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
+            let tokenAmountText = getTokenAmountText(data: itemData, locale: locale)
+            let txDate = Date(timeIntervalSince1970: TimeInterval(itemData.timestamp))
+            let txTimeText = txFormatter.string(from: txDate)
+
+            return AnalyticsRewardsItemViewModel(
+                addressOrName: title,
+                daysLeftText: .init(string: subtitle),
+                tokenAmountText: "+\(tokenAmountText)",
+                usdAmountText: txTimeText
+            )
+        }
+    }
+
+    /// Overrinde in subclasses
+    func getHistoryItemTitle(data _: T, locale _: Locale) -> String {
+        ""
+    }
+
+    /// Overrinde in subclasses
+    func getTokenAmountText(data _: T, locale _: Locale) -> String {
+        ""
+    }
+
+    private func createSections(
+        rewardsData: [T],
+        locale: Locale
     ) -> [AnalyticsRewardSection] {
-        []
+        let dateTitleFormatter = DateFormatter()
+        dateTitleFormatter.locale = locale
+        dateTitleFormatter.dateFormat = "MMM d"
+
+        let groupedByDay = rewardsData
+            .groupedBy(dateComponents: [.year, .month, .day])
+        let sortedByDay: [(Date, [T])] = groupedByDay.keys
+            .map { (key: Date) in
+                (key, groupedByDay[key]!)
+            }
+            .sorted(by: { $0.0 > $1.0 })
+
+        return sortedByDay
+            .map { date, rewards in
+                let items = createViewModelItems(rewardsData: rewards, locale: locale)
+                let title = dateTitleFormatter.string(from: date).uppercased()
+
+                return AnalyticsRewardSection(
+                    title: title,
+                    items: items
+                )
+            }
     }
 
     private func groupedData<T: AnalyticsViewModelItem>(
@@ -120,5 +173,23 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             )
             array[index] += decimal
         }
+    }
+}
+
+protocol Dated {
+    var date: Date { get }
+}
+
+private extension Array where Element: Dated {
+    func groupedBy(dateComponents: Set<Calendar.Component>) -> [Date: [Element]] {
+        let initial: [Date: [Element]] = [:]
+        let groupedByDateComponents = reduce(into: initial) { acc, cur in
+            let components = Calendar.current.dateComponents(dateComponents, from: cur.date)
+            let date = Calendar.current.date(from: components)!
+            let existing = acc[date] ?? []
+            acc[date] = existing + [cur]
+        }
+
+        return groupedByDateComponents
     }
 }

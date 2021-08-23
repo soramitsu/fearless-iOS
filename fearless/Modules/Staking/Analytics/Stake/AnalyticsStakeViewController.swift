@@ -71,10 +71,10 @@ extension AnalyticsStakeViewController: AnalyticsStakeViewProtocol {
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
+            rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
             if !viewModel.rewardSections.isEmpty {
                 rootView.periodSelectorView.isHidden = false
                 rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
-                rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
                 rootView.tableView.reloadData()
             }
         case .error:
