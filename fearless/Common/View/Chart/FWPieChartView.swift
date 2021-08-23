@@ -41,6 +41,7 @@ extension FWPieChartView: FWPieChartViewProtocol {
             set.colors.append(R.color.colorDarkGray()!)
         }
         self.data = data
+        animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
     }
 
     func setCenterText(_ text: NSAttributedString) {

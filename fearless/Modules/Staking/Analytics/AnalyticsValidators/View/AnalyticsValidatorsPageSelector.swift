@@ -45,7 +45,9 @@ final class AnalyticsValidatorsPageSelector: UIView {
     }
 
     func bind(selectedPage: AnalyticsValidatorsPage) {
-        let selectedButton = [activityButton, rewardsButton].first(where: { $0.model == selectedPage })
+        let buttons = [activityButton, rewardsButton]
+        buttons.forEach { $0.isSelected = false }
+        let selectedButton = buttons.first(where: { $0.model == selectedPage })
         selectedButton?.isSelected = true
     }
 }
