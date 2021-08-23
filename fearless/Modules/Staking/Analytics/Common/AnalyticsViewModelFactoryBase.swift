@@ -25,29 +25,15 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         periodDelta: Int
     ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
-            var resultArray = [Decimal](repeating: 0.0, count: period.chartBarsCount)
+            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
 
             let rewardItemsWithinLimits = data
                 .filter { itemData in
-                    let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
-                    return itemData.timestamp >= timestampInterval.0 &&
+                    itemData.timestamp >= timestampInterval.0 &&
                         itemData.timestamp <= timestampInterval.1
                 }
 
-            let groupedByPeriod = rewardItemsWithinLimits
-                .reduce(resultArray) { array, value in
-                    let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
-                    let distance = timestampInterval.1 - timestampInterval.0
-                    let index = Int(Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(period.chartBarsCount))
-                    guard
-                        let decimal = Decimal.fromSubstrateAmount(
-                            value.amount,
-                            precision: self.chain.addressType.precision
-                        )
-                    else { return array }
-                    resultArray[index] += decimal
-                    return resultArray
-                }
+            let groupedByPeriod = self.groupedData(rewardItemsWithinLimits, by: period, periodDelta: periodDelta)
 
             let chartDoubles = groupedByPeriod.map { Double(truncating: $0 as NSNumber) }
             let chartData = ChartData(amounts: chartDoubles, xAxisValues: period.xAxisValues)
@@ -59,7 +45,6 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             ).value(for: locale)
 
             let dateFormatter = self.periodDateFormatter(period: period, for: locale)
-            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
             let startDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.0))
             let endDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.1))
 
@@ -115,5 +100,25 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         locale _: Locale
     ) -> [AnalyticsRewardSection] {
         []
+    }
+
+    private func groupedData<T: AnalyticsViewModelItem>(
+        _ data: [T],
+        by period: AnalyticsPeriod,
+        periodDelta: Int
+    ) -> [Decimal] {
+        data.reduce(into: [Decimal](repeating: 0.0, count: period.chartBarsCount)) { array, value in
+            guard let decimal = Decimal.fromSubstrateAmount(
+                value.amount,
+                precision: chain.addressType.precision
+            ) else { return }
+
+            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
+            let distance = timestampInterval.1 - timestampInterval.0
+            let index = Int(
+                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(period.chartBarsCount)
+            )
+            array[index] += decimal
+        }
     }
 }
