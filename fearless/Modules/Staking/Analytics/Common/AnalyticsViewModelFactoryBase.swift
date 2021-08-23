@@ -123,8 +123,18 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     /// Overrinde in subclasses
-    func getTokenAmountText(data _: T, locale _: Locale) -> String {
-        ""
+    private func getTokenAmountText(data: T, locale: Locale) -> String {
+        guard
+            let tokenDecimal = Decimal.fromSubstrateAmount(
+                data.amount,
+                precision: chain.addressType.precision
+            )
+        else { return "" }
+
+        let tokenAmountText = balanceViewModelFactory
+            .amountFromValue(tokenDecimal)
+            .value(for: locale)
+        return tokenAmountText
     }
 
     private func createSections(
