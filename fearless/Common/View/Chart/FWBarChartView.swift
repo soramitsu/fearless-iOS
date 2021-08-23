@@ -73,6 +73,7 @@ extension FWBarChartView: FWChartViewProtocol {
         data.barWidth = 0.4
 
         self.data = data
+        animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
     }
 }
 

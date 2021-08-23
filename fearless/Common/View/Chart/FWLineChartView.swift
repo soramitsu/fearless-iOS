@@ -80,5 +80,6 @@ extension FWLineChartView: FWChartViewProtocol {
         xAxis.labelCount = data.xAxisValues.count
 
         self.data = lineChartData
+        animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
     }
 }
