@@ -470,17 +470,24 @@ extension StakingMainInteractor {
 
     private func fetchAnalyticsRewards(stash: AccountAddress) {
         guard let analyticsURL = currentConnection?.type.chain.analyticsURL else { return }
+        let period = analyticsPeriod
+        let timestampRange = period.timestampInterval(periodDelta: 0)
 
-        let subqueryRewardsSource = SubqueryRewardsSource(address: stash, url: analyticsURL)
+        let subqueryRewardsSource = SubqueryRewardsSource(
+            address: stash,
+            url: analyticsURL,
+            startTimestamp: timestampRange.0,
+            endTimestamp: timestampRange.1
+        )
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
                     let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
-                    self?.presenter.didReceieve(rewardItemData: .success(response))
+                    self?.presenter.didReceieve(rewardItemData: .success(response), period: period)
                 } catch {
-                    self?.presenter.didReceieve(rewardItemData: .failure(error))
+                    self?.presenter.didReceieve(rewardItemData: .failure(error), period: period)
                 }
             }
         }

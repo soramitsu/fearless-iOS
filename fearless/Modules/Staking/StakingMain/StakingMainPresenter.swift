@@ -491,13 +491,13 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod) {
         switch rewardItemData {
         case let .success(data):
             guard let chain = chain else { return }
             let viewModel = viewModelFacade.createAnalyticsViewModel(
                 from: data,
-                period: .weekly,
+                period: period,
                 priceData: priceData,
                 chain: chain
             )

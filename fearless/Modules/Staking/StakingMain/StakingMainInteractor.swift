@@ -38,6 +38,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?
+    let analyticsPeriod = AnalyticsPeriod.weekly
 
     init(
         providerFactory: SingleValueProviderFactoryProtocol,
