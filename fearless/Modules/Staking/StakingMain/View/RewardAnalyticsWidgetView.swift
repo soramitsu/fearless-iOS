@@ -12,6 +12,13 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
     private let arrowView: UIView = UIImageView(image: R.image.iconSmallArrow())
 
+    private let rewardsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
+        return label
+    }()
+
     private let periodLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -34,32 +41,6 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
     }()
 
     let barChartView: FWChartViewProtocol = FWBarChartView()
-
-    private let payableIndicatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorAccent()
-        return view
-    }()
-
-    private let payableTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p3Paragraph
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
-
-    private let receivedIndicatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorGray()
-        return view
-    }()
-
-    private let receivedTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p3Paragraph
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
 
     private var localizableViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
 
@@ -92,14 +73,15 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
     override var intrinsicContentSize: CGSize {
         CGSize(
             width: UIView.noIntrinsicMetric,
-            height: 249
+            height: 221
         )
     }
 
     private func applyLocalization() {
-        titleLabel.text = "Reward analytics"
-        payableTitleLabel.text = "Payable"
-        receivedTitleLabel.text = "Received"
+        titleLabel.text = R.string.localizable
+            .stakingAnalyticsTitle(preferredLanguages: locale.rLanguages)
+        rewardsLabel.text = R.string.localizable
+            .stakingAnalyticsReceivedRewards(preferredLanguages: locale.rLanguages)
         applyViewModel()
     }
 
@@ -121,27 +103,11 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
             [
                 .hStack([titleLabel, UIView(), arrowView]),
                 separatorView,
-                .hStack(
-                    alignment: .center,
-                    [
-                        periodLabel,
-                        UIView(),
-                        .vStack(
-                            alignment: .trailing,
-                            [tokenAmountLabel, usdAmountLabel]
-                        )
-                    ]
-                ),
-                barChartView,
-                .hStack(
-                    alignment: .center,
-                    spacing: 16,
-                    [
-                        .hStack(alignment: .center, spacing: 8, [payableIndicatorView, payableTitleLabel]),
-                        .hStack(alignment: .center, spacing: 8, [receivedIndicatorView, receivedTitleLabel]),
-                        UIView()
-                    ]
-                )
+                .vStack([
+                    .hStack([rewardsLabel, UIView(), tokenAmountLabel]),
+                    .hStack([periodLabel, UIView(), usdAmountLabel])
+                ]),
+                barChartView
             ]
         )
 
@@ -156,8 +122,6 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
         arrowView.snp.makeConstraints { $0.size.equalTo(24) }
         separatorView.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
         barChartView.snp.makeConstraints { $0.height.equalTo(100) }
-        payableIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
-        receivedIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
 
         contentView = containerView
     }
