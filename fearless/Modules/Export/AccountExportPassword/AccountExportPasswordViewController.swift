@@ -140,7 +140,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
     }
 
     private func updateNextButton() {
-        actionButton.isEnabled = inputCompleted
+        actionButton.set(enabled: inputCompleted)
     }
 
     private func toggleSecurity(_ textField: UITextField, eyeButton: RoundedButton) {

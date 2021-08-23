@@ -112,7 +112,7 @@ final class StakingRebondSetupViewController: UIViewController, ViewHolder {
 
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.isEnabled = isEnabled
+        rootView.actionButton.set(enabled: isEnabled)
     }
 
     // MARK: - Actions
