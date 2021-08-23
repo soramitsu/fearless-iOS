@@ -2,16 +2,6 @@ import Foundation
 import SoraUI
 
 extension TriangularedButton {
-    override var isEnabled: Bool {
-        didSet {
-            if isEnabled {
-                applyEnabledStyle()
-            } else {
-                applyDisabledStyle()
-            }
-        }
-    }
-
     func applyDefaultStyle() {
         imageWithTitleView?.titleFont = UIFont.h5Title
         applyEnabledStyle()

@@ -92,10 +92,10 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
         let cellViewModels = viewModel?.cellViewModels ?? []
 
         let buttonTitle: String
-        let enabled: Bool
+        let isEnabled: Bool
 
         if cellViewModels.count > selectedValidatorsLimit {
-            enabled = false
+            isEnabled = false
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
                     selectedValidatorsLimit,
@@ -103,7 +103,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
                 )
 
         } else {
-            enabled = true
+            isEnabled = true
             buttonTitle = R.string.localizable
                 .commonContinue(
                     preferredLanguages: selectedLocale.rLanguages
@@ -111,7 +111,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
         }
 
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
-        rootView.proceedButton.isEnabled = enabled
+        rootView.proceedButton.set(enabled: isEnabled)
     }
 
     private func updateHeaderView() {

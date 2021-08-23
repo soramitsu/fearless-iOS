@@ -131,10 +131,10 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
 
     private func updateProceedButton() {
         let buttonTitle: String
-        let enabled: Bool
+        let isEnabled: Bool
 
         if selectedValidatorsCount == 0 {
-            enabled = false
+            isEnabled = false
 
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
@@ -143,7 +143,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
                 )
 
         } else {
-            enabled = true
+            isEnabled = true
 
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonEnabledTitle(
@@ -154,7 +154,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         }
 
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
-        rootView.proceedButton.isEnabled = enabled
+        rootView.proceedButton.set(enabled: isEnabled)
     }
 
     private func presentValidatorInfo(at index: Int) {

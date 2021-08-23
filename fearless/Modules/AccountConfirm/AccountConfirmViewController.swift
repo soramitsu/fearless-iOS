@@ -191,7 +191,8 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func updateNextButton() {
-        nextButton.isEnabled = pendingButtons.isEmpty && !submittedButtons.isEmpty
+        let isEnabled = pendingButtons.isEmpty && !submittedButtons.isEmpty
+        nextButton.set(enabled: isEnabled)
     }
 
     @objc private func actionRetry() {

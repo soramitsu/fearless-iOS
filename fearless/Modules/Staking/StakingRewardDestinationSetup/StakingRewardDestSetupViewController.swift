@@ -149,7 +149,8 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
             applyRewardDestinationContent(from: viewModel)
         }
 
-        rootView.actionButton.isEnabled = rewardDestinationViewModel?.canApply ?? false
+        let isEnabled = rewardDestinationViewModel?.canApply ?? false
+        rootView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyFee() {
