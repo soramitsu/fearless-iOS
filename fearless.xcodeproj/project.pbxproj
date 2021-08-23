@@ -1369,7 +1369,6 @@
 		F40966CE26B297D6008CD244 /* AnalyticsStakeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966B326B297D6008CD244 /* AnalyticsStakeProtocols.swift */; };
 		F40966CF26B297D7008CD244 /* AnalyticsStakeViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966B426B297D6008CD244 /* AnalyticsStakeViewFactory.swift */; };
 		F40966D026B297D7008CD244 /* AnalyticsStakeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966B526B297D6008CD244 /* AnalyticsStakeInteractor.swift */; };
-		F40966DA26B29839008CD244 /* SubqueryHistoryElementData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966D626B29839008CD244 /* SubqueryHistoryElementData.swift */; };
 		F40966DB26B29839008CD244 /* SubqueryRewardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966D726B29839008CD244 /* SubqueryRewardData.swift */; };
 		F40966DC26B29839008CD244 /* SubqueryStakeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966D826B29839008CD244 /* SubqueryStakeData.swift */; };
 		F40966E426B29919008CD244 /* Stacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966E326B29919008CD244 /* Stacks.swift */; };
@@ -2882,7 +2881,6 @@
 		F40966B326B297D6008CD244 /* AnalyticsStakeProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsStakeProtocols.swift; sourceTree = "<group>"; };
 		F40966B426B297D6008CD244 /* AnalyticsStakeViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsStakeViewFactory.swift; sourceTree = "<group>"; };
 		F40966B526B297D6008CD244 /* AnalyticsStakeInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsStakeInteractor.swift; sourceTree = "<group>"; };
-		F40966D626B29839008CD244 /* SubqueryHistoryElementData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryHistoryElementData.swift; sourceTree = "<group>"; };
 		F40966D726B29839008CD244 /* SubqueryRewardData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryRewardData.swift; sourceTree = "<group>"; };
 		F40966D826B29839008CD244 /* SubqueryStakeData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryStakeData.swift; sourceTree = "<group>"; };
 		F40966E326B29919008CD244 /* Stacks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stacks.swift; sourceTree = "<group>"; };
@@ -7254,7 +7252,6 @@
 		F40966D426B29839008CD244 /* Subquery */ = {
 			isa = PBXGroup;
 			children = (
-				F40966D626B29839008CD244 /* SubqueryHistoryElementData.swift */,
 				F40966D726B29839008CD244 /* SubqueryRewardData.swift */,
 				F40966D826B29839008CD244 /* SubqueryStakeData.swift */,
 				F4C086BC26D114F700716AEC /* SubqueryEraValidatorInfo.swift */,
@@ -8857,7 +8854,6 @@
 				84F30F4A2600C81C00039D09 /* StakingMainInterator+Subscription.swift in Sources */,
 				84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */,
 				847C962825534134002D288F /* ExportGenericProtocols.swift in Sources */,
-				F40966DA26B29839008CD244 /* SubqueryHistoryElementData.swift in Sources */,
 				8472C5B0265CF9C500E2481B /* StakingRewardDestConfirmWireframe.swift in Sources */,
 				84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */,
 				84F4386B25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift in Sources */,
