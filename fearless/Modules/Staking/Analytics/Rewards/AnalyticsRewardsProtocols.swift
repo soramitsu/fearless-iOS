@@ -20,7 +20,7 @@ protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
 }
 
 protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
-    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData]?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
 }

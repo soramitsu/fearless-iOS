@@ -45,7 +45,7 @@ extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
         fetchOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData()
                     self?.presenter.didReceieve(rewardItemData: .success(response))
                 } catch {
                     self?.presenter.didReceieve(rewardItemData: .failure(error))

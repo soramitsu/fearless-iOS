@@ -9,7 +9,7 @@ final class AnalyticsRewardsPresenter {
     private let logger: LoggerProtocol?
     private let viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol
     private let localizationManager: LocalizationManager
-    private var rewardsData = [SubqueryRewardItemData]()
+    private var rewardsData: [SubqueryRewardItemData]?
     private var selectedPeriod = AnalyticsPeriod.default
     private var selectedPeriodDiff = 0
     private var priceData: PriceData?
@@ -30,6 +30,7 @@ final class AnalyticsRewardsPresenter {
     }
 
     private func updateView() {
+        guard let rewardsData = rewardsData else { return }
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
@@ -87,7 +88,7 @@ extension AnalyticsRewardsPresenter: Localizable {
 }
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
-    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData]?, Error>) {
         switch rewardItemData {
         case let .success(data):
             rewardsData = data
