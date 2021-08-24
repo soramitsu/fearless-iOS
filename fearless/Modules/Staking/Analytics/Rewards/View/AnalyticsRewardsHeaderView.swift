@@ -70,7 +70,6 @@ final class AnalyticsRewardsHeaderView: UIView {
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
-        statsStack.setCustomSpacing(24, after: barChartView)
         barChartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)

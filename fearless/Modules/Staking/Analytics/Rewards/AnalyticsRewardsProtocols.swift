@@ -4,7 +4,7 @@ protocol AnalyticsRewardsViewProtocol: AnalyticsEmbeddedViewProtocol {
     func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>)
 }
 
-protocol AnalyticsRewardsPresenterProtocol: AnalyticsRewardsPresenterBaseProtocol {
+protocol AnalyticsRewardsPresenterProtocol: AnalyticsPresenterBaseProtocol {
     func handlePendingRewardsAction()
 }
 

@@ -63,12 +63,12 @@ final class AnalyticsStakeHeaderView: UIView {
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
-        statsStack.setCustomSpacing(24, after: lineChartView)
         lineChartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)
         statsStack.snp.makeConstraints {
             $0.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            $0.height.equalTo(242)
         }
 
         addSubview(historyTitleLabel)

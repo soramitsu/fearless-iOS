@@ -1,15 +1,15 @@
 import SoraFoundation
 
-struct AnalyticsRewardsViewModel: AnalyticsRewardsBaseViewModel {
+struct AnalyticsRewardsViewModel: AnalyticsBaseViewModel {
     let chartData: ChartData
     let summaryViewModel: AnalyticsSummaryRewardViewModel
     let periodViewModel: AnalyticsPeriodViewModel
-    let rewardSections: [AnalyticsRewardSection]
+    let sections: [AnalyticsRewardSection]
     let locale: Locale
 }
 
 extension AnalyticsRewardsViewModel {
     var isEmpty: Bool {
-        rewardSections.isEmpty
+        sections.isEmpty
     }
 }
