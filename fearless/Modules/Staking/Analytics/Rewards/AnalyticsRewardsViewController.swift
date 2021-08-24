@@ -2,14 +2,36 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
-final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
-    typealias RootViewType = AnalyticsRewardsView
+protocol AnalyticsRewardsPresenterBaseProtocol: AnyObject {
+    func setup()
+    func reload()
+    func didSelectPeriod(_ period: AnalyticsPeriod)
+    func didSelectPrevious()
+    func didSelectNext()
+    func handleReward(atIndex index: Int)
+}
 
-    private let presenter: AnalyticsRewardsPresenterProtocol
+protocol AnalyticsRewardsBaseViewModel {
+    var rewardSections: [AnalyticsRewardSection] { get }
+    var locale: Locale { get }
+    var isEmpty: Bool { get }
+}
 
-    private var viewState: AnalyticsViewState<AnalyticsRewardsViewModel>?
+class AnalyticsRewardsBaseViewController<
+    VM: AnalyticsRewardsBaseViewModel,
+    Header: UIView,
+    Presenter: AnalyticsRewardsPresenterBaseProtocol
+>: UIViewController,
+    ViewHolder,
+    UITableViewDataSource,
+    UITableViewDelegate {
+    typealias RootViewType = AnalyticsRewardsBaseView<Header>
 
-    init(presenter: AnalyticsRewardsPresenterProtocol) {
+    let presenter: Presenter
+
+    var viewState: AnalyticsViewState<VM>?
+
+    init(presenter: Presenter) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -20,7 +42,7 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = AnalyticsRewardsView()
+        view = RootViewType()
     }
 
     override func viewDidLoad() {
@@ -42,11 +64,6 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
             action: #selector(refreshControlDidTriggered),
             for: .valueChanged
         )
-        rootView.headerView.pendingRewardsView.addTarget(
-            self,
-            action: #selector(handlePengingRewards),
-            for: .touchUpInside
-        )
     }
 
     private func setupPeriodView() {
@@ -59,90 +76,8 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
         presenter.reload()
     }
 
-    @objc
-    private func handlePengingRewards() {
-        presenter.handlePendingRewardsAction()
-    }
+    // MARK: - UITableViewDataSource
 
-    private func setupEmptyView(_ emptyView: EmptyStateView, locale: Locale) {
-        emptyView.image = R.image.iconEmptyHistory()
-        emptyView.title = R.string.localizable
-            .crowdloanEmptyMessage(preferredLanguages: locale.rLanguages)
-        emptyView.titleColor = R.color.colorLightGray()!
-        emptyView.titleFont = .p2Paragraph
-    }
-}
-
-extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
-    var localizedTitle: LocalizableResource<String> {
-        LocalizableResource { locale in
-            R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)
-        }
-    }
-
-    func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
-        self.viewState = viewState
-
-        switch viewState {
-        case .loading:
-            if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
-                refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
-                rootView.periodSelectorView.isHidden = true
-            }
-        case let .loaded(viewModel):
-            rootView.tableView.refreshControl?.endRefreshing()
-            rootView.periodSelectorView.isHidden = false
-            rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
-            rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
-            rootView.tableView.reloadData()
-        case .error:
-            rootView.tableView.refreshControl?.endRefreshing()
-            rootView.periodSelectorView.isHidden = true
-        }
-        reloadEmptyState(animated: true)
-    }
-}
-
-extension AnalyticsRewardsViewController: EmptyStateViewOwnerProtocol {
-    var emptyStateDelegate: EmptyStateDelegate { self }
-    var emptyStateDataSource: EmptyStateDataSource { self }
-}
-
-extension AnalyticsRewardsViewController: EmptyStateDataSource {
-    var viewForEmptyState: UIView? {
-        guard let state = viewState else { return nil }
-
-        switch state {
-        case let .error(error):
-            let errorView = ErrorStateView()
-            errorView.errorDescriptionLabel.text = error
-            errorView.delegate = self
-            return errorView
-        case .loading, .loaded:
-            return nil
-        }
-    }
-}
-
-extension AnalyticsRewardsViewController: EmptyStateDelegate {
-    var shouldDisplayEmptyState: Bool {
-        guard let state = viewState else { return false }
-        switch state {
-        case .error:
-            return true
-        case .loading, .loaded:
-            return false
-        }
-    }
-}
-
-extension AnalyticsRewardsViewController: ErrorStateViewDelegate {
-    func didRetry(errorView _: ErrorStateView) {
-        presenter.reload()
-    }
-}
-
-extension AnalyticsRewardsViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
         guard case let .loaded(viewModel) = viewState else { return 0 }
         guard !viewModel.isEmpty else { return 1 }
@@ -176,9 +111,9 @@ extension AnalyticsRewardsViewController: UITableViewDataSource {
         header.label.text = viewModel.rewardSections[section].title
         return header
     }
-}
 
-extension AnalyticsRewardsViewController: UITableViewDelegate {
+    // MARK: - UITableViewDelegate
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
@@ -196,20 +131,119 @@ extension AnalyticsRewardsViewController: UITableViewDelegate {
         else { return UITableView.automaticDimension }
         return 0
     }
+
+    private func setupEmptyView(_ emptyView: EmptyStateView, locale: Locale) {
+        emptyView.image = R.image.iconEmptyHistory()
+        emptyView.title = R.string.localizable
+            .crowdloanEmptyMessage(preferredLanguages: locale.rLanguages)
+        emptyView.titleColor = R.color.colorLightGray()!
+        emptyView.titleFont = .p2Paragraph
+    }
 }
 
-extension AnalyticsRewardsViewController: AnalyticsPeriodViewDelegate {
+extension AnalyticsRewardsBaseViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension AnalyticsRewardsBaseViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = viewState else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error
+            errorView.delegate = self
+            return errorView
+        case .loading, .loaded:
+            return nil
+        }
+    }
+}
+
+extension AnalyticsRewardsBaseViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = viewState else { return false }
+        switch state {
+        case .error:
+            return true
+        case .loading, .loaded:
+            return false
+        }
+    }
+}
+
+extension AnalyticsRewardsBaseViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
+    }
+}
+
+extension AnalyticsRewardsBaseViewController: AnalyticsPeriodViewDelegate {
     func didSelect(period: AnalyticsPeriod) {
         presenter.didSelectPeriod(period)
     }
 }
 
-extension AnalyticsRewardsViewController: AnalyticsPeriodSelectorViewDelegate {
+extension AnalyticsRewardsBaseViewController: AnalyticsPeriodSelectorViewDelegate {
     func didSelectNext() {
         presenter.didSelectNext()
     }
 
     func didSelectPrevious() {
         presenter.didSelectPrevious()
+    }
+}
+
+final class AnalyticsRewardsViewController:
+    AnalyticsRewardsBaseViewController<
+        AnalyticsRewardsViewModel,
+        AnalyticsRewardsHeaderView,
+        AnalyticsRewardsPresenter
+    > {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        rootView.headerView.pendingRewardsView.addTarget(
+            self,
+            action: #selector(handlePengingRewards),
+            for: .touchUpInside
+        )
+    }
+
+    @objc
+    private func handlePengingRewards() {
+        presenter.handlePendingRewardsAction()
+    }
+}
+
+extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
+    var localizedTitle: LocalizableResource<String> {
+        LocalizableResource { locale in
+            R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
+        self.viewState = viewState
+
+        switch viewState {
+        case .loading:
+            if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
+                refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
+                rootView.periodSelectorView.isHidden = true
+            }
+        case let .loaded(viewModel):
+            rootView.tableView.refreshControl?.endRefreshing()
+            rootView.periodSelectorView.isHidden = false
+            rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
+            rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
+            rootView.tableView.reloadData()
+        case .error:
+            rootView.tableView.refreshControl?.endRefreshing()
+            rootView.periodSelectorView.isHidden = true
+        }
+        reloadEmptyState(animated: true)
     }
 }

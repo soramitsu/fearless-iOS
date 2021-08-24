@@ -1,6 +1,6 @@
 import SoraFoundation
 
-struct AnalyticsRewardsViewModel {
+struct AnalyticsRewardsViewModel: AnalyticsRewardsBaseViewModel {
     let chartData: ChartData
     let summaryViewModel: AnalyticsSummaryRewardViewModel
     let periodViewModel: AnalyticsPeriodViewModel

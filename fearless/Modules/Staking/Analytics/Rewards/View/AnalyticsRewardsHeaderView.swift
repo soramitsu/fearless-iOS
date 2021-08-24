@@ -76,6 +76,7 @@ final class AnalyticsRewardsHeaderView: UIView {
         addSubview(statsStack)
         statsStack.snp.makeConstraints {
             $0.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            $0.height.equalTo(242)
         }
 
         addSubview(pendingRewardsView)
