@@ -42,6 +42,8 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
     let barChartView: FWChartViewProtocol = FWBarChartView()
 
+    private var labelsContainerView: UIView!
+
     private var skeletonView: SkrullableView?
 
     private var localizableViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
@@ -100,15 +102,22 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
         let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
 
+        labelsContainerView = .vStack(
+            spacing: 8,
+            [
+                .vStack([
+                    .hStack([rewardsLabel, UIView(), tokenAmountLabel]),
+                    .hStack([periodLabel, UIView(), usdAmountLabel])
+                ])
+            ]
+        )
+
         let stackView: UIView = .vStack(
             spacing: 8,
             [
                 .hStack([titleLabel, UIView(), arrowView]),
                 separatorView,
-                .vStack([
-                    .hStack([rewardsLabel, UIView(), tokenAmountLabel]),
-                    .hStack([periodLabel, UIView(), usdAmountLabel])
-                ]),
+                labelsContainerView,
                 barChartView
             ]
         )
@@ -161,9 +170,8 @@ extension RewardAnalyticsWidgetView {
             return
         }
 
-        periodLabel.alpha = 0.0
-        tokenAmountLabel.alpha = 0.0
-        usdAmountLabel.alpha = 0.0
+        labelsContainerView.alpha = 0
+        barChartView.alpha = 0
 
         setupSkeleton()
     }
@@ -177,9 +185,8 @@ extension RewardAnalyticsWidgetView {
         skeletonView?.removeFromSuperview()
         skeletonView = nil
 
-        periodLabel.alpha = 1.0
-        tokenAmountLabel.alpha = 1.0
-        usdAmountLabel.alpha = 1.0
+        labelsContainerView.alpha = 1
+        barChartView.alpha = 1
     }
 
     private func setupSkeleton() {
@@ -204,29 +211,25 @@ extension RewardAnalyticsWidgetView {
     }
 
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
-        let bigRowSize = CGSize(width: 100.0, height: 18.0)
-        let smallRowSize = CGSize(width: 70.0, height: 15.0)
+        let rowWidth = spaceSize.width - 32
+        let labelsSize = CGSize(width: rowWidth, height: labelsContainerView.bounds.height)
+        let chartSize = CGSize(width: rowWidth, height: barChartView.bounds.height)
 
         return [
-            createSkeletoRow(
-                inPlaceOf: tokenAmountLabel,
+            createSkeletonRow(
+                inPlaceOf: labelsContainerView,
                 in: spaceSize,
-                size: bigRowSize
+                size: labelsSize
             ),
-            createSkeletoRow(
-                inPlaceOf: usdAmountLabel,
+            createSkeletonRow(
+                inPlaceOf: barChartView,
                 in: spaceSize,
-                size: smallRowSize
-            ),
-            createSkeletoRow(
-                inPlaceOf: periodLabel,
-                in: spaceSize,
-                size: smallRowSize
+                size: chartSize
             )
         ]
     }
 
-    private func createSkeletoRow(
+    private func createSkeletonRow(
         inPlaceOf targetView: UIView,
         in spaceSize: CGSize,
         size: CGSize
@@ -243,7 +246,8 @@ extension RewardAnalyticsWidgetView {
             height: spaceSize.skrullMapY(size.height)
         )
 
-        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
+        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize)
+            .round(CGSize(width: 0.02, height: 0.02))
     }
 }
 
