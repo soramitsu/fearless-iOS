@@ -14,7 +14,7 @@ final class AnalyticsPeriodView: UIView {
     private let monthlyButton = Button(model: .monthly)
     private let yearlyButton = Button(model: .yearly)
 
-    private var buttons: [AnalyticsBottomSheetButton<AnalyticsPeriod>] {
+    private var buttons: [Button] {
         [weeklyButton, monthlyButton, yearlyButton]
     }
 
@@ -42,9 +42,7 @@ final class AnalyticsPeriodView: UIView {
     }
 
     func bind(selectedPeriod: AnalyticsPeriod) {
-        buttons.forEach { $0.isSelected = false }
-        let selectedButton = buttons.first(where: { $0.model == selectedPeriod })
-        selectedButton?.isSelected = true
+        buttons.forEach { $0.isSelected = $0.model == selectedPeriod }
     }
 
     @objc
