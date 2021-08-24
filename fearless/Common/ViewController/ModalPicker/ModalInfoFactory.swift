@@ -186,14 +186,6 @@ struct ModalInfoFactory {
 
             LocalizableResource { locale in
                 let title = R.string.localizable
-                    .walletBalanceBonded(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.bonded) ?? ""
-
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
-
-            LocalizableResource { locale in
-                let title = R.string.localizable
                     .walletBalanceReserved(preferredLanguages: locale.rLanguages)
                 let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.reserved) ?? ""
 
@@ -202,8 +194,8 @@ struct ModalInfoFactory {
 
             LocalizableResource { locale in
                 let title = R.string.localizable
-                    .walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.redeemable) ?? ""
+                    .walletBalanceBonded(preferredLanguages: locale.rLanguages)
+                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.bonded) ?? ""
 
                 return TitleWithSubtitleViewModel(title: title, subtitle: details)
             },
@@ -212,6 +204,14 @@ struct ModalInfoFactory {
                 let title = R.string.localizable
                     .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
                 let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.unbonding) ?? ""
+
+                return TitleWithSubtitleViewModel(title: title, subtitle: details)
+            },
+
+            LocalizableResource { locale in
+                let title = R.string.localizable
+                    .walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
+                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.redeemable) ?? ""
 
                 return TitleWithSubtitleViewModel(title: title, subtitle: details)
             }
