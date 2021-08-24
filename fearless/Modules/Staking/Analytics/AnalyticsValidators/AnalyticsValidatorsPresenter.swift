@@ -85,7 +85,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
     func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>) {
         switch identitiesByAddressResult {
         case let .success(identitiesByAddress):
-            self.identitiesByAddress.merge(identitiesByAddress) { current, _ in current }
+            self.identitiesByAddress.merge(identitiesByAddress) { _, new in new }
             updateView()
         case let .failure(error):
             logger?.error("Did receive identitiesByAddress error: \(error.localizedDescription)")
