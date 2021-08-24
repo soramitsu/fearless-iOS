@@ -79,8 +79,8 @@ extension AnalyticsValidatorsViewController: UITableViewDelegate {
 
 extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
     var localizedTitle: LocalizableResource<String> {
-        LocalizableResource { _ in
-            "Validators"
+        LocalizableResource { locale in
+            R.string.localizable.stakingRecommendedTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
