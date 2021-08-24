@@ -42,8 +42,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLoad()
 
         setupNetworkInfoView()
-        setupAlertsView()
         setupAnalyticsView()
+        setupAlertsView()
         setupLocalization()
         presenter.setup()
     }
@@ -60,6 +60,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidAppear(animated)
 
         networkInfoView.didAppearSkeleton()
+        analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
@@ -72,6 +73,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
 
         networkInfoView.didDisappearSkeleton()
+        analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didDisappearSkeleton()
@@ -82,6 +84,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLayoutSubviews()
 
         networkInfoView.didUpdateSkeletonLayout()
+        analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
@@ -191,12 +194,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
         clearStateView()
 
-        guard let prevViewIndex = stackView.arrangedSubviews
-            .firstIndex(of: alertsContainerView)
-        else {
-            return nil
-        }
-
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -208,7 +205,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         applyConstraints(for: containerView, innerView: stateView)
 
-        stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
+        stackView.insertArranged(view: containerView, after: networkInfoContainerView)
 
         stateContainerView = containerView
         self.stateView = stateView
@@ -283,6 +280,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         alertsView.bind(alerts: alerts)
         alertsContainerView.setNeedsLayout()
     }
+
+    private func applyAnalyticsRewards(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
+        analyticsContainerView.isHidden = false
+        analyticsView.bind(viewModel: viewModel)
+    }
 }
 
 extension StakingMainViewController: Localizable {
@@ -333,8 +335,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         networkInfoView.bind(chainName: newChainName)
     }
 
-    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
-        analyticsContainerView.isHidden = false
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
         analyticsView.bind(viewModel: viewModel)
     }
 
@@ -355,12 +356,14 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .nominator(viewModel, alerts):
+        case let .nominator(viewModel, alerts, analyticsViewModel):
             applyNomination(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .validator(viewModel, alerts):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
         }
     }
 

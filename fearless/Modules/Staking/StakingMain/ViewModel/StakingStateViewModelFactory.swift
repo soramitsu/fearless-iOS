@@ -156,6 +156,33 @@ final class StakingStateViewModelFactory {
         }
     }
 
+    private func createAnalyticsViewModel(
+        commonData: StakingStateCommonData,
+        chain: Chain
+    ) -> LocalizableResource<RewardAnalyticsWidgetViewModel>? {
+        guard let rewardsForPeriod = commonData.subqueryRewards, let rewards = rewardsForPeriod.0 else {
+            return nil
+        }
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+
+        let viewModelFactory = AnalyticsRewardsViewModelFactory(
+            chain: chain,
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+        let fullViewModel = viewModelFactory.createViewModel(
+            from: rewards,
+            priceData: commonData.price,
+            period: rewardsForPeriod.1,
+            periodDelta: 0
+        )
+        return LocalizableResource { locale in
+            RewardAnalyticsWidgetViewModel(
+                summary: fullViewModel.value(for: locale).summaryViewModel,
+                chartData: fullViewModel.value(for: locale).chartData
+            )
+        }
+    }
+
     private func createPeriodReward(
         for chain: Chain,
         commonData: StakingStateCommonData,
@@ -320,8 +347,13 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: status
         )
 
+        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
         let alerts = stakingAlertsForBondedState(state)
-        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
+        lastViewModel = .nominator(
+            viewModel: viewModel,
+            alerts: alerts,
+            analyticsViewModel: analyticsViewModel
+        )
     }
 
     func visit(state: PendingNominatorState) {
@@ -355,8 +387,13 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
+        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
         let alerts = stakingAlertsForNominatorState(state)
-        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
+        lastViewModel = .nominator(
+            viewModel: viewModel,
+            alerts: alerts,
+            analyticsViewModel: analyticsViewModel
+        )
     }
 
     func visit(state: PendingValidatorState) {
@@ -390,7 +427,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         )
 
         let alerts = stakingAlertsForValidatorState(state)
-        lastViewModel = .validator(viewModel: viewModel, alerts: alerts)
+        lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: nil)
     }
 }
 

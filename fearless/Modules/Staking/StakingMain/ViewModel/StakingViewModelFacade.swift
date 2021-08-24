@@ -5,14 +5,6 @@ import SoraFoundation
 protocol StakingViewModelFacadeProtocol {
     func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol
     func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol
-
-    // TODO: refactor
-    func createAnalyticsViewModel(
-        from data: [SubqueryRewardItemData],
-        period: AnalyticsPeriod,
-        priceData: PriceData?,
-        chain: Chain
-    ) -> LocalizableResource<RewardAnalyticsWidgetViewModel>
 }
 
 final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
@@ -35,30 +27,5 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
             walletPrimitiveFactory: primitiveFactory,
             selectedAddressType: chain.addressType
         )
-    }
-
-    func createAnalyticsViewModel(
-        from data: [SubqueryRewardItemData],
-        period: AnalyticsPeriod,
-        priceData: PriceData?,
-        chain: Chain
-    ) -> LocalizableResource<RewardAnalyticsWidgetViewModel> {
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: chain)
-        let viewModelFactory = AnalyticsRewardsViewModelFactory(
-            chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
-        )
-        let fullViewModel = viewModelFactory.createViewModel(
-            from: data,
-            priceData: priceData,
-            period: period,
-            periodDelta: 0
-        )
-        return LocalizableResource { locale in
-            RewardAnalyticsWidgetViewModel(
-                summary: fullViewModel.value(for: locale).summaryViewModel,
-                chartData: fullViewModel.value(for: locale).chartData
-            )
-        }
     }
 }

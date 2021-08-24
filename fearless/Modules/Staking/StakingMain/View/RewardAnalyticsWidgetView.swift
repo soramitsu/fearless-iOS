@@ -42,6 +42,8 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
     let barChartView: FWChartViewProtocol = FWBarChartView()
 
+    private var skeletonView: SkrullableView?
+
     private var localizableViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
 
     var locale = Locale.current {
@@ -126,9 +128,15 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
         contentView = containerView
     }
 
-    func bind(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
+    func bind(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
         localizableViewModel = viewModel
-        applyViewModel()
+        if viewModel != nil {
+            stopLoadingIfNeeded()
+
+            applyViewModel()
+        } else {
+            startLoading()
+        }
     }
 
     private func applyViewModel() {
@@ -142,5 +150,121 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
         usdAmountLabel.text = localizedViewModel.summary.usdAmount
         tokenAmountLabel.text = localizedViewModel.summary.tokenAmount
         periodLabel.text = localizedViewModel.summary.title
+    }
+}
+
+// MARK: - Skeleton
+
+extension RewardAnalyticsWidgetView {
+    func startLoading() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        periodLabel.alpha = 0.0
+        tokenAmountLabel.alpha = 0.0
+        usdAmountLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        periodLabel.alpha = 1.0
+        tokenAmountLabel.alpha = 1.0
+        usdAmountLabel.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        guard let size = contentView?.bounds.size, size.height > 0 else { return }
+
+        let skeletonView = Skrull(
+            size: size,
+            decorations: [],
+            skeletons: createSkeletons(for: size)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: size)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: contentView!)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let bigRowSize = CGSize(width: 100.0, height: 18.0)
+        let smallRowSize = CGSize(width: 70.0, height: 15.0)
+
+        return [
+            createSkeletoRow(
+                inPlaceOf: tokenAmountLabel,
+                in: spaceSize,
+                size: bigRowSize
+            ),
+            createSkeletoRow(
+                inPlaceOf: usdAmountLabel,
+                in: spaceSize,
+                size: smallRowSize
+            ),
+            createSkeletoRow(
+                inPlaceOf: periodLabel,
+                in: spaceSize,
+                size: smallRowSize
+            )
+        ]
+    }
+
+    private func createSkeletoRow(
+        inPlaceOf targetView: UIView,
+        in spaceSize: CGSize,
+        size: CGSize
+    ) -> SingleSkeleton {
+        let targetFrame = targetView.convert(targetView.bounds, to: self)
+
+        let position = CGPoint(
+            x: targetFrame.minX + size.width / 2.0,
+            y: targetFrame.midY
+        )
+
+        let mappedSize = CGSize(
+            width: spaceSize.skrullMapX(size.width),
+            height: spaceSize.skrullMapY(size.height)
+        )
+
+        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
+    }
+}
+
+extension RewardAnalyticsWidgetView: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != contentView!.frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
     }
 }

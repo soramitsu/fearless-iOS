@@ -7,7 +7,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModelProtocol)
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
-    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>)
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?)
 
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
