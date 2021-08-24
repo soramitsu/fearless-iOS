@@ -4,6 +4,7 @@ import SoraFoundation
 protocol AnalyticsViewModelItem: Dated {
     var timestamp: Int64 { get }
     var amount: BigUInt { get }
+    static func emptyListDescription(for locale: Locale) -> String
 }
 
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
@@ -72,7 +73,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 summaryViewModel: summaryViewModel,
                 periodViewModel: periodViewModel,
                 sections: sections,
-                locale: locale
+                emptyListDescription: T.emptyListDescription(for: locale)
             )
             return viewModel
         }

@@ -12,4 +12,8 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
     var date: Date {
         Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
+
+    static func emptyListDescription(for _: Locale) -> String {
+        "Your stake changes\nwill appear here" // TODO:
+    }
 }

@@ -82,7 +82,7 @@ class AnalyticsRewardsBaseViewController<
         }
         guard !viewModel.isEmpty else {
             let emptyCell = tableView.dequeueReusableCellWithType(EmptyStateViewCell.self)!
-            setupEmptyView(emptyCell.emptyView, locale: viewModel.locale)
+            setupEmptyView(emptyCell.emptyView, title: viewModel.emptyListDescription)
             return emptyCell
         }
         let cellViewModel = viewModel.sections[indexPath.section].items[indexPath.row]
@@ -117,10 +117,9 @@ class AnalyticsRewardsBaseViewController<
         return 0
     }
 
-    private func setupEmptyView(_ emptyView: EmptyStateView, locale: Locale) {
+    private func setupEmptyView(_ emptyView: EmptyStateView, title: String) {
         emptyView.image = R.image.iconEmptyHistory()
-        emptyView.title = R.string.localizable
-            .crowdloanEmptyMessage(preferredLanguages: locale.rLanguages)
+        emptyView.title = title
         emptyView.titleColor = R.color.colorLightGray()!
         emptyView.titleFont = .p2Paragraph
     }

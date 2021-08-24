@@ -5,7 +5,7 @@ struct AnalyticsRewardsViewModel: AnalyticsBaseViewModel {
     let summaryViewModel: AnalyticsSummaryRewardViewModel
     let periodViewModel: AnalyticsPeriodViewModel
     let sections: [AnalyticsRewardSection]
-    let locale: Locale
+    let emptyListDescription: String
 }
 
 extension AnalyticsRewardsViewModel {

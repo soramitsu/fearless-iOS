@@ -11,6 +11,6 @@ protocol AnalyticsPresenterBaseProtocol: AnyObject {
 
 protocol AnalyticsBaseViewModel {
     var sections: [AnalyticsRewardSection] { get }
-    var locale: Locale { get }
+    var emptyListDescription: String { get }
     var isEmpty: Bool { get }
 }

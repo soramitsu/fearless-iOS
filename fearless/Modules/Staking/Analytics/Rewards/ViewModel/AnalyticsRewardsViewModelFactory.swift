@@ -12,4 +12,8 @@ extension SubqueryRewardItemData: AnalyticsViewModelItem {
     var date: Date {
         Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
+
+    static func emptyListDescription(for _: Locale) -> String {
+        "Your rewards\nwill appear here" // TODO:
+    }
 }
