@@ -73,7 +73,8 @@ extension AnalyticsValidatorsViewController: UITableViewDelegate {
         guard case let .loaded(viewModel) = state else {
             return
         }
-        // TODO: show selected pie chart segment
+        let cellViewModel = viewModel.validators[indexPath.row]
+        presenter.handleValidatorInfoAction(validatorAddress: cellViewModel.validatorAddress)
     }
 }
 
