@@ -68,7 +68,7 @@ struct ModalInfoFactory {
         viewController.headerHeight = Self.headerHeight
         viewController.footerHeight = Self.footerHeight
         viewController.allowsSelection = false
-        viewController.hasCloseItem = true
+        viewController.hasCloseItem = false
 
         viewController.localizedTitle = LocalizableResource { locale in
             R.string.localizable.walletBalanceFrozen(preferredLanguages: locale.rLanguages)
