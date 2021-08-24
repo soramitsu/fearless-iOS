@@ -35,6 +35,7 @@ protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
         rewards: [SubqueryRewardItemData],
         nomination: Nomination,
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
-        page: AnalyticsValidatorsPage
-    ) -> LocalizableResource<AnalyticsValidatorsViewModel>
+        page: AnalyticsValidatorsPage,
+        locale: Locale
+    ) -> AnalyticsValidatorsViewModel
 }

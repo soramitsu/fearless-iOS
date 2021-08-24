@@ -44,10 +44,10 @@ final class AnalyticsValidatorsPresenter {
             rewards: rewards,
             nomination: nomination,
             identitiesByAddress: identitiesByAddress,
-            page: selectedPage
+            page: selectedPage,
+            locale: selectedLocale
         )
-        let localizedViewModel = viewModel.value(for: selectedLocale)
-        view?.reload(viewState: .loaded(localizedViewModel))
+        view?.reload(viewState: .loaded(viewModel))
     }
 }
 

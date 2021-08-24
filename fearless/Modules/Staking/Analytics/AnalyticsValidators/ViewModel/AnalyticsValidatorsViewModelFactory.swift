@@ -24,90 +24,89 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         rewards: [SubqueryRewardItemData],
         nomination: Nomination,
         identitiesByAddress: [AccountAddress: AccountIdentity]?,
-        page: AnalyticsValidatorsPage
-    ) -> LocalizableResource<AnalyticsValidatorsViewModel> {
-        LocalizableResource { locale in
-            self.percentFormatter.locale = locale
+        page: AnalyticsValidatorsPage,
+        locale: Locale
+    ) -> AnalyticsValidatorsViewModel {
+        percentFormatter.locale = locale
 
-            let totalEras = self.totalErasCount(eraValidatorInfos: eraValidatorInfos)
-            let totalRewards = self.totalRewardOfStash(address: stashAddress, rewards: rewards)
-            let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
+        let totalEras = totalErasCount(eraValidatorInfos: eraValidatorInfos)
+        let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
+        let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
 
-            let validatorsWhoOwnedStake: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
-                let icon = try? self.iconGenerator.generateFromAddress(address)
-                let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-                let (progressPercents, amount, progressText): (Double, Double, String) = {
-                    switch page {
-                    case .activity:
-                        let infos = eraValidatorInfos.filter { $0.address == address }
-                        let distinctEras = Set<EraIndex>(infos.map(\.era))
-                        let distinctErasCount = distinctEras.count
+        let validatorsWhoOwnedStake: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
+            let icon = try? iconGenerator.generateFromAddress(address)
+            let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
+            let (progressPercents, amount, progressText): (Double, Double, String) = {
+                switch page {
+                case .activity:
+                    let infos = eraValidatorInfos.filter { $0.address == address }
+                    let distinctEras = Set<EraIndex>(infos.map(\.era))
+                    let distinctErasCount = distinctEras.count
 
-                        let percents = Double(distinctErasCount) / Double(totalEras)
-                        let text = self.activityProgressDescription(percents: percents, erasCount: distinctErasCount)
-                        return (percents, Double(distinctErasCount), text)
-                    case .rewards:
-                        let rewardsOfValidator = rewards.filter { reward in
-                            reward.stashAddress == stashAddress && reward.validatorAddress == address
-                        }
-                        let totalAmount = rewardsOfValidator.reduce(Decimal(0)) { amount, info in
-                            let decimal = Decimal.fromSubstrateAmount(
-                                info.amount,
-                                precision: self.chain.addressType.precision
-                            )
-                            return amount + (decimal ?? 0.0)
-                        }
-                        let totalAmountText = self.balanceViewModelFactory
-                            .amountFromValue(totalAmount).value(for: locale)
-                        let amountDouble = NSDecimalNumber(decimal: totalAmount).doubleValue
-                        let percents = amountDouble / totalRewards
-                        return (percents, amountDouble, totalAmountText)
+                    let percents = Double(distinctErasCount) / Double(totalEras)
+                    let text = activityProgressDescription(percents: percents, erasCount: distinctErasCount)
+                    return (percents, Double(distinctErasCount), text)
+                case .rewards:
+                    let rewardsOfValidator = rewards.filter { reward in
+                        reward.stashAddress == stashAddress && reward.validatorAddress == address
                     }
-                }()
+                    let totalAmount = rewardsOfValidator.reduce(Decimal(0)) { amount, info in
+                        let decimal = Decimal.fromSubstrateAmount(
+                            info.amount,
+                            precision: chain.addressType.precision
+                        )
+                        return amount + (decimal ?? 0.0)
+                    }
+                    let totalAmountText = balanceViewModelFactory
+                        .amountFromValue(totalAmount).value(for: locale)
+                    let amountDouble = NSDecimalNumber(decimal: totalAmount).doubleValue
+                    let percents = amountDouble / totalRewards
+                    return (percents, amountDouble, totalAmountText)
+                }
+            }()
 
-                return .init(
-                    icon: icon,
-                    validatorName: validatorName,
-                    amount: amount,
-                    progressPercents: progressPercents,
-                    progressText: progressText,
-                    validatorAddress: address
-                )
-            }
-            .sorted(by: { $0.amount > $1.amount })
-
-            let validatorsWhoDontOwnStake = self.findValidatorsWhoDontOwnStake(
-                page: page,
-                nomination: nomination,
-                distinctValidators: distinctValidators,
-                identitiesByAddress: identitiesByAddress,
-                locale: locale
-            )
-
-            let listTitle = self.determineListTitle(page: page, locale: locale)
-            let chartCenterText = self.createChartCenterText(
-                page: page,
-                validators: validatorsWhoOwnedStake,
-                totalEras: totalEras,
-                locale: locale
-            )
-
-            let amounts = validatorsWhoOwnedStake.map(\.progressPercents)
-            let inactiveSegmentValue = self.findInactiveSegmentValue(
-                page: page,
-                eraValidatorInfos: eraValidatorInfos,
-                totalEras: totalEras
-            )
-
-            return AnalyticsValidatorsViewModel(
-                pieChartSegmentValues: amounts,
-                pieChartInactiveSegmentValue: inactiveSegmentValue,
-                chartCenterText: chartCenterText,
-                listTitle: listTitle,
-                validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
-                selectedPage: page
+            return .init(
+                icon: icon,
+                validatorName: validatorName,
+                amount: amount,
+                progressPercents: progressPercents,
+                progressText: progressText,
+                validatorAddress: address
             )
         }
+        .sorted(by: { $0.amount > $1.amount })
+
+        let validatorsWhoDontOwnStake = findValidatorsWhoDontOwnStake(
+            page: page,
+            nomination: nomination,
+            distinctValidators: distinctValidators,
+            identitiesByAddress: identitiesByAddress,
+            locale: locale
+        )
+
+        let listTitle = determineListTitle(page: page, locale: locale)
+        let chartCenterText = createChartCenterText(
+            page: page,
+            validators: validatorsWhoOwnedStake,
+            totalEras: totalEras,
+            locale: locale
+        )
+
+        let amounts = validatorsWhoOwnedStake.map(\.progressPercents)
+        let inactiveSegmentValue = findInactiveSegmentValue(
+            page: page,
+            eraValidatorInfos: eraValidatorInfos,
+            totalEras: totalEras
+        )
+
+        return AnalyticsValidatorsViewModel(
+            pieChartSegmentValues: amounts,
+            pieChartInactiveSegmentValue: inactiveSegmentValue,
+            chartCenterText: chartCenterText,
+            listTitle: listTitle,
+            validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
+            selectedPage: page
+        )
     }
 
     private func activityProgressDescription(percents: Double, erasCount: Int) -> String {
