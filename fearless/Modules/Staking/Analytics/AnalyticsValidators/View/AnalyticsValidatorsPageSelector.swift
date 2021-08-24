@@ -12,12 +12,15 @@ final class AnalyticsValidatorsPageSelector: UIView {
     private let activityButton = Button(model: .activity)
     private let rewardsButton = Button(model: .rewards)
 
+    private var buttons: [Button] {
+        [activityButton, rewardsButton]
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorAlmostBlack()
         setupLayout()
-        activityButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
-        rewardsButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
+        buttons.forEach { $0.addTarget(self, action: #selector(handleButton), for: .touchUpInside) }
     }
 
     @available(*, unavailable)
@@ -45,10 +48,7 @@ final class AnalyticsValidatorsPageSelector: UIView {
     }
 
     func bind(selectedPage: AnalyticsValidatorsPage) {
-        let buttons = [activityButton, rewardsButton]
-        buttons.forEach { $0.isSelected = false }
-        let selectedButton = buttons.first(where: { $0.model == selectedPage })
-        selectedButton?.isSelected = true
+        buttons.forEach { $0.isSelected = $0.model == selectedPage }
     }
 }
 
