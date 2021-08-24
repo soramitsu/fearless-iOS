@@ -91,6 +91,25 @@ final class StakingMainPresenter {
         view?.didReceiveChainName(chainName: chainModel)
     }
 
+    private func provideAnalyticsRewards() {
+        let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
+        guard
+            let chain = commonData?.chain,
+            let rewardsForPeriod = commonData?.subqueryRewards,
+            let rewards = rewardsForPeriod.0
+        else {
+            return
+        }
+
+        let viewModel = viewModelFacade.createAnalyticsViewModel(
+            from: rewards,
+            period: rewardsForPeriod.1,
+            priceData: priceData,
+            chain: chain
+        )
+        view?.didReceiveAnalytics(viewModel: viewModel)
+    }
+
     func setupValidators(for bondedState: BondedState) {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
@@ -491,17 +510,11 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>, period: AnalyticsPeriod) {
-        switch rewardItemData {
-        case let .success(data):
-            guard let chain = chain else { return }
-            let viewModel = viewModelFacade.createAnalyticsViewModel(
-                from: data,
-                period: period,
-                priceData: priceData,
-                chain: chain
-            )
-            view?.didReceiveAnalytics(viewModel: viewModel)
+    func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
+        switch subqueryRewards {
+        case let .success(rewards):
+            stateMachine.state.process(subqueryRewards: (rewards, period))
+            provideAnalyticsRewards()
         case let .failure(error):
             handle(error: error)
         }

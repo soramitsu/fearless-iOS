@@ -484,10 +484,10 @@ extension StakingMainInteractor {
         fetchOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData() ?? []
-                    self?.presenter?.didReceieve(rewardItemData: .success(response), period: period)
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData()
+                    self?.presenter?.didReceieve(subqueryRewards: .success(response), period: period)
                 } catch {
-                    self?.presenter?.didReceieve(rewardItemData: .failure(error), period: period)
+                    self?.presenter?.didReceieve(subqueryRewards: .failure(error), period: period)
                 }
             }
         }

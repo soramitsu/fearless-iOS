@@ -119,4 +119,10 @@ class BaseStakingState: StakingStateProtocol {
 
         stateMachine?.transit(to: self)
     }
+
+    func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod)) {
+        commonData = commonData.byReplacing(subqueryRewards: subqueryRewards.0, period: subqueryRewards.1)
+
+        stateMachine?.transit(to: self)
+    }
 }
