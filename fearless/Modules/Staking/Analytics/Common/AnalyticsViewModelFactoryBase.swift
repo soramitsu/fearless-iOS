@@ -71,7 +71,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
                 periodViewModel: periodViewModel,
-                rewardSections: sections
+                rewardSections: sections,
+                locale: locale
             )
             return viewModel
         }

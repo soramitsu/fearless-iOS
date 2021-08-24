@@ -33,6 +33,7 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.registerClassForCell(AnalyticsHistoryCell.self)
+        rootView.tableView.registerClassForCell(EmptyStateViewCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: AnalyticsSectionHeader.self)
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
@@ -62,6 +63,14 @@ final class AnalyticsRewardsViewController: UIViewController, ViewHolder {
     private func handlePengingRewards() {
         presenter.handlePendingRewardsAction()
     }
+
+    private func setupEmptyView(_ emptyView: EmptyStateView, locale: Locale) {
+        emptyView.image = R.image.iconEmptyHistory()
+        emptyView.title = R.string.localizable
+            .crowdloanEmptyMessage(preferredLanguages: locale.rLanguages)
+        emptyView.titleColor = R.color.colorLightGray()!
+        emptyView.titleFont = .p2Paragraph
+    }
 }
 
 extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
@@ -82,12 +91,10 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
-            if !viewModel.rewardSections.isEmpty {
-                rootView.periodSelectorView.isHidden = false
-                rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
-                rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
-                rootView.tableView.reloadData()
-            }
+            rootView.periodSelectorView.isHidden = false
+            rootView.periodSelectorView.bind(viewModel: viewModel.periodViewModel)
+            rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
+            rootView.tableView.reloadData()
         case .error:
             rootView.tableView.refreshControl?.endRefreshing()
             rootView.periodSelectorView.isHidden = true
@@ -138,11 +145,13 @@ extension AnalyticsRewardsViewController: ErrorStateViewDelegate {
 extension AnalyticsRewardsViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
         guard case let .loaded(viewModel) = viewState else { return 0 }
+        guard !viewModel.isEmpty else { return 1 }
         return viewModel.rewardSections.count
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard case let .loaded(viewModel) = viewState else { return 0 }
+        guard !viewModel.isEmpty else { return 1 }
         return viewModel.rewardSections[section].items.count
     }
 
@@ -151,13 +160,18 @@ extension AnalyticsRewardsViewController: UITableViewDataSource {
         guard case let .loaded(viewModel) = viewState else {
             return cell
         }
+        guard !viewModel.isEmpty else {
+            let emptyCell = tableView.dequeueReusableCellWithType(EmptyStateViewCell.self)!
+            setupEmptyView(emptyCell.emptyView, locale: viewModel.locale)
+            return emptyCell
+        }
         let cellViewModel = viewModel.rewardSections[indexPath.section].items[indexPath.row]
         cell.historyView.bind(model: cellViewModel)
         return cell
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard case let .loaded(viewModel) = viewState else { return nil }
+        guard case let .loaded(viewModel) = viewState, !viewModel.isEmpty else { return nil }
         let header: AnalyticsSectionHeader = tableView.dequeueReusableHeaderFooterView()
         header.label.text = viewModel.rewardSections[section].title
         return header
@@ -173,6 +187,14 @@ extension AnalyticsRewardsViewController: UITableViewDelegate {
         }
 
         presenter.handleReward(atIndex: indexPath.row)
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
+        guard
+            case let .loaded(viewModel) = viewState,
+            viewModel.isEmpty
+        else { return UITableView.automaticDimension }
+        return 0
     }
 }
 

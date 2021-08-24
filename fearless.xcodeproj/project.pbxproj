@@ -1392,6 +1392,7 @@
 		F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */; };
 		F429324F26280F6B00752C2C /* StakingRewardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */; };
 		F42D125F26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42D125E26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift */; };
+		F43A596A26D520E0005E973D /* EmptyStateViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43A596926D520E0005E973D /* EmptyStateViewCell.swift */; };
 		F43A8A95265B9CF400A8A5A8 /* CustomValidatorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43A8A94265B9CF400A8A5A8 /* CustomValidatorCell.swift */; };
 		F43A8A9E265BA03500A8A5A8 /* CustomValidatorListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43A8A9D265BA03500A8A5A8 /* CustomValidatorListViewModel.swift */; };
 		F441BE0E263984DD0096B67B /* BondExtraCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F441BE0D263984DD0096B67B /* BondExtraCall.swift */; };
@@ -2905,6 +2906,7 @@
 		F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewLayout.swift; sourceTree = "<group>"; };
 		F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewModel.swift; sourceTree = "<group>"; };
 		F42D125E26C1B14D00E59214 /* AnalyticsValidatorsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewModelFactory.swift; sourceTree = "<group>"; };
+		F43A596926D520E0005E973D /* EmptyStateViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewCell.swift; sourceTree = "<group>"; };
 		F43A8A94265B9CF400A8A5A8 /* CustomValidatorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorCell.swift; sourceTree = "<group>"; };
 		F43A8A9D265BA03500A8A5A8 /* CustomValidatorListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewModel.swift; sourceTree = "<group>"; };
 		F441BE0D263984DD0096B67B /* BondExtraCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BondExtraCall.swift; sourceTree = "<group>"; };
@@ -5324,6 +5326,7 @@
 				843A2C7626A86FD000266F53 /* TitleStatusView.swift */,
 				84BAFCD126AF5EE700871E86 /* IconDetailsView.swift */,
 				F40966E326B29919008CD244 /* Stacks.swift */,
+				F43A596926D520E0005E973D /* EmptyStateViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -8807,6 +8810,7 @@
 				8488ECDF258CE118004591CC /* PurchaseCompleted.swift in Sources */,
 				8418E71B26175E6900DCF6C8 /* WalletRemoteHistoryOperationFactory.swift in Sources */,
 				843910C3253F39B100E3C217 /* WalletNetworkFacade+Storage.swift in Sources */,
+				F43A596A26D520E0005E973D /* EmptyStateViewCell.swift in Sources */,
 				AEA2C1B42681E99D0069492E /* ValidatorSearchProtocols.swift in Sources */,
 				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
 				84E1CCFA260DCBF9001E81B5 /* SwitchAccount+UsernameSetupWireframe.swift in Sources */,
