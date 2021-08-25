@@ -18,8 +18,4 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
     }
 }
 
-extension SubqueryStakeChangeData: AnalyticsRewardDetailsModel {
-    var txHash: String {
-        eventId
-    }
-}
+extension SubqueryStakeChangeData: AnalyticsRewardDetailsModel {}

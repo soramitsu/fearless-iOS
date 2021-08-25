@@ -18,8 +18,4 @@ extension SubqueryRewardItemData: AnalyticsViewModelItem {
     }
 }
 
-extension SubqueryRewardItemData: AnalyticsRewardDetailsModel {
-    var txHash: String {
-        eventId
-    }
-}
+extension SubqueryRewardItemData: AnalyticsRewardDetailsModel {}

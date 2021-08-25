@@ -25,7 +25,8 @@ final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewMo
             let reward = self.getTokenAmountText(amount: rewardModel.amount, locale: locale)
 
             return AnalyticsRewardDetailsViewModel(
-                txHash: rewardModel.txHash,
+                txHash: rewardModel.eventId,
+                status: R.string.localizable.transactionStatusCompleted(preferredLanguages: locale.rLanguages),
                 date: date,
                 reward: reward
             )

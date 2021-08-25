@@ -37,9 +37,9 @@ extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtoc
     func bind(viewModel: LocalizableResource<AnalyticsRewardDetailsViewModel>) {
         let localizedViewModel = viewModel.value(for: selectedLocale)
         rootView.txHashView.subtitle = localizedViewModel.txHash
-        rootView.dateView.titleLabel.text = localizedViewModel.date
-        // rootView.statusView.titleLabel.text = localizedViewModel.
-        rootView.rewardView.titleLabel.text = localizedViewModel.reward
+        rootView.dateView.valueLabel.text = localizedViewModel.date
+        rootView.statusView.valueLabel.text = localizedViewModel.status
+        rootView.rewardView.valueLabel.text = localizedViewModel.reward
     }
 }
 
