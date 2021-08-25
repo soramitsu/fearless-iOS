@@ -85,8 +85,8 @@ class AnalyticsRewardsBaseViewController<
             setupEmptyView(emptyCell.emptyView, title: viewModel.emptyListDescription)
             return emptyCell
         }
-        let cellViewModel = viewModel.sections[indexPath.section].items[indexPath.row]
-        cell.historyView.bind(model: cellViewModel)
+        let cellItem = viewModel.sections[indexPath.section].items[indexPath.row]
+        cell.historyView.bind(model: cellItem.viewModel)
         return cell
     }
 
@@ -106,7 +106,8 @@ class AnalyticsRewardsBaseViewController<
             return
         }
 
-        presenter.handleReward(atIndex: indexPath.row)
+        let rawModel = viewModel.sections[indexPath.section].items[indexPath.row].rawModel
+        presenter.handleReward(rawModel)
     }
 
     func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {

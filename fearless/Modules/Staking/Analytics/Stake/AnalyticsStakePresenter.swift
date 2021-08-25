@@ -68,8 +68,8 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
         updateView()
     }
 
-    func handleReward(atIndex _: Int) {
-        wireframe.showRewardDetails(from: view)
+    func handleReward(_ rewardModel: AnalyticsRewardDetailsModel) {
+        wireframe.showRewardDetails(rewardModel, from: view)
     }
 }
 

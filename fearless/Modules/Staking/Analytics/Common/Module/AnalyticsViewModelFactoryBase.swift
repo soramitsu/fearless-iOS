@@ -1,7 +1,7 @@
 import BigInt
 import SoraFoundation
 
-protocol AnalyticsViewModelItem: Dated {
+protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }
     var amount: BigUInt { get }
     static func emptyListDescription(for locale: Locale) -> String
@@ -100,7 +100,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     private func createViewModelItems(
         rewardsData: [T],
         locale: Locale
-    ) -> [AnalyticsRewardsItemViewModel] {
+    ) -> [AnalyticsRewardsItem] {
         let txFormatter = DateFormatter.txHistory.value(for: locale)
 
         return rewardsData.compactMap { itemData in
@@ -110,12 +110,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let txDate = Date(timeIntervalSince1970: TimeInterval(itemData.timestamp))
             let txTimeText = txFormatter.string(from: txDate)
 
-            return AnalyticsRewardsItemViewModel(
+            let viewModel = AnalyticsRewardsItemViewModel(
                 addressOrName: title,
                 daysLeftText: .init(string: subtitle),
                 tokenAmountText: "+\(tokenAmountText)",
                 usdAmountText: txTimeText
             )
+            return AnalyticsRewardsItem(viewModel: viewModel, rawModel: itemData)
         }
     }
 

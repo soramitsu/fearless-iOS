@@ -71,13 +71,8 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
         updateView()
     }
 
-    func handleReward(atIndex index: Int) {
-        guard
-            let rewards = rewardsData,
-            !rewards.isEmpty, rewards.count > index
-        else { return }
-        let reward = rewards[index]
-        wireframe.showRewardDetails(reward, from: view)
+    func handleReward(_ rewardModel: AnalyticsRewardDetailsModel) {
+        wireframe.showRewardDetails(rewardModel, from: view)
     }
 
     func handlePendingRewardsAction() {

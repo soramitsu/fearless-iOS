@@ -6,7 +6,7 @@ protocol AnalyticsPresenterBaseProtocol: AnyObject {
     func didSelectPeriod(_ period: AnalyticsPeriod)
     func didSelectPrevious()
     func didSelectNext()
-    func handleReward(atIndex index: Int)
+    func handleReward(_ rewardModel: AnalyticsRewardDetailsModel)
 }
 
 protocol AnalyticsBaseViewModel {
