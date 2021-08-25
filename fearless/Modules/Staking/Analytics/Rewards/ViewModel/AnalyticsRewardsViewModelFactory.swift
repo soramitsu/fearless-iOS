@@ -17,3 +17,9 @@ extension SubqueryRewardItemData: AnalyticsViewModelItem {
         "Your rewards\nwill appear here" // TODO:
     }
 }
+
+extension SubqueryRewardItemData: AnalyticsRewardDetailsModel {
+    var txHash: String {
+        eventId
+    }
+}

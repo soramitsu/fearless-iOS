@@ -1,8 +1,10 @@
 import SoraFoundation
 
 final class AnalyticsRewardsWireframe: AnalyticsRewardsWireframeProtocol {
-    func showRewardDetails(from view: ControllerBackedProtocol?) {
-        guard let rewardDetailsView = AnalyticsRewardDetailsViewFactory.createView() else { return }
+    func showRewardDetails(_ rewardModel: AnalyticsRewardDetailsModel, from view: ControllerBackedProtocol?) {
+        guard
+            let rewardDetailsView = AnalyticsRewardDetailsViewFactory.createView(rewardModel: rewardModel)
+        else { return }
 
         let navigationController = FearlessNavigationController(rootViewController: rewardDetailsView.controller)
 

@@ -1,19 +1,19 @@
 import UIKit
 
 final class AnalyticsRewardDetailsViewLayout: UIView {
-    let detailsView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+    let txHashView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
 
-    private let statusView: TitleValueView = {
+    let statusView: TitleValueView = {
         let view = TitleValueView()
         return view
     }()
 
-    private let dateView: TitleValueView = {
+    let dateView: TitleValueView = {
         let view = TitleValueView()
         return view
     }()
 
-    private let rewardView: TitleValueView = {
+    let rewardView: TitleValueView = {
         let view = TitleValueView()
         return view
     }()
@@ -41,7 +41,7 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
         let content: UIView = .vStack(
             spacing: 16,
             [
-                detailsView,
+                txHashView,
                 .vStack(
                     [
                         statusView,
@@ -58,7 +58,7 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        detailsView.snp.makeConstraints { $0.height.equalTo(52) }
+        txHashView.snp.makeConstraints { $0.height.equalTo(52) }
         [statusView, dateView, rewardView].forEach { view in
             view.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
@@ -68,6 +68,7 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
     }
 
     private func applyLocalization() {
+        txHashView.title = R.string.localizable.transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
         statusView.titleLabel.text = R.string.localizable.transactionDetailStatus(preferredLanguages: locale.rLanguages)
         dateView.titleLabel.text = R.string.localizable.transactionDetailDate(preferredLanguages: locale.rLanguages)
         rewardView.titleLabel.text = R.string.localizable

@@ -33,7 +33,15 @@ final class AnalyticsRewardDetailsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtocol {}
+extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtocol {
+    func bind(viewModel: LocalizableResource<AnalyticsRewardDetailsViewModel>) {
+        let localizedViewModel = viewModel.value(for: selectedLocale)
+        rootView.txHashView.subtitle = localizedViewModel.txHash
+        rootView.dateView.titleLabel.text = localizedViewModel.date
+        // rootView.statusView.titleLabel.text = localizedViewModel.
+        rootView.rewardView.titleLabel.text = localizedViewModel.reward
+    }
+}
 
 extension AnalyticsRewardDetailsViewController: Localizable {
     func applyLocalization() {

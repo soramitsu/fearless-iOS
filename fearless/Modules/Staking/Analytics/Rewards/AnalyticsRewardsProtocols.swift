@@ -20,7 +20,7 @@ protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
 }
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
-    func showRewardDetails(from view: ControllerBackedProtocol?)
+    func showRewardDetails(_ rewardModel: AnalyticsRewardDetailsModel, from view: ControllerBackedProtocol?)
     func showPendingRewards(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
 }
 

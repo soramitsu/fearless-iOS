@@ -17,3 +17,9 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
         "Your stake changes\nwill appear here" // TODO:
     }
 }
+
+extension SubqueryStakeChangeData: AnalyticsRewardDetailsModel {
+    var txHash: String {
+        eventId
+    }
+}

@@ -3,6 +3,7 @@ import FearlessUtils
 import BigInt
 
 struct SubqueryStakeChangeData {
+    let eventId: String
     let timestamp: Int64
     let address: AccountAddress
     let amount: BigUInt
@@ -18,6 +19,7 @@ struct SubqueryStakeChangeData {
     init?(from json: JSON?) {
         guard
             let json = json,
+            let eventId = json.id?.stringValue,
             let timestampString = json.timestamp?.stringValue,
             let timestamp = Int64(timestampString),
             let address = json.address?.stringValue,
@@ -27,13 +29,7 @@ struct SubqueryStakeChangeData {
             let type = SubqueryStakeChangeType(rawValue: typeString)
         else { return nil }
 
-        self.timestamp = timestamp
-        self.address = address
-        self.amount = amount
-        self.type = type
-    }
-
-    init(timestamp: Int64, address: AccountAddress, amount: BigUInt, type: SubqueryStakeChangeType) {
+        self.eventId = eventId
         self.timestamp = timestamp
         self.address = address
         self.amount = amount
