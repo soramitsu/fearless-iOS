@@ -305,10 +305,8 @@ class JSONRPCTests: XCTestCase {
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain,
-                                                      logger: Logger.shared)
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+        let runtimeService = createRuntimeService(from: chain, chainRegistry: chainRegistry)
 
         runtimeService.setup()
 
@@ -386,9 +384,8 @@ class JSONRPCTests: XCTestCase {
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain)
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+        let runtimeService = createRuntimeService(from: chain, chainRegistry: chainRegistry)
 
         runtimeService.setup()
 
@@ -476,8 +473,10 @@ class JSONRPCTests: XCTestCase {
             operationManager: operationManager
         )
 
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+
         return WebSocketService(settings: settings,
-                                connectionFactory: WebSocketEngineFactory(),
+                                chainRegistry: chainRegistry,
                                 subscriptionsFactory: factory,
                                 applicationHandler: ApplicationHandler())
     }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDChainAccount" representedClassName="CDChainAccount" syncable="YES" codeGenerationType="class">
+        <attribute name="accountId" attributeType="Binary"/>
+        <attribute name="chainId" attributeType="String"/>
+        <attribute name="cryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="metaAccount" maxCount="1" deletionRule="Nullify" destinationEntity="CDMetaAccount" inverseName="chainAccounts" inverseEntity="CDMetaAccount"/>
+    </entity>
+    <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
+        <attribute name="ethereumAddress" attributeType="Binary"/>
+        <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="metaId" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="substrateAccountIId" attributeType="Binary"/>
+        <attribute name="substrateCryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
+    </entity>
+    <elements>
+        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="134"/>
+        <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="89"/>
+    </elements>
+</model>

@@ -690,8 +690,11 @@ class CalculatorServiceTests: XCTestCase {
             runtimeService: runtimeService,
             operationManager: operationManager
         )
+
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+
         return WebSocketService(settings: settings,
-                                connectionFactory: WebSocketEngineFactory(),
+                                chainRegistry: chainRegistry,
                                 subscriptionsFactory: factory,
                                 applicationHandler: ApplicationHandler())
     }
