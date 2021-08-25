@@ -1,12 +1,18 @@
 import UIKit
+import SoraFoundation
 
-final class AnalyticsRewardDetailsViewController: UIViewController {
+final class AnalyticsRewardDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsRewardDetailsViewLayout
 
     let presenter: AnalyticsRewardDetailsPresenterProtocol
+    let localizationManager: LocalizationManagerProtocol?
 
-    init(presenter: AnalyticsRewardDetailsPresenterProtocol) {
+    init(
+        presenter: AnalyticsRewardDetailsPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol? = nil
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -22,8 +28,18 @@ final class AnalyticsRewardDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        applyLocalization()
         presenter.setup()
     }
 }
 
 extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtocol {}
+
+extension AnalyticsRewardDetailsViewController: Localizable {
+    func applyLocalization() {
+        if isViewLoaded {
+            title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: selectedLocale.rLanguages)
+            rootView.locale = selectedLocale
+        }
+    }
+}

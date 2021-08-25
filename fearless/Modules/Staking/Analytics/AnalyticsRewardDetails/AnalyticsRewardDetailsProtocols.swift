@@ -1,4 +1,6 @@
-protocol AnalyticsRewardDetailsViewProtocol: AnyObject {}
+import SoraFoundation
+
+protocol AnalyticsRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable {}
 
 protocol AnalyticsRewardDetailsPresenterProtocol: AnyObject {
     func setup()
