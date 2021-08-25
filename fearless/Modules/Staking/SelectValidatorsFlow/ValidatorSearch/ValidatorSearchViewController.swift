@@ -81,16 +81,9 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
     }
 
     private func setupNavigationBar() {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: R.color.colorWhite()!,
-            .font: UIFont.p0Paragraph
-        ]
-
-        doneButton.setTitleTextAttributes(attributes, for: .normal)
-        doneButton.setTitleTextAttributes(attributes, for: .highlighted)
-
+        doneButton.setupDefaultTitleStyle(with: .p0Paragraph)
         doneButton.isEnabled = false
-
+z
         navigationItem.rightBarButtonItem = doneButton
     }
 
