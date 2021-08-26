@@ -3,7 +3,8 @@ import SoraFoundation
 
 protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }
-    var amount: BigUInt { get }
+    var amountInHistory: BigUInt { get }
+    var amountInChart: BigUInt { get }
     static func emptyListDescription(for locale: Locale) -> String
 }
 
@@ -42,7 +43,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 xAxisValues: period.xAxisValues
             )
 
-            let totalReceived = groupedByPeriod.reduce(Decimal(0), +)
+            let totalReceived = rewardItemsWithinLimits
+                .map(\.amount)
+                .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
+                .reduce(0.0, +)
+
             let totalReceivedToken = self.balanceViewModelFactory.balanceFromPrice(
                 totalReceived,
                 priceData: priceData
@@ -179,24 +184,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             }
     }
 
-    private func groupedData<T: AnalyticsViewModelItem>(
-        _ data: [T],
-        by period: AnalyticsPeriod,
-        periodDelta: Int
+    /// Override
+    func groupedData<T: AnalyticsViewModelItem>(
+        _: [T],
+        by _: AnalyticsPeriod,
+        periodDelta _: Int
     ) -> [Decimal] {
-        data.reduce(into: [Decimal](repeating: 0.0, count: period.chartBarsCount)) { array, value in
-            guard let decimal = Decimal.fromSubstrateAmount(
-                value.amount,
-                precision: chain.addressType.precision
-            ) else { return }
-
-            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
-            let distance = timestampInterval.1 - timestampInterval.0
-            let index = Int(
-                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(period.chartBarsCount)
-            )
-            array[index] += decimal
-        }
+        []
     }
 }
 

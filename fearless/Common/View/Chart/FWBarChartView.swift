@@ -98,7 +98,7 @@ extension FWBarChartView: ChartViewDelegate {
 class ChartAxisFormmatter: IAxisValueFormatter {
     var xAxisValues = [String]()
 
-    func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
-        xAxisValues[Int(value)]
+    func stringForValue(_: Double, axis _: AxisBase?) -> String {
+        ""
     }
 }

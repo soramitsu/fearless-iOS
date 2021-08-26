@@ -6,6 +6,16 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
     override func getHistoryItemTitle(data: SubqueryStakeChangeData, locale: Locale) -> String {
         data.type.title(for: locale)
     }
+
+    override func groupedData<T: AnalyticsViewModelItem>(
+        _ data: [T],
+        by _: AnalyticsPeriod,
+        periodDelta _: Int
+    ) -> [Decimal] {
+        data
+            .map(\.amountInChart)
+            .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
+    }
 }
 
 extension SubqueryStakeChangeData: AnalyticsViewModelItem {
@@ -15,6 +25,14 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
 
     static func emptyListDescription(for _: Locale) -> String {
         "Your stake changes\nwill appear here" // TODO:
+    }
+
+    var amountInChart: BigUInt {
+        accumulatedAmount
+    }
+
+    var amountInHistory: BigUInt {
+        amount
     }
 }
 

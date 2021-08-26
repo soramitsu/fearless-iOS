@@ -33,7 +33,7 @@ extension AnalyticsPeriod {
         case .week:
             return ["M", "T", "W", "T", "F", "S", "S"]
         case .month:
-            return ["1", "7", "15", "22", "31"]
+            return (0 ..< 30).map(\.description)
         case .year, .all: // TODO:
             return (1 ... 12).map { String($0) }
         }
