@@ -7231,6 +7231,7 @@
 			isa = PBXGroup;
 			children = (
 				F409669826B297D6008CD244 /* AnalyticsSummaryRewardViewModel.swift */,
+				F409669D26B297D6008CD244 /* AnalyticsRewardsItemView.swift */,
 				F409669A26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift */,
 			);
 			path = ViewModel;
@@ -7240,7 +7241,6 @@
 			isa = PBXGroup;
 			children = (
 				F408E9B526B807200043CFE0 /* AnalyticsRewardsHeaderView.swift */,
-				F409669D26B297D6008CD244 /* AnalyticsRewardsItemView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
