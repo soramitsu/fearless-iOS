@@ -8,6 +8,12 @@ final class AnalyticsStakeViewController:
         AnalyticsStakeHeaderView,
         AnalyticsStakePresenter
     >, AnalyticsStakeViewProtocol {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        rootView.headerView.chartView.chartDelegate = self
+    }
+
     var localizedTitle: LocalizableResource<String> {
         LocalizableResource { locale in
             R.string.localizable.stakingStake(preferredLanguages: locale.rLanguages)
@@ -34,5 +40,23 @@ final class AnalyticsStakeViewController:
             rootView.tableView.refreshControl?.endRefreshing()
         }
         reloadEmptyState(animated: true)
+    }
+}
+
+extension AnalyticsStakeViewController: FWChartViewDelegate {
+    func didSelectXValue(_ value: Double) {
+        guard case let .loaded(viewModel) = viewState else {
+            return
+        }
+        let summary = viewModel.chartData.summary[Int(value)]
+        rootView.headerView.bind(summaryViewModel: summary)
+    }
+
+    func didUnselect() {
+        guard case let .loaded(viewModel) = viewState else {
+            return
+        }
+        let summary = viewModel.summaryViewModel
+        rootView.headerView.bind(summaryViewModel: summary)
     }
 }

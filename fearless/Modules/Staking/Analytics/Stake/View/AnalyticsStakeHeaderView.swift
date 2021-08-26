@@ -90,12 +90,18 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
         chartData: ChartData,
         selectedPeriod: AnalyticsPeriod
     ) {
-        selectedPeriodLabel.text = summaryViewModel.title
-        tokenAmountLabel.text = summaryViewModel.tokenAmount
-        usdAmountLabel.text = summaryViewModel.usdAmount
+        bind(summaryViewModel: summaryViewModel)
 
         periodView.bind(selectedPeriod: selectedPeriod)
         chartView.setChartData(chartData)
+    }
+
+    func bind(
+        summaryViewModel: AnalyticsSummaryRewardViewModel
+    ) {
+        selectedPeriodLabel.text = summaryViewModel.title
+        tokenAmountLabel.text = summaryViewModel.tokenAmount
+        usdAmountLabel.text = summaryViewModel.usdAmount
     }
 
     private func applyLocalization() {

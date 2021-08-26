@@ -15,13 +15,13 @@ final class FWLineChartView: LineChartView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        delegate = self
         backgroundColor = .clear
         chartDescription?.enabled = false
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
         highlightPerTapEnabled = false
-        dragEnabled = false
         maxVisibleCount = 40
 
         xAxis.gridLineDashLengths = [2.5, 2.5]
@@ -84,5 +84,15 @@ extension FWLineChartView: FWChartViewProtocol {
 
         self.data = lineChartData
         animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+    }
+}
+
+extension FWLineChartView: ChartViewDelegate {
+    func chartValueSelected(_: ChartViewBase, entry: ChartDataEntry, highlight _: Highlight) {
+        chartDelegate?.didSelectXValue(entry.x)
+    }
+
+    func chartValueNothingSelected(_: ChartViewBase) {
+        chartDelegate?.didUnselect()
     }
 }
