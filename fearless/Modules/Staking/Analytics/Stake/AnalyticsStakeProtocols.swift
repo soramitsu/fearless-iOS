@@ -25,7 +25,6 @@ protocol AnalyticsStakeViewModelFactoryProtocol {
     func createViewModel(
         from data: [SubqueryStakeChangeData],
         priceData: PriceData?,
-        period: AnalyticsPeriod,
-        periodDelta: Int
+        period: AnalyticsPeriod
     ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }

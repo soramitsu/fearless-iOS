@@ -22,11 +22,10 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     func createViewModel(
         from data: [T],
         priceData: PriceData?,
-        period: AnalyticsPeriod,
-        periodDelta: Int
+        period: AnalyticsPeriod
     ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
-            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
+            let timestampInterval = period.timestampInterval(periodDelta: 0)
 
             let rewardItemsWithinLimits = data
                 .filter { itemData in
@@ -34,7 +33,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                         itemData.timestamp <= timestampInterval.1
                 }
 
-            let groupedByPeriod = self.groupedData(rewardItemsWithinLimits, by: period, periodDelta: periodDelta)
+            let groupedByPeriod = self.groupedData(rewardItemsWithinLimits, by: period, periodDelta: 0)
 
             let chartDoubles = groupedByPeriod.map { Double(truncating: $0 as NSNumber) }
             let chartData = ChartData(amounts: chartDoubles, xAxisValues: period.xAxisValues)

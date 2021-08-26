@@ -9,7 +9,7 @@ protocol AnalyticsPeriodViewDelegate: AnyObject {
 final class AnalyticsPeriodView: UIView {
     weak var delegate: AnalyticsPeriodViewDelegate?
 
-    typealias Button = AnalyticsBottomSheetButton<AnalyticsPeriod>
+    typealias Button = AnalyticsMagentaButton<AnalyticsPeriod>
     private lazy var buttons: [Button] = {
         AnalyticsPeriod.allCases.map { Button(model: $0) }
     }()
@@ -43,9 +43,9 @@ final class AnalyticsPeriodView: UIView {
 
     @objc
     private func handlePeriodButton(button: UIControl) {
-        guard let button = button as? AnalyticsBottomSheetButton<AnalyticsPeriod> else { return }
+        guard let button = button as? AnalyticsMagentaButton<AnalyticsPeriod> else { return }
         delegate?.didSelect(period: button.model)
     }
 }
 
-extension AnalyticsPeriod: AnalyticsBottomSheetButtonModel {}
+extension AnalyticsPeriod: AnalyticsMagentaButtonModel {}

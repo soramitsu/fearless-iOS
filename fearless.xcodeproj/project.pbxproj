@@ -1362,7 +1362,6 @@
 		F40966BC26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409669A26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift */; };
 		F40966BE26B297D6008CD244 /* AnalyticsRewardsItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409669D26B297D6008CD244 /* AnalyticsRewardsItemView.swift */; };
 		F40966BF26B297D6008CD244 /* AnalyticsPeriodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A026B297D6008CD244 /* AnalyticsPeriodViewModel.swift */; };
-		F40966C026B297D6008CD244 /* AnalyticsPeriodSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A126B297D6008CD244 /* AnalyticsPeriodSelectorView.swift */; };
 		F40966C126B297D6008CD244 /* AnalyticsPeriodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */; };
 		F40966C226B297D6008CD244 /* AnalyticsPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A426B297D6008CD244 /* AnalyticsPeriod.swift */; };
 		F40966C326B297D6008CD244 /* AnalyticsContainerViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A626B297D6008CD244 /* AnalyticsContainerViewLayout.swift */; };
@@ -1412,7 +1411,7 @@
 		F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D7426C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift */; };
 		F4433D7A26C16D070002A91E /* AnalyticsValidatorsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4433D7926C16D070002A91E /* AnalyticsValidatorsViewModel.swift */; };
 		F4488CF226143E0000AEE6DB /* EraRewardPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */; };
-		F44CCBEE26D38D1900A9E02E /* AnalyticsBottomSheetButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CCBED26D38D1900A9E02E /* AnalyticsBottomSheetButton.swift */; };
+		F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CCBED26D38D1900A9E02E /* AnalyticsMagentaButton.swift */; };
 		F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CD8F326242825005DDF23 /* PayoutRewardsService+Fetch.swift */; };
 		F458D3982642911B0055CB75 /* ControllerAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F458D3972642911B0055CB75 /* ControllerAccountViewModel.swift */; };
 		F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F458D3C02642B7D80055CB75 /* LearnMoreView.swift */; };
@@ -2888,7 +2887,6 @@
 		F409669A26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsViewModelFactory.swift; sourceTree = "<group>"; };
 		F409669D26B297D6008CD244 /* AnalyticsRewardsItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsItemView.swift; sourceTree = "<group>"; };
 		F40966A026B297D6008CD244 /* AnalyticsPeriodViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodViewModel.swift; sourceTree = "<group>"; };
-		F40966A126B297D6008CD244 /* AnalyticsPeriodSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodSelectorView.swift; sourceTree = "<group>"; };
 		F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodView.swift; sourceTree = "<group>"; };
 		F40966A426B297D6008CD244 /* AnalyticsPeriod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriod.swift; sourceTree = "<group>"; };
 		F40966A626B297D6008CD244 /* AnalyticsContainerViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsContainerViewLayout.swift; sourceTree = "<group>"; };
@@ -2938,7 +2936,7 @@
 		F4433D7426C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorItemViewModel.swift; sourceTree = "<group>"; };
 		F4433D7926C16D070002A91E /* AnalyticsValidatorsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewModel.swift; sourceTree = "<group>"; };
 		F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraRewardPoints.swift; sourceTree = "<group>"; };
-		F44CCBED26D38D1900A9E02E /* AnalyticsBottomSheetButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsBottomSheetButton.swift; sourceTree = "<group>"; };
+		F44CCBED26D38D1900A9E02E /* AnalyticsMagentaButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsMagentaButton.swift; sourceTree = "<group>"; };
 		F44CD8F326242825005DDF23 /* PayoutRewardsService+Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PayoutRewardsService+Fetch.swift"; sourceTree = "<group>"; };
 		F44CD8F826244EC3005DDF23 /* PayoutRewardsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutRewardsServiceTests.swift; sourceTree = "<group>"; };
 		F458D3972642911B0055CB75 /* ControllerAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewModel.swift; sourceTree = "<group>"; };
@@ -7265,9 +7263,8 @@
 			isa = PBXGroup;
 			children = (
 				F40966A026B297D6008CD244 /* AnalyticsPeriodViewModel.swift */,
-				F40966A126B297D6008CD244 /* AnalyticsPeriodSelectorView.swift */,
 				F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */,
-				F44CCBED26D38D1900A9E02E /* AnalyticsBottomSheetButton.swift */,
+				F44CCBED26D38D1900A9E02E /* AnalyticsMagentaButton.swift */,
 			);
 			path = AnalyticsPeriodView;
 			sourceTree = "<group>";
@@ -9104,7 +9101,6 @@
 				CE478485DE721EBA1845B6FD /* NetworkManagementInteractor.swift in Sources */,
 				F40966C726B297D6008CD244 /* AnalyticsRewardsViewFactory.swift in Sources */,
 				9B930BBA2856C998279AA38E /* NetworkManagementViewController.swift in Sources */,
-				F40966C026B297D6008CD244 /* AnalyticsPeriodSelectorView.swift in Sources */,
 				846AF83E2525B85100868F37 /* WalletNetworkFacade.swift in Sources */,
 				929AF73A86C9878C987E429A /* NetworkManagementViewFactory.swift in Sources */,
 				8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */,
@@ -9229,7 +9225,7 @@
 				6BAF97802DB9C640515F47C7 /* StakingMainInteractor.swift in Sources */,
 				8466BB42263F501000E065A8 /* StakingUnbondConfirmViewModel.swift in Sources */,
 				E5F3DF66415E54AE04D0C9A9 /* StakingMainViewController.swift in Sources */,
-				F44CCBEE26D38D1900A9E02E /* AnalyticsBottomSheetButton.swift in Sources */,
+				F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */,
 				E2F9D7BDDE961B162EF100AB /* StakingMainViewFactory.swift in Sources */,
 				CD76A6513A708051857FD480 /* StakingAmountProtocols.swift in Sources */,
 				61B9688494251703A6373A1B /* StakingAmountWireframe.swift in Sources */,

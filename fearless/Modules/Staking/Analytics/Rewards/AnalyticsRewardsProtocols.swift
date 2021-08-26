@@ -28,7 +28,6 @@ protocol AnalyticsRewardsViewModelFactoryProtocol {
     func createViewModel(
         from data: [SubqueryRewardItemData],
         priceData: PriceData?,
-        period: AnalyticsPeriod,
-        periodDelta: Int
+        period: AnalyticsPeriod
     ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }

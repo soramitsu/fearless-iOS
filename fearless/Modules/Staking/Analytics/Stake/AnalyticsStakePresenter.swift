@@ -12,7 +12,6 @@ final class AnalyticsStakePresenter {
 
     private var rewardsData: [SubqueryStakeChangeData]?
     private var selectedPeriod = AnalyticsPeriod.default
-    private var selectedPeriodDiff = 0
     private var priceData: PriceData?
     private var stashItem: StashItem?
 
@@ -35,8 +34,7 @@ final class AnalyticsStakePresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
-            period: selectedPeriod,
-            periodDelta: selectedPeriodDiff
+            period: selectedPeriod
         )
         view?.reload(viewState: .loaded(viewModel.value(for: selectedLocale)))
     }
@@ -54,17 +52,6 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
         selectedPeriod = period
-        selectedPeriodDiff = 0
-        updateView()
-    }
-
-    func didSelectPrevious() {
-        selectedPeriodDiff -= 1
-        updateView()
-    }
-
-    func didSelectNext() {
-        selectedPeriodDiff += 1
         updateView()
     }
 

@@ -8,7 +8,7 @@ protocol AnalyticsValidatorsPageSelectorDelegate: AnyObject {
 final class AnalyticsValidatorsPageSelector: UIView {
     weak var delegate: AnalyticsValidatorsPageSelectorDelegate?
 
-    typealias Button = AnalyticsBottomSheetButton<AnalyticsValidatorsPage>
+    typealias Button = AnalyticsMagentaButton<AnalyticsValidatorsPage>
     private let activityButton = Button(model: .activity)
     private let rewardsButton = Button(model: .rewards)
 
@@ -52,4 +52,4 @@ final class AnalyticsValidatorsPageSelector: UIView {
     }
 }
 
-extension AnalyticsValidatorsPage: AnalyticsBottomSheetButtonModel {}
+extension AnalyticsValidatorsPage: AnalyticsMagentaButtonModel {}

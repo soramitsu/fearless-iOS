@@ -11,7 +11,6 @@ final class AnalyticsRewardsPresenter {
     private let localizationManager: LocalizationManager
     private var rewardsData: [SubqueryRewardItemData]?
     private var selectedPeriod = AnalyticsPeriod.default
-    private var selectedPeriodDiff = 0
     private var priceData: PriceData?
     private var stashItem: StashItem?
 
@@ -34,8 +33,7 @@ final class AnalyticsRewardsPresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
-            period: selectedPeriod,
-            periodDelta: selectedPeriodDiff
+            period: selectedPeriod
         )
         let localizedViewModel = viewModel.value(for: selectedLocale)
         view?.reload(viewState: .loaded(localizedViewModel))
@@ -57,17 +55,6 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
         selectedPeriod = period
-        selectedPeriodDiff = 0
-        updateView()
-    }
-
-    func didSelectPrevious() {
-        selectedPeriodDiff -= 1
-        updateView()
-    }
-
-    func didSelectNext() {
-        selectedPeriodDiff += 1
         updateView()
     }
 

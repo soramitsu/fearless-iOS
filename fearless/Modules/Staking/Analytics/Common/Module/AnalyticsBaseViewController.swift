@@ -170,13 +170,3 @@ extension AnalyticsRewardsBaseViewController: AnalyticsPeriodViewDelegate {
         presenter.didSelectPeriod(period)
     }
 }
-
-extension AnalyticsRewardsBaseViewController: AnalyticsPeriodSelectorViewDelegate {
-    func didSelectNext() {
-        presenter.didSelectNext()
-    }
-
-    func didSelectPrevious() {
-        presenter.didSelectPrevious()
-    }
-}

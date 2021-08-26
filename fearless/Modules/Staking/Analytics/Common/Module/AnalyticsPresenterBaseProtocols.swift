@@ -4,8 +4,6 @@ protocol AnalyticsPresenterBaseProtocol: AnyObject {
     func setup()
     func reload()
     func didSelectPeriod(_ period: AnalyticsPeriod)
-    func didSelectPrevious()
-    func didSelectNext()
     func handleReward(_ rewardModel: AnalyticsRewardDetailsModel)
 }
 
