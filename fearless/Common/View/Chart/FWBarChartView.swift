@@ -36,13 +36,11 @@ final class FWBarChartView: BarChartView {
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
 
-//        xAxis.gridLineDashLengths = [2.5, 2.5]
-//        xAxis.gridLineDashPhase = 0
-//        xAxis.gridColor = UIColor.white.withAlphaComponent(0.64)
-//        xAxis.labelFont = .p3Paragraph
-//        xAxis.labelPosition = .bottom
-//        xAxis.valueFormatter = xAxisFormmater
-        xAxis.enabled = false
+        xAxis.drawGridLinesEnabled = false
+        xAxis.labelFont = .p3Paragraph
+        xAxis.labelTextColor = R.color.colorStrokeGray()!
+        xAxis.labelPosition = .bottom
+        xAxis.valueFormatter = xAxisFormmater
 
         leftAxis.labelCount = 2
         leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
@@ -97,9 +95,25 @@ extension FWBarChartView: ChartViewDelegate {
 }
 
 class ChartAxisFormmatter: IAxisValueFormatter {
-    var xAxisValues = [String]()
+    var xAxisValues = [String]() {
+        didSet {
+            counter = 0
+        }
+    }
 
-    func stringForValue(_: Double, axis _: AxisBase?) -> String {
-        ""
+    private var counter = 0
+
+    func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
+//        if counter < xAxisValues.count {
+//            let xValue = xAxisValues[counter]
+//            counter += 1
+//            return xValue
+//        }
+//        return ""
+        let index = Int(value)
+        if index < xAxisValues.count {
+            return xAxisValues[index]
+        }
+        return ""
     }
 }

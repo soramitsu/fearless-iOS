@@ -35,12 +35,12 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 }
 
             let groupedByPeriod = self.chartDecimalValues(rewardItemsWithinLimits, by: period)
-
+            let dates = rewardItemsWithinLimits.map(\.date)
             let chartDoubles = groupedByPeriod.map { Double(truncating: $0 as NSNumber) }
             let chartData = ChartData(
                 amounts: chartDoubles,
                 summary: self.createSummary(chartAmounts: groupedByPeriod, priceData: priceData, locale: locale),
-                xAxisValues: period.xAxisValues
+                xAxisValues: period.xAxisValues(dates: dates)
             )
 
             let totalReceived = rewardItemsWithinLimits
@@ -84,7 +84,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 return "MMM d-d, yyyy"
             case .month:
                 return "MMM, yyyy"
-            case .year, .all:
+            case .year:
                 return "yyyy"
             }
         }()

@@ -11,7 +11,8 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         _ data: [T],
         by period: AnalyticsPeriod
     ) -> [Decimal] {
-        data.reduce(into: [Decimal](repeating: 0.0, count: period.chartBarsCount)) { array, value in
+        let count = period.chartBarsCount()
+        return data.reduce(into: [Decimal](repeating: 0.0, count: count)) { array, value in
             guard let decimal = Decimal.fromSubstrateAmount(
                 value.amount,
                 precision: chain.addressType.precision
@@ -20,7 +21,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
             let timestampInterval = period.timestampInterval
             let distance = timestampInterval.1 - timestampInterval.0
             let index = Int(
-                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(period.chartBarsCount)
+                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(count)
             )
             array[index] += decimal
         }

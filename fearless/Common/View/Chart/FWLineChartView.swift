@@ -24,13 +24,12 @@ final class FWLineChartView: LineChartView {
         highlightPerTapEnabled = false
         maxVisibleCount = 40
 
-//        xAxis.gridLineDashLengths = [2.5, 2.5]
-//        xAxis.gridLineDashPhase = 0
-//        xAxis.gridColor = UIColor.white.withAlphaComponent(0.64)
-//        xAxis.labelFont = .p3Paragraph
-//        xAxis.labelPosition = .bottom
-//        xAxis.valueFormatter = xAxisFormmater
-        xAxis.enabled = false
+        xAxis.drawGridLinesEnabled = false
+        xAxis.labelFont = .p3Paragraph
+        xAxis.labelPosition = .bottom
+        xAxis.labelTextColor = R.color.colorStrokeGray()!
+        xAxis.valueFormatter = xAxisFormmater
+        xAxis.xOffset = 0
 
         leftAxis.labelCount = 2
         leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
@@ -56,7 +55,7 @@ extension FWLineChartView: FWChartViewProtocol {
         }
 
         let dataSet = LineChartDataSet(entries: dataEntries)
-        dataSet.mode = .cubicBezier
+        dataSet.mode = .horizontalBezier
         dataSet.drawIconsEnabled = false
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false
