@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-enum AnalyticsValidatorsPage {
+enum AnalyticsValidatorsPage: CaseIterable {
     case activity
     case rewards
 }

@@ -27,7 +27,7 @@ final class AnalyticsValidatorsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupTable()
-        rootView.pageSelector.delegate = self
+        rootView.headerView.pageSelector.delegate = self
         presenter.setup()
     }
 
@@ -90,26 +90,21 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
 
         switch viewState {
         case .loading:
-            rootView.pageSelector.isHidden = true
             if let refreshControl = rootView.tableView.refreshControl, !refreshControl.isRefreshing {
                 refreshControl.programaticallyBeginRefreshing(in: rootView.tableView)
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
-            rootView.pageSelector.isHidden = false
-            rootView.pageSelector.bind(selectedPage: viewModel.selectedPage)
-            if !viewModel.validators.isEmpty {
-                rootView.headerView.pieChart.setAmounts(
-                    segmentValues: viewModel.pieChartSegmentValues,
-                    inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue
-                )
-                rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
-                rootView.headerView.titleLabel.text = viewModel.listTitle
-                rootView.tableView.reloadData()
-            }
+            rootView.headerView.pageSelector.bind(selectedPage: viewModel.selectedPage)
+            rootView.headerView.pieChart.setAmounts(
+                segmentValues: viewModel.pieChartSegmentValues,
+                inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue
+            )
+            rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
+            rootView.headerView.titleLabel.text = viewModel.listTitle
+            rootView.tableView.reloadData()
         case .error:
             rootView.tableView.refreshControl?.endRefreshing()
-            rootView.pageSelector.isHidden = true
         }
         reloadEmptyState(animated: true)
     }

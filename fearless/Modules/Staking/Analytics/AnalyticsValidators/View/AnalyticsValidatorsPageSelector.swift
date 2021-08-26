@@ -9,18 +9,14 @@ final class AnalyticsValidatorsPageSelector: UIView {
     weak var delegate: AnalyticsValidatorsPageSelectorDelegate?
 
     typealias Button = AnalyticsMagentaButton<AnalyticsValidatorsPage>
-    private let activityButton = Button(model: .activity)
-    private let rewardsButton = Button(model: .rewards)
-
-    private var buttons: [Button] {
-        [activityButton, rewardsButton]
-    }
+    private let buttons: [Button] = {
+        AnalyticsValidatorsPage.allCases.map { Button(model: $0) }
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = R.color.colorAlmostBlack()
         setupLayout()
-        buttons.forEach { $0.addTarget(self, action: #selector(handleButton), for: .touchUpInside) }
+        buttons.forEach { $0.addTarget(self, action: #selector(handleButton(button:)), for: .touchUpInside) }
     }
 
     @available(*, unavailable)
@@ -29,21 +25,17 @@ final class AnalyticsValidatorsPageSelector: UIView {
     }
 
     private func setupLayout() {
-        let contentView = UIView.hStack([activityButton, rewardsButton])
-        contentView.spacing = 8
+        let contentView = UIView.hStack(spacing: 8, buttons)
 
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(16)
-            make.height.equalTo(24.0)
-            make.centerX.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide)
+            make.edges.equalToSuperview()
         }
     }
 
     @objc
-    private func handleButton(sender: UIControl) {
-        guard let button = sender as? Button else { return }
+    private func handleButton(button: UIControl) {
+        guard let button = button as? Button else { return }
         delegate?.didSelectPage(button.model)
     }
 
