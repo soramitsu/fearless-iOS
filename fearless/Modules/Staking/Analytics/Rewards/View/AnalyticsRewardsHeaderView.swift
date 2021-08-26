@@ -73,30 +73,27 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
                 .hStack(
                     distribution: .equalSpacing,
                     [UIView(), periodView, UIView()]
-                )
+                ),
+                historyTitleLabel
             ]
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
+        statsStack.setCustomSpacing(32, after: periodView)
         periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
-        barChartView.snp.makeConstraints { $0.height.equalTo(168) }
+        barChartView.snp.makeConstraints { $0.height.equalTo(180) }
 
         addSubview(statsStack)
-        statsStack.snp.makeConstraints {
-            $0.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.height.equalTo(330)
+        statsStack.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(24)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(336)
         }
 
         addSubview(pendingRewardsView)
         pendingRewardsView.snp.makeConstraints { make in
-            make.top.equalTo(statsStack.snp.bottom).offset(24)
+            make.top.equalTo(statsStack.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
-        }
-
-        addSubview(historyTitleLabel)
-        historyTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(pendingRewardsView.snp.bottom).offset(24)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(8)
         }
     }
