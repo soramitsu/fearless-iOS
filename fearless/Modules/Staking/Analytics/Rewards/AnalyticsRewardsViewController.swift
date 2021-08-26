@@ -16,6 +16,7 @@ final class AnalyticsRewardsViewController:
             action: #selector(handlePengingRewards),
             for: .touchUpInside
         )
+        rootView.headerView.chartView.chartDelegate = self
     }
 
     @objc
@@ -51,5 +52,15 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             rootView.tableView.refreshControl?.endRefreshing()
         }
         reloadEmptyState(animated: true)
+    }
+}
+
+extension AnalyticsRewardsViewController: FWChartViewDelegate {
+    func didSelectXValue(_ value: Double) {
+        guard case let .loaded(viewModel) = viewState else {
+            return
+        }
+        let summary = viewModel.chartData.summary[Int(value)]
+        rootView.headerView.bind(summaryViewModel: summary)
     }
 }

@@ -10,6 +10,8 @@ final class FWLineChartView: LineChartView {
 
     let xAxisFormmater = ChartAxisFormmatter()
 
+    weak var chartDelegate: FWChartViewDelegate?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 

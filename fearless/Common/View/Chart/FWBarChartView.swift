@@ -1,8 +1,13 @@
 import UIKit
 import Charts
 
+protocol FWChartViewDelegate: AnyObject {
+    func didSelectXValue(_ value: Double)
+}
+
 protocol FWChartViewProtocol where Self: UIView {
     func setChartData(_ data: ChartData)
+    var chartDelegate: FWChartViewDelegate? { get set }
 }
 
 final class FWBarChartView: BarChartView {
@@ -12,11 +17,14 @@ final class FWBarChartView: BarChartView {
         return formatter
     }()
 
+    weak var chartDelegate: FWChartViewDelegate?
+
     let xAxisFormmater = ChartAxisFormmatter()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        delegate = self
         backgroundColor = .clear
         chartDescription?.enabled = false
 
@@ -27,7 +35,6 @@ final class FWBarChartView: BarChartView {
         drawBarShadowEnabled = false
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
-        highlightPerTapEnabled = false
 
         xAxis.gridLineDashLengths = [2.5, 2.5]
         xAxis.gridLineDashPhase = 0
@@ -75,6 +82,12 @@ extension FWBarChartView: FWChartViewProtocol {
 
         self.data = data
         animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+    }
+}
+
+extension FWBarChartView: ChartViewDelegate {
+    func chartValueSelected(_: ChartViewBase, entry: ChartDataEntry, highlight _: Highlight) {
+        chartDelegate?.didSelectXValue(entry.x)
     }
 }
 

@@ -22,7 +22,7 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
         return label
     }()
 
-    private let barChartView: FWChartViewProtocol = FWBarChartView()
+    let chartView: FWChartViewProtocol = FWBarChartView()
 
     let periodView = AnalyticsPeriodView()
 
@@ -69,7 +69,7 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
             spacing: 4,
             [
                 amountsStack,
-                barChartView,
+                chartView,
                 .hStack(
                     distribution: .equalSpacing,
                     [UIView(), periodView, UIView()]
@@ -81,7 +81,7 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
         statsStack.setCustomSpacing(24, after: amountsStack)
         statsStack.setCustomSpacing(32, after: periodView)
         periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
-        barChartView.snp.makeConstraints { $0.height.equalTo(180) }
+        chartView.snp.makeConstraints { $0.height.equalTo(180) }
 
         addSubview(statsStack)
         statsStack.snp.makeConstraints { make in
@@ -103,12 +103,18 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
         chartData: ChartData,
         selectedPeriod: AnalyticsPeriod
     ) {
+        bind(summaryViewModel: summaryViewModel)
+
+        periodView.bind(selectedPeriod: selectedPeriod)
+        chartView.setChartData(chartData)
+    }
+
+    func bind(
+        summaryViewModel: AnalyticsSummaryRewardViewModel
+    ) {
         selectedPeriodLabel.text = summaryViewModel.title
         tokenAmountLabel.text = summaryViewModel.tokenAmount
         usdAmountLabel.text = summaryViewModel.usdAmount
-
-        periodView.bind(selectedPeriod: selectedPeriod)
-        barChartView.setChartData(chartData)
     }
 
     private func applyLocalization() {

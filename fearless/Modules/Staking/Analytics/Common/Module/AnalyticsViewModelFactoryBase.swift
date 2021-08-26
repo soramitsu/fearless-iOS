@@ -36,7 +36,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let groupedByPeriod = self.groupedData(rewardItemsWithinLimits, by: period, periodDelta: 0)
 
             let chartDoubles = groupedByPeriod.map { Double(truncating: $0 as NSNumber) }
-            let chartData = ChartData(amounts: chartDoubles, xAxisValues: period.xAxisValues)
+            let chartData = ChartData(
+                amounts: chartDoubles,
+                summary: self.createSummary(chartAmounts: groupedByPeriod, priceData: priceData, locale: locale),
+                xAxisValues: period.xAxisValues
+            )
 
             let totalReceived = groupedByPeriod.reduce(Decimal(0), +)
             let totalReceivedToken = self.balanceViewModelFactory.balanceFromPrice(
@@ -106,6 +110,25 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 usdAmountText: txTimeText
             )
             return AnalyticsRewardsItem(viewModel: viewModel, rawModel: itemData)
+        }
+    }
+
+    private func createSummary(
+        chartAmounts: [Decimal],
+        priceData: PriceData?,
+        locale: Locale
+    ) -> [AnalyticsSummaryRewardViewModel] {
+        chartAmounts.map { amount in
+            let totalBalance = balanceViewModelFactory.balanceFromPrice(
+                amount,
+                priceData: priceData
+            ).value(for: locale)
+
+            return AnalyticsSummaryRewardViewModel(
+                title: "TITLE",
+                tokenAmount: totalBalance.amount,
+                usdAmount: totalBalance.price
+            )
         }
     }
 

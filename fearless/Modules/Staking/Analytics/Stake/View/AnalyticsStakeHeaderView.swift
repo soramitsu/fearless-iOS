@@ -22,7 +22,7 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
         return label
     }()
 
-    private let lineChartView: FWChartViewProtocol = FWLineChartView()
+    let chartView: FWChartViewProtocol = FWLineChartView()
 
     let periodView = AnalyticsPeriodView()
 
@@ -62,7 +62,7 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
             spacing: 4,
             [
                 amountsStack,
-                lineChartView,
+                chartView,
                 .hStack(
                     distribution: .equalSpacing,
                     [UIView(), periodView, UIView()]
@@ -74,7 +74,7 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
         statsStack.setCustomSpacing(24, after: amountsStack)
         statsStack.setCustomSpacing(32, after: periodView)
         periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
-        lineChartView.snp.makeConstraints { $0.height.equalTo(180) }
+        chartView.snp.makeConstraints { $0.height.equalTo(180) }
 
         addSubview(statsStack)
         statsStack.snp.makeConstraints { make in
@@ -95,7 +95,7 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
         usdAmountLabel.text = summaryViewModel.usdAmount
 
         periodView.bind(selectedPeriod: selectedPeriod)
-        lineChartView.setChartData(chartData)
+        chartView.setChartData(chartData)
     }
 
     private func applyLocalization() {
