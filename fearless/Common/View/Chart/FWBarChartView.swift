@@ -30,7 +30,6 @@ final class FWBarChartView: BarChartView {
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
-        dragEnabled = false
         maxVisibleCount = 40
         drawBarShadowEnabled = false
         drawValueAboveBarEnabled = false
