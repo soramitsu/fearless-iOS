@@ -1361,7 +1361,6 @@
 		F40966BA26B297D6008CD244 /* AnalyticsSummaryRewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409669826B297D6008CD244 /* AnalyticsSummaryRewardViewModel.swift */; };
 		F40966BC26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409669A26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift */; };
 		F40966BE26B297D6008CD244 /* AnalyticsRewardsItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F409669D26B297D6008CD244 /* AnalyticsRewardsItemView.swift */; };
-		F40966BF26B297D6008CD244 /* AnalyticsPeriodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A026B297D6008CD244 /* AnalyticsPeriodViewModel.swift */; };
 		F40966C126B297D6008CD244 /* AnalyticsPeriodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */; };
 		F40966C226B297D6008CD244 /* AnalyticsPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A426B297D6008CD244 /* AnalyticsPeriod.swift */; };
 		F40966C326B297D6008CD244 /* AnalyticsContainerViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966A626B297D6008CD244 /* AnalyticsContainerViewLayout.swift */; };
@@ -2886,7 +2885,6 @@
 		F409669826B297D6008CD244 /* AnalyticsSummaryRewardViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsSummaryRewardViewModel.swift; sourceTree = "<group>"; };
 		F409669A26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsViewModelFactory.swift; sourceTree = "<group>"; };
 		F409669D26B297D6008CD244 /* AnalyticsRewardsItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsItemView.swift; sourceTree = "<group>"; };
-		F40966A026B297D6008CD244 /* AnalyticsPeriodViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodViewModel.swift; sourceTree = "<group>"; };
 		F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodView.swift; sourceTree = "<group>"; };
 		F40966A426B297D6008CD244 /* AnalyticsPeriod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriod.swift; sourceTree = "<group>"; };
 		F40966A626B297D6008CD244 /* AnalyticsContainerViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsContainerViewLayout.swift; sourceTree = "<group>"; };
@@ -7262,7 +7260,6 @@
 		F409669F26B297D6008CD244 /* AnalyticsPeriodView */ = {
 			isa = PBXGroup;
 			children = (
-				F40966A026B297D6008CD244 /* AnalyticsPeriodViewModel.swift */,
 				F40966A226B297D6008CD244 /* AnalyticsPeriodView.swift */,
 				F44CCBED26D38D1900A9E02E /* AnalyticsMagentaButton.swift */,
 			);
@@ -8387,7 +8384,6 @@
 				F4E339632614A03F0028B6B1 /* ExtrinsicsInfo.swift in Sources */,
 				8460E1232542160800826F55 /* TransactionDetailsAccessoryViewFactory.swift in Sources */,
 				84CE69DD2565BB6400559427 /* AboutViewModel.swift in Sources */,
-				F40966BF26B297D6008CD244 /* AnalyticsPeriodViewModel.swift in Sources */,
 				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
 				84F2FEFF25E7ADE7008338D5 /* ValidatorPrefs.swift in Sources */,
 				84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */,
