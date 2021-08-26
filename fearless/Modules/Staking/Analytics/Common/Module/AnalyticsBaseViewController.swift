@@ -52,8 +52,8 @@ class AnalyticsRewardsBaseViewController<
     }
 
     private func setupPeriodView() {
-        rootView.periodSelectorView.periodView.delegate = self
-        rootView.periodSelectorView.delegate = self
+//        rootView.periodSelectorView.periodView.delegate = self
+//        rootView.periodSelectorView.delegate = self
     }
 
     @objc

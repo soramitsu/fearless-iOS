@@ -1,6 +1,6 @@
 import UIKit
 
-final class AnalyticsRewardsView: UIView {
+final class AnalyticsRewardsBaseView<Header: UIView>: UIView {
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
@@ -9,9 +9,7 @@ final class AnalyticsRewardsView: UIView {
         return view
     }()
 
-    let headerView = AnalyticsRewardsHeaderView()
-
-    let periodSelectorView = AnalyticsPeriodSelectorView()
+    let headerView = Header()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,23 +24,24 @@ final class AnalyticsRewardsView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        let verticalInset = periodSelectorView.bounds.height
-        tableView.contentInset = .init(top: 0, left: 0, bottom: verticalInset, right: 0)
+        let height = headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        var headerFrame = headerView.frame
 
-        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 382))
+        // Comparison necessary to avoid infinite loop
+        if height != headerFrame.size.height {
+            headerFrame.size.height = height
+            headerView.frame = headerFrame
+            tableView.tableHeaderView = headerView
+        }
     }
 
     private func setupLayout() {
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.bottom.trailing.equalToSuperview()
         }
 
         tableView.tableHeaderView = headerView
-
-        addSubview(periodSelectorView)
-        periodSelectorView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-        }
     }
 }

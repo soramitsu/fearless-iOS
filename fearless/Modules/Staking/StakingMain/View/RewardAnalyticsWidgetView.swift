@@ -200,6 +200,7 @@ extension RewardAnalyticsWidgetView {
         .fillSkeletonStart(R.color.colorSkeletonStart()!)
         .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
         .build()
+        skeletonView.isUserInteractionEnabled = false
 
         skeletonView.frame = CGRect(origin: .zero, size: size)
         skeletonView.autoresizingMask = []

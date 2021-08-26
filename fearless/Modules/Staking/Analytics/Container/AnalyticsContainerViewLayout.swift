@@ -12,8 +12,6 @@ final class AnalyticsContainerViewLayout: UIView {
         return segmentedControl
     }()
 
-    let rewardsView = AnalyticsRewardsView()
-
     let horizontalScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isPagingEnabled = true
