@@ -7,6 +7,7 @@ struct SubqueryStakeChangeData {
     let timestamp: Int64
     let address: AccountAddress
     let amount: BigUInt
+    let accumulatedAmount: BigUInt
     let type: SubqueryStakeChangeType
 
     enum SubqueryStakeChangeType: String {
@@ -25,6 +26,8 @@ struct SubqueryStakeChangeData {
             let address = json.address?.stringValue,
             let amountString = json.amount?.stringValue,
             let amount = BigUInt(amountString),
+            let accumulatedAmountString = json.accumulatedAmount?.stringValue,
+            let accumulatedAmount = BigUInt(accumulatedAmountString),
             let typeString = json.type?.stringValue,
             let type = SubqueryStakeChangeType(rawValue: typeString)
         else { return nil }
@@ -33,6 +36,7 @@ struct SubqueryStakeChangeData {
         self.timestamp = timestamp
         self.address = address
         self.amount = amount
+        self.accumulatedAmount = accumulatedAmount
         self.type = type
     }
 }

@@ -60,6 +60,7 @@ extension SubqueryStakeSource: SingleValueProviderSourceProtocol {
                 address
                 timestamp
                 amount
+                accumulatedAmount
                 type
               }
             }
