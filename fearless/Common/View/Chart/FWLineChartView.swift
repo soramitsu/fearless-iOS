@@ -8,7 +8,7 @@ final class FWLineChartView: LineChartView {
         return formatter
     }()
 
-    let xAxisFormmater = ChartAxisFormmatter()
+    let xAxisFormmater = FWChartXAxisFormatter()
 
     weak var chartDelegate: FWChartViewDelegate?
 

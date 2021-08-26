@@ -20,7 +20,7 @@ final class FWBarChartView: BarChartView {
 
     weak var chartDelegate: FWChartViewDelegate?
 
-    let xAxisFormmater = ChartAxisFormmatter()
+    let xAxisFormmater = FWChartXAxisFormatter()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -95,22 +95,10 @@ extension FWBarChartView: ChartViewDelegate {
     }
 }
 
-class ChartAxisFormmatter: IAxisValueFormatter {
-    var xAxisValues = [String]() {
-        didSet {
-            counter = 0
-        }
-    }
-
-    private var counter = 0
+class FWChartXAxisFormatter: IAxisValueFormatter {
+    var xAxisValues = [String]()
 
     func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
-//        if counter < xAxisValues.count {
-//            let xValue = xAxisValues[counter]
-//            counter += 1
-//            return xValue
-//        }
-//        return ""
         let index = Int(value)
         if index < xAxisValues.count {
             return xAxisValues[index]
