@@ -1,6 +1,6 @@
 import UIKit
 
-final class AnalyticsStakeHeaderView: UIView {
+final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol {
     let selectedPeriodLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -23,6 +23,8 @@ final class AnalyticsStakeHeaderView: UIView {
     }()
 
     private let lineChartView: FWChartViewProtocol = FWLineChartView()
+
+    let periodView = AnalyticsPeriodView()
 
     private let historyTitleLabel: UILabel = {
         let label = UILabel()
@@ -58,11 +60,16 @@ final class AnalyticsStakeHeaderView: UIView {
             [
                 selectedPeriodLabel,
                 amountsStack,
-                lineChartView
+                lineChartView,
+                .hStack(
+                    distribution: .equalSpacing,
+                    [UIView(), periodView, UIView()]
+                )
             ]
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
+        periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
         lineChartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)
@@ -81,12 +88,14 @@ final class AnalyticsStakeHeaderView: UIView {
 
     func bind(
         summaryViewModel: AnalyticsSummaryRewardViewModel,
-        chartData: ChartData
+        chartData: ChartData,
+        selectedPeriod: AnalyticsPeriod
     ) {
         selectedPeriodLabel.text = summaryViewModel.title
         tokenAmountLabel.text = summaryViewModel.tokenAmount
         usdAmountLabel.text = summaryViewModel.usdAmount
 
+        periodView.bind(selectedPeriod: selectedPeriod)
         lineChartView.setChartData(chartData)
     }
 

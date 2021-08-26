@@ -1,6 +1,10 @@
 import UIKit
 
-final class AnalyticsRewardsBaseView<Header: UIView>: UIView {
+protocol AnalyticsRewardsHeaderViewProtocol: UIView {
+    var periodView: AnalyticsPeriodView { get }
+}
+
+final class AnalyticsRewardsBaseView<Header: AnalyticsRewardsHeaderViewProtocol>: UIView {
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear

@@ -1,6 +1,6 @@
 import UIKit
 
-final class AnalyticsRewardsHeaderView: UIView {
+final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol {
     let selectedPeriodLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -23,6 +23,8 @@ final class AnalyticsRewardsHeaderView: UIView {
     }()
 
     private let barChartView: FWChartViewProtocol = FWBarChartView()
+
+    let periodView = AnalyticsPeriodView()
 
     let pendingRewardsView: RowView<TitleValueSelectionView> = {
         let row = RowView(contentView: TitleValueSelectionView(), preferredHeight: 48.0)
@@ -65,17 +67,22 @@ final class AnalyticsRewardsHeaderView: UIView {
             [
                 selectedPeriodLabel,
                 amountsStack,
-                barChartView
+                barChartView,
+                .hStack(
+                    distribution: .equalSpacing,
+                    [UIView(), periodView, UIView()]
+                )
             ]
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
+        periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
         barChartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)
         statsStack.snp.makeConstraints {
             $0.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.height.equalTo(242)
+            $0.height.equalTo(330)
         }
 
         addSubview(pendingRewardsView)
@@ -94,12 +101,14 @@ final class AnalyticsRewardsHeaderView: UIView {
 
     func bind(
         summaryViewModel: AnalyticsSummaryRewardViewModel,
-        chartData: ChartData
+        chartData: ChartData,
+        selectedPeriod: AnalyticsPeriod
     ) {
         selectedPeriodLabel.text = summaryViewModel.title
         tokenAmountLabel.text = summaryViewModel.tokenAmount
         usdAmountLabel.text = summaryViewModel.usdAmount
 
+        periodView.bind(selectedPeriod: selectedPeriod)
         barChartView.setChartData(chartData)
     }
 

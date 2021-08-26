@@ -24,7 +24,11 @@ final class AnalyticsStakeViewController:
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
-            rootView.headerView.bind(summaryViewModel: viewModel.summaryViewModel, chartData: viewModel.chartData)
+            rootView.headerView.bind(
+                summaryViewModel: viewModel.summaryViewModel,
+                chartData: viewModel.chartData,
+                selectedPeriod: viewModel.selectedPeriod
+            )
             rootView.tableView.reloadData()
         case .error:
             rootView.tableView.refreshControl?.endRefreshing()

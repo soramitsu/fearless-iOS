@@ -27,13 +27,10 @@ final class AnalyticsMagentaButton<T: AnalyticsMagentaButtonModel>: RoundedButto
     }
 
     private func setupColors() {
-        roundedBackgroundView?.cornerRadius = 20
+        roundedBackgroundView?.cornerRadius = 30
         roundedBackgroundView?.shadowOpacity = 0.0
-        roundedBackgroundView?.strokeColor = R.color.colorDarkGray()!
-        roundedBackgroundView?.highlightedStrokeColor = R.color.colorDarkGray()!
-        roundedBackgroundView?.strokeWidth = 1.0
         roundedBackgroundView?.fillColor = .clear
-        roundedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+        roundedBackgroundView?.highlightedFillColor = R.color.colorAccent()!
 
         contentInsets = UIEdgeInsets(top: 5.5, left: 12, bottom: 5.5, right: 12)
 

@@ -4,7 +4,7 @@ import SoraUI
 
 class AnalyticsRewardsBaseViewController<
     VM: AnalyticsBaseViewModel,
-    Header: UIView,
+    Header: AnalyticsRewardsHeaderViewProtocol,
     Presenter: AnalyticsPresenterBaseProtocol
 >: UIViewController,
     ViewHolder,
@@ -52,8 +52,7 @@ class AnalyticsRewardsBaseViewController<
     }
 
     private func setupPeriodView() {
-//        rootView.periodSelectorView.periodView.delegate = self
-//        rootView.periodSelectorView.delegate = self
+        rootView.headerView.periodView.delegate = self
     }
 
     @objc
