@@ -182,8 +182,8 @@ final class RuntimeRegistryService {
             }
 
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                networkData,
-                versioningData: baseData,
+                baseData,
+                versioningData: networkData,
                 runtimeMetadata: metadata
             )
 
