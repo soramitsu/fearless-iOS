@@ -10,7 +10,7 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
 
     private let tokenAmountLabel: UILabel = {
         let label = UILabel()
-        label.font = .h2Title
+        label.font = .h1Title
         label.textColor = R.color.colorWhite()
         return label
     }()
@@ -54,11 +54,13 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
     }
 
     private func setupLayout() {
-        let amountsStack = UIView.hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel, UIView()])
+        let amountsStack = UIView.vStack(
+            alignment: .center,
+            [selectedPeriodLabel, tokenAmountLabel, usdAmountLabel]
+        )
         let statsStack = UIView.vStack(
             spacing: 4,
             [
-                selectedPeriodLabel,
                 amountsStack,
                 lineChartView,
                 .hStack(
