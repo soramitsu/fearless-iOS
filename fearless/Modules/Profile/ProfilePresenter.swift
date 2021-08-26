@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class ProfilePresenter {
     weak var view: ProfileViewProtocol?

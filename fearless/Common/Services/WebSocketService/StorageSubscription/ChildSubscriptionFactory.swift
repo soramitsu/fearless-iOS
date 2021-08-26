@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 protocol ChildSubscriptionFactoryProtocol {
     func createEventEmittingSubscription(

@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import RobinHood
+import FearlessUtils
 
 protocol AccountRepositoryFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }

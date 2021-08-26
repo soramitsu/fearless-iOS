@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import IrohaCrypto
+import FearlessUtils
 
 enum ProfileInteractorError: Error {
     case noSelectedAccount

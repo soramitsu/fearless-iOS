@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import FearlessUtils
 
 final class LanguageSelectionInteractor {
     weak var presenter: LanguageSelectionInteractorOutputProtocol!

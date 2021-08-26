@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import SoraFoundation
 import IrohaCrypto
+import FearlessUtils
 
 final class StakingRewardDestSetupPresenter {
     weak var view: StakingRewardDestSetupViewProtocol?

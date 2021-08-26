@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 typealias EventEmittingFactoryClosure = (DataProviderChange<ChainStorageItem>) -> EventProtocol
 

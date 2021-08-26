@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import FearlessUtils
 
 protocol WebSocketServiceProtocol: ApplicationServiceProtocol {
     var connection: JSONRPCEngine? { get }

@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class ValidatorInfoPresenter {
     weak var view: ValidatorInfoViewProtocol?

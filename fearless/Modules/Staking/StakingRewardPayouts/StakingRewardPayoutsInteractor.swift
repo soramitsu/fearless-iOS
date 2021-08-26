@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import FearlessUtils
 
 final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!

@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import CommonWallet
+import FearlessUtils
 
 enum SubscanRewardSourceError: Error {
     case unsupportedAsset

@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import RobinHood
 import SoraFoundation
+import FearlessUtils
 
 final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     static func createView(with amount: Decimal?) -> StakingAmountViewProtocol? {

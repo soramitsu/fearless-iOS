@@ -1,4 +1,5 @@
 import Foundation
+import FearlessUtils
 
 final class RecommendedValidatorListPresenter {
     weak var view: RecommendedValidatorListViewProtocol?

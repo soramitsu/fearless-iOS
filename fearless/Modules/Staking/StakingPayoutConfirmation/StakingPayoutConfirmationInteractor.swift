@@ -4,6 +4,7 @@ import CommonWallet
 import RobinHood
 import IrohaCrypto
 import BigInt
+import FearlessUtils
 
 final class StakingPayoutConfirmationInteractor {
     typealias Batch = [PayoutInfo]

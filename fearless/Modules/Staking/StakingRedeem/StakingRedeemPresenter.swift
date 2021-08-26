@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import FearlessUtils
 
 final class StakingRedeemPresenter {
     weak var view: StakingRedeemViewProtocol?
