@@ -7,10 +7,9 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages)
     }
 
-    override func groupedData<T: AnalyticsViewModelItem>(
+    override func chartDecimalValues<T: AnalyticsViewModelItem>(
         _ data: [T],
-        by period: AnalyticsPeriod,
-        periodDelta: Int
+        by period: AnalyticsPeriod
     ) -> [Decimal] {
         data.reduce(into: [Decimal](repeating: 0.0, count: period.chartBarsCount)) { array, value in
             guard let decimal = Decimal.fromSubstrateAmount(
@@ -18,7 +17,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
                 precision: chain.addressType.precision
             ) else { return }
 
-            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
+            let timestampInterval = period.timestampInterval
             let distance = timestampInterval.1 - timestampInterval.0
             let index = Int(
                 Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(period.chartBarsCount)

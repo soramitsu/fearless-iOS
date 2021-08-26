@@ -7,10 +7,9 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         data.type.title(for: locale)
     }
 
-    override func groupedData<T: AnalyticsViewModelItem>(
+    override func chartDecimalValues<T: AnalyticsViewModelItem>(
         _ data: [T],
-        by _: AnalyticsPeriod,
-        periodDelta _: Int
+        by _: AnalyticsPeriod
     ) -> [Decimal] {
         data
             .map(\.amountInChart)

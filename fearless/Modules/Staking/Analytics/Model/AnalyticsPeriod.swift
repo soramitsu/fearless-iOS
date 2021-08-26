@@ -41,8 +41,8 @@ extension AnalyticsPeriod {
 }
 
 extension AnalyticsPeriod {
-    func timestampInterval(periodDelta: Int) -> (Int64, Int64) {
-        let tillDate: Date = {
+    var timestampInterval: (Int64, Int64) {
+        let startDate: Date = {
             let interval: TimeInterval = {
                 switch self {
                 case .week:
@@ -53,23 +53,11 @@ extension AnalyticsPeriod {
                     return .secondsInDay * 31 * 12
                 }
             }()
-            return Date().addingTimeInterval(interval * Double(periodDelta))
+            return Date().addingTimeInterval(TimeInterval(-interval))
         }()
 
-        let calendar = Calendar(identifier: .iso8601)
-        let dateComponent: Calendar.Component = {
-            switch self {
-            case .week:
-                return .weekOfYear
-            case .month:
-                return .month
-            case .year, .all:
-                return .year
-            }
-        }()
-        guard let interval = calendar.dateInterval(of: dateComponent, for: tillDate) else { return (0, 0) }
-        let startTimestamp = Int64(interval.start.timeIntervalSince1970)
-        let endTimestamp = Int64(interval.end.timeIntervalSince1970)
+        let startTimestamp = Int64(startDate.timeIntervalSince1970)
+        let endTimestamp = Int64(Date().timeIntervalSince1970)
         return (startTimestamp, endTimestamp)
     }
 }
