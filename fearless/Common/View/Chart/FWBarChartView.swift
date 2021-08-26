@@ -3,6 +3,7 @@ import Charts
 
 protocol FWChartViewDelegate: AnyObject {
     func didSelectXValue(_ value: Double)
+    func didUnselect()
 }
 
 protocol FWChartViewProtocol where Self: UIView {
@@ -87,6 +88,10 @@ extension FWBarChartView: FWChartViewProtocol {
 extension FWBarChartView: ChartViewDelegate {
     func chartValueSelected(_: ChartViewBase, entry: ChartDataEntry, highlight _: Highlight) {
         chartDelegate?.didSelectXValue(entry.x)
+    }
+
+    func chartValueNothingSelected(_: ChartViewBase) {
+        chartDelegate?.didUnselect()
     }
 }
 

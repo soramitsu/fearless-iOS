@@ -63,4 +63,12 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
         let summary = viewModel.chartData.summary[Int(value)]
         rootView.headerView.bind(summaryViewModel: summary)
     }
+
+    func didUnselect() {
+        guard case let .loaded(viewModel) = viewState else {
+            return
+        }
+        let summary = viewModel.summaryViewModel
+        rootView.headerView.bind(summaryViewModel: summary)
+    }
 }
