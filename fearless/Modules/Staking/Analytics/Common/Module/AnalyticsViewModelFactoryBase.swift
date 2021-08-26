@@ -46,10 +46,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 }
                 return ChartAmount(value: value, filled: true)
             }
+
+            let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
             let chartData = ChartData(
                 amounts: amounts,
                 summary: self.createSummary(chartAmounts: groupedByPeriod, priceData: priceData, locale: locale),
-                xAxisValues: period.xAxisValues(dates: dates)
+                xAxisValues: period.xAxisValues(dates: dates),
+                bottomYValue: bottomYValue
             )
 
             let totalReceived = data

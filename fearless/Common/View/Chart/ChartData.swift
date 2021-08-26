@@ -9,4 +9,5 @@ struct ChartData {
     let amounts: [ChartAmount]
     let summary: [AnalyticsSummaryRewardViewModel]
     let xAxisValues: [String]
+    let bottomYValue: String
 }

@@ -22,6 +22,8 @@ final class FWBarChartView: BarChartView {
 
     let xAxisFormmater = FWChartXAxisFormatter()
 
+    let yAxisFormatter = FWChartYAxisFormatter()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -44,7 +46,7 @@ final class FWBarChartView: BarChartView {
 
         leftAxis.labelCount = 2
         leftAxis.drawGridLinesEnabled = false
-        leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
+        leftAxis.valueFormatter = yAxisFormatter
         leftAxis.labelFont = .systemFont(ofSize: 8, weight: .semibold)
         leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
         leftAxis.axisMinimum = 0
@@ -76,6 +78,7 @@ extension FWBarChartView: FWChartViewProtocol {
 
         xAxisFormmater.xAxisValues = data.xAxisValues
         xAxis.labelCount = data.xAxisValues.count
+        yAxisFormatter.bottomValueString = data.bottomYValue
 
         let data = BarChartData(dataSet: set)
         data.barWidth = 0.4
@@ -104,5 +107,16 @@ class FWChartXAxisFormatter: IAxisValueFormatter {
             return xAxisValues[index]
         }
         return ""
+    }
+}
+
+class FWChartYAxisFormatter: DefaultAxisValueFormatter {
+    var bottomValueString: String?
+
+    override func stringForValue(_ value: Double, axis: AxisBase?) -> String {
+        if let bottomValueString = bottomValueString, value < .leastNonzeroMagnitude {
+            return bottomValueString
+        }
+        return super.stringForValue(value, axis: axis)
     }
 }
