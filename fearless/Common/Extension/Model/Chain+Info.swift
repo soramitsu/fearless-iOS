@@ -89,7 +89,7 @@ extension Chain {
         case .kusama:
             return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-ksm")
         case .westend:
-            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend__ZWYxc")
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend")
         case .rococo:
             return nil
         }
