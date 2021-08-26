@@ -1,25 +1,28 @@
 import Foundation
 
 enum AnalyticsPeriod: CaseIterable {
-    case weekly
-    case monthly
-    case yearly
+    case week
+    case month
+    case year
+    case all
 }
 
 extension AnalyticsPeriod {
-    static let `default` = AnalyticsPeriod.monthly
+    static let `default` = AnalyticsPeriod.month
 
     func title(for locale: Locale) -> String {
         switch self {
-        case .weekly:
+        case .week:
             return R.string.localizable
                 .stakingAnalyticsPeriodWeekly(preferredLanguages: locale.rLanguages).uppercased()
-        case .monthly:
+        case .month:
             return R.string.localizable
                 .stakingAnalyticsPeriodMonthly(preferredLanguages: locale.rLanguages).uppercased()
-        case .yearly:
+        case .year:
             return R.string.localizable
                 .stakingAnalyticsPeriodYearly(preferredLanguages: locale.rLanguages).uppercased()
+        case .all:
+            return "All" // TODO:
         }
     }
 
@@ -29,11 +32,11 @@ extension AnalyticsPeriod {
 
     var xAxisValues: [String] {
         switch self {
-        case .weekly:
+        case .week:
             return ["M", "T", "W", "T", "F", "S", "S"]
-        case .monthly:
+        case .month:
             return ["1", "7", "15", "22", "31"]
-        case .yearly:
+        case .year, .all: // TODO:
             return (1 ... 12).map { String($0) }
         }
     }
@@ -44,11 +47,11 @@ extension AnalyticsPeriod {
         let tillDate: Date = {
             let interval: TimeInterval = {
                 switch self {
-                case .weekly:
+                case .week:
                     return .secondsInDay * 7
-                case .monthly:
+                case .month:
                     return .secondsInDay * 31
-                case .yearly:
+                case .year, .all: // TODO:
                     return .secondsInDay * 31 * 12
                 }
             }()
@@ -58,11 +61,11 @@ extension AnalyticsPeriod {
         let calendar = Calendar(identifier: .iso8601)
         let dateComponent: Calendar.Component = {
             switch self {
-            case .weekly:
+            case .week:
                 return .weekOfYear
-            case .monthly:
+            case .month:
                 return .month
-            case .yearly:
+            case .year, .all:
                 return .year
             }
         }()

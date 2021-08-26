@@ -10,13 +10,9 @@ final class AnalyticsPeriodView: UIView {
     weak var delegate: AnalyticsPeriodViewDelegate?
 
     typealias Button = AnalyticsBottomSheetButton<AnalyticsPeriod>
-    private let weeklyButton = Button(model: .weekly)
-    private let monthlyButton = Button(model: .monthly)
-    private let yearlyButton = Button(model: .yearly)
-
-    private var buttons: [Button] {
-        [weeklyButton, monthlyButton, yearlyButton]
-    }
+    private lazy var buttons: [Button] = {
+        AnalyticsPeriod.allCases.map { Button(model: $0) }
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,7 +28,7 @@ final class AnalyticsPeriodView: UIView {
     private func setupLayout() {
         let buttonsStackView: UIView = .hStack(
             spacing: 8,
-            [weeklyButton, monthlyButton, yearlyButton]
+            buttons
         )
         addSubview(buttonsStackView)
         buttonsStackView.snp.makeConstraints { make in

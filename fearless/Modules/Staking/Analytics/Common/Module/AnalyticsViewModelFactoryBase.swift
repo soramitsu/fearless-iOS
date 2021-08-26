@@ -82,11 +82,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     private func periodDateFormatter(period: AnalyticsPeriod, for locale: Locale) -> DateIntervalFormatter {
         let dateTemplate: String = {
             switch period {
-            case .weekly:
+            case .week:
                 return "MMM d-d, yyyy"
-            case .monthly:
+            case .month:
                 return "MMM, yyyy"
-            case .yearly:
+            case .year, .all:
                 return "yyyy"
             }
         }()
