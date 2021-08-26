@@ -159,8 +159,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showAnalytics(from view: ControllerBackedProtocol?) {
-        let analyticsView = AnalyticsContainerViewFactory.createView()
+    func showAnalytics(from view: ControllerBackedProtocol?, includeValidators: Bool) {
+        let analyticsView = AnalyticsContainerViewFactory.createView(includeValidators: includeValidators)
         analyticsView.controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(analyticsView.controller, animated: true)
     }

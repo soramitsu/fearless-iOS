@@ -7,7 +7,7 @@ enum AnalyticsPeriod: CaseIterable {
 }
 
 extension AnalyticsPeriod {
-    static let `default` = AnalyticsPeriod.month
+    static let `default` = AnalyticsPeriod.week
 
     func title(for _: Locale) -> String {
         // TODO:

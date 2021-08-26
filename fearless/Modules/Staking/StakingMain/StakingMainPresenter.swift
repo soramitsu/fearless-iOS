@@ -36,6 +36,7 @@ final class StakingMainPresenter {
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
     private var controllerAccount: AccountItem?
+    private var nomination: Nomination?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -303,7 +304,11 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAnalyticsAction() {
-        wireframe.showAnalytics(from: view)
+        if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+            wireframe.showAnalytics(from: view, includeValidators: false)
+        } else {
+            wireframe.showAnalytics(from: view, includeValidators: nomination != nil)
+        }
     }
 
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
@@ -405,6 +410,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
         stateMachine.state.process(nomination: nomination)
 
         if let nomination = nomination {
