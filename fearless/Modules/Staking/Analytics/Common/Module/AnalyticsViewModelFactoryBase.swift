@@ -52,7 +52,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 xAxisValues: period.xAxisValues(dates: dates)
             )
 
-            let totalReceived = rewardItemsWithinLimits
+            let totalReceived = data
                 .map(\.amount)
                 .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
                 .reduce(0.0, +)
@@ -63,8 +63,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             ).value(for: locale)
 
             let dateFormatter = self.periodDateFormatter(period: period, for: locale)
-            let startDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.0))
-            let endDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.1))
+            let startDate = data.first?.date ?? Date()
+            let endDate = data.last?.date ?? Date()
 
             let periodText = dateFormatter.string(from: startDate, to: endDate)
             let summaryViewModel = AnalyticsSummaryRewardViewModel(
