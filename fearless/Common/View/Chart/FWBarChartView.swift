@@ -63,15 +63,15 @@ final class FWBarChartView: BarChartView {
 extension FWBarChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData) {
         let dataEntries = data.amounts.enumerated().map { index, amount in
-            BarChartDataEntry(x: Double(index), yValues: [amount])
+            BarChartDataEntry(x: Double(index), yValues: [amount.value])
         }
 
         let set = BarChartDataSet(entries: dataEntries)
         set.drawIconsEnabled = false
         set.drawValuesEnabled = false
-        set.colors = [
-            R.color.colorAccent()!
-        ]
+        set.colors = data.amounts.map { chartData in
+            chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
+        }
 
         xAxisFormmater.xAxisValues = data.xAxisValues
         xAxis.labelCount = data.xAxisValues.count

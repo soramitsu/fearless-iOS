@@ -36,9 +36,18 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
             let groupedByPeriod = self.chartDecimalValues(rewardItemsWithinLimits, by: period)
             let dates = rewardItemsWithinLimits.map(\.date)
-            let chartDoubles = groupedByPeriod.map { Double(truncating: $0 as NSNumber) }
+            let chartDoubles = groupedByPeriod
+                .map { Double(truncating: $0 as NSNumber) }
+
+            let maxValue = chartDoubles.max() ?? 0.0
+            let amounts: [ChartAmount] = chartDoubles.map { value in
+                if value < .leastNonzeroMagnitude {
+                    return ChartAmount(value: maxValue / 50.0, filled: false)
+                }
+                return ChartAmount(value: value, filled: true)
+            }
             let chartData = ChartData(
-                amounts: chartDoubles,
+                amounts: amounts,
                 summary: self.createSummary(chartAmounts: groupedByPeriod, priceData: priceData, locale: locale),
                 xAxisValues: period.xAxisValues(dates: dates)
             )
@@ -130,7 +139,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             ).value(for: locale)
 
             return AnalyticsSummaryRewardViewModel(
-                title: "TITLE",
+                title: "",
                 tokenAmount: totalBalance.amount,
                 usdAmount: totalBalance.price
             )
