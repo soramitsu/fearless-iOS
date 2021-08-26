@@ -66,25 +66,22 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
                 .hStack(
                     distribution: .equalSpacing,
                     [UIView(), periodView, UIView()]
-                )
+                ),
+                historyTitleLabel
             ]
         )
 
         statsStack.setCustomSpacing(24, after: amountsStack)
+        statsStack.setCustomSpacing(32, after: periodView)
         periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
-        lineChartView.snp.makeConstraints { $0.height.equalTo(168) }
+        lineChartView.snp.makeConstraints { $0.height.equalTo(180) }
 
         addSubview(statsStack)
-        statsStack.snp.makeConstraints {
-            $0.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.height.equalTo(242)
-        }
-
-        addSubview(historyTitleLabel)
-        historyTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(statsStack.snp.bottom).offset(24)
+        statsStack.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(24)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(8)
+            make.height.equalTo(396)
         }
     }
 
