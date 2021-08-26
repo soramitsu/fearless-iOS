@@ -43,6 +43,7 @@ final class FWBarChartView: BarChartView {
         xAxis.valueFormatter = xAxisFormmater
 
         leftAxis.labelCount = 2
+        leftAxis.drawGridLinesEnabled = false
         leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
         leftAxis.labelFont = .systemFont(ofSize: 8, weight: .semibold)
         leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
