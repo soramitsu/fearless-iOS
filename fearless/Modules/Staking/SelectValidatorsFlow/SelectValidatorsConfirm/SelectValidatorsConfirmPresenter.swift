@@ -162,7 +162,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
 
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        let spendingAmount: Decimal = !state.hasExistingNomination ? state.amount : 0.0
+        let spendingAmount: Decimal = !state.hasExistingBond ? state.amount : 0.0
 
         var validators: [DataValidating] = [
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
@@ -184,7 +184,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
             )
         ]
 
-        if !state.hasExistingNomination {
+        if !state.hasExistingBond {
             let bondValidation = dataValidatingFactory.canNominate(
                 amount: state.amount,
                 minimalBalance: minimalBalance,

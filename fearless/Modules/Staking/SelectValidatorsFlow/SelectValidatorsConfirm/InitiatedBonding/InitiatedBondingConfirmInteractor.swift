@@ -61,6 +61,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
             rewardDestination: rewardDestination,
             targets: nomination.targets,
             maxTargets: nomination.maxTargets,
+            hasExistingBond: false,
             hasExistingNomination: false
         )
 

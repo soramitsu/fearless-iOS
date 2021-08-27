@@ -94,7 +94,8 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
                 rewardDestination: rewardDestination,
                 targets: currentNomination.targets,
                 maxTargets: currentNomination.maxTargets,
-                hasExistingNomination: true
+                hasExistingBond: true,
+                hasExistingNomination: currentNomination.bonding.selectedTargets != nil
             )
         }
 
