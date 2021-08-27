@@ -22,13 +22,13 @@ final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewMo
         LocalizableResource { locale in
             let formatter = self.txDateFormatter.value(for: locale)
             let date = formatter.string(from: rewardModel.date)
-            let reward = self.getTokenAmountText(amount: rewardModel.amount, locale: locale)
+            let amount = self.getTokenAmountText(amount: rewardModel.amount, locale: locale)
 
             return AnalyticsRewardDetailsViewModel(
-                txHash: rewardModel.eventId,
-                status: R.string.localizable.transactionStatusCompleted(preferredLanguages: locale.rLanguages),
+                blockNumber: rewardModel.eventId,
                 date: date,
-                reward: reward
+                type: rewardModel.typeText(locale: locale),
+                amount: amount
             )
         }
     }

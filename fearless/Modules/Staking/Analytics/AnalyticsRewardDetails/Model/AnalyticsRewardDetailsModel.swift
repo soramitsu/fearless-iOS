@@ -5,4 +5,5 @@ protocol AnalyticsRewardDetailsModel {
     var eventId: String { get }
     var date: Date { get }
     var amount: BigUInt { get }
+    func typeText(locale: Locale) -> String
 }

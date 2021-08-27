@@ -1,22 +1,10 @@
 import UIKit
 
 final class AnalyticsRewardDetailsViewLayout: UIView {
-    let txHashView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
-
-    let statusView: TitleValueView = {
-        let view = TitleValueView()
-        return view
-    }()
-
-    let dateView: TitleValueView = {
-        let view = TitleValueView()
-        return view
-    }()
-
-    let rewardView: TitleValueView = {
-        let view = TitleValueView()
-        return view
-    }()
+    let blockNumberView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+    let dateView = TitleValueView()
+    let typeView = TitleValueView()
+    let amountView = TitleValueView()
 
     var locale = Locale.current {
         didSet {
@@ -41,12 +29,12 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
         let content: UIView = .vStack(
             spacing: 16,
             [
-                txHashView,
+                blockNumberView,
                 .vStack(
                     [
-                        statusView,
                         dateView,
-                        rewardView
+                        typeView,
+                        amountView
                     ]
                 )
             ]
@@ -58,8 +46,8 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        txHashView.snp.makeConstraints { $0.height.equalTo(52) }
-        [statusView, dateView, rewardView].forEach { view in
+        blockNumberView.snp.makeConstraints { $0.height.equalTo(52) }
+        [dateView, typeView, amountView].forEach { view in
             view.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
                 make.height.equalTo(48.0)
@@ -68,10 +56,10 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        txHashView.title = R.string.localizable.transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
-        statusView.titleLabel.text = R.string.localizable.transactionDetailStatus(preferredLanguages: locale.rLanguages)
+        // TODO:
+        blockNumberView.title = "Block number"
         dateView.titleLabel.text = R.string.localizable.transactionDetailDate(preferredLanguages: locale.rLanguages)
-        rewardView.titleLabel.text = R.string.localizable
-            .stakingRewardDetailsReward(preferredLanguages: locale.rLanguages)
+        typeView.titleLabel.text = "Type"
+        amountView.titleLabel.text = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
     }
 }

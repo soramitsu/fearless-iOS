@@ -1,6 +1,6 @@
 struct AnalyticsRewardDetailsViewModel {
-    let txHash: String
-    let status: String
+    let blockNumber: String
     let date: String
-    let reward: String
+    let type: String
+    let amount: String
 }

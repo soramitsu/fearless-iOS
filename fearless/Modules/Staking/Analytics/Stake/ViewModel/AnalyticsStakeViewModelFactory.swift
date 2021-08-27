@@ -35,4 +35,8 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
     }
 }
 
-extension SubqueryStakeChangeData: AnalyticsRewardDetailsModel {}
+extension SubqueryStakeChangeData: AnalyticsRewardDetailsModel {
+    func typeText(locale: Locale) -> String {
+        type.title(for: locale)
+    }
+}

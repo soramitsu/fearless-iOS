@@ -36,17 +36,17 @@ final class AnalyticsRewardDetailsViewController: UIViewController, ViewHolder {
 extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtocol {
     func bind(viewModel: LocalizableResource<AnalyticsRewardDetailsViewModel>) {
         let localizedViewModel = viewModel.value(for: selectedLocale)
-        rootView.txHashView.subtitle = localizedViewModel.txHash
+        rootView.blockNumberView.subtitle = localizedViewModel.blockNumber
         rootView.dateView.valueLabel.text = localizedViewModel.date
-        rootView.statusView.valueLabel.text = localizedViewModel.status
-        rootView.rewardView.valueLabel.text = localizedViewModel.reward
+        rootView.typeView.valueLabel.text = localizedViewModel.type
+        rootView.amountView.valueLabel.text = localizedViewModel.amount
     }
 }
 
 extension AnalyticsRewardDetailsViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: selectedLocale.rLanguages)
+            title = "Details" // TODO:
             rootView.locale = selectedLocale
         }
     }

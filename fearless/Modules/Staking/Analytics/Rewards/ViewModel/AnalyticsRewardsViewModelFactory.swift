@@ -46,4 +46,8 @@ extension SubqueryRewardItemData: AnalyticsViewModelItem {
     }
 }
 
-extension SubqueryRewardItemData: AnalyticsRewardDetailsModel {}
+extension SubqueryRewardItemData: AnalyticsRewardDetailsModel {
+    func typeText(locale: Locale) -> String {
+        R.string.localizable.stakingRewardDetailsReward(preferredLanguages: locale.rLanguages)
+    }
+}
