@@ -34,6 +34,7 @@ final class FWPieChartView: PieChartView {
 
 extension FWPieChartView: FWPieChartViewProtocol {
     func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?) {
+        clear()
         let entries = segmentValues.enumerated().map { index, value in
             PieChartDataEntry(value: value, data: index)
         }
