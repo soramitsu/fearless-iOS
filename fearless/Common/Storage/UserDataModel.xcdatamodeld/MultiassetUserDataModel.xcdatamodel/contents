@@ -6,17 +6,27 @@
         <attribute name="cryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="metaAccount" maxCount="1" deletionRule="Nullify" destinationEntity="CDMetaAccount" inverseName="chainAccounts" inverseEntity="CDMetaAccount"/>
     </entity>
+    <entity name="CDChainSettings" representedClassName="CDChainSettings" syncable="YES" codeGenerationType="class">
+        <attribute name="autobalanced" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="chainId" attributeType="String"/>
+    </entity>
+    <entity name="CDCustomChainNode" representedClassName="CDCustomChainNode" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="url" attributeType="URI"/>
+    </entity>
     <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
-        <attribute name="ethereumAddress" attributeType="Binary"/>
+        <attribute name="ethereumPublicKey" attributeType="Binary"/>
         <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="metaId" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
-        <attribute name="substrateAccountIId" attributeType="Binary"/>
         <attribute name="substrateCryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="substratePublicKey" attributeType="Binary"/>
         <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
     </entity>
     <elements>
-        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="134"/>
         <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="89"/>
+        <element name="CDChainSettings" positionX="-54" positionY="45" width="128" height="59"/>
+        <element name="CDCustomChainNode" positionX="-45" positionY="54" width="128" height="59"/>
+        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="134"/>
     </elements>
 </model>
