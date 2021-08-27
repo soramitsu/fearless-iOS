@@ -121,7 +121,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         return AnalyticsValidatorsViewModel(
             pieChartSegmentValues: amounts,
-            pieChartInactiveSegmentValue: inactiveSegmentValue,
+            pieChartInactiveSegmentValue: nil, // inactiveSegmentValue,
             chartCenterText: chartCenterText,
             listTitle: listTitle,
             validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
