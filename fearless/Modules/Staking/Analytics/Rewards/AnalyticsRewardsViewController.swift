@@ -61,6 +61,7 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
         guard case let .loaded(viewModel) = viewState else {
             return
         }
+        rootView.tableView.nsuiIsScrollEnabled = false
         let selectedIndex = Int(value)
         let summary = viewModel.chartData.summary[selectedIndex]
         let selectedChartAmounts = viewModel.chartData.amounts.enumerated().map { (index, chartAmount) -> ChartAmount in
@@ -86,6 +87,7 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
     }
 
     func didUnselect() {
+        rootView.tableView.nsuiIsScrollEnabled = true
         guard case let .loaded(viewModel) = viewState else {
             return
         }

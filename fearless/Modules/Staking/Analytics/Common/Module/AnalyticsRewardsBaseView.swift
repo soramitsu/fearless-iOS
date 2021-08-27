@@ -49,3 +49,11 @@ final class AnalyticsRewardsBaseView<Header: AnalyticsRewardsHeaderViewProtocol>
         tableView.tableHeaderView = headerView
     }
 }
+
+/// WARNING! Charts horizontal dragging hack: https://github.com/danielgindi/Charts/issues/1931#issuecomment-291796501
+extension UIScrollView {
+    var nsuiIsScrollEnabled: Bool {
+        get { isScrollEnabled }
+        set { isScrollEnabled = newValue }
+    }
+}

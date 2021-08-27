@@ -48,11 +48,13 @@ extension AnalyticsStakeViewController: FWChartViewDelegate {
         guard case let .loaded(viewModel) = viewState else {
             return
         }
+        rootView.tableView.nsuiIsScrollEnabled = false
         let summary = viewModel.chartData.summary[Int(value)]
         rootView.headerView.bind(summaryViewModel: summary)
     }
 
     func didUnselect() {
+        rootView.tableView.nsuiIsScrollEnabled = true
         guard case let .loaded(viewModel) = viewState else {
             return
         }
