@@ -28,6 +28,7 @@ final class AnalyticsValidatorsViewController: UIViewController, ViewHolder {
 
         setupTable()
         rootView.headerView.pageSelector.delegate = self
+        rootView.headerView.pieChart.chartDelegate = self
         presenter.setup()
     }
 
@@ -108,6 +109,10 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
         }
         reloadEmptyState(animated: true)
     }
+
+    func updateChartCenterText(_ text: NSAttributedString) {
+        rootView.headerView.pieChart.setCenterText(text)
+    }
 }
 
 extension AnalyticsValidatorsViewController: EmptyStateViewOwnerProtocol {
@@ -165,5 +170,19 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsCellDelegate {
 extension AnalyticsValidatorsViewController: AnalyticsValidatorsPageSelectorDelegate {
     func didSelectPage(_ page: AnalyticsValidatorsPage) {
         presenter.handlePageAction(page: page)
+    }
+}
+
+extension AnalyticsValidatorsViewController: FWPieChartViewDelegate {
+    func didSelectSegment(index: Int) {
+        guard case let .loaded(viewModel) = state else {
+            return
+        }
+        if index < viewModel.validators.count {
+            let selectedValidator = viewModel.validators[index]
+            presenter.handleChartSelectedValidator(selectedValidator)
+        } else {
+            rootView.headerView.pieChart.setCenterText(.init(string: "InActive staking"))
+        }
     }
 }

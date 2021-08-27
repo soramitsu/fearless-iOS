@@ -73,6 +73,11 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
         selectedPage = page
         updateView()
     }
+
+    func handleChartSelectedValidator(_ validator: AnalyticsValidatorItemViewModel) {
+        let centerText = viewModelFactory.chartCenterText(validator: validator)
+        view?.updateChartCenterText(centerText)
+    }
 }
 
 extension AnalyticsValidatorsPresenter: Localizable {

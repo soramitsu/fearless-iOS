@@ -33,7 +33,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
     private var progressPercents: Double = 0.0
     private var widthConstraint: Constraint?
 
-    let progressValueLabel: UILabel = {
+    let progressDescriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .p3Paragraph
         label.textColor = R.color.colorLightGray()
@@ -50,7 +50,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
         UIView.hStack(
             alignment: .center,
             spacing: 8,
-            [progressView, progressValueLabel]
+            [progressView, progressDescriptionLabel]
         )
     }()
 
@@ -92,7 +92,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
             - iconView.frame.maxX
             - Constants.iconProgressSpacing
             - Constants.progressValueSpacing
-            - progressValueLabel.bounds.width
+            - progressDescriptionLabel.bounds.width
 
         progressStackView.setCustomSpacing(Constants.progressValueSpacing, after: progressView)
         let progressViewWidth = totalWidth * CGFloat(progressPercents)
@@ -144,7 +144,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
             iconView.bind(icon: icon)
         }
         nameLabel.text = viewModel.validatorName
-        progressValueLabel.text = viewModel.progressText
+        progressDescriptionLabel.text = viewModel.progressFullDescription
         progressPercents = viewModel.progressPercents
     }
 }

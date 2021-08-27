@@ -5,6 +5,8 @@ struct AnalyticsValidatorItemViewModel {
     let validatorName: String
     let amount: Double
     let progressPercents: Double
-    let progressText: String
+    let mainValueText: String
+    let secondaryValueText: String
+    let progressFullDescription: String
     let validatorAddress: AccountAddress
 }

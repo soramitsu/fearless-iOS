@@ -2,6 +2,7 @@ import SoraFoundation
 
 protocol AnalyticsValidatorsViewProtocol: AnalyticsEmbeddedViewProtocol {
     func reload(viewState: AnalyticsViewState<AnalyticsValidatorsViewModel>)
+    func updateChartCenterText(_ text: NSAttributedString)
 }
 
 protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
@@ -9,6 +10,7 @@ protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
     func reload()
     func handleValidatorInfoAction(validatorAddress: AccountAddress)
     func handlePageAction(page: AnalyticsValidatorsPage)
+    func handleChartSelectedValidator(_ validator: AnalyticsValidatorItemViewModel)
 }
 
 protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
@@ -38,4 +40,6 @@ protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
         page: AnalyticsValidatorsPage,
         locale: Locale
     ) -> AnalyticsValidatorsViewModel
+
+    func chartCenterText(validator: AnalyticsValidatorItemViewModel) -> NSAttributedString
 }

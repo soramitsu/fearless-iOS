@@ -1,22 +1,29 @@
 import UIKit
 import Charts
 
+protocol FWPieChartViewDelegate: AnyObject {
+    func didSelectSegment(index: Int)
+}
+
 protocol FWPieChartViewProtocol {
     func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?)
     func setCenterText(_ text: NSAttributedString)
 }
 
 final class FWPieChartView: PieChartView {
+    weak var chartDelegate: FWPieChartViewDelegate?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        delegate = self
         drawEntryLabelsEnabled = false
+        rotationEnabled = false
         holeRadiusPercent = 0.85
         holeColor = .clear
         drawEntryLabelsEnabled = false
         usePercentValuesEnabled = false
         legend.enabled = false
-        highlightPerTapEnabled = false
     }
 
     @available(*, unavailable)
@@ -27,7 +34,9 @@ final class FWPieChartView: PieChartView {
 
 extension FWPieChartView: FWPieChartViewProtocol {
     func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?) {
-        let entries = segmentValues.map { PieChartDataEntry(value: $0) }
+        let entries = segmentValues.enumerated().map { index, value in
+            PieChartDataEntry(value: value, data: index)
+        }
 
         let set = PieChartDataSet(entries: entries)
         set.drawIconsEnabled = false
@@ -40,6 +49,7 @@ extension FWPieChartView: FWPieChartViewProtocol {
         if let inactiveSegmentValue = inactiveSegmentValue {
             set.append(PieChartDataEntry(value: inactiveSegmentValue))
             set.colors.append(R.color.colorDarkGray()!)
+            set.selectionShift = 10
         }
         self.data = data
         animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
@@ -47,5 +57,17 @@ extension FWPieChartView: FWPieChartViewProtocol {
 
     func setCenterText(_ text: NSAttributedString) {
         centerAttributedText = text
+    }
+}
+
+extension FWPieChartView: ChartViewDelegate {
+    func chartValueSelected(_: ChartViewBase, entry: ChartDataEntry, highlight _: Highlight) {
+        if let index = entry.data as? Int {
+            chartDelegate?.didSelectSegment(index: index)
+        }
+    }
+
+    func chartValueNothingSelected(_: ChartViewBase) {
+        print("chartValueNothingSelected")
     }
 }

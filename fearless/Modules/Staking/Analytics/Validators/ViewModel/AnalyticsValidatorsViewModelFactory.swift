@@ -65,12 +65,32 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 }
             }()
 
+            let secondaryValueText: String = {
+                switch page {
+                case .activity:
+                    return "\(Int(amount)) eras"
+                case .rewards:
+                    return percentFormatter.string(from: progressPercents as NSNumber) ?? ""
+                }
+            }()
+
+            let mainValueText: String = {
+                switch page {
+                case .activity:
+                    return percentFormatter.string(from: progressPercents as NSNumber) ?? ""
+                case .rewards:
+                    return progressText
+                }
+            }()
+
             return .init(
                 icon: icon,
                 validatorName: validatorName,
                 amount: amount,
                 progressPercents: progressPercents,
-                progressText: progressText,
+                mainValueText: mainValueText,
+                secondaryValueText: secondaryValueText,
+                progressFullDescription: progressText,
                 validatorAddress: address
             )
         }
@@ -149,7 +169,9 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     validatorName: validatorName,
                     amount: 0,
                     progressPercents: 0,
-                    progressText: progressText,
+                    mainValueText: "%0",
+                    secondaryValueText: "0",
+                    progressFullDescription: progressText,
                     validatorAddress: address
                 )
             }
@@ -186,8 +208,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         totalEras.description,
                         preferredLanguages: locale.rLanguages
                     )
-                ),
-                locale: locale
+                )
             )
         case .rewards:
             let totalRewards = validators.map(\.amount).reduce(0.0, +)
@@ -196,17 +217,16 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             return createChartCenterText(
                 firstLine: R.string.localizable.stakingAnalyticsReceivedRewards(preferredLanguages: locale.rLanguages),
                 secondLine: totalRewardsText,
-                thirdLine: "100%",
-                locale: locale
+                thirdLine: "100%"
             )
         }
     }
 
     private func createChartCenterText(
         firstLine: String,
+        firstLineColor: UIColor = R.color.colorAccent()!,
         secondLine: String,
-        thirdLine: String,
-        locale _: Locale
+        thirdLine: String
     ) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = NSTextAlignment.center
@@ -214,7 +234,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         let activeStakingText = NSAttributedString(
             string: firstLine,
             attributes: [
-                NSAttributedString.Key.foregroundColor: R.color.colorAccent()!,
+                NSAttributedString.Key.foregroundColor: firstLineColor,
                 NSAttributedString.Key.font: UIFont.capsTitle,
                 NSAttributedString.Key.paragraphStyle: paragraphStyle
             ]
@@ -282,5 +302,14 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         let inactiveErasCount = totalEras - setOfEras.count
         return Double(inactiveErasCount) / Double(setOfEras.count)
+    }
+
+    func chartCenterText(validator: AnalyticsValidatorItemViewModel) -> NSAttributedString {
+        createChartCenterText(
+            firstLine: validator.validatorName,
+            firstLineColor: R.color.colorLightGray()!,
+            secondLine: validator.mainValueText,
+            thirdLine: validator.secondaryValueText
+        )
     }
 }
