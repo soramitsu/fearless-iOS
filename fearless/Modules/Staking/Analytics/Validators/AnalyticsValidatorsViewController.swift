@@ -71,11 +71,7 @@ extension AnalyticsValidatorsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard case let .loaded(viewModel) = state else {
-            return
-        }
-        let cellViewModel = viewModel.validators[indexPath.row]
-        presenter.handleValidatorInfoAction(validatorAddress: cellViewModel.validatorAddress)
+        rootView.headerView.pieChart.highlightSegment(index: indexPath.row)
     }
 }
 

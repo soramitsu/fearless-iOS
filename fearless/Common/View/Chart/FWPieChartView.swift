@@ -9,6 +9,7 @@ protocol FWPieChartViewDelegate: AnyObject {
 protocol FWPieChartViewProtocol {
     func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?, animated: Bool)
     func setCenterText(_ text: NSAttributedString)
+    func highlightSegment(index: Int)
 }
 
 final class FWPieChartView: PieChartView {
@@ -53,6 +54,7 @@ extension FWPieChartView: FWPieChartViewProtocol {
             set.colors.append(R.color.colorDarkGray()!)
             set.selectionShift = 10
         }
+
         self.data = data
         if animated {
             animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
@@ -61,6 +63,10 @@ extension FWPieChartView: FWPieChartViewProtocol {
 
     func setCenterText(_ text: NSAttributedString) {
         centerAttributedText = text
+    }
+
+    func highlightSegment(index: Int) {
+        highlightValue(x: Double(index), dataSetIndex: 0, dataIndex: index, callDelegate: true)
     }
 }
 
