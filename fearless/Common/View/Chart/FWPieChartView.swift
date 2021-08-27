@@ -7,7 +7,7 @@ protocol FWPieChartViewDelegate: AnyObject {
 }
 
 protocol FWPieChartViewProtocol {
-    func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?)
+    func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?, animated: Bool)
     func setCenterText(_ text: NSAttributedString)
 }
 
@@ -34,7 +34,7 @@ final class FWPieChartView: PieChartView {
 }
 
 extension FWPieChartView: FWPieChartViewProtocol {
-    func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?) {
+    func setAmounts(segmentValues: [Double], inactiveSegmentValue: Double?, animated: Bool) {
         clear()
         let entries = segmentValues.enumerated().map { index, value in
             PieChartDataEntry(value: value, data: index)
@@ -54,7 +54,9 @@ extension FWPieChartView: FWPieChartViewProtocol {
             set.selectionShift = 10
         }
         self.data = data
-        animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        if animated {
+            animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        }
     }
 
     func setCenterText(_ text: NSAttributedString) {

@@ -99,7 +99,8 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
             rootView.headerView.pageSelector.bind(selectedPage: viewModel.selectedPage)
             rootView.headerView.pieChart.setAmounts(
                 segmentValues: viewModel.pieChartSegmentValues,
-                inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue
+                inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue,
+                animated: true
             )
             rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
             rootView.headerView.titleLabel.text = viewModel.listTitle
@@ -193,7 +194,8 @@ extension AnalyticsValidatorsViewController: FWPieChartViewDelegate {
         rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
         rootView.headerView.pieChart.setAmounts(
             segmentValues: viewModel.pieChartSegmentValues,
-            inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue
+            inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue,
+            animated: false
         )
     }
 }
