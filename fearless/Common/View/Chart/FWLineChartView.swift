@@ -33,6 +33,7 @@ final class FWLineChartView: LineChartView {
 
         leftAxis.labelCount = 2
         leftAxis.drawGridLinesEnabled = false
+        leftAxis.drawAxisLineEnabled = false
         leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
         leftAxis.labelFont = .systemFont(ofSize: 8, weight: .semibold)
         leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
