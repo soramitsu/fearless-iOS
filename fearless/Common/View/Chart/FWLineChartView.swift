@@ -18,7 +18,7 @@ final class FWLineChartView: LineChartView {
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
         highlightPerTapEnabled = false
-
+        dragYEnabled = false
         xAxis.drawGridLinesEnabled = false
         xAxis.labelPosition = .bottom
         xAxis.valueFormatter = xAxisEmptyFormatter
@@ -34,6 +34,8 @@ final class FWLineChartView: LineChartView {
         drawBordersEnabled = false
         minOffset = 0
         legend.enabled = false
+
+        noDataText = ""
 
         addSubview(xAxisLegend)
         xAxisLegend.snp.makeConstraints { make in

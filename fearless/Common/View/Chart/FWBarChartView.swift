@@ -20,6 +20,8 @@ final class FWBarChartView: BarChartView {
         drawBarShadowEnabled = false
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
+        pinchZoomEnabled = false
+        dragYEnabled = false
 
         xAxis.drawGridLinesEnabled = false
         xAxis.labelPosition = .bottom
@@ -37,6 +39,8 @@ final class FWBarChartView: BarChartView {
         drawBordersEnabled = false
         minOffset = 0
         legend.enabled = false
+
+        noDataText = ""
 
         addSubview(xAxisLegend)
         xAxisLegend.snp.makeConstraints { make in
