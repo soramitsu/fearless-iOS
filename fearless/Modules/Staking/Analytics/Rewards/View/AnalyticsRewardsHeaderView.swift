@@ -101,20 +101,15 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
     func bind(
         summaryViewModel: AnalyticsSummaryRewardViewModel,
         chartData: ChartData,
-        selectedPeriod: AnalyticsPeriod
-    ) {
-        bind(summaryViewModel: summaryViewModel)
-
-        periodView.bind(selectedPeriod: selectedPeriod)
-        chartView.setChartData(chartData)
-    }
-
-    func bind(
-        summaryViewModel: AnalyticsSummaryRewardViewModel
+        selectedPeriod: AnalyticsPeriod,
+        animated: Bool
     ) {
         selectedPeriodLabel.text = summaryViewModel.title
         tokenAmountLabel.text = summaryViewModel.tokenAmount
         usdAmountLabel.text = summaryViewModel.usdAmount
+
+        periodView.bind(selectedPeriod: selectedPeriod)
+        chartView.setChartData(chartData, animated: animated)
     }
 
     private func applyLocalization() {

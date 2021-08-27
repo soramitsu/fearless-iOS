@@ -53,7 +53,7 @@ final class FWBarChartView: BarChartView {
 }
 
 extension FWBarChartView: FWChartViewProtocol {
-    func setChartData(_ data: ChartData) {
+    func setChartData(_ data: ChartData, animated: Bool) {
         let dataEntries = data.amounts.enumerated().map { index, amount in
             BarChartDataEntry(x: Double(index), yValues: [amount.value])
         }
@@ -82,7 +82,9 @@ extension FWBarChartView: FWChartViewProtocol {
         data.barWidth = 0.4
 
         self.data = data
-        // animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        if animated {
+            animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        }
     }
 }
 

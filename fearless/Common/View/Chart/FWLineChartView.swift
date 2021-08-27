@@ -50,7 +50,7 @@ final class FWLineChartView: LineChartView {
 }
 
 extension FWLineChartView: FWChartViewProtocol {
-    func setChartData(_ data: ChartData) {
+    func setChartData(_ data: ChartData, animated _: Bool) {
         let dataEntries = data.amounts.enumerated().map { index, amount in
             ChartDataEntry(x: Double(index), y: amount.value)
         }

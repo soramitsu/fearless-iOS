@@ -45,7 +45,8 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             rootView.headerView.bind(
                 summaryViewModel: viewModel.summaryViewModel,
                 chartData: viewModel.chartData,
-                selectedPeriod: viewModel.selectedPeriod
+                selectedPeriod: viewModel.selectedPeriod,
+                animated: true
             )
             rootView.tableView.reloadData()
         case .error:
@@ -79,7 +80,8 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
         rootView.headerView.bind(
             summaryViewModel: summary,
             chartData: newChartData,
-            selectedPeriod: viewModel.selectedPeriod
+            selectedPeriod: viewModel.selectedPeriod,
+            animated: false
         )
     }
 
@@ -90,7 +92,8 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
         rootView.headerView.bind(
             summaryViewModel: viewModel.summaryViewModel,
             chartData: viewModel.chartData,
-            selectedPeriod: viewModel.selectedPeriod
+            selectedPeriod: viewModel.selectedPeriod,
+            animated: false
         )
     }
 }
