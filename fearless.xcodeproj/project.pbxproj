@@ -3181,7 +3181,7 @@
 			path = AccountConfirm;
 			sourceTree = "<group>";
 		};
-		0E49D587557F94D42A0F76D6 /* AnalyticsValidators */ = {
+		0E49D587557F94D42A0F76D6 /* Validators */ = {
 			isa = PBXGroup;
 			children = (
 				F4433D7326C16BE30002A91E /* ViewModel */,
@@ -3193,7 +3193,7 @@
 				955A6977CCE5861E4F5DCFBB /* AnalyticsValidatorsViewController.swift */,
 				C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */,
 			);
-			path = AnalyticsValidators;
+			path = Validators;
 			sourceTree = "<group>";
 		};
 		0F353CD57BFACDCEED0B6D07 /* StakingRedeem */ = {
@@ -7215,7 +7215,7 @@
 				F409669526B297D6008CD244 /* Rewards */,
 				7F2FF72B0E73469FBBD43106 /* AnalyticsRewardDetails */,
 				F40966AB26B297D6008CD244 /* Stake */,
-				0E49D587557F94D42A0F76D6 /* AnalyticsValidators */,
+				0E49D587557F94D42A0F76D6 /* Validators */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
