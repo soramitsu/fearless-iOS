@@ -1491,6 +1491,10 @@
 		F4F2297C260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F2297B260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift */; };
 		F4F22987260DC4F300ACFDB8 /* StakingRewardDetailsSimpleLabelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F22986260DC4F300ACFDB8 /* StakingRewardDetailsSimpleLabelViewModel.swift */; };
 		F4F3C3CB265BB12200C58400 /* CustomValidatorListViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F3C3CA265BB12200C58400 /* CustomValidatorListViewModelFactory.swift */; };
+		F4F65C2E26D8B7F7002EE838 /* FWXAxisChartLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F65C2D26D8B7F7002EE838 /* FWXAxisChartLegendView.swift */; };
+		F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F65C3226D8B81A002EE838 /* FWChartViewProtocol.swift */; };
+		F4F65C3826D8B86F002EE838 /* FWXAxisEmptyValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F65C3726D8B86F002EE838 /* FWXAxisEmptyValueFormatter.swift */; };
+		F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F65C3C26D8B9DD002EE838 /* FWYAxisChartFormatter.swift */; };
 		F4FDA0F826A57626003D753B /* EraCountdownOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FDA0F726A57626003D753B /* EraCountdownOperationFactory.swift */; };
 		F4FDA0FD26A57860003D753B /* EraCountdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FDA0FC26A57860003D753B /* EraCountdown.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
@@ -3029,6 +3033,10 @@
 		F4F2297B260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardTokenUsdViewModel.swift; sourceTree = "<group>"; };
 		F4F22986260DC4F300ACFDB8 /* StakingRewardDetailsSimpleLabelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsSimpleLabelViewModel.swift; sourceTree = "<group>"; };
 		F4F3C3CA265BB12200C58400 /* CustomValidatorListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewModelFactory.swift; sourceTree = "<group>"; };
+		F4F65C2D26D8B7F7002EE838 /* FWXAxisChartLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWXAxisChartLegendView.swift; sourceTree = "<group>"; };
+		F4F65C3226D8B81A002EE838 /* FWChartViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWChartViewProtocol.swift; sourceTree = "<group>"; };
+		F4F65C3726D8B86F002EE838 /* FWXAxisEmptyValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWXAxisEmptyValueFormatter.swift; sourceTree = "<group>"; };
+		F4F65C3C26D8B9DD002EE838 /* FWYAxisChartFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWYAxisChartFormatter.swift; sourceTree = "<group>"; };
 		F4FDA0F726A57626003D753B /* EraCountdownOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraCountdownOperationFactory.swift; sourceTree = "<group>"; };
 		F4FDA0FC26A57860003D753B /* EraCountdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraCountdown.swift; sourceTree = "<group>"; };
 		F52B8815D6AF5E69B145D245 /* CustomValidatorListViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewFactory.swift; sourceTree = "<group>"; };
@@ -7311,10 +7319,14 @@
 		F40966FA26B29A58008CD244 /* Chart */ = {
 			isa = PBXGroup;
 			children = (
+				F4F65C3226D8B81A002EE838 /* FWChartViewProtocol.swift */,
 				F40966FB26B29A58008CD244 /* ChartData.swift */,
 				F40966FC26B29A58008CD244 /* FWBarChartView.swift */,
 				F40966FD26B29A58008CD244 /* FWLineChartView.swift */,
 				F47D328126C260CC00CF35A2 /* FWPieChartView.swift */,
+				F4F65C2D26D8B7F7002EE838 /* FWXAxisChartLegendView.swift */,
+				F4F65C3726D8B86F002EE838 /* FWXAxisEmptyValueFormatter.swift */,
+				F4F65C3C26D8B9DD002EE838 /* FWYAxisChartFormatter.swift */,
 			);
 			path = Chart;
 			sourceTree = "<group>";
@@ -8205,6 +8217,7 @@
 				849DEBD425ED015C00C64C19 /* SelectValidatorsConfirmViewModel.swift in Sources */,
 				84CD82B8263C3249001A6F01 /* SubstrateProviderSubscriber+Default.swift in Sources */,
 				845BB8B825E4465F00E5FCDC /* ExtrinsicService.swift in Sources */,
+				F4F65C2E26D8B7F7002EE838 /* FWXAxisChartLegendView.swift in Sources */,
 				F47BBD8B263189DB0087DA11 /* StakingBalanceAction.swift in Sources */,
 				F4F2297C260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
@@ -8734,6 +8747,7 @@
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
+				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryItemProtocol.swift in Sources */,
 				AE1000F426679946004753B7 /* InitiatedBondingRecommendationWireframe.swift in Sources */,
@@ -8746,6 +8760,7 @@
 				84754C852510A1A400854599 /* ModalAlertPresenting.swift in Sources */,
 				8494424A265306BD0016E7BD /* ChangeRewardDestinationViewModel.swift in Sources */,
 				F4DCAE4726207EF900CCA6BF /* PayoutRewardsServiceProtocol.swift in Sources */,
+				F4F65C3826D8B86F002EE838 /* FWXAxisEmptyValueFormatter.swift in Sources */,
 				8463A6F925E2F82E003B8160 /* CDSingleValue+CoreDataCodable.swift in Sources */,
 				8424DB0B26B8466A008C834F /* ValidatorOperationFactoryProtocol.swift in Sources */,
 				848FFE6625E6742400652AA5 /* EraValidatorService.swift in Sources */,
@@ -9053,6 +9068,7 @@
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
 				84452F4E25D5BB1C00F47EC5 /* RuntimeCoderFactory.swift in Sources */,
 				84452A6025D037AE00F47EC5 /* ChainStorage+Decodable.swift in Sources */,
+				F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
 				F40966D026B297D7008CD244 /* AnalyticsStakeInteractor.swift in Sources */,
 				84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */,

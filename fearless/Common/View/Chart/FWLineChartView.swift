@@ -8,7 +8,7 @@ final class FWLineChartView: LineChartView {
         return formatter
     }()
 
-    let xAxisFormmater = FWChartXAxisFormatter()
+    let xAxisFormmater = FWXAxisEmptyValueFormatter()
 
     weak var chartDelegate: FWChartViewDelegate?
 
@@ -80,7 +80,6 @@ extension FWLineChartView: FWChartViewProtocol {
         dataSet.drawFilledEnabled = true
         let lineChartData = LineChartData(dataSet: dataSet)
 
-        xAxisFormmater.xAxisValues = data.xAxisValues
         xAxis.labelCount = data.xAxisValues.count
 
         self.data = lineChartData

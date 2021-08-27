@@ -1,16 +1,6 @@
 import UIKit
 import Charts
 
-protocol FWChartViewDelegate: AnyObject {
-    func didSelectXValue(_ value: Double)
-    func didUnselect()
-}
-
-protocol FWChartViewProtocol where Self: UIView {
-    func setChartData(_ data: ChartData)
-    var chartDelegate: FWChartViewDelegate? { get set }
-}
-
 final class FWBarChartView: BarChartView {
     lazy var formatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -20,9 +10,10 @@ final class FWBarChartView: BarChartView {
 
     weak var chartDelegate: FWChartViewDelegate?
 
-    let xAxisFormmater = FWChartXAxisFormatter()
+    let xAxisEmptyFormatter = FWXAxisEmptyValueFormatter()
+    let xAxisLegend = FWXAxisChartLegendView()
 
-    let yAxisFormatter = FWChartYAxisFormatter()
+    let yAxisFormatter = FWYAxisChartFormatter()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,10 +30,8 @@ final class FWBarChartView: BarChartView {
         highlightFullBarEnabled = false
 
         xAxis.drawGridLinesEnabled = false
-        xAxis.labelFont = .p3Paragraph
-        xAxis.labelTextColor = R.color.colorStrokeGray()!
         xAxis.labelPosition = .bottom
-        xAxis.valueFormatter = xAxisFormmater
+        xAxis.valueFormatter = xAxisEmptyFormatter
 
         leftAxis.labelCount = 2
         leftAxis.drawGridLinesEnabled = false
@@ -56,6 +45,13 @@ final class FWBarChartView: BarChartView {
         drawBordersEnabled = false
         minOffset = 0
         legend.enabled = false
+
+        addSubview(xAxisLegend)
+        xAxisLegend.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(40)
+            make.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
     }
 
     @available(*, unavailable)
@@ -77,7 +73,8 @@ extension FWBarChartView: FWChartViewProtocol {
             chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
         }
 
-        xAxisFormmater.xAxisValues = data.xAxisValues
+        // xAxisEmptyFormatter.xAxisValues = data.xAxisValues
+        xAxisLegend.setValues(data.xAxisValues)
         xAxis.labelCount = data.xAxisValues.count
         yAxisFormatter.bottomValueString = data.bottomYValue
 
@@ -96,28 +93,5 @@ extension FWBarChartView: ChartViewDelegate {
 
     func chartValueNothingSelected(_: ChartViewBase) {
         chartDelegate?.didUnselect()
-    }
-}
-
-class FWChartXAxisFormatter: IAxisValueFormatter {
-    var xAxisValues = [String]()
-
-    func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
-        let index = Int(value)
-        if index < xAxisValues.count {
-            return xAxisValues[index]
-        }
-        return ""
-    }
-}
-
-class FWChartYAxisFormatter: DefaultAxisValueFormatter {
-    var bottomValueString: String?
-
-    override func stringForValue(_ value: Double, axis: AxisBase?) -> String {
-        if let bottomValueString = bottomValueString, value < .leastNonzeroMagnitude {
-            return bottomValueString
-        }
-        return super.stringForValue(value, axis: axis)
     }
 }
