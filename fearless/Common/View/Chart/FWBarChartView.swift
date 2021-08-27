@@ -2,17 +2,10 @@ import UIKit
 import Charts
 
 final class FWBarChartView: BarChartView {
-    lazy var formatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.maximumFractionDigits = 4
-        return formatter
-    }()
-
     weak var chartDelegate: FWChartViewDelegate?
 
     let xAxisEmptyFormatter = FWXAxisEmptyValueFormatter()
     let xAxisLegend = FWXAxisChartLegendView()
-
     let yAxisFormatter = FWYAxisChartFormatter()
 
     override init(frame: CGRect) {
@@ -24,7 +17,6 @@ final class FWBarChartView: BarChartView {
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
-        maxVisibleCount = 40
         drawBarShadowEnabled = false
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
@@ -73,9 +65,7 @@ extension FWBarChartView: FWChartViewProtocol {
             chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
         }
 
-        // xAxisEmptyFormatter.xAxisValues = data.xAxisValues
         xAxisLegend.setValues(data.xAxisValues)
-        xAxis.labelCount = data.xAxisValues.count
         yAxisFormatter.bottomValueString = data.bottomYValue
 
         let data = BarChartData(dataSet: set)

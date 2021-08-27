@@ -2,15 +2,11 @@ import UIKit
 import Charts
 
 final class FWLineChartView: LineChartView {
-    lazy var formatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.maximumFractionDigits = 4
-        return formatter
-    }()
-
-    let xAxisFormmater = FWXAxisEmptyValueFormatter()
-
     weak var chartDelegate: FWChartViewDelegate?
+
+    let xAxisEmptyFormatter = FWXAxisEmptyValueFormatter()
+    let xAxisLegend = FWXAxisChartLegendView()
+    let yAxisFormatter = FWYAxisChartFormatter()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -22,19 +18,15 @@ final class FWLineChartView: LineChartView {
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
         highlightPerTapEnabled = false
-        maxVisibleCount = 40
 
         xAxis.drawGridLinesEnabled = false
-        xAxis.labelFont = .p3Paragraph
         xAxis.labelPosition = .bottom
-        xAxis.labelTextColor = R.color.colorStrokeGray()!
-        xAxis.valueFormatter = xAxisFormmater
-        xAxis.xOffset = 0
+        xAxis.valueFormatter = xAxisEmptyFormatter
 
         leftAxis.labelCount = 2
         leftAxis.drawGridLinesEnabled = false
         leftAxis.drawAxisLineEnabled = false
-        leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
+        leftAxis.valueFormatter = yAxisFormatter
         leftAxis.labelFont = .systemFont(ofSize: 8, weight: .semibold)
         leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
 
@@ -42,6 +34,13 @@ final class FWLineChartView: LineChartView {
         drawBordersEnabled = false
         minOffset = 0
         legend.enabled = false
+
+        addSubview(xAxisLegend)
+        xAxisLegend.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(40)
+            make.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
     }
 
     @available(*, unavailable)
@@ -80,7 +79,8 @@ extension FWLineChartView: FWChartViewProtocol {
         dataSet.drawFilledEnabled = true
         let lineChartData = LineChartData(dataSet: dataSet)
 
-        xAxis.labelCount = data.xAxisValues.count
+        xAxisLegend.setValues(data.xAxisValues)
+        yAxisFormatter.bottomValueString = data.bottomYValue
 
         self.data = lineChartData
         animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
