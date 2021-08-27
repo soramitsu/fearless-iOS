@@ -60,7 +60,8 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
             amount: nomination.bonding.amount,
             rewardDestination: rewardDestination,
             targets: nomination.targets,
-            maxTargets: nomination.maxTargets
+            maxTargets: nomination.maxTargets,
+            hasExistingNomination: false
         )
 
         presenter.didReceiveModel(result: .success(confirmation))
@@ -119,12 +120,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
         }
     }
 
-    override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
-        guard lastBalance >= nomination.bonding.amount + lastFee else {
-            presenter.didFailNomination(error: SelectValidatorsConfirmError.notEnoughFunds)
-            return
-        }
-
+    override func submitNomination() {
         guard !nomination.targets.isEmpty else {
             presenter.didFailNomination(error: SelectValidatorsConfirmError.extrinsicFailed)
             return

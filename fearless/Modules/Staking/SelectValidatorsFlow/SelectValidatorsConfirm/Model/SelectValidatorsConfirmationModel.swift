@@ -7,4 +7,5 @@ struct SelectValidatorsConfirmationModel {
     let rewardDestination: RewardDestination<DisplayAddress>
     let targets: [SelectedValidatorInfo]
     let maxTargets: Int
+    let hasExistingNomination: Bool
 }
