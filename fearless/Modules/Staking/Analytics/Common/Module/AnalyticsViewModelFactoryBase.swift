@@ -55,7 +55,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 bottomYValue: bottomYValue
             )
 
-            let totalReceived = data
+            let totalReceived = rewardItemsWithinLimits
                 .map(\.amount)
                 .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
                 .reduce(0.0, +)
