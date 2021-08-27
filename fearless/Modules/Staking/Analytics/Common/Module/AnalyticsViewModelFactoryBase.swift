@@ -42,9 +42,9 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let maxValue = chartDoubles.max() ?? 0.0
             let amounts: [ChartAmount] = chartDoubles.map { value in
                 if value < .leastNonzeroMagnitude {
-                    return ChartAmount(value: maxValue / 50.0, filled: false)
+                    return ChartAmount(value: maxValue / 50.0, selected: false, filled: false)
                 }
-                return ChartAmount(value: value, filled: true)
+                return ChartAmount(value: value, selected: false, filled: true)
             }
 
             let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)

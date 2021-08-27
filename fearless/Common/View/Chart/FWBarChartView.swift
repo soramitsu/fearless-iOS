@@ -59,10 +59,20 @@ extension FWBarChartView: FWChartViewProtocol {
         }
 
         let set = BarChartDataSet(entries: dataEntries)
+        set.highlightColor = R.color.colorAccent()!
         set.drawIconsEnabled = false
         set.drawValuesEnabled = false
+        let chartDataContainsSelectedBar = data.amounts.contains(where: { $0.selected == true })
         set.colors = data.amounts.map { chartData in
-            chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
+            if chartData.selected {
+                return R.color.colorAccent()!
+            } else {
+                if chartDataContainsSelectedBar {
+                    return UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1)
+                } else {
+                    return chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
+                }
+            }
         }
 
         xAxisLegend.setValues(data.xAxisValues)
@@ -72,7 +82,7 @@ extension FWBarChartView: FWChartViewProtocol {
         data.barWidth = 0.4
 
         self.data = data
-        animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        // animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
     }
 }
 

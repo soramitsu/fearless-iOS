@@ -60,15 +60,37 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
         guard case let .loaded(viewModel) = viewState else {
             return
         }
-        let summary = viewModel.chartData.summary[Int(value)]
-        rootView.headerView.bind(summaryViewModel: summary)
+        let selectedIndex = Int(value)
+        let summary = viewModel.chartData.summary[selectedIndex]
+        let selectedChartAmounts = viewModel.chartData.amounts.enumerated().map { (index, chartAmount) -> ChartAmount in
+            if index == selectedIndex {
+                return ChartAmount(value: chartAmount.value, selected: true, filled: true)
+            }
+            return ChartAmount(value: chartAmount.value, selected: false, filled: false)
+        }
+
+        let chartData = viewModel.chartData
+        let newChartData = ChartData(
+            amounts: selectedChartAmounts,
+            summary: chartData.summary,
+            xAxisValues: chartData.xAxisValues,
+            bottomYValue: chartData.bottomYValue
+        )
+        rootView.headerView.bind(
+            summaryViewModel: summary,
+            chartData: newChartData,
+            selectedPeriod: viewModel.selectedPeriod
+        )
     }
 
     func didUnselect() {
         guard case let .loaded(viewModel) = viewState else {
             return
         }
-        let summary = viewModel.summaryViewModel
-        rootView.headerView.bind(summaryViewModel: summary)
+        rootView.headerView.bind(
+            summaryViewModel: viewModel.summaryViewModel,
+            chartData: viewModel.chartData,
+            selectedPeriod: viewModel.selectedPeriod
+        )
     }
 }

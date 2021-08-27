@@ -2,6 +2,7 @@ import Foundation
 
 struct ChartAmount {
     let value: Double
+    let selected: Bool
     let filled: Bool
 }
 
