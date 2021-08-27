@@ -185,4 +185,15 @@ extension AnalyticsValidatorsViewController: FWPieChartViewDelegate {
             rootView.headerView.pieChart.setCenterText(.init(string: "InActive staking"))
         }
     }
+
+    func didUnselect() {
+        guard case let .loaded(viewModel) = state else {
+            return
+        }
+        rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
+        rootView.headerView.pieChart.setAmounts(
+            segmentValues: viewModel.pieChartSegmentValues,
+            inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue
+        )
+    }
 }

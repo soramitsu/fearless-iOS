@@ -3,6 +3,7 @@ import Charts
 
 protocol FWPieChartViewDelegate: AnyObject {
     func didSelectSegment(index: Int)
+    func didUnselect()
 }
 
 protocol FWPieChartViewProtocol {
@@ -69,6 +70,6 @@ extension FWPieChartView: ChartViewDelegate {
     }
 
     func chartValueNothingSelected(_: ChartViewBase) {
-        print("chartValueNothingSelected")
+        chartDelegate?.didUnselect()
     }
 }
