@@ -136,10 +136,10 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
 
         let remoteHistoryWrapper: CompoundOperationWrapper<WalletRemoteHistoryData>
 
-        if let baseUrl = assetId.subscanUrl {
-            let remoteHistoryFactory = WalletRemoteHistoryFactory(
-                baseURL: baseUrl,
-                filter: WalletRemoteHistoryClosureFilter.transfersInExtrinsics
+        if let url = assetId.subqueryHistoryUrl {
+            let remoteHistoryFactory = SubqueryHistoryOperationFactory(
+                url: url,
+                filter: filter
             )
 
             remoteHistoryWrapper = remoteHistoryFactory.createOperationWrapper(
