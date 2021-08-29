@@ -97,7 +97,7 @@ extension SubqueryHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
         address: String,
         count: Int
     ) -> CompoundOperationWrapper<WalletRemoteHistoryData> {
-        let queryString = prepareQueryForAddress(address, cursor: nil, count: count)
+        let queryString = prepareQueryForAddress(address, cursor: context.cursor, count: count)
 
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: self.url)
@@ -125,6 +125,11 @@ extension SubqueryHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
             case let .data(response):
                 let pageInfo = response.historyElements.pageInfo
                 let items = response.historyElements.nodes
+
+                let context = TransactionHistoryContext(
+                    cursor: pageInfo.endCursor,
+                    isComplete: pageInfo.endCursor == nil
+                )
 
                 return WalletRemoteHistoryData(
                     historyItems: items,

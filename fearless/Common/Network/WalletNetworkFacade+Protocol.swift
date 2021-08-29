@@ -115,10 +115,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         let filter = WalletHistoryFilter(string: request.filter)
 
-        let historyContext = TransactionHistoryContext(
-            context: pagination.context ?? [:],
-            defaultRow: pagination.count
-        ).byApplying(filter: filter)
+        let historyContext = TransactionHistoryContext(context: pagination.context ?? [:])
 
         guard !historyContext.isComplete,
               let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),
@@ -148,7 +145,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                 count: pagination.count
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
+            let context = TransactionHistoryContext(context: [:])
             let result = WalletRemoteHistoryData(historyItems: [], context: context)
             remoteHistoryWrapper = CompoundOperationWrapper.createWithResult(result)
         }
