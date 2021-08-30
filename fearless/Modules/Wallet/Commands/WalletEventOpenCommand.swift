@@ -47,16 +47,6 @@ final class WalletEventOpenCommand: WalletCommandProtocol {
             alertController.addAction(viewPolkascan)
         }
 
-        if let url = chain.subscanEventURL(eventId) {
-            let subscanTitle = R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
-            let viewSubscan = UIAlertAction(title: subscanTitle, style: .default) { [weak self] _ in
-                self?.present(url: url)
-            }
-
-            alertController.addAction(viewSubscan)
-        }
-
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale.rLanguages)
         let cancel = UIAlertAction(title: cancelTitle, style: .cancel, handler: nil)

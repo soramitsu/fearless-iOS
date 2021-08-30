@@ -82,19 +82,6 @@ extension Chain {
         }
     }
 
-    func subscanEventURL(_ eventId: String) -> URL? {
-        switch self {
-        case .polkadot:
-            return URL(string: "https://polkadot.subscan.io/event/\(eventId)")
-        case .kusama:
-            return URL(string: "https://kusama.subscan.io/event/\(eventId)")
-        case .westend:
-            return URL(string: "https://westend.subscan.io/event/\(eventId)")
-        case .rococo:
-            return nil
-        }
-    }
-
     var totalRewardURL: URL? {
         switch self {
         case .polkadot:
