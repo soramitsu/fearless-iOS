@@ -21,15 +21,14 @@ final class WalletEventOpenCommand: WalletCommandProtocol {
     }
 
     func execute() throws {
-        // TODO: Localize
-        let title = "Event details"
+        let title = R.string.localizable.stakingCommonEventId(preferredLanguages: locale.rLanguages)
         let alertController = UIAlertController(
             title: title,
             message: nil,
             preferredStyle: .actionSheet
         )
 
-        let copyTitle = "Copy Id"
+        let copyTitle = R.string.localizable.commonCopyId(preferredLanguages: locale.rLanguages)
 
         let copy = UIAlertAction(title: copyTitle, style: .default) { [weak self] _ in
             self?.copyId()

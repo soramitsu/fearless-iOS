@@ -60,8 +60,7 @@ extension TransactionDetailsViewModelFactory {
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale
     ) {
-        // TODO: Localize
-        let title = "EventId"
+        let title = R.string.localizable.stakingCommonEventId(preferredLanguages: locale.rLanguages)
 
         let actionIcon = R.image.iconMore()
 
@@ -91,8 +90,7 @@ extension TransactionDetailsViewModelFactory {
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale
     ) {
-        // TODO: Localize
-        let title = "Validator Id"
+        let title = R.string.localizable.stakingCommonValidator(preferredLanguages: locale.rLanguages)
 
         populatePeerViewModel(
             in: &viewModelList,
@@ -117,8 +115,7 @@ extension TransactionDetailsViewModelFactory {
             return
         }
 
-        // TODO: Localize
-        let title = "Era"
+        let title = R.string.localizable.stakingCommonEra(preferredLanguages: locale.rLanguages)
 
         let details = "#\(displayEra)"
 
