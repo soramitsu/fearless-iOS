@@ -84,12 +84,9 @@ final class SingleValueProviderFactory {
 
     private func totalRewardIdentifier(
         for address: String,
-        assetId: WalletAssetId,
-        supportsSubquery: Bool
+        assetId: WalletAssetId
     ) -> String {
-        let methodName = supportsSubquery ? "subquery" : "subscan"
-
-        return assetId.rawValue + address + "Reward" + methodName
+        assetId.rawValue + address + "Reward"
     }
 
     private func clearIfNeeded() {
@@ -224,15 +221,15 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         clearIfNeeded()
 
+        guard let historyURL = assetId.subqueryHistoryUrl else {
+            throw DataProviderError.unexpectedSourceResult
+        }
+
         let addressFactory = SS58AddressFactory()
         let type = try addressFactory.extractAddressType(from: address)
         let chain = type.chain
 
-        let identifier = totalRewardIdentifier(
-            for: address,
-            assetId: assetId,
-            supportsSubquery: chain.totalRewardURL != nil
-        )
+        let identifier = totalRewardIdentifier(for: address, assetId: assetId)
 
         if let provider = providers[identifier]?.target as? SingleValueProvider<TotalRewardItem> {
             return AnySingleValueProvider(provider)
@@ -243,25 +240,23 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         let trigger = DataProviderProxyTrigger()
 
-        let anySource: AnySingleValueProviderSource<TotalRewardItem> = {
-            if let url = chain.totalRewardURL {
-                let source = SubqueryRewardSource(address: address, url: url, chain: chain)
-                return AnySingleValueProviderSource(source)
-            } else {
-                let source = SubscanRewardSource(
-                    address: address,
-                    assetId: assetId,
-                    chain: chain,
-                    targetIdentifier: identifier,
-                    repository: AnyDataProviderRepository(repository),
-                    operationFactory: SubscanOperationFactory(),
-                    trigger: trigger,
-                    operationManager: operationManager,
-                    logger: logger
-                )
-                return AnySingleValueProviderSource(source)
-            }
-        }()
+        let operationFactory = SubqueryHistoryOperationFactory(
+            url: historyURL,
+            filter: [.rewardsAndSlashes]
+        )
+
+        let source = SubqueryRewardSource(
+            address: address,
+            chain: chain,
+            targetIdentifier: identifier,
+            repository: AnyDataProviderRepository(repository),
+            operationFactory: operationFactory,
+            trigger: trigger,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+
+        let anySource = AnySingleValueProviderSource<TotalRewardItem>(source)
 
         let provider = SingleValueProvider(
             targetIdentifier: identifier,

@@ -2,6 +2,14 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
+protocol SubqueryHistoryOperationFactoryProtocol {
+    func createOperation(
+        address: String,
+        count: Int,
+        cursor: String?
+    ) -> BaseOperation<SubqueryHistoryData>
+}
+
 final class SubqueryHistoryOperationFactory {
     let url: URL
     let filter: WalletHistoryFilter
@@ -57,7 +65,7 @@ final class SubqueryHistoryOperationFactory {
         return filterStrings.joined(separator: ",")
     }
 
-    private func prepareQueryForAddress(_ address: String, cursor: String?, count: Int) -> String {
+    private func prepareQueryForAddress(_ address: String, count: Int, cursor: String?) -> String {
         let after = cursor.map { "\"\($0)\"" } ?? "null"
         let filterString = prepareFilter()
         return """
@@ -91,13 +99,13 @@ final class SubqueryHistoryOperationFactory {
     }
 }
 
-extension SubqueryHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
-    func createOperationWrapper(
-        for context: TransactionHistoryContext,
+extension SubqueryHistoryOperationFactory: SubqueryHistoryOperationFactoryProtocol {
+    func createOperation(
         address: String,
-        count: Int
-    ) -> CompoundOperationWrapper<WalletRemoteHistoryData> {
-        let queryString = prepareQueryForAddress(address, cursor: context.cursor, count: count)
+        count: Int,
+        cursor: String?
+    ) -> BaseOperation<SubqueryHistoryData> {
+        let queryString = prepareQueryForAddress(address, count: count, cursor: cursor)
 
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: self.url)
@@ -113,7 +121,7 @@ extension SubqueryHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<WalletRemoteHistoryData> { data in
+        let resultFactory = AnyNetworkResultFactory<SubqueryHistoryData> { data in
             let response = try JSONDecoder().decode(
                 SubqueryResponse<SubqueryHistoryData>.self,
                 from: data
@@ -123,23 +131,12 @@ extension SubqueryHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
             case let .errors(error):
                 throw error
             case let .data(response):
-                let pageInfo = response.historyElements.pageInfo
-                let items = response.historyElements.nodes
-
-                let context = TransactionHistoryContext(
-                    cursor: pageInfo.endCursor,
-                    isComplete: pageInfo.endCursor == nil
-                )
-
-                return WalletRemoteHistoryData(
-                    historyItems: items,
-                    context: context
-                )
+                return response
             }
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
 
-        return CompoundOperationWrapper(targetOperation: operation)
+        return operation
     }
 }
