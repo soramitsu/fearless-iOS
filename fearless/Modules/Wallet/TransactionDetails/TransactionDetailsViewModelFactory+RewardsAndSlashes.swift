@@ -51,13 +51,13 @@ extension TransactionDetailsViewModelFactory {
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale
     ) {
-        let title = R.string.localizable
-            .transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
+        // TODO: Localize
+        let title = "EventId"
 
         let actionIcon = R.image.iconMore()
 
-        let command = WalletExtrinsicOpenCommand(
-            extrinsicHash: data.peerId,
+        let command = WalletEventOpenCommand(
+            eventId: data.transactionId,
             chain: chain,
             commandFactory: commandFactory,
             locale: locale
@@ -65,12 +65,13 @@ extension TransactionDetailsViewModelFactory {
 
         let viewModel = WalletCompoundDetailsViewModel(
             title: title,
-            details: data.peerId,
+            details: data.transactionId,
             mainIcon: nil,
             actionIcon: actionIcon,
             command: command,
             enabled: true
         )
+
         viewModelList.append(viewModel)
     }
 }

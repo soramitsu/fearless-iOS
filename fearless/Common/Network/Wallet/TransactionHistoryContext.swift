@@ -1,5 +1,10 @@
 import Foundation
 
+enum TransactionContextKeys {
+    static let extrinsicHash = "extrinsicHash"
+    static let era = "era"
+}
+
 struct TransactionHistoryContext {
     static let cursor = "cursor"
     static let isComplete = "isComplete"

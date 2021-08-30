@@ -3,10 +3,6 @@ import IrohaCrypto
 import CommonWallet
 import BigInt
 
-enum TransactionContextKeys {
-    static let extrinsicHash = "extrinsicHash"
-}
-
 extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
     var itemBlockNumber: UInt64 {
         0
@@ -181,9 +177,9 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
     private func createTransactionForRewardOrSlash(
         _ rewardOrSlash: SubqueryRewardOrSlash,
         address _: String,
-        networkType: SNAddressType,
+        networkType _: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol
+        addressFactory _: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(rewardOrSlash.amount) ?? 0,
@@ -194,16 +190,19 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
 
         let validatorAddress = rewardOrSlash.validator ?? ""
 
-        let validatorAccountId = try? addressFactory.accountId(
-            fromAddress: validatorAddress,
-            type: networkType
-        )
+        let context: [String: String]?
+
+        if let era = rewardOrSlash.era {
+            context = [TransactionContextKeys.era: String(era)]
+        } else {
+            context = nil
+        }
 
         return AssetTransactionData(
             transactionId: identifier,
             status: .commited,
             assetId: asset.identifier,
-            peerId: validatorAccountId?.toHex() ?? "",
+            peerId: validatorAddress,
             peerFirstName: nil,
             peerLastName: nil,
             peerName: validatorAddress,
@@ -213,7 +212,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             timestamp: itemTimestamp,
             type: type,
             reason: nil,
-            context: nil
+            context: context
         )
     }
 }

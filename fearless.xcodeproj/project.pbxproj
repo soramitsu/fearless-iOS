@@ -543,6 +543,7 @@
 		846AF8462525C93A00868F37 /* BalanceContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846AF8452525C93A00868F37 /* BalanceContext.swift */; };
 		846AF8482525E23C00868F37 /* WalletTotalPriceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846AF8472525E23C00868F37 /* WalletTotalPriceCell.swift */; };
 		846AF84A2525E24C00868F37 /* WalletTotalPriceCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 846AF8492525E24C00868F37 /* WalletTotalPriceCell.xib */; };
+		846B32A726DD241C00250E89 /* WalletEventOpenCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846B32A626DD241C00250E89 /* WalletEventOpenCommand.swift */; };
 		846C372E26B199D10098F303 /* StakingDurationOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C372D26B199D10098F303 /* StakingDurationOperationFactory.swift */; };
 		846CA43324E3C6C3004F1B14 /* PincodeSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */; };
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
@@ -1990,6 +1991,7 @@
 		846AF8452525C93A00868F37 /* BalanceContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceContext.swift; sourceTree = "<group>"; };
 		846AF8472525E23C00868F37 /* WalletTotalPriceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTotalPriceCell.swift; sourceTree = "<group>"; };
 		846AF8492525E24C00868F37 /* WalletTotalPriceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WalletTotalPriceCell.xib; sourceTree = "<group>"; };
+		846B32A626DD241C00250E89 /* WalletEventOpenCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletEventOpenCommand.swift; sourceTree = "<group>"; };
 		846C372D26B199D10098F303 /* StakingDurationOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDurationOperationFactory.swift; sourceTree = "<group>"; };
 		846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincodeSetupTests.swift; sourceTree = "<group>"; };
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
@@ -5437,6 +5439,7 @@
 				846A2C482527490700731018 /* WalletSelectAccountCommand.swift */,
 				846A2C4F252A063800731018 /* WalletSelectAccountCommandFactory.swift */,
 				AEF50715262359DC0098574D /* WalletSelectPurchaseProviderCommand.swift */,
+				846B32A626DD241C00250E89 /* WalletEventOpenCommand.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -8883,6 +8886,7 @@
 				6D5851FB5F830D55EFDB8B7D /* StakingUnbondSetupProtocols.swift in Sources */,
 				84DBEA4E265ED5B600FDF73C /* CrowdloanDataValidatorFactory.swift in Sources */,
 				8401AEC22642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift in Sources */,
+				846B32A726DD241C00250E89 /* WalletEventOpenCommand.swift in Sources */,
 				1550A6E8789263C0D734091A /* StakingUnbondSetupWireframe.swift in Sources */,
 				F4FDA0FD26A57860003D753B /* EraCountdown.swift in Sources */,
 				AEA0C8B6267BABCC00F9666F /* SelectedValidatorListViewModel.swift in Sources */,
