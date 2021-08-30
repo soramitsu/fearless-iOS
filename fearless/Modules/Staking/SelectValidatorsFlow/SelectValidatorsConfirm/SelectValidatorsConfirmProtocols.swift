@@ -18,7 +18,7 @@ protocol SelectValidatorsConfirmPresenterProtocol: AnyObject {
 
 protocol SelectValidatorsConfirmInteractorInputProtocol: AnyObject {
     func setup()
-    func submitNomination(for lastBalance: Decimal, lastFee: Decimal)
+    func submitNomination()
     func estimateFee()
 }
 
