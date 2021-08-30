@@ -39,9 +39,10 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
 
     func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
 
-    func maxNominatorsCountNotReached(
+    func maxNominatorsCountNotApplied(
         counterForNominators: UInt32?,
         maxNominatorsCount: UInt32?,
+        hasExistingNomination: Bool,
         locale: Locale
     ) -> DataValidating
 }
@@ -268,9 +269,10 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         })
     }
 
-    func maxNominatorsCountNotReached(
+    func maxNominatorsCountNotApplied(
         counterForNominators: UInt32?,
         maxNominatorsCount: UInt32?,
+        hasExistingNomination: Bool,
         locale: Locale
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
@@ -281,6 +283,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             self?.presentable.presentMaxNumberOfNominatorsReached(from: view, locale: locale)
         }, preservesCondition: {
             if
+                !hasExistingNomination,
                 let counterForNominators = counterForNominators,
                 let maxNominatorsCount = maxNominatorsCount {
                 return counterForNominators < maxNominatorsCount
