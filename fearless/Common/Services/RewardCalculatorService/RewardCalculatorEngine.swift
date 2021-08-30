@@ -115,21 +115,26 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }()
 
     private lazy var medianCommission: Decimal = {
-        let sorted = validators.map(\.prefs.commission).sorted()
+        let profitable = validators
+            .compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) }
+            .sorted()
+            .filter { $0 < 1.0 }
 
-        guard !sorted.isEmpty else {
+        guard !profitable.isEmpty else {
             return 0.0
         }
 
-        let commission: BigUInt
+        let commission: Decimal
 
-        if sorted.count % 2 == 0 {
-            commission = (sorted[sorted.count / 2] + sorted[(sorted.count / 2) - 1]) / 2
+        let count = profitable.count
+
+        if count % 2 == 0 {
+            commission = (profitable[count / 2] + profitable[(count / 2) - 1]) / 2
         } else {
-            commission = sorted[(sorted.count - 1) / 2]
+            commission = profitable[(count - 1) / 2]
         }
 
-        return Decimal.fromSubstratePerbill(value: commission) ?? 0.0
+        return commission
     }()
 
     private lazy var maxValidator: EraValidatorInfo? = {
