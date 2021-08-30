@@ -88,7 +88,7 @@ extension AssetTransactionData {
             timestamp: item.timestamp,
             type: type.rawValue,
             reason: nil,
-            context: nil
+            context: [TransactionContextKeys.extrinsicHash: item.txHash]
         )
     }
 
@@ -128,7 +128,7 @@ extension AssetTransactionData {
             timestamp: item.timestamp,
             type: TransactionType.extrinsic.rawValue,
             reason: nil,
-            context: nil
+            context: [TransactionContextKeys.extrinsicHash: item.txHash]
         )
     }
 }

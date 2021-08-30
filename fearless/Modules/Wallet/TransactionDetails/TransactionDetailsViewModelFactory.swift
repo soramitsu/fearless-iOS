@@ -169,13 +169,17 @@ final class TransactionDetailsViewModelFactory {
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale
     ) {
+        guard let extrinsicHash = data.context?[TransactionContextKeys.extrinsicHash] else {
+            return
+        }
+
         let title = R.string.localizable
             .transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
 
         let actionIcon = R.image.iconMore()
 
         let command = WalletExtrinsicOpenCommand(
-            extrinsicHash: data.transactionId,
+            extrinsicHash: extrinsicHash,
             chain: chain,
             commandFactory: commandFactory,
             locale: locale
@@ -183,12 +187,13 @@ final class TransactionDetailsViewModelFactory {
 
         let viewModel = WalletCompoundDetailsViewModel(
             title: title,
-            details: data.transactionId,
+            details: extrinsicHash,
             mainIcon: nil,
             actionIcon: actionIcon,
             command: command,
             enabled: true
         )
+
         viewModelList.append(viewModel)
     }
 

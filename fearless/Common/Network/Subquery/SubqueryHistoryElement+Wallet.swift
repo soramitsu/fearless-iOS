@@ -3,6 +3,10 @@ import IrohaCrypto
 import CommonWallet
 import BigInt
 
+enum TransactionContextKeys {
+    static let extrinsicHash = "extrinsicHash"
+}
+
 extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
     var itemBlockNumber: UInt64 {
         0
@@ -14,6 +18,18 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
 
     var itemTimestamp: Int64 {
         Int64(timestamp) ?? 0
+    }
+
+    var extrinsicHash: String? {
+        if let extrinsic = extrinsic {
+            return extrinsic.hash
+        }
+
+        if let transfer = transfer {
+            return transfer.extrinsicHash
+        }
+
+        return nil
     }
 
     var label: WalletRemoteHistorySourceLabel {
@@ -101,7 +117,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             timestamp: itemTimestamp,
             type: TransactionType.extrinsic.rawValue,
             reason: nil,
-            context: nil
+            context: [TransactionContextKeys.extrinsicHash: extrinsic.hash]
         )
     }
 
@@ -136,6 +152,14 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
 
         let type = transfer.sender == address ? TransactionType.outgoing : TransactionType.incoming
 
+        let context: [String: String]?
+
+        if let extrinsicHash = transfer.extrinsicHash {
+            context = [TransactionContextKeys.extrinsicHash: extrinsicHash]
+        } else {
+            context = nil
+        }
+
         return AssetTransactionData(
             transactionId: identifier,
             status: status,
@@ -150,7 +174,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             timestamp: itemTimestamp,
             type: type.rawValue,
             reason: nil,
-            context: nil
+            context: context
         )
     }
 
