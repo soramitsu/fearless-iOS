@@ -115,7 +115,7 @@ extension SubqueryHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
 
         let resultFactory = AnyNetworkResultFactory<WalletRemoteHistoryData> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<SubqueryHistoryResponse>.self,
+                SubqueryResponse<SubqueryHistoryData>.self,
                 from: data
             )
 

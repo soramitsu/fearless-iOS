@@ -41,14 +41,6 @@ struct SubqueryExtrinsic: Decodable {
     let success: Bool
 }
 
-struct SubqueryErrors: Error, Decodable {
-    struct SubqueryError: Error, Decodable {
-        let message: String
-    }
-
-    let errors: [SubqueryError]
-}
-
 struct SubqueryHistoryElement: Decodable {
     enum CodingKeys: String, CodingKey {
         case identifier = "id"
@@ -67,35 +59,11 @@ struct SubqueryHistoryElement: Decodable {
     let transfer: SubqueryTransfer?
 }
 
-struct SubqueryHistoryResponse: Decodable {
+struct SubqueryHistoryData: Decodable {
     struct HistoryElements: Decodable {
         let pageInfo: SubqueryPageInfo
         let nodes: [SubqueryHistoryElement]
     }
 
     let historyElements: HistoryElements
-}
-
-enum SubqueryResponse<D: Decodable>: Decodable {
-    case data(_ value: D)
-    case errors(_ value: SubqueryErrors)
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-
-        let json = try container.decode(JSON.self)
-
-        if let data = json.data {
-            let value = try data.map(to: D.self)
-            self = .data(value)
-        } else if let errors = json.errrors {
-            let values = try errors.map(to: [SubqueryErrors.SubqueryError].self)
-            self = .errors(SubqueryErrors(errors: values))
-        } else {
-            throw DecodingError.dataCorruptedError(
-                in: container,
-                debugDescription: "unexpected value"
-            )
-        }
-    }
 }
