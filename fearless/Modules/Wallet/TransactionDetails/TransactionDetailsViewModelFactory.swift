@@ -7,6 +7,7 @@ final class TransactionDetailsViewModelFactory {
     let address: String
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let dateFormatter: LocalizableResource<DateFormatter>
+    let quantityFormatter: LocalizableResource<NumberFormatter>
     let assets: [WalletAsset]
 
     let iconGenerator = PolkadotIconGenerator()
@@ -15,12 +16,14 @@ final class TransactionDetailsViewModelFactory {
         address: String,
         assets: [WalletAsset],
         dateFormatter: LocalizableResource<DateFormatter>,
-        amountFormatterFactory: NumberFormatterFactoryProtocol
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        quantityFormatter: LocalizableResource<NumberFormatter>
     ) {
         self.address = address
         self.assets = assets
         self.dateFormatter = dateFormatter
         self.amountFormatterFactory = amountFormatterFactory
+        self.quantityFormatter = quantityFormatter
     }
 
     func populateStatus(
