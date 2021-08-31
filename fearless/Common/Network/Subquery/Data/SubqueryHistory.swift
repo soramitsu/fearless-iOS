@@ -14,6 +14,7 @@ struct SubqueryTransfer: Decodable {
         case fee
         case block
         case extrinsicId
+        case extrinsicHash
         case success
     }
 
@@ -23,6 +24,7 @@ struct SubqueryTransfer: Decodable {
     let fee: String
     let block: String
     let extrinsicId: String?
+    let extrinsicHash: String?
     let success: Bool
 }
 

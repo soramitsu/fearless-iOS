@@ -156,29 +156,47 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
     }
 
     func proceed() {
+        guard let state = state else {
+            return
+        }
+
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        DataValidationRunner(validators: [
+        let spendingAmount: Decimal = !state.hasExistingBond ? state.amount : 0.0
+
+        var validators: [DataValidating] = [
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.interactor.estimateFee()
             },
-            dataValidatingFactory.canNominate(
-                amount: state?.amount,
+
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: spendingAmount,
+                locale: locale
+            ),
+
+            dataValidatingFactory.maxNominatorsCountNotApplied(
+                counterForNominators: counterForNominators,
+                maxNominatorsCount: maxNominatorsCount,
+                hasExistingNomination: state.hasExistingNomination,
+                locale: locale
+            )
+        ]
+
+        if !state.hasExistingBond {
+            let bondValidation = dataValidatingFactory.canNominate(
+                amount: state.amount,
                 minimalBalance: minimalBalance,
                 minNominatorBond: minNominatorBond,
                 locale: locale
-            ),
-            dataValidatingFactory.maxNominatorsCountNotReached(
-                counterForNominators: counterForNominators,
-                maxNominatorsCount: maxNominatorsCount,
-                locale: locale
             )
-        ]).runValidation { [weak self] in
-            guard let fee = self?.fee else {
-                return
-            }
 
-            self?.interactor.submitNomination(for: self?.balance ?? 0.0, lastFee: fee)
+            validators.append(bondValidation)
+        }
+
+        DataValidationRunner(validators: validators).runValidation { [weak self] in
+            self?.interactor.submitNomination()
         }
     }
 }

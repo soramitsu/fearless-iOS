@@ -7,6 +7,7 @@ final class TransactionDetailsViewModelFactory {
     let address: String
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let dateFormatter: LocalizableResource<DateFormatter>
+    let quantityFormatter: LocalizableResource<NumberFormatter>
     let assets: [WalletAsset]
 
     let iconGenerator = PolkadotIconGenerator()
@@ -15,12 +16,14 @@ final class TransactionDetailsViewModelFactory {
         address: String,
         assets: [WalletAsset],
         dateFormatter: LocalizableResource<DateFormatter>,
-        amountFormatterFactory: NumberFormatterFactoryProtocol
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        quantityFormatter: LocalizableResource<NumberFormatter>
     ) {
         self.address = address
         self.assets = assets
         self.dateFormatter = dateFormatter
         self.amountFormatterFactory = amountFormatterFactory
+        self.quantityFormatter = quantityFormatter
     }
 
     func populateStatus(
@@ -169,13 +172,17 @@ final class TransactionDetailsViewModelFactory {
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale
     ) {
+        guard let extrinsicHash = data.context?[TransactionContextKeys.extrinsicHash] else {
+            return
+        }
+
         let title = R.string.localizable
             .transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
 
         let actionIcon = R.image.iconMore()
 
         let command = WalletExtrinsicOpenCommand(
-            extrinsicHash: data.transactionId,
+            extrinsicHash: extrinsicHash,
             chain: chain,
             commandFactory: commandFactory,
             locale: locale
@@ -183,12 +190,13 @@ final class TransactionDetailsViewModelFactory {
 
         let viewModel = WalletCompoundDetailsViewModel(
             title: title,
-            details: data.transactionId,
+            details: extrinsicHash,
             mainIcon: nil,
             actionIcon: actionIcon,
             command: command,
             enabled: true
         )
+
         viewModelList.append(viewModel)
     }
 

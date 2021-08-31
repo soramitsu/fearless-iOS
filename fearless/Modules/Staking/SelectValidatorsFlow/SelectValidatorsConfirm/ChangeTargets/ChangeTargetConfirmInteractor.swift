@@ -93,7 +93,9 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
                 amount: currentNomination.bonding.amount,
                 rewardDestination: rewardDestination,
                 targets: currentNomination.targets,
-                maxTargets: currentNomination.maxTargets
+                maxTargets: currentNomination.maxTargets,
+                hasExistingBond: true,
+                hasExistingNomination: currentNomination.bonding.selectedTargets != nil
             )
         }
 
@@ -151,12 +153,7 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
         }
     }
 
-    override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
-        guard lastBalance >= lastFee else {
-            presenter.didFailNomination(error: SelectValidatorsConfirmError.notEnoughFunds)
-            return
-        }
-
+    override func submitNomination() {
         guard !nomination.targets.isEmpty else {
             presenter.didFailNomination(error: SelectValidatorsConfirmError.extrinsicFailed)
             return

@@ -16,6 +16,18 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
         Int64(timestamp) ?? 0
     }
 
+    var extrinsicHash: String? {
+        if let extrinsic = extrinsic {
+            return extrinsic.hash
+        }
+
+        if let transfer = transfer {
+            return transfer.extrinsicHash
+        }
+
+        return nil
+    }
+
     var label: WalletRemoteHistorySourceLabel {
         if reward != nil {
             return .rewards
@@ -35,13 +47,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         if let rewardOrSlash = reward {
-            return createTransactionForRewardOrSlash(
-                rewardOrSlash,
-                address: address,
-                networkType: networkType,
-                asset: asset,
-                addressFactory: addressFactory
-            )
+            return createTransactionForRewardOrSlash(rewardOrSlash, asset: asset)
         }
 
         if let transfer = transfer {
@@ -70,13 +76,10 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
         asset: WalletAsset,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
-        let amount: Decimal = {
-            guard let amountValue = BigUInt(extrinsic.fee) else {
-                return 0.0
-            }
-
-            return Decimal.fromSubstrateAmount(amountValue, precision: asset.precision) ?? 0.0
-        }()
+        let amount = Decimal.fromSubstrateAmount(
+            BigUInt(extrinsic.fee) ?? 0,
+            precision: asset.precision
+        ) ?? 0.0
 
         let accountId = try? addressFactory.accountId(
             fromAddress: address,
@@ -101,7 +104,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             timestamp: itemTimestamp,
             type: TransactionType.extrinsic.rawValue,
             reason: nil,
-            context: nil
+            context: [TransactionContextKeys.extrinsicHash: extrinsic.hash]
         )
     }
 
@@ -136,6 +139,14 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
 
         let type = transfer.sender == address ? TransactionType.outgoing : TransactionType.incoming
 
+        let context: [String: String]?
+
+        if let extrinsicHash = transfer.extrinsicHash {
+            context = [TransactionContextKeys.extrinsicHash: extrinsicHash]
+        } else {
+            context = nil
+        }
+
         return AssetTransactionData(
             transactionId: identifier,
             status: status,
@@ -150,46 +161,46 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             timestamp: itemTimestamp,
             type: type.rawValue,
             reason: nil,
-            context: nil
+            context: context
         )
     }
 
     private func createTransactionForRewardOrSlash(
         _ rewardOrSlash: SubqueryRewardOrSlash,
-        address _: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: WalletAsset
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(rewardOrSlash.amount) ?? 0,
             precision: asset.precision
-        )
+        ) ?? 0.0
 
         let type = rewardOrSlash.isReward ? TransactionType.reward.rawValue : TransactionType.slash.rawValue
 
         let validatorAddress = rewardOrSlash.validator ?? ""
 
-        let validatorAccountId = try? addressFactory.accountId(
-            fromAddress: validatorAddress,
-            type: networkType
-        )
+        let context: [String: String]?
+
+        if let era = rewardOrSlash.era {
+            context = [TransactionContextKeys.era: String(era)]
+        } else {
+            context = nil
+        }
 
         return AssetTransactionData(
             transactionId: identifier,
             status: .commited,
             assetId: asset.identifier,
-            peerId: validatorAccountId?.toHex() ?? "",
+            peerId: validatorAddress,
             peerFirstName: nil,
             peerLastName: nil,
             peerName: validatorAddress,
             details: "",
-            amount: AmountDecimal(value: amount ?? 0.0),
+            amount: AmountDecimal(value: amount),
             fees: [],
             timestamp: itemTimestamp,
             type: type,
             reason: nil,
-            context: nil
+            context: context
         )
     }
 }

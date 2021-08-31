@@ -25,7 +25,7 @@ extension WalletNetworkFacade {
                     addressFactory: addressFactory
                 )
                 return manager.merge(
-                    subscanItems: remoteTransactions,
+                    remoteItems: remoteTransactions,
                     localItems: localTransactions
                 )
             } else {
