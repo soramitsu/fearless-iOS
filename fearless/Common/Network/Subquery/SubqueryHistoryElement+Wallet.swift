@@ -47,13 +47,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         if let rewardOrSlash = reward {
-            return createTransactionForRewardOrSlash(
-                rewardOrSlash,
-                address: address,
-                networkType: networkType,
-                asset: asset,
-                addressFactory: addressFactory
-            )
+            return createTransactionForRewardOrSlash(rewardOrSlash, asset: asset)
         }
 
         if let transfer = transfer {
@@ -82,13 +76,10 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
         asset: WalletAsset,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
-        let amount: Decimal = {
-            guard let amountValue = BigUInt(extrinsic.fee) else {
-                return 0.0
-            }
-
-            return Decimal.fromSubstrateAmount(amountValue, precision: asset.precision) ?? 0.0
-        }()
+        let amount = Decimal.fromSubstrateAmount(
+            BigUInt(extrinsic.fee) ?? 0,
+            precision: asset.precision
+        ) ?? 0.0
 
         let accountId = try? addressFactory.accountId(
             fromAddress: address,
@@ -176,15 +167,12 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
 
     private func createTransactionForRewardOrSlash(
         _ rewardOrSlash: SubqueryRewardOrSlash,
-        address _: String,
-        networkType _: SNAddressType,
-        asset: WalletAsset,
-        addressFactory _: SS58AddressFactoryProtocol
+        asset: WalletAsset
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(rewardOrSlash.amount) ?? 0,
             precision: asset.precision
-        )
+        ) ?? 0.0
 
         let type = rewardOrSlash.isReward ? TransactionType.reward.rawValue : TransactionType.slash.rawValue
 
@@ -207,7 +195,7 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             peerLastName: nil,
             peerName: validatorAddress,
             details: "",
-            amount: AmountDecimal(value: amount ?? 0.0),
+            amount: AmountDecimal(value: amount),
             fees: [],
             timestamp: itemTimestamp,
             type: type,
