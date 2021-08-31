@@ -9,7 +9,22 @@ class UserDataStorageFacade: StorageFacadeProtocol {
 
     private init() {
         let modelName = "UserDataModel"
-        let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd")
+        let subdirectory = "UserDataModel.momd"
+        let bundle = Bundle.main
+
+        let omoURL = bundle.url(
+            forResource: modelName,
+            withExtension: "omo",
+            subdirectory: subdirectory
+        )
+
+        let momURL = bundle.url(
+            forResource: modelName,
+            withExtension: "mom",
+            subdirectory: subdirectory
+        )
+
+        let modelURL = omoURL ?? momURL
         let databaseName = "\(modelName).sqlite"
 
         let baseURL = FileManager.default.urls(

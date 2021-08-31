@@ -165,24 +165,7 @@ final class UserStorageMigrator {
     }
 
     private func createManagedObjectModel(forResource resource: String) -> NSManagedObjectModel {
-        let mainBundle = Bundle.main
-        let subdirectory = storageFacade.databaseService.configuration.modelURL.lastPathComponent
-
-        let omoURL = mainBundle.url(
-            forResource: resource,
-            withExtension: "omo",
-            subdirectory: subdirectory
-        )
-
-        let momURL = mainBundle.url(
-            forResource: resource,
-            withExtension: "mom",
-            subdirectory: subdirectory
-        )
-
-        guard let url = omoURL ?? momURL else {
-            fatalError("Unable to find model in bundle for resource \(resource)")
-        }
+        let url = storageFacade.databaseService.configuration.modelURL
 
         guard let model = NSManagedObjectModel(contentsOf: url) else {
             fatalError("Unable to load model in bundle for resource \(resource)")
