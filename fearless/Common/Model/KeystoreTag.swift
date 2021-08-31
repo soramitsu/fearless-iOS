@@ -16,58 +16,56 @@ enum KeystoreTagV2: String, CaseIterable {
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-substrateSecretKey"
-
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-substrateSecretKey")
     }
 
     static func ethereumSecretKeyTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-ethereumSecretKey"
-
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-ethereumSecretKey")
     }
 
     static func entropyTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-entropy"
-
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-entropy")
     }
 
     static func substrateDerivationTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-substrateDeriv"
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-substrateDeriv")
     }
 
     static func ethereumDerivationTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-ethereumDeriv"
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-ethereumDeriv")
     }
 
     static func substrateSeedTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-substrateSeed"
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-substrateSeed")
     }
 
     static func ethereumSeedTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil
     ) -> String {
-        let suffix = "-ethereumSeed"
-        return accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-ethereumSeed")
+    }
+
+    private static func createTagForMetaId(
+        _ metaId: String,
+        accountId: AccountId?,
+        suffix: String
+    ) -> String {
+        accountId.map { metaId + $0.toHex() + suffix } ?? metaId + suffix
     }
 }

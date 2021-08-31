@@ -6,11 +6,11 @@ abstract_target 'fearlessAll' do
   pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'd460c422a57374e595d221baf1a4b12fdba7e60e'
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
-  pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :commit => 'd83984c4742178fc14a009e214d025451d14d315'
+  pod 'SoraKeystore', '~> 1.0.0'
   pod 'SoraUI', '~> 1.10.1'
   pod 'RobinHood', '~> 2.6.0'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'f0fc834e67a90b3d0186e3978794b9b4c3f58be9'
-  pod 'SoraFoundation', :git => 'https://github.com/soramitsu/Foundation-iOS.git', :commit => 'c1a53147c66cebaabf5985be4b895733d0997c46'
+  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'bd0c4c7b99773447d294ecf0675b33ac07413a7c'
+  pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
   pod 'ReachabilitySwift'
@@ -25,12 +25,12 @@ abstract_target 'fearlessAll' do
 
     pod 'Cuckoo'
     pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'd460c422a57374e595d221baf1a4b12fdba7e60e'
-    pod 'SoraFoundation', :git => 'https://github.com/soramitsu/Foundation-iOS.git', :commit => 'c1a53147c66cebaabf5985be4b895733d0997c46'
+    pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
-    pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :commit => 'd83984c4742178fc14a009e214d025451d14d315'
+    pod 'SoraKeystore', '~> 1.0.0'
     pod 'RobinHood', '~> 2.6.0'
-    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'f0fc834e67a90b3d0186e3978794b9b4c3f58be9'
+    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'bd0c4c7b99773447d294ecf0675b33ac07413a7c'
     pod 'Sourcery', '~> 1.4'
 
   end

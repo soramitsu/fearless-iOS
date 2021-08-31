@@ -36,7 +36,7 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
     func throttle() {
         mutex.lock()
 
-        isActive = true
+        isActive = false
 
         mutex.unlock()
     }

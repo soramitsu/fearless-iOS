@@ -147,7 +147,7 @@ final class WebSocketProviderSource<T: Decodable & Equatable>: DataProviderSourc
             let keyHex = key.toHex(includePrefix: true)
 
             let subscriptionId = try engine.subscribe(
-                RPCMethod.storageSubscibe,
+                RPCMethod.storageSubscribe,
                 params: [[keyHex]],
                 updateClosure: updateClosure,
                 failureClosure: failureClosure
