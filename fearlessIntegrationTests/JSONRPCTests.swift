@@ -305,10 +305,8 @@ class JSONRPCTests: XCTestCase {
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain,
-                                                      logger: Logger.shared)
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+        let runtimeService = createRuntimeService(from: chain, chainRegistry: chainRegistry)
 
         runtimeService.setup()
 
@@ -386,9 +384,8 @@ class JSONRPCTests: XCTestCase {
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain)
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+        let runtimeService = createRuntimeService(from: chain, chainRegistry: chainRegistry)
 
         runtimeService.setup()
 
@@ -448,28 +445,14 @@ class JSONRPCTests: XCTestCase {
         XCTAssertEqual(keysCount, resultsCount)
     }
 
-    private func createRuntimeService(from storageFacade: StorageFacadeProtocol,
-                                      operationManager: OperationManagerProtocol,
-                                      chain: Chain,
-                                      logger: LoggerProtocol? = nil) throws
-    -> RuntimeRegistryService {
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager,
-                                                           logger: logger)
-
-        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
-            FileManager.default.temporaryDirectory
-        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
-        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
-                                                          directoryPath: runtimeDirectory)
-
-        return RuntimeRegistryService(chain: chain,
-                                      metadataProviderFactory: providerFactory,
-                                      dataOperationFactory: DataOperationFactory(),
-                                      filesOperationFacade: filesRepository,
-                                      operationManager: operationManager,
-                                      eventCenter: EventCenter.shared,
-                                      logger: logger)
+    private func createRuntimeService(
+        from chain: Chain,
+        chainRegistry: ChainRegistryProtocol
+    ) -> RuntimeRegistryService {
+        RuntimeRegistryService(
+            chain: chain,
+            chainRegistry: chainRegistry
+        )
     }
 
     private func createWebSocketService(storageFacade: StorageFacadeProtocol,
@@ -490,8 +473,10 @@ class JSONRPCTests: XCTestCase {
             operationManager: operationManager
         )
 
+        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
+
         return WebSocketService(settings: settings,
-                                connectionFactory: WebSocketEngineFactory(),
+                                chainRegistry: chainRegistry,
                                 subscriptionsFactory: factory,
                                 applicationHandler: ApplicationHandler())
     }

@@ -1,15 +1,6 @@
 import Foundation
 import SoraKeystore
 
-enum KeystoreTag: String, CaseIterable {
-    case pincode
-
-    static func secretKeyTagForAddress(_ address: String) -> String { address + "-" + "secretKey" }
-    static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy" }
-    static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv" }
-    static func seedTagForAddress(_ address: String) -> String { address + "-" + "seed" }
-}
-
 extension KeystoreProtocol {
     func loadIfKeyExists(_ tag: String) throws -> Data? {
         guard try checkKey(for: tag) else {
