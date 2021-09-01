@@ -6,7 +6,7 @@ final class FWBarChartView: BarChartView {
 
     let xAxisEmptyFormatter = FWXAxisEmptyValueFormatter()
     let xAxisLegend = FWXAxisChartLegendView()
-    let yAxisFormatter = FWYAxisChartFormatter()
+    let yAxisFormatter = FWYAxisChartFormatter(hideMiddleLabels: true)
 
     private let averageAmountLabel: UILabel = {
         let label = UILabel()

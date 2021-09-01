@@ -6,7 +6,7 @@ final class FWLineChartView: LineChartView {
 
     let xAxisEmptyFormatter = FWXAxisEmptyValueFormatter()
     let xAxisLegend = FWXAxisChartLegendView()
-    let yAxisFormatter = FWYAxisChartFormatter()
+    let yAxisFormatter = FWYAxisChartFormatter(hideMiddleLabels: false)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
