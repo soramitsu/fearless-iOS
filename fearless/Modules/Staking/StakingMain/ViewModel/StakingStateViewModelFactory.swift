@@ -113,7 +113,8 @@ final class StakingStateViewModelFactory {
                 totalStakedPrice: stakedViewModel.price ?? "",
                 totalRewardAmount: rewardViewModel?.amount ?? "",
                 totalRewardPrice: rewardViewModel?.price ?? "",
-                status: viewStatus
+                status: viewStatus,
+                hasPrice: commonData.price != nil
             )
         }
     }

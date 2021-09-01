@@ -8,7 +8,24 @@ protocol NominationViewDelegate: AnyObject {
     func nominationViewDidReceiveStatusAction(_ nominationView: NominationView)
 }
 
+struct NominationSkeletonOptions: OptionSet {
+    typealias RawValue = UInt8
+
+    static let stake = NominationSkeletonOptions(rawValue: 1 << 0)
+    static let rewards = NominationSkeletonOptions(rawValue: 1 << 1)
+    static let status = NominationSkeletonOptions(rawValue: 1 << 2)
+    static let price = NominationSkeletonOptions(rawValue: 1 << 3)
+
+    let rawValue: UInt8
+
+    init(rawValue: RawValue) {
+        self.rawValue = rawValue
+    }
+}
+
 final class NominationView: UIView, LocalizableViewProtocol {
+    @IBOutlet private var backgroundView: UIView!
+    @IBOutlet private var dataBackgroundView: UIView!
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var stakedTitleLabel: UILabel!
     @IBOutlet private var stakedAmountLabel: UILabel!
@@ -24,6 +41,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var statusButton: TriangularedButton!
 
     private var skeletonView: SkrullableView?
+    private var skeletonOptions: NominationSkeletonOptions?
 
     weak var delegate: NominationViewDelegate?
     private lazy var timer = CountdownTimer()
@@ -81,9 +99,19 @@ final class NominationView: UIView, LocalizableViewProtocol {
             toggleStatus(true)
         }
 
+        var skeletonOptions: NominationSkeletonOptions = []
+
+        if viewModel.totalStakedAmount.isEmpty {
+            skeletonOptions.insert(.stake)
+        }
+
+        if viewModel.totalRewardAmount.isEmpty {
+            skeletonOptions.insert(.rewards)
+        }
+
         switch viewModel.status {
         case .undefined:
-            break
+            skeletonOptions.insert(.status)
         case let .active(era):
             presentActiveStatus(for: era)
         case let .inactive(era):
@@ -94,6 +122,14 @@ final class NominationView: UIView, LocalizableViewProtocol {
             }
             presentWaitingStatus(remainingTime: remainingTime)
         }
+
+        skeletonOptions.formUnion([.rewards, .stake, .status])
+
+        if !skeletonOptions.isEmpty, viewModel.hasPrice {
+            skeletonOptions.insert(.price)
+        }
+
+        updateSkeletonIfNeeded(for: skeletonOptions)
     }
 
     private func toggleStatus(_ shouldShow: Bool) {
@@ -137,6 +173,161 @@ final class NominationView: UIView, LocalizableViewProtocol {
         }
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        updateSkeletonSizeIfNeeded()
+    }
+
+    private func updateSkeletonSizeIfNeeded() {
+        guard let skeletonView = skeletonView, let skeletonOptions = skeletonOptions else {
+            return
+        }
+
+        if skeletonView.frame != backgroundView.frame {
+            setupSkeleton(options: skeletonOptions)
+        }
+    }
+
+    private func updateSkeletonIfNeeded(for options: NominationSkeletonOptions) {
+        stakedAmountLabel.isHidden = options.contains(.stake)
+        stakedPriceLabel.isHidden = options.contains(.stake)
+
+        rewardAmountLabel.isHidden = options.contains(.rewards)
+        rewardPriceLabel.isHidden = options.contains(.rewards)
+
+        setupSkeleton(options: options)
+    }
+
+    private func setupSkeleton(options: NominationSkeletonOptions) {
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+        skeletonOptions = nil
+
+        guard !options.isEmpty else {
+            return
+        }
+
+        skeletonOptions = options
+
+        let spaceSize = backgroundView.frame.size
+
+        let skeletons = createSkeletons(for: spaceSize, options: options)
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: skeletons
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: backgroundView)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(
+        for spaceSize: CGSize,
+        options: NominationSkeletonOptions
+    ) -> [Skeletonable] {
+        let bigRowSize = CGSize(width: 72.0, height: 12.0)
+        let smallRowSize = CGSize(width: 57.0, height: 6.0)
+        let topInset: CGFloat = 7.0
+        let verticalSpacing: CGFloat = 10.0
+
+        var skeletons: [Skeletonable] = []
+
+        if options.contains(.stake) {
+            skeletons.append(
+                SingleSkeleton.createRow(
+                    under: stakedTitleLabel,
+                    containerView: backgroundView,
+                    spaceSize: spaceSize,
+                    offset: CGPoint(x: 0.0, y: topInset),
+                    size: bigRowSize
+                )
+            )
+
+            if options.contains(.price) {
+                skeletons.append(
+                    SingleSkeleton.createRow(
+                        under: stakedTitleLabel,
+                        containerView: backgroundView,
+                        spaceSize: spaceSize,
+                        offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                        size: smallRowSize
+                    )
+                )
+            }
+        }
+
+        if options.contains(.rewards) {
+            skeletons.append(
+                SingleSkeleton.createRow(
+                    under: rewardTitleLabel,
+                    containerView: backgroundView,
+                    spaceSize: spaceSize,
+                    offset: CGPoint(x: 0.0, y: topInset),
+                    size: bigRowSize
+                )
+            )
+
+            if options.contains(.price) {
+                skeletons.append(
+                    SingleSkeleton.createRow(
+                        under: rewardTitleLabel,
+                        containerView: backgroundView,
+                        spaceSize: spaceSize,
+                        offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                        size: smallRowSize
+                    )
+                )
+            }
+        }
+
+        if options.contains(.status) {
+            let statusContainer = statusDetailsLabel.superview!
+            let targetFrame = statusContainer.convert(statusContainer.bounds, to: self)
+
+            let positionLeft = CGPoint(
+                x: targetFrame.minX + bigRowSize.width / 2.0,
+                y: targetFrame.midY
+            )
+
+            let positionRight = CGPoint(
+                x: targetFrame.maxX - bigRowSize.width / 2.0,
+                y: targetFrame.midY
+            )
+
+            let mappedSize = CGSize(
+                width: spaceSize.skrullMapX(bigRowSize.width),
+                height: spaceSize.skrullMapY(bigRowSize.height)
+            )
+
+            skeletons.append(
+                SingleSkeleton(
+                    position: spaceSize.skrullMap(point: positionLeft),
+                    size: mappedSize
+                ).round()
+            )
+
+            skeletons.append(
+                SingleSkeleton(
+                    position: spaceSize.skrullMap(point: positionRight),
+                    size: mappedSize
+                ).round()
+            )
+        }
+
+        return skeletons
+    }
+
     @IBAction private func actionOnMore() {
         delegate?.nominationViewDidReceiveMoreAction(self)
     }
@@ -161,9 +352,15 @@ extension NominationView: CountdownTimerDelegate {
 }
 
 extension NominationView: SkeletonLoadable {
-    func didDisappearSkeleton() {}
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
 
-    func didAppearSkeleton() {}
+    func didAppearSkeleton() {
+        skeletonView?.startSkrulling()
+    }
 
-    func didUpdateSkeletonLayout() {}
+    func didUpdateSkeletonLayout() {
+        updateSkeletonSizeIfNeeded()
+    }
 }

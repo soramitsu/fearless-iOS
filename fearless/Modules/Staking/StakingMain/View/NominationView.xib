@@ -99,7 +99,7 @@
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Total rewards" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ABS-p6-AK0">
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" text="Total rewards" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ABS-p6-AK0">
                             <rect key="frame" x="207" y="47" width="191" height="14"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                             <color key="textColor" name="colorTransparentText"/>
@@ -272,6 +272,8 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="backgroundView" destination="qHg-H6-Zvj" id="vEw-7Y-TV7"/>
+                <outlet property="dataBackgroundView" destination="GlX-Gb-MJn" id="kza-zx-fZU"/>
                 <outlet property="rewardAmountLabel" destination="rFT-3I-w8w" id="3KL-YK-NNT"/>
                 <outlet property="rewardPriceLabel" destination="utf-CN-3GC" id="8rh-L5-RCk"/>
                 <outlet property="rewardTitleLabel" destination="ABS-p6-AK0" id="xMJ-qE-14t"/>
@@ -288,14 +290,6 @@
             <point key="canvasLocation" x="76.811594202898561" y="133.59375"/>
         </view>
     </objects>
-    <designables>
-        <designable name="eSO-sw-XgP">
-            <size key="intrinsicContentSize" width="16" height="16"/>
-        </designable>
-        <designable name="ty6-60-FB0">
-            <size key="intrinsicContentSize" width="16" height="16"/>
-        </designable>
-    </designables>
     <resources>
         <image name="iconHorMore" width="24" height="24"/>
         <image name="iconSmallArrow" width="24" height="24"/>
