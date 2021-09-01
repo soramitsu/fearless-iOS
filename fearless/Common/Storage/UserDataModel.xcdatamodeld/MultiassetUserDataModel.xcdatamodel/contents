@@ -15,7 +15,7 @@
         <attribute name="url" attributeType="URI"/>
     </entity>
     <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
-        <attribute name="ethereumPublicKey" attributeType="Binary"/>
+        <attribute name="ethereumPublicKey" optional="YES" attributeType="Binary"/>
         <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="metaId" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
