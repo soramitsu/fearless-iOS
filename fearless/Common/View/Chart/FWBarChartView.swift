@@ -71,7 +71,6 @@ final class FWBarChartView: BarChartView {
 
         addSubview(averageAmountLabel)
         layer.insertSublayer(averageLineLayer, at: 0)
-        // layer.addSublayer(averageLineLayer)
     }
 
     @available(*, unavailable)
@@ -88,10 +87,13 @@ final class FWBarChartView: BarChartView {
             return
         }
 
-        let yPosition = CGFloat(percent) * (bounds.height - xAxisLegend.bounds.height - 5)
+        let actualXLegendHeight = xAxisLegend.bounds.height + 5
+        let chartHeightWihoutXLegend = bounds.height - actualXLegendHeight
+        let yPosition = CGFloat(1.0 - percent) * chartHeightWihoutXLegend
+        let avgLabelHeight: CGFloat = 22.0
         averageAmountLabel.frame = CGRect(
-            origin: CGPoint(x: 0, y: yPosition),
-            size: CGSize(width: 44, height: 22)
+            origin: CGPoint(x: 0, y: yPosition - avgLabelHeight / 2),
+            size: CGSize(width: 44, height: avgLabelHeight)
         )
         averageAmountLabel.isHidden = false
 
