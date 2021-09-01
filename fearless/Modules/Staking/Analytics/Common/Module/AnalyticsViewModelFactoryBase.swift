@@ -48,11 +48,16 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             }
 
             let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
+            let averageAmount = groupedByPeriod.reduce(Decimal(0), +) / Decimal(groupedByPeriod.count)
+            let averageAmountRawText = self.balanceViewModelFactory.amountFromValue(averageAmount).value(for: locale)
+            let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
             let chartData = ChartData(
                 amounts: amounts,
                 summary: self.createSummary(chartAmounts: groupedByPeriod, priceData: priceData, locale: locale),
                 xAxisValues: period.xAxisValues(dates: dates),
-                bottomYValue: bottomYValue
+                bottomYValue: bottomYValue,
+                averageAmountValue: Double(truncating: averageAmount as NSNumber),
+                averageAmountText: averageAmountText
             )
 
             let totalReceived = rewardItemsWithinLimits

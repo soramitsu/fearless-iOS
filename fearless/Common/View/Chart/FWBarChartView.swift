@@ -8,6 +8,26 @@ final class FWBarChartView: BarChartView {
     let xAxisLegend = FWXAxisChartLegendView()
     let yAxisFormatter = FWYAxisChartFormatter()
 
+    private let averageAmountLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorGreen()
+        label.font = .systemFont(ofSize: 9, weight: .semibold)
+        label.numberOfLines = 2
+        return label
+    }()
+
+    private var averageLabelHeightPercent: Double?
+    private let averageLineLayer: CAShapeLayer = {
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.strokeColor = R.color.colorGreen()!.cgColor
+        shapeLayer.lineWidth = 1
+        shapeLayer.lineJoin = CAShapeLayerLineJoin.round
+        shapeLayer.lineDashPattern = [3, 3]
+        shapeLayer.lineWidth = 0.5
+        return shapeLayer
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -27,11 +47,11 @@ final class FWBarChartView: BarChartView {
         xAxis.labelPosition = .bottom
         xAxis.valueFormatter = xAxisEmptyFormatter
 
-        leftAxis.labelCount = 2
+        leftAxis.labelCount = 1
         leftAxis.drawGridLinesEnabled = false
         leftAxis.drawAxisLineEnabled = false
         leftAxis.valueFormatter = yAxisFormatter
-        leftAxis.labelFont = .systemFont(ofSize: 8, weight: .semibold)
+        leftAxis.labelFont = .systemFont(ofSize: 9, weight: .semibold)
         leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
         leftAxis.axisMinimum = 0
 
@@ -48,11 +68,38 @@ final class FWBarChartView: BarChartView {
             make.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
+
+        addSubview(averageAmountLabel)
+        layer.insertSublayer(averageLineLayer, at: 0)
+        // layer.addSublayer(averageLineLayer)
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        guard let percent = averageLabelHeightPercent, percent > .leastNonzeroMagnitude else {
+            averageAmountLabel.isHidden = true
+            averageLineLayer.isHidden = true
+            return
+        }
+
+        let yPosition = CGFloat(percent) * (bounds.height - xAxisLegend.bounds.height - 5)
+        averageAmountLabel.frame = CGRect(
+            origin: CGPoint(x: 0, y: yPosition),
+            size: CGSize(width: 44, height: 22)
+        )
+        averageAmountLabel.isHidden = false
+
+        averageLineLayer.isHidden = false
+        let path = CGMutablePath()
+        path.move(to: CGPoint(x: averageAmountLabel.frame.maxX, y: yPosition))
+        path.addLine(to: CGPoint(x: bounds.maxX, y: yPosition))
+        averageLineLayer.path = path
     }
 }
 
@@ -61,6 +108,17 @@ extension FWBarChartView: FWChartViewProtocol {
         let dataEntries = data.amounts.enumerated().map { index, amount in
             BarChartDataEntry(x: Double(index), yValues: [amount.value])
         }
+
+        let realAmounts = data.amounts.map { chartAmount -> Double in
+            if !chartAmount.filled {
+                return 0.0
+            }
+            return chartAmount.value
+        }
+        let (min, max) = (realAmounts.min() ?? 0.0, realAmounts.max() ?? 0.0)
+        averageLabelHeightPercent = (data.averageAmountValue - min) / (max - min)
+        averageAmountLabel.text = data.averageAmountText
+        setNeedsLayout()
 
         let set = BarChartDataSet(entries: dataEntries)
         set.highlightColor = R.color.colorAccent()!

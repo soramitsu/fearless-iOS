@@ -76,7 +76,9 @@ extension AnalyticsRewardsViewController: FWChartViewDelegate {
             amounts: selectedChartAmounts,
             summary: chartData.summary,
             xAxisValues: chartData.xAxisValues,
-            bottomYValue: chartData.bottomYValue
+            bottomYValue: chartData.bottomYValue,
+            averageAmountValue: chartData.averageAmountValue,
+            averageAmountText: chartData.averageAmountText
         )
         rootView.headerView.bind(
             summaryViewModel: summary,

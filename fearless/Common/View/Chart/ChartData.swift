@@ -11,4 +11,6 @@ struct ChartData {
     let summary: [AnalyticsSummaryRewardViewModel]
     let xAxisValues: [String]
     let bottomYValue: String
+    let averageAmountValue: Double
+    let averageAmountText: String?
 }
