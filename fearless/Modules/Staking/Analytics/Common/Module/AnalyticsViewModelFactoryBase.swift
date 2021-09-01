@@ -39,10 +39,16 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let chartDoubles = groupedByPeriod
                 .map { Double(truncating: $0 as NSNumber) }
 
-            let maxValue = chartDoubles.max() ?? 0.0
+            let minValue = chartDoubles.min() ?? 0.0
             let amounts: [ChartAmount] = chartDoubles.map { value in
                 if value < .leastNonzeroMagnitude {
-                    return ChartAmount(value: maxValue / 50.0, selected: false, filled: false)
+                    let minBarHeight: Double = {
+                        if minValue < .leastNonzeroMagnitude {
+                            return (chartDoubles.max() ?? 0.0) / 50.0
+                        }
+                        return minValue / 10.0
+                    }()
+                    return ChartAmount(value: minBarHeight, selected: false, filled: false)
                 }
                 return ChartAmount(value: value, selected: false, filled: true)
             }

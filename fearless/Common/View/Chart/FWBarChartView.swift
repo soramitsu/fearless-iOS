@@ -111,11 +111,13 @@ extension FWBarChartView: FWChartViewProtocol {
             BarChartDataEntry(x: Double(index), yValues: [amount.value])
         }
 
+        let chartDataContainsSelectedBar = data.amounts.contains(where: { $0.selected == true })
         let realAmounts = data.amounts.map { chartAmount -> Double in
-            if !chartAmount.filled {
-                return 0.0
+            if chartDataContainsSelectedBar {
+                return chartAmount.value
+            } else {
+                return chartAmount.filled ? chartAmount.value : 0.0
             }
-            return chartAmount.value
         }
         let (min, max) = (realAmounts.min() ?? 0.0, realAmounts.max() ?? 0.0)
         averageLabelHeightPercent = (data.averageAmountValue - min) / (max - min)
@@ -126,7 +128,6 @@ extension FWBarChartView: FWChartViewProtocol {
         set.highlightColor = R.color.colorAccent()!
         set.drawIconsEnabled = false
         set.drawValuesEnabled = false
-        let chartDataContainsSelectedBar = data.amounts.contains(where: { $0.selected == true })
         set.colors = data.amounts.map { chartData in
             if chartData.selected {
                 return R.color.colorAccent()!
