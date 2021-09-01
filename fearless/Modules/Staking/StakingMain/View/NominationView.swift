@@ -23,6 +23,8 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
     @IBOutlet private var statusButton: TriangularedButton!
 
+    private var skeletonView: SkrullableView?
+
     weak var delegate: NominationViewDelegate?
     private lazy var timer = CountdownTimer()
     private lazy var timeFormatter = TotalTimeFormatter()
@@ -156,4 +158,12 @@ extension NominationView: CountdownTimerDelegate {
     func didStop(with _: TimeInterval) {
         statusDetailsLabel.text = ""
     }
+}
+
+extension NominationView: SkeletonLoadable {
+    func didDisappearSkeleton() {}
+
+    func didAppearSkeleton() {}
+
+    func didUpdateSkeletonLayout() {}
 }
