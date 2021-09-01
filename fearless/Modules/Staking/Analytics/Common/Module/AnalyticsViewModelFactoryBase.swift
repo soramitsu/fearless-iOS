@@ -34,8 +34,9 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                         itemData.timestamp <= timestampInterval.1
                 }
 
-            let groupedByPeriod = self.chartDecimalValues(rewardItemsWithinLimits, by: period)
+            let groupedByPeriodTuple = self.chartDecimalValues(rewardItemsWithinLimits, by: period, locale: locale)
             let dates = rewardItemsWithinLimits.map(\.date)
+            let groupedByPeriod = groupedByPeriodTuple.map(\.0)
             let chartDoubles = groupedByPeriod
                 .map { Double(truncating: $0 as NSNumber) }
 
@@ -54,15 +55,15 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             }
 
             let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
-            let averageAmount = groupedByPeriod.reduce(Decimal(0), +) / Decimal(groupedByPeriod.count)
-            let averageAmountRawText = self.balanceViewModelFactory.amountFromValue(averageAmount).value(for: locale)
+            let averageAmount = chartDoubles.reduce(0.0, +) / Double(groupedByPeriod.count)
+            let averageAmountRawText = self.balanceViewModelFactory.amountFromValue(Decimal(averageAmount)).value(for: locale)
             let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
             let chartData = ChartData(
                 amounts: amounts,
-                summary: self.createSummary(chartAmounts: groupedByPeriod, priceData: priceData, locale: locale),
+                summary: self.createSummary(chartAmounts: groupedByPeriodTuple, priceData: priceData, locale: locale),
                 xAxisValues: period.xAxisValues(dates: dates),
                 bottomYValue: bottomYValue,
-                averageAmountValue: Double(truncating: averageAmount as NSNumber),
+                averageAmountValue: averageAmount,
                 averageAmountText: averageAmountText
             )
 
@@ -118,6 +119,21 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         return dateFormatter
     }
 
+    func dateFormatter(period: AnalyticsPeriod, for locale: Locale) -> DateFormatter {
+        let template: String = {
+            switch period {
+            case .week, .month:
+                return "MMM d, yyyy"
+            case .year:
+                return "MMMM yyyy"
+            }
+        }()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = template
+        dateFormatter.locale = locale
+        return dateFormatter
+    }
+
     private func createViewModelItems(
         rewardsData: [T],
         locale: Locale
@@ -142,18 +158,18 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     private func createSummary(
-        chartAmounts: [Decimal],
+        chartAmounts: [(Decimal, String)],
         priceData: PriceData?,
         locale: Locale
     ) -> [AnalyticsSummaryRewardViewModel] {
-        chartAmounts.map { amount in
+        chartAmounts.map { amount, title in
             let totalBalance = balanceViewModelFactory.balanceFromPrice(
                 amount,
                 priceData: priceData
             ).value(for: locale)
 
             return AnalyticsSummaryRewardViewModel(
-                title: "",
+                title: title,
                 tokenAmount: totalBalance.amount,
                 usdAmount: totalBalance.price
             )
@@ -210,8 +226,9 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     /// Override
     func chartDecimalValues<T: AnalyticsViewModelItem>(
         _: [T],
-        by _: AnalyticsPeriod
-    ) -> [Decimal] {
+        by _: AnalyticsPeriod,
+        locale _: Locale
+    ) -> [(Decimal, String)] {
         []
     }
 }

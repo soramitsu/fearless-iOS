@@ -9,10 +9,14 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
 
     override func chartDecimalValues<T: AnalyticsViewModelItem>(
         _ data: [T],
-        by period: AnalyticsPeriod
-    ) -> [Decimal] {
+        by period: AnalyticsPeriod,
+        locale: Locale
+    ) -> [(Decimal, String)] {
         let count = period.chartBarsCount()
-        return data.reduce(into: [Decimal](repeating: 0.0, count: count)) { array, value in
+
+        let formatter = dateFormatter(period: period, for: locale)
+
+        return data.reduce(into: [(Decimal, String)](repeating: (0.0, ""), count: count)) { array, value in
             guard let decimal = Decimal.fromSubstrateAmount(
                 value.amount,
                 precision: chain.addressType.precision
@@ -23,7 +27,8 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
             let index = Int(
                 Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(count)
             )
-            array[index] += decimal
+            array[index].0 += decimal
+            array[index].1 = formatter.string(from: value.date)
         }
     }
 }
