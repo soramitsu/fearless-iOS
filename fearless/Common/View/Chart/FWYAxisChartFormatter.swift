@@ -8,6 +8,9 @@ class FWYAxisChartFormatter: DefaultAxisValueFormatter {
         if let bottomValueString = bottomValueString, value < .leastNonzeroMagnitude {
             return bottomValueString
         }
-        return super.stringForValue(value, axis: axis)
+        if let axis = axis, axis.entries.max() == value {
+            return super.stringForValue(value, axis: axis)
+        }
+        return ""
     }
 }
