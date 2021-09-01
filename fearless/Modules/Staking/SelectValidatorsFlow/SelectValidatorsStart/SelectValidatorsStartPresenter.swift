@@ -102,19 +102,17 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
 
     func selectRecommendedValidators() {
         guard
-            let electedValidators = electedValidators,
             let recommendedValidators = recommendedValidators,
             let maxNominations = maxNominations else {
             return
         }
 
-        let maxTargets = min(electedValidators.count, maxNominations)
         let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
 
         wireframe.proceedToRecommendedList(
             from: view,
             validatorList: recommendedValidatorList,
-            maxTargets: maxTargets
+            maxTargets: maxNominations
         )
     }
 
@@ -126,7 +124,6 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             return
         }
 
-        let maxTargets = min(electedValidators.count, maxNominations)
         let electedValidatorList = electedValidators.values.map { $0.toSelected(for: existingStashAddress) }
         let recommendedValidatorList = recommendedValidators?.map {
             $0.toSelected(for: existingStashAddress)
@@ -137,7 +134,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             validatorList: electedValidatorList,
             recommendedValidatorList: recommendedValidatorList,
             selectedValidatorList: selectedValidators,
-            maxTargets: maxTargets
+            maxTargets: maxNominations
         )
     }
 }

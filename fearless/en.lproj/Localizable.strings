@@ -474,3 +474,7 @@ to your account to avoid remaining stake.";
 "staking.analytics.eras.range" = "%@ of %@ eras";
 "staking.analytics.received.rewards" = "Received rewards";
 "staking.analytics.stake.allocation" = "Stake allocation";
+"staking.common.era" = "Era";
+"staking.common.validator" = "Validator";
+"staking.common.event.id" = "Event";
+"common.copy.id" = "Copy id";

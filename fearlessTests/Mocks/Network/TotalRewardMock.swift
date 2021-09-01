@@ -4,6 +4,7 @@ import FireMock
 enum TotalRewardMock: FireMockProtocol {
     case westendFirst
     case westendSecond
+    case error
 
     var bundle: Bundle { Bundle(for: NetworkBaseTests.self) }
 
@@ -21,6 +22,8 @@ enum TotalRewardMock: FireMockProtocol {
             return "rewardFirstResponse.json"
         case .westendSecond:
             return "rewardSecondResponse.json"
+        case .error:
+            return "rewardErrorResponse.json"
         }
     }
 }

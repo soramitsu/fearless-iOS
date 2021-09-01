@@ -336,7 +336,7 @@
 "crowdloan.progress.format" = "Собрано: %@ из %@";
 "crowdloan.active.section.format" = "Активные (%@)";
 "crowdloan.completed.section.format" = "Завершённые (%@)";
-"crowdloan.empty.message" = "Информация о краудлоунах появится здесь.";
+"crowdloan.empty.message" = "Информация о краудлоунах \n появится здесь.";
 "common.time.left.format" = "%@ осталось";
 "common.existential.warning.message" = "Операция удалит учетную запись из хранилища блоков, так как это сделает общий баланс ниже минимального.";
 "common.existential.warning.title" = "Операция удалит аккаунт";
@@ -346,7 +346,7 @@
 "crowdloan.cap.reached.raised.message" = "Невозможно внести вклад в выбранный краудлоун, поскольку его максимальная сумма сбора уже достигнута.";
 "crowdloan.cap.reached.title" = "Превышена максимальная сумма краудлоуна";
 "crowdloan.too.small.contribution.message" = "Минимально допустимая сумма вклада составляет %@ .";
-"crowdloan.too.small.contribution.title" = "Сумма вклада ";
+"crowdloan.too.small.contribution.title" = "Сумма вклада слишком мала";
 "crowdloan.learn" = "О краудлоуне %@";
 "common.time.left" = "Оставшееся время";
 "crowdloan.placeholder" = "Здесь появятся активные краудлоуны";
@@ -474,3 +474,7 @@
 "staking.analytics.eras.range" = "";
 "staking.analytics.received.rewards" = "";
 "staking.analytics.stake.allocation" = "";
+"staking.common.era" = "Эра";
+"staking.common.validator" = "Валидатор";
+"staking.common.event.id" = "Событие";
+"common.copy.id" = "Копировать идентификатор";

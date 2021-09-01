@@ -23157,16 +23157,16 @@ import SoraFoundation
     
     
     
-     func submitNomination(for lastBalance: Decimal, lastFee: Decimal)  {
+     func submitNomination()  {
         
-    return cuckoo_manager.call("submitNomination(for: Decimal, lastFee: Decimal)",
-            parameters: (lastBalance, lastFee),
-            escapingParameters: (lastBalance, lastFee),
+    return cuckoo_manager.call("submitNomination()",
+            parameters: (),
+            escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.submitNomination(for: lastBalance, lastFee: lastFee))
+            defaultCall: __defaultImplStub!.submitNomination())
         
     }
     
@@ -23199,9 +23199,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
-	    func submitNomination<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for lastBalance: M1, lastFee: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal, Decimal)> where M1.MatchedType == Decimal, M2.MatchedType == Decimal {
-	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Decimal)>] = [wrap(matchable: lastBalance) { $0.0 }, wrap(matchable: lastFee) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmInteractorInputProtocol.self, method: "submitNomination(for: Decimal, lastFee: Decimal)", parameterMatchers: matchers))
+	    func submitNomination() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmInteractorInputProtocol.self, method: "submitNomination()", parameterMatchers: matchers))
 	    }
 	    
 	    func estimateFee() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -23232,9 +23232,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func submitNomination<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for lastBalance: M1, lastFee: M2) -> Cuckoo.__DoNotUse<(Decimal, Decimal), Void> where M1.MatchedType == Decimal, M2.MatchedType == Decimal {
-	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Decimal)>] = [wrap(matchable: lastBalance) { $0.0 }, wrap(matchable: lastFee) { $0.1 }]
-	        return cuckoo_manager.verify("submitNomination(for: Decimal, lastFee: Decimal)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func submitNomination() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("submitNomination()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -23256,7 +23256,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func submitNomination(for lastBalance: Decimal, lastFee: Decimal)   {
+     func submitNomination()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
