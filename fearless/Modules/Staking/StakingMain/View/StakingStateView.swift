@@ -252,7 +252,7 @@ extension StakingStateView {
                 under: stakeTitleLabel,
                 containerView: backgroundView,
                 spaceSize: spaceSize,
-                hasSmall: options.contains(.price)
+                hasAuxRow: options.contains(.price)
             )
 
             skeletons.append(contentsOf: stakeSkeletons)
@@ -263,7 +263,7 @@ extension StakingStateView {
                 under: rewardTitleLabel,
                 containerView: backgroundView,
                 spaceSize: spaceSize,
-                hasSmall: options.contains(.price)
+                hasAuxRow: options.contains(.price)
             )
 
             skeletons.append(contentsOf: rewardSkeletons)
@@ -312,7 +312,7 @@ extension StakingStateView {
         under view: UIView,
         containerView: UIView,
         spaceSize: CGSize,
-        hasSmall: Bool
+        hasAuxRow: Bool
     ) -> [Skeletonable] {
         let topInset: CGFloat = 7.0
         let verticalSpacing: CGFloat = 10.0
@@ -327,7 +327,7 @@ extension StakingStateView {
             )
         ]
 
-        if hasSmall {
+        if hasAuxRow {
             let yOffset = topInset + UIConstants.skeletonBigRowSize.height + verticalSpacing
             skeletons.append(
                 SingleSkeleton.createRow(

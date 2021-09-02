@@ -90,7 +90,7 @@ class RootTests: XCTestCase {
 
         let wireframe = MockRootWireframeProtocol()
 
-        var settings = InMemorySettingsManager()
+        let settings = InMemorySettingsManager()
         let keystore = InMemoryKeychain()
 
         settings.selectedAccount = AccountItem(address: "myaddress",
@@ -124,7 +124,7 @@ class RootTests: XCTestCase {
 
         let wireframe = MockRootWireframeProtocol()
 
-        var settings = InMemorySettingsManager()
+        let settings = InMemorySettingsManager()
         let keystore = InMemoryKeychain()
 
         settings.selectedAccount = AccountItem(address: "myaddress",

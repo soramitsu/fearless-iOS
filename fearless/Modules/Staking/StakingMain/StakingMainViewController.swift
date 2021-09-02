@@ -417,9 +417,7 @@ extension StakingMainViewController: StakingStateViewDelegate {
     func stakingStateViewDidReceiveStatusAction(_ view: StakingStateView) {
         if view is NominatorStateView {
             presenter.performNominationStatusAction()
-        }
-
-        if view is ValidatorStateView {
+        } else if view is ValidatorStateView {
             presenter.performValidationStatusAction()
         }
     }
