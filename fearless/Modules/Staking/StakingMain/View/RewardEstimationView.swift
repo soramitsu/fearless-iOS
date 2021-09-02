@@ -148,7 +148,9 @@ final class RewardEstimationView: LocalizableView {
     private func applyLocalization() {
         let languages = locale.rLanguages
 
-        estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle_v190(preferredLanguages: languages)
+        estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle_v190(
+            preferredLanguages: languages
+        )
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
@@ -245,62 +247,48 @@ final class RewardEstimationView: LocalizableView {
         let smallRowSize = CGSize(width: 57.0, height: 6.0)
 
         return [
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 inPlaceOf: monthlyTitleLabel,
-                in: spaceSize,
+                containerView: self,
+                spaceSize: spaceSize,
                 size: smallRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 inPlaceOf: monthlyAmountLabel,
-                in: spaceSize,
+                containerView: self,
+                spaceSize: spaceSize,
                 size: bigRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 inPlaceOf: monthlyFiatAmountLabel,
-                in: spaceSize,
+                containerView: self,
+                spaceSize: spaceSize,
                 size: smallRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 inPlaceOf: yearlyTitleLabel,
-                in: spaceSize,
+                containerView: self,
+                spaceSize: spaceSize,
                 size: smallRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 inPlaceOf: yearlyAmountLabel,
-                in: spaceSize,
+                containerView: self,
+                spaceSize: spaceSize,
                 size: bigRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 inPlaceOf: yearlyFiatAmountLabel,
-                in: spaceSize,
+                containerView: self,
+                spaceSize: spaceSize,
                 size: smallRowSize
             )
         ]
-    }
-
-    private func createSkeletoRow(
-        inPlaceOf targetView: UIView,
-        in spaceSize: CGSize,
-        size: CGSize
-    ) -> SingleSkeleton {
-        let targetFrame = targetView.convert(targetView.bounds, to: self)
-
-        let position = CGPoint(
-            x: targetFrame.minX + size.width / 2.0,
-            y: targetFrame.midY
-        )
-
-        let mappedSize = CGSize(
-            width: spaceSize.skrullMapX(size.width),
-            height: spaceSize.skrullMapY(size.height)
-        )
-
-        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
     }
 
     @IBAction private func actionTouchUpInside() {
@@ -356,6 +344,7 @@ extension RewardEstimationView: SkeletonLoadable {
     }
 
     func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
         skeletonView?.startSkrulling()
     }
 

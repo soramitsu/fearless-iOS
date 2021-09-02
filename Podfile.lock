@@ -3,12 +3,12 @@ PODS:
   - CocoaLumberjack (3.7.2):
     - CocoaLumberjack/Core (= 3.7.2)
   - CocoaLumberjack/Core (3.7.2)
-  - CommonWallet/Core (1.14.0):
+  - CommonWallet/Core (1.15.0):
     - RobinHood (~> 2.6.0)
-    - SoraFoundation/DateProcessing (~> 0.10.0)
-    - SoraFoundation/Localization (~> 0.10.0)
-    - SoraFoundation/NotificationHandlers (~> 0.10.0)
-    - SoraFoundation/NumberProcessing (~> 0.10.0)
+    - SoraFoundation/DateProcessing (~> 1.0.0)
+    - SoraFoundation/Localization (~> 1.0.0)
+    - SoraFoundation/NotificationHandlers (~> 1.0.0)
+    - SoraFoundation/NumberProcessing (~> 1.0.0)
     - SoraUI (~> 1.10.0)
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
@@ -51,57 +51,57 @@ PODS:
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
-  - SoraFoundation (0.10.2):
-    - SoraFoundation/DateProcessing (= 0.10.2)
-    - SoraFoundation/Localization (= 0.10.2)
-    - SoraFoundation/NotificationHandlers (= 0.10.2)
-    - SoraFoundation/NumberProcessing (= 0.10.2)
-    - SoraFoundation/QueryProcessing (= 0.10.2)
-    - SoraFoundation/Timer (= 0.10.2)
-    - SoraFoundation/ViewModel (= 0.10.2)
-  - SoraFoundation/DateProcessing (0.10.2):
+  - SoraFoundation (1.0.0):
+    - SoraFoundation/DateProcessing (= 1.0.0)
+    - SoraFoundation/Localization (= 1.0.0)
+    - SoraFoundation/NotificationHandlers (= 1.0.0)
+    - SoraFoundation/NumberProcessing (= 1.0.0)
+    - SoraFoundation/QueryProcessing (= 1.0.0)
+    - SoraFoundation/Timer (= 1.0.0)
+    - SoraFoundation/ViewModel (= 1.0.0)
+  - SoraFoundation/DateProcessing (1.0.0):
     - SoraFoundation/Localization
-  - SoraFoundation/Localization (0.10.2):
-    - SoraKeystore (~> 0.1.5)
-  - SoraFoundation/NotificationHandlers (0.10.2)
-  - SoraFoundation/NumberProcessing (0.10.2)
-  - SoraFoundation/QueryProcessing (0.10.2)
-  - SoraFoundation/Timer (0.10.2):
+  - SoraFoundation/Localization (1.0.0):
+    - SoraKeystore (~> 1.0.0)
+  - SoraFoundation/NotificationHandlers (1.0.0)
+  - SoraFoundation/NumberProcessing (1.0.0)
+  - SoraFoundation/QueryProcessing (1.0.0)
+  - SoraFoundation/Timer (1.0.0):
     - SoraFoundation/NotificationHandlers
-  - SoraFoundation/ViewModel (0.10.2)
-  - SoraKeystore (0.1.5)
-  - SoraUI (1.10.2):
-    - SoraUI/AdaptiveDesign (= 1.10.2)
-    - SoraUI/Animator (= 1.10.2)
-    - SoraUI/Camera (= 1.10.2)
-    - SoraUI/Controls (= 1.10.2)
-    - SoraUI/DetailsView (= 1.10.2)
-    - SoraUI/EmptyState (= 1.10.2)
-    - SoraUI/Helpers (= 1.10.2)
-    - SoraUI/LoadingView (= 1.10.2)
-    - SoraUI/ModalPresentation (= 1.10.2)
-    - SoraUI/PageLoader (= 1.10.2)
-    - SoraUI/PinView (= 1.10.2)
-    - SoraUI/Skrull (= 1.10.2)
-  - SoraUI/AdaptiveDesign (1.10.2)
-  - SoraUI/Animator (1.10.2)
-  - SoraUI/Camera (1.10.2)
-  - SoraUI/Controls (1.10.2):
+  - SoraFoundation/ViewModel (1.0.0)
+  - SoraKeystore (1.0.0)
+  - SoraUI (1.10.3):
+    - SoraUI/AdaptiveDesign (= 1.10.3)
+    - SoraUI/Animator (= 1.10.3)
+    - SoraUI/Camera (= 1.10.3)
+    - SoraUI/Controls (= 1.10.3)
+    - SoraUI/DetailsView (= 1.10.3)
+    - SoraUI/EmptyState (= 1.10.3)
+    - SoraUI/Helpers (= 1.10.3)
+    - SoraUI/LoadingView (= 1.10.3)
+    - SoraUI/ModalPresentation (= 1.10.3)
+    - SoraUI/PageLoader (= 1.10.3)
+    - SoraUI/PinView (= 1.10.3)
+    - SoraUI/Skrull (= 1.10.3)
+  - SoraUI/AdaptiveDesign (1.10.3)
+  - SoraUI/Animator (1.10.3)
+  - SoraUI/Camera (1.10.3)
+  - SoraUI/Controls (1.10.3):
     - SoraUI/Animator
-  - SoraUI/DetailsView (1.10.2):
+  - SoraUI/DetailsView (1.10.3):
     - SoraUI/Controls
-  - SoraUI/EmptyState (1.10.2):
+  - SoraUI/EmptyState (1.10.3):
     - SoraUI/Animator
-  - SoraUI/Helpers (1.10.2)
-  - SoraUI/LoadingView (1.10.2):
+  - SoraUI/Helpers (1.10.3)
+  - SoraUI/LoadingView (1.10.3):
     - SoraUI/Controls
-  - SoraUI/ModalPresentation (1.10.2):
+  - SoraUI/ModalPresentation (1.10.3):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.10.2)
-  - SoraUI/PinView (1.10.2):
+  - SoraUI/PageLoader (1.10.3)
+  - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.10.2)
+  - SoraUI/Skrull (1.10.3)
   - Sourcery (1.4.1)
   - Starscream (4.0.4)
   - SVGKit (2.1.0):
@@ -113,7 +113,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `33c7eec1db947eeae8e3b7feb217c60199599bd7`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `32bbf882c14751edf6cdc27005c6abc997b01f3f`)
   - Cuckoo
   - FearlessUtils
   - FireMock
@@ -122,9 +122,9 @@ DEPENDENCIES:
   - ReachabilitySwift
   - RobinHood (~> 2.6.0)
   - SnapKit (~> 5.0.0)
-  - SoraFoundation (~> 0.10.2)
+  - SoraFoundation (~> 1.0.0)
   - SoraKeystore
-  - SoraUI (~> 1.10.1)
+  - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
@@ -160,7 +160,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
+    :commit: 32bbf882c14751edf6cdc27005c6abc997b01f3f
     :git: https://github.com/soramitsu/Capital-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -171,7 +171,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
+    :commit: 32bbf882c14751edf6cdc27005c6abc997b01f3f
     :git: https://github.com/soramitsu/Capital-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -183,7 +183,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
-  CommonWallet: 216009b2274247ec0a7f80b57f1f4d1ffbdd0a72
+  CommonWallet: cdc58c26a9bbac8d45edba7c09313896b5d7350d
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 760f5884fb83e132d9e6751e216d0bb6cee2b27a
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
@@ -196,9 +196,9 @@ SPEC CHECKSUMS:
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
-  SoraFoundation: 6a20509e5c997b08ecc60fbdeb37e4dabeff0211
-  SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 71fd2befbc39df2f903888a4096fa66174637826
+  SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
+  SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
+  SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: db66600e8b285c427701821598d07cf3c7e6c476
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
@@ -208,6 +208,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 66565454c46981d3578c84ee4a00bb6d50761c12
+PODFILE CHECKSUM: eb7e972783401bd9aded2ca6e5526391591cc23b
 
 COCOAPODS: 1.10.2
