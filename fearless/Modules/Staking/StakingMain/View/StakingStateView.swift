@@ -371,6 +371,7 @@ extension StakingStateView {
         view.axis = .vertical
         view.alignment = .leading
         view.spacing = 4.0
+        view.isUserInteractionEnabled = false
         return view
     }
 }
