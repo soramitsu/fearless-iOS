@@ -741,6 +741,7 @@
 		8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152D24ABD0F5008F705E /* Logger+Wallet.swift */; };
 		8490386B262E22DC0016D541 /* NominatorPayoutInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490386A262E22DC0016D541 /* NominatorPayoutInfoFactory.swift */; };
 		849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849244912514EDE800477C1B /* SelectableViewModel.swift */; };
+		84939B1826E1690D000111DA /* TreasuryDepositEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84939B1726E1690D000111DA /* TreasuryDepositEvent.swift */; };
 		8494424A265306BD0016E7BD /* ChangeRewardDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84944249265306BD0016E7BD /* ChangeRewardDestinationViewModel.swift */; };
 		8494425F265330650016E7BD /* StakingRewardDestinationSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494425E265330650016E7BD /* StakingRewardDestinationSetupTests.swift */; };
 		8494D8552524633300614D8F /* WalletTransferTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D8542524633300614D8F /* WalletTransferTokenView.swift */; };
@@ -2193,6 +2194,7 @@
 		8490152D24ABD0F5008F705E /* Logger+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Wallet.swift"; sourceTree = "<group>"; };
 		8490386A262E22DC0016D541 /* NominatorPayoutInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominatorPayoutInfoFactory.swift; sourceTree = "<group>"; };
 		849244912514EDE800477C1B /* SelectableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableViewModel.swift; sourceTree = "<group>"; };
+		84939B1726E1690D000111DA /* TreasuryDepositEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreasuryDepositEvent.swift; sourceTree = "<group>"; };
 		84944249265306BD0016E7BD /* ChangeRewardDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeRewardDestinationViewModel.swift; sourceTree = "<group>"; };
 		8494425E265330650016E7BD /* StakingRewardDestinationSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDestinationSetupTests.swift; sourceTree = "<group>"; };
 		8494D8542524633300614D8F /* WalletTransferTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransferTokenView.swift; sourceTree = "<group>"; };
@@ -3957,6 +3959,7 @@
 				8454C21C2632A78900657DAD /* EventRecord.swift */,
 				8454C2642632B0EF00657DAD /* EventCodingPath.swift */,
 				8454C2692632B8CE00657DAD /* BalanceDepositEvent.swift */,
+				84939B1726E1690D000111DA /* TreasuryDepositEvent.swift */,
 				8473D3FF2657E8BB00B394B2 /* CrowdloanFunds.swift */,
 				8473D4072657E9AD00B394B2 /* CrowdloanLastContribution.swift */,
 				8473D40C2657E9DC00B394B2 /* MultiSigner.swift */,
@@ -7982,6 +7985,7 @@
 				849ABE63262785F200011A2A /* ControllerMapper.swift in Sources */,
 				8467FD0224E5D2D9005D486C /* OnboardingMainInteractor.swift in Sources */,
 				8467FD5824EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift in Sources */,
+				84939B1826E1690D000111DA /* TreasuryDepositEvent.swift in Sources */,
 				84D97EC1251FEE1E00F07405 /* WalletAssetId+Display.swift in Sources */,
 				849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */,
 				84C4C2D1255CA9210045B582 /* Health.swift in Sources */,
