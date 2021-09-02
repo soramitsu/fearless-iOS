@@ -48,7 +48,7 @@ class ValidatorStateView: StakingStateView, LocalizableViewProtocol {
             toggleStatus(true)
         }
 
-        var skeletonOptions: SkeletonOptions = []
+        var skeletonOptions: StakingStateSkeletonOptions = []
 
         if viewModel.totalStakedAmount.isEmpty {
             skeletonOptions.insert(.stake)

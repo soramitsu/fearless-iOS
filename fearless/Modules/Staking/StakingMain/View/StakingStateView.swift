@@ -1,13 +1,13 @@
 import UIKit
 import SoraUI
 
-struct SkeletonOptions: OptionSet {
+struct StakingStateSkeletonOptions: OptionSet {
     typealias RawValue = UInt8
 
-    static let stake = SkeletonOptions(rawValue: 1 << 0)
-    static let rewards = SkeletonOptions(rawValue: 1 << 1)
-    static let status = SkeletonOptions(rawValue: 1 << 2)
-    static let price = SkeletonOptions(rawValue: 1 << 3)
+    static let stake = StakingStateSkeletonOptions(rawValue: 1 << 0)
+    static let rewards = StakingStateSkeletonOptions(rawValue: 1 << 1)
+    static let status = StakingStateSkeletonOptions(rawValue: 1 << 2)
+    static let price = StakingStateSkeletonOptions(rawValue: 1 << 3)
 
     let rawValue: UInt8
 
@@ -98,7 +98,7 @@ class StakingStateView: UIView {
     }()
 
     private var skeletonView: SkrullableView?
-    private var skeletonOptions: SkeletonOptions?
+    private var skeletonOptions: StakingStateSkeletonOptions?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -194,7 +194,7 @@ class StakingStateView: UIView {
 }
 
 extension StakingStateView {
-    func setupSkeleton(options: SkeletonOptions) {
+    func setupSkeleton(options: StakingStateSkeletonOptions) {
         skeletonOptions = nil
 
         guard !options.isEmpty else {
@@ -239,7 +239,7 @@ extension StakingStateView {
 
     private func createSkeletons(
         for spaceSize: CGSize,
-        options: SkeletonOptions
+        options: StakingStateSkeletonOptions
     ) -> [Skeletonable] {
         guard spaceSize.width > 0.0, spaceSize.height > 0.0 else {
             return []
