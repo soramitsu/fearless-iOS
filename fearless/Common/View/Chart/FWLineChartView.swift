@@ -79,6 +79,10 @@ extension FWLineChartView: FWChartViewProtocol {
         dataSet.fill = Fill(linearGradient: linearGradient, angle: 90)
         dataSet.fillAlpha = 1.0
         dataSet.drawFilledEnabled = true
+        dataSet.highlightColor = R.color.colorGreen()!
+        dataSet.highlightLineWidth = 0.5
+        dataSet.highlightLineDashLengths = [1, 3]
+        dataSet.drawHorizontalHighlightIndicatorEnabled = false
         let lineChartData = LineChartData(dataSet: dataSet)
 
         xAxisLegend.setValues(data.xAxisValues)
