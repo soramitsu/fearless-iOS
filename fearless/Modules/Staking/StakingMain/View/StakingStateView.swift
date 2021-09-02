@@ -75,7 +75,7 @@ class StakingStateView: UIView {
         detailsView.mode = .detailsIcon
         detailsView.spacing = 0.0
         detailsView.detailsLabel.font = .capsTitle
-        detailsView.detailsLabel.textColor = R.color.colorBlurSeparator()
+        detailsView.detailsLabel.textColor = R.color.colorTransparentText()
         detailsView.imageView.image = R.image.iconSmallArrow()
         detailsView.iconWidth = 24.0
         detailsView.detailsLabel.numberOfLines = 1
@@ -111,6 +111,7 @@ class StakingStateView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // swiftlint:disable:next function_body_length
     func setupLayout() {
         addSubview(backgroundView)
         backgroundView.snp.makeConstraints { make in
@@ -119,7 +120,8 @@ class StakingStateView: UIView {
 
         addSubview(iconMore)
         iconMore.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(16.0)
+            make.trailing.equalToSuperview().inset(16.0)
+            make.top.equalToSuperview().inset(12.0)
         }
 
         addSubview(titleLabel)
@@ -332,6 +334,7 @@ class StakingStateView: UIView {
         view.valueBottom.font = .p2Paragraph
         view.valueBottom.textColor = R.color.colorTransparentText()
         view.valueBottom.textAlignment = .left
+        view.spacing = 4.0
         return view
     }
 

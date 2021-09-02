@@ -17,6 +17,7 @@ class TitleStatusView: UIView {
     let indicatorView: RoundedView = {
         let view = RoundedView()
         view.cornerRadius = 4.0
+        view.shadowOpacity = 0.0
         return view
     }()
 

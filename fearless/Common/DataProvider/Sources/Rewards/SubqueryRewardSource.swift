@@ -35,7 +35,7 @@ final class SubqueryRewardSource {
         operationFactory: SubqueryHistoryOperationFactoryProtocol,
         trigger: DataProviderTriggerProtocol,
         operationManager: OperationManagerProtocol,
-        pageSize: Int = 100,
+        pageSize: Int = 1000,
         logger: LoggerProtocol? = nil
     ) {
         self.address = address
