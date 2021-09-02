@@ -124,7 +124,7 @@ DEPENDENCIES:
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 0.10.2)
   - SoraKeystore
-  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `00b2d2cbe5ab3ed0dd41666d1f373c4065697afa`)
+  - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
@@ -150,6 +150,7 @@ SPEC REPOS:
     - SnapKit
     - SoraFoundation
     - SoraKeystore
+    - SoraUI
     - Sourcery
     - SwiftFormat
     - SwiftLint
@@ -161,9 +162,6 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
-  SoraUI:
-    :commit: 00b2d2cbe5ab3ed0dd41666d1f373c4065697afa
-    :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -175,9 +173,6 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
-  SoraUI:
-    :commit: 00b2d2cbe5ab3ed0dd41666d1f373c4065697afa
-    :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -213,6 +208,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6dc8e5fa64c50e2b0a24c4f4f2741fdd6c27b2b6
+PODFILE CHECKSUM: 5b01bcd5d5d0298ca095b338d0267f81bd4b4084
 
 COCOAPODS: 1.10.2
