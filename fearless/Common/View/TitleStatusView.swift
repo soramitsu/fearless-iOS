@@ -2,6 +2,11 @@ import UIKit
 import SoraUI
 
 class TitleStatusView: UIView {
+    enum Mode {
+        case indicatorTile
+        case titleIndicator
+    }
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
@@ -25,32 +30,34 @@ class TitleStatusView: UIView {
         }
     }
 
-    var spacing: CGFloat = 12 {
+    var mode: Mode = .titleIndicator {
         didSet {
-            indicatorView.snp.updateConstraints { make in
-                make.leading.equalTo(titleLabel.snp.trailing).offset(spacing)
-            }
-
-            invalidateIntrinsicContentSize()
-
-            setNeedsLayout()
+            applyLayout()
         }
     }
+
+    var spacing: CGFloat {
+        get {
+            stackView.spacing
+        }
+
+        set {
+            stackView.spacing = newValue
+        }
+    }
+
+    private var stackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.spacing = 12.0
+        view.alignment = .center
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         setupLayout()
-    }
-
-    override var intrinsicContentSize: CGSize {
-        let titleSize = titleLabel.intrinsicContentSize
-        let indicatorSize = 2 * indicatorView.cornerRadius
-
-        return CGSize(
-            width: titleSize.width + spacing + indicatorSize,
-            height: max(titleSize.height, indicatorSize)
-        )
     }
 
     @available(*, unavailable)
@@ -59,16 +66,29 @@ class TitleStatusView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
-        addSubview(indicatorView)
         indicatorView.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel.snp.trailing).offset(spacing)
-            make.trailing.centerY.equalToSuperview()
-            make.height.equalTo(2 * indicatorView.cornerRadius)
+            make.height.width.equalTo(2 * indicatorView.cornerRadius)
+        }
+
+        applyLayout()
+    }
+
+    private func applyLayout() {
+        titleLabel.removeFromSuperview()
+        indicatorView.removeFromSuperview()
+
+        switch mode {
+        case .titleIndicator:
+            stackView.addArrangedSubview(titleLabel)
+            stackView.addArrangedSubview(indicatorView)
+        case .indicatorTile:
+            stackView.addArrangedSubview(indicatorView)
+            stackView.addArrangedSubview(titleLabel)
         }
     }
 }
