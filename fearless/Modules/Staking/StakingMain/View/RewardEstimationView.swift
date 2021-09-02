@@ -344,6 +344,7 @@ extension RewardEstimationView: SkeletonLoadable {
     }
 
     func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
         skeletonView?.startSkrulling()
     }
 

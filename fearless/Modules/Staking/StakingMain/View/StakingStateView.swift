@@ -382,6 +382,7 @@ extension StakingStateView: SkeletonLoadable {
     }
 
     func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
         skeletonView?.startSkrulling()
     }
 

@@ -282,6 +282,7 @@ extension NetworkInfoView: SkeletonLoadable {
     }
 
     func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
         skeletonView?.startSkrulling()
     }
 
