@@ -70,38 +70,38 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (0.10.2)
   - SoraKeystore (0.1.5)
-  - SoraUI (1.10.2):
-    - SoraUI/AdaptiveDesign (= 1.10.2)
-    - SoraUI/Animator (= 1.10.2)
-    - SoraUI/Camera (= 1.10.2)
-    - SoraUI/Controls (= 1.10.2)
-    - SoraUI/DetailsView (= 1.10.2)
-    - SoraUI/EmptyState (= 1.10.2)
-    - SoraUI/Helpers (= 1.10.2)
-    - SoraUI/LoadingView (= 1.10.2)
-    - SoraUI/ModalPresentation (= 1.10.2)
-    - SoraUI/PageLoader (= 1.10.2)
-    - SoraUI/PinView (= 1.10.2)
-    - SoraUI/Skrull (= 1.10.2)
-  - SoraUI/AdaptiveDesign (1.10.2)
-  - SoraUI/Animator (1.10.2)
-  - SoraUI/Camera (1.10.2)
-  - SoraUI/Controls (1.10.2):
+  - SoraUI (1.10.3):
+    - SoraUI/AdaptiveDesign (= 1.10.3)
+    - SoraUI/Animator (= 1.10.3)
+    - SoraUI/Camera (= 1.10.3)
+    - SoraUI/Controls (= 1.10.3)
+    - SoraUI/DetailsView (= 1.10.3)
+    - SoraUI/EmptyState (= 1.10.3)
+    - SoraUI/Helpers (= 1.10.3)
+    - SoraUI/LoadingView (= 1.10.3)
+    - SoraUI/ModalPresentation (= 1.10.3)
+    - SoraUI/PageLoader (= 1.10.3)
+    - SoraUI/PinView (= 1.10.3)
+    - SoraUI/Skrull (= 1.10.3)
+  - SoraUI/AdaptiveDesign (1.10.3)
+  - SoraUI/Animator (1.10.3)
+  - SoraUI/Camera (1.10.3)
+  - SoraUI/Controls (1.10.3):
     - SoraUI/Animator
-  - SoraUI/DetailsView (1.10.2):
+  - SoraUI/DetailsView (1.10.3):
     - SoraUI/Controls
-  - SoraUI/EmptyState (1.10.2):
+  - SoraUI/EmptyState (1.10.3):
     - SoraUI/Animator
-  - SoraUI/Helpers (1.10.2)
-  - SoraUI/LoadingView (1.10.2):
+  - SoraUI/Helpers (1.10.3)
+  - SoraUI/LoadingView (1.10.3):
     - SoraUI/Controls
-  - SoraUI/ModalPresentation (1.10.2):
+  - SoraUI/ModalPresentation (1.10.3):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.10.2)
-  - SoraUI/PinView (1.10.2):
+  - SoraUI/PageLoader (1.10.3)
+  - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.10.2)
+  - SoraUI/Skrull (1.10.3)
   - Sourcery (1.4.1)
   - Starscream (4.0.4)
   - SVGKit (2.1.0):
@@ -124,7 +124,7 @@ DEPENDENCIES:
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 0.10.2)
   - SoraKeystore
-  - SoraUI (~> 1.10.1)
+  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `00b2d2cbe5ab3ed0dd41666d1f373c4065697afa`)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
@@ -150,7 +150,6 @@ SPEC REPOS:
     - SnapKit
     - SoraFoundation
     - SoraKeystore
-    - SoraUI
     - Sourcery
     - SwiftFormat
     - SwiftLint
@@ -162,6 +161,9 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
+  SoraUI:
+    :commit: 00b2d2cbe5ab3ed0dd41666d1f373c4065697afa
+    :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -173,6 +175,9 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 33c7eec1db947eeae8e3b7feb217c60199599bd7
     :git: https://github.com/soramitsu/Capital-iOS.git
+  SoraUI:
+    :commit: 00b2d2cbe5ab3ed0dd41666d1f373c4065697afa
+    :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -198,7 +203,7 @@ SPEC CHECKSUMS:
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 6a20509e5c997b08ecc60fbdeb37e4dabeff0211
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 71fd2befbc39df2f903888a4096fa66174637826
+  SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: db66600e8b285c427701821598d07cf3c7e6c476
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
@@ -208,6 +213,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 66565454c46981d3578c84ee4a00bb6d50761c12
+PODFILE CHECKSUM: 6dc8e5fa64c50e2b0a24c4f4f2741fdd6c27b2b6
 
 COCOAPODS: 1.10.2

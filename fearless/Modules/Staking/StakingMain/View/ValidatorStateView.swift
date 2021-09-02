@@ -71,7 +71,7 @@ class ValidatorStateView: StakingStateView, LocalizableViewProtocol {
             skeletonOptions.insert(.price)
         }
 
-        updateSkeletonIfNeeded(for: skeletonOptions)
+        setupSkeleton(options: skeletonOptions)
     }
 
     private func toggleStatus(_ shouldShow: Bool) {

@@ -184,139 +184,167 @@ class StakingStateView: UIView {
         }
     }
 
-    func updateSkeletonIfNeeded(for options: SkeletonOptions) {
-        setupSkeleton(options: options)
+    @objc private func actionOnMore() {
+        delegate?.stakingStateViewDidReceiveMoreAction(self)
     }
 
-    private func setupSkeleton(options: SkeletonOptions) {
-        skeletonView?.removeFromSuperview()
-        skeletonView = nil
+    @objc private func actionOnStatus() {
+        delegate?.stakingStateViewDidReceiveStatusAction(self)
+    }
+}
+
+extension StakingStateView {
+    func setupSkeleton(options: SkeletonOptions) {
         skeletonOptions = nil
 
         guard !options.isEmpty else {
+            skeletonView?.removeFromSuperview()
+            skeletonView = nil
             return
         }
 
         skeletonOptions = options
 
-        let spaceSize = backgroundView.frame.size == .zero ? CGSize(width: 1.0, height: 1.0) :
-            backgroundView.frame.size
+        let spaceSize = backgroundView.frame.size
 
         let skeletons = createSkeletons(for: spaceSize, options: options)
 
-        let skeletonView = Skrull(
+        let builder = Skrull(
             size: spaceSize,
             decorations: [],
             skeletons: skeletons
         )
-        .fillSkeletonStart(R.color.colorSkeletonStart()!)
-        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
-        .build()
 
-        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
-        skeletonView.autoresizingMask = []
-        insertSubview(skeletonView, aboveSubview: backgroundView)
+        let currentSkeletonView: SkrullableView?
 
-        self.skeletonView = skeletonView
+        if let skeletonView = skeletonView {
+            currentSkeletonView = skeletonView
+            builder.updateSkeletons(in: skeletonView)
+        } else {
+            let view = builder
+                .fillSkeletonStart(R.color.colorSkeletonStart()!)
+                .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+                .build()
+            view.autoresizingMask = []
+            insertSubview(view, aboveSubview: backgroundView)
 
-        skeletonView.startSkrulling()
+            currentSkeletonView = view
+            skeletonView = view
+
+            view.startSkrulling()
+        }
+
+        currentSkeletonView?.frame = CGRect(origin: .zero, size: spaceSize)
     }
 
     private func createSkeletons(
         for spaceSize: CGSize,
         options: SkeletonOptions
     ) -> [Skeletonable] {
-        let bigRowSize = CGSize(width: 72.0, height: 12.0)
-        let smallRowSize = CGSize(width: 57.0, height: 6.0)
-        let topInset: CGFloat = 7.0
-        let verticalSpacing: CGFloat = 10.0
+        guard spaceSize.width > 0.0, spaceSize.height > 0.0 else {
+            return []
+        }
 
         var skeletons: [Skeletonable] = []
 
         if options.contains(.stake) {
-            skeletons.append(
-                SingleSkeleton.createRow(
-                    under: stakeTitleLabel,
-                    containerView: backgroundView,
-                    spaceSize: spaceSize,
-                    offset: CGPoint(x: 0.0, y: topInset),
-                    size: bigRowSize
-                )
+            let stakeSkeletons = createMultilineSkeleton(
+                under: stakeTitleLabel,
+                containerView: backgroundView,
+                spaceSize: spaceSize,
+                hasSmall: options.contains(.price)
             )
 
-            if options.contains(.price) {
-                skeletons.append(
-                    SingleSkeleton.createRow(
-                        under: stakeTitleLabel,
-                        containerView: backgroundView,
-                        spaceSize: spaceSize,
-                        offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
-                        size: smallRowSize
-                    )
-                )
-            }
+            skeletons.append(contentsOf: stakeSkeletons)
         }
 
         if options.contains(.rewards) {
-            skeletons.append(
-                SingleSkeleton.createRow(
-                    under: rewardTitleLabel,
-                    containerView: backgroundView,
-                    spaceSize: spaceSize,
-                    offset: CGPoint(x: 0.0, y: topInset),
-                    size: bigRowSize
-                )
+            let rewardSkeletons = createMultilineSkeleton(
+                under: rewardTitleLabel,
+                containerView: backgroundView,
+                spaceSize: spaceSize,
+                hasSmall: options.contains(.price)
             )
 
-            if options.contains(.price) {
-                skeletons.append(
-                    SingleSkeleton.createRow(
-                        under: rewardTitleLabel,
-                        containerView: backgroundView,
-                        spaceSize: spaceSize,
-                        offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
-                        size: smallRowSize
-                    )
-                )
-            }
+            skeletons.append(contentsOf: rewardSkeletons)
         }
 
         if options.contains(.status) {
-            let targetFrame = borderView.convert(borderView.bounds, to: self)
-
-            let positionLeft = CGPoint(
-                x: targetFrame.minX + bigRowSize.width / 2.0,
-                y: targetFrame.midY
-            )
-
-            let positionRight = CGPoint(
-                x: targetFrame.maxX - bigRowSize.width / 2.0,
-                y: targetFrame.midY
-            )
-
-            let mappedSize = CGSize(
-                width: spaceSize.skrullMapX(bigRowSize.width),
-                height: spaceSize.skrullMapY(bigRowSize.height)
-            )
-
-            skeletons.append(
-                SingleSkeleton(
-                    position: spaceSize.skrullMap(point: positionLeft),
-                    size: mappedSize
-                ).round()
-            )
-
-            skeletons.append(
-                SingleSkeleton(
-                    position: spaceSize.skrullMap(point: positionRight),
-                    size: mappedSize
-                ).round()
-            )
+            let statusSkeletons = createStatusSkeleton(for: spaceSize)
+            skeletons.append(contentsOf: statusSkeletons)
         }
 
         return skeletons
     }
 
+    private func createStatusSkeleton(for spaceSize: CGSize) -> [Skeletonable] {
+        let bigRowSize = UIConstants.skeletonBigRowSize
+        let targetFrame = borderView.convert(borderView.bounds, to: self)
+
+        let positionLeft = CGPoint(
+            x: targetFrame.minX + bigRowSize.width / 2.0,
+            y: targetFrame.midY
+        )
+
+        let positionRight = CGPoint(
+            x: targetFrame.maxX - bigRowSize.width / 2.0,
+            y: targetFrame.midY
+        )
+
+        let mappedSize = CGSize(
+            width: spaceSize.skrullMapX(bigRowSize.width),
+            height: spaceSize.skrullMapY(bigRowSize.height)
+        )
+
+        return [
+            SingleSkeleton(
+                position: spaceSize.skrullMap(point: positionLeft),
+                size: mappedSize
+            ).round(),
+            SingleSkeleton(
+                position: spaceSize.skrullMap(point: positionRight),
+                size: mappedSize
+            ).round()
+        ]
+    }
+
+    private func createMultilineSkeleton(
+        under view: UIView,
+        containerView: UIView,
+        spaceSize: CGSize,
+        hasSmall: Bool
+    ) -> [Skeletonable] {
+        let topInset: CGFloat = 7.0
+        let verticalSpacing: CGFloat = 10.0
+
+        var skeletons: [Skeletonable] = [
+            SingleSkeleton.createRow(
+                under: view,
+                containerView: containerView,
+                spaceSize: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: UIConstants.skeletonBigRowSize
+            )
+        ]
+
+        if hasSmall {
+            let yOffset = topInset + UIConstants.skeletonBigRowSize.height + verticalSpacing
+            skeletons.append(
+                SingleSkeleton.createRow(
+                    under: view,
+                    containerView: containerView,
+                    spaceSize: spaceSize,
+                    offset: CGPoint(x: 0.0, y: yOffset),
+                    size: UIConstants.skeletonSmallRowSize
+                )
+            )
+        }
+
+        return skeletons
+    }
+}
+
+extension StakingStateView {
     private static func createButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.triangularedView?.cornerCut = .bottomRight
@@ -344,14 +372,6 @@ class StakingStateView: UIView {
         view.alignment = .leading
         view.spacing = 4.0
         return view
-    }
-
-    @objc private func actionOnMore() {
-        delegate?.stakingStateViewDidReceiveMoreAction(self)
-    }
-
-    @objc private func actionOnStatus() {
-        delegate?.stakingStateViewDidReceiveStatusAction(self)
     }
 }
 
