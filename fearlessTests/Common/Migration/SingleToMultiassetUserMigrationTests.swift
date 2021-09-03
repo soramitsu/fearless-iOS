@@ -8,8 +8,8 @@ import SoraKeystore
 
 class SingleToMultiassetUserMigrationTests: XCTestCase {
     struct Account {
-        let address: AccountAddress
-        let cryptoType: fearless.CryptoType
+        let address: String
+        let cryptoType: UInt8
         let name: String
         let privateKey: Data
         let publicKey: Data
@@ -137,5 +137,13 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         )
 
         return CoreDataService(configuration: configuration)
+    }
+
+    private func generateAccount(
+        hasEntropy: Bool,
+        hasSeed: Bool,
+        hasDerivationPath: Bool
+    ) throws -> Account {
+
     }
 }
