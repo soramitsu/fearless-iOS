@@ -2,8 +2,7 @@ import Foundation
 import FireMock
 
 enum TotalRewardMock: FireMockProtocol {
-    case westendFirst
-    case westendSecond
+    case westend
     case error
 
     var bundle: Bundle { Bundle(for: NetworkBaseTests.self) }
@@ -18,10 +17,8 @@ enum TotalRewardMock: FireMockProtocol {
 
     func mockFile() -> String {
         switch self {
-        case .westendFirst:
-            return "rewardFirstResponse.json"
-        case .westendSecond:
-            return "rewardSecondResponse.json"
+        case .westend:
+            return "rewardResponse.json"
         case .error:
             return "rewardErrorResponse.json"
         }

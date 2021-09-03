@@ -13,8 +13,7 @@ final class TransactionDetailsConfigurator {
             address: address,
             assets: assets,
             dateFormatter: DateFormatter.txDetails,
-            amountFormatterFactory: amountFormatterFactory,
-            quantityFormatter: NumberFormatter.quantity.localizableResource()
+            amountFormatterFactory: amountFormatterFactory
         )
     }
 

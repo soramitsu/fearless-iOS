@@ -6,24 +6,17 @@ import CommonWallet
 final class SubqueryRewardSource {
     typealias Model = TotalRewardItem
 
-    struct SyncState {
-        let lastId: String?
-        let receivedCount: Int
-        let reward: Decimal?
-    }
-
     let address: String
     let chain: Chain
     let targetIdentifier: String
     let repository: AnyDataProviderRepository<SingleValueProviderObject>
-    let operationFactory: SubqueryHistoryOperationFactoryProtocol
+    let operationFactory: SubqueryRewardOperationFactoryProtocol
     let trigger: DataProviderTriggerProtocol
     let operationManager: OperationManagerProtocol
-    let pageSize: Int
     let logger: LoggerProtocol?
 
     private var lastSyncError: Error?
-    private var syncing: SyncState?
+    private var syncing: Bool = false
     private var totalReward: TotalRewardItem?
     private let mutex = NSLock()
 
@@ -32,10 +25,9 @@ final class SubqueryRewardSource {
         chain: Chain,
         targetIdentifier: String,
         repository: AnyDataProviderRepository<SingleValueProviderObject>,
-        operationFactory: SubqueryHistoryOperationFactoryProtocol,
+        operationFactory: SubqueryRewardOperationFactoryProtocol,
         trigger: DataProviderTriggerProtocol,
         operationManager: OperationManagerProtocol,
-        pageSize: Int = 100,
         logger: LoggerProtocol? = nil
     ) {
         self.address = address
@@ -45,7 +37,6 @@ final class SubqueryRewardSource {
         self.operationFactory = operationFactory
         self.trigger = trigger
         self.operationManager = operationManager
-        self.pageSize = pageSize
         self.logger = logger
 
         sync()
@@ -74,34 +65,19 @@ final class SubqueryRewardSource {
     }
 
     private func sync() {
-        guard syncing == nil else {
+        guard !syncing else {
             return
         }
 
-        syncing = SyncState(
-            lastId: nil,
-            receivedCount: 0,
-            reward: nil
-        )
+        syncing = true
 
-        fetch(cursor: nil)
+        fetch()
     }
 
-    private func fetch(cursor: String?) {
-        let localWrapper = createLocalFetchWrapper()
+    private func fetch() {
+        let remoteOperation = operationFactory.createOperation(address: address)
 
-        let remoteOperation = operationFactory.createOperation(
-            address: address,
-            count: pageSize,
-            cursor: cursor
-        )
-
-        let syncOperation = Operation()
-
-        localWrapper.allOperations.forEach { syncOperation.addDependency($0) }
-        syncOperation.addDependency(remoteOperation)
-
-        syncOperation.completionBlock = {
+        remoteOperation.completionBlock = {
             DispatchQueue.global(qos: .userInitiated).async {
                 self.mutex.lock()
 
@@ -109,96 +85,30 @@ final class SubqueryRewardSource {
                     self.mutex.unlock()
                 }
 
-                self.processOperations(
-                    localWrapper.targetOperation,
-                    remoteOperation: remoteOperation,
-                    cursor: cursor
-                )
+                self.processOperations(remoteOperation: remoteOperation)
             }
         }
 
-        let allOperations = localWrapper.allOperations + [remoteOperation, syncOperation]
-        operationManager.enqueue(operations: allOperations, in: .transient)
+        operationManager.enqueue(operations: [remoteOperation], in: .transient)
     }
 
-    private func processOperations(
-        _ localOperation: BaseOperation<TotalRewardItem?>,
-        remoteOperation: BaseOperation<SubqueryHistoryData>,
-        cursor _: String?
-    ) {
+    private func processOperations(remoteOperation: BaseOperation<SubqueryRewardOrSlashData>) {
         do {
-            let totalReward = try localOperation.extractNoCancellableResultData()
             let remoteData = try remoteOperation.extractNoCancellableResultData()
+            let newReward = calculateReward(from: remoteData.historyElements.nodes)
 
-            let endIndex: Int?
+            logger?.debug("New total reward: \(newReward)")
 
-            if let reward = totalReward {
-                endIndex = remoteData.historyElements.nodes.firstIndex {
-                    $0.identifier == reward.lastId
-                }
-            } else {
-                endIndex = nil
-            }
-
-            let allRemoteItems = remoteData.historyElements.nodes
-            let count = endIndex ?? allRemoteItems.count
-
-            let newRemoteItems = Array(allRemoteItems[0 ..< count])
-            let pageReward = calculateReward(from: newRemoteItems)
-
-            let receivedCount = (syncing?.receivedCount ?? 0) + newRemoteItems.count
-
-            syncing = SyncState(
-                lastId: syncing?.lastId ?? newRemoteItems.first?.identifier,
-                receivedCount: receivedCount,
-                reward: (syncing?.reward ?? 0.0) + pageReward
-            )
-
-            logger?.debug("Synced id: \(String(describing: allRemoteItems.last?.identifier))")
-            logger?.debug("Persistent id: \(String(describing: totalReward?.lastId))")
-            logger?.debug("Page reward: \(pageReward)")
-
-            let newCursor = remoteData.historyElements.pageInfo.endCursor
-
-            if endIndex != nil || newCursor == nil {
-                finalize(with: totalReward)
-            } else {
-                fetch(cursor: newCursor)
-            }
-
+            finalize(with: newReward)
         } catch {
             finalize(with: error)
         }
     }
 
-    private func finalize(with previousReward: TotalRewardItem?) {
-        guard let syncState = syncing else {
-            logger?.warning("Can't finalize sync because of nil")
-            return
-        }
+    private func finalize(with newReward: Decimal) {
+        syncing = false
 
-        if let lastId = syncState.lastId, let reward = syncState.reward {
-            let newAmount = reward + (previousReward?.amount.decimalValue ?? 0.0)
-            totalReward = TotalRewardItem(
-                address: address,
-                lastId: lastId,
-                amount: AmountDecimal(value: newAmount)
-            )
-
-            syncing = nil
-
-            logger?.debug("Did receive new reward: \(reward)")
-        } else {
-            logger?.debug("Sync completed: nothing changed")
-
-            totalReward = TotalRewardItem(
-                address: address,
-                lastId: previousReward?.lastId ?? "",
-                amount: previousReward?.amount ?? AmountDecimal(value: 0.0)
-            )
-
-            syncing = nil
-        }
+        totalReward = TotalRewardItem(address: address, amount: AmountDecimal(value: newReward))
 
         DispatchQueue.global().async {
             self.trigger.delegate?.didTrigger()
@@ -206,7 +116,6 @@ final class SubqueryRewardSource {
     }
 
     private func restartSync() {
-        syncing = nil
         totalReward = nil
         lastSyncError = nil
 
@@ -220,7 +129,7 @@ final class SubqueryRewardSource {
     private func finalize(with error: Error) {
         totalReward = nil
         lastSyncError = error
-        syncing = nil
+        syncing = false
 
         logger?.error("Did receive sync error: \(error)")
 
