@@ -67,20 +67,16 @@ extension AssetTransactionData {
         from item: SubscanRewardItemData,
         address: String,
         networkType: SNAddressType,
-        asset: WalletAsset,
-        addressFactory _: SS58AddressFactoryProtocol
+        asset: WalletAsset
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus
 
         status = .commited
 
-        let amount: Decimal = {
-            guard let amountValue = BigUInt(item.amount) else {
-                return 0.0
-            }
-
-            return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
-        }()
+        let amount: Decimal = Decimal.fromSubstrateAmount(
+            BigUInt(item.amount) ?? 0,
+            precision: asset.precision
+        ) ?? .zero
 
         let type = TransactionType(rawValue: item.eventId.uppercased())
 
@@ -109,13 +105,10 @@ extension AssetTransactionData {
         asset: WalletAsset,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
-        let amount: Decimal = {
-            guard let amountValue = BigUInt(item.fee) else {
-                return 0.0
-            }
-
-            return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
-        }()
+        let amount: Decimal = Decimal.fromSubstrateAmount(
+            BigUInt(item.fee) ?? 0,
+            precision: asset.precision
+        ) ?? .zero
 
         let accountId = try? addressFactory.accountId(
             fromAddress: address,
@@ -190,13 +183,11 @@ extension AssetTransactionData {
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
-        let feeDecimal: Decimal = {
-            guard let feeValue = BigUInt(item.fee) else {
-                return .zero
-            }
 
-            return Decimal.fromSubstrateAmount(feeValue, precision: networkType.precision) ?? .zero
-        }()
+        let feeDecimal: Decimal = Decimal.fromSubstrateAmount(
+            BigUInt(item.fee) ?? 0,
+            precision: asset.precision
+        ) ?? .zero
 
         let fee = AssetTransactionFee(
             identifier: asset.identifier,
@@ -243,13 +234,10 @@ extension AssetTransactionData {
         asset: WalletAsset,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
-        let amount: Decimal = {
-            guard let amountValue = BigUInt(item.fee) else {
-                return 0.0
-            }
-
-            return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
-        }()
+        let amount: Decimal = Decimal.fromSubstrateAmount(
+            BigUInt(item.fee) ?? 0,
+            precision: asset.precision
+        ) ?? .zero
 
         let accountId = try? addressFactory.accountId(
             fromAddress: item.sender,
