@@ -221,7 +221,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         clearIfNeeded()
 
-        guard let historyURL = assetId.subqueryHistoryUrl else {
+        guard let url = assetId.subqueryHistoryUrl else {
             throw DataProviderError.unexpectedSourceResult
         }
 
@@ -240,10 +240,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         let trigger = DataProviderProxyTrigger()
 
-        let operationFactory = SubqueryHistoryOperationFactory(
-            url: historyURL,
-            filter: [.rewardsAndSlashes]
-        )
+        let operationFactory = SubqueryRewardOperationFactory(url: url)
 
         let source = SubqueryRewardSource(
             address: address,

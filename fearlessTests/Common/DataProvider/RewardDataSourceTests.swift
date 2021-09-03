@@ -4,39 +4,31 @@ import RobinHood
 
 class RewardDataSourceTests: NetworkBaseTests {
 
-    func testCorrectSyncAfterMultipleUpdates() {
+    func testCorrectSync() {
         do {
             // given
 
             let storageFacade = SubstrateStorageTestFacade()
             let url = WalletAssetId.westend.subqueryHistoryUrl
-            TotalRewardMock.register(mock: .westendFirst, url: url!)
+            TotalRewardMock.register(mock: .westend, url: url!)
 
-            let expectedRewardAfterFirst: Decimal = 2.0
-            let expectedRewardAfterSecond: Decimal = 5.0
+            let expectedReward: Decimal = 5.0
 
             // when
 
             let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
                 storageFacade.createRepository()
 
-            let rewardAfterFirstCall = try performRewardRequest(for: AnyDataProviderRepository(repository),
-                                                                address: WestendStub.address,
-                                                                assetId: .westend,
-                                                                chain: .westend).get()
+            let actualRewardItem = try performRewardRequest(
+                for: AnyDataProviderRepository(repository),
+                address: WestendStub.address,
+                assetId: .westend,
+                chain: .westend
+            ).get()
 
             // then
 
-            XCTAssertEqual(rewardAfterFirstCall?.amount.decimalValue, expectedRewardAfterFirst)
-
-            TotalRewardMock.register(mock: .westendSecond, url: url!)
-
-            let rewardAfterSecondCall = try performRewardRequest(for: AnyDataProviderRepository(repository),
-                                                                 address: WestendStub.address,
-                                                                 assetId: .westend,
-                                                                 chain: .westend).get()
-
-            XCTAssertEqual(rewardAfterSecondCall?.amount.decimalValue, expectedRewardAfterSecond)
+            XCTAssertEqual(expectedReward, actualRewardItem?.amount.decimalValue)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -83,9 +75,8 @@ class RewardDataSourceTests: NetworkBaseTests {
 
         let trigger = DataProviderProxyTrigger()
 
-        let operationFactory = SubqueryHistoryOperationFactory(
-            url: assetId.subqueryHistoryUrl!,
-            filter: [.rewardsAndSlashes]
+        let operationFactory = SubqueryRewardOperationFactory(
+            url: assetId.subqueryHistoryUrl!
         )
 
         let source = SubqueryRewardSource(address: address,

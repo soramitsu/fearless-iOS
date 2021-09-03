@@ -17,7 +17,6 @@ struct WestendStub {
     static let totalReward: TotalRewardItem = {
         TotalRewardItem(
             address: "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq",
-            lastId: "777-0",
             amount: AmountDecimal(value: 777)
         )
     }()
