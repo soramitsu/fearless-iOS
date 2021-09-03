@@ -45,6 +45,17 @@ extension Chain {
         }
     }
 
+    func polkascanEventURL(_ eventId: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkascan.io/polkadot/event/\(eventId)")
+        case .kusama:
+            return URL(string: "https://polkascan.io/kusama/event/\(eventId)")
+        case .westend, .rococo:
+            return nil
+        }
+    }
+
     func subscanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
         case .polkadot:
@@ -67,17 +78,6 @@ extension Chain {
         case .westend:
             return URL(string: "https://westend.subscan.io/account/\(address)")
         case .rococo:
-            return nil
-        }
-    }
-
-    var totalRewardURL: URL? {
-        switch self {
-        case .polkadot:
-            return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward")
-        case .kusama:
-            return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward-kusama")
-        case .westend, .rococo:
             return nil
         }
     }

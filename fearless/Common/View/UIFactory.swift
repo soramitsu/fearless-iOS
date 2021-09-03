@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 
 struct UIConstants {
-    static let actionBottomInset: CGFloat = 24.0
+    static let actionBottomInset: CGFloat = 16.0
     static let actionHeight: CGFloat = 52.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
@@ -18,6 +18,8 @@ struct UIConstants {
     static let cellHeight: CGFloat = 48
     static let tableHeaderHeight: CGFloat = 40.0
     static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
+    static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
+    static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
 }
 
 enum AccountViewMode {

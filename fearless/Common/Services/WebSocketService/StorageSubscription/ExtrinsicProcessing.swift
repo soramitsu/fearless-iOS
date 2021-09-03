@@ -45,20 +45,24 @@ final class ExtrinsicProcessor {
         for index: UInt32,
         eventRecords: [EventRecord],
         metadata: RuntimeMetadata
-    ) -> BigUInt? {
-        eventRecords.filter { record in
+    ) -> BigUInt {
+        eventRecords.compactMap { record in
             guard record.extrinsicIndex == index,
                   let eventPath = metadata.createEventCodingPath(from: record.event) else {
-                return false
+                return nil
             }
 
-            return eventPath == .balanceDeposit
-        }.reduce(BigUInt(0)) { totalFee, record in
-            guard let deposit = try? record.event.params.map(to: BalanceDepositEvent.self) else {
-                return totalFee
+            if eventPath == .balanceDeposit {
+                return try? record.event.params.map(to: BalanceDepositEvent.self).amount
             }
 
-            return totalFee + deposit.amount
+            if eventPath == .treasuryDeposit {
+                return try? record.event.params.map(to: TreasuryDepositEvent.self).amount
+            }
+
+            return nil
+        }.reduce(BigUInt(0)) { (totalFee: BigUInt, partialFee: BigUInt) in
+            totalFee + partialFee
         }
     }
 

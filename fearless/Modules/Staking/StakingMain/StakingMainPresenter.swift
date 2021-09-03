@@ -151,10 +151,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
+        let nomination = stateMachine.viewState(
+            using: { (state: NominatorState) in state }
+        )?.nomination
+
         DataValidationRunner(validators: [
-            dataValidatingFactory.maxNominatorsCountNotReached(
+            dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: commonData.counterForNominators,
                 maxNominatorsCount: commonData.maxNominatorsCount,
+                hasExistingNomination: nomination != nil,
                 locale: locale
             )
         ]).runValidation { [weak self] in
@@ -206,7 +211,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
-        // TODO: add view your validator action
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 return [

@@ -75,6 +75,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         }
     }
 
+    // swiftlint:disable function_body_length
     private func createCompoundFormatter(
         for preferredPrecision: Int,
         roundingMode: NumberFormatter.RoundingMode = .down
@@ -100,14 +101,10 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 )
             ),
             BigNumberAbbreviation(
-                threshold: 1000,
+                threshold: 10,
                 divisor: 1.0,
                 suffix: "",
-                formatter: NumberFormatter.decimalFormatter(
-                    precision: preferredPrecision,
-                    rounding: roundingMode,
-                    usesIntGrouping: true
-                )
+                formatter: nil
             ),
             BigNumberAbbreviation(
                 threshold: 1_000_000,

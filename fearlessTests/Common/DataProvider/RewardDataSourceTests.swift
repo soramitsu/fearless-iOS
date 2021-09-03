@@ -9,12 +9,11 @@ class RewardDataSourceTests: NetworkBaseTests {
             // given
 
             let storageFacade = SubstrateStorageTestFacade()
-            let url = WalletAssetId.westend.subscanUrl?
-                .appendingPathComponent(SubscanApi.rewardsAndSlashes)
+            let url = WalletAssetId.westend.subqueryHistoryUrl
             TotalRewardMock.register(mock: .westendFirst, url: url!)
 
-            let expectedRewardAfterFirst: Decimal = 1.0
-            let expectedRewardAfterSecond: Decimal = 3.0
+            let expectedRewardAfterFirst: Decimal = 2.0
+            let expectedRewardAfterSecond: Decimal = 5.0
 
             // when
 
@@ -24,7 +23,7 @@ class RewardDataSourceTests: NetworkBaseTests {
             let rewardAfterFirstCall = try performRewardRequest(for: AnyDataProviderRepository(repository),
                                                                 address: WestendStub.address,
                                                                 assetId: .westend,
-                                                                chain: .westend)
+                                                                chain: .westend).get()
 
             // then
 
@@ -35,9 +34,42 @@ class RewardDataSourceTests: NetworkBaseTests {
             let rewardAfterSecondCall = try performRewardRequest(for: AnyDataProviderRepository(repository),
                                                                  address: WestendStub.address,
                                                                  assetId: .westend,
-                                                                 chain: .westend)
+                                                                 chain: .westend).get()
 
             XCTAssertEqual(rewardAfterSecondCall?.amount.decimalValue, expectedRewardAfterSecond)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testFailureCorrectlyHandled() {
+        do {
+            // given
+
+            let storageFacade = SubstrateStorageTestFacade()
+            let url = WalletAssetId.westend.subqueryHistoryUrl
+            TotalRewardMock.register(mock: .error, url: url!)
+
+            // when
+
+            let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
+                storageFacade.createRepository()
+
+            let result = try performRewardRequest(
+                for: AnyDataProviderRepository(repository),
+                address: WestendStub.address,
+                assetId: .westend,
+                chain: .westend
+            )
+
+            // then
+
+            switch result {
+            case .success:
+                XCTFail("Error expected")
+            case let .failure(error):
+                XCTAssertTrue(error is SubqueryErrors, "Unexpected result error: \(error)")
+            }
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -46,21 +78,23 @@ class RewardDataSourceTests: NetworkBaseTests {
     func performRewardRequest(for repository: AnyDataProviderRepository<SingleValueProviderObject>,
                               address: String,
                               assetId: WalletAssetId,
-                              chain: Chain) throws -> TotalRewardItem? {
+                              chain: Chain) throws -> Result<TotalRewardItem?, Error> {
         let operationManager = OperationManager()
-        let logger = Logger.shared
 
         let trigger = DataProviderProxyTrigger()
 
-        let source = SubscanRewardSource(address: address,
-                                         assetId: assetId,
+        let operationFactory = SubqueryHistoryOperationFactory(
+            url: assetId.subqueryHistoryUrl!,
+            filter: [.rewardsAndSlashes]
+        )
+
+        let source = SubqueryRewardSource(address: address,
                                          chain: chain,
                                          targetIdentifier: address,
                                          repository: AnyDataProviderRepository(repository),
-                                         operationFactory: SubscanOperationFactory(),
+                                         operationFactory: operationFactory,
                                          trigger: trigger,
-                                         operationManager: operationManager,
-                                         logger: logger)
+                                         operationManager: operationManager)
 
         let provider = SingleValueProvider(targetIdentifier: address,
                                            source: AnySingleValueProviderSource(source),
@@ -71,6 +105,7 @@ class RewardDataSourceTests: NetworkBaseTests {
         expectation.expectedFulfillmentCount = 2
 
         var totalReward: TotalRewardItem? = nil
+        var totalRewardError: Error? = nil
 
         let changesClosure = { (changes: [DataProviderChange<TotalRewardItem>]) -> Void in
             totalReward = changes.reduceToLastChange()
@@ -78,8 +113,7 @@ class RewardDataSourceTests: NetworkBaseTests {
         }
 
         let failureClosure = { (error: Error) -> Void in
-            XCTFail("Unexpected error: \(error)")
-
+            totalRewardError = error
             expectation.fulfill()
         }
 
@@ -96,6 +130,10 @@ class RewardDataSourceTests: NetworkBaseTests {
 
         provider.removeObserver(self)
 
-        return totalReward
+        if let error = totalRewardError {
+            return .failure(error)
+        } else {
+            return .success(totalReward)
+        }
     }
 }

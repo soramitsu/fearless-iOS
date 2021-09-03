@@ -464,3 +464,7 @@ to your account to avoid remaining stake.";
 "common.cancel.operation.action" = "Cancel operation";
 "common.keep.editing.action" = "Back to operation";
 "staking.your.validator.title" = "Your validator";
+"staking.common.era" = "Era";
+"staking.common.validator" = "Validator";
+"staking.common.event.id" = "Event";
+"common.copy.id" = "Copy id";

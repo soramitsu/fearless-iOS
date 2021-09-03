@@ -168,7 +168,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         ).isActive = true
     }
 
-    private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
+    private func setupView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
         clearStateView()
 
         guard let prevViewIndex = stackView.arrangedSubviews
@@ -201,7 +201,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             return rewardView
         }
 
-        let stateView = setupNibStateView { R.nib.rewardEstimationView(owner: nil) }
+        let stateView = setupView { R.nib.rewardEstimationView(owner: nil) }
 
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
         stateView?.uiFactory = uiFactory
@@ -211,34 +211,32 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
-    private func setupNominationViewIfNeeded() -> NominationView? {
-        if let nominationView = stateView as? NominationView {
-            return nominationView
+    private func setupNominatorViewIfNeeded() -> NominatorStateView? {
+        if let nominatorView = stateView as? NominatorStateView {
+            return nominatorView
         }
 
-        let stateView = setupNibStateView { R.nib.nominationView(owner: nil) }
-
+        let stateView = setupView { NominatorStateView() }
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
 
         return stateView
     }
 
-    private func setupValidatorViewIfNeeded() -> ValidationView? {
-        if let validationView = stateView as? ValidationView {
-            return validationView
+    private func setupValidatorViewIfNeeded() -> ValidatorStateView? {
+        if let validator = stateView as? ValidatorStateView {
+            return validator
         }
 
-        let stateView = setupNibStateView { R.nib.validationView(owner: nil) }
-
+        let stateView = setupView { ValidatorStateView() }
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
 
         return stateView
     }
 
-    private func applyNomination(viewModel: LocalizableResource<NominationViewModelProtocol>) {
-        let nominationView = setupNominationViewIfNeeded()
-        nominationView?.delegate = self
-        nominationView?.bind(viewModel: viewModel)
+    private func applyNominator(viewModel: LocalizableResource<NominationViewModelProtocol>) {
+        let nominatorView = setupNominatorViewIfNeeded()
+        nominatorView?.delegate = self
+        nominatorView?.bind(viewModel: viewModel)
     }
 
     private func applyBonded(viewModel: StakingEstimationViewModel) {
@@ -253,9 +251,9 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyValidator(viewModel: LocalizableResource<ValidationViewModelProtocol>) {
-        let validationView = setupValidatorViewIfNeeded()
-        validationView?.delegate = self
-        validationView?.bind(viewModel: viewModel)
+        let validatorView = setupValidatorViewIfNeeded()
+        validatorView?.delegate = self
+        validatorView?.bind(viewModel: viewModel)
     }
 
     private func applyAlerts(_ alerts: [StakingAlert]) {
@@ -331,7 +329,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
         case let .nominator(viewModel, alerts):
-            applyNomination(viewModel: viewModel)
+            applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
         case let .validator(viewModel, alerts):
             applyValidator(viewModel: viewModel)
@@ -409,27 +407,19 @@ extension StakingMainViewController: UICollectionViewDelegate {
     }
 }
 
-// MARK: Nomination View Delegate -
+// MARK: - StakingStateViewDelegate
 
-extension StakingMainViewController: NominationViewDelegate {
-    func nominationViewDidReceiveMoreAction(_: NominationView) {
+extension StakingMainViewController: StakingStateViewDelegate {
+    func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
         presenter.performManageStakingAction()
     }
 
-    func nominationViewDidReceiveStatusAction(_: NominationView) {
-        presenter.performNominationStatusAction()
-    }
-}
-
-// MARK: - ValidationViewDelegate
-
-extension StakingMainViewController: ValidationViewDelegate {
-    func validationViewDidReceiveMoreAction(_: ValidationView) {
-        presenter.performManageStakingAction()
-    }
-
-    func validationViewDidReceiveStatusAction(_: ValidationView) {
-        presenter.performValidationStatusAction()
+    func stakingStateViewDidReceiveStatusAction(_ view: StakingStateView) {
+        if view is NominatorStateView {
+            presenter.performNominationStatusAction()
+        } else if view is ValidatorStateView {
+            presenter.performValidationStatusAction()
+        }
     }
 }
 

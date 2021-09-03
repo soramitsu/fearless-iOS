@@ -127,7 +127,7 @@ final class NetworkInfoViewController: UIViewController {
             (nodeViewModel?.inputHandler.completed ?? false) &&
             (nameChanged || nodeChanged)
 
-        actionButton?.isEnabled = isEnabled
+        actionButton?.set(enabled: isEnabled)
     }
 
     @IBAction private func nameFieldDidChange() {

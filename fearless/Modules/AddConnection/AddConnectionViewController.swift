@@ -44,7 +44,7 @@ final class AddConnectionViewController: UIViewController {
         let isValid = (nameViewModel?.inputHandler.completed ?? false) &&
             (nodeViewModel?.inputHandler.completed ?? false)
 
-        addButton.isEnabled = isValid
+        addButton.set(enabled: isValid)
     }
 
     private func setupLocalization() {

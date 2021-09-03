@@ -89,7 +89,8 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
     }
 
     private func updateActionButtons() {
-        rootView.applyButton.isEnabled = viewModel?.canApply ?? false
+        let isEnabled = viewModel?.canApply ?? false
+        rootView.applyButton.set(enabled: isEnabled)
         navigationItem.rightBarButtonItem?.isEnabled = viewModel?.canReset ?? false
     }
 

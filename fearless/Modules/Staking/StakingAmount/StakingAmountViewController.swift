@@ -202,7 +202,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        actionButton.isEnabled = isEnabled
+        actionButton.set(enabled: isEnabled)
     }
 
     private func applyAsset() {

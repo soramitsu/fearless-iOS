@@ -73,7 +73,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         }
     }
 
-    func submitNomination(for _: Decimal, lastFee _: Decimal) {}
+    func submitNomination() {}
 
     func estimateFee() {}
 }

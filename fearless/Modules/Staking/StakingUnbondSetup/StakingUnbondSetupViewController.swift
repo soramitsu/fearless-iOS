@@ -130,7 +130,7 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
 
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.isEnabled = isEnabled
+        rootView.actionButton.set(enabled: isEnabled)
     }
 }
 

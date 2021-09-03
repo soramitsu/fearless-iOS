@@ -54,4 +54,12 @@ class TriangularedButton: BackgroundedContentControl {
             contentView?.isUserInteractionEnabled = false
         }
     }
+
+    func set(enabled: Bool, changeStyle: Bool = true) {
+        isEnabled = enabled
+
+        if changeStyle {
+            isEnabled ? applyDefaultStyle() : applyDisabledStyle()
+        }
+    }
 }

@@ -61,7 +61,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.isEnabled = isEnabled
+        rootView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyAsset() {
