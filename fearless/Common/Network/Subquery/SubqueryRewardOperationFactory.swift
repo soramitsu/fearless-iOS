@@ -23,12 +23,14 @@ final class SubqueryRewardOperationFactory {
                      reward: { isNull: false }
                  }
              ) {
-                id
-                timestamp
-                address
-                reward
-                extrinsic
-                transfer
+                nodes {
+                    id
+                    timestamp
+                    address
+                    reward
+                    extrinsic
+                    transfer
+                }
              }
         }
         """
