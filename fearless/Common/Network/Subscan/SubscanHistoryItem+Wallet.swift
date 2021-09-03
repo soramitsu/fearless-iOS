@@ -13,14 +13,13 @@ extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
         _ address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol
+        addressFactory _: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         AssetTransactionData.createTransaction(
             from: self,
             address: address,
             networkType: networkType,
-            asset: asset,
-            addressFactory: addressFactory
+            asset: asset
         )
     }
 }
