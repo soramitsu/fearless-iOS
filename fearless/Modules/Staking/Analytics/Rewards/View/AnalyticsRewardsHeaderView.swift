@@ -79,8 +79,11 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
 
         amountsStack.snp.makeConstraints { $0.height.equalTo(88) }
         statsStack.setCustomSpacing(24, after: amountsStack)
-        statsStack.setCustomSpacing(32, after: periodView)
-        periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
+        statsStack.setCustomSpacing(16, after: chartView)
+        periodView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(24)
+        }
         chartView.snp.makeConstraints { $0.height.equalTo(180) }
 
         addSubview(statsStack)
