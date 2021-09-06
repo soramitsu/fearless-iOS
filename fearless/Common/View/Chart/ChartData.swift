@@ -8,9 +8,9 @@ struct ChartAmount {
 
 struct ChartData {
     let amounts: [ChartAmount]
-    let summary: [AnalyticsSummaryRewardViewModel]
     let xAxisValues: [String]
     let bottomYValue: String
     let averageAmountValue: Double
     let averageAmountText: String?
+    let animate: Bool
 }

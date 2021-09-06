@@ -34,6 +34,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 
     func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
         self.viewState = viewState
+        rootView.tableView.nsuiIsScrollEnabled = true
 
         switch viewState {
         case .loading:
@@ -58,46 +59,12 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 
 extension AnalyticsRewardsViewController: FWChartViewDelegate {
     func didSelectXValue(_ value: Double) {
-        guard case let .loaded(viewModel) = viewState else {
-            return
-        }
         rootView.tableView.nsuiIsScrollEnabled = false
-        let selectedIndex = Int(value)
-        let summary = viewModel.chartData.summary[selectedIndex]
-        let selectedChartAmounts = viewModel.chartData.amounts.enumerated().map { (index, chartAmount) -> ChartAmount in
-            if index == selectedIndex {
-                return ChartAmount(value: chartAmount.value, selected: true, filled: true)
-            }
-            return ChartAmount(value: chartAmount.value, selected: false, filled: false)
-        }
-
-        let chartData = viewModel.chartData
-        let newChartData = ChartData(
-            amounts: selectedChartAmounts,
-            summary: chartData.summary,
-            xAxisValues: chartData.xAxisValues,
-            bottomYValue: chartData.bottomYValue,
-            averageAmountValue: chartData.averageAmountValue,
-            averageAmountText: chartData.averageAmountText
-        )
-        rootView.headerView.bind(
-            summaryViewModel: summary,
-            chartData: newChartData,
-            selectedPeriod: viewModel.selectedPeriod,
-            animated: false
-        )
+        presenter.didSelectXValue(Int(value))
     }
 
     func didUnselect() {
         rootView.tableView.nsuiIsScrollEnabled = true
-        guard case let .loaded(viewModel) = viewState else {
-            return
-        }
-        rootView.headerView.bind(
-            summaryViewModel: viewModel.summaryViewModel,
-            chartData: viewModel.chartData,
-            selectedPeriod: viewModel.selectedPeriod,
-            animated: false
-        )
+        presenter.didUnselectXValue()
     }
 }

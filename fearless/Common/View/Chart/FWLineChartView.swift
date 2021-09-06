@@ -89,7 +89,9 @@ extension FWLineChartView: FWChartViewProtocol {
         yAxisFormatter.bottomValueString = data.bottomYValue
 
         self.data = lineChartData
-        animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        if data.animate {
+            animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        }
     }
 }
 

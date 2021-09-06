@@ -7,18 +7,22 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         data.type.title(for: locale)
     }
 
-    override func chartDecimalValues<T: AnalyticsViewModelItem>(
-        _ data: [T],
+    override func chartDecimalValues(
+        _ data: [SubqueryStakeChangeData],
         by period: AnalyticsPeriod,
         locale: Locale
-    ) -> [(Decimal, String)] {
+    ) -> [AnalyticsSelectedChartData] {
         let formatter = dateFormatter(period: period, for: locale)
 
         return data.map { stakeChange in
-            let amount = Decimal.fromSubstrateAmount(stakeChange.amountInChart, precision: chain.addressType.precision) ?? 0.0
+            let amount = Decimal.fromSubstrateAmount(
+                stakeChange.amountInChart,
+                precision: chain.addressType.precision
+            ) ?? 0.0
 
             let title = formatter.string(from: stakeChange.date)
-            return (amount, title)
+            let sections = createSections(rewardsData: [stakeChange], locale: locale)
+            return AnalyticsSelectedChartData(yValue: amount, dateTitle: title, sections: sections)
         }
     }
 }

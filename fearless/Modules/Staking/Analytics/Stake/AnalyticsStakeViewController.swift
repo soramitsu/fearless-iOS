@@ -22,6 +22,7 @@ final class AnalyticsStakeViewController:
 
     func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
         self.viewState = viewState
+        rootView.tableView.nsuiIsScrollEnabled = true
 
         switch viewState {
         case .loading:
@@ -45,20 +46,12 @@ final class AnalyticsStakeViewController:
 
 extension AnalyticsStakeViewController: FWChartViewDelegate {
     func didSelectXValue(_ value: Double) {
-        guard case let .loaded(viewModel) = viewState else {
-            return
-        }
         rootView.tableView.nsuiIsScrollEnabled = false
-        let summary = viewModel.chartData.summary[Int(value)]
-        rootView.headerView.bind(summaryViewModel: summary)
+        presenter.didSelectXValue(Int(value))
     }
 
     func didUnselect() {
         rootView.tableView.nsuiIsScrollEnabled = true
-        guard case let .loaded(viewModel) = viewState else {
-            return
-        }
-        let summary = viewModel.summaryViewModel
-        rootView.headerView.bind(summaryViewModel: summary)
+        presenter.didUnselectXValue()
     }
 }

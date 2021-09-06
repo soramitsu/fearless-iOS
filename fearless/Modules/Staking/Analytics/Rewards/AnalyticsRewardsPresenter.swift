@@ -13,6 +13,7 @@ final class AnalyticsRewardsPresenter {
     private var selectedPeriod = AnalyticsPeriod.default
     private var priceData: PriceData?
     private var stashItem: StashItem?
+    private var selectedChartIndex: Int?
 
     init(
         interactor: AnalyticsRewardsInteractorInputProtocol,
@@ -33,7 +34,8 @@ final class AnalyticsRewardsPresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
-            period: selectedPeriod
+            period: selectedPeriod,
+            selectedChartIndex: selectedChartIndex
         )
         let localizedViewModel = viewModel.value(for: selectedLocale)
         view?.reload(viewState: .loaded(localizedViewModel))
@@ -55,6 +57,7 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
         selectedPeriod = period
+        selectedChartIndex = nil
         updateView()
     }
 
@@ -65,6 +68,16 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func handlePendingRewardsAction() {
         guard let stashItem = stashItem else { return }
         wireframe.showPendingRewards(from: view, stashAddress: stashItem.stash)
+    }
+
+    func didUnselectXValue() {
+        selectedChartIndex = nil
+        updateView()
+    }
+
+    func didSelectXValue(_ index: Int) {
+        selectedChartIndex = index
+        updateView()
     }
 }
 

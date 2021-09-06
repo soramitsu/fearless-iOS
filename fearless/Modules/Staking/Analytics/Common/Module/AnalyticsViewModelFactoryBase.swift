@@ -8,6 +8,12 @@ protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     static func emptyListDescription(for locale: Locale) -> String
 }
 
+struct AnalyticsSelectedChartData {
+    var yValue: Decimal
+    var dateTitle: String
+    var sections: [AnalyticsRewardSection]
+}
+
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     let chain: Chain
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
@@ -23,7 +29,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     func createViewModel(
         from data: [T],
         priceData: PriceData?,
-        period: AnalyticsPeriod
+        period: AnalyticsPeriod,
+        selectedChartIndex: Int?
     ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
             let timestampInterval = period.timestampInterval
@@ -36,7 +43,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
             let groupedByPeriodTuple = self.chartDecimalValues(rewardItemsWithinLimits, by: period, locale: locale)
             let dates = rewardItemsWithinLimits.map(\.date)
-            let groupedByPeriod = groupedByPeriodTuple.map(\.0)
+            let groupedByPeriod = groupedByPeriodTuple.map(\.yValue)
             let chartDoubles = groupedByPeriod
                 .map { Double(truncating: $0 as NSNumber) }
 
@@ -54,17 +61,27 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 return ChartAmount(value: value, selected: false, filled: true)
             }
 
+            let selectedChartAmounts: [ChartAmount] = {
+                guard let selectedIndex = selectedChartIndex else { return amounts }
+                return amounts.enumerated().map { (index, chartAmount) -> ChartAmount in
+                    if index == selectedIndex {
+                        return ChartAmount(value: chartAmount.value, selected: true, filled: true)
+                    }
+                    return ChartAmount(value: chartAmount.value, selected: false, filled: false)
+                }
+            }()
+
             let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
             let averageAmount = chartDoubles.reduce(0.0, +) / Double(groupedByPeriod.count)
             let averageAmountRawText = self.balanceViewModelFactory.amountFromValue(Decimal(averageAmount)).value(for: locale)
             let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
             let chartData = ChartData(
-                amounts: amounts,
-                summary: self.createSummary(chartAmounts: groupedByPeriodTuple, priceData: priceData, locale: locale),
+                amounts: selectedChartAmounts,
                 xAxisValues: period.xAxisValues(dates: dates),
                 bottomYValue: bottomYValue,
                 averageAmountValue: averageAmount,
-                averageAmountText: averageAmountText
+                averageAmountText: averageAmountText,
+                animate: selectedChartIndex != nil ? false : true
             )
 
             let totalReceived = rewardItemsWithinLimits
@@ -77,18 +94,31 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 priceData: priceData
             ).value(for: locale)
 
-            let dateFormatter = self.periodDateFormatter(period: period, for: locale)
-            let startDate = data.first?.date ?? Date()
-            let endDate = data.last?.date ?? Date()
+            let summaryViewModel: AnalyticsSummaryRewardViewModel = {
+                if let index = selectedChartIndex {
+                    let allSummary = createSummary(chartAmounts: groupedByPeriodTuple, priceData: priceData, locale: locale)
+                    return allSummary[index]
+                }
+                let dateFormatter = self.periodDateFormatter(period: period, for: locale)
+                let startDate = data.first?.date ?? Date()
+                let endDate = data.last?.date ?? Date()
 
-            let periodText = dateFormatter.string(from: startDate, to: endDate)
-            let summaryViewModel = AnalyticsSummaryRewardViewModel(
-                title: periodText,
-                tokenAmount: totalReceivedToken.amount,
-                usdAmount: totalReceivedToken.price
-            )
+                let periodText = dateFormatter.string(from: startDate, to: endDate)
+                let summaryViewModel = AnalyticsSummaryRewardViewModel(
+                    title: periodText,
+                    tokenAmount: totalReceivedToken.amount,
+                    usdAmount: totalReceivedToken.price
+                )
 
-            let sections = createSections(rewardsData: rewardItemsWithinLimits, locale: locale)
+                return summaryViewModel
+            }()
+
+            let sections: [AnalyticsRewardSection] = {
+                if let index = selectedChartIndex {
+                    return groupedByPeriodTuple[index].sections
+                }
+                return createSections(rewardsData: rewardItemsWithinLimits, locale: locale)
+            }()
 
             let viewModel = AnalyticsRewardsViewModel(
                 chartData: chartData,
@@ -158,18 +188,18 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     private func createSummary(
-        chartAmounts: [(Decimal, String)],
+        chartAmounts: [AnalyticsSelectedChartData],
         priceData: PriceData?,
         locale: Locale
     ) -> [AnalyticsSummaryRewardViewModel] {
-        chartAmounts.map { amount, title in
+        chartAmounts.map { item in
             let totalBalance = balanceViewModelFactory.balanceFromPrice(
-                amount,
+                item.yValue,
                 priceData: priceData
             ).value(for: locale)
 
             return AnalyticsSummaryRewardViewModel(
-                title: title,
+                title: item.dateTitle,
                 tokenAmount: totalBalance.amount,
                 usdAmount: totalBalance.price
             )
@@ -195,7 +225,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         return tokenAmountText
     }
 
-    private func createSections(
+    func createSections(
         rewardsData: [T],
         locale: Locale
     ) -> [AnalyticsRewardSection] {
@@ -224,11 +254,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     /// Override
-    func chartDecimalValues<T: AnalyticsViewModelItem>(
+    func chartDecimalValues(
         _: [T],
         by _: AnalyticsPeriod,
         locale _: Locale
-    ) -> [(Decimal, String)] {
+    ) -> [AnalyticsSelectedChartData] {
         []
     }
 }
@@ -237,7 +267,7 @@ protocol Dated {
     var date: Date { get }
 }
 
-private extension Array where Element: Dated {
+extension Array where Element: Dated {
     func groupedBy(dateComponents: Set<Calendar.Component>) -> [Date: [Element]] {
         let initial: [Date: [Element]] = [:]
         let groupedByDateComponents = reduce(into: initial) { acc, cur in

@@ -106,7 +106,7 @@ final class FWBarChartView: BarChartView {
 }
 
 extension FWBarChartView: FWChartViewProtocol {
-    func setChartData(_ data: ChartData, animated: Bool) {
+    func setChartData(_ data: ChartData, animated _: Bool) {
         let dataEntries = data.amounts.enumerated().map { index, amount in
             BarChartDataEntry(x: Double(index), yValues: [amount.value])
         }
@@ -143,11 +143,11 @@ extension FWBarChartView: FWChartViewProtocol {
         xAxisLegend.setValues(data.xAxisValues)
         yAxisFormatter.bottomValueString = data.bottomYValue
 
-        let data = BarChartData(dataSet: set)
-        data.barWidth = 0.4
+        let barChartData = BarChartData(dataSet: set)
+        barChartData.barWidth = 0.4
 
-        self.data = data
-        if animated {
+        self.data = barChartData
+        if data.animate {
             animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
         }
     }

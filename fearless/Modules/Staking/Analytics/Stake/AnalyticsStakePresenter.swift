@@ -14,6 +14,7 @@ final class AnalyticsStakePresenter {
     private var selectedPeriod = AnalyticsPeriod.default
     private var priceData: PriceData?
     private var stashItem: StashItem?
+    private var selectedChartIndex: Int?
 
     init(
         interactor: AnalyticsStakeInteractorInputProtocol,
@@ -34,7 +35,8 @@ final class AnalyticsStakePresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
             priceData: priceData,
-            period: selectedPeriod
+            period: selectedPeriod,
+            selectedChartIndex: selectedChartIndex
         )
         view?.reload(viewState: .loaded(viewModel.value(for: selectedLocale)))
     }
@@ -52,11 +54,22 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
         selectedPeriod = period
+        selectedChartIndex = nil
         updateView()
     }
 
     func handleReward(_ rewardModel: AnalyticsRewardDetailsModel) {
         wireframe.showRewardDetails(rewardModel, from: view)
+    }
+
+    func didUnselectXValue() {
+        selectedChartIndex = nil
+        updateView()
+    }
+
+    func didSelectXValue(_ index: Int) {
+        selectedChartIndex = index
+        updateView()
     }
 }
 

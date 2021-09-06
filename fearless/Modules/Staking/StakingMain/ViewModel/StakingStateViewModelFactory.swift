@@ -174,7 +174,8 @@ final class StakingStateViewModelFactory {
         let fullViewModel = viewModelFactory.createViewModel(
             from: rewards,
             priceData: commonData.price,
-            period: rewardsForPeriod.1
+            period: rewardsForPeriod.1,
+            selectedChartIndex: nil
         )
         return LocalizableResource { locale in
             RewardAnalyticsWidgetViewModel(

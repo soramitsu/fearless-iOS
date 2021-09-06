@@ -7,29 +7,77 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages)
     }
 
-    override func chartDecimalValues<T: AnalyticsViewModelItem>(
-        _ data: [T],
+    override func chartDecimalValues(
+        _ data: [SubqueryRewardItemData],
         by period: AnalyticsPeriod,
         locale: Locale
-    ) -> [(Decimal, String)] {
+    ) -> [AnalyticsSelectedChartData] {
         let count = period.chartBarsCount()
 
         let formatter = dateFormatter(period: period, for: locale)
 
-        return data.reduce(into: [(Decimal, String)](repeating: (0.0, ""), count: count)) { array, value in
-            guard let decimal = Decimal.fromSubstrateAmount(
-                value.amount,
-                precision: chain.addressType.precision
-            ) else { return }
+        let resultArray: [AnalyticsSelectedChartData] = .init(
+            repeating: AnalyticsSelectedChartData(yValue: 0, dateTitle: "", sections: []),
+            count: count
+        )
 
+        let groupedByDay = data
+            .groupedBy(dateComponents: [.year, .month, .day])
+        let sortedByDay: [(Date, [SubqueryRewardItemData])] = groupedByDay.keys
+            .map { (key: Date) in
+                (key, groupedByDay[key]!)
+            }
+            .sorted(by: { $0.0 > $1.0 })
+
+        let grouped = data.reduce(into: [[SubqueryRewardItemData]](repeating: [], count: count)) { array, value in
             let timestampInterval = period.timestampInterval
             let distance = timestampInterval.1 - timestampInterval.0
             let index = Int(
                 Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(count)
             )
-            array[index].0 += decimal
-            array[index].1 = formatter.string(from: value.date)
+            array[index].append(value)
         }
+
+        return grouped.map { group in
+            guard !group.isEmpty else {
+                return AnalyticsSelectedChartData(
+                    yValue: 0,
+                    dateTitle: "",
+                    sections: []
+                )
+            }
+            let dateTitle = formatter.string(from: group[0].date)
+            let yValue = group.map(\.amount)
+                .compactMap { amount in
+                    Decimal.fromSubstrateAmount(
+                        amount,
+                        precision: chain.addressType.precision
+                    )
+                }
+                .reduce(0.0, +)
+
+            return AnalyticsSelectedChartData(
+                yValue: yValue,
+                dateTitle: dateTitle,
+                sections: createSections(rewardsData: group, locale: locale)
+            )
+        }
+//        return data.reduce(into: resultArray) { array, value in
+//            guard let decimal = Decimal.fromSubstrateAmount(
+//                value.amount,
+//                precision: chain.addressType.precision
+//            ) else { return }
+//
+//            let timestampInterval = period.timestampInterval
+//            let distance = timestampInterval.1 - timestampInterval.0
+//            let index = Int(
+//                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(count)
+//            )
+//
+//            array[index].yValue += decimal
+//            array[index].dateTitle = formatter.string(from: value.date)
+//            array[index].sections = createSections(rewardsData: [value], locale: locale)
+//        }
     }
 }
 
