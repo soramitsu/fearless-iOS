@@ -24,7 +24,7 @@ extension ConnectionItem {
             ),
             ConnectionItem(
                 title: "Kusama, Patract node",
-                url: URL(string: "wss://kusama.elara.patract.io")!,
+                url: URL(string: "wss://pub.elara.patract.io/kusama")!,
                 type: SNAddressType.kusamaMain
             ),
             ConnectionItem(
@@ -39,7 +39,7 @@ extension ConnectionItem {
             ),
             ConnectionItem(
                 title: "Polkadot, Patract node",
-                url: URL(string: "wss://polkadot.elara.patract.io")!,
+                url: URL(string: "wss://pub.elara.patract.io/polkadot")!,
                 type: SNAddressType.polkadotMain
             ),
             ConnectionItem(

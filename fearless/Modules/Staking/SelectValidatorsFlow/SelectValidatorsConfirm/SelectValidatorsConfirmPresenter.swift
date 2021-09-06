@@ -164,7 +164,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
 
         let spendingAmount: Decimal = !state.hasExistingBond ? state.amount : 0.0
 
-        var validators: [DataValidating] = [
+        let validators: [DataValidating] = [
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.interactor.estimateFee()
             },
@@ -181,19 +181,15 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
                 maxNominatorsCount: maxNominatorsCount,
                 hasExistingNomination: state.hasExistingNomination,
                 locale: locale
-            )
-        ]
+            ),
 
-        if !state.hasExistingBond {
-            let bondValidation = dataValidatingFactory.canNominate(
+            dataValidatingFactory.canNominate(
                 amount: state.amount,
                 minimalBalance: minimalBalance,
                 minNominatorBond: minNominatorBond,
                 locale: locale
             )
-
-            validators.append(bondValidation)
-        }
+        ]
 
         DataValidationRunner(validators: validators).runValidation { [weak self] in
             self?.interactor.submitNomination()

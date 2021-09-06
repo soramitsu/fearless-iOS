@@ -13,7 +13,6 @@ protocol WalletRemoteHistoryItemProtocol {
     var identifier: String { get }
     var itemBlockNumber: UInt64 { get }
     var itemExtrinsicIndex: UInt16 { get }
-    var extrinsicHash: String? { get }
     var itemTimestamp: Int64 { get }
     var label: WalletRemoteHistorySourceLabel { get }
 

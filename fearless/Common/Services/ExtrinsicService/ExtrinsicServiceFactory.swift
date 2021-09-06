@@ -40,7 +40,7 @@ extension ExtrinsicServiceFactory: ExtrinsicServiceFactoryProtocol {
         accountItem: AccountItem,
         connectionItem: ConnectionItem
     ) -> SigningWrapperProtocol {
-        var settings = InMemorySettingsManager()
+        let settings = InMemorySettingsManager()
         settings.selectedAccount = accountItem
         settings.selectedConnection = connectionItem
 

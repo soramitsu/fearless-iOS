@@ -119,7 +119,7 @@ final class AccountCreationHelper {
             return
         }
 
-        var currentSettings = settings
+        let currentSettings = settings
 
         currentSettings.selectedAccount = accountItem
         currentSettings.selectedConnection = connection

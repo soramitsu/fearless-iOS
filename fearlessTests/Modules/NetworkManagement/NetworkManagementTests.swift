@@ -13,7 +13,7 @@ class NetworkManagementTests: XCTestCase {
 
         let facade = UserDataStorageTestFacade()
 
-        var settings = InMemorySettingsManager()
+        let settings = InMemorySettingsManager()
 
         settings.selectedConnection = ConnectionItem.supportedConnections.first!
 

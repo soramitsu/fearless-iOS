@@ -12,6 +12,7 @@ protocol ValidationViewModelProtocol {
     var totalRewardAmount: String { get }
     var totalRewardPrice: String { get }
     var status: ValidationViewStatus { get }
+    var hasPrice: Bool { get }
 }
 
 struct ValidationViewModel: ValidationViewModelProtocol {
@@ -20,4 +21,5 @@ struct ValidationViewModel: ValidationViewModelProtocol {
     let totalRewardAmount: String
     let totalRewardPrice: String
     let status: ValidationViewStatus
+    let hasPrice: Bool
 }
