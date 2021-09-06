@@ -13,71 +13,57 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         locale: Locale
     ) -> [AnalyticsSelectedChartData] {
         let count = period.chartBarsCount()
-
         let formatter = dateFormatter(period: period, for: locale)
 
-        let resultArray: [AnalyticsSelectedChartData] = .init(
-            repeating: AnalyticsSelectedChartData(yValue: 0, dateTitle: "", sections: []),
-            count: count
-        )
-
-        let groupedByDay = data
-            .groupedBy(dateComponents: [.year, .month, .day])
-        let sortedByDay: [(Date, [SubqueryRewardItemData])] = groupedByDay.keys
-            .map { (key: Date) in
-                (key, groupedByDay[key]!)
+        let dateComponents: Set<Calendar.Component> = {
+            switch period {
+            case .month:
+                return [.year, .month, .day]
+            case .week:
+                return [.year, .month, .day]
+            case .year:
+                return [.year, .month]
             }
-            .sorted(by: { $0.0 > $1.0 })
+        }()
+        let groupedByDate = data
+            .groupedBy(dateComponents: dateComponents)
+        let sortedByDate: [(Date, [SubqueryRewardItemData])] = groupedByDate.keys
+            .map { (key: Date) in
+                (key, groupedByDate[key]!)
+            }
+            .sorted(by: { $0.0 < $1.0 })
 
-        let grouped = data.reduce(into: [[SubqueryRewardItemData]](repeating: [], count: count)) { array, value in
+        return (0 ..< count).map { index in
             let timestampInterval = period.timestampInterval
             let distance = timestampInterval.1 - timestampInterval.0
-            let index = Int(
-                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(count)
-            )
-            array[index].append(value)
-        }
+            let portion = distance / Int64(count)
+            let cur: Int64 = timestampInterval.0 + Int64(index) * portion
+            let date = Date(timeIntervalSince1970: TimeInterval(cur))
+            let first = sortedByDate.last(where: { $0.0.timeIntervalSince(date) < TimeInterval(portion) })
+            if let tuple = first {
+                let dateTitle = formatter.string(from: tuple.0)
+                let yValue = tuple.1.map(\.amount)
+                    .compactMap { amount in
+                        Decimal.fromSubstrateAmount(
+                            amount,
+                            precision: chain.addressType.precision
+                        )
+                    }
+                    .reduce(0.0, +)
 
-        return grouped.map { group in
-            guard !group.isEmpty else {
+                return AnalyticsSelectedChartData(
+                    yValue: yValue,
+                    dateTitle: dateTitle,
+                    sections: createSections(rewardsData: tuple.1, locale: locale)
+                )
+            } else {
                 return AnalyticsSelectedChartData(
                     yValue: 0,
                     dateTitle: "",
                     sections: []
                 )
             }
-            let dateTitle = formatter.string(from: group[0].date)
-            let yValue = group.map(\.amount)
-                .compactMap { amount in
-                    Decimal.fromSubstrateAmount(
-                        amount,
-                        precision: chain.addressType.precision
-                    )
-                }
-                .reduce(0.0, +)
-
-            return AnalyticsSelectedChartData(
-                yValue: yValue,
-                dateTitle: dateTitle,
-                sections: createSections(rewardsData: group, locale: locale)
-            )
         }
-//        return data.reduce(into: resultArray) { array, value in
-//            guard let decimal = Decimal.fromSubstrateAmount(
-//                value.amount,
-//                precision: chain.addressType.precision
-//            ) else { return }
-//
-//            let timestampInterval = period.timestampInterval
-//            let distance = timestampInterval.1 - timestampInterval.0
-//            let index = Int(
-//                Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(count)
-//            )
-//
-//            array[index].yValue += decimal
-//            array[index].dateTitle = formatter.string(from: value.date)
-//            array[index].sections = createSections(rewardsData: [value], locale: locale)
-//        }
     }
 }
 
