@@ -106,7 +106,7 @@ final class FWBarChartView: BarChartView {
 }
 
 extension FWBarChartView: FWChartViewProtocol {
-    func setChartData(_ data: ChartData, animated _: Bool) {
+    func setChartData(_ data: ChartData) {
         let dataEntries = data.amounts.enumerated().map { index, amount in
             BarChartDataEntry(x: Double(index), yValues: [amount.value])
         }

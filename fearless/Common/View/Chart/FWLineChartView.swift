@@ -52,7 +52,7 @@ final class FWLineChartView: LineChartView {
 }
 
 extension FWLineChartView: FWChartViewProtocol {
-    func setChartData(_ data: ChartData, animated _: Bool) {
+    func setChartData(_ data: ChartData) {
         let dataEntries = data.amounts.enumerated().map { index, amount in
             ChartDataEntry(x: Double(index), y: amount.value)
         }

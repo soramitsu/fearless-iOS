@@ -6,12 +6,6 @@ protocol FWChartViewDelegate: AnyObject {
 }
 
 protocol FWChartViewProtocol where Self: UIView {
-    func setChartData(_ data: ChartData, animated: Bool)
+    func setChartData(_ data: ChartData)
     var chartDelegate: FWChartViewDelegate? { get set }
-}
-
-extension FWChartViewProtocol {
-    func setChartData(_ data: ChartData, animated: Bool = true) {
-        setChartData(data, animated: animated)
-    }
 }

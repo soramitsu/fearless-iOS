@@ -46,8 +46,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             rootView.headerView.bind(
                 summaryViewModel: viewModel.summaryViewModel,
                 chartData: viewModel.chartData,
-                selectedPeriod: viewModel.selectedPeriod,
-                animated: true
+                selectedPeriod: viewModel.selectedPeriod
             )
             rootView.tableView.reloadData()
         case .error:
