@@ -1380,7 +1380,6 @@
 		F40966DB26B29839008CD244 /* SubqueryRewardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966D726B29839008CD244 /* SubqueryRewardData.swift */; };
 		F40966DC26B29839008CD244 /* SubqueryStakeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966D826B29839008CD244 /* SubqueryStakeData.swift */; };
 		F40966E426B29919008CD244 /* Stacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966E326B29919008CD244 /* Stacks.swift */; };
-		F40966F426B299FC008CD244 /* SubqueryTransfersSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966F126B299FB008CD244 /* SubqueryTransfersSource.swift */; };
 		F40966F526B299FC008CD244 /* SubqueryRewardsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966F226B299FB008CD244 /* SubqueryRewardsSource.swift */; };
 		F40966F626B299FC008CD244 /* SubqueryStakeSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966F326B299FC008CD244 /* SubqueryStakeSource.swift */; };
 		F40966FE26B29A58008CD244 /* ChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40966FB26B29A58008CD244 /* ChartData.swift */; };
@@ -2912,7 +2911,6 @@
 		F40966D726B29839008CD244 /* SubqueryRewardData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryRewardData.swift; sourceTree = "<group>"; };
 		F40966D826B29839008CD244 /* SubqueryStakeData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryStakeData.swift; sourceTree = "<group>"; };
 		F40966E326B29919008CD244 /* Stacks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stacks.swift; sourceTree = "<group>"; };
-		F40966F126B299FB008CD244 /* SubqueryTransfersSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryTransfersSource.swift; sourceTree = "<group>"; };
 		F40966F226B299FB008CD244 /* SubqueryRewardsSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryRewardsSource.swift; sourceTree = "<group>"; };
 		F40966F326B299FC008CD244 /* SubqueryStakeSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryStakeSource.swift; sourceTree = "<group>"; };
 		F40966FB26B29A58008CD244 /* ChartData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartData.swift; sourceTree = "<group>"; };
@@ -6290,9 +6288,6 @@
 			children = (
 				F40966F226B299FB008CD244 /* SubqueryRewardsSource.swift */,
 				F40966F326B299FC008CD244 /* SubqueryStakeSource.swift */,
-				F40966F126B299FB008CD244 /* SubqueryTransfersSource.swift */,
-				841494442604E7D8000D8D1A /* SubscanRewardSource.swift */,
-				84EE6821264AD1350026E6D3 /* SubqueryRewardSource.swift */,
 				846B32A026DCDB7300250E89 /* SubqueryRewardSource.swift */,
 			);
 			path = Rewards;
@@ -9124,7 +9119,6 @@
 				F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */,
 				5678BAE4B652C5C5E4284F28 /* AccountManagementViewFactory.swift in Sources */,
 				849528E326036997009DC845 /* RewardEstimationView.swift in Sources */,
-				F40966F426B299FC008CD244 /* SubqueryTransfersSource.swift in Sources */,
 				F474D388260CBEE600013699 /* StakingRewardDetailsViewLayout.swift in Sources */,
 				8B93366603CDF00918A1218A /* AccountInfoProtocols.swift in Sources */,
 				849ABE81262811CF00011A2A /* NominationsListReducer.swift in Sources */,
