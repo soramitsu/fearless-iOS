@@ -10,7 +10,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     ) -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
-        let operationManager = OperationManagerFacade.sharedManager
+        let addressFactory = SS58AddressFactory()
 
         let chain = connection.type.chain
 
@@ -19,20 +19,18 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
         guard let assetId = WalletAssetId(rawValue: asset.identifier),
-              let subscanUrl = assetId.subscanUrl else {
+              let rewardsUrl = assetId.subqueryHistoryUrl else {
             return nil
         }
 
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
-            chain: chain,
-            subscanBaseURL: subscanUrl,
-            subscanOperationFactory: SubscanOperationFactory(),
-            operationManager: operationManager
+            url: rewardsUrl,
+            addressFactory: addressFactory
         )
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
             addressType: chain.addressType,
-            addressFactory: SS58AddressFactory()
+            addressFactory: addressFactory
         )
 
         return createView(
