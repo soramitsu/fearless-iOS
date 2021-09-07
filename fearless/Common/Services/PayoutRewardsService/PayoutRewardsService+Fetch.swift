@@ -203,12 +203,12 @@ extension PayoutRewardsService {
     ) throws -> BaseOperation<[Data: [EraIndex]]> {
         ClosureOperation<[Data: [EraIndex]]> {
             let ledgerInfo = try ledgerInfoOperation.extractNoCancellableResultData()
-            let erasRange = try historyRangeOperation.extractNoCancellableResultData().erasRange
+            let eraList = try historyRangeOperation.extractNoCancellableResultData().eraList
 
             return ledgerInfo
                 .reduce(into: [Data: [EraIndex]]()) { dict, ledger in
                     let erasClaimedRewards = Set(ledger.claimedRewards.map(\.value))
-                    let erasUnclaimedRewards = Set(erasRange).subtracting(erasClaimedRewards)
+                    let erasUnclaimedRewards = Set(eraList).subtracting(erasClaimedRewards)
                     dict[ledger.stash] = Array(erasUnclaimedRewards)
                 }
         }
