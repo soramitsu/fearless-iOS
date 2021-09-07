@@ -12,7 +12,8 @@ class PayoutRewardsServiceTests: XCTestCase {
         let settings = SettingsManager.shared
         let assetId = WalletAssetId.kusama
         let chain = assetId.chain!
-        let selectedAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
+        let selectedAccount = "FyE2tgkaAhARtpTJSy8TtJum1PwNHP1nCy3SuFjEGSvNfMv"
+        let addressFactory = SS58AddressFactory()
 
         try! AccountCreationHelper.createAccountFromMnemonic(
             cryptoType: .sr25519,
@@ -31,16 +32,14 @@ class PayoutRewardsServiceTests: XCTestCase {
             operationManager: operationManager
         )
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
-            chain: chain,
-            subscanBaseURL: assetId.subscanUrl!,
-            subscanOperationFactory: SubscanOperationFactory(),
-            operationManager: operationManager
+            url: assetId.subqueryHistoryUrl!,
+            addressFactory: addressFactory
         )
 
         let identityOperation = IdentityOperationFactory(requestFactory: storageRequestFactory)
         let payoutInfoFactory = NominatorPayoutInfoFactory(
             addressType: chain.addressType,
-            addressFactory: SS58AddressFactory()
+            addressFactory: addressFactory
         )
 
         let service = PayoutRewardsService(

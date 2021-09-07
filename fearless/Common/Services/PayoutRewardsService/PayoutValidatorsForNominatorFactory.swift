@@ -1,229 +1,89 @@
-import Foundation
 import RobinHood
+import Foundation
 import FearlessUtils
 import IrohaCrypto
 
 final class PayoutValidatorsForNominatorFactory {
-    let chain: Chain
-    let subscanBaseURL: URL
-    let subscanOperationFactory: SubscanOperationFactoryProtocol
-    let operationManager: OperationManagerProtocol
+    let url: URL
+    let addressFactory: SS58AddressFactoryProtocol
 
-    init(
-        chain: Chain,
-        subscanBaseURL: URL,
-        subscanOperationFactory: SubscanOperationFactoryProtocol,
-        operationManager: OperationManagerProtocol
-    ) {
-        self.chain = chain
-        self.subscanBaseURL = subscanBaseURL
-        self.subscanOperationFactory = subscanOperationFactory
-        self.operationManager = operationManager
+    init(url: URL, addressFactory: SS58AddressFactoryProtocol) {
+        self.url = url
+        self.addressFactory = addressFactory
     }
 
-    private func createControllersQueryWrapper(
-        nominatorStashAddress: String
-    ) -> CompoundOperationWrapper<Set<AccountId>> {
-        let controllersByStakingOperation =
-            createControllersByStakingOperation(nominatorStashAccount: nominatorStashAddress)
+    private func createRequestFactory(
+        address: AccountAddress,
+        historyRange: @escaping () -> EraRange?
+    ) -> NetworkRequestFactoryProtocol {
+        BlockNetworkRequestFactory {
+            var request = URLRequest(url: self.url)
 
-        let controllersByUtilityOperation =
-            createControllersByUtilityOperation(nominatorStashAccount: nominatorStashAddress)
-
-        let mergeOperation = ClosureOperation<Set<AccountId>> {
-            let stakingIds = try controllersByStakingOperation
-                .targetOperation.extractNoCancellableResultData()
-            let batchIds = try controllersByUtilityOperation
-                .targetOperation.extractNoCancellableResultData()
-
-            return stakingIds.union(batchIds)
+            let eraRange = historyRange()
+            let params = self.requestParams(accountAddress: address, eraRange: eraRange)
+            let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
+            request.httpBody = try JSONEncoder().encode(info)
+            request.setValue(
+                HttpContentType.json.rawValue,
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
+            request.httpMethod = HttpMethod.post.rawValue
+            return request
         }
-
-        let dependencies = controllersByStakingOperation.allOperations + controllersByUtilityOperation.allOperations
-        dependencies.forEach { mergeOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: dependencies
-        )
     }
 
-    private func createControllersByStakingOperation(nominatorStashAccount: String)
-        -> CompoundOperationWrapper<Set<AccountId>> {
-        let bondOperation = createSubscanQueryOperation(
-            address: nominatorStashAccount,
-            moduleName: "staking",
-            callName: "bond",
-            mapper: AnyMapper(mapper: ControllerMapper()),
-            reducer: AnyReducer(reducer: ControllersReducer())
-        )
+    private func createResultFactory(
+        for addressFactory: SS58AddressFactoryProtocol
+    ) -> AnyNetworkResultFactory<[AccountId]> {
+        AnyNetworkResultFactory<[AccountId]> { data in
+            guard
+                let resultData = try? JSONDecoder().decode(JSON.self, from: data),
+                let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
+            else { return [] }
 
-        let setControllerOperation = createSubscanQueryOperation(
-            address: nominatorStashAccount,
-            moduleName: "staking",
-            callName: "set_controller",
-            mapper: AnyMapper(mapper: ControllerMapper()),
-            reducer: AnyReducer(reducer: ControllersReducer())
-        )
+            return try nodes.compactMap { node in
+                guard let address = node.address?.stringValue else {
+                    return nil
+                }
 
-        let mergeOperation = ClosureOperation<Set<AccountId>> {
-            let bondIds = try bondOperation.extractNoCancellableResultData()
-            let setControllerIds = try setControllerOperation.extractNoCancellableResultData()
-
-            return bondIds.union(setControllerIds)
-        }
-
-        let dependencies = [bondOperation, setControllerOperation]
-        dependencies.forEach { mergeOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: dependencies
-        )
-    }
-
-    private func createControllersByUtilityOperation(
-        nominatorStashAccount: String
-    ) -> CompoundOperationWrapper<Set<Data>> {
-        let controllerMapper = AnyMapper(mapper: ControllerMapper())
-
-        let batchOperation = createSubscanQueryOperation(
-            address: nominatorStashAccount,
-            moduleName: "utility",
-            callName: "batch",
-            mapper: AnyMapper(mapper: BatchMapper(innerMapper: controllerMapper)),
-            reducer: AnyReducer(reducer: ControllersListReducer())
-        )
-
-        let batchAllOperation = createSubscanQueryOperation(
-            address: nominatorStashAccount,
-            moduleName: "utility",
-            callName: "batch_all",
-            mapper: AnyMapper(mapper: BatchMapper(innerMapper: controllerMapper)),
-            reducer: AnyReducer(reducer: ControllersListReducer())
-        )
-
-        let mergeOperation = ClosureOperation<Set<AccountId>> {
-            let batchIds = try batchOperation.extractNoCancellableResultData()
-            let batchAllIds = try batchAllOperation.extractNoCancellableResultData()
-
-            return batchIds.union(batchAllIds)
-        }
-
-        let dependencies = [batchOperation, batchAllOperation]
-        dependencies.forEach { mergeOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: dependencies
-        )
-    }
-
-    private func createValidatorsQueryWrapper(
-        controllers: Set<AccountId>
-    ) throws -> CompoundOperationWrapper<[AccountId]> {
-        let addressFactory = SS58AddressFactory()
-
-        let validatorsOperations: [[BaseOperation<Set<AccountId>>]] =
-            try controllers.map { controller in
-                let address = try addressFactory
-                    .addressFromAccountId(data: controller, type: chain.addressType)
-
-                let mapper = AnyMapper(mapper: NominateMapper())
-
-                let validatorsByNominate = createSubscanQueryOperation(
-                    address: address,
-                    moduleName: "staking",
-                    callName: "nominate",
-                    mapper: mapper,
-                    reducer: AnyReducer(reducer: NominationsReducer())
-                )
-
-                let validatorsByBatch = createSubscanQueryOperation(
-                    address: address,
-                    moduleName: "utility",
-                    callName: "batch",
-                    mapper: AnyMapper(mapper: BatchMapper(innerMapper: mapper)),
-                    reducer: AnyReducer(reducer: NominationsListReducer())
-                )
-
-                let validatorsByBatchAll = createSubscanQueryOperation(
-                    address: address,
-                    moduleName: "utility",
-                    callName: "batch_all",
-                    mapper: AnyMapper(mapper: BatchMapper(innerMapper: mapper)),
-                    reducer: AnyReducer(reducer: NominationsListReducer())
-                )
-
-                return [validatorsByNominate, validatorsByBatch, validatorsByBatchAll]
+                return try addressFactory.accountId(from: address)
             }
-
-        let dependecies = validatorsOperations.flatMap { $0 }
-
-        let mergeOperation = ClosureOperation<[Data]> {
-            let allSets = try dependecies.map { try $0.extractNoCancellableResultData() }
-
-            let resultSet = allSets.reduce(into: Set<AccountId>()) { result, item in
-                result = result.union(item)
-            }
-
-            return Array(resultSet)
         }
-
-        dependecies.forEach { mergeOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: dependecies
-        )
     }
 
-    private func createSubscanQueryOperation<T>(
-        address: String,
-        moduleName: String,
-        callName: String,
-        mapper: AnyMapper<JSON, T>,
-        reducer: AnyReducer<T, Set<AccountId>>
-    ) -> BaseOperation<Set<AccountId>> {
-        let url = subscanBaseURL
-            .appendingPathComponent(SubscanApi.extrinsics)
+    private func requestParams(accountAddress: AccountAddress, eraRange: EraRange?) -> String {
+        let eraFilter: String = eraRange.map {
+            "era:{greaterThanOrEqualTo: \($0.start), lessThanOrEqualTo: \($0.end)},"
+        } ?? ""
 
-        let params = SubscanQueryParams(address: address, moduleName: moduleName, callName: callName)
-
-        return SubscanQueryService(
-            url: url,
-            params: params,
-            mapper: mapper,
-            reducer: reducer,
-            initialResultValue: [],
-            subscanOperationFactory: subscanOperationFactory,
-            operationManager: operationManager
-        ).longrunOperation()
+        return """
+        {
+          query {
+            eraValidatorInfos(
+              filter:{
+                \(eraFilter)
+                others:{contains:[{who:\"\(accountAddress)\"}]}
+              }
+            ) {
+              nodes {
+                address
+              }
+            }
+          }
+        }
+        """
     }
 }
 
 extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
-    func createResolutionOperation(for address: AccountAddress) -> CompoundOperationWrapper<[AccountId]> {
-        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
+    func createResolutionOperation(
+        for address: AccountAddress,
+        eraRangeClosure _: @escaping () throws -> EraRange?
+    ) -> CompoundOperationWrapper<[AccountId]> {
+        let requestFactory = createRequestFactory(address: address, historyRange: { nil })
+        let resultFactory = createResultFactory(for: addressFactory)
 
-        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
-            operationManager: operationManager
-        ) {
-            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
-            let wrapper = try self.createValidatorsQueryWrapper(controllers: controllers)
-
-            return [wrapper]
-        }.longrunOperation()
-
-        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
-
-        let mapOperation = ClosureOperation<[AccountId]> {
-            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
-        }
-
-        mapOperation.addDependency(validatorsOperation)
-        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
-
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+        let networkOperation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
+        return CompoundOperationWrapper(targetOperation: networkOperation)
     }
 }
