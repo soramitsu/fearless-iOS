@@ -99,7 +99,7 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
         }
 
         let oldSeedTag = KeystoreTag.seedTagForAddress(sourceAddress)
-        if let seed = keystoreMigrator.fetchKey(for: KeystoreTag.seedTagForAddress(sourceAddress)) {
+        if let seed = keystoreMigrator.fetchKey(for: oldSeedTag) {
             let newSeedTag = KeystoreTagV2.substrateSeedTagForMetaId(metaId)
 
             keystoreMigrator.deleteKey(for: oldSeedTag)

@@ -52,11 +52,22 @@ final class UserStorageMigrator {
         }
 
         do {
+            let migrationDirName = UUID().uuidString
+            let tmpMigrationDirURL = URL(
+                fileURLWithPath: NSTemporaryDirectory(),
+                isDirectory: true
+            ).appendingPathComponent(migrationDirName)
+
+            try fileManager.createDirectory(at: tmpMigrationDirURL, withIntermediateDirectories: true)
+
             try performMigration(
                 from: sourceVersion,
                 to: targetVersion,
-                storeURL: storeURL
+                storeURL: storeURL,
+                tmpMigrationDirURL: tmpMigrationDirURL
             )
+
+            try fileManager.removeItem(at: tmpMigrationDirURL)
         } catch {
             fatalError("Migration failed with error \(error)")
         }
@@ -65,7 +76,8 @@ final class UserStorageMigrator {
     private func performMigration(
         from sourceVersion: UserStorageVersion,
         to destinationVersion: UserStorageVersion,
-        storeURL: URL
+        storeURL: URL,
+        tmpMigrationDirURL: URL
     ) throws {
         var currentVersion = sourceVersion
         var currentURL = storeURL
@@ -98,8 +110,7 @@ final class UserStorageMigrator {
             userInfo[UserStorageMigratorKeys.settingsMigrator] = settingsMigrator
             manager.userInfo = userInfo
 
-            let nextStepURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-                .appendingPathComponent(UUID().uuidString)
+            let nextStepURL = tmpMigrationDirURL.appendingPathComponent(UUID().uuidString)
 
             try manager.migrateStore(
                 from: currentURL,

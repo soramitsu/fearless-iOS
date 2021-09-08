@@ -7,7 +7,7 @@ import SoraKeystore
 @testable import fearless
 
 class SingleToMultiassetUserMigrationTests: XCTestCase {
-    struct Account {
+    struct OldAccount {
         let address: String
         let cryptoType: UInt8
         let name: String
@@ -18,6 +18,15 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         let seed: Data?
     }
 
+    struct NewEntity {
+        let metaId: String
+        let name: String
+        let isSelected: Bool
+        let substratePublicKey: Data
+        let substrateCryptoType: UInt8
+        let ethereumPublicKey: Data?
+    }
+
     let databaseDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("CoreData")
     let databaseName = UUID().uuidString + ".sqlite"
     let modelDirectory = "UserDataModel.momd"
@@ -26,53 +35,83 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         databaseDirectory.appendingPathComponent(databaseName)
     }
 
-    func testUserMigration() throws {
+    override func setUp() {
+        super.setUp()
+
+        try? FileManager.default.removeItem(at: databaseDirectory)
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        try? FileManager.default.removeItem(at: databaseDirectory)
+    }
+
+    func testMigrationForCreatedAccountWithoutDerivPath() {
+        do {
+            try performTestUserMigration(hasEntropy: true, hasSeed: true, hasDerivationPath: false)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testMigrationForCreatedAccountWithDerivPath() {
+        do {
+            try performTestUserMigration(hasEntropy: true, hasSeed: true, hasDerivationPath: true)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testMigrationForImportedWithSeedAccountWithoutDerivPath() {
+        do {
+            try performTestUserMigration(hasEntropy: false, hasSeed: true, hasDerivationPath: false)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testMigrationForImportedWithSeedAccountWithDerivPath() {
+        do {
+            try performTestUserMigration(hasEntropy: false, hasSeed: true, hasDerivationPath: true)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testMigrationForImportedWithJSONAccountWithoutDerivPath() {
+        do {
+            try performTestUserMigration(hasEntropy: false, hasSeed: false, hasDerivationPath: false)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testMigrationForImportedWithJSONAccountWithDerivPath() {
+        do {
+            try performTestUserMigration(hasEntropy: false, hasSeed: false, hasDerivationPath: true)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    private func performTestUserMigration(hasEntropy: Bool, hasSeed: Bool, hasDerivationPath: Bool) throws {
         // given
 
-        let oldService = createCoreDataService(for: .version1)
         let keystore = InMemoryKeychain()
         let settings = InMemorySettingsManager()
 
-        let networkType: UInt16 = 0
-        let cryptoType: fearless.CryptoType = .sr25519
-        let privateKey = Data.random(of: 32)!
-        let publicKey = Data.random(of: 32)!
-        let name = "Username"
-        let identifier = try SS58AddressFactory().address(fromAccountId: publicKey, type: networkType)
+        let accounts = try generateAndSaveOldAccounts(
+            count: 10,
+            keystore: keystore,
+            hasEntropy: hasEntropy,
+            hasSeed: hasSeed,
+            hasDerivationPath: hasDerivationPath
+        )
 
-        let dbSemaphore = DispatchSemaphore(value: 0)
-
-        // when
-
-        try keystore.saveKey(privateKey, with: KeystoreTag.secretKeyTagForAddress(identifier))
-
-        oldService.performAsync { (context, error) in
-            defer {
-                dbSemaphore.signal()
-            }
-
-            guard let context = context else {
-                return
-            }
-
-            let account = NSEntityDescription.insertNewObject(
-                forEntityName: "CDAccountItem",
-                into: context
-            )
-
-            account.setValue(identifier, forKey: "identifier")
-            account.setValue(name, forKeyPath: "username")
-            account.setValue(networkType, forKey: "networkType")
-            account.setValue(cryptoType.rawValue, forKey: "cryptoType")
-            account.setValue(publicKey, forKey: "publicKey")
-            account.setValue(0, forKeyPath: "order")
-
-            try! context.save()
-        }
-
-        dbSemaphore.wait()
-
-        try oldService.close()
+        // we put some dummy data for serialized settings just to make sure that it is cleared
+        settings.set(value: Data(), for: SettingsKey.selectedAccount.rawValue)
+        settings.set(value: Data(), for: SettingsKey.selectedConnection.rawValue)
 
         let migrator = UserStorageMigrator(
             targetVersion: .version2,
@@ -85,29 +124,83 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
 
         migrator.performMigration()
 
-        let newService = createCoreDataService(for: .version2)
+        // then
 
-        var metaId: String?
+        let newEntities = try fetchNewEntities()
 
-        let newSemaphore = DispatchSemaphore(value: 0)
-
-        newService.performAsync { (context, error) in
-            defer {
-                newSemaphore.signal()
+        for account in accounts {
+            guard let newEntity = newEntities.first(where: { $0.substratePublicKey == account.publicKey }) else {
+                XCTFail("Missing account after migration")
+                continue
             }
 
-            let request = NSFetchRequest<NSManagedObject>(entityName: "CDMetaAccount")
-            let results = try! context?.fetch(request)
+            XCTAssertNotNil(newEntity.metaId)
+            XCTAssertEqual(account.name, newEntity.name)
+            XCTAssertEqual(account.publicKey, newEntity.substratePublicKey)
+            XCTAssertEqual(account.cryptoType, newEntity.substrateCryptoType)
 
-            metaId = results?.first?.value(forKey: "metaId") as? String
+            let entropyExistence = try keystore.checkKey(for: KeystoreTagV2.entropyTagForMetaId(newEntity.metaId))
+            let substrateSeedExistence = try keystore.checkKey(
+                for: KeystoreTagV2.substrateSeedTagForMetaId(newEntity.metaId)
+            )
+
+            let ethSeedExistence = try keystore.checkKey(
+                for: KeystoreTagV2.ethereumSeedTagForMetaId(newEntity.metaId)
+            )
+
+            let ethPrivateKeyExistence = try keystore.checkKey(
+                for: KeystoreTagV2.ethereumSecretKeyTagForMetaId(newEntity.metaId)
+            )
+
+            let substrateDerivPathExistence = try keystore.checkKey(
+                for: KeystoreTagV2.substrateDerivationTagForMetaId(newEntity.metaId)
+            )
+
+            let ethDerivPathExistence = try keystore.checkKey(
+                for: KeystoreTagV2.ethereumDerivationTagForMetaId(newEntity.metaId)
+            )
+
+            if hasEntropy {
+                let migratedEntropy = try keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(newEntity.metaId))
+                XCTAssertEqual(account.entropy, migratedEntropy)
+                XCTAssertNotNil(newEntity.ethereumPublicKey)
+                XCTAssertTrue(ethSeedExistence)
+                XCTAssertTrue(ethPrivateKeyExistence)
+                XCTAssertTrue(ethDerivPathExistence)
+            } else {
+                XCTAssertNil(newEntity.ethereumPublicKey)
+                XCTAssertFalse(entropyExistence)
+                XCTAssertFalse(ethSeedExistence)
+                XCTAssertFalse(ethPrivateKeyExistence)
+                XCTAssertFalse(ethDerivPathExistence)
+            }
+
+            if hasSeed {
+                let migratedSeed = try keystore.fetchKey(
+                    for: KeystoreTagV2.substrateSeedTagForMetaId(newEntity.metaId)
+                )
+                XCTAssertEqual(account.seed, migratedSeed)
+            } else {
+                XCTAssertFalse(substrateSeedExistence)
+            }
+
+            if hasDerivationPath {
+                let migratedDerivationPath = try keystore.fetchKey(
+                    for: KeystoreTagV2.substrateDerivationTagForMetaId(newEntity.metaId)
+                )
+
+                XCTAssertEqual(account.derivationPath, String(data: migratedDerivationPath, encoding: .utf8))
+
+            } else {
+                XCTAssertFalse(substrateDerivPathExistence)
+            }
         }
 
-        newSemaphore.wait()
+        let hasSelected = newEntities.contains { $0.isSelected }
+        XCTAssertTrue(hasSelected)
 
-        XCTAssertNotNil(metaId)
-
-        try newService.close()
-        try newService.drop()
+        XCTAssertNil(settings.data(for: SettingsKey.selectedAccount.rawValue))
+        XCTAssertNil(settings.data(for: SettingsKey.selectedConnection.rawValue))
     }
 
     // MARK: Private
@@ -139,11 +232,140 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         return CoreDataService(configuration: configuration)
     }
 
-    private func generateAccount(
+    private func fetchNewEntities() throws -> [NewEntity] {
+        let dbService = createCoreDataService(for: .version2)
+        let semaphore = DispatchSemaphore(value: 0)
+        var newEntities: [NewEntity]?
+
+        dbService.performAsync { (context, error) in
+            defer {
+                semaphore.signal()
+            }
+
+            let request = NSFetchRequest<NSManagedObject>(entityName: "CDMetaAccount")
+            let results = try! context?.fetch(request)
+
+            newEntities = results?.map { entity in
+                let metaId = entity.value(forKey: "metaId") as? String
+                let name = entity.value(forKey: "name") as? String
+                let isSelected = entity.value(forKey: "isSelected") as? Bool
+                let substratePublicKey = entity.value(forKey: "substratePublicKey") as? Data
+                let substrateCryptoType = entity.value(forKey: "substrateCryptoType") as? UInt8
+                let ethereumPublicKey = entity.value(forKey: "ethereumPublicKey") as? Data
+
+                return NewEntity(
+                    metaId: metaId!,
+                    name: name!,
+                    isSelected: isSelected!,
+                    substratePublicKey: substratePublicKey!,
+                    substrateCryptoType: substrateCryptoType!,
+                    ethereumPublicKey: ethereumPublicKey
+                )
+            }
+        }
+
+        semaphore.wait()
+
+        try dbService.close()
+
+        return newEntities ?? []
+    }
+
+    private func generateAndSaveOldAccounts(
+        count: Int,
+        keystore: KeystoreProtocol,
         hasEntropy: Bool,
         hasSeed: Bool,
         hasDerivationPath: Bool
-    ) throws -> Account {
+    ) throws -> [OldAccount] {
+        let dbService = createCoreDataService(for: .version1)
 
+        let accounts = try (0..<count).map { _ in
+            try generateOldAccount(hasEntropy: hasEntropy, hasSeed: hasSeed, hasDerivationPath: hasDerivationPath)
+        }
+
+        let semaphore = DispatchSemaphore(value: 0)
+
+        dbService.performAsync { (context, error) in
+            defer {
+                semaphore.signal()
+            }
+
+            guard let context = context else {
+                return
+            }
+
+            accounts.forEach { account in
+                let entity = NSEntityDescription.insertNewObject(
+                    forEntityName: "CDAccountItem",
+                    into: context
+                )
+
+                entity.setValue(account.address, forKey: "identifier")
+                entity.setValue(account.name, forKeyPath: "username")
+                entity.setValue(0, forKey: "networkType")
+                entity.setValue(account.cryptoType, forKey: "cryptoType")
+                entity.setValue(account.publicKey, forKey: "publicKey")
+                entity.setValue(0, forKeyPath: "order")
+            }
+
+            try! context.save()
+        }
+
+        semaphore.wait()
+
+        try accounts.forEach { account in
+            try keystore.saveKey(account.privateKey, with: KeystoreTag.secretKeyTagForAddress(account.address))
+
+            if let seed = account.seed {
+                try keystore.saveKey(seed, with: KeystoreTag.seedTagForAddress(account.address))
+            }
+
+            if let entropy = account.entropy {
+                try keystore.saveKey(entropy, with: KeystoreTag.entropyTagForAddress(account.address))
+            }
+
+            if let derivationPath = account.derivationPath {
+                try keystore.saveKey(
+                    derivationPath.data(using: .utf8)!, with: KeystoreTag.deriviationTagForAddress(account.address)
+                )
+            }
+        }
+
+        return accounts
+    }
+
+    private func generateOldAccount(
+        hasEntropy: Bool,
+        hasSeed: Bool,
+        hasDerivationPath: Bool
+    ) throws -> OldAccount {
+        let mnemonicGenerator = IRMnemonicCreator(language: .english)
+        let mnemonic = try mnemonicGenerator.randomMnemonic(.entropy160)
+
+        let seedFactory = SeedFactory(mnemonicLanguage: .english)
+        let seedResult = try seedFactory.deriveSeed(from: mnemonic.toString(), password: "")
+
+        let derivationPath = hasDerivationPath ? "//0/1" : nil
+
+        let chaincodes = try derivationPath.map { try SubstrateJunctionFactory().parse(path: $0).chaincodes } ?? []
+
+        let keypair = try SR25519KeypairFactory().createKeypairFromSeed(
+            seedResult.seed.miniSeed,
+            chaincodeList: chaincodes
+        )
+
+        let address = try SS58AddressFactory().address(fromAccountId: keypair.publicKey().rawData(), type: 0)
+
+        return OldAccount(
+            address: address,
+            cryptoType: 0,
+            name: UUID().uuidString,
+            privateKey: keypair.privateKey().rawData(),
+            publicKey: keypair.publicKey().rawData(),
+            entropy: hasEntropy ? mnemonic.entropy() : nil,
+            derivationPath: derivationPath,
+            seed: hasSeed ? seedResult.seed : nil
+        )
     }
 }
