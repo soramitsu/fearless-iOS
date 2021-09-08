@@ -1,47 +1,89 @@
-import Foundation
 import RobinHood
+import Foundation
 import FearlessUtils
 import IrohaCrypto
 
 final class PayoutValidatorsForNominatorFactory {
-    let chain: Chain
-    let subqueryURL: URL
+    let url: URL
+    let addressFactory: SS58AddressFactoryProtocol
 
-    init(
-        chain: Chain,
-        subqueryURL: URL
-    ) {
-        self.chain = chain
-        self.subqueryURL = subqueryURL
+    init(url: URL, addressFactory: SS58AddressFactoryProtocol) {
+        self.url = url
+        self.addressFactory = addressFactory
+    }
+
+    private func createRequestFactory(
+        address: AccountAddress,
+        historyRange: @escaping () -> EraRange?
+    ) -> NetworkRequestFactoryProtocol {
+        BlockNetworkRequestFactory {
+            var request = URLRequest(url: self.url)
+
+            let eraRange = historyRange()
+            let params = self.requestParams(accountAddress: address, eraRange: eraRange)
+            let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
+            request.httpBody = try JSONEncoder().encode(info)
+            request.setValue(
+                HttpContentType.json.rawValue,
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
+            request.httpMethod = HttpMethod.post.rawValue
+            return request
+        }
+    }
+
+    private func createResultFactory(
+        for addressFactory: SS58AddressFactoryProtocol
+    ) -> AnyNetworkResultFactory<[AccountId]> {
+        AnyNetworkResultFactory<[AccountId]> { data in
+            guard
+                let resultData = try? JSONDecoder().decode(JSON.self, from: data),
+                let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
+            else { return [] }
+
+            return try nodes.compactMap { node in
+                guard let address = node.address?.stringValue else {
+                    return nil
+                }
+
+                return try addressFactory.accountId(from: address)
+            }
+        }
+    }
+
+    private func requestParams(accountAddress: AccountAddress, eraRange: EraRange?) -> String {
+        let eraFilter: String = eraRange.map {
+            "era:{greaterThanOrEqualTo: \($0.start), lessThanOrEqualTo: \($0.end)},"
+        } ?? ""
+
+        return """
+        {
+          query {
+            eraValidatorInfos(
+              filter:{
+                \(eraFilter)
+                others:{contains:[{who:\"\(accountAddress)\"}]}
+              }
+            ) {
+              nodes {
+                address
+              }
+            }
+          }
+        }
+        """
     }
 }
 
 extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
     func createResolutionOperation(
         for address: AccountAddress,
-        dependingOn historyRangeOperation: BaseOperation<ChainHistoryRange>
+        eraRangeClosure _: @escaping () throws -> EraRange?
     ) -> CompoundOperationWrapper<[AccountId]> {
-        let source = SubqueryEraStakersInfoSource(url: subqueryURL, address: address)
-        let operation = source.fetch {
-            try? historyRangeOperation.extractNoCancellableResultData()
-        }
-        operation.addDependency(operations: [historyRangeOperation])
+        let requestFactory = createRequestFactory(address: address, historyRange: { nil })
+        let resultFactory = createResultFactory(for: addressFactory)
 
-        let mergeOperation = ClosureOperation<[AccountId]> {
-            let erasInfo = try operation.targetOperation.extractNoCancellableResultData()
-
-            let addressFactory = SS58AddressFactory()
-            return erasInfo
-                .compactMap { validatorInfo -> AccountAddress? in
-                    let contains = validatorInfo.others.contains(where: { $0.who == address })
-                    return contains ? validatorInfo.address : nil
-                }
-                .compactMap { accountAddress -> AccountId? in
-                    try? addressFactory.accountId(from: accountAddress)
-                }
-        }
-        operation.allOperations.forEach { mergeOperation.addDependency($0) }
-        let dependencies = operation.allOperations
-        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+        let networkOperation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
+        return CompoundOperationWrapper(targetOperation: networkOperation)
     }
 }

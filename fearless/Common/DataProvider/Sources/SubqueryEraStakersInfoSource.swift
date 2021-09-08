@@ -12,9 +12,9 @@ final class SubqueryEraStakersInfoSource {
     }
 
     func fetch(
-        historyRange: @escaping () -> ChainHistoryRange?
+        eraRangeClosure: @escaping () -> EraRange?
     ) -> CompoundOperationWrapper<[SubqueryEraValidatorInfo]> {
-        let requestFactory = createRequestFactory(historyRange: historyRange)
+        let requestFactory = createRequestFactory(eraRangeClosure: eraRangeClosure)
         let resultFactory = createResultFactory()
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
@@ -22,13 +22,13 @@ final class SubqueryEraStakersInfoSource {
     }
 
     private func createRequestFactory(
-        historyRange: @escaping () -> ChainHistoryRange?
+        eraRangeClosure: @escaping () -> EraRange?
     ) -> NetworkRequestFactoryProtocol {
         BlockNetworkRequestFactory {
             var request = URLRequest(url: self.url)
 
-            let erasRange = historyRange()?.erasRange
-            let params = self.requestParams(accountAddress: self.address, erasRange: erasRange)
+            let eraRange = eraRangeClosure()
+            let params = self.requestParams(accountAddress: self.address, eraRange: eraRange)
             let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
             request.httpBody = try JSONEncoder().encode(info)
             request.setValue(
@@ -51,9 +51,9 @@ final class SubqueryEraStakersInfoSource {
         }
     }
 
-    private func requestParams(accountAddress: AccountAddress, erasRange: [EraIndex]?) -> String {
+    private func requestParams(accountAddress: AccountAddress, eraRange: EraRange?) -> String {
         let eraFilter: String = {
-            guard let fistRange = erasRange?.first, let lastRange = erasRange?.last else { return "" }
+            guard let fistRange = eraRange?.start, let lastRange = eraRange?.end else { return "" }
             return "era:{greaterThanOrEqualTo: \(fistRange), lessThanOrEqualTo: \(lastRange)},"
         }()
 

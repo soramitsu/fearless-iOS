@@ -395,7 +395,7 @@
 "staking.set.validators.message" = "Валидаторы не выбраны";
 "staking.max.nominators.reached.title" = "Невозможно начать стейкинг";
 "staking.max.nominators.reached.message" = "Достигнуто максимальное количество номинаторов";
-"staking.custom.blocked.warning" = "Этот валидатор заблокирован и сейчас его невозможно выбрать. Пожалуйста, попробуйте снова в следующую эру.";
+"staking.custom.blocked.warning" = "Этот валидатор не принимает номинации в данный момент. Пожалуйста, попробуйте снова в следующую эру.";
 "staking.alert.start.next.era.message" = "Пожалуйста, дождитесь начала следующей эры.";
 "staking.custom.proceed.button.disabled.title" = "Выбрать валидаторов (макс. %li)";
 "staking.custom.proceed.button.enabled.title" = "Показать выбранных: %li (макс. %li)";

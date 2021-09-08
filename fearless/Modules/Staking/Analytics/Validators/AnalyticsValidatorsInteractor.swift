@@ -126,7 +126,7 @@ final class AnalyticsValidatorsInteractor {
 
         let source = SubqueryEraStakersInfoSource(url: analyticsURL, address: stashAddress)
         let operation = source.fetch {
-            try? historyRangeWrapper.targetOperation.extractNoCancellableResultData()
+            try? historyRangeWrapper.targetOperation.extractNoCancellableResultData().eraRange
         }
         operation.dependencies.forEach { $0.addDependency(historyRangeWrapper.targetOperation) }
 

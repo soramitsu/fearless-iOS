@@ -4,6 +4,6 @@ import RobinHood
 protocol PayoutValidatorsFactoryProtocol {
     func createResolutionOperation(
         for address: AccountAddress,
-        dependingOn historyRangeOperation: BaseOperation<ChainHistoryRange>
+        eraRangeClosure: @escaping () throws -> EraRange?
     ) -> CompoundOperationWrapper<[AccountId]>
 }

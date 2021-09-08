@@ -5,7 +5,7 @@ import IrohaCrypto
 final class PayoutValidatorsForValidatorFactory: PayoutValidatorsFactoryProtocol {
     func createResolutionOperation(
         for address: AccountAddress,
-        dependingOn _: BaseOperation<ChainHistoryRange>
+        eraRangeClosure _: @escaping () throws -> EraRange?
     ) -> CompoundOperationWrapper<[AccountId]> {
         let operation = ClosureOperation<[AccountId]> {
             let accountId = try SS58AddressFactory().accountId(from: address)
