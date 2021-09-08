@@ -25,6 +25,7 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         let substratePublicKey: Data
         let substrateCryptoType: UInt8
         let ethereumPublicKey: Data?
+        let order: Int32
     }
 
     let databaseDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("CoreData")
@@ -196,6 +197,9 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
             }
         }
 
+        let orders = Set(newEntities.map { $0.order })
+        XCTAssertEqual(newEntities.count, orders.count)
+
         let hasSelected = newEntities.contains { $0.isSelected }
         XCTAssertTrue(hasSelected)
 
@@ -252,6 +256,7 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
                 let substratePublicKey = entity.value(forKey: "substratePublicKey") as? Data
                 let substrateCryptoType = entity.value(forKey: "substrateCryptoType") as? UInt8
                 let ethereumPublicKey = entity.value(forKey: "ethereumPublicKey") as? Data
+                let order = entity.value(forKey: "order") as? Int32
 
                 return NewEntity(
                     metaId: metaId!,
@@ -259,7 +264,8 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
                     isSelected: isSelected!,
                     substratePublicKey: substratePublicKey!,
                     substrateCryptoType: substrateCryptoType!,
-                    ethereumPublicKey: ethereumPublicKey
+                    ethereumPublicKey: ethereumPublicKey,
+                    order: order!
                 )
             }
         }

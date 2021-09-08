@@ -19,6 +19,7 @@
         <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="metaId" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
+        <attribute name="order" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="substrateCryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="substratePublicKey" attributeType="Binary"/>
         <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
@@ -27,6 +28,6 @@
         <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="89"/>
         <element name="CDChainSettings" positionX="-54" positionY="45" width="128" height="59"/>
         <element name="CDCustomChainNode" positionX="-45" positionY="54" width="128" height="59"/>
-        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="134"/>
+        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="149"/>
     </elements>
 </model>

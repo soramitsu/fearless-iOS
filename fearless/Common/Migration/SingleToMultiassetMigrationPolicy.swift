@@ -6,6 +6,7 @@ import IrohaCrypto
 
 class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
     var isSelected: Bool = false
+    var order: Int32 = 0
 
     override func createDestinationInstances(
         forSource accountItem: NSManagedObject,
@@ -36,6 +37,9 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
         } else {
             metaAccount.setValue(false, forKey: "isSelected")
         }
+
+        metaAccount.setValue(order, forKey: "order")
+        order += 1
 
         guard let sourceAddress = accountItem.value(forKey: "identifier") as? AccountAddress else {
             fatalError("Unexpected empty source address")
