@@ -94,8 +94,10 @@ struct StakingRebondConfirmationViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         return StakingRebondConfirmationInteractor(
             assetId: assetId,

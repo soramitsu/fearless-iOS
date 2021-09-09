@@ -15,12 +15,14 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
 
         let exportJsonWrapper = KeystoreExportWrapper(keystore: Keychain())
 
-        let facade = UserDataStorageFacade.shared
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> = facade.createRepository()
+        let repository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         let interactor = AccountExportPasswordInteractor(
             exportJsonWrapper: exportJsonWrapper,
-            repository: AnyDataProviderRepository(repository),
+            repository: repository,
             operationManager: OperationManagerFacade.sharedManager
         )
         let wireframe = AccountExportPasswordWireframe()

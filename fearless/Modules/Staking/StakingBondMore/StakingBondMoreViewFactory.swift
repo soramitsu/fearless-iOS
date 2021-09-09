@@ -68,8 +68,10 @@ struct StakingBondMoreViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let repository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         let interactor = StakingBondMoreInteractor(
             settings: settings,

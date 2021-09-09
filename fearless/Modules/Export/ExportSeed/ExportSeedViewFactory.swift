@@ -21,8 +21,10 @@ final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
         )
 
         let keychain = Keychain()
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let repository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         let interactor = ExportSeedInteractor(
             keystore: keychain,

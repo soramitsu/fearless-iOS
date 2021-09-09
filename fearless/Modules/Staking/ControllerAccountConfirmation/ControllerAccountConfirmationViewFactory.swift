@@ -83,8 +83,9 @@ struct ControllerAccountConfirmationViewFactory {
 
         let facade = UserDataStorageFacade.shared
 
+        // TODO: Fix logic
         let filter = NSPredicate.filterAccountBy(networkType: chain.addressType)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+        let accountRepository: CoreDataRepository<AccountItem, CDMetaAccount> =
             facade.createRepository(
                 filter: filter,
                 sortDescriptors: [.accountsByOrder]

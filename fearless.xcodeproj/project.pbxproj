@@ -9791,7 +9791,7 @@
 				848DE75726D595660045CD29 /* MultiassetUserDataModel.xcdatamodel */,
 				8467FD5024EFD11E005D486C /* UserDataModel.xcdatamodel */,
 			);
-			currentVersion = 8467FD5024EFD11E005D486C /* UserDataModel.xcdatamodel */;
+			currentVersion = 848DE75726D595660045CD29 /* MultiassetUserDataModel.xcdatamodel */;
 			path = UserDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

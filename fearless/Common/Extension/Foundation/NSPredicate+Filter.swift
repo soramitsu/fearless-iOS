@@ -2,9 +2,10 @@ import Foundation
 import IrohaCrypto
 
 extension NSPredicate {
+    // TODO: Remove
     static func filterAccountBy(networkType: SNAddressType) -> NSPredicate {
         let rawValue = Int16(networkType.rawValue)
-        return NSPredicate(format: "%K == %d", #keyPath(CDAccountItem.networkType), rawValue)
+        return NSPredicate(format: "%K == %d", #keyPath(CDMetaAccount.order), rawValue)
     }
 
     static func filterTransactionsBy(address: String) -> NSPredicate {
@@ -50,7 +51,8 @@ extension NSPredicate {
         return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])
     }
 
+    // TODO: Get rid of
     static func filterAccountItemByAddress(_ address: String) -> NSPredicate {
-        NSPredicate(format: "%K == %@", #keyPath(CDAccountItem.identifier), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDMetaAccount.metaId), address)
     }
 }

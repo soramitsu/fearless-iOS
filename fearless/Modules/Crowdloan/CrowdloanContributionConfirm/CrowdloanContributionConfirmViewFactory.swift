@@ -114,8 +114,10 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let signingWrapper = SigningWrapper(keystore: keystore, settings: settings)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
@@ -126,7 +128,7 @@ struct CrowdloanContributionConfirmViewFactory {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             signingWrapper: signingWrapper,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
             bonusService: bonusService,

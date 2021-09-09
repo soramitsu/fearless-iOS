@@ -21,7 +21,9 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
     ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
         let mapper = ManagedAccountItemMapper()
-        let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =
+
+        // TODO: Fix logic
+        let observer: CoreDataContextObservable<ManagedAccountItem, CDMetaAccount> =
             CoreDataContextObservable(
                 service: facade.databaseService,
                 mapper: AnyCoreDataMapper(mapper),

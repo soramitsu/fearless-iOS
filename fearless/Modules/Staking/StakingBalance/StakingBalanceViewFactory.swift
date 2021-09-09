@@ -88,8 +88,10 @@ struct StakingBalanceViewFactory {
                 operationManager: operationManager
             )
 
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let repository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         let runtimeService = RuntimeRegistryFacade.sharedService
         let keyFactory = StorageKeyFactory()
@@ -107,7 +109,7 @@ struct StakingBalanceViewFactory {
         let interactor = StakingBalanceInteractor(
             chain: chain,
             accountAddress: accountAddress,
-            accountRepository: AnyDataProviderRepository(repository),
+            accountRepository: repository,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             chainStorage: AnyDataProviderRepository(chainStorage),
             localStorageRequestFactory: localStorageRequestFactory,

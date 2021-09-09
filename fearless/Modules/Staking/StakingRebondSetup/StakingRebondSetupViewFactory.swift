@@ -83,8 +83,10 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        ).createRepository()
 
         return StakingRebondSetupInteractor(
             settings: settings,
@@ -93,7 +95,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             extrinsicServiceFactory: extrinsicServiceFactory,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             operationManager: OperationManagerFacade.sharedManager,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             feeProxy: ExtrinsicFeeProxy(),
             chain: chain,
             assetId: assetId
