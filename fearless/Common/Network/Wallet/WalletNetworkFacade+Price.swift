@@ -12,12 +12,12 @@ extension WalletNetworkFacade {
         let priceOperation = coingeckoOperationFactory.fetchPriceOperation(for: [asset])
 
         let mappingOperation: BaseOperation<Price?> = ClosureOperation {
-            let priceData = try priceOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled).assetPriceList.first
+            let priceData = try? priceOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             return Price(
                 assetId: asset,
-                lastValue: priceData?.usd ?? 0.0,
+                lastValue: Decimal(string: priceData?.price ?? "") ?? 0.0,
                 change: (priceData?.usdDayChange ?? 0.0) / 100.0
             )
         }

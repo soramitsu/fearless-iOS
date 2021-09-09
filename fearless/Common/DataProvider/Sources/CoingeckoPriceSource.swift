@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
-    typealias Model = CoingeckoPriceData
+    typealias Model = PriceData
 
     let assetId: WalletAssetId
 
@@ -10,11 +10,11 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
         self.assetId = assetId
     }
 
-    func fetchOperation() -> CompoundOperationWrapper<CoingeckoPriceData?> {
+    func fetchOperation() -> CompoundOperationWrapper<PriceData?> {
         if assetId.hasPrice {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [assetId])
 
-            let targetOperation: BaseOperation<CoingeckoPriceData?> = ClosureOperation {
+            let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
                 try priceOperation.extractNoCancellableResultData()
             }
 

@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 protocol CoingeckoOperationFactoryProtocol {
-    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<CoingeckoPriceData>
+    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<PriceData?>
 }
 
 struct CoingeckoPriceRequestOptions: OptionSet {
@@ -65,7 +65,7 @@ final class CoingeckoOperationFactory {
 }
 
 extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
-    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<CoingeckoPriceData> {
+    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<PriceData?> {
         guard assets.count == 1 else {
             return BaseOperation.createWithError(CoingeckoError.multipleAssetsNotSupported)
         }
@@ -87,13 +87,13 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<CoingeckoPriceData> { data in
+        let resultFactory = AnyNetworkResultFactory<PriceData?> { data in
             let priceData = try JSONDecoder().decode(
                 CoingeckoPriceData.self,
                 from: data
             )
 
-            return priceData
+            return priceData.assetPriceList.first
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
