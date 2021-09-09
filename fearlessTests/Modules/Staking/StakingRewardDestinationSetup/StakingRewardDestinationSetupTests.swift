@@ -133,15 +133,13 @@ class StakingRewardDestinationSetupTests: XCTestCase {
 
         let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
-        let anyAccountRepository = AnyDataProviderRepository(accountRepository)
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         let calculatorService = RewardCalculatorServiceStub(engine: WestendStub.rewardCalculator)
 
         // save controller and payout
         let controllerItem = settings.selectedAccount!
-        let saveControllerOperation = anyAccountRepository
+        let saveControllerOperation = accountRepository
             .saveOperation({
                 if let payout = newPayout {
                     return [controllerItem, payout]
@@ -164,7 +162,7 @@ class StakingRewardDestinationSetupTests: XCTestCase {
             calculatorService: calculatorService,
             runtimeService: runtimeCodingService,
             operationManager: operationManager,
-            accountRepository: anyAccountRepository,
+            accountRepository: accountRepository,
             feeProxy: ExtrinsicFeeProxy(),
             assetId: assetId,
             chain: chain

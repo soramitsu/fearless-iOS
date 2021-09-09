@@ -114,10 +114,7 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let signingWrapper = SigningWrapper(keystore: keystore, settings: settings)
 
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,

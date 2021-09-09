@@ -72,10 +72,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return StakingUnbondSetupInteractor(
             assetId: assetId,

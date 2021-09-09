@@ -64,9 +64,7 @@ class YourValidatorListTests: XCTestCase {
         let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
         let eraValidatorService = EraValidatorServiceStub.westendStub()
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
-        let anyAccountRepository = AnyDataProviderRepository(accountRepository)
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         let validatorOperationFactory = MockValidatorOperationFactoryProtocol()
 
@@ -89,7 +87,7 @@ class YourValidatorListTests: XCTestCase {
             providerFactory: singleValueProviderFactory,
             substrateProviderFactory: substrateProviderFactory,
             settings: settings,
-            accountRepository: anyAccountRepository,
+            accountRepository: accountRepository,
             runtimeService: runtimeCodingService,
             eraValidatorService: eraValidatorService,
             validatorOperationFactory: validatorOperationFactory,

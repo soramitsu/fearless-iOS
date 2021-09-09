@@ -58,10 +58,7 @@ struct YourValidatorListViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let repository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let repository = AccountRepositoryFactory.createRepository()
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -85,7 +82,7 @@ struct YourValidatorListViewFactory {
             providerFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
             settings: settings,
-            accountRepository: AnyDataProviderRepository(repository),
+            accountRepository: repository,
             runtimeService: RuntimeRegistryFacade.sharedService,
             eraValidatorService: EraValidatorFacade.sharedService,
             validatorOperationFactory: validatorOperationFactory,

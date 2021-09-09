@@ -88,10 +88,7 @@ struct StakingBalanceViewFactory {
                 operationManager: operationManager
             )
 
-        let repository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let repository = AccountRepositoryFactory.createRepository()
 
         let runtimeService = RuntimeRegistryFacade.sharedService
         let keyFactory = StorageKeyFactory()

@@ -83,10 +83,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return StakingRebondSetupInteractor(
             settings: settings,

@@ -35,10 +35,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let keystore = Keychain()
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
 
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let operationManager = OperationManagerFacade.sharedManager
         let interactor = SelectConnection
@@ -98,10 +95,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let settings = SettingsManager.shared
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
 
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AccountImportInteractor(
             accountOperationFactory: accountOperationFactory,
@@ -125,10 +119,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let keystore = Keychain()
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
 
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AddAccount
             .AccountImportInteractor(

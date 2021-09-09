@@ -51,11 +51,9 @@ class StakingMainTests: XCTestCase {
 
         let operationFactory = MockNetworkStakingInfoOperationFactoryProtocol()
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
-        let anyAccountRepository = AnyDataProviderRepository(accountRepository)
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
-        let accountRepositoryFactory = AccountRepositoryFactory(
+        let accountProviderFactory = AccountProviderFactory(
             storageFacade: UserDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager,
             logger: Logger.shared
@@ -65,14 +63,14 @@ class StakingMainTests: XCTestCase {
 
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
-                                               accountRepositoryFactory: accountRepositoryFactory,
+                                               accountProviderFactory: accountProviderFactory,
                                                settings: settings,
                                                eventCenter: eventCenter,
                                                primitiveFactory: primitiveFactory,
                                                eraValidatorService: eraValidatorService,
                                                calculatorService: calculatorService,
                                                runtimeService: runtimeCodingService,
-                                               accountRepository: anyAccountRepository,
+                                               accountRepository: accountRepository,
                                                operationManager: operationManager,
                                                eraInfoOperationFactory: operationFactory,
                                                applicationHandler: ApplicationHandler(),

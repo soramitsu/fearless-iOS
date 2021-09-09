@@ -9,7 +9,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let accountRepositoryFactory: AccountRepositoryFactoryProtocol
+    let accountProviderFactory: AccountProviderFactoryProtocol
     let settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
     let runtimeService: RuntimeCodingServiceProtocol
@@ -42,7 +42,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     init(
         providerFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        accountRepositoryFactory: AccountRepositoryFactoryProtocol,
+        accountProviderFactory: AccountProviderFactoryProtocol,
         settings: SettingsManagerProtocol,
         eventCenter: EventCenterProtocol,
         primitiveFactory: WalletPrimitiveFactoryProtocol,
@@ -58,7 +58,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     ) {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
-        self.accountRepositoryFactory = accountRepositoryFactory
+        self.accountProviderFactory = accountProviderFactory
         self.settings = settings
         self.eventCenter = eventCenter
         self.primitiveFactory = primitiveFactory

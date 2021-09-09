@@ -15,10 +15,7 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
 
         let exportJsonWrapper = KeystoreExportWrapper(keystore: Keychain())
 
-        let repository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let repository = AccountRepositoryFactory.createRepository()
 
         let interactor = AccountExportPasswordInteractor(
             exportJsonWrapper: exportJsonWrapper,

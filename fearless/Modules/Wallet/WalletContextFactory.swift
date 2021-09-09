@@ -128,11 +128,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         )
 
         // TODO: fix logic
-        let accountStorage: AnyDataProviderRepository<ManagedAccountItem> =
-            AccountRepositoryFactory(
-                storageFacade: UserDataStorageFacade.shared,
-                operationManager: OperationManagerFacade.sharedManager
-            ).createManagedRepository()
+        let accountRepository = AccountRepositoryFactory.createManagedRepository()
 
         let networkFacade = WalletNetworkFacade(
             storageFacade: SubstrateDataStorageFacade.shared,
@@ -145,7 +141,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             localStorageIdFactory: localStorageIdFactory,
             txStorage: AnyDataProviderRepository(txStorage),
             contactsOperationFactory: contactOperationFactory,
-            accountsRepository: AnyDataProviderRepository(accountStorage),
+            accountsRepository: accountRepository,
             address: selectedAccount.address,
             networkType: networkType,
             totalPriceAssetId: .usd

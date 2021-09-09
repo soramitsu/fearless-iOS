@@ -80,13 +80,13 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
 
         // TODO: check why do we need both factory and repository
-        let accountRepositoryFactory = AccountRepositoryFactory(
+        let accountProviderFactory = AccountProviderFactory(
             storageFacade: UserDataStorageFacade.shared,
             operationManager: operationManager,
             logger: Logger.shared
         )
 
-        let repository = accountRepositoryFactory.createRepository()
+        let repository = AccountRepositoryFactory.createRepository()
 
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -103,7 +103,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         return StakingMainInteractor(
             providerFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
-            accountRepositoryFactory: accountRepositoryFactory,
+            accountProviderFactory: accountProviderFactory,
             settings: settings,
             eventCenter: EventCenter.shared,
             primitiveFactory: primitiveFactory,

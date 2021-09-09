@@ -19,8 +19,7 @@ class AccountImportTests: XCTestCase {
 
         let keystoreImportService = KeystoreImportService(logger: Logger.shared)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageTestFacade().createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         let interactor = AccountImportInteractor(accountOperationFactory: operationFactory,
                                                  accountRepository: AnyDataProviderRepository(accountRepository),

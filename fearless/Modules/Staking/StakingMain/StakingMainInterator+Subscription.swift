@@ -418,7 +418,7 @@ extension StakingMainInteractor {
             return
         }
 
-        let controllerAccountItemProvider = accountRepositoryFactory.createStreambleProvider(for: address)
+        let controllerAccountItemProvider = accountProviderFactory.createStreambleProvider(for: address)
 
         controllerAccountProvider = controllerAccountItemProvider
 

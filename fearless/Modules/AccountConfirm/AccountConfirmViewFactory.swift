@@ -51,10 +51,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let keychain = Keychain()
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let operationManager = OperationManagerFacade.sharedManager
         let interactor = SelectConnection
@@ -126,10 +123,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let settings = SettingsManager.shared
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AccountConfirmInteractor(
             request: request,
@@ -156,10 +150,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let keychain = Keychain()
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        ).createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AddAccount
             .AccountConfirmInteractor(
