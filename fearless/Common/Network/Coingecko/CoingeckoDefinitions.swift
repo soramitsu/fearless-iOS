@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-struct CoingeckoApi {
+struct CoingeckoAPI {
     static let price = "simple/price"
 }
 

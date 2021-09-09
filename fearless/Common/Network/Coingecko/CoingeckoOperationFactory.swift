@@ -5,57 +5,6 @@ protocol CoingeckoOperationFactoryProtocol {
     func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<CoingeckoPriceData>
 }
 
-enum CoingeckoToken: String, Decodable {
-    case polkadot
-    case kusama
-}
-
-struct CoingeckoPriceData: Decodable {
-    var assetPriceList: [CoingeckoAssetPriceData]
-
-    private struct DynamicCodingKeys: CodingKey {
-        var stringValue: String
-
-        init?(stringValue: String) {
-            self.stringValue = stringValue
-        }
-
-        var intValue: Int?
-
-        init?(intValue _: Int) {
-            nil
-        }
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-
-        var tempArray: [CoingeckoAssetPriceData] = []
-
-        for key in container.allKeys {
-            let decodedObject = try container.decode(
-                CoingeckoAssetPriceData.self,
-                forKey: DynamicCodingKeys(stringValue: key.stringValue)!
-            )
-            tempArray.append(decodedObject)
-        }
-
-        assetPriceList = tempArray
-    }
-}
-
-struct CoingeckoAssetPriceData: Decodable {
-    let usd: Decimal
-    let usdDayChange: Decimal?
-
-    enum CodingKeys: String, CodingKey {
-        case usd
-        case usdDayChange = "usd_24h_change"
-    }
-}
-
-typealias CoingeckoResponse = [CoingeckoToken: CoingeckoPriceData]
-
 struct CoingeckoPriceRequestOptions: OptionSet {
     let rawValue: Int
 
@@ -121,7 +70,7 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
             return BaseOperation.createWithError(CoingeckoError.multipleAssetsNotSupported)
         }
 
-        guard let url = buildURLForAssets(assets, method: "/simple/price") else {
+        guard let url = buildURLForAssets(assets, method: CoingeckoAPI.price) else {
             return BaseOperation.createWithError(CoingeckoError.cantBuildURL)
         }
 
