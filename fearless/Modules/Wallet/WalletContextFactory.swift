@@ -118,6 +118,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let subscanOperationFactory = SubscanOperationFactory()
 
+        let coingeckoOperationFactory = CoingeckoOperationFactory()
+
         let txFilter = NSPredicate.filterTransactionsBy(address: selectedAccount.address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository(filter: txFilter)
@@ -140,6 +142,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             accountSettings: accountSettings,
             nodeOperationFactory: nodeOperationFactory,
             subscanOperationFactory: subscanOperationFactory,
+            coingeckoOperationFactory: coingeckoOperationFactory,
             chainStorage: AnyDataProviderRepository(chainStorage),
             runtimeCodingService: runtimeService,
             localStorageRequestFactory: localStorageRequestFactory,
