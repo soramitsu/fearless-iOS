@@ -14,6 +14,7 @@ extension WalletNetworkFacade {
         let mappingOperation: BaseOperation<Price?> = ClosureOperation {
             let priceData = try? priceOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                .first
 
             return Price(
                 assetId: asset,

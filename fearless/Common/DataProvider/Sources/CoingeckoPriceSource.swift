@@ -15,7 +15,7 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [assetId])
 
             let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
-                try priceOperation.extractNoCancellableResultData()
+                try priceOperation.extractNoCancellableResultData().first
             }
 
             targetOperation.addDependency(priceOperation)

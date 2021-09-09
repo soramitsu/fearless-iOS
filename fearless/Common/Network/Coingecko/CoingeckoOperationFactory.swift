@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 protocol CoingeckoOperationFactoryProtocol {
-    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<PriceData?>
+    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<[PriceData]>
 }
 
 struct CoingeckoPriceRequestOptions: OptionSet {
@@ -24,7 +24,7 @@ struct CoingeckoPriceRequestOptions: OptionSet {
 }
 
 final class CoingeckoOperationFactory {
-    static let baseUrlString = "https://api.coingecko.com/api/v3"
+    static let baseUrl = URL(string: "https://api.coingecko.com/api/v3")!
 
     private func buildURLForAssets(
         _ assets: [WalletAssetId],
@@ -33,7 +33,8 @@ final class CoingeckoOperationFactory {
         options: CoingeckoPriceRequestOptions = [.includeDayChange, .includeLastUpdatedAt]
     ) -> URL? {
         guard var components = URLComponents(
-            string: Self.baseUrlString + method
+            url: Self.baseUrl.appendingPathComponent(method),
+            resolvingAgainstBaseURL: false
         ) else { return nil }
 
         let tokenIDParam = assets.compactMap(\.coingeckoTokenId).joined(separator: ",")
@@ -65,7 +66,7 @@ final class CoingeckoOperationFactory {
 }
 
 extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
-    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<PriceData?> {
+    func fetchPriceOperation(for assets: [WalletAssetId]) -> BaseOperation<[PriceData]> {
         guard assets.count == 1 else {
             return BaseOperation.createWithError(CoingeckoError.multipleAssetsNotSupported)
         }
@@ -87,13 +88,22 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<PriceData?> { data in
+        let resultFactory = AnyNetworkResultFactory<[PriceData]> { data in
             let priceData = try JSONDecoder().decode(
-                CoingeckoPriceData.self,
+                [String: CoingeckoPriceData].self,
                 from: data
             )
 
-            return priceData.assetPriceList.first
+            return assets.compactMap { asset in
+                guard let tokenId = asset.coingeckoTokenId, let priceData = priceData[tokenId] else {
+                    return nil
+                }
+
+                return PriceData(
+                    price: priceData.usdPrice.stringWithPointSeparator,
+                    usdDayChange: priceData.usdDayChange
+                )
+            }
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
