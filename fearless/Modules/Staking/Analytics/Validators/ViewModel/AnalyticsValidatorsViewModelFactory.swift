@@ -121,7 +121,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         return AnalyticsValidatorsViewModel(
             pieChartSegmentValues: amounts,
-            pieChartInactiveSegmentValue: nil, // inactiveSegmentValue,
+            pieChartInactiveSegmentValue: inactiveSegmentValue,
             chartCenterText: chartCenterText,
             listTitle: listTitle,
             validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
@@ -275,7 +275,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         address: AccountAddress,
         rewards: [SubqueryRewardItemData]
     ) -> Double {
-        let rewardsOfStash = rewards.filter { $0.stashAddress == address }
+        let rewardsOfStash = rewards.filter { $0.stashAddress == address && $0.isReward }
         let totalAmount = rewardsOfStash.reduce(Decimal(0)) { amount, info in
             let decimal = Decimal.fromSubstrateAmount(
                 info.amount,
@@ -294,14 +294,9 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         guard case .activity = page else {
             return nil
         }
-        let erasRange: Range<EraIndex> = {
-            let eras = eraValidatorInfos.map(\.era)
-            return (eras.min() ?? 0) ..< (eras.max() ?? 0)
-        }()
-        let setOfEras: Set<EraIndex> = Set(erasRange)
-
-        let inactiveErasCount = totalEras - setOfEras.count
-        return Double(inactiveErasCount) / Double(setOfEras.count)
+        let activeEras = Set(eraValidatorInfos.map(\.era))
+        let inactiveErasCount = totalEras - activeEras.count
+        return Double(inactiveErasCount) / Double(totalEras)
     }
 
     func chartCenterText(validator: AnalyticsValidatorItemViewModel) -> NSAttributedString {
