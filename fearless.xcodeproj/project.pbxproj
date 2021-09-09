@@ -1224,7 +1224,6 @@
 		AEAC68F526E9F93B00346599 /* CoingeckoDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68F426E9F93B00346599 /* CoingeckoDefinitions.swift */; };
 		AEAC68F726E9FB8400346599 /* CoingeckoOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68F626E9FB8400346599 /* CoingeckoOperationFactory.swift */; };
 		AEAC68FA26E9FF4900346599 /* CoingeckoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68F926E9FF4900346599 /* CoingeckoError.swift */; };
-		AEAC68FC26EA26D300346599 /* CoingeckoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FB26EA26D300346599 /* CoingeckoTests.swift */; };
 		AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */; };
 		AEAC690026EA729300346599 /* CoingeckoPriceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FF26EA729300346599 /* CoingeckoPriceData.swift */; };
 		AEAC690226EA74E200346599 /* PriceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC690126EA74E200346599 /* PriceData.swift */; };
@@ -2679,7 +2678,6 @@
 		AEAC68F426E9F93B00346599 /* CoingeckoDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoDefinitions.swift; sourceTree = "<group>"; };
 		AEAC68F626E9FB8400346599 /* CoingeckoOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoOperationFactory.swift; sourceTree = "<group>"; };
 		AEAC68F926E9FF4900346599 /* CoingeckoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoError.swift; sourceTree = "<group>"; };
-		AEAC68FB26EA26D300346599 /* CoingeckoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoTests.swift; sourceTree = "<group>"; };
 		AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPriceSource.swift; sourceTree = "<group>"; };
 		AEAC68FF26EA729300346599 /* CoingeckoPriceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPriceData.swift; sourceTree = "<group>"; };
 		AEAC690126EA74E200346599 /* PriceData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceData.swift; sourceTree = "<group>"; };
@@ -3945,7 +3943,6 @@
 				84BB3CE8267C9ADE00676FFE /* CrowdloanTests.swift */,
 				F49F49A226A5C45600A25931 /* EraCountdownOperationFactoryTests.swift */,
 				8461CC8426BC1306007460E4 /* MortalEraFactoryTests.swift */,
-				AEAC68FB26EA26D300346599 /* CoingeckoTests.swift */,
 			);
 			path = fearlessIntegrationTests;
 			sourceTree = "<group>";
@@ -7777,7 +7774,6 @@
 				F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */,
 				84FACB7125F57E4400F32ED4 /* SubstrateStorageTestFacade.swift in Sources */,
 				F49F49A326A5C45600A25931 /* EraCountdownOperationFactoryTests.swift in Sources */,
-				AEAC68FC26EA26D300346599 /* CoingeckoTests.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
 				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
