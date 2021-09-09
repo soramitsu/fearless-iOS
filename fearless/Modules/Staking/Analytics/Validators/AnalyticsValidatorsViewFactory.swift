@@ -50,7 +50,8 @@ struct AnalyticsValidatorsViewFactory {
             engine: engine,
             runtimeService: RuntimeRegistryFacade.sharedService,
             storageRequestFactory: requestFactory,
-            chain: chain
+            chain: chain,
+            logger: Logger.shared
         )
         return interactor
     }

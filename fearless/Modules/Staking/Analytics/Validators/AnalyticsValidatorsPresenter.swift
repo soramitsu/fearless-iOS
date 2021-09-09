@@ -12,7 +12,7 @@ final class AnalyticsValidatorsPresenter {
     private var identitiesByAddress = [AccountAddress: AccountIdentity]()
     private var selectedPage: AnalyticsValidatorsPage = .activity
     private var eraValidatorInfos: [SubqueryEraValidatorInfo]?
-    private var stashItem: StashItem?
+    private var stashAddress: AccountAddress?
     private var nomination: Nomination?
     private var rewards: [SubqueryRewardItemData]?
 
@@ -33,7 +33,7 @@ final class AnalyticsValidatorsPresenter {
     private func updateView() {
         guard
             let eraValidatorInfos = eraValidatorInfos,
-            let stashAddress = stashItem?.stash,
+            let stashAddress = stashAddress,
             let rewards = rewards,
             let nomination = nomination
         else { return }
@@ -59,9 +59,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
 
     func reload() {
         view?.reload(viewState: .loading)
-        if let stash = stashItem?.stash {
-            interactor.fetchRewards(stashAddress: stash)
-        }
+        interactor.reload()
     }
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
@@ -111,15 +109,13 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         }
     }
 
-    func didReceive(stashItemResult: Result<StashItem?, Error>) {
-        switch stashItemResult {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-            if let stash = stashItem?.stash {
-                interactor.fetchRewards(stashAddress: stash)
-            }
+    func didReceive(stashAddressResult: Result<AccountAddress?, Error>) {
+        switch stashAddressResult {
+        case let .success(stashAddress):
+            self.stashAddress = stashAddress
+            updateView()
         case let .failure(error):
-            logger?.error("Did receive stashItem error: \(error)")
+            logger?.error("Did receive stashAddress error: \(error)")
         }
     }
 
@@ -141,6 +137,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         switch nominationResult {
         case let .success(nomination):
             self.nomination = nomination
+            updateView()
         case let .failure(error):
             logger?.error("Did receive nomination error: \(error.localizedDescription)")
         }

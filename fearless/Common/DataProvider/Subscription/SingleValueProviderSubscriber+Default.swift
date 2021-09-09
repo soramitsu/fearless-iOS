@@ -285,7 +285,7 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedEraIndex>]) in
             let currentEra = changes.reduceToLastChange()
-            self?.subscriptionHandler.handleCurrentEra(result: .success(currentEra?.item), chain: chain)
+            self?.subscriptionHandler.handleCurrentEra(result: .success(currentEra?.item?.value), chain: chain)
         }
 
         let failureClosure = { [weak self] (error: Error) in

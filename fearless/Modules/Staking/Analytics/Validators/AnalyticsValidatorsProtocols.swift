@@ -15,13 +15,13 @@ protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
 
 protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
     func setup()
-    func fetchRewards(stashAddress: AccountAddress)
+    func reload()
 }
 
 protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
     func didReceive(identitiesByAddressResult: Result<[AccountAddress: AccountIdentity], Error>)
     func didReceive(eraValidatorInfosResult: Result<[SubqueryEraValidatorInfo], Error>)
-    func didReceive(stashItemResult: Result<StashItem?, Error>)
+    func didReceive(stashAddressResult: Result<AccountAddress?, Error>)
     func didReceive(rewardsResult: Result<[SubqueryRewardItemData], Error>)
     func didReceive(nominationResult: Result<Nomination?, Error>)
 }
