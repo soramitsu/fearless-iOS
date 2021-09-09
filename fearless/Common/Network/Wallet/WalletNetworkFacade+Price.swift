@@ -3,13 +3,11 @@ import RobinHood
 
 extension WalletNetworkFacade {
     func fetchPriceOperation(_ asset: WalletAssetId) -> CompoundOperationWrapper<Price?> {
-        guard
-            asset.hasPrice
-        else {
+        guard let tokenId = asset.coingeckoTokenId else {
             return CompoundOperationWrapper.createWithResult(nil)
         }
 
-        let priceOperation = coingeckoOperationFactory.fetchPriceOperation(for: [asset])
+        let priceOperation = coingeckoOperationFactory.fetchPriceOperation(for: [tokenId])
 
         let mappingOperation: BaseOperation<Price?> = ClosureOperation {
             let priceData = try? priceOperation

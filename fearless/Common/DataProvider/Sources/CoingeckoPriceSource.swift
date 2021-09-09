@@ -11,8 +11,8 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     }
 
     func fetchOperation() -> CompoundOperationWrapper<PriceData?> {
-        if assetId.hasPrice {
-            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [assetId])
+        if let tokenId = assetId.coingeckoTokenId {
+            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [tokenId])
 
             let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
                 try priceOperation.extractNoCancellableResultData().first
