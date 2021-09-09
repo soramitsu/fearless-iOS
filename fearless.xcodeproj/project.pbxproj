@@ -1223,6 +1223,11 @@
 		AEA2C1BC2681E9CD0069492E /* ValidatorSearchPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA2C1BB2681E9CD0069492E /* ValidatorSearchPresenter.swift */; };
 		AEA2C1BE2681E9DD0069492E /* ValidatorSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA2C1BD2681E9DD0069492E /* ValidatorSearchViewController.swift */; };
 		AEA2C1C02681E9EC0069492E /* ValidatorSearchViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA2C1BF2681E9EC0069492E /* ValidatorSearchViewLayout.swift */; };
+		AEAC68F526E9F93B00346599 /* CoingeckoDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68F426E9F93B00346599 /* CoingeckoDefinitions.swift */; };
+		AEAC68F726E9FB8400346599 /* CoingeckoOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68F626E9FB8400346599 /* CoingeckoOperationFactory.swift */; };
+		AEAC68FA26E9FF4900346599 /* CoingeckoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68F926E9FF4900346599 /* CoingeckoError.swift */; };
+		AEAC68FC26EA26D300346599 /* CoingeckoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FB26EA26D300346599 /* CoingeckoTests.swift */; };
+		AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */; };
 		AEACD5F9265E94AB00A09892 /* StatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */; };
 		AEB9979026119E4D005C60A5 /* StoriesViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */; };
 		AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */; };
@@ -2673,6 +2678,11 @@
 		AEA2C1BB2681E9CD0069492E /* ValidatorSearchPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchPresenter.swift; sourceTree = "<group>"; };
 		AEA2C1BD2681E9DD0069492E /* ValidatorSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchViewController.swift; sourceTree = "<group>"; };
 		AEA2C1BF2681E9EC0069492E /* ValidatorSearchViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchViewLayout.swift; sourceTree = "<group>"; };
+		AEAC68F426E9F93B00346599 /* CoingeckoDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoDefinitions.swift; sourceTree = "<group>"; };
+		AEAC68F626E9FB8400346599 /* CoingeckoOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoOperationFactory.swift; sourceTree = "<group>"; };
+		AEAC68F926E9FF4900346599 /* CoingeckoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoError.swift; sourceTree = "<group>"; };
+		AEAC68FB26EA26D300346599 /* CoingeckoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoTests.swift; sourceTree = "<group>"; };
+		AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPriceSource.swift; sourceTree = "<group>"; };
 		AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusViewModel.swift; sourceTree = "<group>"; };
 		AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewModelFactory.swift; sourceTree = "<group>"; };
 		AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressBar.swift; sourceTree = "<group>"; };
@@ -3935,6 +3945,7 @@
 				84BB3CE8267C9ADE00676FFE /* CrowdloanTests.swift */,
 				F49F49A226A5C45600A25931 /* EraCountdownOperationFactoryTests.swift */,
 				8461CC8426BC1306007460E4 /* MortalEraFactoryTests.swift */,
+				AEAC68FB26EA26D300346599 /* CoingeckoTests.swift */,
 			);
 			path = fearlessIntegrationTests;
 			sourceTree = "<group>";
@@ -4311,6 +4322,7 @@
 				8472C600265D7A1F00E2481B /* WebSocketProviderSource.swift */,
 				84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */,
 				843F657026584D2C00829C14 /* JsonSingleProviderSource.swift */,
+				AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -5289,6 +5301,7 @@
 		8490150124AB6BEA008F705E /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				AECF10EE26E9EF4E005B54A0 /* Coingecko */,
 				849AFEBA26DCCD4000B65924 /* Subquery */,
 				849AFEB926DCCCE000B65924 /* Misc */,
 				849AFEB826DCCCA900B65924 /* Wallet */,
@@ -6685,6 +6698,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		AEAC68F826E9FF2B00346599 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				AEAC68F926E9FF4900346599 /* CoingeckoError.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		AEBE1739262F3E4E00DF257C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -6708,6 +6729,16 @@
 				06CBDC344F7A8651326BC118 /* YourValidatorList */,
 			);
 			path = SelectValidatorsFlow;
+			sourceTree = "<group>";
+		};
+		AECF10EE26E9EF4E005B54A0 /* Coingecko */ = {
+			isa = PBXGroup;
+			children = (
+				AEAC68F826E9FF2B00346599 /* Data */,
+				AEAC68F426E9F93B00346599 /* CoingeckoDefinitions.swift */,
+				AEAC68F626E9FB8400346599 /* CoingeckoOperationFactory.swift */,
+			);
+			path = Coingecko;
 			sourceTree = "<group>";
 		};
 		AEE5FAF826414C0A002B8FDC /* StakingRebondSetup */ = {
@@ -7746,6 +7777,7 @@
 				F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */,
 				84FACB7125F57E4400F32ED4 /* SubstrateStorageTestFacade.swift in Sources */,
 				F49F49A326A5C45600A25931 /* EraCountdownOperationFactoryTests.swift in Sources */,
+				AEAC68FC26EA26D300346599 /* CoingeckoTests.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
 				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
@@ -8158,6 +8190,7 @@
 				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
 				84F30E9725FD3C5300039D09 /* EventEmittingStorageSubscription.swift in Sources */,
 				8494D85E25246E9A00614D8F /* WalletTokenViewModel.swift in Sources */,
+				AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */,
 				8472C5B4265CF9C500E2481B /* StakingRewardDestConfirmPresenter.swift in Sources */,
 				2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */,
 				AEF507F72625A3280098574D /* ValidatorState+Status.swift in Sources */,
@@ -8225,6 +8258,7 @@
 				84155DFA253D8C3600A27058 /* WebSocketEngine+Protocol.swift in Sources */,
 				84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */,
 				AEBE16E6262EA7C100DF257C /* StakingErrors.swift in Sources */,
+				AEAC68F526E9F93B00346599 /* CoingeckoDefinitions.swift in Sources */,
 				8409C2602521EDCD0049B5C8 /* TransferConfirmBinder.swift in Sources */,
 				AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
@@ -8342,6 +8376,7 @@
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				84155DF6253B252000A27058 /* ReachabilityManager.swift in Sources */,
 				8472C601265D7A1F00E2481B /* WebSocketProviderSource.swift in Sources */,
+				AEAC68FA26E9FF4900346599 /* CoingeckoError.swift in Sources */,
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
@@ -8554,6 +8589,7 @@
 				AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */,
 				F4D96B712637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift in Sources */,
 				AEE5FB0526415E5D002B8FDC /* StakingRebondSetupViewFactory.swift in Sources */,
+				AEAC68F726E9FB8400346599 /* CoingeckoOperationFactory.swift in Sources */,
 				84C7435B251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift in Sources */,
 				843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */,
 				846042C02666E2C800CFFCFC /* KaruraResultData.swift in Sources */,
