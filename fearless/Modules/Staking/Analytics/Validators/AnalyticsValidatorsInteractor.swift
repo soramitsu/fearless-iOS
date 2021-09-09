@@ -16,6 +16,7 @@ final class AnalyticsValidatorsInteractor {
     let chain: Chain
 
     private var stashItemProvider: StreamableProvider<StashItem>?
+    private var currentEraProvider: AnyDataProvider<DecodedEraIndex>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var identitiesByAddress: [AccountAddress: AccountIdentity]?
 
@@ -172,6 +173,7 @@ final class AnalyticsValidatorsInteractor {
 extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
     func setup() {
         stashItemProvider = subscribeToStashItemProvider(for: selectedAddress)
+        currentEraProvider = subscribeToCurrentEraProvider(for: chain, runtimeService: runtimeService)
     }
 
     func fetchRewards(stashAddress: AccountAddress) {
@@ -203,6 +205,15 @@ extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateP
             }
         case let .failure(error):
             presenter.didReceive(stashItemResult: .failure(error))
+        }
+    }
+
+    func handleCurrentEra(result: Result<EraIndex?, Error>, chain _: Chain) {
+        switch result {
+        case let .success(activeEra):
+            print(activeEra)
+        case let .failure(error):
+            print(error)
         }
     }
 }
