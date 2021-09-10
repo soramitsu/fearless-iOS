@@ -4,7 +4,7 @@ import FearlessUtils
 import SoraKeystore
 import IrohaCrypto
 
-class SingleToMutiassetMigrationPolicy: NSEntityMigrationPolicy {
+class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
     var isSelected: Bool = false
 
     override func createDestinationInstances(
@@ -12,6 +12,8 @@ class SingleToMutiassetMigrationPolicy: NSEntityMigrationPolicy {
         in mapping: NSEntityMapping,
         manager: NSMigrationManager
     ) throws {
+        try super.createDestinationInstances(forSource: accountItem, in: mapping, manager: manager)
+
         guard let keystoreMigrator = manager
             .userInfo?[UserStorageMigratorKeys.keystoreMigrator] as? KeystoreMigrating else {
             fatalError("No keystore migrator found in context")
@@ -48,7 +50,7 @@ class SingleToMutiassetMigrationPolicy: NSEntityMigrationPolicy {
         }
     }
 
-    override func end(_: NSEntityMapping, manager: NSMigrationManager) throws {
+    override func end(_ mapping: NSEntityMapping, manager: NSMigrationManager) throws {
         guard let settingsMigrator = manager
             .userInfo?[UserStorageMigratorKeys.settingsMigrator] as? SettingsMigrating else {
             fatalError("No settings migrator found in context")
@@ -56,6 +58,8 @@ class SingleToMutiassetMigrationPolicy: NSEntityMigrationPolicy {
 
         settingsMigrator.remove(key: SettingsKey.selectedAccount.rawValue)
         settingsMigrator.remove(key: SettingsKey.selectedConnection.rawValue)
+
+        try super.end(mapping, manager: manager)
     }
 
     // MARK: Private
@@ -95,7 +99,7 @@ class SingleToMutiassetMigrationPolicy: NSEntityMigrationPolicy {
         }
 
         let oldSeedTag = KeystoreTag.seedTagForAddress(sourceAddress)
-        if let seed = keystoreMigrator.fetchKey(for: KeystoreTag.seedTagForAddress(sourceAddress)) {
+        if let seed = keystoreMigrator.fetchKey(for: oldSeedTag) {
             let newSeedTag = KeystoreTagV2.substrateSeedTagForMetaId(metaId)
 
             keystoreMigrator.deleteKey(for: oldSeedTag)

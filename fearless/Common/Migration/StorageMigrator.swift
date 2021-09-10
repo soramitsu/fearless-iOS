@@ -13,7 +13,8 @@ enum UserStorageMigratorKeys {
 }
 
 final class UserStorageMigrator {
-    let storageFacade: StorageFacadeProtocol
+    let storeURL: URL
+    let modelDirectory: String
     let keystore: KeystoreProtocol
     let settings: SettingsManagerProtocol
     let fileManager: FileManager
@@ -21,35 +22,21 @@ final class UserStorageMigrator {
 
     init(
         targetVersion: UserStorageVersion,
-        storageFacade: StorageFacadeProtocol,
+        storeURL: URL,
+        modelDirectory: String,
         keystore: KeystoreProtocol,
         settings: SettingsManagerProtocol,
         fileManager: FileManager
     ) {
         self.targetVersion = targetVersion
-        self.storageFacade = storageFacade
+        self.storeURL = storeURL
+        self.modelDirectory = modelDirectory
         self.keystore = keystore
         self.settings = settings
         self.fileManager = fileManager
     }
 
-    var storeURL: URL? {
-        let storageType = storageFacade.databaseService.configuration.storageType
-
-        switch storageType {
-        case let .persistent(settings):
-            let storeUrl = settings.databaseDirectory.appendingPathComponent(settings.databaseName)
-            return storeUrl
-        case .inMemory:
-            return nil
-        }
-    }
-
-    private func performMigration() {
-        guard let storeURL = storeURL else {
-            return
-        }
-
+    func performMigration() {
         forceWALCheckpointingForStore(at: storeURL)
 
         let maybeMetadata = try? NSPersistentStoreCoordinator.metadataForPersistentStore(
@@ -65,11 +52,22 @@ final class UserStorageMigrator {
         }
 
         do {
+            let migrationDirName = UUID().uuidString
+            let tmpMigrationDirURL = URL(
+                fileURLWithPath: NSTemporaryDirectory(),
+                isDirectory: true
+            ).appendingPathComponent(migrationDirName)
+
+            try fileManager.createDirectory(at: tmpMigrationDirURL, withIntermediateDirectories: true)
+
             try performMigration(
                 from: sourceVersion,
                 to: targetVersion,
-                storeURL: storeURL
+                storeURL: storeURL,
+                tmpMigrationDirURL: tmpMigrationDirURL
             )
+
+            try fileManager.removeItem(at: tmpMigrationDirURL)
         } catch {
             fatalError("Migration failed with error \(error)")
         }
@@ -78,7 +76,8 @@ final class UserStorageMigrator {
     private func performMigration(
         from sourceVersion: UserStorageVersion,
         to destinationVersion: UserStorageVersion,
-        storeURL: URL
+        storeURL: URL,
+        tmpMigrationDirURL: URL
     ) throws {
         var currentVersion = sourceVersion
         var currentURL = storeURL
@@ -109,9 +108,9 @@ final class UserStorageMigrator {
             var userInfo = manager.userInfo ?? [AnyHashable: Any]()
             userInfo[UserStorageMigratorKeys.keystoreMigrator] = keystoreMigrator
             userInfo[UserStorageMigratorKeys.settingsMigrator] = settingsMigrator
+            manager.userInfo = userInfo
 
-            let nextStepURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-                .appendingPathComponent(UUID().uuidString)
+            let nextStepURL = tmpMigrationDirURL.appendingPathComponent(UUID().uuidString)
 
             try manager.migrateStore(
                 from: currentURL,
@@ -142,7 +141,7 @@ final class UserStorageMigrator {
     }
 
     private func checkIfMigrationNeeded(to version: UserStorageVersion) -> Bool {
-        guard let storeURL = storeURL, fileManager.fileExists(atPath: storeURL.absoluteString) else {
+        guard fileManager.fileExists(atPath: storeURL.absoluteString) else {
             return false
         }
 
@@ -165,26 +164,22 @@ final class UserStorageMigrator {
     }
 
     private func createManagedObjectModel(forResource resource: String) -> NSManagedObjectModel {
-        let mainBundle = Bundle.main
-        let subdirectory = storageFacade.databaseService.configuration.modelURL.lastPathComponent
-
-        let omoURL = mainBundle.url(
+        let bundle = Bundle.main
+        let omoURL = bundle.url(
             forResource: resource,
             withExtension: "omo",
-            subdirectory: subdirectory
+            subdirectory: modelDirectory
         )
 
-        let momURL = mainBundle.url(
+        let momURL = bundle.url(
             forResource: resource,
             withExtension: "mom",
-            subdirectory: subdirectory
+            subdirectory: modelDirectory
         )
 
-        guard let url = omoURL ?? momURL else {
-            fatalError("Unable to find model in bundle for resource \(resource)")
-        }
-
-        guard let model = NSManagedObjectModel(contentsOf: url) else {
+        guard
+            let modelURL = omoURL ?? momURL,
+            let model = NSManagedObjectModel(contentsOf: modelURL) else {
             fatalError("Unable to load model in bundle for resource \(resource)")
         }
 

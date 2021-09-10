@@ -119,9 +119,7 @@ final class AccountCreationHelper {
             return
         }
 
-        var currentSettings = settings
-
-        currentSettings.selectedAccount = accountItem
-        currentSettings.selectedConnection = connection
+        settings.selectedAccount = accountItem
+        settings.selectedConnection = connection
     }
 }
