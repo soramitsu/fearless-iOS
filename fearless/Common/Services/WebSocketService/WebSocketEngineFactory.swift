@@ -11,7 +11,7 @@ final class WebSocketEngineFactory: WebSocketEngineFactoryProtocol {
             url: url,
             reachabilityManager: ReachabilityManager.shared,
             autoconnect: autoconnect,
-            logger: Logger.shared as? FearlessUtils.LoggerProtocol
+            logger: Logger.shared
         )
     }
 }

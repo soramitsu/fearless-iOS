@@ -18,7 +18,7 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
             url: url,
             reachabilityManager: nil,
             reconnectionStrategy: nil,
-            logger: logger as? FearlessUtils.LoggerProtocol
+            logger: logger
         )
 
         return JSONRPCListOperation(engine: engine, method: RPCMethod.chain)
