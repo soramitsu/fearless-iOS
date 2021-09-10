@@ -219,69 +219,54 @@ final class NetworkInfoView: UIView {
         let verticalSpacing: CGFloat = 10.0
 
         return [
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 under: totalStakedTitleLabel,
-                in: spaceSize,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
                 size: bigRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 under: totalStakedTitleLabel,
-                in: spaceSize,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
                 size: smallRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 under: minimumStakeTitleLabel,
-                in: spaceSize,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
                 size: bigRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 under: minimumStakeTitleLabel,
-                in: spaceSize,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
                 size: smallRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 under: activeNominatorsTitleLabel,
-                in: spaceSize,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
                 size: bigRowSize
             ),
 
-            createSkeletoRow(
+            SingleSkeleton.createRow(
                 under: lockUpPeriodTitleLabel,
-                in: spaceSize,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
                 size: bigRowSize
             )
         ]
-    }
-
-    private func createSkeletoRow(
-        under targetView: UIView,
-        in spaceSize: CGSize,
-        offset: CGPoint,
-        size: CGSize
-    ) -> SingleSkeleton {
-        let targetFrame = targetView.convert(targetView.bounds, to: networkInfoContainer)
-
-        let position = CGPoint(
-            x: targetFrame.minX + offset.x + size.width / 2.0,
-            y: targetFrame.maxY + offset.y + size.height / 2.0
-        )
-
-        let mappedSize = CGSize(
-            width: spaceSize.skrullMapX(size.width),
-            height: spaceSize.skrullMapY(size.height)
-        )
-
-        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
     }
 
     // MARK: Action
@@ -297,6 +282,7 @@ extension NetworkInfoView: SkeletonLoadable {
     }
 
     func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
         skeletonView?.startSkrulling()
     }
 

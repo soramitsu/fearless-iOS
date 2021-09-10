@@ -79,7 +79,8 @@ final class UsernameSetupViewController: UIViewController {
             return
         }
 
-        nextButton.isEnabled = viewModel.inputHandler.completed
+        let isEnabled = viewModel.inputHandler.completed
+        nextButton.set(enabled: isEnabled)
     }
 
     // MARK: Private

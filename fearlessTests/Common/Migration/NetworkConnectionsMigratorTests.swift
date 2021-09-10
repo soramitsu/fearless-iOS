@@ -5,7 +5,7 @@ import SoraKeystore
 final class NetworkConnectionsMigratorTests: XCTestCase {
 
     func testMigration() {
-        var settings = InMemorySettingsManager()
+        let settings = InMemorySettingsManager()
         settings.selectedConnection = ConnectionItem.deprecatedConnections[1]
         let migrator = NetworkConnectionsMigrator(settings: settings)
 
@@ -33,7 +33,8 @@ final class NetworkConnectionsMigratorTests: XCTestCase {
             XCTFail("Unexpected OnFinality connection")
             return
         }
-        var settings = InMemorySettingsManager()
+
+        let settings = InMemorySettingsManager()
 
         // given
         settings.selectedConnection = deprecatedOnFinalityConnection

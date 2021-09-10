@@ -2,6 +2,11 @@ import UIKit
 import SoraUI
 
 class IconDetailsView: UIView {
+    enum Mode {
+        case iconDetails
+        case detailsIcon
+    }
+
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .center
@@ -16,15 +21,29 @@ class IconDetailsView: UIView {
         return label
     }()
 
-    var horizontalSpacing: CGFloat = 8.0 {
+    var mode: Mode = .iconDetails {
         didSet {
-            detailsLabel.snp.updateConstraints { make in
-                make.leading.equalTo(imageView.snp.trailing).offset(horizontalSpacing)
-            }
-
-            setNeedsLayout()
+            applyLayout()
         }
     }
+
+    var spacing: CGFloat {
+        get {
+            stackView.spacing
+        }
+
+        set {
+            stackView.spacing = newValue
+        }
+    }
+
+    private var stackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.spacing = 8.0
+        view.alignment = .center
+        return view
+    }()
 
     var iconWidth: CGFloat = 16.0 {
         didSet {
@@ -58,16 +77,29 @@ class IconDetailsView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(imageView)
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
         imageView.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview()
             make.width.equalTo(iconWidth)
         }
 
-        addSubview(detailsLabel)
-        detailsLabel.snp.makeConstraints { make in
-            make.leading.equalTo(imageView.snp.trailing).offset(horizontalSpacing)
-            make.trailing.top.bottom.equalToSuperview()
+        applyLayout()
+    }
+
+    private func applyLayout() {
+        imageView.removeFromSuperview()
+        detailsLabel.removeFromSuperview()
+
+        switch mode {
+        case .iconDetails:
+            stackView.addArrangedSubview(imageView)
+            stackView.addArrangedSubview(detailsLabel)
+        case .detailsIcon:
+            stackView.addArrangedSubview(detailsLabel)
+            stackView.addArrangedSubview(imageView)
         }
     }
 }

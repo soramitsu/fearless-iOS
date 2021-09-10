@@ -10,8 +10,9 @@ final class ValidatorSearchPresenter {
     let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
     let logger: LoggerProtocol?
 
-    private var fullValidatorList: [SelectedValidatorInfo] = []
-    private var selectedValidatorList: [SelectedValidatorInfo] = []
+    private var fullValidatorList: [SelectedValidatorInfo]
+    private var selectedValidatorList: [SelectedValidatorInfo]
+    private var referenceValidatorList: [SelectedValidatorInfo]
     private var filteredValidatorList: [SelectedValidatorInfo] = []
     private var viewModel: ValidatorSearchViewModel?
     private var searchString: String = ""
@@ -33,6 +34,7 @@ final class ValidatorSearchPresenter {
         self.viewModelFactory = viewModelFactory
         self.fullValidatorList = fullValidatorList
         self.selectedValidatorList = selectedValidatorList
+        referenceValidatorList = selectedValidatorList
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -132,7 +134,11 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
             selectedValidatorList.append(changedValidator)
         }
 
+        let differsFromInitial = referenceValidatorList != selectedValidatorList
+
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        viewModel.differsFromInitial = differsFromInitial
+
         self.viewModel = viewModel
 
         view?.didReload(viewModel)

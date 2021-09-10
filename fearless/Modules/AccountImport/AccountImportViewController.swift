@@ -218,7 +218,7 @@ final class AccountImportViewController: UIViewController {
             isEnabled = isEnabled && !(derivationPathField.text?.isEmpty ?? true)
         }
 
-        nextButton?.isEnabled = isEnabled
+        nextButton?.set(enabled: isEnabled)
     }
 
     private func updateTextViewPlaceholder() {

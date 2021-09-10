@@ -1403,104 +1403,6 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
-import RobinHood
-
-
- class MockDataOperationFactoryProtocol: DataOperationFactoryProtocol, Cuckoo.ProtocolMock {
-    
-     typealias MocksType = DataOperationFactoryProtocol
-    
-     typealias Stubbing = __StubbingProxy_DataOperationFactoryProtocol
-     typealias Verification = __VerificationProxy_DataOperationFactoryProtocol
-
-     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: DataOperationFactoryProtocol?
-
-     func enableDefaultImplementation(_ stub: DataOperationFactoryProtocol) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-
-    
-
-    
-    
-    
-     func fetchData(from url: URL) -> BaseOperation<Data> {
-        
-    return cuckoo_manager.call("fetchData(from: URL) -> BaseOperation<Data>",
-            parameters: (url),
-            escapingParameters: (url),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.fetchData(from: url))
-        
-    }
-    
-
-	 struct __StubbingProxy_DataOperationFactoryProtocol: Cuckoo.StubbingProxy {
-	    private let cuckoo_manager: Cuckoo.MockManager
-	
-	     init(manager: Cuckoo.MockManager) {
-	        self.cuckoo_manager = manager
-	    }
-	    
-	    
-	    func fetchData<M1: Cuckoo.Matchable>(from url: M1) -> Cuckoo.ProtocolStubFunction<(URL), BaseOperation<Data>> where M1.MatchedType == URL {
-	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockDataOperationFactoryProtocol.self, method: "fetchData(from: URL) -> BaseOperation<Data>", parameterMatchers: matchers))
-	    }
-	    
-	}
-
-	 struct __VerificationProxy_DataOperationFactoryProtocol: Cuckoo.VerificationProxy {
-	    private let cuckoo_manager: Cuckoo.MockManager
-	    private let callMatcher: Cuckoo.CallMatcher
-	    private let sourceLocation: Cuckoo.SourceLocation
-	
-	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-	        self.cuckoo_manager = manager
-	        self.callMatcher = callMatcher
-	        self.sourceLocation = sourceLocation
-	    }
-	
-	    
-	
-	    
-	    @discardableResult
-	    func fetchData<M1: Cuckoo.Matchable>(from url: M1) -> Cuckoo.__DoNotUse<(URL), BaseOperation<Data>> where M1.MatchedType == URL {
-	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
-	        return cuckoo_manager.verify("fetchData(from: URL) -> BaseOperation<Data>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	}
-}
-
- class DataOperationFactoryProtocolStub: DataOperationFactoryProtocol {
-    
-
-    
-
-    
-     func fetchData(from url: URL) -> BaseOperation<Data>  {
-        return DefaultValueRegistry.defaultValue(for: (BaseOperation<Data>).self)
-    }
-    
-}
-
-
-import Cuckoo
-@testable import fearless
-@testable import SoraKeystore
-
-import Foundation
 
 
  class MockConnectionAutobalancing: ConnectionAutobalancing, Cuckoo.ProtocolMock {
@@ -2258,6 +2160,104 @@ import Foundation
     
      func cancelForIdentifier(_ identifier: UInt16)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+import RobinHood
+
+
+ class MockDataOperationFactoryProtocol: DataOperationFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = DataOperationFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_DataOperationFactoryProtocol
+     typealias Verification = __VerificationProxy_DataOperationFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: DataOperationFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: DataOperationFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func fetchData(from url: URL) -> BaseOperation<Data> {
+        
+    return cuckoo_manager.call("fetchData(from: URL) -> BaseOperation<Data>",
+            parameters: (url),
+            escapingParameters: (url),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.fetchData(from: url))
+        
+    }
+    
+
+	 struct __StubbingProxy_DataOperationFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func fetchData<M1: Cuckoo.Matchable>(from url: M1) -> Cuckoo.ProtocolStubFunction<(URL), BaseOperation<Data>> where M1.MatchedType == URL {
+	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockDataOperationFactoryProtocol.self, method: "fetchData(from: URL) -> BaseOperation<Data>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_DataOperationFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func fetchData<M1: Cuckoo.Matchable>(from url: M1) -> Cuckoo.__DoNotUse<(URL), BaseOperation<Data>> where M1.MatchedType == URL {
+	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
+	        return cuckoo_manager.verify("fetchData(from: URL) -> BaseOperation<Data>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class DataOperationFactoryProtocolStub: DataOperationFactoryProtocol {
+    
+
+    
+
+    
+     func fetchData(from url: URL) -> BaseOperation<Data>  {
+        return DefaultValueRegistry.defaultValue(for: (BaseOperation<Data>).self)
     }
     
 }
