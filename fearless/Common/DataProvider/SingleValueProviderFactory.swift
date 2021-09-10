@@ -200,7 +200,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
             facade.createRepository()
 
-        let source = SubscanPriceSource(assetId: assetId)
+        let source = CoingeckoPriceSource(assetId: assetId)
 
         let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
         let provider = SingleValueProvider(
