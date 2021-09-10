@@ -444,6 +444,7 @@
 		84563D0524F466470055591D /* ManagedAccountItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0424F466470055591D /* ManagedAccountItem.swift */; };
 		84563D0724F4674A0055591D /* ManagedAccountItemMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0624F4674A0055591D /* ManagedAccountItemMapper.swift */; };
 		84563D0924F46B7F0055591D /* ManagedAccountItemMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0824F46B7F0055591D /* ManagedAccountItemMapperTests.swift */; };
+		8457F91026EB8288006803E1 /* StorageMigrator+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8457F90F26EB8288006803E1 /* StorageMigrator+Sync.swift */; };
 		84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */; };
 		84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A30251C0B9300390F7A /* NetworkInfoMode.swift */; };
 		84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */; };
@@ -817,7 +818,6 @@
 		849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */; };
 		849E689526AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E689426AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift */; };
 		849ECD3526DE70B900F542A3 /* SingleToMultiassetUserMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849ECD3426DE70B900F542A3 /* SingleToMultiassetUserMigrationTests.swift */; };
-		849ECD3726DF6A6000F542A3 /* SingleToMultiasset.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 849ECD3626DF6A5F00F542A3 /* SingleToMultiasset.xcmappingmodel */; };
 		849ECD3926DF792800F542A3 /* SkeletonRow+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849ECD3826DF792800F542A3 /* SkeletonRow+View.swift */; };
 		84A15489262888CA0050D557 /* IdentityOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A15488262888CA0050D557 /* IdentityOperationFactory.swift */; };
 		84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */; };
@@ -1941,6 +1941,7 @@
 		84563D0424F466470055591D /* ManagedAccountItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountItem.swift; sourceTree = "<group>"; };
 		84563D0624F4674A0055591D /* ManagedAccountItemMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountItemMapper.swift; sourceTree = "<group>"; };
 		84563D0824F46B7F0055591D /* ManagedAccountItemMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountItemMapperTests.swift; sourceTree = "<group>"; };
+		8457F90F26EB8288006803E1 /* StorageMigrator+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageMigrator+Sync.swift"; sourceTree = "<group>"; };
 		84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Style.swift"; sourceTree = "<group>"; };
 		84585A30251C0B9300390F7A /* NetworkInfoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoMode.swift; sourceTree = "<group>"; };
 		84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsLocalSearchEngine.swift; sourceTree = "<group>"; };
@@ -2319,7 +2320,6 @@
 		849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanLocalSearchEngine.swift; sourceTree = "<group>"; };
 		849E689426AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ElectedValidatorInfo+Selected.swift"; sourceTree = "<group>"; };
 		849ECD3426DE70B900F542A3 /* SingleToMultiassetUserMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleToMultiassetUserMigrationTests.swift; sourceTree = "<group>"; };
-		849ECD3626DF6A5F00F542A3 /* SingleToMultiasset.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SingleToMultiasset.xcmappingmodel; sourceTree = "<group>"; };
 		849ECD3826DF792800F542A3 /* SkeletonRow+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SkeletonRow+View.swift"; sourceTree = "<group>"; };
 		84A15488262888CA0050D557 /* IdentityOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityOperationFactory.swift; sourceTree = "<group>"; };
 		84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+Keystore.swift"; sourceTree = "<group>"; };
@@ -7233,6 +7233,7 @@
 				84CEAAEE26D6DF160021B881 /* SingleToMultiassetMigrationPolicy.swift */,
 				84CEAAF426D7ADF20021B881 /* KeystoreMigrator.swift */,
 				84CEAAF626D7B8010021B881 /* SettingsMigrator.swift */,
+				8457F90F26EB8288006803E1 /* StorageMigrator+Sync.swift */,
 			);
 			path = Migration;
 			sourceTree = "<group>";
@@ -9012,6 +9013,7 @@
 				F4F22967260DBC7200ACFDB8 /* StakingPayoutStatusTableCell.swift in Sources */,
 				88F3A9FB9CEA464275F1115E /* ExportMnemonicViewFactory.swift in Sources */,
 				F4D551A12643DD240002363F /* AccountSelectionPresentable.swift in Sources */,
+				8457F91026EB8288006803E1 /* StorageMigrator+Sync.swift in Sources */,
 				F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */,
 				6D6C6FD2F13603BCE83CFC65 /* ExportMnemonicConfirmInteractor.swift in Sources */,
 				0CA307BC2F570941CD22C9AA /* ExportMnemonicConfirmViewFactory.swift in Sources */,

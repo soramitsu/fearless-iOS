@@ -125,6 +125,11 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
             fileManager: FileManager.default
         )
 
+        guard migrator.requiresMigration() else {
+            XCTFail("Migration not required")
+            return
+        }
+
         migrator.performMigration()
 
         // then

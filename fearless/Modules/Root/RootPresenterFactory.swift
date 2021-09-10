@@ -18,12 +18,21 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             keychain: keychain
         )
 
+        let dbMigrator = UserStorageMigrator(
+            targetVersion: .version2,
+            storeURL: UserDataStorageFacade.storageURL,
+            modelDirectory: UserDataStorageFacade.modelDirectory,
+            keystore: keychain,
+            settings: settings,
+            fileManager: FileManager.default
+        )
+
         let interactor = RootInteractor(
             settings: settings,
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, inconsistentStateMigrator, networkConnectionsMigrator],
+            migrators: [languageMigrator, inconsistentStateMigrator, networkConnectionsMigrator, dbMigrator],
             logger: Logger.shared
         )
 

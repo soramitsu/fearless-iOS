@@ -141,7 +141,9 @@ final class UserStorageMigrator {
     }
 
     private func checkIfMigrationNeeded(to version: UserStorageVersion) -> Bool {
-        guard fileManager.fileExists(atPath: storeURL.absoluteString) else {
+        let storageExists = fileManager.fileExists(atPath: storeURL.path)
+
+        guard storageExists else {
             return false
         }
 

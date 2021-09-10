@@ -3,38 +3,49 @@ import RobinHood
 import CoreData
 
 class UserDataStorageFacade: StorageFacadeProtocol {
-    static let shared = UserDataStorageFacade()
+    static let modelVersion: UserStorageVersion = .version2
+    static let modelDirectory: String = "UserDataModel.momd"
 
-    let databaseService: CoreDataServiceProtocol
-
-    private init() {
-        let modelName = "UserDataModel"
-        let subdirectory = "UserDataModel.momd"
-        let bundle = Bundle.main
-
-        let omoURL = bundle.url(
-            forResource: modelName,
-            withExtension: "omo",
-            subdirectory: subdirectory
-        )
-
-        let momURL = bundle.url(
-            forResource: modelName,
-            withExtension: "mom",
-            subdirectory: subdirectory
-        )
-
-        let modelURL = omoURL ?? momURL
-        let databaseName = "\(modelName).sqlite"
-
+    static let storageDirectoryURL: URL = {
         let baseURL = FileManager.default.urls(
             for: .documentDirectory,
             in: .userDomainMask
         ).first?.appendingPathComponent("CoreData")
 
+        return baseURL!
+    }()
+
+    static let databaseName = "UserDataModel.sqlite"
+
+    static var storageURL: URL {
+        storageDirectoryURL.appendingPathComponent(databaseName)
+    }
+
+    static let shared = UserDataStorageFacade()
+
+    let databaseService: CoreDataServiceProtocol
+
+    private init() {
+        let modelName = Self.modelVersion.rawValue
+        let bundle = Bundle.main
+
+        let omoURL = bundle.url(
+            forResource: modelName,
+            withExtension: "omo",
+            subdirectory: Self.modelDirectory
+        )
+
+        let momURL = bundle.url(
+            forResource: modelName,
+            withExtension: "mom",
+            subdirectory: Self.modelDirectory
+        )
+
+        let modelURL = omoURL ?? momURL
+
         let persistentSettings = CoreDataPersistentSettings(
-            databaseDirectory: baseURL!,
-            databaseName: databaseName,
+            databaseDirectory: Self.storageDirectoryURL,
+            databaseName: Self.databaseName,
             incompatibleModelStrategy: .ignore
         )
 
