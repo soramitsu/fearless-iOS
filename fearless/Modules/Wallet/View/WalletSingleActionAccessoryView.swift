@@ -16,7 +16,7 @@ extension WalletSingleActionAccessoryView: CommonWallet.AccessoryViewProtocol {
             actionButton.isEnabled
         }
         set(newValue) {
-            actionButton.isEnabled = newValue
+            actionButton.set(enabled: newValue)
         }
     }
 

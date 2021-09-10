@@ -2,27 +2,6 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 
-enum WalletRemoteHistorySourceLabel: Int, CaseIterable {
-    case transfers
-    case rewards
-    case extrinsics
-}
-
-protocol WalletRemoteHistoryItemProtocol {
-    var identifier: String { get }
-    var itemBlockNumber: UInt64 { get }
-    var itemExtrinsicIndex: UInt16 { get }
-    var itemTimestamp: Int64 { get }
-    var label: WalletRemoteHistorySourceLabel { get }
-
-    func createTransactionForAddress(
-        _ address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol
-    ) -> AssetTransactionData
-}
-
 extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
     var identifier: String { "\(recordId)-\(eventIndex)" }
     var itemBlockNumber: UInt64 { blockNumber }
@@ -34,14 +13,13 @@ extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
         _ address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol
+        addressFactory _: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         AssetTransactionData.createTransaction(
             from: self,
             address: address,
             networkType: networkType,
-            asset: asset,
-            addressFactory: addressFactory
+            asset: asset
         )
     }
 }

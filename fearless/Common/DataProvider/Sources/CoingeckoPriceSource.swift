@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class SubscanPriceSource: SingleValueProviderSourceProtocol {
+final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     typealias Model = PriceData
 
     let assetId: WalletAssetId
@@ -11,13 +11,11 @@ final class SubscanPriceSource: SingleValueProviderSourceProtocol {
     }
 
     func fetchOperation() -> CompoundOperationWrapper<PriceData?> {
-        if assetId.hasPrice, let baseUrl = assetId.subscanUrl {
-            let url = baseUrl.appendingPathComponent(SubscanApi.price)
-            let time = Int64(Date().timeIntervalSince1970)
-            let priceOperation = SubscanOperationFactory().fetchPriceOperation(url, time: time)
+        if let tokenId = assetId.coingeckoTokenId {
+            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [tokenId])
 
             let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
-                try priceOperation.extractNoCancellableResultData()
+                try priceOperation.extractNoCancellableResultData().first
             }
 
             targetOperation.addDependency(priceOperation)

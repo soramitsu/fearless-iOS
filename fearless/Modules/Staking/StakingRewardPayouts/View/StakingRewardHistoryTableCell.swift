@@ -15,12 +15,14 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         label.font = .p1Paragraph
         label.lineBreakMode = .byTruncatingMiddle
         label.textColor = R.color.colorWhite()
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
 
     private let daysLeftLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -28,6 +30,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
+        label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return label
     }()
 
@@ -35,6 +38,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorLightGray()
+        label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return label
     }()
 

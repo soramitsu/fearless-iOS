@@ -1,17 +1,7 @@
 import Foundation
 import RobinHood
 
-struct WalletRemoteHistoryData {
-    let historyItems: [WalletRemoteHistoryItemProtocol]
-    let context: TransactionHistoryContext
-}
-
-protocol WalletRemoteHistoryFactoryProtocol {
-    func createOperationWrapper(for context: TransactionHistoryContext, address: String, count: Int)
-        -> CompoundOperationWrapper<WalletRemoteHistoryData>
-}
-
-final class WalletRemoteHistoryFactory {
+final class SubscanHistoryOperationFactory {
     struct MergeResult {
         let items: [WalletRemoteHistoryItemProtocol]
         let originalCounters: [WalletRemoteHistorySourceLabel: Int]
@@ -211,7 +201,7 @@ final class WalletRemoteHistoryFactory {
     }
 }
 
-extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
+extension SubscanHistoryOperationFactory: WalletRemoteHistoryFactoryProtocol {
     func createOperationWrapper(for context: TransactionHistoryContext, address: String, count _: Int)
         -> CompoundOperationWrapper<WalletRemoteHistoryData> {
         guard !context.isComplete else {

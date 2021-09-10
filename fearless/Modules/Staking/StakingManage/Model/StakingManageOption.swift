@@ -22,7 +22,7 @@ enum StakingManageOption {
         case .controllerAccount:
             return R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
         case .yourValidator:
-            return R.string.localizable.stakingViewYourValidatorTitle(preferredLanguages: locale.rLanguages)
+            return R.string.localizable.stakingYourValidatorTitle(preferredLanguages: locale.rLanguages)
         }
     }
 

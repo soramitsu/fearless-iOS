@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -36,10 +36,10 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HJf-mV-DOB">
-                    <rect key="frame" x="0.0" y="0.0" width="414" height="636"/>
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="644"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oVw-Ru-zUO">
-                            <rect key="frame" x="16" y="0.0" width="382" height="380.66666666666669"/>
+                            <rect key="frame" x="16" y="0.0" width="382" height="382.33333333333331"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mbj-JZ-Ope" customClass="RoundedView" customModule="SoraUI">
                                     <rect key="frame" x="0.0" y="26" width="382" height="144"/>
@@ -64,13 +64,13 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose words in the right order" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h9t-43-ypk">
-                                    <rect key="frame" x="0.0" y="186" width="382" height="18.666666666666657"/>
+                                    <rect key="frame" x="0.0" y="186" width="382" height="20.333333333333343"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iI2-ci-IkH" customClass="RoundedView" customModule="SoraUI">
-                                    <rect key="frame" x="0.0" y="220.66666666666663" width="382" height="144"/>
+                                    <rect key="frame" x="0.0" y="222.33333333333337" width="382" height="144"/>
                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="144" id="B42-zO-Mqd"/>
@@ -115,7 +115,7 @@
                     </constraints>
                 </scrollView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E2p-hu-yYu">
-                    <rect key="frame" x="16" y="660" width="382" height="52"/>
+                    <rect key="frame" x="16" y="668" width="382" height="52"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="02i-Et-cAL" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
                             <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
@@ -160,7 +160,7 @@
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" name="colorBlack"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="E2p-hu-yYu" secondAttribute="bottom" constant="24" id="0mT-y2-pzS"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="E2p-hu-yYu" secondAttribute="bottom" constant="16" id="0mT-y2-pzS"/>
                 <constraint firstItem="HJf-mV-DOB" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="6fY-mm-hDT"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="E2p-hu-yYu" secondAttribute="trailing" constant="16" id="UcF-1p-bpP"/>
                 <constraint firstItem="HJf-mV-DOB" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Z6W-ha-v3N"/>
@@ -174,7 +174,7 @@
     </objects>
     <designables>
         <designable name="02i-Et-cAL">
-            <size key="intrinsicContentSize" width="43.333333333333329" height="31.666666666666664"/>
+            <size key="intrinsicContentSize" width="51.333333333333336" height="33.666666666666671"/>
         </designable>
     </designables>
     <resources>
@@ -182,7 +182,7 @@
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorAlmostBlack">
-            <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.094117647058823528" green="0.094117647058823528" blue="0.094117647058823528" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

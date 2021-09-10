@@ -190,7 +190,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
             } else {
                 return R.string.localizable
-                    .stakingMainLockupPeriodValue(format: daysLeft, preferredLanguages: locale.rLanguages)
+                    .commonDaysLeftFormat(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
         }()
 

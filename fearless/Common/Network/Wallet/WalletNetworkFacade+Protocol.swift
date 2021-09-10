@@ -137,7 +137,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         let remoteHistoryWrapper: CompoundOperationWrapper<WalletRemoteHistoryData>
 
         if let baseUrl = assetId.subscanUrl {
-            let remoteHistoryFactory = WalletRemoteHistoryFactory(
+            let remoteHistoryFactory = SubscanHistoryOperationFactory(
                 baseURL: baseUrl,
                 filter: WalletRemoteHistoryClosureFilter.transfersInExtrinsics
             )

@@ -132,10 +132,13 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
             }
             if daysLeft == 0 {
                 let formattedTime = (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
-                return R.string.localizable.commonTimeLeftFormat(formattedTime)
+                return R.string.localizable.commonTimeLeftFormat(
+                    formattedTime,
+                    preferredLanguages: locale.rLanguages
+                )
             } else {
                 return R.string.localizable
-                    .stakingMainLockupPeriodValue(format: daysLeft, preferredLanguages: locale.rLanguages)
+                    .commonDaysLeftFormat(format: daysLeft, preferredLanguages: locale.rLanguages)
             }
         }()
 

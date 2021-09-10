@@ -33,7 +33,7 @@
                     </connections>
                 </tableView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4oi-7B-XKE" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="786" width="382" height="52"/>
+                    <rect key="frame" x="16" y="794" width="382" height="52"/>
                     <viewLayoutGuide key="safeArea" id="IXI-9y-YQZ"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
@@ -75,13 +75,18 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="dvE-No-BQJ" secondAttribute="trailing" id="5Ty-qX-mzP"/>
                 <constraint firstItem="dvE-No-BQJ" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Whe-7S-Jrm"/>
                 <constraint firstItem="4oi-7B-XKE" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="gKQ-bp-KjJ"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="4oi-7B-XKE" secondAttribute="bottom" constant="24" id="kAR-YS-ZkG"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="4oi-7B-XKE" secondAttribute="bottom" constant="16" id="kAR-YS-ZkG"/>
                 <constraint firstAttribute="bottom" secondItem="dvE-No-BQJ" secondAttribute="bottom" id="m7Y-Rl-Id3"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="4oi-7B-XKE" secondAttribute="trailing" constant="16" id="voK-19-HFa"/>
             </constraints>
             <point key="canvasLocation" x="138" y="53"/>
         </view>
     </objects>
+    <designables>
+        <designable name="4oi-7B-XKE">
+            <size key="intrinsicContentSize" width="83.5" height="34"/>
+        </designable>
+    </designables>
     <resources>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
