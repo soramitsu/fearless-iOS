@@ -1,7 +1,6 @@
 import Foundation
 import BigInt
 import SoraFoundation
-import FearlessUtils
 
 final class CrowdloanContributionSetupPresenter {
     weak var view: CrowdloanContributionSetupViewProtocol?

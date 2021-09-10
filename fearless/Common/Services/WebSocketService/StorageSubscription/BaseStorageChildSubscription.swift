@@ -1,6 +1,5 @@
 import Foundation
 import RobinHood
-import FearlessUtils
 
 class BaseStorageChildSubscription: StorageChildSubscribing {
     let remoteStorageKey: Data

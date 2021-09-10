@@ -1,7 +1,6 @@
 import Foundation
 import BigInt
 import CommonWallet
-import FearlessUtils
 
 final class StakingPayoutConfirmationPresenter {
     weak var view: StakingPayoutConfirmationViewProtocol?

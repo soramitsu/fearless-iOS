@@ -1,6 +1,5 @@
 import Foundation
 import SoraFoundation
-import FearlessUtils
 
 final class LanguageSelectionPresenter {
     weak var view: LanguageSelectionViewProtocol?

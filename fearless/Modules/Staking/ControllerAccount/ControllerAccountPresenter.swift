@@ -1,7 +1,6 @@
 import Foundation
 import SoraFoundation
 import BigInt
-import FearlessUtils
 
 final class ControllerAccountPresenter {
     let wireframe: ControllerAccountWireframeProtocol

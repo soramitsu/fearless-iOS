@@ -1,6 +1,5 @@
 import Foundation
 import RobinHood
-import FearlessUtils
 
 final class SelectValidatorsStartPresenter {
     weak var view: SelectValidatorsStartViewProtocol?

@@ -1,6 +1,5 @@
 import SoraFoundation
 import IrohaCrypto
-import FearlessUtils
 
 final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?

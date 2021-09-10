@@ -1,6 +1,5 @@
 import Foundation
 import SoraFoundation
-import FearlessUtils
 
 final class CrowdloanListPresenter {
     weak var view: CrowdloanListViewProtocol?

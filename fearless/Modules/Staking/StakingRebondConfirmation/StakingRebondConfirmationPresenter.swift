@@ -1,6 +1,5 @@
 import Foundation
 import BigInt
-import FearlessUtils
 
 final class StakingRebondConfirmationPresenter {
     weak var view: StakingRebondConfirmationViewProtocol?

@@ -1,6 +1,5 @@
 import Foundation
 import RobinHood
-import FearlessUtils
 
 final class AccountInfoSubscription: BaseStorageChildSubscription {
     let transactionSubscription: TransactionSubscription

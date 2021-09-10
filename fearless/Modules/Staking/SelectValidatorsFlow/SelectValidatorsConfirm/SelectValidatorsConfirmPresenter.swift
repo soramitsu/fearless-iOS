@@ -1,7 +1,6 @@
 import Foundation
 import CommonWallet
 import BigInt
-import FearlessUtils
 
 final class SelectValidatorsConfirmPresenter {
     weak var view: SelectValidatorsConfirmViewProtocol?

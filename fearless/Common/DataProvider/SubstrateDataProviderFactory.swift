@@ -1,6 +1,5 @@
 import Foundation
 import RobinHood
-import FearlessUtils
 
 protocol SubstrateDataProviderFactoryProtocol {
     func createStashItemProvider(for address: String) -> StreamableProvider<StashItem>

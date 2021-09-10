@@ -3,7 +3,6 @@ import CommonWallet
 import SoraFoundation
 import BigInt
 import IrohaCrypto
-import FearlessUtils
 
 protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState

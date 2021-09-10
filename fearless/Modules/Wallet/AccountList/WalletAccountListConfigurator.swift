@@ -1,6 +1,5 @@
 import Foundation
 import CommonWallet
-import FearlessUtils
 
 final class WalletAccountListConfigurator {
     let logger: LoggerProtocol
