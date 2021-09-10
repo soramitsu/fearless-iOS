@@ -1,8 +1,7 @@
 import Foundation
 import SwiftyBeaver
-import FearlessUtils
 
-protocol LoggerProtocol: SDKLoggerProtocol {
+protocol LoggerProtocol {
     func verbose(message: String, file: String, function: String, line: Int)
     func debug(message: String, file: String, function: String, line: Int)
     func info(message: String, file: String, function: String, line: Int)

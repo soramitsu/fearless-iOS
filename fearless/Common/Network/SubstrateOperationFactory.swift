@@ -7,9 +7,9 @@ protocol SubstrateOperationFactoryProtocol: AnyObject {
 }
 
 final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
-    let logger: LoggerProtocol
+    let logger: SDKLoggerProtocol
 
-    init(logger: LoggerProtocol) {
+    init(logger: SDKLoggerProtocol) {
         self.logger = logger
     }
 
