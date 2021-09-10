@@ -445,6 +445,7 @@
 		84563D0724F4674A0055591D /* ManagedAccountItemMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0624F4674A0055591D /* ManagedAccountItemMapper.swift */; };
 		84563D0924F46B7F0055591D /* ManagedAccountItemMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0824F46B7F0055591D /* ManagedAccountItemMapperTests.swift */; };
 		8457F91026EB8288006803E1 /* StorageMigrator+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8457F90F26EB8288006803E1 /* StorageMigrator+Sync.swift */; };
+		8457F91326EB90B1006803E1 /* AccountItemMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8457F91226EB90B1006803E1 /* AccountItemMapper.swift */; };
 		84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */; };
 		84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A30251C0B9300390F7A /* NetworkInfoMode.swift */; };
 		84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */; };
@@ -1942,6 +1943,7 @@
 		84563D0624F4674A0055591D /* ManagedAccountItemMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountItemMapper.swift; sourceTree = "<group>"; };
 		84563D0824F46B7F0055591D /* ManagedAccountItemMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountItemMapperTests.swift; sourceTree = "<group>"; };
 		8457F90F26EB8288006803E1 /* StorageMigrator+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageMigrator+Sync.swift"; sourceTree = "<group>"; };
+		8457F91226EB90B1006803E1 /* AccountItemMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountItemMapper.swift; sourceTree = "<group>"; };
 		84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Style.swift"; sourceTree = "<group>"; };
 		84585A30251C0B9300390F7A /* NetworkInfoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoMode.swift; sourceTree = "<group>"; };
 		84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsLocalSearchEngine.swift; sourceTree = "<group>"; };
@@ -4316,6 +4318,14 @@
 			path = CrowdloanList;
 			sourceTree = "<group>";
 		};
+		8457F91126EB9088006803E1 /* EntityToModel */ = {
+			isa = PBXGroup;
+			children = (
+				8457F91226EB90B1006803E1 /* AccountItemMapper.swift */,
+			);
+			path = EntityToModel;
+			sourceTree = "<group>";
+		};
 		84585A32251CE1BF00390F7A /* Contacts */ = {
 			isa = PBXGroup;
 			children = (
@@ -4539,7 +4549,8 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				84CEAAEB26D6D91A0021B881 /* Mappings */,
+				8457F91126EB9088006803E1 /* EntityToModel */,
+				84CEAAEB26D6D91A0021B881 /* MigrationMappings */,
 				843910CA253F7E6500E3C217 /* SubstrateDataModel.xcdatamodeld */,
 				8467FD4F24EFD11E005D486C /* UserDataModel.xcdatamodeld */,
 				8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */,
@@ -5888,12 +5899,12 @@
 			path = Subscription;
 			sourceTree = "<group>";
 		};
-		84CEAAEB26D6D91A0021B881 /* Mappings */ = {
+		84CEAAEB26D6D91A0021B881 /* MigrationMappings */ = {
 			isa = PBXGroup;
 			children = (
 				8479A89926EA538E00C0E09B /* SingleToMultiasset.xcmappingmodel */,
 			);
-			path = Mappings;
+			path = MigrationMappings;
 			sourceTree = "<group>";
 		};
 		84CFF1CA26526C4700DB7CF7 /* Recovered References */ = {
@@ -9199,6 +9210,7 @@
 				506F0D372BCC8302E513637C /* CrowdloanContributionConfirmWireframe.swift in Sources */,
 				D1C6EABB48DC3EE254E5A095 /* CrowdloanContributionConfirmPresenter.swift in Sources */,
 				843A2C7126A85B5B00266F53 /* GenericTitleValueView.swift in Sources */,
+				8457F91326EB90B1006803E1 /* AccountItemMapper.swift in Sources */,
 				921E4891E85C0DC6FDD8A0D0 /* CrowdloanContributionConfirmInteractor.swift in Sources */,
 				5C796EF8ED29F564B5D1126B /* CrowdloanContributionConfirmViewController.swift in Sources */,
 				2793D406FD618A892D54EA84 /* CrowdloanContributionConfirmViewLayout.swift in Sources */,
