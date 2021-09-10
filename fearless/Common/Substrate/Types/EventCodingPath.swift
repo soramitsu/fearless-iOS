@@ -23,4 +23,8 @@ extension EventCodingPath {
     static var balanceDeposit: EventCodingPath {
         EventCodingPath(moduleName: "Balances", eventName: "Deposit")
     }
+
+    static var treasuryDeposit: EventCodingPath {
+        EventCodingPath(moduleName: "Treasury", eventName: "Deposit")
+    }
 }

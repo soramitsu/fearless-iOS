@@ -18,6 +18,16 @@ class MultiValueView: UIView {
         return label
     }()
 
+    var spacing: CGFloat {
+        get {
+            stackView.spacing
+        }
+
+        set {
+            stackView.spacing = newValue
+        }
+    }
+
     let stackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical

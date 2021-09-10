@@ -212,7 +212,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             operationManager: operationManager
         )
 
-        var controllerSettings = InMemorySettingsManager()
+        let controllerSettings = InMemorySettingsManager()
         controllerSettings.selectedAccount = nomination.bonding.controllerAccount
         controllerSettings.selectedConnection = networkSettings
 
