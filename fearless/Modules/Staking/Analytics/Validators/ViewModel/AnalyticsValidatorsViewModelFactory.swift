@@ -20,6 +20,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     func createViewModel(
         eraValidatorInfos: [SubqueryEraValidatorInfo],
+        eraRange: EraRange,
         stashAddress: AccountAddress,
         rewards: [SubqueryRewardItemData],
         nomination: Nomination,
@@ -29,7 +30,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     ) -> AnalyticsValidatorsViewModel {
         percentFormatter.locale = locale
 
-        let totalEras = totalErasCount(eraValidatorInfos: eraValidatorInfos)
+        let totalEras = Int(eraRange.end - eraRange.start + 1)
+        let erasWhenStaked = countErasWhenStaked(eraValidatorInfos: eraValidatorInfos)
         let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
         let addressFactory = SS58AddressFactory()
         let validatorsAddresses = nomination.targets.compactMap { accountId in
@@ -104,14 +106,15 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             page: page,
             validators: validatorsViewModel,
             totalEras: totalEras,
+            erasWhenStaked: erasWhenStaked,
             locale: locale
         )
 
         let amounts = validatorsViewModel.map(\.progressPercents)
         let pieChartInactiveSegment = findInactiveSegment(
             page: page,
-            validators: validatorsViewModel,
-            totalEras: totalEras
+            totalEras: totalEras,
+            erasWhenStaked: erasWhenStaked
         )
 
         return AnalyticsValidatorsViewModel(
@@ -142,12 +145,12 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         page: AnalyticsValidatorsPage,
         validators: [AnalyticsValidatorItemViewModel],
         totalEras: Int,
+        erasWhenStaked: Int,
         locale: Locale
     ) -> NSAttributedString {
         switch page {
         case .activity:
-            let maxDistinctErasCount = validators.map(\.amount).max() ?? 0
-            let activeStakingErasPercents = Double(maxDistinctErasCount) / Double(totalEras)
+            let activeStakingErasPercents = Double(erasWhenStaked) / Double(totalEras)
             let percentageString = percentFormatter.string(from: activeStakingErasPercents as NSNumber) ?? ""
 
             return createChartCenterText(
@@ -156,7 +159,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 secondLine: percentageString,
                 thirdLine: String(
                     format: R.string.localizable.stakingAnalyticsErasRange(
-                        Int(maxDistinctErasCount).description,
+                        erasWhenStaked.description,
                         totalEras.description,
                         preferredLanguages: locale.rLanguages
                     )
@@ -218,7 +221,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         return result
     }
 
-    func totalErasCount(eraValidatorInfos: [SubqueryEraValidatorInfo]) -> Int {
+    func countErasWhenStaked(eraValidatorInfos: [SubqueryEraValidatorInfo]) -> Int {
         let distinctEras = Set<EraIndex>(eraValidatorInfos.map(\.era))
         return distinctEras.count
     }
@@ -240,18 +243,17 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     private func findInactiveSegment(
         page: AnalyticsValidatorsPage,
-        validators: [AnalyticsValidatorItemViewModel],
-        totalEras: Int
+        totalEras: Int,
+        erasWhenStaked: Int
     ) -> AnalyticsValidatorsViewModel.InactiveSegment? {
         guard case .activity = page else {
             return nil
         }
-        let maxDistinctErasCount = validators.map(\.amount).max() ?? 0
-        let activeStakingErasPercents = maxDistinctErasCount / Double(totalEras)
+        let activeStakingErasPercents = Double(erasWhenStaked) / Double(totalEras)
 
         return .init(
             percents: 1.0 - activeStakingErasPercents,
-            eraCount: totalEras - Int(maxDistinctErasCount)
+            eraCount: totalEras - erasWhenStaked
         )
     }
 

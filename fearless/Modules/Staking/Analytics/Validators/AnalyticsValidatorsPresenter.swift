@@ -15,6 +15,7 @@ final class AnalyticsValidatorsPresenter {
     private var stashAddress: AccountAddress?
     private var nomination: Nomination?
     private var rewards: [SubqueryRewardItemData]?
+    private var eraRange: EraRange?
 
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
@@ -35,11 +36,13 @@ final class AnalyticsValidatorsPresenter {
             let eraValidatorInfos = eraValidatorInfos,
             let stashAddress = stashAddress,
             let rewards = rewards,
+            let eraRange = eraRange,
             let nomination = nomination
         else { return }
 
         let viewModel = viewModelFactory.createViewModel(
             eraValidatorInfos: eraValidatorInfos,
+            eraRange: eraRange,
             stashAddress: stashAddress,
             rewards: rewards,
             nomination: nomination,
@@ -146,5 +149,10 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         case let .failure(error):
             logger?.error("Did receive nomination error: \(error.localizedDescription)")
         }
+    }
+
+    func didReceive(eraRange: EraRange) {
+        self.eraRange = eraRange
+        updateView()
     }
 }

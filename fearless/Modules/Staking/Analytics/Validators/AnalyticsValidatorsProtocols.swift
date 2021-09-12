@@ -25,6 +25,7 @@ protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
     func didReceive(stashAddressResult: Result<AccountAddress?, Error>)
     func didReceive(rewardsResult: Result<[SubqueryRewardItemData], Error>)
     func didReceive(nominationResult: Result<Nomination?, Error>)
+    func didReceive(eraRange: EraRange)
 }
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
@@ -34,6 +35,7 @@ protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
 protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         eraValidatorInfos: [SubqueryEraValidatorInfo],
+        eraRange: EraRange,
         stashAddress: AccountAddress,
         rewards: [SubqueryRewardItemData],
         nomination: Nomination,

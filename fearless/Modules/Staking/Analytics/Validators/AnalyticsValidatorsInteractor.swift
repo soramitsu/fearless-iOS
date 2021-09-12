@@ -78,6 +78,10 @@ final class AnalyticsValidatorsInteractor {
 
         let eraRange = EraRange(start: nomination.submittedIn + 1, end: currentEra)
 
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter.didReceive(eraRange: eraRange)
+        }
+
         let source = SubqueryEraStakersInfoSource(url: analyticsURL, address: stashAddress)
         let fetchOperation = source.fetch { eraRange }
 
