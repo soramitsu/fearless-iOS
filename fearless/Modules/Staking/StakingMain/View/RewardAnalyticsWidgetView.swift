@@ -2,7 +2,9 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class RewardAnalyticsWidgetView: BackgroundedContentControl {
+final class RewardAnalyticsWidgetView: UIView {
+    private let backgroundView: UIView = TriangularedBlurView()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -48,6 +50,14 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
 
     private var localizableViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
 
+    let backgroundButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.triangularedView?.fillColor = .clear
+        button.triangularedView?.highlightedFillColor = R.color.colorHighlightedPink()!
+        button.triangularedView?.shadowOpacity = 0.0
+        return button
+    }()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -71,14 +81,10 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        contentView?.frame = bounds
-    }
-
-    override var intrinsicContentSize: CGSize {
-        CGSize(
-            width: UIView.noIntrinsicMetric,
-            height: 221
-        )
+        if localizableViewModel == nil {
+            stopLoading()
+            startLoading()
+        }
     }
 
     private func applyLocalization() {
@@ -90,15 +96,15 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
     }
 
     private func setupLayout() {
-        let shapeView = ShapeView()
-        shapeView.isUserInteractionEnabled = false
-        shapeView.fillColor = .clear
-        shapeView.highlightedFillColor = R.color.colorAccent()!
+        addSubview(backgroundView)
+        backgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
-        backgroundView = shapeView
-
-        let containerView = UIView()
-        containerView.isUserInteractionEnabled = false
+        addSubview(backgroundButton)
+        backgroundButton.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
         let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
 
@@ -122,25 +128,19 @@ final class RewardAnalyticsWidgetView: BackgroundedContentControl {
             ]
         )
 
-        let blurView = TriangularedBlurView()
-        blurView.isUserInteractionEnabled = false
-        containerView.addSubview(blurView)
-        blurView.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-        containerView.addSubview(stackView)
+        addSubview(stackView)
+        stackView.isUserInteractionEnabled = false
         stackView.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIConstants.horizontalInset) }
 
         arrowView.snp.makeConstraints { $0.size.equalTo(24) }
         separatorView.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
         barChartView.snp.makeConstraints { $0.height.equalTo(100) }
-
-        contentView = containerView
     }
 
     func bind(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
         localizableViewModel = viewModel
         if viewModel != nil {
-            stopLoadingIfNeeded()
+            stopLoading()
 
             applyViewModel()
         } else {
@@ -176,11 +176,7 @@ extension RewardAnalyticsWidgetView {
         setupSkeleton()
     }
 
-    func stopLoadingIfNeeded() {
-        guard skeletonView != nil else {
-            return
-        }
-
+    func stopLoading() {
         skeletonView?.stopSkrulling()
         skeletonView?.removeFromSuperview()
         skeletonView = nil
@@ -189,26 +185,38 @@ extension RewardAnalyticsWidgetView {
         barChartView.alpha = 1
     }
 
-    private func setupSkeleton() {
-        guard let size = contentView?.bounds.size, size.height > 0 else { return }
+    func setupSkeleton() {
+        let spaceSize = backgroundView.frame.size
 
-        let skeletonView = Skrull(
-            size: size,
+        let skeletons = createSkeletons(for: spaceSize)
+
+        let builder = Skrull(
+            size: spaceSize,
             decorations: [],
-            skeletons: createSkeletons(for: size)
+            skeletons: skeletons
         )
-        .fillSkeletonStart(R.color.colorSkeletonStart()!)
-        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
-        .build()
-        skeletonView.isUserInteractionEnabled = false
 
-        skeletonView.frame = CGRect(origin: .zero, size: size)
-        skeletonView.autoresizingMask = []
-        insertSubview(skeletonView, aboveSubview: contentView!)
+        let currentSkeletonView: SkrullableView?
 
-        self.skeletonView = skeletonView
+        if let skeletonView = skeletonView {
+            currentSkeletonView = skeletonView
+            builder.updateSkeletons(in: skeletonView)
+        } else {
+            let view = builder
+                .fillSkeletonStart(R.color.colorSkeletonStart()!)
+                .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+                .build()
+            view.autoresizingMask = []
+            view.isUserInteractionEnabled = false
+            insertSubview(view, aboveSubview: backgroundView)
 
-        skeletonView.startSkrulling()
+            currentSkeletonView = view
+            skeletonView = view
+
+            view.startSkrulling()
+        }
+
+        currentSkeletonView?.frame = CGRect(origin: .zero, size: spaceSize)
     }
 
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
@@ -261,15 +269,5 @@ extension RewardAnalyticsWidgetView: SkeletonLoadable {
         skeletonView?.startSkrulling()
     }
 
-    func didUpdateSkeletonLayout() {
-        guard let skeletonView = skeletonView else {
-            return
-        }
-
-        if skeletonView.frame.size != contentView!.frame.size {
-            skeletonView.removeFromSuperview()
-            self.skeletonView = nil
-            setupSkeleton()
-        }
-    }
+    func didUpdateSkeletonLayout() {}
 }

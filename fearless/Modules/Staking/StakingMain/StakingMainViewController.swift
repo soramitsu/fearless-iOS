@@ -136,8 +136,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         applyConstraints(for: analyticsContainerView, innerView: analyticsView)
 
         stackView.addArrangedSubview(analyticsContainerView)
-
-        analyticsView.addTarget(self, action: #selector(handleAnalyticsWidgetTap), for: .touchUpInside)
+        analyticsView.snp.makeConstraints { $0.height.equalTo(228) }
+        analyticsView.backgroundButton.addTarget(self, action: #selector(handleAnalyticsWidgetTap), for: .touchUpInside)
     }
 
     @objc
