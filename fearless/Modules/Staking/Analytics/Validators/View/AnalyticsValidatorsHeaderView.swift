@@ -7,8 +7,8 @@ final class AnalyticsValidatorsHeaderView: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .capsTitle
-        label.textColor = R.color.colorLightGray()
+        label.font = .p0Paragraph
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
