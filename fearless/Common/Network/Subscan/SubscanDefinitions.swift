@@ -34,13 +34,4 @@ extension WalletAssetId {
             return nil
         }
     }
-
-    var hasPrice: Bool {
-        switch self {
-        case .dot, .kusama:
-            return true
-        case .usd, .westend, .roc:
-            return false
-        }
-    }
 }
