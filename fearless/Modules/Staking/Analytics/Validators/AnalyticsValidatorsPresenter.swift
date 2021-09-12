@@ -76,6 +76,11 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
         let centerText = viewModelFactory.chartCenterText(validator: validator)
         view?.updateChartCenterText(centerText)
     }
+
+    func handleChartSelectedInactiveSegment(_ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment) {
+        let centerText = viewModelFactory.chartCenterTextInactiveSegment(inactiveSegment)
+        view?.updateChartCenterText(centerText)
+    }
 }
 
 extension AnalyticsValidatorsPresenter: Localizable {

@@ -95,7 +95,7 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
             rootView.headerView.pageSelector.bind(selectedPage: viewModel.selectedPage)
             rootView.headerView.pieChart.setAmounts(
                 segmentValues: viewModel.pieChartSegmentValues,
-                inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue,
+                inactiveSegmentValue: viewModel.pieChartInactiveSegment?.percents,
                 animated: true
             )
             rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
@@ -178,8 +178,8 @@ extension AnalyticsValidatorsViewController: FWPieChartViewDelegate {
         if index < viewModel.validators.count {
             let selectedValidator = viewModel.validators[index]
             presenter.handleChartSelectedValidator(selectedValidator)
-        } else {
-            rootView.headerView.pieChart.setCenterText(.init(string: "InActive staking"))
+        } else if let inactiveSegment = viewModel.pieChartInactiveSegment {
+            presenter.handleChartSelectedInactiveSegment(inactiveSegment)
         }
     }
 
@@ -190,7 +190,7 @@ extension AnalyticsValidatorsViewController: FWPieChartViewDelegate {
         rootView.headerView.pieChart.setCenterText(viewModel.chartCenterText)
         rootView.headerView.pieChart.setAmounts(
             segmentValues: viewModel.pieChartSegmentValues,
-            inactiveSegmentValue: viewModel.pieChartInactiveSegmentValue,
+            inactiveSegmentValue: viewModel.pieChartInactiveSegment?.percents,
             animated: false
         )
     }

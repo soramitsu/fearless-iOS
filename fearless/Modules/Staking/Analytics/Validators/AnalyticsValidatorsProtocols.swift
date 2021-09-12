@@ -11,6 +11,7 @@ protocol AnalyticsValidatorsPresenterProtocol: AnyObject {
     func handleValidatorInfoAction(validatorAddress: AccountAddress)
     func handlePageAction(page: AnalyticsValidatorsPage)
     func handleChartSelectedValidator(_ validator: AnalyticsValidatorItemViewModel)
+    func handleChartSelectedInactiveSegment(_ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment)
 }
 
 protocol AnalyticsValidatorsInteractorInputProtocol: AnyObject {
@@ -42,4 +43,7 @@ protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
     ) -> AnalyticsValidatorsViewModel
 
     func chartCenterText(validator: AnalyticsValidatorItemViewModel) -> NSAttributedString
+    func chartCenterTextInactiveSegment(
+        _ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment
+    ) -> NSAttributedString
 }

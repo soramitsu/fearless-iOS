@@ -51,7 +51,7 @@ extension FWPieChartView: FWPieChartViewProtocol {
 
         let data = PieChartData(dataSet: set)
         if let inactiveSegmentValue = inactiveSegmentValue {
-            set.append(PieChartDataEntry(value: inactiveSegmentValue))
+            set.append(PieChartDataEntry(value: inactiveSegmentValue, data: entries.count))
             set.colors.append(R.color.colorDarkGray()!)
             set.selectionShift = 10
         }

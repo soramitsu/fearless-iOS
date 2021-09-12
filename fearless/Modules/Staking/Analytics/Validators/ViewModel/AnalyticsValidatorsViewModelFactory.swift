@@ -31,9 +31,12 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         let totalEras = totalErasCount(eraValidatorInfos: eraValidatorInfos)
         let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
-        let distinctValidators = Set<String>(eraValidatorInfos.map(\.address))
+        let addressFactory = SS58AddressFactory()
+        let validatorsAddresses = nomination.targets.compactMap { accountId in
+            try? addressFactory.address(fromAccountId: accountId, type: UInt16(chain.addressType.rawValue))
+        }
 
-        let validatorsWhoOwnedStake: [AnalyticsValidatorItemViewModel] = distinctValidators.map { address in
+        let validatorsViewModel: [AnalyticsValidatorItemViewModel] = validatorsAddresses.map { address in
             let icon = try? iconGenerator.generateFromAddress(address)
             let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
             let (progressPercents, amount, progressText): (Double, Double, String) = {
@@ -96,35 +99,27 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         }
         .sorted(by: { $0.amount > $1.amount })
 
-        let validatorsWhoDontOwnStake = findValidatorsWhoDontOwnStake(
-            page: page,
-            nomination: nomination,
-            distinctValidators: distinctValidators,
-            identitiesByAddress: identitiesByAddress,
-            locale: locale
-        )
-
         let listTitle = determineListTitle(page: page, locale: locale)
         let chartCenterText = createChartCenterText(
             page: page,
-            validators: validatorsWhoOwnedStake,
+            validators: validatorsViewModel,
             totalEras: totalEras,
             locale: locale
         )
 
-        let amounts = validatorsWhoOwnedStake.map(\.progressPercents)
-        let inactiveSegmentValue = findInactiveSegmentValue(
+        let amounts = validatorsViewModel.map(\.progressPercents)
+        let pieChartInactiveSegment = findInactiveSegment(
             page: page,
-            eraValidatorInfos: eraValidatorInfos,
+            validators: validatorsViewModel,
             totalEras: totalEras
         )
 
         return AnalyticsValidatorsViewModel(
             pieChartSegmentValues: amounts,
-            pieChartInactiveSegmentValue: inactiveSegmentValue,
+            pieChartInactiveSegment: pieChartInactiveSegment,
             chartCenterText: chartCenterText,
             listTitle: listTitle,
-            validators: validatorsWhoOwnedStake + validatorsWhoDontOwnStake,
+            validators: validatorsViewModel,
             selectedPage: page
         )
     }
@@ -132,49 +127,6 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     private func activityProgressDescription(percents: Double, erasCount: Int) -> String {
         let percentsString = percentFormatter.string(from: percents as NSNumber) ?? ""
         return percentsString + " (\(erasCount) eras)"
-    }
-
-    private func findValidatorsWhoDontOwnStake(
-        page: AnalyticsValidatorsPage,
-        nomination: Nomination,
-        distinctValidators: Set<String>,
-        identitiesByAddress: [AccountAddress: AccountIdentity]?,
-        locale: Locale
-    ) -> [AnalyticsValidatorItemViewModel] {
-        let addressFactory = SS58AddressFactory()
-        let progressText: String = {
-            switch page {
-            case .activity:
-                return activityProgressDescription(percents: 0, erasCount: 0)
-            case .rewards:
-                return balanceViewModelFactory.amountFromValue(0).value(for: locale)
-            }
-        }()
-        return nomination
-            .targets
-            .compactMap { validatorId in
-                let validatorAddress = try? addressFactory.addressFromAccountId(
-                    data: validatorId,
-                    type: self.chain.addressType
-                )
-                guard
-                    let address = validatorAddress,
-                    !distinctValidators.contains(address)
-                else { return nil }
-
-                let icon = try? self.iconGenerator.generateFromAddress(address)
-                let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-                return AnalyticsValidatorItemViewModel(
-                    icon: icon,
-                    validatorName: validatorName,
-                    amount: 0,
-                    progressPercents: 0,
-                    mainValueText: "%0",
-                    secondaryValueText: "0",
-                    progressFullDescription: progressText,
-                    validatorAddress: address
-                )
-            }
     }
 
     private func determineListTitle(page: AnalyticsValidatorsPage, locale: Locale) -> String {
@@ -286,17 +238,21 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         return NSDecimalNumber(decimal: totalAmount).doubleValue
     }
 
-    private func findInactiveSegmentValue(
+    private func findInactiveSegment(
         page: AnalyticsValidatorsPage,
-        eraValidatorInfos: [SubqueryEraValidatorInfo],
+        validators: [AnalyticsValidatorItemViewModel],
         totalEras: Int
-    ) -> Double? {
+    ) -> AnalyticsValidatorsViewModel.InactiveSegment? {
         guard case .activity = page else {
             return nil
         }
-        let activeEras = Set(eraValidatorInfos.map(\.era))
-        let inactiveErasCount = totalEras - activeEras.count
-        return Double(inactiveErasCount) / Double(totalEras)
+        let maxDistinctErasCount = validators.map(\.amount).max() ?? 0
+        let activeStakingErasPercents = maxDistinctErasCount / Double(totalEras)
+
+        return .init(
+            percents: 1.0 - activeStakingErasPercents,
+            eraCount: totalEras - Int(maxDistinctErasCount)
+        )
     }
 
     func chartCenterText(validator: AnalyticsValidatorItemViewModel) -> NSAttributedString {
@@ -305,6 +261,19 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             firstLineColor: R.color.colorLightGray()!,
             secondLine: validator.mainValueText,
             thirdLine: validator.secondaryValueText
+        )
+    }
+
+    func chartCenterTextInactiveSegment(
+        _ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment
+    ) -> NSAttributedString {
+        let percentageString = percentFormatter.string(from: inactiveSegment.percents as NSNumber) ?? ""
+
+        return createChartCenterText(
+            firstLine: "Inactive staking".uppercased(),
+            firstLineColor: R.color.colorGray()!,
+            secondLine: percentageString,
+            thirdLine: "\(inactiveSegment.eraCount) eras"
         )
     }
 }

@@ -70,9 +70,6 @@ final class SubqueryEraStakersInfoSource {
                 id
                 address
                 era
-                total
-                own
-                others
               }
             }
           }
