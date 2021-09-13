@@ -468,3 +468,11 @@
 "staking.common.validator" = "Валидатор";
 "staking.common.event.id" = "Событие";
 "common.copy.id" = "Копировать идентификатор";
+"wallet.contacts.search.placeholder_v1.10" = "Поиск по адресу или имени";
+"wallet.contacts.empty.title_v1.10" = "Здесь появятся ваши\
+аккаунты и контакты, которым\
+вы отправляли переводы";
+"wallet.search.empty.title_v1.10.0" = "Неверный формат адреса.\
+Убедитесь, что адрес \
+соответствует сети";
+"staking.analytics.peri
