@@ -27,7 +27,8 @@ struct AnalyticsRewardDetailsViewFactory {
             rewardModel: rewardModel,
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            chain: chain
         )
 
         let view = AnalyticsRewardDetailsViewController(

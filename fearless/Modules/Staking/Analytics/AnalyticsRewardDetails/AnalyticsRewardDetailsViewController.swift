@@ -29,7 +29,13 @@ final class AnalyticsRewardDetailsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         applyLocalization()
+        rootView.blockNumberView.addTarget(self, action: #selector(handleBlockNumberAction), for: .touchUpInside)
         presenter.setup()
+    }
+
+    @objc
+    private func handleBlockNumberAction() {
+        presenter.handleBlockNumberAction()
     }
 }
 

@@ -6,13 +6,14 @@ protocol AnalyticsRewardDetailsViewProtocol: ControllerBackedProtocol, Localizab
 
 protocol AnalyticsRewardDetailsPresenterProtocol: AnyObject {
     func setup()
+    func handleBlockNumberAction()
 }
 
 protocol AnalyticsRewardDetailsInteractorInputProtocol: AnyObject {}
 
 protocol AnalyticsRewardDetailsInteractorOutputProtocol: AnyObject {}
 
-protocol AnalyticsRewardDetailsWireframeProtocol: AnyObject {}
+protocol AnalyticsRewardDetailsWireframeProtocol: ModalAlertPresenting, AlertPresentable, WebPresentable {}
 
 protocol AnalyticsRewardDetailsViewModelFactoryProtocol: AnyObject {
     func createViweModel(

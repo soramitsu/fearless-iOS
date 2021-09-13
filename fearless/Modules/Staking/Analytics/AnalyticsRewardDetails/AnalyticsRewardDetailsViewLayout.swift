@@ -1,7 +1,12 @@
 import UIKit
 
 final class AnalyticsRewardDetailsViewLayout: UIView {
-    let blockNumberView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+    let blockNumberView: DetailsTriangularedView = {
+        let detailsView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+        detailsView.actionImage = R.image.iconMore()
+        return detailsView
+    }()
+
     let dateView = TitleValueView()
     let typeView = TitleValueView()
     let amountView = TitleValueView()

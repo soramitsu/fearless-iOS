@@ -69,6 +69,19 @@ extension Chain {
         }
     }
 
+    func subscanBlockURL(_ block: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkadot.subscan.io/block/\(block)")
+        case .kusama:
+            return URL(string: "https://kusama.subscan.io/block/\(block)")
+        case .westend:
+            return URL(string: "https://westend.subscan.io/block/\(block)")
+        case .rococo:
+            return nil
+        }
+    }
+
     func subscanAddressURL(_ address: String) -> URL? {
         switch self {
         case .polkadot:
