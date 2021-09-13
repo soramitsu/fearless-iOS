@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 typealias RuntimeVersionUpdate = JSONRPCSubscriptionUpdate<RuntimeVersion>
 typealias StorageSubscriptionUpdate = JSONRPCSubscriptionUpdate<StorageUpdate>

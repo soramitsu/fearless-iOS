@@ -16,13 +16,16 @@ PODS:
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
   - Cuckoo/Swift (1.5.0)
-  - FearlessUtils (0.11.1):
+  - FearlessUtils (0.13.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.8.0)
     - IrohaCrypto/Scrypt (~> 0.8.0)
     - IrohaCrypto/secp256k1 (~> 0.8.0)
     - IrohaCrypto/sr25519 (~> 0.8.0)
     - IrohaCrypto/ss58 (~> 0.8.0)
+    - ReachabilitySwift (~> 5.0)
+    - RobinHood (~> 2.6.0)
+    - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
@@ -119,7 +122,7 @@ DEPENDENCIES:
   - Charts
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `4133ff9b81cda094dd8e2b7f32129172224b0227`)
   - Cuckoo
-  - FearlessUtils
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `1c82c6ae015dcc90a7c1a41272c407d4580962ef`)
   - FireMock
   - Kingfisher
   - R.swift
@@ -142,7 +145,6 @@ SPEC REPOS:
     - Charts
     - CocoaLumberjack
     - Cuckoo
-    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - Kingfisher
@@ -167,6 +169,9 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 4133ff9b81cda094dd8e2b7f32129172224b0227
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: 1c82c6ae015dcc90a7c1a41272c407d4580962ef
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -178,6 +183,9 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 4133ff9b81cda094dd8e2b7f32129172224b0227
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: 1c82c6ae015dcc90a7c1a41272c407d4580962ef
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -191,7 +199,7 @@ SPEC CHECKSUMS:
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
   CommonWallet: cdc58c26a9bbac8d45edba7c09313896b5d7350d
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
-  FearlessUtils: 760f5884fb83e132d9e6751e216d0bb6cee2b27a
+  FearlessUtils: 5078462bf15b2895dee6ba74878dc3f2a9a7bc2f
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 2f3ced592d33186beeb8818c0cb7481ec1365819
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
@@ -214,6 +222,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 8106d7828f2ff33ee6b53a977f664121d9946f02
+PODFILE CHECKSUM: 1142780eda53a49c09760e4bc9b42f8990b2ddb3
 
 COCOAPODS: 1.10.2
