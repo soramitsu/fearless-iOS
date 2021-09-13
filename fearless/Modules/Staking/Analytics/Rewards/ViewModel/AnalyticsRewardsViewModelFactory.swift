@@ -83,6 +83,10 @@ extension SubqueryRewardItemData: AnalyticsViewModelItem {
     var amountInHistory: BigUInt {
         amount
     }
+
+    var amountSign: FloatingPointSign {
+        .plus
+    }
 }
 
 extension SubqueryRewardItemData: AnalyticsRewardDetailsModel {

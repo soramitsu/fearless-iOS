@@ -43,6 +43,15 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
     var amountInHistory: BigUInt {
         amount
     }
+
+    var amountSign: FloatingPointSign {
+        switch type {
+        case .bonded, .rewarded:
+            return .plus
+        case .unbonded, .slashed:
+            return .minus
+        }
+    }
 }
 
 extension SubqueryStakeChangeData: AnalyticsRewardDetailsModel {

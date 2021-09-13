@@ -5,6 +5,7 @@ protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }
     var amountInHistory: BigUInt { get }
     var amountInChart: BigUInt { get }
+    var amountSign: FloatingPointSign { get }
     static func emptyListDescription(for locale: Locale) -> String
 }
 
@@ -189,7 +190,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let viewModel = AnalyticsRewardsItemViewModel(
                 addressOrName: title,
                 daysLeftText: .init(string: subtitle),
-                tokenAmountText: "+\(tokenAmountText)",
+                tokenAmountText: tokenAmountText,
                 usdAmountText: txTimeText
             )
             return AnalyticsRewardsItem(viewModel: viewModel, rawModel: itemData)
@@ -231,7 +232,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         let tokenAmountText = balanceViewModelFactory
             .amountFromValue(tokenDecimal)
             .value(for: locale)
-        return tokenAmountText
+        let sign = data.amountSign == .plus ? "+" : "-"
+        return sign + tokenAmountText
     }
 
     func createSections(
