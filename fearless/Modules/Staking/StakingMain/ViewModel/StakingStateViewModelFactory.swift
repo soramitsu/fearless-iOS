@@ -169,7 +169,8 @@ final class StakingStateViewModelFactory {
 
         let viewModelFactory = AnalyticsRewardsViewModelFactory(
             chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            calendar: Calendar(identifier: .gregorian)
         )
         let fullViewModel = viewModelFactory.createViewModel(
             from: rewards,

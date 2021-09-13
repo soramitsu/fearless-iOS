@@ -17,13 +17,16 @@ struct AnalyticsSelectedChartData {
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     let chain: Chain
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let calendar: Calendar
 
     init(
         chain: Chain,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        calendar: Calendar // = .init(identifier: .gregorian)
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.calendar = calendar
     }
 
     func createViewModel(
@@ -73,7 +76,9 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
             let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
             let averageAmount = chartDoubles.reduce(0.0, +) / Double(groupedByPeriod.count)
-            let averageAmountRawText = self.balanceViewModelFactory.amountFromValue(Decimal(averageAmount)).value(for: locale)
+            let averageAmountRawText = self.balanceViewModelFactory
+                .amountFromValue(Decimal(averageAmount))
+                .value(for: locale)
             let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
             let chartData = ChartData(
                 amounts: selectedChartAmounts,
@@ -96,7 +101,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
             let summaryViewModel: AnalyticsSummaryRewardViewModel = {
                 if let index = selectedChartIndex {
-                    let allSummary = createSummary(chartAmounts: groupedByPeriodTuple, priceData: priceData, locale: locale)
+                    let allSummary = createSummary(
+                        chartAmounts: groupedByPeriodTuple,
+                        priceData: priceData,
+                        locale: locale
+                    )
                     return allSummary[index]
                 }
                 let dateFormatter = self.periodDateFormatter(period: period, for: locale)
@@ -234,7 +243,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         dateTitleFormatter.dateFormat = "MMM d"
 
         let groupedByDay = rewardsData
-            .groupedBy(dateComponents: [.year, .month, .day])
+            .groupedBy(dateComponents: [.year, .month, .day], calendar: calendar)
         let sortedByDay: [(Date, [T])] = groupedByDay.keys
             .map { (key: Date) in
                 (key, groupedByDay[key]!)
@@ -268,10 +277,10 @@ protocol Dated {
 }
 
 extension Array where Element: Dated {
-    func groupedBy(dateComponents: Set<Calendar.Component>) -> [Date: [Element]] {
+    func groupedBy(dateComponents: Set<Calendar.Component>, calendar: Calendar) -> [Date: [Element]] {
         let initial: [Date: [Element]] = [:]
         let groupedByDateComponents = reduce(into: initial) { acc, cur in
-            let components = Calendar.current.dateComponents(dateComponents, from: cur.date)
+            let components = calendar.dateComponents(dateComponents, from: cur.date)
             let date = Calendar.current.date(from: components)!
             let existing = acc[date] ?? []
             acc[date] = existing + [cur]

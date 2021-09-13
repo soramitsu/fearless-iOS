@@ -40,7 +40,8 @@ struct AnalyticsStakeViewFactory {
         )
         let viewModelFactory = AnalyticsStakeViewModelFactory(
             chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            calendar: Calendar(identifier: .gregorian)
         )
         let presenter = AnalyticsStakePresenter(
             interactor: interactor,

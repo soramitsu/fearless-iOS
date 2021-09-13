@@ -26,7 +26,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
             }
         }()
         let groupedByDate = data
-            .groupedBy(dateComponents: dateComponents)
+            .groupedBy(dateComponents: dateComponents, calendar: calendar)
         let sortedByDate: [(Date, [SubqueryRewardItemData])] = groupedByDate.keys
             .map { (key: Date) in
                 (key, groupedByDate[key]!)
