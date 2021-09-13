@@ -296,6 +296,7 @@ extension StakingMainViewController: Localizable {
         networkInfoView.locale = locale
         stateView?.locale = locale
         alertsView.locale = locale
+        analyticsView.locale = locale
     }
 
     func applyLocalization() {

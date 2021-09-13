@@ -466,15 +466,30 @@
 "staking.your.validator.title" = "Ваш валидатор";
 "staking.analytics.title" = "";
 "staking.rewards.title" = "";
-"staking.analytics.period.weekly" = "";
-"staking.analytics.period.monthly" = "";
-"staking.analytics.period.yearly" = "";
 "staking.analytics.activity" = "";
 "staking.analytics.active.staking" = "";
-"staking.analytics.eras.range" = "";
 "staking.analytics.received.rewards" = "";
 "staking.analytics.stake.allocation" = "";
+"wallet.extrinsic.details.title" = "Детали транзакции";
+"transaction.details.extrinsic.fee" = "Комиссия";
 "staking.common.era" = "Эра";
 "staking.common.validator" = "Валидатор";
 "staking.common.event.id" = "Событие";
 "common.copy.id" = "Копировать идентификатор";
+"wallet.contacts.search.placeholder_v1.10" = "Поиск по адресу или имени";
+"wallet.contacts.empty.title_v1.10" = "Здесь появятся ваши\
+аккаунты и контакты, которым\
+вы отправляли переводы";
+"wallet.search.empty.title_v1.10.0" = "Неверный формат адреса.\
+Убедитесь, что адрес \
+соответствует сети";
+"staking.analytics.period.7d" = "";
+"staking.analytics.period.30d" = "";
+"staking.analytics.period.1y" = "";
+"staking.analytics.period.all" = "";
+"staking.analytics.rewards.empty.message" = "";
+"staking.analytics.stake.empty.message" = "";
+"common.details" = "Подробности";
+"staking.analytics.details.type" = "";
+"staking.analytics.validators.inactive.staking" = "";
+"staking.analytics.era.range" = "";
