@@ -81,6 +81,10 @@ final class FWBarChartView: BarChartView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
+        setupAverageLine()
+    }
+
+    func setupAverageLine() {
         guard let percent = averageLabelHeightPercent, percent > .leastNonzeroMagnitude else {
             averageAmountLabel.isHidden = true
             averageLineLayer.isHidden = true
