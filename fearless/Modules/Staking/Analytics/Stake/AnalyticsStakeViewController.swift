@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
+// swiftlint:disable colon
 final class AnalyticsStakeViewController:
     AnalyticsRewardsBaseViewController<
         AnalyticsRewardsViewModel,

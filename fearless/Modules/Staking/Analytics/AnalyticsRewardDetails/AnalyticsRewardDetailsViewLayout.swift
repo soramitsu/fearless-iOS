@@ -59,7 +59,8 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
         // TODO:
         blockNumberView.title = "Block number"
         dateView.titleLabel.text = R.string.localizable.transactionDetailDate(preferredLanguages: locale.rLanguages)
-        typeView.titleLabel.text = R.string.localizable.stakingAnalyticsDetailsType(preferredLanguages: locale.rLanguages)
+        typeView.titleLabel.text = R.string.localizable
+            .stakingAnalyticsDetailsType(preferredLanguages: locale.rLanguages)
         amountView.titleLabel.text = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
     }
 }

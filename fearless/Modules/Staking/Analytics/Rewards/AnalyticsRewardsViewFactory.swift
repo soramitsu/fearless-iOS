@@ -5,7 +5,6 @@ import SoraFoundation
 struct AnalyticsRewardsViewFactory {
     static func createView() -> AnalyticsRewardsViewProtocol? {
         let settings = SettingsManager.shared
-        let operationManager = OperationManagerFacade.sharedManager
 
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -19,20 +18,7 @@ struct AnalyticsRewardsViewFactory {
             return nil
         }
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
-        )
-
-        let interactor = AnalyticsRewardsInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
-            operationManager: operationManager,
-            assetId: assetId,
-            chain: chain,
-            selectedAccountAddress: accountAddress
-        )
-
+        let interactor = createInteractor(accountAddress: accountAddress, chain: chain, assetId: assetId)
         let wireframe = AnalyticsRewardsWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
@@ -61,5 +47,28 @@ struct AnalyticsRewardsViewFactory {
         interactor.presenter = presenter
 
         return view
+    }
+
+    private static func createInteractor(
+        accountAddress: AccountAddress,
+        chain: Chain,
+        assetId: WalletAssetId
+    ) -> AnalyticsRewardsInteractor {
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
+        let interactor = AnalyticsRewardsInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            substrateProviderFactory: substrateProviderFactory,
+            operationManager: operationManager,
+            assetId: assetId,
+            chain: chain,
+            selectedAccountAddress: accountAddress
+        )
+        return interactor
     }
 }

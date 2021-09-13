@@ -10,9 +10,9 @@ protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
 }
 
 struct AnalyticsSelectedChartData {
-    var yValue: Decimal
-    var dateTitle: String
-    var sections: [AnalyticsRewardSection]
+    let yValue: Decimal
+    let dateTitle: String
+    let sections: [AnalyticsRewardSection]
 }
 
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
@@ -281,11 +281,11 @@ protocol Dated {
 extension Array where Element: Dated {
     func groupedBy(dateComponents: Set<Calendar.Component>, calendar: Calendar) -> [Date: [Element]] {
         let initial: [Date: [Element]] = [:]
-        let groupedByDateComponents = reduce(into: initial) { acc, cur in
-            let components = calendar.dateComponents(dateComponents, from: cur.date)
-            let date = Calendar.current.date(from: components)!
-            let existing = acc[date] ?? []
-            acc[date] = existing + [cur]
+        let groupedByDateComponents = reduce(into: initial) { accumulator, element in
+            let components = calendar.dateComponents(dateComponents, from: element.date)
+            guard let date = calendar.date(from: components) else { return }
+            let existing = accumulator[date] ?? []
+            accumulator[date] = existing + [element]
         }
 
         return groupedByDateComponents

@@ -69,9 +69,9 @@ extension AnalyticsPeriod {
                 case .week:
                     return .secondsInDay * 7
                 case .month:
-                    return .secondsInDay * 31
+                    return .secondsInDay * 30
                 case .year:
-                    return .secondsInDay * 31 * 12
+                    return .secondsInDay * 365.2425
                 }
             }()
             return Date().addingTimeInterval(TimeInterval(-interval))
