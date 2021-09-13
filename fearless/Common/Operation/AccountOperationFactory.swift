@@ -30,7 +30,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let junctionResult: JunctionResult?
 
             if !request.derivationPath.isEmpty {
-                let junctionFactory = JunctionFactory()
+                let junctionFactory = SubstrateJunctionFactory()
                 junctionResult = try junctionFactory.parse(path: request.derivationPath)
             } else {
                 junctionResult = nil
@@ -102,7 +102,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let junctionResult: JunctionResult?
 
             if !request.derivationPath.isEmpty {
-                let junctionFactory = JunctionFactory()
+                let junctionFactory = SubstrateJunctionFactory()
                 junctionResult = try junctionFactory.parse(path: request.derivationPath)
             } else {
                 junctionResult = nil

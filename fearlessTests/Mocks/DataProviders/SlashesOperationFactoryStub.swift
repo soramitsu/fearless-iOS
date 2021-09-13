@@ -1,6 +1,7 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import FearlessUtils
 
 final class SlashesOperationFactoryStub: SlashesOperationFactoryProtocol {
     let slashingSpans: SlashingSpans?

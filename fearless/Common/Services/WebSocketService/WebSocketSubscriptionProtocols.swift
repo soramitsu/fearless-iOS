@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import FearlessUtils
 
 protocol WebSocketSubscribing {}
 

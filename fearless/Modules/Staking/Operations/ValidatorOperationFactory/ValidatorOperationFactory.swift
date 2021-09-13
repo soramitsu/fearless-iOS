@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 final class ValidatorOperationFactory {
     let chain: Chain
