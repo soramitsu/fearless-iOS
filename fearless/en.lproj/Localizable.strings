@@ -470,8 +470,8 @@ to your account to avoid remaining stake.";
 "common.copy.id" = "Copy id";
 "wallet.contacts.search.placeholder_v1.10" = "Search by address or name";
 "wallet.contacts.empty.title_v1.10" = "Your accounts and contacts\
-to whom you were sending transfers\
-will appear here";
+to whom you were sending\
+transfers will appear here";
 "wallet.search.empty.title_v1.10.0" = "Address format is invalid.\
 Make sure that address\
 belongs to the right network";
