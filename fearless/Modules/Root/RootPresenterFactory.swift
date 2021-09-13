@@ -20,8 +20,8 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
 
         let dbMigrator = UserStorageMigrator(
             targetVersion: .version2,
-            storeURL: UserDataStorageFacade.storageURL,
-            modelDirectory: UserDataStorageFacade.modelDirectory,
+            storeURL: UserStorageParams.storageURL,
+            modelDirectory: UserStorageParams.modelDirectory,
             keystore: keychain,
             settings: settings,
             fileManager: FileManager.default

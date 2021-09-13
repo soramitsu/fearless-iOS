@@ -55,4 +55,8 @@ extension NSPredicate {
     static func filterAccountItemByAddress(_ address: String) -> NSPredicate {
         NSPredicate(format: "%K == %@", #keyPath(CDMetaAccount.metaId), address)
     }
+
+    static func selectedMetaAccount() -> NSPredicate {
+        NSPredicate(format: "%K == true", #keyPath(CDMetaAccount.isSelected))
+    }
 }

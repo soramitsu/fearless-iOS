@@ -34,10 +34,10 @@ final class AccountItemMapper: CoreDataMapperProtocol {
     }
 
     func populate(
-        entity: CoreDataEntity,
-        from model: DataProviderModel,
-        using context: NSManagedObjectContext
+        entity _: CoreDataEntity,
+        from _: DataProviderModel,
+        using _: NSManagedObjectContext
     ) throws {
-        throw AccountItemMapperError.notSupportedыро
+        throw AccountItemMapperError.notSupported
     }
 }

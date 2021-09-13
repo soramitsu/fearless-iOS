@@ -2,9 +2,10 @@ import Foundation
 import RobinHood
 import CoreData
 
-class UserDataStorageFacade: StorageFacadeProtocol {
+enum UserStorageParams {
     static let modelVersion: UserStorageVersion = .version2
     static let modelDirectory: String = "UserDataModel.momd"
+    static let databaseName = "UserDataModel.sqlite"
 
     static let storageDirectoryURL: URL = {
         let baseURL = FileManager.default.urls(
@@ -15,37 +16,37 @@ class UserDataStorageFacade: StorageFacadeProtocol {
         return baseURL!
     }()
 
-    static let databaseName = "UserDataModel.sqlite"
-
     static var storageURL: URL {
         storageDirectoryURL.appendingPathComponent(databaseName)
     }
+}
 
+class UserDataStorageFacade: StorageFacadeProtocol {
     static let shared = UserDataStorageFacade()
 
     let databaseService: CoreDataServiceProtocol
 
     private init() {
-        let modelName = Self.modelVersion.rawValue
+        let modelName = UserStorageParams.modelVersion.rawValue
         let bundle = Bundle.main
 
         let omoURL = bundle.url(
             forResource: modelName,
             withExtension: "omo",
-            subdirectory: Self.modelDirectory
+            subdirectory: UserStorageParams.modelDirectory
         )
 
         let momURL = bundle.url(
             forResource: modelName,
             withExtension: "mom",
-            subdirectory: Self.modelDirectory
+            subdirectory: UserStorageParams.modelDirectory
         )
 
         let modelURL = omoURL ?? momURL
 
         let persistentSettings = CoreDataPersistentSettings(
-            databaseDirectory: Self.storageDirectoryURL,
-            databaseName: Self.databaseName,
+            databaseDirectory: UserStorageParams.storageDirectoryURL,
+            databaseName: UserStorageParams.databaseName,
             incompatibleModelStrategy: .ignore
         )
 

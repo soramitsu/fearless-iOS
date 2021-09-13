@@ -7,8 +7,8 @@ class UserDataStorageTestFacade: StorageFacadeProtocol {
     let databaseService: CoreDataServiceProtocol
 
     init() {
-        let modelName = "UserDataModel"
-        let subdirectory = "UserDataModel.momd"
+        let modelName = UserStorageParams.modelVersion.rawValue
+        let subdirectory = UserStorageParams.modelDirectory
         let bundle = Bundle.main
 
         let omoURL = bundle.url(
