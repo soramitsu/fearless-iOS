@@ -49,7 +49,11 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     let distinctErasCount = distinctEras.count
 
                     let percents = Double(distinctErasCount) / Double(totalEras)
-                    let text = activityProgressDescription(percents: percents, erasCount: distinctErasCount)
+                    let text = activityProgressDescription(
+                        percents: percents,
+                        erasCount: distinctErasCount,
+                        locale: locale
+                    )
                     return (percents, Double(distinctErasCount), text)
                 case .rewards:
                     let rewardsOfValidator = rewards.filter { reward in
@@ -73,7 +77,11 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let secondaryValueText: String = {
                 switch page {
                 case .activity:
-                    return "\(Int(amount)) eras"
+                    return R.string.localizable
+                        .stakingAnalyticsValidatorsErasCounter(
+                            format: Int(amount),
+                            preferredLanguages: locale.rLanguages
+                        )
                 case .rewards:
                     return percentFormatter.string(from: progressPercents as NSNumber) ?? ""
                 }
@@ -127,9 +135,11 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         )
     }
 
-    private func activityProgressDescription(percents: Double, erasCount: Int) -> String {
+    private func activityProgressDescription(percents: Double, erasCount: Int, locale: Locale) -> String {
         let percentsString = percentFormatter.string(from: percents as NSNumber) ?? ""
-        return percentsString + " (\(erasCount) eras)"
+        let erasString = R.string.localizable
+            .stakingAnalyticsValidatorsErasCounter(format: erasCount, preferredLanguages: locale.rLanguages)
+        return percentsString + " (\(erasString))"
     }
 
     private func determineListTitle(page: AnalyticsValidatorsPage, locale: Locale) -> String {
@@ -158,9 +168,9 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     .stakingAnalyticsActiveStaking(preferredLanguages: locale.rLanguages).uppercased(),
                 secondLine: percentageString,
                 thirdLine: String(
-                    format: R.string.localizable.stakingAnalyticsErasRange(
-                        erasWhenStaked.description,
-                        totalEras.description,
+                    format: R.string.localizable.stakingAnalyticsEraRange(
+                        erasWhenStaked,
+                        totalEras,
                         preferredLanguages: locale.rLanguages
                     )
                 )
@@ -267,15 +277,18 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     }
 
     func chartCenterTextInactiveSegment(
-        _ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment
+        _ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment,
+        locale: Locale
     ) -> NSAttributedString {
         let percentageString = percentFormatter.string(from: inactiveSegment.percents as NSNumber) ?? ""
 
         return createChartCenterText(
-            firstLine: "Inactive staking".uppercased(),
+            firstLine: R.string.localizable
+                .stakingAnalyticsValidatorsInactiveStaking(preferredLanguages: locale.rLanguages),
             firstLineColor: R.color.colorGray()!,
             secondLine: percentageString,
-            thirdLine: "\(inactiveSegment.eraCount) eras"
+            thirdLine: R.string.localizable
+                .stakingAnalyticsValidatorsErasCounter(format: inactiveSegment.eraCount, preferredLanguages: locale.rLanguages)
         )
     }
 }

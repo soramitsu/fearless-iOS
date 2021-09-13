@@ -32,8 +32,8 @@ extension SubqueryStakeChangeData: AnalyticsViewModelItem {
         Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
 
-    static func emptyListDescription(for _: Locale) -> String {
-        "Your stake changes\nwill appear here" // TODO:
+    static func emptyListDescription(for locale: Locale) -> String {
+        R.string.localizable.stakingAnalyticsStakeEmptyMessage(preferredLanguages: locale.rLanguages)
     }
 
     var amountInChart: BigUInt {

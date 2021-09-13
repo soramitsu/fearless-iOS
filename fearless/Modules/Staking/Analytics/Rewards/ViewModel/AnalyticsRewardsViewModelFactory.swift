@@ -72,8 +72,8 @@ extension SubqueryRewardItemData: AnalyticsViewModelItem {
         Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
 
-    static func emptyListDescription(for _: Locale) -> String {
-        "Your rewards\nwill appear here" // TODO:
+    static func emptyListDescription(for locale: Locale) -> String {
+        R.string.localizable.stakingAnalyticsRewardsEmptyMessage(preferredLanguages: locale.rLanguages)
     }
 
     var amountInChart: BigUInt {

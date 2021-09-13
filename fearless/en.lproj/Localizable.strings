@@ -466,15 +466,32 @@ to your account to avoid remaining stake.";
 "staking.your.validator.title" = "Your validator";
 "staking.analytics.title" = "Analytics";
 "staking.rewards.title" = "Rewards";
-"staking.analytics.period.weekly" = "weekly";
-"staking.analytics.period.monthly" = "monthly";
-"staking.analytics.period.yearly" = "yearly";
 "staking.analytics.activity" = "Activity";
 "staking.analytics.active.staking" = "Active staking";
-"staking.analytics.eras.range" = "%@ of %@ eras";
 "staking.analytics.received.rewards" = "Received rewards";
 "staking.analytics.stake.allocation" = "Stake allocation";
+"wallet.extrinsic.details.title" = "Extrinsic details";
+"transaction.details.extrinsic.fee" = "Fee";
 "staking.common.era" = "Era";
 "staking.common.validator" = "Validator";
 "staking.common.event.id" = "Event";
 "common.copy.id" = "Copy id";
+"wallet.contacts.search.placeholder_v1.10" = "Search by address or name";
+"wallet.contacts.empty.title_v1.10" = "Your accounts and contacts\
+to whom you were sending\
+transfers will appear here";
+"wallet.search.empty.title_v1.10.0" = "Address format is invalid.\
+Make sure that address\
+belongs to the right network";
+"staking.analytics.period.7d" = "7d";
+"staking.analytics.period.30d" = "30d";
+"staking.analytics.period.1y" = "1y";
+"staking.analytics.period.all" = "All";
+"staking.analytics.rewards.empty.message" = "Your rewards \
+will appear here";
+"staking.analytics.stake.empty.message" = "Your stake changes\
+will appear here";
+"common.details" = "Details";
+"staking.analytics.details.type" = "Type";
+"staking.analytics.validators.inactive.staking" = "Inactive staking";
+"staking.analytics.era.range" = "%d of %d eras";

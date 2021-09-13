@@ -22,7 +22,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     init(
         chain: Chain,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        calendar: Calendar // = .init(identifier: .gregorian)
+        calendar: Calendar
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory

@@ -46,6 +46,7 @@ protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {
 
     func chartCenterText(validator: AnalyticsValidatorItemViewModel) -> NSAttributedString
     func chartCenterTextInactiveSegment(
-        _ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment
+        _ inactiveSegment: AnalyticsValidatorsViewModel.InactiveSegment,
+        locale: Locale
     ) -> NSAttributedString
 }

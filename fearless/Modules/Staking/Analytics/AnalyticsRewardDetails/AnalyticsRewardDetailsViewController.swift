@@ -46,7 +46,7 @@ extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtoc
 extension AnalyticsRewardDetailsViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            title = "Details" // TODO:
+            title = R.string.localizable.commonDetails(preferredLanguages: selectedLocale.rLanguages)
             rootView.locale = selectedLocale
         }
     }
