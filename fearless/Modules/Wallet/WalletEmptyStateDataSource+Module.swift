@@ -21,6 +21,7 @@ extension WalletEmptyStateDataSource {
 
         let image = R.image.iconEmptyHistory()
         let dataSource = WalletEmptyStateDataSource(titleResource: title, image: image)
+        dataSource.verticalSpacingForEmptyState = .zero
         dataSource.localizationManager = LocalizationManager.shared
 
         return dataSource
@@ -33,6 +34,7 @@ extension WalletEmptyStateDataSource {
 
         let image = R.image.iconEmptySearch()
         let dataSource = WalletEmptyStateDataSource(titleResource: title, image: image)
+        dataSource.verticalSpacingForEmptyState = .zero
         dataSource.localizationManager = LocalizationManager.shared
 
         return dataSource
