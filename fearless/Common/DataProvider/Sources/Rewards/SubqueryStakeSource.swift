@@ -51,6 +51,7 @@ extension SubqueryStakeSource: SingleValueProviderSourceProtocol {
         {
           query {
             stakeChanges(
+              orderBy:TIMESTAMP_ASC,
               filter: {
                 address:{equalTo:\"\(accountAddress)\"}
               }

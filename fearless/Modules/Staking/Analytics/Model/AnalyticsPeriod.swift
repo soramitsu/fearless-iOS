@@ -37,7 +37,7 @@ extension AnalyticsPeriod {
             return 12
         case .all:
             let components = calendar.dateComponents([.month], from: startDate, to: endDate)
-            return max(components.month ?? 12, 12)
+            return (components.month ?? 0) + 1
         }
     }
 
@@ -70,6 +70,10 @@ extension AnalyticsPeriod {
 
 extension AnalyticsPeriod {
     func timestampInterval(startDate: Date, endDate: Date, calendar: Calendar) -> (Int64, Int64) {
+        guard self != .all else {
+            return (Int64(startDate.timeIntervalSince1970), Int64(endDate.timeIntervalSince1970))
+        }
+
         let startDate: Date = {
             let interval: TimeInterval = {
                 switch self {
