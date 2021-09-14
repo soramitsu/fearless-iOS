@@ -7,6 +7,7 @@ enum SettingsKey: String {
     case selectedAccount
     case biometryEnabled
     case selectedConnection
+    case crowdloadChainId
 }
 
 extension SettingsManagerProtocol {
@@ -53,6 +54,16 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
+        }
+    }
+
+    var crowdloanChainId: String? {
+        get {
+            string(for: SettingsKey.crowdloadChainId.rawValue)
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.crowdloadChainId.rawValue)
         }
     }
 }
