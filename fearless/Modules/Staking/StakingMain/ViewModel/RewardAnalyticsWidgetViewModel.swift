@@ -1,4 +1,4 @@
-struct RewardAnalyticsWidgetViewModel: Equatable {
+struct RewardAnalyticsWidgetViewModel {
     let summary: AnalyticsSummaryRewardViewModel
     let chartData: ChartData
 }

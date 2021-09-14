@@ -1,7 +1,7 @@
 import Foundation
 import UIKit.UIColor
 
-struct AnalyticsSummaryRewardViewModel: Equatable {
+struct AnalyticsSummaryRewardViewModel {
     let title: String
     let tokenAmount: String
     let usdAmount: String?
