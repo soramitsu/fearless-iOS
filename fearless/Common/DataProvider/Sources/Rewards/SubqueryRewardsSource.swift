@@ -70,6 +70,7 @@ extension SubqueryRewardsSource: SingleValueProviderSourceProtocol {
         {
           query {
             historyElements(
+              orderBy: TIMESTAMP_ASC,
               filter: {
                 not:{ reward:{equalTo:\"null\"}},
                 address:{equalTo:\"\(address)\"},

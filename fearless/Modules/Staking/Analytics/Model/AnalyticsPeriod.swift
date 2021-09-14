@@ -37,7 +37,7 @@ extension AnalyticsPeriod {
             return 12
         case .all:
             let components = calendar.dateComponents([.month], from: startDate, to: endDate)
-            return components.month ?? 12
+            return max(components.month ?? 12, 12)
         }
     }
 
