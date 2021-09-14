@@ -430,7 +430,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         )
 
         let alerts = stakingAlertsForValidatorState(state)
-        lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: nil)
+        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
+        lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: analyticsViewModel)
     }
 }
 

@@ -4,7 +4,6 @@ import UIKit
 final class FWXAxisChartLegendView: UIView {
     private let stackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = 8
         stackView.alignment = .center
         stackView.distribution = .equalCentering
         return stackView
