@@ -21,6 +21,8 @@ class PersistentValueSettings<T> {
         return internalValue
     }
 
+    var hasValue: Bool { value != nil }
+
     func performSetup(completionClosure _: @escaping (Result<T?, Error>) -> Void) {
         // Function must be implemented in subclass
     }
@@ -30,9 +32,8 @@ class PersistentValueSettings<T> {
     }
 
     func setup(
-        runningCompletionIn queue: DispatchQueue,
-        completionClosure: @escaping (Result<T?, Error>
-        ) -> Void
+        runningCompletionIn queue: DispatchQueue?,
+        completionClosure: ((Result<T?, Error>) -> Void)?
     ) {
         mutex.lock()
 
@@ -43,16 +44,22 @@ class PersistentValueSettings<T> {
 
             self.mutex.unlock()
 
-            queue.async {
-                completionClosure(result)
+            if let closure = completionClosure {
+                dispatchInQueueWhenPossible(queue) {
+                    closure(result)
+                }
             }
         }
     }
 
+    func setup() {
+        setup(runningCompletionIn: nil, completionClosure: nil)
+    }
+
     func save(
         value: T,
-        runningCompletionIn queue: DispatchQueue,
-        completionClosure: @escaping (Result<T, Error>) -> Void
+        runningCompletionIn queue: DispatchQueue?,
+        completionClosure: ((Result<T, Error>) -> Void)?
     ) {
         mutex.lock()
 
@@ -63,9 +70,15 @@ class PersistentValueSettings<T> {
 
             self.mutex.unlock()
 
-            queue.async {
-                completionClosure(result)
+            if let closure = completionClosure {
+                dispatchInQueueWhenPossible(queue) {
+                    closure(result)
+                }
             }
         }
+    }
+
+    func save(value: T) {
+        save(value: value, runningCompletionIn: nil, completionClosure: nil)
     }
 }

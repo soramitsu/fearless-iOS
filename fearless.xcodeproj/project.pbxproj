@@ -666,8 +666,6 @@
 		84893C0724DA890F008F6A3F /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0624DA890F008F6A3F /* CommonError.swift */; };
 		8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */; };
 		8489EDCE264DD4DA00FF997E /* RecommendationsComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */; };
-		8489EDD4264DDF6C00FF997E /* InconsistentStateMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */; };
-		8489EDDA264DE42500FF997E /* InconsistentStateMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDD9264DE42500FF997E /* InconsistentStateMigrationTests.swift */; };
 		848C3D0926248A3B005481C3 /* TransferCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848C3D0826248A3B005481C3 /* TransferCall.swift */; };
 		848DB993260638440055DDE7 /* rewardResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB992260638440055DDE7 /* rewardResponse.json */; };
 		848DB998260639C70055DDE7 /* TotalRewardMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848DB997260639C70055DDE7 /* TotalRewardMock.swift */; };
@@ -2174,8 +2172,6 @@
 		84893C0624DA890F008F6A3F /* CommonError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
 		8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposing.swift; sourceTree = "<group>"; };
 		8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposerTests.swift; sourceTree = "<group>"; };
-		8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InconsistentStateMigrator.swift; sourceTree = "<group>"; };
-		8489EDD9264DE42500FF997E /* InconsistentStateMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InconsistentStateMigrationTests.swift; sourceTree = "<group>"; };
 		848C3D0826248A3B005481C3 /* TransferCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCall.swift; sourceTree = "<group>"; };
 		848DB992260638440055DDE7 /* rewardResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardResponse.json; sourceTree = "<group>"; };
 		848DB997260639C70055DDE7 /* TotalRewardMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalRewardMock.swift; sourceTree = "<group>"; };
@@ -4839,7 +4835,6 @@
 			isa = PBXGroup;
 			children = (
 				F418E87B264D14DA00699085 /* NetworkConnectionsMigratorTests.swift */,
-				8489EDD9264DE42500FF997E /* InconsistentStateMigrationTests.swift */,
 				849ECD3426DE70B900F542A3 /* SingleToMultiassetUserMigrationTests.swift */,
 			);
 			path = Migration;
@@ -7267,7 +7262,6 @@
 			children = (
 				F418E86E264D0F0400699085 /* Migrating.swift */,
 				F418E876264D0F4100699085 /* NetworkConnectionsMigrator.swift */,
-				8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */,
 				840AD5FB26B4512100E09D6A /* SelectedLanguageMigrator.swift */,
 				848DE76526D642670045CD29 /* StorageMigrator.swift */,
 				848DE76726D64F7F0045CD29 /* UserStorageVersion.swift */,
@@ -8250,7 +8244,6 @@
 				84F6B6432619A8480038F10D /* SubscanConcreteExtrinsicsData.swift in Sources */,
 				844EFB65265FD61D0090ACB1 /* CrowdloanContributeConfirmViewModel.swift in Sources */,
 				AEE5FAFF26415E0C002B8FDC /* StakingRebondSetupPresenter.swift in Sources */,
-				8489EDD4264DDF6C00FF997E /* InconsistentStateMigrator.swift in Sources */,
 				8472975D260B1B71009B86D0 /* ExistingBonding.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				F4E339632614A03F0028B6B1 /* ExtrinsicsInfo.swift in Sources */,
@@ -9334,7 +9327,6 @@
 				1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */,
 				AE2C101E267A6271004AA8E9 /* CustomValidatorListComposerTests.swift in Sources */,
 				8469936B26CD1BBE002CC786 /* RuntimePoolTests.swift in Sources */,
-				8489EDDA264DE42500FF997E /* InconsistentStateMigrationTests.swift in Sources */,
 				84F43BB925DEFA0A00AEDA56 /* DefaultStub.swift in Sources */,
 				F47BBD6F263144D10087DA11 /* StakingBalanceTests.swift in Sources */,
 				84155DF3253A1DBA00A27058 /* SchedulerTests.swift in Sources */,

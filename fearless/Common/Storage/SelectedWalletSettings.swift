@@ -2,6 +2,11 @@ import Foundation
 import RobinHood
 
 final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
+    static let shared = SelectedWalletSettings(
+        storageFacade: UserDataStorageFacade.shared,
+        operationQueue: OperationManagerFacade.sharedDefaultQueue
+    )
+
     let operationQueue: OperationQueue
 
     init(storageFacade: StorageFacadeProtocol, operationQueue: OperationQueue) {

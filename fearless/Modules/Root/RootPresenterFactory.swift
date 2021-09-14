@@ -13,10 +13,6 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             localizationManager: LocalizationManager.shared
         )
         let networkConnectionsMigrator = NetworkConnectionsMigrator(settings: settings)
-        let inconsistentStateMigrator = InconsistentStateMigrator(
-            settings: settings,
-            keychain: keychain
-        )
 
         let dbMigrator = UserStorageMigrator(
             targetVersion: .version2,
@@ -28,11 +24,11 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         )
 
         let interactor = RootInteractor(
-            settings: settings,
+            settings: SelectedWalletSettings.shared,
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, inconsistentStateMigrator, networkConnectionsMigrator, dbMigrator],
+            migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
             logger: Logger.shared
         )
 

@@ -6,7 +6,7 @@ import RobinHood
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    let settings: SettingsManagerProtocol
+    let settings: SelectedWalletSettings
     let keystore: KeystoreProtocol
     let applicationConfig: ApplicationConfigProtocol
     let eventCenter: EventCenterProtocol
@@ -14,7 +14,7 @@ final class RootInteractor {
     let logger: LoggerProtocol?
 
     init(
-        settings: SettingsManagerProtocol,
+        settings: SelectedWalletSettings,
         keystore: KeystoreProtocol,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
@@ -55,7 +55,7 @@ final class RootInteractor {
 extension RootInteractor: RootInteractorInputProtocol {
     func decideModuleSynchroniously() {
         do {
-            if !settings.hasSelectedAccount {
+            if !settings.hasValue {
                 try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
 
                 presenter?.didDecideOnboarding()
@@ -78,5 +78,19 @@ extension RootInteractor: RootInteractorInputProtocol {
     func setup() {
         setupURLHandlingService()
         runMigrators()
+
+        // TODO: Move to loading screen
+        settings.setup(runningCompletionIn: .main) { result in
+            switch result {
+            case let .success(maybeMetaAccount):
+                if let metaAccount = maybeMetaAccount {
+                    self.logger?.debug("Selected account: \(metaAccount.metaId)")
+                } else {
+                    self.logger?.debug("No selected account")
+                }
+            case let .failure(error):
+                self.logger?.error("Selected account setup failed: \(error)")
+            }
+        }
     }
 }
