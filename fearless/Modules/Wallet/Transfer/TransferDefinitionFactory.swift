@@ -10,7 +10,7 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
     }
 
     func createAssetView() -> BaseSelectedAssetView? {
-        WalletTransferTokenView()
+        DummySelectedAssetView()
     }
 
     func createReceiverView() -> BaseReceiverView? {

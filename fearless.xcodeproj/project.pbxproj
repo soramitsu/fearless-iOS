@@ -1212,6 +1212,7 @@
 		AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */; };
 		AEAC690026EA729300346599 /* CoingeckoPriceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC68FF26EA729300346599 /* CoingeckoPriceData.swift */; };
 		AEAC690426EB891900346599 /* Logger+FearlessUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC690326EB891900346599 /* Logger+FearlessUtils.swift */; };
+		AEAC690626F08DB500346599 /* DummySelectedAssetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAC690526F08DB500346599 /* DummySelectedAssetView.swift */; };
 		AEACD5F9265E94AB00A09892 /* StatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */; };
 		AEB9979026119E4D005C60A5 /* StoriesViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */; };
 		AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */; };
@@ -2652,6 +2653,7 @@
 		AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPriceSource.swift; sourceTree = "<group>"; };
 		AEAC68FF26EA729300346599 /* CoingeckoPriceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPriceData.swift; sourceTree = "<group>"; };
 		AEAC690326EB891900346599 /* Logger+FearlessUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+FearlessUtils.swift"; sourceTree = "<group>"; };
+		AEAC690526F08DB500346599 /* DummySelectedAssetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummySelectedAssetView.swift; sourceTree = "<group>"; };
 		AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusViewModel.swift; sourceTree = "<group>"; };
 		AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewModelFactory.swift; sourceTree = "<group>"; };
 		AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressBar.swift; sourceTree = "<group>"; };
@@ -5893,6 +5895,7 @@
 				8494D85F252470F400614D8F /* WalletFearlessFormDefining.swift */,
 				8409C267252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift */,
 				8409C2692522192B0049B5C8 /* WalletFearlessDefinition.swift */,
+				AEAC690526F08DB500346599 /* DummySelectedAssetView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -8067,6 +8070,7 @@
 				F47F640B263BFEF800FF67E9 /* ExtrinsicServiceFactory.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
 				84FAB06D254303DA00319F74 /* ContactViewModel.swift in Sources */,
+				AEAC690626F08DB500346599 /* DummySelectedAssetView.swift in Sources */,
 				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
 				84754C9C2513B26000854599 /* AccountPickerTableViewCell.swift in Sources */,
 				8472C5B1265CF9C500E2481B /* StakingRewardDestConfirmViewFactory.swift in Sources */,
