@@ -30,7 +30,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
             return nil
         }
 
-        let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
+        let title = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
 
         let formatter = amountFormatterFactory.createFeeTokenFormatter(for: asset).value(for: locale)
 
@@ -120,6 +120,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
      )
      */
 
+    // TODO: Check what it does
     func createAssetSelectionTitle(
         _: TransferInputState,
         payload: TransferPayload,
@@ -173,7 +174,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
             mainIcon: icon,
             actionIcon: R.image.iconMore(),
             command: command,
-            enabled: false
+            enabled: true
         )
 
         return viewModel

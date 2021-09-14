@@ -14,8 +14,7 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
     }
 
     func createReceiverView() -> BaseReceiverView? {
-        let view = R.nib.walletCompoundDetailsView(owner: nil)
-        return view
+        R.nib.walletCompoundDetailsView(owner: nil)
     }
 
     func createAmountView() -> BaseAmountInputView? {
