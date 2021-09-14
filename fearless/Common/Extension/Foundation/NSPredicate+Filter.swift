@@ -59,4 +59,12 @@ extension NSPredicate {
     static func selectedMetaAccount() -> NSPredicate {
         NSPredicate(format: "%K == true", #keyPath(CDMetaAccount.isSelected))
     }
+
+    static func relayChains() -> NSPredicate {
+        NSPredicate(format: "%K = nil", #keyPath(CDChain.parentId))
+    }
+
+    static func chainBy(identifier: ChainModel.Id) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDChain.chainId), identifier)
+    }
 }

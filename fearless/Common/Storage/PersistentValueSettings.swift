@@ -24,11 +24,11 @@ class PersistentValueSettings<T> {
     var hasValue: Bool { value != nil }
 
     func performSetup(completionClosure _: @escaping (Result<T?, Error>) -> Void) {
-        // Function must be implemented in subclass
+        fatalError("Function must be implemented in subclass")
     }
 
     func performSave(value _: T, completionClosure _: @escaping (Result<T, Error>) -> Void) {
-        // Function must be implemented in subclass
+        fatalError("Function must be implemented in subclass")
     }
 
     func setup(

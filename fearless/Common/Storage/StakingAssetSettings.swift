@@ -2,7 +2,7 @@ import Foundation
 import SoraKeystore
 import RobinHood
 
-final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
+final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     let settings: SettingsManagerProtocol
     let operationQueue: OperationQueue
 
@@ -17,15 +17,15 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
         super.init(storageFacade: storageFacade)
     }
 
-    override func performSetup(completionClosure: @escaping (Result<ChainModel?, Error>) -> Void) {
+    override func performSetup(completionClosure: @escaping (Result<ChainAsset?, Error>) -> Void) {
         let repository: AnyDataProviderRepository<ChainModel>
         let mapper = AnyCoreDataMapper(ChainModelMapper())
 
-        let maybeChainId = settings.crowdloanChainId
+        let maybeChainAssetId = settings.stakingAsset
 
-        if let chainId = maybeChainId {
+        if let chainAssetId = maybeChainAssetId {
             let filter = NSCompoundPredicate(orPredicateWithSubpredicates: [
-                NSPredicate.chainBy(identifier: chainId),
+                NSPredicate.chainBy(identifier: chainAssetId.chainId),
                 NSPredicate.relayChains()
             ])
 
@@ -41,16 +41,25 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
 
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
-        let mappingOperation = ClosureOperation<ChainModel?> {
+        let mappingOperation = ClosureOperation<ChainAsset?> {
             let chains = try fetchOperation.extractNoCancellableResultData()
 
-            if let selectedChain = chains.first(where: { $0.chainId == maybeChainId }) {
-                return selectedChain
+            if
+                let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
+                let selectedAsset = selectedChain.assets.first(where: { $0.assetId == maybeChainAssetId?.assetId }) {
+                return ChainAsset(chain: selectedChain, asset: selectedAsset)
             }
 
-            if let firstRelayChain = chains.min(by: { $0.addressPrefix < $1.addressPrefix }) {
-                self.settings.crowdloanChainId = firstRelayChain.chainId
-                return firstRelayChain
+            let relayChains = chains.filter { $0.assets.contains { $0.isUtility }}
+
+            if
+                let firstRelayChain = relayChains.min(by: { $0.addressPrefix < $1.addressPrefix }),
+                let asset = firstRelayChain.assets.first(where: { $0.isUtility }) {
+                self.settings.stakingAsset = ChainAssetId(
+                    chainId: firstRelayChain.chainId,
+                    assetId: asset.assetId
+                )
+                return ChainAsset(chain: firstRelayChain, asset: asset)
             }
 
             return nil
@@ -71,11 +80,14 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     }
 
     override func performSave(
-        value: ChainModel,
-        completionClosure: @escaping (Result<ChainModel, Error>
-        ) -> Void
+        value: ChainAsset,
+        completionClosure: @escaping (Result<ChainAsset, Error>) -> Void
     ) {
-        settings.crowdloanChainId = value.chainId
+        settings.stakingAsset = ChainAssetId(
+            chainId: value.chain.chainId,
+            assetId: value.asset.assetId
+        )
+
         completionClosure(.success(value))
     }
 }
