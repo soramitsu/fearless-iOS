@@ -48,7 +48,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
             let chartData = createChartData(
                 yValues: groupedByPeriodChartData.map(\.yValue),
-                dates: allDates,
+                timestampInterval: timestampInterval,
                 period: period,
                 selectedChartIndex: selectedChartIndex,
                 locale: locale
@@ -97,7 +97,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
     private func createChartData(
         yValues: [Decimal],
-        dates: [Date],
+        timestampInterval: (Int64, Int64),
         period: AnalyticsPeriod,
         selectedChartIndex: Int?,
         locale: Locale
@@ -138,7 +138,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         let chartData = ChartData(
             amounts: selectedChartAmounts,
-            xAxisValues: period.xAxisValues(dates: dates, calendar: calendar),
+            xAxisValues: period.xAxisValues(timestampInterval: timestampInterval, calendar: calendar),
             bottomYValue: bottomYValue,
             averageAmountValue: averageAmount,
             averageAmountText: averageAmountText,
