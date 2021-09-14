@@ -10,7 +10,9 @@ struct SubqueryRewardItemData {
     let stashAddress: AccountAddress
     let amount: BigUInt
     let isReward: Bool
+}
 
+extension SubqueryRewardItemData {
     init?(from json: JSON) {
         guard
             let eventId = json.id?.stringValue,
