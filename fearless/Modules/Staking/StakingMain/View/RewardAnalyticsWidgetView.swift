@@ -155,7 +155,15 @@ final class RewardAnalyticsWidgetView: UIView {
 
         let localizedViewModel = viewModel.value(for: locale)
 
-        barChartView.setChartData(localizedViewModel.chartData)
+        let chartDataWithoutAnimation = ChartData(
+            amounts: localizedViewModel.chartData.amounts,
+            xAxisValues: localizedViewModel.chartData.xAxisValues,
+            bottomYValue: localizedViewModel.chartData.bottomYValue,
+            averageAmountValue: localizedViewModel.chartData.averageAmountValue,
+            averageAmountText: localizedViewModel.chartData.averageAmountText,
+            animate: false
+        )
+        barChartView.setChartData(chartDataWithoutAnimation)
         usdAmountLabel.text = localizedViewModel.summary.usdAmount
         tokenAmountLabel.text = localizedViewModel.summary.tokenAmount
         periodLabel.text = localizedViewModel.summary.title
