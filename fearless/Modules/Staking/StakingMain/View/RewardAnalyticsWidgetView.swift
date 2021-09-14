@@ -49,6 +49,7 @@ final class RewardAnalyticsWidgetView: UIView {
     private var skeletonView: SkrullableView?
 
     private var localizableViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
+    private var localizedViewModel: RewardAnalyticsWidgetViewModel?
 
     let backgroundButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -154,11 +155,13 @@ final class RewardAnalyticsWidgetView: UIView {
         }
 
         let localizedViewModel = viewModel.value(for: locale)
-
-        barChartView.setChartData(localizedViewModel.chartData)
-        usdAmountLabel.text = localizedViewModel.summary.usdAmount
-        tokenAmountLabel.text = localizedViewModel.summary.tokenAmount
-        periodLabel.text = localizedViewModel.summary.title
+        if self.localizedViewModel != localizedViewModel {
+            self.localizedViewModel = localizedViewModel
+            barChartView.setChartData(localizedViewModel.chartData)
+            usdAmountLabel.text = localizedViewModel.summary.usdAmount
+            tokenAmountLabel.text = localizedViewModel.summary.tokenAmount
+            periodLabel.text = localizedViewModel.summary.title
+        }
     }
 }
 

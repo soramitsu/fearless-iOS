@@ -1,12 +1,12 @@
 import Foundation
 
-struct ChartAmount {
+struct ChartAmount: Equatable {
     let value: Double
     let selected: Bool
     let filled: Bool
 }
 
-struct ChartData {
+struct ChartData: Equatable {
     let amounts: [ChartAmount]
     let xAxisValues: [String]
     let bottomYValue: String
