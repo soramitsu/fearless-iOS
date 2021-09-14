@@ -56,66 +56,69 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
     }
 
     func createSelectedAssetViewModel(
-        _ inputState: TransferInputState,
-        selectedAssetState: SelectedAssetState,
-        payload: TransferPayload,
-        locale: Locale
+        _: TransferInputState,
+        selectedAssetState _: SelectedAssetState,
+        payload _: TransferPayload,
+        locale _: Locale
     ) throws -> AssetSelectionViewModelProtocol? {
-        guard
-            let asset = assets
-            .first(where: { $0.identifier == payload.receiveInfo.assetId }),
-            let assetId = WalletAssetId(rawValue: asset.identifier)
-        else {
-            return nil
-        }
-
-        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
-
-        let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
-        let amount = formatter.stringFromDecimal(balanceContext.available) ?? ""
-
-        let subtitle = R.string.localizable
-            .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)
-
-        let detailsCommand: WalletCommandProtocol?
-
-        if let context = inputState.balance?.context, let commandFactory = commandFactory {
-            let balanceContext = BalanceContext(context: context)
-            let transferring = inputState.amount ?? .zero
-            let fee = inputState.metadata?.feeDescriptions.first?.parameters.first?.decimalValue ?? .zero
-            let remaining = balanceContext.total - (transferring + fee)
-            let transferState = TransferExistentialState(
-                totalAmount: balanceContext.total,
-                availableAmount: balanceContext.available,
-                totalAfterTransfer: remaining,
-                existentialDeposit: balanceContext.minimalBalance
-            )
-
-            let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
-
-            detailsCommand = ExistentialDepositInfoCommand(
-                transferState: transferState,
-                amountFormatter: amountFormatter,
-                commandFactory: commandFactory
-            )
-        } else {
-            detailsCommand = nil
-        }
-
-        let header = R.string.localizable.walletSendAssetTitle(preferredLanguages: locale.rLanguages)
-
-        let viewModel = WalletTokenViewModel(
-            header: header,
-            title: asset.name.value(for: locale),
-            subtitle: subtitle,
-            details: amount,
-            icon: assetId.icon,
-            state: selectedAssetState,
-            detailsCommand: detailsCommand
-        )
-
-        return viewModel
+        nil
     }
+
+    // TODO: Move to amount view
+    /*
+     guard
+         let asset = assets
+         .first(where: { $0.identifier == payload.receiveInfo.assetId }),
+         let assetId = WalletAssetId(rawValue: asset.identifier)
+     else {
+         return nil
+     }
+
+     let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+
+     let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
+     let amount = formatter.stringFromDecimal(balanceContext.available) ?? ""
+
+     let subtitle = R.string.localizable
+         .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)
+
+     let detailsCommand: WalletCommandProtocol?
+
+     if let context = inputState.balance?.context, let commandFactory = commandFactory {
+         let balanceContext = BalanceContext(context: context)
+         let transferring = inputState.amount ?? .zero
+         let fee = inputState.metadata?.feeDescriptions.first?.parameters.first?.decimalValue ?? .zero
+         let remaining = balanceContext.total - (transferring + fee)
+         let transferState = TransferExistentialState(
+             totalAmount: balanceContext.total,
+             availableAmount: balanceContext.available,
+             totalAfterTransfer: remaining,
+             existentialDeposit: balanceContext.minimalBalance
+         )
+
+         let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
+
+         detailsCommand = ExistentialDepositInfoCommand(
+             transferState: transferState,
+             amountFormatter: amountFormatter,
+             commandFactory: commandFactory
+         )
+     } else {
+         detailsCommand = nil
+     }
+
+     let header = R.string.localizable.walletSendAssetTitle(preferredLanguages: locale.rLanguages)
+
+     let viewModel = WalletTokenViewModel(
+         header: header,
+         title: asset.name.value(for: locale),
+         subtitle: subtitle,
+         details: amount,
+         icon: assetId.icon,
+         state: selectedAssetState,
+         detailsCommand: detailsCommand
+     )
+     */
 
     func createAssetSelectionTitle(
         _: TransferInputState,
