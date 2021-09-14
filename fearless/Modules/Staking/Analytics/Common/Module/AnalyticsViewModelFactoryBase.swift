@@ -37,7 +37,9 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         selectedChartIndex: Int?
     ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
-            let timestampInterval = period.timestampInterval
+            let allDates = data.map(\.date)
+            let (startDate, endDate) = (allDates.first ?? Date(), allDates.last ?? Date())
+            let timestampInterval = period.timestampInterval(startDate: startDate, endDate: endDate, calendar: calendar)
 
             let rewardItemsWithinLimits = data
                 .filter { itemData in
@@ -46,7 +48,6 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 }
 
             let groupedByPeriodTuple = self.chartDecimalValues(rewardItemsWithinLimits, by: period, locale: locale)
-            let dates = rewardItemsWithinLimits.map(\.date)
             let groupedByPeriod = groupedByPeriodTuple.map(\.yValue)
             let chartDoubles = groupedByPeriod
                 .map { Double(truncating: $0 as NSNumber) }
@@ -83,7 +84,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
             let chartData = ChartData(
                 amounts: selectedChartAmounts,
-                xAxisValues: period.xAxisValues(dates: dates),
+                xAxisValues: period.xAxisValues(dates: allDates, calendar: calendar),
                 bottomYValue: bottomYValue,
                 averageAmountValue: averageAmount,
                 averageAmountText: averageAmountText,
@@ -148,7 +149,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 return "MMM d-d, yyyy"
             case .month:
                 return "MMM, yyyy"
-            case .year:
+            case .year, .all:
                 return "yyyy"
             }
         }()
@@ -164,7 +165,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             switch period {
             case .week, .month:
                 return "MMM d, yyyy"
-            case .year:
+            case .year, .all:
                 return "MMMM yyyy"
             }
         }()

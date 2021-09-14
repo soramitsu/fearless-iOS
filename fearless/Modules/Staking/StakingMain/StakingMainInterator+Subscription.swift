@@ -471,13 +471,14 @@ extension StakingMainInteractor {
     private func fetchAnalyticsRewards(stash: AccountAddress) {
         guard let analyticsURL = currentConnection?.type.chain.analyticsURL else { return }
         let period = analyticsPeriod
-        let timestampRange = period.timestampInterval
 
+        let now = Date().timeIntervalSince1970
+        let sevenDaysAgo = Date().addingTimeInterval(-(.secondsInDay * 7)).timeIntervalSince1970
         let subqueryRewardsSource = SubqueryRewardsSource(
             address: stash,
             url: analyticsURL,
-            startTimestamp: timestampRange.0,
-            endTimestamp: timestampRange.1
+            startTimestamp: Int64(sevenDaysAgo),
+            endTimestamp: Int64(now)
         )
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 

@@ -4,6 +4,7 @@ enum AnalyticsPeriod: CaseIterable {
     case week
     case month
     case year
+    case all
 }
 
 extension AnalyticsPeriod {
@@ -20,10 +21,13 @@ extension AnalyticsPeriod {
         case .year:
             return R.string.localizable
                 .stakingAnalyticsPeriod1y(preferredLanguages: locale.rLanguages).uppercased()
+        case .all:
+            return R.string.localizable
+                .stakingAnalyticsPeriodAll(preferredLanguages: locale.rLanguages).uppercased()
         }
     }
 
-    func chartBarsCount() -> Int {
+    func chartBarsCount(startDate: Date, endDate: Date, calendar: Calendar) -> Int {
         switch self {
         case .week:
             return 7
@@ -31,15 +35,18 @@ extension AnalyticsPeriod {
             return 30
         case .year:
             return 12
+        case .all:
+            let components = calendar.dateComponents([.month], from: startDate, to: endDate)
+            return components.month ?? 12
         }
     }
 
-    func xAxisValues(dates: [Date]) -> [String] {
+    func xAxisValues(dates: [Date], calendar: Calendar) -> [String] {
         let template: String = {
             switch self {
             case .week, .month:
                 return "MMM dd"
-            case .year:
+            case .year, .all:
                 return "MMM yyyy"
             }
         }()
@@ -53,7 +60,7 @@ extension AnalyticsPeriod {
         else { return [] }
         let middleDate = dates[dates.count / 2]
 
-        var result = (0 ..< chartBarsCount()).map { _ in "" }
+        var result = (0 ..< chartBarsCount(startDate: firstDate, endDate: lastDate, calendar: calendar)).map { _ in "" }
         result[0] = dateFormatter.string(from: firstDate)
         result[result.count / 2] = dateFormatter.string(from: middleDate)
         result[result.count - 1] = dateFormatter.string(from: lastDate)
@@ -62,7 +69,7 @@ extension AnalyticsPeriod {
 }
 
 extension AnalyticsPeriod {
-    var timestampInterval: (Int64, Int64) {
+    func timestampInterval(startDate: Date, endDate: Date, calendar: Calendar) -> (Int64, Int64) {
         let startDate: Date = {
             let interval: TimeInterval = {
                 switch self {
@@ -72,6 +79,10 @@ extension AnalyticsPeriod {
                     return .secondsInDay * 30
                 case .year:
                     return .secondsInDay * 365.2425
+                case .all:
+                    let components = calendar.dateComponents([.day], from: startDate, to: endDate)
+                    let days = components.day ?? 365
+                    return .secondsInDay * TimeInterval(days)
                 }
             }()
             return Date().addingTimeInterval(TimeInterval(-interval))

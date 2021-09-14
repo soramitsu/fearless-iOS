@@ -12,7 +12,10 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         by period: AnalyticsPeriod,
         locale: Locale
     ) -> [AnalyticsSelectedChartData] {
-        let count = period.chartBarsCount()
+        let dates = data.map(\.date)
+        guard let startDate = dates.first, let endDate = dates.last else { return [] }
+
+        let count = period.chartBarsCount(startDate: startDate, endDate: endDate, calendar: calendar)
         let formatter = dateFormatter(period: period, for: locale)
 
         let dateComponents: Set<Calendar.Component> = {
@@ -21,7 +24,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
                 return [.year, .month, .day]
             case .week:
                 return [.year, .month, .day]
-            case .year:
+            case .year, .all:
                 return [.year, .month]
             }
         }()
@@ -33,9 +36,9 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
             }
             .sorted(by: { $0.0 < $1.0 })
 
+        let timestampInterval = period.timestampInterval(startDate: startDate, endDate: endDate, calendar: calendar)
+        let distance = timestampInterval.1 - timestampInterval.0
         return (0 ..< count).map { index in
-            let timestampInterval = period.timestampInterval
-            let distance = timestampInterval.1 - timestampInterval.0
             let portion = distance / Int64(count)
             let cur: Int64 = timestampInterval.0 + Int64(index) * portion
             let date = Date(timeIntervalSince1970: TimeInterval(cur))
