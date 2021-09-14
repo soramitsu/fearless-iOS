@@ -7,7 +7,7 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         data.type.title(for: locale)
     }
 
-    override func chartDecimalValues(
+    override func selectedChartData(
         _ data: [SubqueryStakeChangeData],
         by period: AnalyticsPeriod,
         locale: Locale

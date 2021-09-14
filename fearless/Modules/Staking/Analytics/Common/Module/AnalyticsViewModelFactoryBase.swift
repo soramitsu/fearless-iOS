@@ -42,107 +42,129 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let timestampInterval = period.timestampInterval(startDate: startDate, endDate: endDate, calendar: calendar)
 
             let rewardItemsWithinLimits = data
-                .filter { itemData in
-                    itemData.timestamp >= timestampInterval.0 &&
-                        itemData.timestamp <= timestampInterval.1
-                }
+                .filter { $0.timestamp >= timestampInterval.0 && $0.timestamp <= timestampInterval.1 }
 
-            let groupedByPeriodTuple = self.chartDecimalValues(rewardItemsWithinLimits, by: period, locale: locale)
-            let groupedByPeriod = groupedByPeriodTuple.map(\.yValue)
-            let chartDoubles = groupedByPeriod
-                .map { Double(truncating: $0 as NSNumber) }
+            let groupedByPeriodChartData = self.selectedChartData(rewardItemsWithinLimits, by: period, locale: locale)
 
-            let minValue = chartDoubles.min() ?? 0.0
-            let amounts: [ChartAmount] = chartDoubles.map { value in
-                if value < .leastNonzeroMagnitude {
-                    let minBarHeight: Double = {
-                        if minValue < .leastNonzeroMagnitude {
-                            return (chartDoubles.max() ?? 0.0) / 50.0
-                        }
-                        return minValue / 10.0
-                    }()
-                    return ChartAmount(value: minBarHeight, selected: false, filled: false)
-                }
-                return ChartAmount(value: value, selected: false, filled: true)
-            }
-
-            let selectedChartAmounts: [ChartAmount] = {
-                guard let selectedIndex = selectedChartIndex else { return amounts }
-                return amounts.enumerated().map { (index, chartAmount) -> ChartAmount in
-                    if index == selectedIndex {
-                        return ChartAmount(value: chartAmount.value, selected: true, filled: true)
-                    }
-                    return ChartAmount(value: chartAmount.value, selected: false, filled: false)
-                }
-            }()
-
-            let bottomYValue = self.balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
-            let averageAmount = chartDoubles.reduce(0.0, +) / Double(groupedByPeriod.count)
-            let averageAmountRawText = self.balanceViewModelFactory
-                .amountFromValue(Decimal(averageAmount))
-                .value(for: locale)
-            let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
-            let chartData = ChartData(
-                amounts: selectedChartAmounts,
-                xAxisValues: period.xAxisValues(dates: allDates, calendar: calendar),
-                bottomYValue: bottomYValue,
-                averageAmountValue: averageAmount,
-                averageAmountText: averageAmountText,
-                animate: selectedChartIndex != nil ? false : true
+            let chartData = createChartData(
+                yValues: groupedByPeriodChartData.map(\.yValue),
+                dates: allDates,
+                period: period,
+                selectedChartIndex: selectedChartIndex,
+                locale: locale
             )
 
-            let totalReceived = rewardItemsWithinLimits
-                .map(\.amount)
-                .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
-                .reduce(0.0, +)
-
-            let totalReceivedToken = self.balanceViewModelFactory.balanceFromPrice(
-                totalReceived,
-                priceData: priceData
-            ).value(for: locale)
+            let totalReceivedTokens = calculateTotalReceivedTokens(
+                amount: rewardItemsWithinLimits.map(\.amount),
+                priceData: priceData,
+                locale: locale
+            )
 
             let summaryViewModel: AnalyticsSummaryRewardViewModel = {
                 if let index = selectedChartIndex {
-                    let allSummary = createSummary(
-                        chartAmounts: groupedByPeriodTuple,
+                    return createSummary(
+                        selectedChartData: groupedByPeriodChartData[index],
                         priceData: priceData,
                         locale: locale
                     )
-                    return allSummary[index]
                 }
-                let dateFormatter = self.periodDateFormatter(period: period, for: locale)
-                let startDate = data.first?.date ?? Date()
-                let endDate = data.last?.date ?? Date()
-
+                let dateFormatter = dateIntervalFormatter(period: period, for: locale)
                 let periodText = dateFormatter.string(from: startDate, to: endDate)
-                let summaryViewModel = AnalyticsSummaryRewardViewModel(
-                    title: periodText,
-                    tokenAmount: totalReceivedToken.amount,
-                    usdAmount: totalReceivedToken.price
-                )
 
-                return summaryViewModel
+                return AnalyticsSummaryRewardViewModel(
+                    title: periodText,
+                    tokenAmount: totalReceivedTokens.amount,
+                    usdAmount: totalReceivedTokens.price
+                )
             }()
 
             let sections: [AnalyticsRewardSection] = {
                 if let index = selectedChartIndex {
-                    return groupedByPeriodTuple[index].sections
+                    return groupedByPeriodChartData[index].sections
                 }
                 return createSections(rewardsData: rewardItemsWithinLimits, locale: locale)
             }()
 
-            let viewModel = AnalyticsRewardsViewModel(
+            return AnalyticsRewardsViewModel(
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
                 selectedPeriod: period,
                 sections: sections,
                 emptyListDescription: T.emptyListDescription(for: locale)
             )
-            return viewModel
         }
     }
 
-    private func periodDateFormatter(period: AnalyticsPeriod, for locale: Locale) -> DateIntervalFormatter {
+    private func createChartData(
+        yValues: [Decimal],
+        dates: [Date],
+        period: AnalyticsPeriod,
+        selectedChartIndex: Int?,
+        locale: Locale
+    ) -> ChartData {
+        let chartDoubles = yValues
+            .map { Double(truncating: $0 as NSNumber) }
+
+        let minValue = chartDoubles.min() ?? 0.0
+        let amounts: [ChartAmount] = chartDoubles.map { value in
+            if value < .leastNonzeroMagnitude {
+                let minBarHeight: Double = {
+                    if minValue < .leastNonzeroMagnitude {
+                        return (chartDoubles.max() ?? 0.0) / 50.0
+                    }
+                    return minValue / 10.0
+                }()
+                return ChartAmount(value: minBarHeight, selected: false, filled: false)
+            }
+            return ChartAmount(value: value, selected: false, filled: true)
+        }
+
+        let bottomYValue = balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
+        let averageAmount = chartDoubles.reduce(0.0, +) / Double(yValues.count)
+        let averageAmountRawText = balanceViewModelFactory
+            .amountFromValue(Decimal(averageAmount))
+            .value(for: locale)
+        let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
+
+        let selectedChartAmounts: [ChartAmount] = {
+            guard let selectedIndex = selectedChartIndex else { return amounts }
+            return amounts.enumerated().map { (index, chartAmount) -> ChartAmount in
+                if index == selectedIndex {
+                    return ChartAmount(value: chartAmount.value, selected: true, filled: true)
+                }
+                return ChartAmount(value: chartAmount.value, selected: false, filled: false)
+            }
+        }()
+
+        let chartData = ChartData(
+            amounts: selectedChartAmounts,
+            xAxisValues: period.xAxisValues(dates: dates, calendar: calendar),
+            bottomYValue: bottomYValue,
+            averageAmountValue: averageAmount,
+            averageAmountText: averageAmountText,
+            animate: selectedChartIndex != nil ? false : true
+        )
+        return chartData
+    }
+
+    private func calculateTotalReceivedTokens(
+        amount: [BigUInt],
+        priceData: PriceData?,
+        locale: Locale
+    ) -> BalanceViewModelProtocol {
+        let totalReceived = amount
+            .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
+            .reduce(0.0, +)
+
+        let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
+            totalReceived,
+            priceData: priceData
+        ).value(for: locale)
+
+        return totalReceivedTokens
+    }
+
+    private func dateIntervalFormatter(period: AnalyticsPeriod, for locale: Locale) -> DateIntervalFormatter {
         let dateTemplate: String = {
             switch period {
             case .week:
@@ -199,22 +221,20 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     private func createSummary(
-        chartAmounts: [AnalyticsSelectedChartData],
+        selectedChartData: AnalyticsSelectedChartData,
         priceData: PriceData?,
         locale: Locale
-    ) -> [AnalyticsSummaryRewardViewModel] {
-        chartAmounts.map { item in
-            let totalBalance = balanceViewModelFactory.balanceFromPrice(
-                item.yValue,
-                priceData: priceData
-            ).value(for: locale)
+    ) -> AnalyticsSummaryRewardViewModel {
+        let totalBalance = balanceViewModelFactory.balanceFromPrice(
+            selectedChartData.yValue,
+            priceData: priceData
+        ).value(for: locale)
 
-            return AnalyticsSummaryRewardViewModel(
-                title: item.dateTitle,
-                tokenAmount: totalBalance.amount,
-                usdAmount: totalBalance.price
-            )
-        }
+        return AnalyticsSummaryRewardViewModel(
+            title: selectedChartData.dateTitle,
+            tokenAmount: totalBalance.amount,
+            usdAmount: totalBalance.price
+        )
     }
 
     /// Overrinde in subclasses
@@ -266,7 +286,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     /// Override
-    func chartDecimalValues(
+    func selectedChartData(
         _: [T],
         by _: AnalyticsPeriod,
         locale _: Locale

@@ -7,7 +7,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages)
     }
 
-    override func chartDecimalValues(
+    override func selectedChartData(
         _ data: [SubqueryRewardItemData],
         by period: AnalyticsPeriod,
         locale: Locale
