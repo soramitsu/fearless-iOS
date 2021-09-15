@@ -47,7 +47,9 @@ final class FWBarChartView: BarChartView {
         xAxis.labelPosition = .bottom
         xAxis.valueFormatter = xAxisEmptyFormatter
 
-        leftAxis.labelCount = 1
+        leftAxis.spaceTop = 0
+        leftAxis.yOffset = 4
+        leftAxis.forceLabelsEnabled = true
         leftAxis.drawGridLinesEnabled = false
         leftAxis.drawAxisLineEnabled = false
         leftAxis.valueFormatter = yAxisFormatter
