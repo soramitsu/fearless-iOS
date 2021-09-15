@@ -23,27 +23,40 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
                 return [.year, .month]
             }
         }()
+
+        let dateGranularity: Calendar.Component = {
+            switch period {
+            case .month, .week:
+                return .day
+            case .year, .all:
+                return .month
+            }
+        }()
+
         let groupedByDate = data
             .groupedBy(dateComponents: dateComponents, calendar: calendar)
-        let sortedRewardsByDate: [(Date, [SubqueryRewardItemData])] = groupedByDate.keys
-            .map { (key: Date) in (key, groupedByDate[key]!) }
-            .sorted(by: { $0.0 < $1.0 })
 
-        let timestampInterval = period.timestampInterval(startDate: startDate, endDate: endDate, calendar: calendar)
+        let timestampInterval = period.dateRangeTillNow(startDate: startDate, endDate: endDate, calendar: calendar)
         let chartBarsCount = period.chartBarsCount(startDate: startDate, endDate: endDate, calendar: calendar)
         let formatter = dateFormatter(period: period, for: locale)
-        let timestampDistance = timestampInterval.1 - timestampInterval.0
 
         return (0 ..< chartBarsCount).map { index in
-            let indexOfAccumulatedBar = timestampDistance / Int64(chartBarsCount)
-            let timestampOfAccumulatedBar: Int64 = timestampInterval.0 + Int64(index) * indexOfAccumulatedBar
-            let dateRepresentingAccumulatedBar = Date(timeIntervalSince1970: TimeInterval(timestampOfAccumulatedBar))
-            let rewardsByDate = sortedRewardsByDate
-                .last(where: { rewardsByDate in
-                    let timeIntervalOfAccumulatedBar = rewardsByDate.0.timeIntervalSince(dateRepresentingAccumulatedBar)
-                    return timeIntervalOfAccumulatedBar < TimeInterval(indexOfAccumulatedBar)
-                })
-            return createSelectedChartData(rewardsByDate: rewardsByDate, dateFormatter: formatter, locale: locale)
+            let component: DateComponents = {
+                switch period {
+                case .month, .week:
+                    return DateComponents(day: index)
+                case .year, .all:
+                    return DateComponents(month: index)
+                }
+            }()
+            let date = calendar.date(byAdding: component, to: timestampInterval.0) ?? startDate
+            let rewardsByDate = groupedByDate.map { key, value -> (Date, [SubqueryRewardItemData])? in
+                if calendar.isDate(date, equalTo: key, toGranularity: dateGranularity) {
+                    return (key, value)
+                }
+                return nil
+            }.compactMap { $0 }
+            return createSelectedChartData(rewardsByDate: rewardsByDate.first, dateFormatter: formatter, locale: locale)
         }
     }
 

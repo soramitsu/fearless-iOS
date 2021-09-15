@@ -41,7 +41,7 @@ extension AnalyticsPeriod {
         }
     }
 
-    func xAxisValues(timestampInterval: (Int64, Int64), calendar: Calendar) -> [String] {
+    func xAxisValues(dateRange: (Date, Date), calendar: Calendar) -> [String] {
         let template: String = {
             switch self {
             case .week, .month:
@@ -54,9 +54,10 @@ extension AnalyticsPeriod {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
 
-        let firstDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.0))
-        let lastDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.1))
-        let middleDate = Date(timeIntervalSince1970: TimeInterval((timestampInterval.1 + timestampInterval.0) / 2))
+        let firstDate = dateRange.0
+        let lastDate = dateRange.1
+        let middleTimestamp = (firstDate.timeIntervalSince1970 + lastDate.timeIntervalSince1970) / 2
+        let middleDate = Date(timeIntervalSince1970: middleTimestamp)
 
         var result = (0 ..< chartBarsCount(startDate: firstDate, endDate: lastDate, calendar: calendar)).map { _ in "" }
         result[0] = dateFormatter.string(from: firstDate)
@@ -68,27 +69,25 @@ extension AnalyticsPeriod {
 }
 
 extension AnalyticsPeriod {
-    func timestampInterval(startDate: Date, endDate: Date, calendar _: Calendar) -> (Int64, Int64) {
+    func dateRangeTillNow(startDate: Date, endDate: Date, calendar: Calendar) -> (Date, Date) {
         guard self != .all else {
-            return (Int64(startDate.timeIntervalSince1970), Int64(endDate.timeIntervalSince1970))
+            return (startDate, endDate)
         }
 
+        let now = Date()
         let startDate: Date = {
-            let interval: TimeInterval = {
+            let dateComponents: DateComponents = {
                 switch self {
                 case .week:
-                    return .secondsInDay * 7
+                    return DateComponents(day: -7)
                 case .month:
-                    return .secondsInDay * 30
+                    return DateComponents(month: -1)
                 case .year, .all:
-                    return .secondsInDay * 365.2425
+                    return DateComponents(year: -1)
                 }
             }()
-            return Date().addingTimeInterval(TimeInterval(-interval))
+            return calendar.date(byAdding: dateComponents, to: now)!
         }()
-
-        let startTimestamp = Int64(startDate.timeIntervalSince1970)
-        let endTimestamp = Int64(Date().timeIntervalSince1970)
-        return (startTimestamp, endTimestamp)
+        return (startDate, now)
     }
 }

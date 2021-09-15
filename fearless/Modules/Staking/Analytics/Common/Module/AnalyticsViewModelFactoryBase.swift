@@ -39,16 +39,19 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         LocalizableResource { [self] locale in
             let allDates = data.map(\.date)
             let (startDate, endDate) = (allDates.first ?? Date(), allDates.last ?? Date())
-            let timestampInterval = period.timestampInterval(startDate: startDate, endDate: endDate, calendar: calendar)
+            let dateRange = period.dateRangeTillNow(startDate: startDate, endDate: endDate, calendar: calendar)
 
             let rewardItemsWithinLimits = data
-                .filter { $0.timestamp >= timestampInterval.0 && $0.timestamp <= timestampInterval.1 }
+                .filter { data in
+                    let date = Date(timeIntervalSince1970: TimeInterval(data.timestamp))
+                    return date >= dateRange.0 && date <= dateRange.1
+                }
 
             let groupedByPeriodChartData = self.selectedChartData(rewardItemsWithinLimits, by: period, locale: locale)
 
             let chartData = createChartData(
                 yValues: groupedByPeriodChartData.map(\.yValue),
-                timestampInterval: timestampInterval,
+                dateRange: dateRange,
                 period: period,
                 selectedChartIndex: selectedChartIndex,
                 locale: locale
@@ -97,7 +100,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
     private func createChartData(
         yValues: [Decimal],
-        timestampInterval: (Int64, Int64),
+        dateRange: (Date, Date),
         period: AnalyticsPeriod,
         selectedChartIndex: Int?,
         locale: Locale
@@ -138,7 +141,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         let chartData = ChartData(
             amounts: selectedChartAmounts,
-            xAxisValues: period.xAxisValues(timestampInterval: timestampInterval, calendar: calendar),
+            xAxisValues: period.xAxisValues(dateRange: dateRange, calendar: calendar),
             bottomYValue: bottomYValue,
             averageAmountValue: averageAmount,
             averageAmountText: averageAmountText,
