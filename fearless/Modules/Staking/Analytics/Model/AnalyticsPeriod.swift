@@ -74,19 +74,24 @@ extension AnalyticsPeriod {
         }
 
         let now = Date()
+        var components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: now)
+
+        components.hour = 23
+        components.minute = 59
+        components.second = 59
+
+        let today = calendar.date(from: components) ?? now
+
         let startDate: Date = {
-            let dateComponents: DateComponents = {
-                switch self {
-                case .week:
-                    return DateComponents(weekOfMonth: -1)
-                case .month:
-                    return DateComponents(month: -1)
-                case .year, .all:
-                    return DateComponents(year: -1)
-                }
-            }()
-            return calendar.date(byAdding: dateComponents, to: now)!
+            switch self {
+            case .week:
+                return calendar.date(byAdding: DateComponents(day: -6, hour: -23, minute: -59), to: today)!
+            case .month:
+                return calendar.date(byAdding: DateComponents(day: -29, hour: -23, minute: -59), to: today)!
+            case .year, .all:
+                return calendar.date(byAdding: DateComponents(day: -364, hour: -23, minute: -59), to: today)!
+            }
         }()
-        return (startDate, now)
+        return (startDate, today)
     }
 }

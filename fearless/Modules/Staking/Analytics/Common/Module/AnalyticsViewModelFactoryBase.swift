@@ -72,7 +72,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                     )
                 }
                 let dateFormatter = dateIntervalFormatter(period: period, for: locale)
-                let periodText = dateFormatter.string(from: startDate, to: endDate)
+                let periodText = dateFormatter.string(from: dateRange.0, to: dateRange.1)
 
                 return AnalyticsSummaryRewardViewModel(
                     title: periodText,
