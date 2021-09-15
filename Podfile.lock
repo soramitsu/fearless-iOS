@@ -42,6 +42,7 @@ PODS:
   - IrohaCrypto/ss58 (0.8.1):
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
+  - keccak.c (0.1.3)
   - Kingfisher (6.3.0)
   - R.swift (5.4.0):
     - R.swift.Library (~> 5.3.0)
@@ -117,6 +118,7 @@ DEPENDENCIES:
   - Cuckoo
   - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `d460c422a57374e595d221baf1a4b12fdba7e60e`)
   - FireMock
+  - keccak.c
   - Kingfisher
   - R.swift
   - ReachabilitySwift
@@ -139,6 +141,7 @@ SPEC REPOS:
     - Cuckoo
     - FireMock
     - IrohaCrypto
+    - keccak.c
     - Kingfisher
     - R.swift
     - R.swift.Library
@@ -193,6 +196,7 @@ SPEC CHECKSUMS:
   FearlessUtils: 15622c5ae6a28b2d60add3b8538b83c55a57a4fe
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 2f3ced592d33186beeb8818c0cb7481ec1365819
+  keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
@@ -213,6 +217,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 5e0e4f67f5232d52af3eef8ac909be1db1318262
+PODFILE CHECKSUM: 431d02fcf488f96836ae0f3b289d56d54ac65f3f
 
 COCOAPODS: 1.10.2
