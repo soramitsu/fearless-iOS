@@ -3,6 +3,16 @@ import SoraFoundation
 
 final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<SubqueryRewardItemData>,
     AnalyticsRewardsViewModelFactoryProtocol {
+    override func filterHistoryItems(
+        _ items: [SubqueryRewardItemData],
+        byDateRange dateRange: (Date, Date)
+    ) -> [SubqueryRewardItemData] {
+        items.filter { item in
+            let date = Date(timeIntervalSince1970: TimeInterval(item.timestamp))
+            return date >= dateRange.0 && date <= dateRange.1
+        }
+    }
+
     override func getHistoryItemTitle(data _: SubqueryRewardItemData, locale: Locale) -> String {
         R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages)
     }
@@ -80,7 +90,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         return AnalyticsSelectedChartData(
             yValue: yValue,
             dateTitle: dateFormatter.string(from: rewardsByDate.0),
-            sections: createSections(rewardsData: rewardsByDate.1, locale: locale)
+            sections: createSections(historyItems: rewardsByDate.1, locale: locale)
         )
     }
 }

@@ -41,13 +41,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             let (startDate, endDate) = (allDates.first ?? Date(), allDates.last ?? Date())
             let dateRange = period.dateRangeTillNow(startDate: startDate, endDate: endDate, calendar: calendar)
 
-            let rewardItemsWithinLimits = data
-                .filter { data in
-                    let date = Date(timeIntervalSince1970: TimeInterval(data.timestamp))
-                    return date >= dateRange.0 && date <= dateRange.1
-                }
-
-            let groupedByPeriodChartData = self.selectedChartData(rewardItemsWithinLimits, by: period, locale: locale)
+            let filteredHistoryItems = filterHistoryItems(data, byDateRange: dateRange)
+            let groupedByPeriodChartData = self.selectedChartData(filteredHistoryItems, by: period, locale: locale)
 
             let chartData = createChartData(
                 yValues: groupedByPeriodChartData.map(\.yValue),
@@ -58,13 +53,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             )
 
             let totalReceivedTokens = calculateTotalReceivedTokens(
-                amount: rewardItemsWithinLimits.map(\.amount),
+                amount: filteredHistoryItems.map(\.amount),
                 priceData: priceData,
                 locale: locale
             )
 
             let summaryViewModel: AnalyticsSummaryRewardViewModel = {
-                if let index = selectedChartIndex {
+                if let index = selectedChartIndex, index < groupedByPeriodChartData.count {
                     return createSummary(
                         selectedChartData: groupedByPeriodChartData[index],
                         priceData: priceData,
@@ -82,10 +77,10 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             }()
 
             let sections: [AnalyticsRewardSection] = {
-                if let index = selectedChartIndex {
+                if let index = selectedChartIndex, index < groupedByPeriodChartData.count {
                     return groupedByPeriodChartData[index].sections
                 }
-                return createSections(rewardsData: rewardItemsWithinLimits, locale: locale)
+                return createSections(historyItems: filteredHistoryItems, locale: locale)
             }()
 
             return AnalyticsRewardsViewModel(
@@ -96,6 +91,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 emptyListDescription: T.emptyListDescription(for: locale)
             )
         }
+    }
+
+    /// Override in subclasses
+    func filterHistoryItems(_ items: [T], byDateRange _: (Date, Date)) -> [T] {
+        items
     }
 
     private func createChartData(
@@ -261,14 +261,14 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     }
 
     func createSections(
-        rewardsData: [T],
+        historyItems: [T],
         locale: Locale
     ) -> [AnalyticsRewardSection] {
         let dateTitleFormatter = DateFormatter()
         dateTitleFormatter.locale = locale
         dateTitleFormatter.dateFormat = "MMM d"
 
-        let groupedByDay = rewardsData
+        let groupedByDay = historyItems
             .groupedBy(dateComponents: [.year, .month, .day], calendar: calendar)
         let sortedByDay: [(Date, [T])] = groupedByDay.keys
             .map { (key: Date) in

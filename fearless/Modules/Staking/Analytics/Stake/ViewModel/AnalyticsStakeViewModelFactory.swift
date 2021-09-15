@@ -3,6 +3,21 @@ import SoraFoundation
 
 final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<SubqueryStakeChangeData>,
     AnalyticsStakeViewModelFactoryProtocol {
+    override func filterHistoryItems(
+        _ items: [SubqueryStakeChangeData],
+        byDateRange dateRange: (Date, Date)
+    ) -> [SubqueryStakeChangeData] {
+        var filtered = items.filter { item in
+            let date = Date(timeIntervalSince1970: TimeInterval(item.timestamp))
+            return date >= dateRange.0 && date <= dateRange.1
+        }
+        // add last stake change that is out of current dateRange
+        if filtered.isEmpty, let last = items.last {
+            filtered.append(last)
+        }
+        return filtered
+    }
+
     override func getHistoryItemTitle(data: SubqueryStakeChangeData, locale: Locale) -> String {
         data.type.title(for: locale)
     }
@@ -21,7 +36,7 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
             ) ?? 0.0
 
             let title = formatter.string(from: stakeChange.date)
-            let sections = createSections(rewardsData: [stakeChange], locale: locale)
+            let sections = createSections(historyItems: [stakeChange], locale: locale)
             return AnalyticsSelectedChartData(yValue: amount, dateTitle: title, sections: sections)
         }
     }
