@@ -58,8 +58,9 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
             alignment: .center,
             [selectedPeriodLabel, tokenAmountLabel, usdAmountLabel]
         )
+        let separator = UIView.createSeparator(color: R.color.colorDarkGray())
         let statsStack = UIView.vStack(
-            spacing: 4,
+            spacing: 24,
             [
                 amountsStack,
                 chartView,
@@ -67,12 +68,12 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
                     distribution: .equalSpacing,
                     [UIView(), periodView, UIView()]
                 ),
+                separator,
                 historyTitleLabel
             ]
         )
 
-        statsStack.setCustomSpacing(24, after: amountsStack)
-        statsStack.setCustomSpacing(32, after: periodView)
+        separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
         periodView.snp.makeConstraints { $0.centerX.equalToSuperview() }
         chartView.snp.makeConstraints { $0.height.equalTo(180) }
 
