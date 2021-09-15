@@ -6,6 +6,9 @@ import IrohaCrypto
 
 class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
     var isSelected: Bool = false
+    var order: Int32 = 0
+
+    private lazy var addressFactory = SS58AddressFactory()
 
     override func createDestinationInstances(
         forSource accountItem: NSManagedObject,
@@ -26,8 +29,16 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
             fatalError("Meta account expected after mapping")
         }
 
+        guard let sourceAddress = accountItem.value(forKey: "identifier") as? AccountAddress else {
+            fatalError("Unexpected empty source address")
+        }
+
         let metaId = UUID().uuidString
         metaAccount.setValue(metaId, forKey: "metaId")
+
+        let accountId = try addressFactory.accountId(from: sourceAddress)
+
+        metaAccount.setValue(accountId, forKey: "substrateAccountId")
 
         if !isSelected {
             isSelected = true
@@ -37,16 +48,17 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
             metaAccount.setValue(false, forKey: "isSelected")
         }
 
-        guard let sourceAddress = accountItem.value(forKey: "identifier") as? AccountAddress else {
-            fatalError("Unexpected empty source address")
-        }
+        metaAccount.setValue(order, forKey: "order")
+        order += 1
 
         if let ethereumPublicKey = try migrateKeystore(
             for: sourceAddress,
             metaId: metaId,
             keystoreMigrator: keystoreMigrator
         ) {
-            metaAccount.setValue(ethereumPublicKey.rawData(), forKey: "ethereumPublicKey")
+            let rawPublicKey = ethereumPublicKey.rawData()
+            metaAccount.setValue(rawPublicKey, forKey: "ethereumPublicKey")
+            metaAccount.setValue(rawPublicKey.ethereumAddress, forKey: "ethereumAddress")
         }
     }
 

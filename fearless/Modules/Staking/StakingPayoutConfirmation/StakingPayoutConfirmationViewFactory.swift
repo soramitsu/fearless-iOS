@@ -116,8 +116,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return StakingPayoutConfirmationInteractor(
             singleValueProviderFactory: singleValueProviderFactory,
@@ -126,7 +125,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
             signer: signer,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             operationManager: operationManager,
             logger: Logger.shared,
             selectedAccount: selectedAccount,

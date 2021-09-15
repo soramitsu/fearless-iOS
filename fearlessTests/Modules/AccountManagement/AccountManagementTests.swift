@@ -33,13 +33,13 @@ class AccountManagementTests: XCTestCase {
 
         let account2 = settings.selectedAccount!
 
-        let accountsRepository: CoreDataRepository<AccountItem, CDAccountItem> = facade.createRepository()
+        let accountsRepository = AccountRepositoryFactory.createRepository(for: facade)
         let operation = accountsRepository.saveOperation({ [account1, account2]}, { [] })
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
         let mapper = ManagedAccountItemMapper()
-        let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =
+        let observer: CoreDataContextObservable<ManagedAccountItem, CDMetaAccount> =
             CoreDataContextObservable(service: facade.databaseService,
                                                  mapper: AnyCoreDataMapper(mapper),
                                                  predicate: { _ in true })

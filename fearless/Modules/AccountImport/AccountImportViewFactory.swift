@@ -35,16 +35,14 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let keystore = Keychain()
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
-        let anyRepository = AnyDataProviderRepository(accountRepository)
         let operationManager = OperationManagerFacade.sharedManager
         let interactor = SelectConnection
             .AccountImportInteractor(
                 connectionItem: item,
                 accountOperationFactory: accountOperationFactory,
-                accountRepository: anyRepository,
+                accountRepository: accountRepository,
                 operationManager: operationManager,
                 settings: SettingsManager.shared,
                 keystoreImportService: keystoreImportService,
@@ -97,14 +95,11 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let settings = SettingsManager.shared
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
-
-        let anyRepository = AnyDataProviderRepository(accountRepository)
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AccountImportInteractor(
             accountOperationFactory: accountOperationFactory,
-            accountRepository: anyRepository,
+            accountRepository: accountRepository,
             operationManager: OperationManagerFacade.sharedManager,
             settings: settings,
             keystoreImportService: keystoreImportService
@@ -124,13 +119,12 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let keystore = Keychain()
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AddAccount
             .AccountImportInteractor(
                 accountOperationFactory: accountOperationFactory,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,
                 settings: SettingsManager.shared,
                 keystoreImportService: keystoreImportService,

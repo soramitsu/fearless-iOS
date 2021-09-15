@@ -2,11 +2,12 @@ import Foundation
 
 extension NSSortDescriptor {
     static var accountsByOrder: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDAccountItem.order), ascending: true)
+        NSSortDescriptor(key: #keyPath(CDMetaAccount.order), ascending: true)
     }
 
+    // TODO: remove
     static var connectionsByOrder: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDConnectionItem.order), ascending: true)
+        NSSortDescriptor(key: #keyPath(CDChain.addressPrefix), ascending: true)
     }
 
     static var contactsByTime: NSSortDescriptor {

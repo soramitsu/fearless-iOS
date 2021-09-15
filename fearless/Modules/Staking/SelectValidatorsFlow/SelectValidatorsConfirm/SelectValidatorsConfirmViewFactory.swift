@@ -217,8 +217,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let signer = SigningWrapper(keystore: keystore, settings: controllerSettings)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return ChangeTargetsConfirmInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
@@ -229,7 +228,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             signer: signer,
             chain: networkType.chain,
             assetId: assetId,
-            repository: AnyDataProviderRepository(accountRepository),
+            repository: accountRepository,
             nomination: nomination
         )
     }

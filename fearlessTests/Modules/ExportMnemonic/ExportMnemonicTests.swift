@@ -13,7 +13,7 @@ class ExportMnemonicTests: XCTestCase {
         let settings = InMemorySettingsManager()
 
         let storageFacade = UserDataStorageTestFacade()
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> = storageFacade.createRepository()
+        let repository = AccountRepositoryFactory.createRepository(for: storageFacade)
 
         let derivationPath = "//some//work"
 

@@ -12,7 +12,7 @@ class NetworkItemMapperTests: XCTestCase {
 
         let mapper = ManagedConnectionItemMapper()
 
-        let repository: CoreDataRepository<ManagedConnectionItem, CDConnectionItem> =
+        let repository: CoreDataRepository<ManagedConnectionItem, CDChain> =
             UserDataStorageTestFacade().createRepository(mapper: AnyCoreDataMapper(mapper))
 
         // when

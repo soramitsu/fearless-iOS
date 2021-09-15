@@ -22,9 +22,12 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         let metaId: String
         let name: String
         let isSelected: Bool
+        let substrateAccountId: Data
         let substratePublicKey: Data
         let substrateCryptoType: UInt8
+        let ethereumAddress: Data?
         let ethereumPublicKey: Data?
+        let order: Int32
     }
 
     let databaseDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("CoreData")
@@ -122,11 +125,18 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
             fileManager: FileManager.default
         )
 
+        guard migrator.requiresMigration() else {
+            XCTFail("Migration not required")
+            return
+        }
+
         migrator.performMigration()
 
         // then
 
         let newEntities = try fetchNewEntities()
+
+        let addressFactory = SS58AddressFactory()
 
         for account in accounts {
             guard let newEntity = newEntities.first(where: { $0.substratePublicKey == account.publicKey }) else {
@@ -138,6 +148,9 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
             XCTAssertEqual(account.name, newEntity.name)
             XCTAssertEqual(account.publicKey, newEntity.substratePublicKey)
             XCTAssertEqual(account.cryptoType, newEntity.substrateCryptoType)
+
+            let oldAccountId = try addressFactory.accountId(from: account.address)
+            XCTAssertEqual(oldAccountId, newEntity.substrateAccountId)
 
             let entropyExistence = try keystore.checkKey(for: KeystoreTagV2.entropyTagForMetaId(newEntity.metaId))
             let substrateSeedExistence = try keystore.checkKey(
@@ -164,11 +177,13 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
                 let migratedEntropy = try keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(newEntity.metaId))
                 XCTAssertEqual(account.entropy, migratedEntropy)
                 XCTAssertNotNil(newEntity.ethereumPublicKey)
+                XCTAssertNotNil(newEntity.ethereumAddress)
                 XCTAssertTrue(ethSeedExistence)
                 XCTAssertTrue(ethPrivateKeyExistence)
                 XCTAssertTrue(ethDerivPathExistence)
             } else {
                 XCTAssertNil(newEntity.ethereumPublicKey)
+                XCTAssertNil(newEntity.ethereumAddress)
                 XCTAssertFalse(entropyExistence)
                 XCTAssertFalse(ethSeedExistence)
                 XCTAssertFalse(ethPrivateKeyExistence)
@@ -195,6 +210,9 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
                 XCTAssertFalse(substrateDerivPathExistence)
             }
         }
+
+        let orders = Set(newEntities.map { $0.order })
+        XCTAssertEqual(newEntities.count, orders.count)
 
         let hasSelected = newEntities.contains { $0.isSelected }
         XCTAssertTrue(hasSelected)
@@ -249,17 +267,23 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
                 let metaId = entity.value(forKey: "metaId") as? String
                 let name = entity.value(forKey: "name") as? String
                 let isSelected = entity.value(forKey: "isSelected") as? Bool
+                let substrateAccountId = entity.value(forKey: "substrateAccountId") as? Data
                 let substratePublicKey = entity.value(forKey: "substratePublicKey") as? Data
                 let substrateCryptoType = entity.value(forKey: "substrateCryptoType") as? UInt8
+                let ethereumAddress = entity.value(forKey: "ethereumAddress") as? Data
                 let ethereumPublicKey = entity.value(forKey: "ethereumPublicKey") as? Data
+                let order = entity.value(forKey: "order") as? Int32
 
                 return NewEntity(
                     metaId: metaId!,
                     name: name!,
                     isSelected: isSelected!,
+                    substrateAccountId: substrateAccountId!,
                     substratePublicKey: substratePublicKey!,
                     substrateCryptoType: substrateCryptoType!,
-                    ethereumPublicKey: ethereumPublicKey
+                    ethereumAddress: ethereumAddress,
+                    ethereumPublicKey: ethereumPublicKey,
+                    order: order!
                 )
             }
         }

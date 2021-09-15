@@ -72,8 +72,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return StakingUnbondSetupInteractor(
             assetId: assetId,
@@ -82,7 +81,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             substrateProviderFactory: substrateProviderFactory,
             extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: ExtrinsicFeeProxy(),
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             settings: settings,
             runtimeService: RuntimeRegistryFacade.sharedService,
             operationManager: OperationManagerFacade.sharedManager

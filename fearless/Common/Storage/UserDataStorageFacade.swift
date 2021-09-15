@@ -2,39 +2,51 @@ import Foundation
 import RobinHood
 import CoreData
 
+enum UserStorageParams {
+    static let modelVersion: UserStorageVersion = .version2
+    static let modelDirectory: String = "UserDataModel.momd"
+    static let databaseName = "UserDataModel.sqlite"
+
+    static let storageDirectoryURL: URL = {
+        let baseURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first?.appendingPathComponent("CoreData")
+
+        return baseURL!
+    }()
+
+    static var storageURL: URL {
+        storageDirectoryURL.appendingPathComponent(databaseName)
+    }
+}
+
 class UserDataStorageFacade: StorageFacadeProtocol {
     static let shared = UserDataStorageFacade()
 
     let databaseService: CoreDataServiceProtocol
 
     private init() {
-        let modelName = "UserDataModel"
-        let subdirectory = "UserDataModel.momd"
+        let modelName = UserStorageParams.modelVersion.rawValue
         let bundle = Bundle.main
 
         let omoURL = bundle.url(
             forResource: modelName,
             withExtension: "omo",
-            subdirectory: subdirectory
+            subdirectory: UserStorageParams.modelDirectory
         )
 
         let momURL = bundle.url(
             forResource: modelName,
             withExtension: "mom",
-            subdirectory: subdirectory
+            subdirectory: UserStorageParams.modelDirectory
         )
 
         let modelURL = omoURL ?? momURL
-        let databaseName = "\(modelName).sqlite"
-
-        let baseURL = FileManager.default.urls(
-            for: .documentDirectory,
-            in: .userDomainMask
-        ).first?.appendingPathComponent("CoreData")
 
         let persistentSettings = CoreDataPersistentSettings(
-            databaseDirectory: baseURL!,
-            databaseName: databaseName,
+            databaseDirectory: UserStorageParams.storageDirectoryURL,
+            databaseName: UserStorageParams.databaseName,
             incompatibleModelStrategy: .ignore
         )
 

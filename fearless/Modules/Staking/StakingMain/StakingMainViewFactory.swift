@@ -79,14 +79,14 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             runtimeService: runtimeService
         )
 
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
-
-        let accountRepositoryFactory = AccountRepositoryFactory(
+        // TODO: check why do we need both factory and repository
+        let accountProviderFactory = AccountProviderFactory(
             storageFacade: UserDataStorageFacade.shared,
             operationManager: operationManager,
             logger: Logger.shared
         )
+
+        let repository = AccountRepositoryFactory.createRepository()
 
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -103,14 +103,14 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         return StakingMainInteractor(
             providerFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
-            accountRepositoryFactory: accountRepositoryFactory,
+            accountProviderFactory: accountProviderFactory,
             settings: settings,
             eventCenter: EventCenter.shared,
             primitiveFactory: primitiveFactory,
             eraValidatorService: eraValidatorService,
             calculatorService: RewardCalculatorFacade.sharedService,
             runtimeService: runtimeService,
-            accountRepository: AnyDataProviderRepository(repository),
+            accountRepository: repository,
             operationManager: operationManager,
             eraInfoOperationFactory: operationFactory,
             applicationHandler: ApplicationHandler(),

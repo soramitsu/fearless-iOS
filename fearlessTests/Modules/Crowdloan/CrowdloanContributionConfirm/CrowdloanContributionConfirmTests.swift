@@ -191,8 +191,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
 
         let signingWrapper = try! DummySigner(cryptoType: .sr25519)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         return CrowdloanContributionConfirmInteractor(
             paraId: crowdloan.paraId,
@@ -203,7 +202,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             feeProxy: ExtrinsicFeeProxy(),
             extrinsicService: extrinsicService,
             signingWrapper: signingWrapper,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             crowdloanFundsProvider: providerFactory.crowdloanFunds,
             singleValueProviderFactory: providerFactory,
             bonusService: nil,

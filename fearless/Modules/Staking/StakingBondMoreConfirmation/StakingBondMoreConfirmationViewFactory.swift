@@ -85,14 +85,13 @@ struct StakingBondMoreConfirmViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return StakingBondMoreConfirmationInteractor(
             settings: settings,
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: ExtrinsicFeeProxy(),
             runtimeService: RuntimeRegistryFacade.sharedService,

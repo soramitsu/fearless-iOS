@@ -27,8 +27,7 @@ class AccountConfirmTests: XCTestCase {
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
 
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
+        let repository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         let interactor = AccountConfirmInteractor(request: newAccountRequest,
                                                   mnemonic: mnemonic,

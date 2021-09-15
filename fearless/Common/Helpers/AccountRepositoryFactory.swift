@@ -3,71 +3,53 @@ import IrohaCrypto
 import RobinHood
 
 protocol AccountRepositoryFactoryProtocol {
-    var operationManager: OperationManagerProtocol { get }
+    // TODO: remove
+    func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem>
+    func createRepository() -> AnyDataProviderRepository<AccountItem>
 
-    func createAccountRepository(for networkType: SNAddressType)
-        -> AnyDataProviderRepository<AccountItem>
-    func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem>
+    // TODO: remove
+    func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>
 }
 
 final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
     let storageFacade: StorageFacadeProtocol
-    let operationManager: OperationManagerProtocol
-    let logger: LoggerProtocol?
 
-    init(
-        storageFacade: StorageFacadeProtocol,
-        operationManager: OperationManagerProtocol,
-        logger: LoggerProtocol? = nil
-    ) {
+    init(storageFacade: StorageFacadeProtocol) {
         self.storageFacade = storageFacade
-        self.operationManager = operationManager
-        self.logger = logger
     }
 
+    func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem> {
+        Self.createManagedRepository(for: storageFacade)
+    }
+
+    func createRepository() -> AnyDataProviderRepository<AccountItem> {
+        Self.createRepository(for: storageFacade)
+    }
+
+    // TODO: remove
     func createAccountRepository(
-        for networkType: SNAddressType
+        for _: SNAddressType
     ) -> AnyDataProviderRepository<AccountItem> {
-        let mapper = CodableCoreDataMapper<AccountItem, CDAccountItem>()
-        let repository = storageFacade
-            .createRepository(
-                filter: NSPredicate.filterAccountBy(networkType: networkType),
-                sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                mapper: AnyCoreDataMapper(mapper)
-            )
+        Self.createRepository(for: storageFacade)
+    }
+}
+
+extension AccountRepositoryFactory {
+    static func createManagedRepository(
+        for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
+    ) -> AnyDataProviderRepository<ManagedAccountItem> {
+        let mapper = ManagedAccountItemMapper()
+        let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
 
         return AnyDataProviderRepository(repository)
     }
 
-    func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem> {
-        let mapper: CodableCoreDataMapper<AccountItem, CDAccountItem> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountItem.identifier))
+    static func createRepository(
+        for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
+    ) -> AnyDataProviderRepository<AccountItem> {
+        let mapper = CodableCoreDataMapper<AccountItem, CDMetaAccount>()
+        let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
 
-        let filter = NSPredicate.filterAccountItemByAddress(accountAddress)
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> = storageFacade
-            .createRepository(
-                filter: filter,
-                sortDescriptors: [],
-                mapper: AnyCoreDataMapper(mapper)
-            )
-
-        let observable = CoreDataContextObservable(
-            service: storageFacade.databaseService,
-            mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.identifier == accountAddress }
-        )
-
-        observable.start { [weak self] error in
-            if let error = error {
-                self?.logger?.error("Did receive error: \(error)")
-            }
-        }
-
-        return StreamableProvider<AccountItem>(
-            source: AnyStreamableSource(EmptyStreamableSource()),
-            repository: AnyDataProviderRepository(repository),
-            observable: AnyDataProviderRepositoryObservable(observable),
-            operationManager: operationManager
-        )
+        return AnyDataProviderRepository(repository)
     }
 }

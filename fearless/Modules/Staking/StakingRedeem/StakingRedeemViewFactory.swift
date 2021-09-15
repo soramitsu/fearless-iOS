@@ -90,8 +90,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),

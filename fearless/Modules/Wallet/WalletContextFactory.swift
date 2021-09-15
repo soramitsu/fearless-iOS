@@ -129,13 +129,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             targetAddress: selectedAccount.address
         )
 
-        let accountStorage: CoreDataRepository<ManagedAccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared
-                .createRepository(
-                    filter: NSPredicate.filterAccountBy(networkType: networkType),
-                    sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                    mapper: AnyCoreDataMapper(ManagedAccountItemMapper())
-                )
+        // TODO: fix logic
+        let accountRepository = AccountRepositoryFactory.createManagedRepository()
 
         let networkFacade = WalletNetworkFacade(
             storageFacade: SubstrateDataStorageFacade.shared,
@@ -149,7 +144,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             localStorageIdFactory: localStorageIdFactory,
             txStorage: AnyDataProviderRepository(txStorage),
             contactsOperationFactory: contactOperationFactory,
-            accountsRepository: AnyDataProviderRepository(accountStorage),
+            accountsRepository: accountRepository,
             address: selectedAccount.address,
             networkType: networkType,
             totalPriceAssetId: .usd

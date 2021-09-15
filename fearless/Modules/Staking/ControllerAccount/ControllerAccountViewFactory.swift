@@ -61,8 +61,9 @@ struct ControllerAccountViewFactory {
         let networkType = settings.selectedConnection.type
         let facade = UserDataStorageFacade.shared
 
+        // TODO: Fix logic
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+        let accountRepository: CoreDataRepository<AccountItem, CDMetaAccount> =
             facade.createRepository(
                 filter: filter,
                 sortDescriptors: [.accountsByOrder]

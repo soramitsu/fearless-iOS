@@ -51,18 +51,16 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let keychain = Keychain()
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let operationManager = OperationManagerFacade.sharedManager
-        let anyRepository = AnyDataProviderRepository(accountRepository)
         let interactor = SelectConnection
             .AccountConfirmInteractor(
                 connectionItem: item,
                 request: request,
                 mnemonic: mnemonic,
                 accountOperationFactory: accountOperationFactory,
-                accountRepository: anyRepository,
+                accountRepository: accountRepository,
                 settings: SettingsManager.shared,
                 operationManager: operationManager,
                 eventCenter: EventCenter.shared
@@ -125,14 +123,13 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let settings = SettingsManager.shared
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AccountConfirmInteractor(
             request: request,
             mnemonic: mnemonic,
             accountOperationFactory: accountOperationFactory,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             settings: settings,
             operationManager: OperationManagerFacade.sharedManager
         )
@@ -153,15 +150,14 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let keychain = Keychain()
 
         let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let interactor = AddAccount
             .AccountConfirmInteractor(
                 request: request,
                 mnemonic: mnemonic,
                 accountOperationFactory: accountOperationFactory,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,
                 settings: SettingsManager.shared,
                 eventCenter: EventCenter.shared

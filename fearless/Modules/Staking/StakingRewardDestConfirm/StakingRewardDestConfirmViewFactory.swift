@@ -81,7 +81,7 @@ struct StakingRewardDestConfirmViewFactory {
         )
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> = UserDataStorageFacade.shared
+        let accountRepository: CoreDataRepository<AccountItem, CDMetaAccount> = UserDataStorageFacade.shared
             .createRepository(
                 filter: filter, sortDescriptors: [.accountsByOrder]
             )
