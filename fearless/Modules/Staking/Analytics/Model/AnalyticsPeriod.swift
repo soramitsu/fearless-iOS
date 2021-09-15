@@ -79,7 +79,7 @@ extension AnalyticsPeriod {
             let dateComponents: DateComponents = {
                 switch self {
                 case .week:
-                    return DateComponents(day: -7)
+                    return DateComponents(weekOfMonth: -1)
                 case .month:
                     return DateComponents(month: -1)
                 case .year, .all:
