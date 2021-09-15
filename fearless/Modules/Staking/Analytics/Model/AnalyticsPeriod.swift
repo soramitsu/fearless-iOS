@@ -41,7 +41,7 @@ extension AnalyticsPeriod {
         }
     }
 
-    func xAxisValues(dateRange: (Date, Date), calendar: Calendar) -> [String] {
+    func xAxisValues(dateRange: (Date, Date), calendar _: Calendar) -> [String] {
         let template: String = {
             switch self {
             case .week, .month:
@@ -59,12 +59,11 @@ extension AnalyticsPeriod {
         let middleTimestamp = (firstDate.timeIntervalSince1970 + lastDate.timeIntervalSince1970) / 2
         let middleDate = Date(timeIntervalSince1970: middleTimestamp)
 
-        var result = (0 ..< chartBarsCount(startDate: firstDate, endDate: lastDate, calendar: calendar)).map { _ in "" }
-        result[0] = dateFormatter.string(from: firstDate)
-        let middleIndex = result.count % 2 == 0 ? result.count / 2 - 1 : result.count / 2
-        result[middleIndex] = dateFormatter.string(from: middleDate)
-        result[result.count - 1] = dateFormatter.string(from: lastDate)
-        return result
+        return [
+            dateFormatter.string(from: firstDate),
+            dateFormatter.string(from: middleDate),
+            dateFormatter.string(from: lastDate)
+        ]
     }
 }
 
