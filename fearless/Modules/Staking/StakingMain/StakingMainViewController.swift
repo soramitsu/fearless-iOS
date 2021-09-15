@@ -355,14 +355,17 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
+            expandNetworkInfoView(true)
         case let .nominator(viewModel, alerts, analyticsViewModel):
             applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
             applyAnalyticsRewards(viewModel: analyticsViewModel)
+            expandNetworkInfoView(false)
         case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
             applyAnalyticsRewards(viewModel: analyticsViewModel)
+            expandNetworkInfoView(false)
         }
     }
 
