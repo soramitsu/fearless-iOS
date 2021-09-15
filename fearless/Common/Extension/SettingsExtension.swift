@@ -64,7 +64,11 @@ extension SettingsManagerProtocol {
         }
 
         set {
-            set(value: newValue, for: SettingsKey.crowdloadChainId.rawValue)
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.crowdloadChainId.rawValue)
+            } else {
+                removeValue(for: SettingsKey.crowdloadChainId.rawValue)
+            }
         }
     }
 
@@ -74,7 +78,11 @@ extension SettingsManagerProtocol {
         }
 
         set {
-            set(value: newValue, for: SettingsKey.stakingAsset.rawValue)
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.stakingAsset.rawValue)
+            } else {
+                removeValue(for: SettingsKey.stakingAsset.rawValue)
+            }
         }
     }
 }

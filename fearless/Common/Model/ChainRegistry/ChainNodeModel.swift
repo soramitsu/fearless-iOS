@@ -1,6 +1,6 @@
 import Foundation
 
-struct ChainNodeModel: Codable, Hashable {
+struct ChainNodeModel: Equatable, Codable, Hashable {
     let url: URL
     let name: String
 }
