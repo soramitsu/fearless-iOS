@@ -19,9 +19,9 @@ extension WalletDisplayAmountView: WalletFormBordering {
     }
 
     func bind(viewModel: WalletFormSpentAmountModel) {
-        richTextField.titleLabel.text = viewModel.title
-        richTextField.textField.text = viewModel.amount
-        richTextField.isUserInteractionEnabled = false
+        amountInputView.titleLabel.text = viewModel.title
+        amountInputView.textField.text = viewModel.amount
+        amountInputView.isUserInteractionEnabled = false
 
 //        fieldBackgroundView.applyDisabledStyle()
     }

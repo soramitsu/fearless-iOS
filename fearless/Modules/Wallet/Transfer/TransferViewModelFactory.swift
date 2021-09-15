@@ -188,4 +188,43 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         let action = R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)
         return AccessoryViewModel(title: "", action: action)
     }
+
+    func createAmountViewModel(
+        _ inputState: TransferInputState,
+        payload: TransferPayload,
+        locale: Locale
+    ) throws -> AmountInputViewModelProtocol? {
+        guard
+            let asset = assets
+            .first(where: { $0.identifier == payload.receiveInfo.assetId }),
+            let assetId = WalletAssetId(rawValue: asset.identifier)
+        else {
+            return nil
+        }
+
+        // TODO: Obtain limit
+        let inputFormatter = amountFormatterFactory.createInputFormatter(for: inputState.selectedAsset)
+        let localizedFormatter = inputFormatter.value(for: locale)
+
+        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+
+        let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
+        let balance = formatter.stringFromDecimal(balanceContext.available) ?? ""
+
+        let amountInputViewModel = AmountInputViewModel(
+            symbol: inputState.selectedAsset.symbol,
+            amount: inputState.amount,
+            limit: 100_000_000_000,
+            formatter: localizedFormatter,
+            precision: Int16(localizedFormatter.maximumFractionDigits)
+        )
+
+        return RichAmountInputViewModel(
+            amountInputViewModel: amountInputViewModel,
+            symbol: asset.symbol,
+            icon: assetId.icon,
+            balance: balance,
+            price: "$0"
+        )
+    }
 }

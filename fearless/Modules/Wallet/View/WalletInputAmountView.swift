@@ -30,18 +30,24 @@ final class WalletInputAmountView: WalletBaseAmountView {
     var inputViewModel: AmountInputViewModelProtocol?
 
     override var isFirstResponder: Bool {
-        richTextField.isFirstResponder
+        amountInputView.isFirstResponder
     }
 
     override func resignFirstResponder() -> Bool {
-        richTextField.resignFirstResponder()
+        amountInputView.resignFirstResponder()
     }
 
     override func setupSubviews() {
         super.setupSubviews()
 
-        richTextField.textField.delegate = self
-        richTextField.textField.keyboardType = .decimalPad
+        amountInputView.textField.delegate = self
+        amountInputView.textField.keyboardType = .decimalPad
+
+        let accessoryView = UIFactory().createAmountAccessoryView(
+            for: self,
+            locale: localizationManager?.selectedLocale ?? Locale.current
+        )
+        amountInputView.textField.inputAccessoryView = accessoryView
     }
 }
 
@@ -53,15 +59,22 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 
         self.inputViewModel?.observable.add(observer: self)
 
-        richTextField.textField.text = inputViewModel.displayAmount
+        amountInputView.textField.text = inputViewModel.displayAmount
 
         fieldBackgroundView.applyEnabledStyle()
+
+        if let viewModel = inputViewModel as? AssetBalanceViewModelProtocol {
+            amountInputView.assetIcon = viewModel.icon
+            amountInputView.balanceText = viewModel.balance
+            amountInputView.priceText = viewModel.price
+            amountInputView.symbol = viewModel.symbol
+        }
     }
 }
 
 extension WalletInputAmountView: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        richTextField.textField.text = inputViewModel?.displayAmount
+        amountInputView.textField.text = inputViewModel?.displayAmount
     }
 }
 
@@ -86,7 +99,67 @@ extension WalletInputAmountView: UITextFieldDelegate {
 extension WalletInputAmountView: Localizable {
     func applyLocalization() {
         let locale = localizationManager?.selectedLocale
-        richTextField.titleLabel.text = R.string.localizable
+        amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale?.rLanguages)
+
+        // TODO: localize data
+    }
+}
+
+extension WalletInputAmountView: AmountInputAccessoryViewDelegate {
+    func didSelect(on _: AmountInputAccessoryView, percentage _: Float) {
+        amountInputView.textField.resignFirstResponder()
+
+        // TODO: Replace
+//        presenter.selectAmountPercentage(percentage)
+    }
+
+    func didSelectDone(on _: AmountInputAccessoryView) {
+        amountInputView.textField.resignFirstResponder()
+    }
+}
+
+protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol & AssetBalanceViewModelProtocol {}
+
+final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
+    let amountInputViewModel: AmountInputViewModelProtocol
+
+    let symbol: String
+    let icon: UIImage?
+    let balance: String?
+    let price: String?
+
+    var displayAmount: String {
+        amountInputViewModel.displayAmount
+    }
+
+    var decimalAmount: Decimal? {
+        amountInputViewModel.decimalAmount
+    }
+
+    var isValid: Bool {
+        amountInputViewModel.isValid
+    }
+
+    var observable: WalletViewModelObserverContainer<AmountInputViewModelObserver> {
+        amountInputViewModel.observable
+    }
+
+    init(
+        amountInputViewModel: AmountInputViewModelProtocol,
+        symbol: String,
+        icon: UIImage?,
+        balance: String?,
+        price: String?
+    ) {
+        self.amountInputViewModel = amountInputViewModel
+        self.symbol = symbol
+        self.icon = icon
+        self.balance = balance
+        self.price = price
+    }
+
+    func didReceiveReplacement(_ string: String, for range: NSRange) -> Bool {
+        amountInputViewModel.didReceiveReplacement(string, for: range)
     }
 }
