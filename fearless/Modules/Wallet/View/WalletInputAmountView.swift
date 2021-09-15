@@ -23,25 +23,25 @@ final class WalletInputAmountView: WalletBaseAmountView {
     override var intrinsicContentSize: CGSize {
         CGSize(
             width: UIView.noIntrinsicMetric,
-            height: 52.0 + contentInsets.top + contentInsets.bottom
+            height: 84.0 + contentInsets.top + contentInsets.bottom
         )
     }
 
     var inputViewModel: AmountInputViewModelProtocol?
 
     override var isFirstResponder: Bool {
-        animatedTextField.isFirstResponder
+        richTextField.isFirstResponder
     }
 
     override func resignFirstResponder() -> Bool {
-        animatedTextField.resignFirstResponder()
+        richTextField.resignFirstResponder()
     }
 
     override func setupSubviews() {
         super.setupSubviews()
 
-        animatedTextField.delegate = self
-        animatedTextField.textField.keyboardType = .decimalPad
+        richTextField.textField.delegate = self
+        richTextField.textField.keyboardType = .decimalPad
     }
 }
 
@@ -53,7 +53,7 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 
         self.inputViewModel?.observable.add(observer: self)
 
-        animatedTextField.text = inputViewModel.displayAmount
+        richTextField.textField.text = inputViewModel.displayAmount
 
         fieldBackgroundView.applyEnabledStyle()
     }
@@ -61,13 +61,13 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 
 extension WalletInputAmountView: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        animatedTextField.text = inputViewModel?.displayAmount
+        richTextField.textField.text = inputViewModel?.displayAmount
     }
 }
 
-extension WalletInputAmountView: AnimatedTextFieldDelegate {
-    func animatedTextField(
-        _: AnimatedTextField,
+extension WalletInputAmountView: UITextFieldDelegate {
+    func textField(
+        _: UITextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
@@ -78,7 +78,7 @@ extension WalletInputAmountView: AnimatedTextFieldDelegate {
         return model.didReceiveReplacement(string, for: range)
     }
 
-    func animatedTextFieldShouldReturn(_: AnimatedTextField) -> Bool {
+    func textFieldShouldReturn(_: UITextField) -> Bool {
         true
     }
 }
@@ -86,7 +86,7 @@ extension WalletInputAmountView: AnimatedTextFieldDelegate {
 extension WalletInputAmountView: Localizable {
     func applyLocalization() {
         let locale = localizationManager?.selectedLocale
-        animatedTextField.title = R.string.localizable
+        richTextField.titleLabel.text = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale?.rLanguages)
     }
 }
