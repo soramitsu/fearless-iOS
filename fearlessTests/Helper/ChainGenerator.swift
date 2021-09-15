@@ -3,7 +3,9 @@ import Foundation
 
 enum ChainGenerator {
     static func generateChain(generatingAssets count: Int, addressPrefix: UInt16) -> ChainModel {
-        let assets = (0..<count).map { _ in generateAsset() }
+        let assets = (0..<count).map { index in
+            generateAssetWithId(AssetModel.Id(index))
+        }
 
         let urlString = "node\(Data.random(of: 32)!.toHex()).io"
 
@@ -23,11 +25,6 @@ enum ChainGenerator {
             icon: Constants.dummyURL,
             options: []
         )
-    }
-
-    static func generateAsset() -> AssetModel {
-        let assetId = (0...AssetModel.Id.max).randomElement()!
-        return generateAssetWithId(assetId)
     }
 
     static func generateAssetWithId(_ identifier: AssetModel.Id) -> AssetModel {
