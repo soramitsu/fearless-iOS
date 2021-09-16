@@ -66,19 +66,25 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
                 }
                 return nil
             }.compactMap { $0 }
-            return createSelectedChartData(rewardsByDate: rewardsByDate.first, dateFormatter: formatter, locale: locale)
+            return createSelectedChartData(
+                rewardsByDate: rewardsByDate.first,
+                defaultDate: date,
+                dateFormatter: formatter,
+                locale: locale
+            )
         }
     }
 
     private func createSelectedChartData(
         rewardsByDate: (Date, [SubqueryRewardItemData])?,
+        defaultDate: Date,
         dateFormatter: DateFormatter,
         locale: Locale
     ) -> AnalyticsSelectedChartData {
         guard let rewardsByDate = rewardsByDate else {
             return AnalyticsSelectedChartData(
                 yValue: 0,
-                dateTitle: "",
+                dateTitle: dateFormatter.string(from: defaultDate),
                 sections: []
             )
         }
