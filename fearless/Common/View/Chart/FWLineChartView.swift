@@ -18,6 +18,7 @@ final class FWLineChartView: LineChartView {
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
         highlightPerTapEnabled = false
+        pinchZoomEnabled = false
         dragYEnabled = false
         xAxis.drawGridLinesEnabled = false
         xAxis.labelPosition = .bottom
