@@ -28,7 +28,7 @@ class StakingSettingsTests: XCTestCase {
 
         let (stakingSettings, chains) = prepare()
 
-        let chain = ChainGenerator.generateChain(generatingAssets: 2, addressPrefix: 42)
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 2, addressPrefix: 42)
         let asset = chain.assets.first!
         let settingValue = ChainAsset(chain: chain, asset: asset)
         stakingSettings.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
@@ -136,7 +136,7 @@ class StakingSettingsTests: XCTestCase {
         )
 
         let chains: [ChainModel] = (0..<10).map { index in
-            ChainGenerator.generateChain(generatingAssets: 2, addressPrefix: UInt16(index))
+            ChainModelGenerator.generateChain(generatingAssets: 2, addressPrefix: UInt16(index))
         }
 
         let saveOperation = repository.saveOperation({ chains }, { [] })

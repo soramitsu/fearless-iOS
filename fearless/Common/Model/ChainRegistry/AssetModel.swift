@@ -9,6 +9,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let name: String?
     let symbol: String
     let precision: UInt16
+    let staking: String?
 
     var isUtility: Bool { assetId == 0 }
 }

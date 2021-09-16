@@ -26,7 +26,7 @@ class CrowdloadSettingsTests: XCTestCase {
 
         let (crowdloadSettings, chains) = prepare()
 
-        let settingValue = ChainGenerator.generateChain(generatingAssets: 2, addressPrefix: 42)
+        let settingValue = ChainModelGenerator.generateChain(generatingAssets: 2, addressPrefix: 42)
         crowdloadSettings.settings.crowdloanChainId = settingValue.chainId
 
         // when
@@ -108,7 +108,7 @@ class CrowdloadSettingsTests: XCTestCase {
         )
 
         let chains: [ChainModel] = (0..<10).map { index in
-            ChainGenerator.generateChain(generatingAssets: 2, addressPrefix: UInt16(index))
+            ChainModelGenerator.generateChain(generatingAssets: 2, addressPrefix: UInt16(index))
         }
 
         let saveOperation = repository.saveOperation({ chains }, { [] })

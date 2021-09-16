@@ -7,6 +7,33 @@ final class ChainModelMapper {
 
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
+
+    private func createAsset(from entity: CDAsset) -> AssetModel {
+        AssetModel(
+            assetId: UInt32(bitPattern: entity.assetId),
+            icon: entity.icon,
+            name: entity.name,
+            symbol: entity.symbol!,
+            precision: UInt16(bitPattern: entity.precision),
+            staking: entity.staking
+        )
+    }
+
+    private func createChainNode(from entity: CDChainNode) -> ChainNodeModel {
+        let apiKey: ChainNodeModel.ApiKey?
+
+        if let queryName = entity.apiQueryName, let keyName = entity.apiKeyName {
+            apiKey = ChainNodeModel.ApiKey(queryName: queryName, keyName: keyName)
+        } else {
+            apiKey = nil
+        }
+
+        return ChainNodeModel(
+            url: entity.url!,
+            name: entity.name!,
+            apikey: apiKey
+        )
+    }
 }
 
 extension ChainModelMapper: CoreDataMapperProtocol {
@@ -16,13 +43,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            return AssetModel(
-                assetId: UInt32(bitPattern: asset.assetId),
-                icon: asset.icon,
-                name: asset.name,
-                symbol: asset.symbol!,
-                precision: UInt16(bitPattern: asset.precision)
-            )
+            return createAsset(from: asset)
         } ?? []
 
         let nodes: [ChainNodeModel] = entity.nodes?.compactMap { anyNode in
@@ -30,10 +51,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            return ChainNodeModel(
-                url: node.url!,
-                name: node.name!
-            )
+            return createChainNode(from: node)
         } ?? []
 
         let types: ChainModel.TypesSettings?
@@ -52,6 +70,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         if entity.isTestnet {
             options.append(.testnet)
+        }
+
+        if entity.hasCrowdloans {
+            options.append(.crowdloans)
         }
 
         return ChainModel(
@@ -78,6 +100,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.icon = model.icon
         entity.isEthereumBased = model.isEthereumBased
         entity.isTestnet = model.isTestnet
+        entity.hasCrowdloans = model.hasCrowdloans
 
         model.assets.forEach { asset in
             let assetEntity: CDAsset
@@ -98,6 +121,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             assetEntity.precision = Int16(bitPattern: asset.precision)
             assetEntity.icon = asset.icon
             assetEntity.symbol = asset.symbol
+            assetEntity.staking = asset.staking
         }
 
         model.nodes.forEach { node in
@@ -115,6 +139,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
             nodeEntity.url = node.url
             nodeEntity.name = node.name
+            nodeEntity.apiQueryName = node.apikey?.queryName
+            nodeEntity.apiKeyName = node.apikey?.keyName
         }
     }
 }

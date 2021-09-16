@@ -34,6 +34,10 @@ struct ChainModel: Equatable, Codable, Hashable {
         options?.contains(.testnet) ?? false
     }
 
+    var hasCrowdloans: Bool {
+        options?.contains(.crowdloans) ?? false
+    }
+
     var typesUsage: TypesUsage {
         if let types = types {
             return types.overridesCommon ? .onlyOwn : .both
@@ -50,4 +54,5 @@ extension ChainModel: Identifiable {
 enum ChainOptions: String, Codable {
     case ethereumBased
     case testnet
+    case crowdloans
 }
