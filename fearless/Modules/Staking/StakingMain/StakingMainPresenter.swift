@@ -495,7 +495,17 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(minNominatorBond):
             stateMachine.state.process(minNominatorBond: minNominatorBond)
+
+            if let networkStakingInfo = networkStakingInfo {
+                let minStake = networkStakingInfo.calculateMinimumStake(
+                    given: minNominatorBond
+                )
+
+                stateMachine.state.process(minStake: minStake)
+            }
+
             provideStakingInfo()
+
         case let .failure(error):
             handle(error: error)
         }
