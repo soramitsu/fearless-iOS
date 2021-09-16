@@ -64,12 +64,13 @@ final class RuntimeHelper {
         }
 
         let baseData = try Data(contentsOf: baseUrl)
-        let networdData = try Data(contentsOf: networkUrl)
+        let networkData = try Data(contentsOf: networkUrl)
 
-        let registry = try TypeRegistryCatalog
-            .createFromBaseTypeDefinition(baseData,
-                                          networkDefinitionData: networdData,
-                                          runtimeMetadata: runtimeMetadata)
+        let registry = try TypeRegistryCatalog.createFromTypeDefinition(
+            baseData,
+            versioningData: networkData,
+            runtimeMetadata: runtimeMetadata
+        )
 
         return registry
     }
