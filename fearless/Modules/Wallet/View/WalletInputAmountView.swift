@@ -107,11 +107,16 @@ extension WalletInputAmountView: Localizable {
 }
 
 extension WalletInputAmountView: AmountInputAccessoryViewDelegate {
-    func didSelect(on _: AmountInputAccessoryView, percentage _: Float) {
+    func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         amountInputView.textField.resignFirstResponder()
 
-        // TODO: Replace
-//        presenter.selectAmountPercentage(percentage)
+        guard let model = inputViewModel as? RichAmountInputViewModelProtocol else { return }
+
+        if let balance = model.decimalBalance,
+           let fee = model.fee {
+            let newAmount = min(max(balance - fee, 0.0), model.limit) * Decimal(Double(percentage))
+            model.didUpdateAmount(to: newAmount.stringWithPointSeparator)
+        }
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {
@@ -119,7 +124,12 @@ extension WalletInputAmountView: AmountInputAccessoryViewDelegate {
     }
 }
 
-protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol & AssetBalanceViewModelProtocol {}
+// TODO: Move into separate file
+protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol & AssetBalanceViewModelProtocol {
+    var decimalBalance: Decimal? { get }
+    var fee: Decimal? { get }
+    var limit: Decimal { get }
+}
 
 final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     let amountInputViewModel: AmountInputViewModelProtocol
@@ -128,6 +138,9 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     let icon: UIImage?
     let balance: String?
     let price: String?
+    let decimalBalance: Decimal?
+    let fee: Decimal?
+    let limit: Decimal
 
     var displayAmount: String {
         amountInputViewModel.displayAmount
@@ -150,16 +163,26 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
         symbol: String,
         icon: UIImage?,
         balance: String?,
-        price: String?
+        price: String?,
+        decimalBalance: Decimal?,
+        fee: Decimal?,
+        limit: Decimal
     ) {
         self.amountInputViewModel = amountInputViewModel
         self.symbol = symbol
         self.icon = icon
         self.balance = balance
         self.price = price
+        self.decimalBalance = decimalBalance
+        self.fee = fee
+        self.limit = limit
     }
 
     func didReceiveReplacement(_ string: String, for range: NSRange) -> Bool {
         amountInputViewModel.didReceiveReplacement(string, for: range)
+    }
+
+    func didUpdateAmount(to newAmount: String) {
+        amountInputViewModel.didUpdateAmount(to: newAmount)
     }
 }
