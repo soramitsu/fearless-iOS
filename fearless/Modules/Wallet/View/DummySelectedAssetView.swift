@@ -20,3 +20,5 @@ final class DummySelectedAssetView: UIControl {
 extension DummySelectedAssetView: SelectedAssetViewProtocol {
     func bind(viewModel _: AssetSelectionViewModelProtocol) {}
 }
+
+extension DummySelectedAssetView: WalletFormBordering {}
