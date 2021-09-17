@@ -68,30 +68,37 @@ extension AnalyticsPeriod {
 }
 
 extension AnalyticsPeriod {
-    func dateRangeTillNow(startDate: Date, endDate: Date, calendar: Calendar) -> (Date, Date) {
-        guard self != .all else {
-            return (startDate, endDate)
-        }
-
+    func dateRangeTillNow(startDate: Date, endDate _: Date, calendar: Calendar) -> (Date, Date) {
         let now = Date()
-        var components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: now)
-
-        components.hour = 23
-        components.minute = 59
-        components.second = 59
-
-        let today = calendar.date(from: components) ?? now
+        let endDate: Date = {
+            switch self {
+            case .week, .month:
+                var components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: now)
+                components.hour = 23
+                components.minute = 59
+                components.second = 59
+                return calendar.date(from: components)!
+            case .year, .all:
+                let startOfMonth = calendar.date(
+                    from: calendar.dateComponents([.year, .month], from: calendar.startOfDay(for: now))
+                )!
+                let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth)!
+                return endOfMonth
+            }
+        }()
 
         let startDate: Date = {
             switch self {
             case .week:
-                return calendar.date(byAdding: DateComponents(day: -6, hour: -23, minute: -59), to: today)!
+                return calendar.date(byAdding: DateComponents(day: -6, hour: -23, minute: -59), to: endDate)!
             case .month:
-                return calendar.date(byAdding: DateComponents(day: -29, hour: -23, minute: -59), to: today)!
-            case .year, .all:
-                return calendar.date(byAdding: DateComponents(day: -364, hour: -23, minute: -59), to: today)!
+                return calendar.date(byAdding: DateComponents(day: -29, hour: -23, minute: -59), to: endDate)!
+            case .year:
+                return calendar.date(byAdding: DateComponents(year: -1, month: 1, day: 1), to: endDate)!
+            case .all:
+                return startDate
             }
         }()
-        return (startDate, today)
+        return (startDate, endDate)
     }
 }
