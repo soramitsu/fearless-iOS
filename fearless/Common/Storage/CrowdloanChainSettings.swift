@@ -18,26 +18,25 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     }
 
     override func performSetup(completionClosure: @escaping (Result<ChainModel?, Error>) -> Void) {
-        let repository: AnyDataProviderRepository<ChainModel>
         let mapper = AnyCoreDataMapper(ChainModelMapper())
 
         let maybeChainId = settings.crowdloanChainId
 
-        if let chainId = maybeChainId {
-            let filter = NSCompoundPredicate(orPredicateWithSubpredicates: [
-                NSPredicate.chainBy(identifier: chainId),
-                NSPredicate.relayChains()
-            ])
+        let filter: NSPredicate = {
+            if let chainId = maybeChainId {
+                return NSCompoundPredicate(orPredicateWithSubpredicates: [
+                    NSPredicate.chainBy(identifier: chainId),
+                    NSPredicate.relayChains()
+                ])
 
-            repository = AnyDataProviderRepository(
-                storageFacade.createRepository(filter: filter, sortDescriptors: [], mapper: mapper)
-            )
-        } else {
-            let filter = NSPredicate.relayChains()
-            repository = AnyDataProviderRepository(
-                storageFacade.createRepository(filter: filter, sortDescriptors: [], mapper: mapper)
-            )
-        }
+            } else {
+                return NSPredicate.relayChains()
+            }
+        }()
+
+        let repository = AnyDataProviderRepository(
+            storageFacade.createRepository(filter: filter, sortDescriptors: [], mapper: mapper)
+        )
 
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
