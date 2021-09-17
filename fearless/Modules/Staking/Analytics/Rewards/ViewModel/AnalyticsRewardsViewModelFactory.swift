@@ -99,6 +99,23 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
             sections: createSections(historyItems: rewardsByDate.1, locale: locale)
         )
     }
+
+    override func calculateChartAmounts(chartDoubles: [Double]) -> [ChartAmount] {
+        let minValue = chartDoubles.min() ?? 0.0
+        let amounts: [ChartAmount] = chartDoubles.map { value in
+            if value < .leastNonzeroMagnitude {
+                let minBarHeight: Double = {
+                    if minValue < .leastNonzeroMagnitude {
+                        return (chartDoubles.max() ?? 0.0) / 50.0
+                    }
+                    return minValue / 10.0
+                }()
+                return ChartAmount(value: minBarHeight, selected: false, filled: false)
+            }
+            return ChartAmount(value: value, selected: false, filled: true)
+        }
+        return amounts
+    }
 }
 
 extension SubqueryRewardItemData: AnalyticsViewModelItem {

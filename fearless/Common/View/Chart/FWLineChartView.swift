@@ -60,29 +60,32 @@ final class FWLineChartView: LineChartView {
 
 extension FWLineChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData) {
-        let amounts = data.amounts
+        let chartValues = data.amounts.map(\.value)
         let dataEntries: [ChartDataEntry] = {
-            if amounts.count == 1 {
+            if chartValues.count == 1 {
                 return [
-                    ChartDataEntry(x: Double(0), y: amounts[0].value),
-                    ChartDataEntry(x: Double(1), y: amounts[0].value)
+                    ChartDataEntry(x: Double(0), y: chartValues[0]),
+                    ChartDataEntry(x: Double(1), y: chartValues[0])
                 ]
             } else {
-                return amounts.enumerated().map { index, amount in
-                    ChartDataEntry(x: Double(index), y: amount.value)
+                return chartValues.enumerated().map { index, value in
+                    ChartDataEntry(x: Double(index), y: value)
                 }
             }
         }()
+
+        if chartValues.contains(where: { $0 < Double.leastNonzeroMagnitude }) {
+            leftAxis.axisMinimum = 0.0
+        } else {
+            leftAxis.resetCustomAxisMin()
+        }
 
         let dataSet = LineChartDataSet(entries: dataEntries)
         dataSet.mode = .horizontalBezier
         dataSet.drawIconsEnabled = false
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false
-        dataSet.colors = [
-            R.color.colorAccent()!
-        ]
-
+        dataSet.colors = [R.color.colorAccent()!]
         let gradientColors = [
             R.color.colorAccent()!.withAlphaComponent(0.48).cgColor,
             UIColor(red: 0.858, green: 0, blue: 1, alpha: 0.32).cgColor

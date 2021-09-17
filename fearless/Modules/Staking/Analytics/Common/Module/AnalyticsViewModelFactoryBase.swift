@@ -108,19 +108,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         let chartDoubles = yValues
             .map { Double(truncating: $0 as NSNumber) }
 
-        let minValue = chartDoubles.min() ?? 0.0
-        let amounts: [ChartAmount] = chartDoubles.map { value in
-            if value < .leastNonzeroMagnitude {
-                let minBarHeight: Double = {
-                    if minValue < .leastNonzeroMagnitude {
-                        return (chartDoubles.max() ?? 0.0) / 50.0
-                    }
-                    return minValue / 10.0
-                }()
-                return ChartAmount(value: minBarHeight, selected: false, filled: false)
-            }
-            return ChartAmount(value: value, selected: false, filled: true)
-        }
+        let amounts = calculateChartAmounts(chartDoubles: chartDoubles)
 
         let bottomYValue = balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
         let averageAmount = chartDoubles.reduce(0.0, +) / Double(yValues.count)
@@ -148,6 +136,10 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             animate: selectedChartIndex != nil ? false : true
         )
         return chartData
+    }
+
+    func calculateChartAmounts(chartDoubles _: [Double]) -> [ChartAmount] {
+        []
     }
 
     private func calculateTotalReceivedTokens(

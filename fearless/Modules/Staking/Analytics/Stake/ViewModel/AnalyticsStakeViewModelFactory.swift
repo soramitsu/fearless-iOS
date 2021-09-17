@@ -40,6 +40,12 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
             return AnalyticsSelectedChartData(yValue: amount, dateTitle: title, sections: sections)
         }
     }
+
+    override func calculateChartAmounts(chartDoubles: [Double]) -> [ChartAmount] {
+        chartDoubles.map { value in
+            ChartAmount(value: value, selected: false, filled: true)
+        }
+    }
 }
 
 extension SubqueryStakeChangeData: AnalyticsViewModelItem {
