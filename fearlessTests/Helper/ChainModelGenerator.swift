@@ -12,6 +12,7 @@ enum ChainModelGenerator {
                 name: chainId,
                 symbol: chainId.prefix(3).uppercased(),
                 precision: 12,
+                priceId: nil,
                 staking: "relaychain"
             )
 
@@ -73,6 +74,7 @@ enum ChainModelGenerator {
             name: UUID().uuidString,
             symbol: String(UUID().uuidString.prefix(3)),
             precision: (9...18).randomElement()!,
+            priceId: nil,
             staking: nil
         )
     }

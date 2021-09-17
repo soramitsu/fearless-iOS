@@ -2,10 +2,19 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 import SoraKeystore
+import IrohaCrypto
 
 struct CrowdloanListViewFactory {
     static func createView() -> CrowdloanListViewProtocol? {
-        guard let interactor = createInteractor() else {
+        let settings = SettingsManager.shared
+
+        let crowdloanSettings = CrowdloanChainSettings(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            settings: settings,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        guard let interactor = createInteractor(from: crowdloanSettings) else {
             return nil
         }
 
@@ -13,7 +22,6 @@ struct CrowdloanListViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
-        let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: SettingsManager.shared)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
@@ -44,16 +52,21 @@ struct CrowdloanListViewFactory {
         return view
     }
 
-    private static func createInteractor() -> CrowdloanListInteractor? {
-        let settings = SettingsManager.shared
+    private static func createInteractor(from settings: CrowdloanChainSettings) -> CrowdloanListInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = WebSocketService.shared.connection,
-            let selectedAddress = settings.selectedAccount?.address else {
+            let selectedWallet = SelectedWalletSettings.shared.value,
+            let selectedChain = settings.value,
+            let selectedAsset = selectedChain.assets.first(where: { $0.isUtility }),
+            let connection = chainRegistry.getConnection(for: selectedChain.chainId),
+            let selectedAddress = try? SS58AddressFactory().address(
+                fromAccountId: selectedWallet.substrateAccountId,
+                type: selectedChain.addressPrefix
+            ) else {
             return nil
         }
 
-        let chain = settings.selectedConnection.type.chain
         let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
 
@@ -75,7 +88,7 @@ struct CrowdloanListViewFactory {
             crowdloanOperationFactory: crowdloanOperationFactory,
             connection: connection,
             singleValueProviderFactory: providerFactory,
-            chain: chain,
+            chain: .polkadot,
             operationManager: operationManager,
             logger: Logger.shared
         )

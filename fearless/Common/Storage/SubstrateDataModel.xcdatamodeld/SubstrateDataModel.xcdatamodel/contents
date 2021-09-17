@@ -5,6 +5,7 @@
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="priceId" optional="YES" attributeType="String"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" attributeType="String"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="assets" inverseEntity="CDChain"/>
@@ -84,7 +85,7 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
-        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="134"/>
+        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="149"/>
         <element name="CDChain" positionX="-45" positionY="81" width="128" height="209"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>

@@ -15,6 +15,7 @@ final class ChainModelMapper {
             name: entity.name,
             symbol: entity.symbol!,
             precision: UInt16(bitPattern: entity.precision),
+            priceId: entity.priceId,
             staking: entity.staking
         )
     }
