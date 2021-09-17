@@ -165,7 +165,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
             return createChartCenterText(
                 firstLine: R.string.localizable
-                    .stakingAnalyticsActiveStaking(preferredLanguages: locale.rLanguages).uppercased(),
+                    .stakingAnalyticsStakingWasActive(preferredLanguages: locale.rLanguages).uppercased(),
                 secondLine: percentageString,
                 thirdLine: String(
                     format: R.string.localizable.stakingAnalyticsEraRange(
@@ -284,11 +284,13 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         return createChartCenterText(
             firstLine: R.string.localizable
-                .stakingAnalyticsValidatorsInactiveStaking(preferredLanguages: locale.rLanguages),
+                .stakingAnalyticsStakingWasInactive(preferredLanguages: locale.rLanguages),
             firstLineColor: R.color.colorGray()!,
             secondLine: percentageString,
-            thirdLine: R.string.localizable
-                .stakingAnalyticsValidatorsErasCounter(format: inactiveSegment.eraCount, preferredLanguages: locale.rLanguages)
+            thirdLine: R.string.localizable.stakingAnalyticsValidatorsErasCounter(
+                format: inactiveSegment.eraCount,
+                preferredLanguages: locale.rLanguages
+            )
         )
     }
 }

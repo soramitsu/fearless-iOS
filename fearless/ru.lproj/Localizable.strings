@@ -319,7 +319,7 @@
 "staking.stash.can.hint" = "С помощью стэш аккаунта можно застейкать больше и установить контроллер аккаунт";
 "staking.controller.can.hint" = "Контроллер аккаунт может вывести из стейка, забрать, вернуть в стейк, сменить назначение вознаграждений и валидаторов.";
 "staking.switch.account.to.stash" = "Для установки контроллер аккаунта смените аккаунт на стэш.";
-"staking.inactive.current.minimal.stake" = "В настоящее время стейкинг неактивен. \n Текущая минимальная ставка %@ .";
+"staking.inactive.current.minimal.stake" = "В настоящее время стейкинг неактивен. \nТекущая минимальная ставка %@ .";
 "staking.change.your.validators" = "Смените своих валидаторов.";
 "staking.bond.more.tokens" = "Застейкайте ещё токенов";
 "staking.redeem.unbonded.tokens" = "Заберите токены после вывода";
@@ -467,7 +467,6 @@
 "staking.analytics.title" = "Аналитика";
 "staking.rewards.title" = "Вознаграждения";
 "staking.analytics.activity" = "Активность";
-"staking.analytics.active.staking" = "активный стейкинг";
 "staking.analytics.stake.allocation" = "Распределение с текущими валидаторами";
 "wallet.extrinsic.details.title" = "Детали транзакции";
 "transaction.details.extrinsic.fee" = "Комиссия";
@@ -492,7 +491,8 @@
 изменения по стейку";
 "common.details" = "Подробности";
 "staking.analytics.details.type" = "Тип";
-"staking.analytics.validators.inactive.staking" = "Неактивный стейкинг";
 "staking.analytics.era.range" = "%d из %d эр";
 "staking.analytics.7days.rewards" = "Вознаграждения за 7 дней";
 "staking.analytics.avg" = "%@ сред.";
+"staking.analytics.staking.was.active" = "Стейкинг был активен";
+"staking.analytics.staking.was.inactive" = "Стейкинг был неактивен";
