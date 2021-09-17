@@ -86,14 +86,12 @@ class StakingStateView: UIView {
     let statusButton: TriangularedButton = {
         let button = createButton()
         button.triangularedView?.cornerCut = .bottomRight
-        button.addTarget(self, action: #selector(actionOnStatus), for: .touchUpInside)
         return button
     }()
 
     let moreButton: TriangularedButton = {
         let button = createButton()
         button.triangularedView?.cornerCut = .topLeft
-        button.addTarget(self, action: #selector(actionOnMore), for: .touchUpInside)
         return button
     }()
 
@@ -104,11 +102,17 @@ class StakingStateView: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        configure()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure() {
+        moreButton.addTarget(self, action: #selector(actionOnMore), for: .touchUpInside)
+        statusButton.addTarget(self, action: #selector(actionOnStatus), for: .touchUpInside)
     }
 
     // swiftlint:disable:next function_body_length
