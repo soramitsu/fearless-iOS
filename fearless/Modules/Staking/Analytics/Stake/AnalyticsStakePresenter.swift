@@ -7,7 +7,6 @@ final class AnalyticsStakePresenter {
     let wireframe: AnalyticsStakeWireframeProtocol
     let interactor: AnalyticsStakeInteractorInputProtocol
     private let viewModelFactory: AnalyticsStakeViewModelFactoryProtocol
-    private let localizationManager: LocalizationManagerProtocol
     private let logger: LoggerProtocol?
 
     private var rewardsData: [SubqueryStakeChangeData]?
@@ -20,14 +19,14 @@ final class AnalyticsStakePresenter {
         interactor: AnalyticsStakeInteractorInputProtocol,
         wireframe: AnalyticsStakeWireframeProtocol,
         viewModelFactory: AnalyticsStakeViewModelFactoryProtocol,
-        localizationManager: LocalizationManagerProtocol,
+        localizationManager: LocalizationManagerProtocol?,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.localizationManager = localizationManager
         self.logger = logger
+        self.localizationManager = localizationManager
     }
 
     private func updateView() {
@@ -75,7 +74,9 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
 
 extension AnalyticsStakePresenter: Localizable {
     func applyLocalization() {
-        updateView()
+        if let view = view, view.isSetup {
+            updateView()
+        }
     }
 }
 

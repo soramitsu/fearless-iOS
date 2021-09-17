@@ -73,13 +73,13 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>li</string>
             <key>one</key>
-            <string></string>
+            <string>%li эра</string>
             <key>few</key>
-            <string></string>
+            <string>%li эр</string>
             <key>many</key>
-            <string></string>
+            <string>%li эр</string>
             <key>other</key>
-            <string></string>
+            <string>%li эры</string>
         </dict>
     </dict>
 </dict>

@@ -16,9 +16,10 @@ class AnalyticsRewardsBaseViewController<
 
     var viewState: AnalyticsViewState<VM>?
 
-    init(presenter: Presenter) {
+    init(presenter: Presenter, localizationManager: LocalizationManagerProtocol?) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)
@@ -35,6 +36,7 @@ class AnalyticsRewardsBaseViewController<
 
         setupTable()
         setupPeriodView()
+        applyLocalization()
         presenter.setup()
     }
 
@@ -167,5 +169,13 @@ extension AnalyticsRewardsBaseViewController: ErrorStateViewDelegate {
 extension AnalyticsRewardsBaseViewController: AnalyticsPeriodViewDelegate {
     func didSelect(period: AnalyticsPeriod) {
         presenter.didSelectPeriod(period)
+    }
+}
+
+extension AnalyticsRewardsBaseViewController: Localizable {
+    func applyLocalization() {
+        if isViewLoaded {
+            rootView.headerView.locale = selectedLocale
+        }
     }
 }

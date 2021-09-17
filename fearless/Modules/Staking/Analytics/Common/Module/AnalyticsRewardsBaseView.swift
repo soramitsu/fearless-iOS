@@ -2,6 +2,7 @@ import UIKit
 
 protocol AnalyticsRewardsHeaderViewProtocol: UIView {
     var periodView: AnalyticsPeriodView { get }
+    var locale: Locale { get set }
 }
 
 final class AnalyticsRewardsBaseView<Header: AnalyticsRewardsHeaderViewProtocol>: UIView {

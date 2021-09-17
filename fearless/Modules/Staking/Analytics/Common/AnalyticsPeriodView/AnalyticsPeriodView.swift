@@ -14,6 +14,14 @@ final class AnalyticsPeriodView: UIView {
         AnalyticsPeriod.allCases.map { Button(model: $0) }
     }()
 
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -45,6 +53,12 @@ final class AnalyticsPeriodView: UIView {
     private func handlePeriodButton(button: UIControl) {
         guard let button = button as? AnalyticsMagentaButton<AnalyticsPeriod> else { return }
         delegate?.didSelect(period: button.model)
+    }
+
+    private func applyLocalization() {
+        buttons.forEach { button in
+            button.imageWithTitleView?.title = button.model.title(for: locale)
+        }
     }
 }
 

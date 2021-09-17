@@ -115,7 +115,11 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         let averageAmountRawText = balanceViewModelFactory
             .amountFromValue(Decimal(averageAmount))
             .value(for: locale)
-        let averageAmountText = averageAmountRawText.replacingOccurrences(of: " ", with: "\n") + " avg."
+            .replacingOccurrences(of: " ", with: "\n")
+        let averageAmountText = R.string.localizable.stakingAnalyticsAvg(
+            averageAmountRawText,
+            preferredLanguages: locale.rLanguages
+        )
 
         let selectedChartAmounts: [ChartAmount] = {
             guard let selectedIndex = selectedChartIndex else { return amounts }
@@ -129,7 +133,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         let chartData = ChartData(
             amounts: selectedChartAmounts,
-            xAxisValues: period.xAxisValues(dateRange: dateRange, calendar: calendar),
+            xAxisValues: period.xAxisValues(dateRange: dateRange, locale: locale),
             bottomYValue: bottomYValue,
             averageAmountValue: averageAmount,
             averageAmountText: averageAmountText,

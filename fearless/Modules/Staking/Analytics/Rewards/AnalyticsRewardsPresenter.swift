@@ -8,7 +8,6 @@ final class AnalyticsRewardsPresenter {
     let interactor: AnalyticsRewardsInteractorInputProtocol
     private let logger: LoggerProtocol?
     private let viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol
-    private let localizationManager: LocalizationManager
     private var rewardsData: [SubqueryRewardItemData]?
     private var selectedPeriod = AnalyticsPeriod.default
     private var priceData: PriceData?
@@ -19,14 +18,14 @@ final class AnalyticsRewardsPresenter {
         interactor: AnalyticsRewardsInteractorInputProtocol,
         wireframe: AnalyticsRewardsWireframeProtocol,
         viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol,
-        localizationManager: LocalizationManager,
+        localizationManager: LocalizationManagerProtocol?,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.localizationManager = localizationManager
         self.logger = logger
+        self.localizationManager = localizationManager
     }
 
     private func updateView() {
@@ -83,7 +82,9 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
 
 extension AnalyticsRewardsPresenter: Localizable {
     func applyLocalization() {
-        updateView()
+        if let view = view, view.isSetup {
+            updateView()
+        }
     }
 }
 

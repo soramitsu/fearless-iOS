@@ -464,12 +464,11 @@
 "common.cancel.operation.action" = "Отменить операцию";
 "common.keep.editing.action" = "Вернуться к операции";
 "staking.your.validator.title" = "Ваш валидатор";
-"staking.analytics.title" = "";
-"staking.rewards.title" = "";
-"staking.analytics.activity" = "";
-"staking.analytics.active.staking" = "";
-"staking.analytics.received.rewards" = "";
-"staking.analytics.stake.allocation" = "";
+"staking.analytics.title" = "Аналитика";
+"staking.rewards.title" = "Вознаграждения";
+"staking.analytics.activity" = "Активность";
+"staking.analytics.active.staking" = "активный стейкинг";
+"staking.analytics.stake.allocation" = "Распределение с текущими валидаторами";
 "wallet.extrinsic.details.title" = "Детали транзакции";
 "transaction.details.extrinsic.fee" = "Комиссия";
 "staking.common.era" = "Эра";
@@ -483,13 +482,17 @@
 "wallet.search.empty.title_v1.10.0" = "Неверный формат адреса.\
 Убедитесь, что адрес \
 соответствует сети";
-"staking.analytics.period.7d" = "";
-"staking.analytics.period.30d" = "";
-"staking.analytics.period.1y" = "";
-"staking.analytics.period.all" = "";
-"staking.analytics.rewards.empty.message" = "";
-"staking.analytics.stake.empty.message" = "";
+"staking.analytics.period.7d" = "7д";
+"staking.analytics.period.30d" = "30д";
+"staking.analytics.period.1y" = "1г";
+"staking.analytics.period.all" = "все";
+"staking.analytics.rewards.empty.message" = "Здесь появятся\
+ваши вознаграждения";
+"staking.analytics.stake.empty.message" = "Здесь появятся ваши\
+изменения по стейку";
 "common.details" = "Подробности";
-"staking.analytics.details.type" = "";
-"staking.analytics.validators.inactive.staking" = "";
-"staking.analytics.era.range" = "";
+"staking.analytics.details.type" = "Тип";
+"staking.analytics.validators.inactive.staking" = "Неактивный стейкинг";
+"staking.analytics.era.range" = "%d из %d эр";
+"staking.analytics.7days.rewards" = "Вознаграждения за 7 дней";
+"staking.analytics.avg" = "%@ сред.";

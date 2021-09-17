@@ -124,5 +124,6 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
             .stakingPendingRewards(preferredLanguages: locale.rLanguages)
         historyTitleLabel.text = R.string.localizable
             .walletHistoryTitle_v190(preferredLanguages: locale.rLanguages)
+        periodView.locale = locale
     }
 }

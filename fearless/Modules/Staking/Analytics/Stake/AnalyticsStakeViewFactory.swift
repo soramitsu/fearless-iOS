@@ -50,7 +50,7 @@ struct AnalyticsStakeViewFactory {
             localizationManager: LocalizationManager.shared
         )
 
-        let view = AnalyticsStakeViewController(presenter: presenter)
+        let view = AnalyticsStakeViewController(presenter: presenter, localizationManager: LocalizationManager.shared)
 
         presenter.view = view
         interactor.presenter = presenter

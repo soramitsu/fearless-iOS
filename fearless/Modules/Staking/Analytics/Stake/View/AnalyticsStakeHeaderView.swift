@@ -108,5 +108,6 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
     private func applyLocalization() {
         historyTitleLabel.text = R.string.localizable
             .walletHistoryTitle_v190(preferredLanguages: locale.rLanguages)
+        periodView.locale = locale
     }
 }

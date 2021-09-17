@@ -99,7 +99,7 @@ final class FWBarChartView: BarChartView {
         let avgLabelHeight: CGFloat = 22.0
         averageAmountLabel.frame = CGRect(
             origin: CGPoint(x: 0, y: yPosition - avgLabelHeight / 2),
-            size: CGSize(width: 46, height: avgLabelHeight)
+            size: CGSize(width: 50, height: avgLabelHeight)
         )
         averageAmountLabel.isHidden = false
 

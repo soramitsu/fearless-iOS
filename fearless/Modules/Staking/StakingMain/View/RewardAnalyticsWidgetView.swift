@@ -14,7 +14,7 @@ final class RewardAnalyticsWidgetView: UIView {
 
     private let arrowView: UIView = UIImageView(image: R.image.iconSmallArrow())
 
-    private let rewardsLabel: UILabel = {
+    private let sevenDaysRewardsLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
@@ -90,8 +90,8 @@ final class RewardAnalyticsWidgetView: UIView {
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
             .stakingAnalyticsTitle(preferredLanguages: locale.rLanguages)
-        rewardsLabel.text = R.string.localizable
-            .stakingAnalyticsReceivedRewards(preferredLanguages: locale.rLanguages)
+        sevenDaysRewardsLabel.text = R.string.localizable
+            .stakingAnalytics7daysRewards(preferredLanguages: locale.rLanguages)
         applyViewModel()
     }
 
@@ -112,7 +112,7 @@ final class RewardAnalyticsWidgetView: UIView {
             spacing: 8,
             [
                 .vStack([
-                    .hStack([rewardsLabel, UIView(), tokenAmountLabel]),
+                    .hStack([sevenDaysRewardsLabel, UIView(), tokenAmountLabel]),
                     .hStack([periodLabel, UIView(), usdAmountLabel])
                 ])
             ]

@@ -41,7 +41,7 @@ struct AnalyticsRewardsViewFactory {
             logger: Logger.shared
         )
 
-        let view = AnalyticsRewardsViewController(presenter: presenter)
+        let view = AnalyticsRewardsViewController(presenter: presenter, localizationManager: LocalizationManager.shared)
 
         presenter.view = view
         interactor.presenter = presenter

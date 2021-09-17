@@ -41,7 +41,7 @@ extension AnalyticsPeriod {
         }
     }
 
-    func xAxisValues(dateRange: (Date, Date), calendar _: Calendar) -> [String] {
+    func xAxisValues(dateRange: (Date, Date), locale: Locale) -> [String] {
         let template: String = {
             switch self {
             case .week, .month:
@@ -50,9 +50,9 @@ extension AnalyticsPeriod {
                 return "MMM yyyy"
             }
         }()
-        let format = DateFormatter.dateFormat(fromTemplate: template, options: 0, locale: nil)
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
+        dateFormatter.dateFormat = template
+        dateFormatter.locale = locale
 
         let firstDate = dateRange.0
         let lastDate = dateRange.1

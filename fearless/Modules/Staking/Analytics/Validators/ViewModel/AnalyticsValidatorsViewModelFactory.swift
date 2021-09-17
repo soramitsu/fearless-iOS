@@ -180,7 +180,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards))
                 .value(for: locale)
             return createChartCenterText(
-                firstLine: R.string.localizable.stakingAnalyticsReceivedRewards(preferredLanguages: locale.rLanguages),
+                firstLine: "TODO in next release",
                 secondLine: totalRewardsText,
                 thirdLine: "100%"
             )

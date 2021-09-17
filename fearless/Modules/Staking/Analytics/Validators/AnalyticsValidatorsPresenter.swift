@@ -6,7 +6,6 @@ final class AnalyticsValidatorsPresenter {
     private let wireframe: AnalyticsValidatorsWireframeProtocol
     private let interactor: AnalyticsValidatorsInteractorInputProtocol
     private let viewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol
-    private let localizationManager: LocalizationManager
     private let logger: LoggerProtocol?
 
     private var identitiesByAddress = [AccountAddress: AccountIdentity]()
@@ -21,14 +20,14 @@ final class AnalyticsValidatorsPresenter {
         interactor: AnalyticsValidatorsInteractorInputProtocol,
         wireframe: AnalyticsValidatorsWireframeProtocol,
         viewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol,
-        localizationManager: LocalizationManager,
+        localizationManager: LocalizationManagerProtocol?,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.localizationManager = localizationManager
         self.logger = logger
+        self.localizationManager = localizationManager
     }
 
     private func updateView() {
@@ -88,7 +87,9 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
 
 extension AnalyticsValidatorsPresenter: Localizable {
     func applyLocalization() {
-        updateView()
+        if let view = view, view.isSetup {
+            updateView()
+        }
     }
 }
 
