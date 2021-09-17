@@ -8,6 +8,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         byDateRange dateRange: (Date, Date)
     ) -> [SubqueryRewardItemData] {
         items.filter { item in
+            guard item.isReward else { return false }
             let date = Date(timeIntervalSince1970: TimeInterval(item.timestamp))
             return date >= dateRange.0 && date <= dateRange.1
         }
