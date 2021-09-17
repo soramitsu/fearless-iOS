@@ -7,6 +7,8 @@ enum SettingsKey: String {
     case selectedAccount
     case biometryEnabled
     case selectedConnection
+    case crowdloadChainId
+    case stakingAsset
 }
 
 extension SettingsManagerProtocol {
@@ -53,6 +55,34 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
+        }
+    }
+
+    var crowdloanChainId: String? {
+        get {
+            string(for: SettingsKey.crowdloadChainId.rawValue)
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.crowdloadChainId.rawValue)
+            } else {
+                removeValue(for: SettingsKey.crowdloadChainId.rawValue)
+            }
+        }
+    }
+
+    var stakingAsset: ChainAssetId? {
+        get {
+            value(of: ChainAssetId.self, for: SettingsKey.stakingAsset.rawValue)
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.stakingAsset.rawValue)
+            } else {
+                removeValue(for: SettingsKey.stakingAsset.rawValue)
+            }
         }
     }
 }

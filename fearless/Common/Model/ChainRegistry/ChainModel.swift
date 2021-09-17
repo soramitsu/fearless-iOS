@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct ChainModel: Codable, Hashable {
+struct ChainModel: Equatable, Codable, Hashable {
     // swiftlint:disable:next type_name
     typealias Id = String
 
@@ -19,8 +19,8 @@ struct ChainModel: Codable, Hashable {
     let chainId: Id
     let parentId: Id?
     let name: String
-    let assets: [AssetModel]
-    let nodes: [ChainNodeModel]
+    let assets: Set<AssetModel>
+    let nodes: Set<ChainNodeModel>
     let addressPrefix: UInt16
     let types: TypesSettings?
     let icon: URL

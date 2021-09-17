@@ -19,6 +19,7 @@ abstract_target 'fearlessAll' do
   pod 'Sourcery', '~> 1.4'
   pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :tag => '3.0.0'
+  pod 'keccak.c'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -32,6 +33,7 @@ abstract_target 'fearlessAll' do
     pod 'RobinHood', '~> 2.6.0'
     pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '4133ff9b81cda094dd8e2b7f32129172224b0227'
     pod 'Sourcery', '~> 1.4'
+    pod 'keccak.c'
 
   end
 

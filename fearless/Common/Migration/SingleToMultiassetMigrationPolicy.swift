@@ -58,7 +58,9 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
         ) {
             let rawPublicKey = ethereumPublicKey.rawData()
             metaAccount.setValue(rawPublicKey, forKey: "ethereumPublicKey")
-            metaAccount.setValue(rawPublicKey.ethereumAddress, forKey: "ethereumAddress")
+
+            let ethereumAddress = try rawPublicKey.ethereumAddressFromPublicKey()
+            metaAccount.setValue(ethereumAddress, forKey: "ethereumAddress")
         }
     }
 

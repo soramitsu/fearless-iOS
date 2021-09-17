@@ -8,4 +8,5 @@ struct Constants {
     static let validEd25519KeystorePassword: String = "test2"
     static let validEcdsaKeystoreName = "validEcdsaKeystore"
     static let validEcdsaKeystorePassword: String = "test3"
+    static let dummyURL = URL(string: "google.com")!
 }

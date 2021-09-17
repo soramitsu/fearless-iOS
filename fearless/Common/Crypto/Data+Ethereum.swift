@@ -1,5 +1,9 @@
 import Foundation
+import keccak
 
+// TODO: Move to library
 extension Data {
-    var ethereumAddress: Data { prefix(20) }
+    func ethereumAddressFromPublicKey() throws -> Data {
+        try keccak256().suffix(20)
+    }
 }
