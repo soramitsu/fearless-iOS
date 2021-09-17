@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import FearlessUtils
 
 class SpecVersionSubscriptionTests: XCTestCase {
     func testVersionDelivered() {

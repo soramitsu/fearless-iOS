@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 protocol SlashesOperationFactoryProtocol {
     func createSlashingSpansOperationForStash(

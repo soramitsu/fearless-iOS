@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import FearlessUtils
 
 class ConnectionPoolTests: XCTestCase {
     func testSetupCreatesNewConnections() {

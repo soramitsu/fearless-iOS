@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import FearlessUtils
 
 final class MockConnection {
     let internalConnection = MockJSONRPCEngine()
@@ -16,7 +17,7 @@ extension MockConnection: ChainConnection {
         autobalancing.set(ranking: ranking)
     }
 
-    var state: ConnectionState {
+    var state: WebSocketEngine.State {
         stateReporting.state
     }
 
