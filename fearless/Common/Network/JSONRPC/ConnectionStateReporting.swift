@@ -1,12 +1,6 @@
 import Foundation
-
-enum ConnectionState {
-    case notConnected
-    case connecting(attempt: Int)
-    case waitingReconnection(attempt: Int)
-    case connected
-}
+import FearlessUtils
 
 protocol ConnectionStateReporting {
-    var state: ConnectionState { get }
+    var state: WebSocketEngine.State { get }
 }

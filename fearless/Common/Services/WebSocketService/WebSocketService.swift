@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
+import FearlessUtils
 
 final class WebSocketService: WebSocketServiceProtocol {
     static let shared: WebSocketService = {
@@ -144,8 +145,8 @@ extension WebSocketService: ApplicationHandlerDelegate {
 
 extension WebSocketService: WebSocketEngineDelegate {
     func webSocketDidChangeState(
-        from _: ConnectionState,
-        to newState: ConnectionState
+        from _: WebSocketEngine.State,
+        to newState: WebSocketEngine.State
     ) {
         switch newState {
         case let .connecting(attempt):

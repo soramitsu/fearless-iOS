@@ -1,4 +1,5 @@
 import Foundation
+import FearlessUtils
 
 typealias ChainConnection = JSONRPCEngine & ConnectionAutobalancing & ConnectionStateReporting
 
@@ -7,9 +8,9 @@ protocol ConnectionFactoryProtocol {
 }
 
 final class ConnectionFactory {
-    let logger: LoggerProtocol
+    let logger: SDKLoggerProtocol
 
-    init(logger: LoggerProtocol) {
+    init(logger: SDKLoggerProtocol) {
         self.logger = logger
     }
 }
