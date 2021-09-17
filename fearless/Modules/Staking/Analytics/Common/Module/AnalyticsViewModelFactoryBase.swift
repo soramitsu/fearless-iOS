@@ -53,7 +53,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             )
 
             let totalReceivedTokens = calculateTotalReceivedTokens(
-                amount: filteredHistoryItems.map(\.amount),
+                amount: filteredHistoryItems.map(\.amountInChart),
                 priceData: priceData,
                 locale: locale
             )
@@ -146,7 +146,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         []
     }
 
-    private func calculateTotalReceivedTokens(
+    func calculateTotalReceivedTokens(
         amount: [BigUInt],
         priceData: PriceData?,
         locale: Locale
