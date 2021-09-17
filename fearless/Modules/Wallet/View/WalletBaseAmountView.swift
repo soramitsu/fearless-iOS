@@ -31,8 +31,8 @@ class WalletBaseAmountView: UIView {
         contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         contentView.topAnchor.constraint(equalTo: topAnchor).isActive = true
 
-        amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorWhite()!
-        amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite()!
+        amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorStrokeGray()!
+        amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorStrokeGray()!
         amountInputView.triangularedBackgroundView?.strokeWidth = 1.0
         amountInputView.triangularedBackgroundView?.fillColor = .clear
         amountInputView.triangularedBackgroundView?.highlightedFillColor = .clear
