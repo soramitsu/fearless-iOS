@@ -24,7 +24,7 @@ final class AnalyticsValidatorsView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 394))
+        headerView.frame = CGRect(origin: .zero, size: CGSize(width: bounds.width, height: 319))
     }
 
     private func setupLayout() {

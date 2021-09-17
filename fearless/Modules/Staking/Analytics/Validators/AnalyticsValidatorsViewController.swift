@@ -27,7 +27,6 @@ final class AnalyticsValidatorsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupTable()
-        rootView.headerView.pageSelector.delegate = self
         rootView.headerView.pieChart.chartDelegate = self
         presenter.setup()
     }
@@ -92,7 +91,6 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsViewProtocol {
             }
         case let .loaded(viewModel):
             rootView.tableView.refreshControl?.endRefreshing()
-            rootView.headerView.pageSelector.bind(selectedPage: viewModel.selectedPage)
             rootView.headerView.pieChart.setAmounts(
                 segmentValues: viewModel.pieChartSegmentValues,
                 inactiveSegmentValue: viewModel.pieChartInactiveSegment?.percents,
