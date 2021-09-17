@@ -475,4 +475,4 @@
 "wallet.search.empty.title_v1.10.0" = "Неверный формат адреса.\
 Убедитесь, что адрес \
 соответствует сети";
-"staking.analytics.peri
+"common.max" = "макс.";

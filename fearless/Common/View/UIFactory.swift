@@ -235,8 +235,9 @@ final class UIFactory: UIFactoryProtocol {
         let toolBar = AmountInputAccessoryView(frame: frame)
         toolBar.actionDelegate = delegate
 
+        let maxTitle = R.string.localizable.commonMax(preferredLanguages: locale.rLanguages)
         let actions: [ViewSelectorAction] = [
-            ViewSelectorAction(title: "100%", selector: #selector(toolBar.actionSelect100)),
+            ViewSelectorAction(title: maxTitle.uppercased(), selector: #selector(toolBar.actionSelect100)),
             ViewSelectorAction(title: "75%", selector: #selector(toolBar.actionSelect75)),
             ViewSelectorAction(title: "50%", selector: #selector(toolBar.actionSelect50)),
             ViewSelectorAction(title: "25%", selector: #selector(toolBar.actionSelect25))
