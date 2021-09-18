@@ -109,6 +109,7 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
     func bind(
         summaryViewModel: AnalyticsSummaryRewardViewModel,
         chartData: ChartData,
+        animateChart: Bool,
         selectedPeriod: AnalyticsPeriod
     ) {
         selectedPeriodLabel.text = summaryViewModel.title
@@ -116,7 +117,7 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
         usdAmountLabel.text = summaryViewModel.usdAmount
 
         periodView.bind(selectedPeriod: selectedPeriod)
-        chartView.setChartData(chartData)
+        chartView.setChartData(chartData, animated: animateChart)
     }
 
     private func applyLocalization() {

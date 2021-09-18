@@ -12,5 +12,4 @@ struct ChartData {
     let bottomYValue: String
     let averageAmountValue: Double
     let averageAmountText: String?
-    let animate: Bool
 }

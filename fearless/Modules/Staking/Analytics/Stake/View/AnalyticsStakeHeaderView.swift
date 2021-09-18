@@ -89,12 +89,13 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
     func bind(
         summaryViewModel: AnalyticsSummaryRewardViewModel,
         chartData: ChartData,
+        animateChart: Bool,
         selectedPeriod: AnalyticsPeriod
     ) {
         bind(summaryViewModel: summaryViewModel)
 
         periodView.bind(selectedPeriod: selectedPeriod)
-        chartView.setChartData(chartData)
+        chartView.setChartData(chartData, animated: animateChart)
     }
 
     func bind(

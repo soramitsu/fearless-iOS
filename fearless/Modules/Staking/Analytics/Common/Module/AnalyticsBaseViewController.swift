@@ -15,6 +15,7 @@ class AnalyticsRewardsBaseViewController<
     let presenter: Presenter
 
     var viewState: AnalyticsViewState<VM>?
+    var animateChartOnReload = true
 
     init(presenter: Presenter, localizationManager: LocalizationManagerProtocol?) {
         self.presenter = presenter

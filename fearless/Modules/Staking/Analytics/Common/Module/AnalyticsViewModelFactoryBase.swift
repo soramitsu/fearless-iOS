@@ -136,8 +136,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             xAxisValues: period.xAxisValues(dateRange: dateRange, locale: locale),
             bottomYValue: bottomYValue,
             averageAmountValue: averageAmount,
-            averageAmountText: averageAmountText,
-            animate: selectedChartIndex != nil ? false : true
+            averageAmountText: averageAmountText
         )
         return chartData
     }

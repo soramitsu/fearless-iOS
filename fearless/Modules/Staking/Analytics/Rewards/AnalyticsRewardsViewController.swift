@@ -46,6 +46,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
             rootView.headerView.bind(
                 summaryViewModel: viewModel.summaryViewModel,
                 chartData: viewModel.chartData,
+                animateChart: animateChartOnReload,
                 selectedPeriod: viewModel.selectedPeriod
             )
             rootView.tableView.reloadData()
@@ -59,11 +60,13 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
 extension AnalyticsRewardsViewController: FWChartViewDelegate {
     func didSelectXValue(_ value: Double) {
         rootView.tableView.nsuiIsScrollEnabled = false
+        animateChartOnReload = false
         presenter.didSelectXValue(Int(value))
     }
 
     func didUnselect() {
         rootView.tableView.nsuiIsScrollEnabled = true
+        animateChartOnReload = true
         presenter.didUnselectXValue()
     }
 }

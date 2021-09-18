@@ -59,7 +59,7 @@ final class FWLineChartView: LineChartView {
 }
 
 extension FWLineChartView: FWChartViewProtocol {
-    func setChartData(_ data: ChartData) {
+    func setChartData(_ data: ChartData, animated: Bool) {
         let chartValues = data.amounts.map(\.value)
         let dataEntries: [ChartDataEntry] = {
             if chartValues.count == 1 {
@@ -109,7 +109,7 @@ extension FWLineChartView: FWChartViewProtocol {
         yAxisFormatter.bottomValueString = data.bottomYValue
 
         self.data = lineChartData
-        if data.animate {
+        if animated {
             animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
         }
     }
