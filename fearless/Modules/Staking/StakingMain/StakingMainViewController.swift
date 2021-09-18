@@ -42,8 +42,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLoad()
 
         setupNetworkInfoView()
-        setupAnalyticsView()
         setupAlertsView()
+        setupAnalyticsView()
         setupLocalization()
         presenter.setup()
     }
@@ -205,7 +205,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         applyConstraints(for: containerView, innerView: stateView)
 
-        stackView.insertArranged(view: containerView, after: networkInfoContainerView)
+        stackView.insertArranged(view: containerView, after: alertsContainerView)
 
         stateContainerView = containerView
         self.stateView = stateView
