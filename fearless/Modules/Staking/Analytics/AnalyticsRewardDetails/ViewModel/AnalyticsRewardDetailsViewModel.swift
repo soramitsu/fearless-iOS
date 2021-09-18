@@ -1,5 +1,5 @@
 struct AnalyticsRewardDetailsViewModel {
-    let blockNumber: String
+    let eventId: String
     let date: String
     let type: String
     let amount: String

@@ -19571,16 +19571,16 @@ import SoraFoundation
     
     
     
-     func handleBlockNumberAction()  {
+     func handleEventIdAction()  {
         
-    return cuckoo_manager.call("handleBlockNumberAction()",
+    return cuckoo_manager.call("handleEventIdAction()",
             parameters: (),
             escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.handleBlockNumberAction())
+            defaultCall: __defaultImplStub!.handleEventIdAction())
         
     }
     
@@ -19598,9 +19598,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAnalyticsRewardDetailsPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
-	    func handleBlockNumberAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	    func handleEventIdAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockAnalyticsRewardDetailsPresenterProtocol.self, method: "handleBlockNumberAction()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAnalyticsRewardDetailsPresenterProtocol.self, method: "handleEventIdAction()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -19626,9 +19626,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func handleBlockNumberAction() -> Cuckoo.__DoNotUse<(), Void> {
+	    func handleEventIdAction() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("handleBlockNumberAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("handleEventIdAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -19644,7 +19644,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func handleBlockNumberAction()   {
+     func handleEventIdAction()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

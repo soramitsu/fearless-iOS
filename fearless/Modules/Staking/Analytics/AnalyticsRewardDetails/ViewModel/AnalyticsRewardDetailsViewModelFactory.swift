@@ -25,7 +25,7 @@ final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewMo
             let amount = self.getTokenAmountText(amount: rewardModel.amount, locale: locale)
 
             return AnalyticsRewardDetailsViewModel(
-                blockNumber: rewardModel.eventId,
+                eventId: rewardModel.eventId,
                 date: date,
                 type: rewardModel.typeText(locale: locale),
                 amount: amount

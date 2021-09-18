@@ -496,3 +496,4 @@ will appear here";
 "staking.analytics.avg" = "%@ avg.";
 "staking.analytics.staking.was.active" = "Staking was active";
 "staking.analytics.staking.was.inactive" = "Staking was inactive";
+"common.choose.action" = "Choose action";

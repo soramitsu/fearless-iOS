@@ -6,7 +6,7 @@ protocol AnalyticsRewardDetailsViewProtocol: ControllerBackedProtocol, Localizab
 
 protocol AnalyticsRewardDetailsPresenterProtocol: AnyObject {
     func setup()
-    func handleBlockNumberAction()
+    func handleEventIdAction()
 }
 
 protocol AnalyticsRewardDetailsInteractorInputProtocol: AnyObject {}

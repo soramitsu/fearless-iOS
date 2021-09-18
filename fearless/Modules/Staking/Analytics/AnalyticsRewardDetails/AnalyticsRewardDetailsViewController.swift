@@ -29,20 +29,20 @@ final class AnalyticsRewardDetailsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         applyLocalization()
-        rootView.blockNumberView.addTarget(self, action: #selector(handleBlockNumberAction), for: .touchUpInside)
+        rootView.eventIdView.addTarget(self, action: #selector(handleEventIdAction), for: .touchUpInside)
         presenter.setup()
     }
 
     @objc
-    private func handleBlockNumberAction() {
-        presenter.handleBlockNumberAction()
+    private func handleEventIdAction() {
+        presenter.handleEventIdAction()
     }
 }
 
 extension AnalyticsRewardDetailsViewController: AnalyticsRewardDetailsViewProtocol {
     func bind(viewModel: LocalizableResource<AnalyticsRewardDetailsViewModel>) {
         let localizedViewModel = viewModel.value(for: selectedLocale)
-        rootView.blockNumberView.subtitle = localizedViewModel.blockNumber
+        rootView.eventIdView.subtitle = localizedViewModel.eventId
         rootView.dateView.valueLabel.text = localizedViewModel.date
         rootView.typeView.valueLabel.text = localizedViewModel.type
         rootView.amountView.valueLabel.text = localizedViewModel.amount

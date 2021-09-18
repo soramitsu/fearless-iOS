@@ -1,7 +1,7 @@
 import UIKit
 
 final class AnalyticsRewardDetailsViewLayout: UIView {
-    let blockNumberView: DetailsTriangularedView = {
+    let eventIdView: DetailsTriangularedView = {
         let detailsView = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
         detailsView.actionImage = R.image.iconMore()
         return detailsView
@@ -34,7 +34,7 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
         let content: UIView = .vStack(
             spacing: 16,
             [
-                blockNumberView,
+                eventIdView,
                 .vStack(
                     [
                         dateView,
@@ -51,7 +51,7 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        blockNumberView.snp.makeConstraints { $0.height.equalTo(52) }
+        eventIdView.snp.makeConstraints { $0.height.equalTo(52) }
         [dateView, typeView, amountView].forEach { view in
             view.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
@@ -61,8 +61,7 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        // TODO:
-        blockNumberView.title = "Block number"
+        eventIdView.title = R.string.localizable.stakingCommonEventId(preferredLanguages: locale.rLanguages)
         dateView.titleLabel.text = R.string.localizable.transactionDetailDate(preferredLanguages: locale.rLanguages)
         typeView.titleLabel.text = R.string.localizable
             .stakingAnalyticsDetailsType(preferredLanguages: locale.rLanguages)

@@ -32,7 +32,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
             when(stub).createViweModel(rewardModel: any()).then { _ in
                 createViewModelExpectation.fulfill()
                 return LocalizableResource { locale in
-                    .init(blockNumber: "", date: "", type: "", amount: "")
+                    .init(eventId: "", date: "", type: "", amount: "")
                 }
             }
         }
@@ -64,7 +64,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
                 presentActionSheetExpectation.fulfill()
             }
         }
-        presenter.handleBlockNumberAction()
+        presenter.handleEventIdAction()
 
         wait(
             for: [presentActionSheetExpectation],

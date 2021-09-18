@@ -72,7 +72,7 @@ extension AnalyticsRewardDetailsPresenter: AnalyticsRewardDetailsPresenterProtoc
         view?.bind(viewModel: viewModel)
     }
 
-    func handleBlockNumberAction() {
+    func handleEventIdAction() {
         let locale = view?.selectedLocale ?? .current
         let actions = [
             createCopyAction(locale: locale),
@@ -81,7 +81,7 @@ extension AnalyticsRewardDetailsPresenter: AnalyticsRewardDetailsPresenterProtoc
         ].compactMap { $0 }
 
         let viewModel = AlertPresentableViewModel(
-            title: "Block number",
+            title: R.string.localizable.commonChooseAction(preferredLanguages: locale.rLanguages),
             message: nil,
             actions: actions,
             closeAction: R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
