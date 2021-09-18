@@ -80,6 +80,19 @@ extension FWLineChartView: FWChartViewProtocol {
             leftAxis.resetCustomAxisMin()
         }
 
+        let dataSet = createDataSet(dataEntries: dataEntries)
+        let lineChartData = LineChartData(dataSet: dataSet)
+
+        xAxisLegend.setValues(data.xAxisValues)
+        yAxisFormatter.bottomValueString = data.bottomYValue
+
+        self.data = lineChartData
+        if animated {
+            animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
+        }
+    }
+
+    func createDataSet(dataEntries: [ChartDataEntry]) -> IChartDataSet {
         let dataSet = LineChartDataSet(entries: dataEntries)
         dataSet.mode = .horizontalBezier
         dataSet.drawIconsEnabled = false
@@ -88,7 +101,7 @@ extension FWLineChartView: FWChartViewProtocol {
         dataSet.colors = [R.color.colorAccent()!]
         let gradientColors = [
             R.color.colorAccent()!.withAlphaComponent(0.48).cgColor,
-            UIColor(red: 0.858, green: 0, blue: 1, alpha: 0.32).cgColor
+            R.color.colorAnalyticsGradient()!.cgColor
         ] as CFArray
         let colorLocations: [CGFloat] = [1.0, 0.0]
         let linearGradient = CGGradient(
@@ -103,15 +116,8 @@ extension FWLineChartView: FWChartViewProtocol {
         dataSet.highlightLineWidth = 0.5
         dataSet.highlightLineDashLengths = [1, 3]
         dataSet.drawHorizontalHighlightIndicatorEnabled = false
-        let lineChartData = LineChartData(dataSet: dataSet)
 
-        xAxisLegend.setValues(data.xAxisValues)
-        yAxisFormatter.bottomValueString = data.bottomYValue
-
-        self.data = lineChartData
-        if animated {
-            animate(yAxisDuration: 0.3, easingOption: .easeInOutCubic)
-        }
+        return dataSet
     }
 }
 

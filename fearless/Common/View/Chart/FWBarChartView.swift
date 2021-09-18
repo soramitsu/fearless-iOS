@@ -140,7 +140,7 @@ extension FWBarChartView: FWChartViewProtocol {
                 return R.color.colorAccent()!
             } else {
                 if chartDataContainsSelectedBar {
-                    return UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1)
+                    return R.color.colorAlmostBlack()!
                 } else {
                     return chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
                 }
