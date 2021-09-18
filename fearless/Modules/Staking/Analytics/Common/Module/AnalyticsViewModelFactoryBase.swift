@@ -53,7 +53,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             )
 
             let totalReceivedTokens = calculateTotalReceivedTokens(
-                amount: filteredHistoryItems.map(\.amountInChart),
+                historyItems: filteredHistoryItems,
                 priceData: priceData,
                 locale: locale
             )
@@ -145,21 +145,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         []
     }
 
+    /// Override in subclasses
     func calculateTotalReceivedTokens(
-        amount: [BigUInt],
-        priceData: PriceData?,
-        locale: Locale
+        historyItems _: [T],
+        priceData _: PriceData?,
+        locale _: Locale
     ) -> BalanceViewModelProtocol {
-        let totalReceived = amount
-            .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
-            .reduce(0.0, +)
-
-        let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
-            totalReceived,
-            priceData: priceData
-        ).value(for: locale)
-
-        return totalReceivedTokens
+        BalanceViewModel(amount: "", price: nil)
     }
 
     private func dateIntervalFormatter(period: AnalyticsPeriod, for locale: Locale) -> DateIntervalFormatter {

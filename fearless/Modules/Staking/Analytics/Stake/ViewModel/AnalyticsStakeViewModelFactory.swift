@@ -42,11 +42,12 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
     }
 
     override func calculateTotalReceivedTokens(
-        amount: [BigUInt],
+        historyItems: [SubqueryStakeChangeData],
         priceData: PriceData?,
         locale: Locale
     ) -> BalanceViewModelProtocol {
-        let totalReceived = Decimal.fromSubstrateAmount(amount.last ?? 0, precision: chain.addressType.precision) ?? 0
+        let amounts = historyItems.map(\.amountInChart)
+        let totalReceived = Decimal.fromSubstrateAmount(amounts.last ?? 0, precision: chain.addressType.precision) ?? 0
 
         let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
             totalReceived,

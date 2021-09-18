@@ -14,6 +14,25 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         }
     }
 
+    override func calculateTotalReceivedTokens(
+        historyItems: [SubqueryRewardItemData],
+        priceData: PriceData?,
+        locale: Locale
+    ) -> BalanceViewModelProtocol {
+        let rewards = historyItems.filter { $0.isReward }
+        let amounts = rewards.map(\.amountInChart)
+        let totalReceived = amounts
+            .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
+            .reduce(0.0, +)
+
+        let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
+            totalReceived,
+            priceData: priceData
+        ).value(for: locale)
+
+        return totalReceivedTokens
+    }
+
     override func getHistoryItemTitle(data _: SubqueryRewardItemData, locale: Locale) -> String {
         R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages)
     }
