@@ -1,7 +1,6 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
-import IrohaCrypto
 import FearlessUtils
 
 protocol CrowdloansViewModelFactoryProtocol {
@@ -31,21 +30,24 @@ final class CrowdloansViewModelFactory {
         let time: TimeFormatterProtocol
     }
 
-    let amountFormatterFactory: NumberFormatterFactoryProtocol
-    let asset: WalletAsset
-    let chain: Chain
+    let amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    let assetInfo: AssetBalanceDisplayInfo
+    let chainConversion: ChainConversion
 
-    private lazy var addressFactory = SS58AddressFactory()
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     private lazy var dateFormatter = {
         CompoundDateFormatterBuilder()
     }()
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol, asset: WalletAsset, chain: Chain) {
+    init(
+        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        assetInfo: AssetBalanceDisplayInfo,
+        chainConversion: ChainConversion
+    ) {
         self.amountFormatterFactory = amountFormatterFactory
-        self.asset = asset
-        self.chain = chain
+        self.assetInfo = assetInfo
+        self.chainConversion = chainConversion
     }
 
     private func createCommonContent(
@@ -55,10 +57,7 @@ final class CrowdloansViewModelFactory {
         formatters: Formatters,
         locale: Locale
     ) -> CommonContent? {
-        guard let depositorAddress = try? addressFactory.addressFromAccountId(
-            data: model.fundInfo.depositor,
-            type: chain.addressType
-        ) else {
+        guard let depositorAddress = try? model.fundInfo.depositor.toAddress(using: chainConversion) else {
             return nil
         }
 
@@ -73,8 +72,8 @@ final class CrowdloansViewModelFactory {
 
         let progress: String = {
             if
-                let raised = Decimal.fromSubstrateAmount(model.fundInfo.raised, precision: asset.precision),
-                let cap = Decimal.fromSubstrateAmount(model.fundInfo.cap, precision: asset.precision),
+                let raised = Decimal.fromSubstrateAmount(model.fundInfo.raised, precision: assetInfo.assetPrecision),
+                let cap = Decimal.fromSubstrateAmount(model.fundInfo.cap, precision: assetInfo.assetPrecision),
                 let raisedString = formatters.display.stringFromDecimal(raised),
                 let totalString = formatters.token.stringFromDecimal(cap) {
                 return R.string.localizable.crowdloanProgressFormat(
@@ -105,7 +104,10 @@ final class CrowdloansViewModelFactory {
         let contributionString: String? = {
             if
                 let contributionInPlank = contributions?[model.fundInfo.trieIndex]?.balance,
-                let contributionDecimal = Decimal.fromSubstrateAmount(contributionInPlank, precision: asset.precision) {
+                let contributionDecimal = Decimal.fromSubstrateAmount(
+                    contributionInPlank,
+                    precision: assetInfo.assetPrecision
+                ) {
                 return formatters.token.stringFromDecimal(contributionDecimal).map { value in
                     R.string.localizable.crowdloanContributionFormat(value, preferredLanguages: locale.rLanguages)
                 }
@@ -258,8 +260,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
     ) -> CrowdloansViewModel {
         let timeFormatter = TotalTimeFormatter()
         let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
-        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
-        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
+        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: assetInfo).value(for: locale)
+        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo).value(for: locale)
 
         let formatters = Formatters(
             token: tokenFormatter,

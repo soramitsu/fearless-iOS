@@ -7,7 +7,6 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let timeFormatter: TimeFormatterProtocol
-    private lazy var formatterFactory = AmountFormatterFactory()
 
     init(
         chain: Chain,

@@ -17,7 +17,6 @@ final class StakingPayoutConfirmViewModelFactory {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var iconGenerator = PolkadotIconGenerator()
-    private lazy var amountFactory = AmountFormatterFactory()
 
     init(
         asset: WalletAsset,

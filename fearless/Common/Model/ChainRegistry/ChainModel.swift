@@ -38,6 +38,10 @@ struct ChainModel: Equatable, Codable, Hashable {
         options?.contains(.crowdloans) ?? false
     }
 
+    func utilityAssets() -> Set<AssetModel> {
+        assets.filter { $0.isUtility }
+    }
+
     var typesUsage: TypesUsage {
         if let types = types {
             return types.overridesCommon ? .onlyOwn : .both

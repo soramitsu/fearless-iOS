@@ -14,7 +14,9 @@ struct CrowdloanListViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        guard let interactor = createInteractor(from: crowdloanSettings) else {
+        guard
+            let interactor = createInteractor(from: crowdloanSettings),
+            let asset = crowdloanSettings.value.utilityAssets().first else {
             return nil
         }
 
@@ -22,14 +24,10 @@ struct CrowdloanListViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: SettingsManager.shared)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
         let viewModelFactory = CrowdloansViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
-            asset: asset,
-            chain: addressType.chain
+            amountFormatterFactory: AssetBalanceFormatterFactory(),
+            assetInfo: asset.displayInfo,
+            chainConversion: crowdloanSettings.value.conversion
         )
 
         let presenter = CrowdloanListPresenter(

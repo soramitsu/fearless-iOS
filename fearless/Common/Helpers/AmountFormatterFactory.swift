@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 
+@available(*, deprecated, message: "Use AssetBalanceFormatterFactory instead")
 struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     let assetPrecision: Int
     let usdPrecision: Int
