@@ -8,8 +8,14 @@ protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState
 }
 
+typealias AnalyticsRewardsViewModelFactoryBuilder = (
+    Chain,
+    BalanceViewModelFactoryProtocol
+) -> AnalyticsRewardsViewModelFactoryProtocol
+
 final class StakingStateViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
+    let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
     let logger: LoggerProtocol?
 
     private var lastViewModel: StakingViewState = .undefined
@@ -20,8 +26,13 @@ final class StakingStateViewModelFactory {
 
     private lazy var addressFactory = SS58AddressFactory()
 
-    init(primitiveFactory: WalletPrimitiveFactoryProtocol, logger: LoggerProtocol? = nil) {
+    init(
+        primitiveFactory: WalletPrimitiveFactoryProtocol,
+        analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
+        logger: LoggerProtocol? = nil
+    ) {
         self.primitiveFactory = primitiveFactory
+        self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
     }
 
@@ -167,12 +178,8 @@ final class StakingStateViewModelFactory {
         }
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
-        let viewModelFactory = AnalyticsRewardsViewModelFactory(
-            chain: chain,
-            balanceViewModelFactory: balanceViewModelFactory,
-            calendar: Calendar(identifier: .gregorian)
-        )
-        let fullViewModel = viewModelFactory.createViewModel(
+        let analyticsViewModelFactory = analyticsRewardsViewModelFactoryBuilder(chain, balanceViewModelFactory)
+        let fullViewModel = analyticsViewModelFactory.createViewModel(
             from: rewards,
             priceData: commonData.price,
             period: rewardsForPeriod.1,
