@@ -65,22 +65,23 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                         priceData: priceData,
                         locale: locale
                     )
+                } else {
+                    let dateFormatter = dateIntervalFormatter(period: period, for: locale)
+                    let periodText = dateFormatter.string(from: dateRange.0, to: dateRange.1)
+                    return AnalyticsSummaryRewardViewModel(
+                        title: periodText,
+                        tokenAmount: totalReceivedTokens.amount,
+                        usdAmount: totalReceivedTokens.price
+                    )
                 }
-                let dateFormatter = dateIntervalFormatter(period: period, for: locale)
-                let periodText = dateFormatter.string(from: dateRange.0, to: dateRange.1)
-
-                return AnalyticsSummaryRewardViewModel(
-                    title: periodText,
-                    tokenAmount: totalReceivedTokens.amount,
-                    usdAmount: totalReceivedTokens.price
-                )
             }()
 
             let sections: [AnalyticsRewardSection] = {
                 if let index = selectedChartIndex, index < groupedByPeriodChartData.count {
                     return groupedByPeriodChartData[index].sections
+                } else {
+                    return createSections(historyItems: filteredHistoryItems, locale: locale)
                 }
-                return createSections(historyItems: filteredHistoryItems, locale: locale)
             }()
 
             return AnalyticsRewardsViewModel(
@@ -131,14 +132,13 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
             }
         }()
 
-        let chartData = ChartData(
+        return ChartData(
             amounts: selectedChartAmounts,
             xAxisValues: period.xAxisValues(dateRange: dateRange, locale: locale),
             bottomYValue: bottomYValue,
             averageAmountValue: averageAmount,
             averageAmountText: averageAmountText
         )
-        return chartData
     }
 
     func calculateChartAmounts(chartDoubles _: [Double]) -> [ChartAmount] {
