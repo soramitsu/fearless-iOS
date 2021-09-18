@@ -96,10 +96,11 @@ final class FWBarChartView: BarChartView {
         let actualXLegendHeight = xAxisLegend.bounds.height + 5
         let chartHeightWihoutXLegend = bounds.height - actualXLegendHeight
         let yPosition = CGFloat(1.0 - percent) * chartHeightWihoutXLegend
-        let avgLabelHeight: CGFloat = 22.0
+        let avgLabelSize = averageAmountLabel.intrinsicContentSize
+        let avgLabelHeight = avgLabelSize.height
         averageAmountLabel.frame = CGRect(
             origin: CGPoint(x: 0, y: yPosition - avgLabelHeight / 2),
-            size: CGSize(width: 50, height: avgLabelHeight)
+            size: CGSize(width: avgLabelSize.width, height: avgLabelHeight)
         )
         averageAmountLabel.isHidden = false
 

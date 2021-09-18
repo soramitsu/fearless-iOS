@@ -104,7 +104,7 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsInteractorOutputProto
         }
     }
 
-    func didReceive(eraValidatorInfosResult: Result<[SubqueryEraValidatorInfo], Error>) {
+    func didReceive(eraValidatorInfosResult: Result<[SubqueryEraValidatorInfo]?, Error>) {
         switch eraValidatorInfosResult {
         case let .success(eraValidatorInfos):
             self.eraValidatorInfos = eraValidatorInfos

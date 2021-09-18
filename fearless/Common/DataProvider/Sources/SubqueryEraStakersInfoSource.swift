@@ -13,7 +13,7 @@ final class SubqueryEraStakersInfoSource {
 
     func fetch(
         eraRangeClosure: @escaping () -> EraRange?
-    ) -> CompoundOperationWrapper<[SubqueryEraValidatorInfo]> {
+    ) -> CompoundOperationWrapper<[SubqueryEraValidatorInfo]?> {
         let requestFactory = createRequestFactory(eraRangeClosure: eraRangeClosure)
         let resultFactory = createResultFactory()
 
@@ -40,14 +40,12 @@ final class SubqueryEraStakersInfoSource {
         }
     }
 
-    private func createResultFactory() -> AnyNetworkResultFactory<[SubqueryEraValidatorInfo]> {
-        AnyNetworkResultFactory<[SubqueryEraValidatorInfo]> { data in
-            guard
-                let resultData = try? JSONDecoder().decode(JSON.self, from: data),
-                let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
-            else { return [] }
+    private func createResultFactory() -> AnyNetworkResultFactory<[SubqueryEraValidatorInfo]?> {
+        AnyNetworkResultFactory<[SubqueryEraValidatorInfo]?> { data in
+            let resultData = try JSONDecoder().decode(JSON.self, from: data)
+            let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
 
-            return nodes.compactMap { SubqueryEraValidatorInfo(from: $0) }
+            return nodes?.compactMap { SubqueryEraValidatorInfo(from: $0) }
         }
     }
 

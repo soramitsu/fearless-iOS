@@ -6,7 +6,7 @@ import BigInt
 final class SubqueryRewardsSource {
     typealias Model = [SubqueryRewardItemData]
 
-    let address: String
+    let address: AccountAddress
     let url: URL
     let startTimestamp: Int64?
     let endTimestamp: Int64?
