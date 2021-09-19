@@ -1,9 +1,11 @@
 import Foundation
+import FearlessUtils
 
 protocol ChainStorageIdFactoryProtocol {
     func createIdentifier(for key: Data) -> String
 }
 
+@available(*, deprecated, message: "Use LocalStorageKeyFactory instead")
 final class ChainStorageIdFactory: ChainStorageIdFactoryProtocol {
     let genesisData: Data
 
@@ -12,6 +14,8 @@ final class ChainStorageIdFactory: ChainStorageIdFactoryProtocol {
     }
 
     func createIdentifier(for key: Data) -> String {
-        (genesisData.prefix(7) + key).toHex()
+        let concatData = genesisData + key
+        let localKey = (try? StorageHasher.twox256.hash(data: concatData)) ?? (genesisData + key)
+        return localKey.toHex()
     }
 }

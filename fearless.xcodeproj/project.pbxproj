@@ -216,6 +216,8 @@
 		841AAC2526F692EF00F0A25E /* AddressConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2426F692EF00F0A25E /* AddressConversion.swift */; };
 		841AAC2726F6A2A500F0A25E /* ChainAccountFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2626F6A2A500F0A25E /* ChainAccountFetching.swift */; };
 		841AAC2926F6A59C00F0A25E /* MultiassetCryptoType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2826F6A59C00F0A25E /* MultiassetCryptoType.swift */; };
+		841AAC2D26F7315300F0A25E /* RemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2C26F7315300F0A25E /* RemoteSubscriptionService.swift */; };
+		841AAC2F26F73E0C00F0A25E /* LocalStorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2E26F73E0C00F0A25E /* LocalStorageKeyFactory.swift */; };
 		841B45292603D91800C08693 /* EraValidatorsServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841B45282603D91800C08693 /* EraValidatorsServiceStub.swift */; };
 		841E6AF625EC12100007DDFE /* PreparedNomination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AF525EC12100007DDFE /* PreparedNomination.swift */; };
 		841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */; };
@@ -1721,6 +1723,8 @@
 		841AAC2426F692EF00F0A25E /* AddressConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressConversion.swift; sourceTree = "<group>"; };
 		841AAC2626F6A2A500F0A25E /* ChainAccountFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountFetching.swift; sourceTree = "<group>"; };
 		841AAC2826F6A59C00F0A25E /* MultiassetCryptoType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiassetCryptoType.swift; sourceTree = "<group>"; };
+		841AAC2C26F7315300F0A25E /* RemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSubscriptionService.swift; sourceTree = "<group>"; };
+		841AAC2E26F73E0C00F0A25E /* LocalStorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageKeyFactory.swift; sourceTree = "<group>"; };
 		841B45282603D91800C08693 /* EraValidatorsServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraValidatorsServiceStub.swift; sourceTree = "<group>"; };
 		841E6AF525EC12100007DDFE /* PreparedNomination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparedNomination.swift; sourceTree = "<group>"; };
 		841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorInfo.swift; sourceTree = "<group>"; };
@@ -3688,6 +3692,7 @@
 		84155DE9253980E100A27058 /* WebSocketService */ = {
 			isa = PBXGroup;
 			children = (
+				841AAC2B26F7311200F0A25E /* ChainRegistry */,
 				8470D6CE253E31FB009E9A5D /* StorageSubscription */,
 				84155DEA253980F900A27058 /* WebSocketService.swift */,
 				84155DEE2539832C00A27058 /* WebSocketEngineFactory.swift */,
@@ -3707,6 +3712,14 @@
 				8419377E25441D5E00CFA50C /* ReceiveHeaderView.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		841AAC2B26F7311200F0A25E /* ChainRegistry */ = {
+			isa = PBXGroup;
+			children = (
+				841AAC2C26F7315300F0A25E /* RemoteSubscriptionService.swift */,
+			);
+			path = ChainRegistry;
 			sourceTree = "<group>";
 		};
 		841E6B0825EC1B560007DDFE /* Operations */ = {
@@ -4586,6 +4599,7 @@
 				845B821626EF7FED00D25C72 /* SelectedWalletSettings.swift */,
 				845B822826F0BB6700D25C72 /* CrowdloanChainSettings.swift */,
 				84F13F0726F13898006725FF /* StakingAssetSettings.swift */,
+				841AAC2E26F73E0C00F0A25E /* LocalStorageKeyFactory.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -8220,6 +8234,7 @@
 				84415BCA26E783EB005A3683 /* PayoutValidatorsForNominatorFactory.swift in Sources */,
 				84E7D67C26376A0A0037EB23 /* YourValidatorListInteractor+Subscription.swift in Sources */,
 				8401AEC32642A71D000B03E3 /* StakingRebondConfirmationViewController.swift in Sources */,
+				841AAC2D26F7315300F0A25E /* RemoteSubscriptionService.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
 				84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */,
 				849ABE63262785F200011A2A /* ControllerMapper.swift in Sources */,
@@ -8266,6 +8281,7 @@
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
 				84CD82A3263C12BA001A6F01 /* StakingBalanceInteractor+Subscription.swift in Sources */,
 				8401AE8D2641EF7B000B03E3 /* NetworkFeeConfirmView.swift in Sources */,
+				841AAC2F26F73E0C00F0A25E /* LocalStorageKeyFactory.swift in Sources */,
 				843C49DF24DF3CB300B71DDA /* AccountImportMetadata.swift in Sources */,
 				8436E94226C840C8003D4EA7 /* RuntimeCoderEvents.swift in Sources */,
 				8461CC8A26BD2F07007460E4 /* RuntimeProviderPool.swift in Sources */,
