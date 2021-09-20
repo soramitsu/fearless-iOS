@@ -216,7 +216,7 @@
 		841AAC2526F692EF00F0A25E /* AddressConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2426F692EF00F0A25E /* AddressConversion.swift */; };
 		841AAC2726F6A2A500F0A25E /* ChainAccountFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2626F6A2A500F0A25E /* ChainAccountFetching.swift */; };
 		841AAC2926F6A59C00F0A25E /* MultiassetCryptoType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2826F6A59C00F0A25E /* MultiassetCryptoType.swift */; };
-		841AAC2D26F7315300F0A25E /* RemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2C26F7315300F0A25E /* RemoteSubscriptionService.swift */; };
+		841AAC2D26F7315300F0A25E /* CrowdloanRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2C26F7315300F0A25E /* CrowdloanRemoteSubscriptionService.swift */; };
 		841AAC2F26F73E0C00F0A25E /* LocalStorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2E26F73E0C00F0A25E /* LocalStorageKeyFactory.swift */; };
 		841B45292603D91800C08693 /* EraValidatorsServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841B45282603D91800C08693 /* EraValidatorsServiceStub.swift */; };
 		841E6AF625EC12100007DDFE /* PreparedNomination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AF525EC12100007DDFE /* PreparedNomination.swift */; };
@@ -788,6 +788,8 @@
 		849528DE2603697B009DC845 /* RewardEstimationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 849528DD2603697B009DC845 /* RewardEstimationView.xib */; };
 		849528E326036997009DC845 /* RewardEstimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849528E226036997009DC845 /* RewardEstimationView.swift */; };
 		849632072555CE9D00B8E316 /* ExportSeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849632062555CE9D00B8E316 /* ExportSeedData.swift */; };
+		84963D6C26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84963D6B26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift */; };
+		84963D6E26F91826003FE8E4 /* RemoteSubscriptionRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */; };
 		84969732251CE71500C39524 /* WalletAssetId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969731251CE71500C39524 /* WalletAssetId.swift */; };
 		84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969733251CE9CD00C39524 /* ContactsConfigurator.swift */; };
 		8497FC6026317783002FEAA7 /* AccountInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */; };
@@ -1723,7 +1725,7 @@
 		841AAC2426F692EF00F0A25E /* AddressConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressConversion.swift; sourceTree = "<group>"; };
 		841AAC2626F6A2A500F0A25E /* ChainAccountFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountFetching.swift; sourceTree = "<group>"; };
 		841AAC2826F6A59C00F0A25E /* MultiassetCryptoType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiassetCryptoType.swift; sourceTree = "<group>"; };
-		841AAC2C26F7315300F0A25E /* RemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSubscriptionService.swift; sourceTree = "<group>"; };
+		841AAC2C26F7315300F0A25E /* CrowdloanRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanRemoteSubscriptionService.swift; sourceTree = "<group>"; };
 		841AAC2E26F73E0C00F0A25E /* LocalStorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageKeyFactory.swift; sourceTree = "<group>"; };
 		841B45282603D91800C08693 /* EraValidatorsServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraValidatorsServiceStub.swift; sourceTree = "<group>"; };
 		841E6AF525EC12100007DDFE /* PreparedNomination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparedNomination.swift; sourceTree = "<group>"; };
@@ -2305,6 +2307,8 @@
 		849528DD2603697B009DC845 /* RewardEstimationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RewardEstimationView.xib; sourceTree = "<group>"; };
 		849528E226036997009DC845 /* RewardEstimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardEstimationView.swift; sourceTree = "<group>"; };
 		849632062555CE9D00B8E316 /* ExportSeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSeedData.swift; sourceTree = "<group>"; };
+		84963D6B26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRemoteSubscriptionService.swift; sourceTree = "<group>"; };
+		84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSubscriptionRequests.swift; sourceTree = "<group>"; };
 		84969731251CE71500C39524 /* WalletAssetId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetId.swift; sourceTree = "<group>"; };
 		84969733251CE9CD00C39524 /* ContactsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsConfigurator.swift; sourceTree = "<group>"; };
 		8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoViewModel.swift; sourceTree = "<group>"; };
@@ -3692,7 +3696,7 @@
 		84155DE9253980E100A27058 /* WebSocketService */ = {
 			isa = PBXGroup;
 			children = (
-				841AAC2B26F7311200F0A25E /* ChainRegistry */,
+				841AAC2B26F7311200F0A25E /* RemoteSubscription */,
 				8470D6CE253E31FB009E9A5D /* StorageSubscription */,
 				84155DEA253980F900A27058 /* WebSocketService.swift */,
 				84155DEE2539832C00A27058 /* WebSocketEngineFactory.swift */,
@@ -3714,12 +3718,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		841AAC2B26F7311200F0A25E /* ChainRegistry */ = {
+		841AAC2B26F7311200F0A25E /* RemoteSubscription */ = {
 			isa = PBXGroup;
 			children = (
-				841AAC2C26F7315300F0A25E /* RemoteSubscriptionService.swift */,
+				841AAC2C26F7315300F0A25E /* CrowdloanRemoteSubscriptionService.swift */,
+				84963D6B26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift */,
+				84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */,
 			);
-			path = ChainRegistry;
+			path = RemoteSubscription;
 			sourceTree = "<group>";
 		};
 		841E6B0825EC1B560007DDFE /* Operations */ = {
@@ -8234,7 +8240,7 @@
 				84415BCA26E783EB005A3683 /* PayoutValidatorsForNominatorFactory.swift in Sources */,
 				84E7D67C26376A0A0037EB23 /* YourValidatorListInteractor+Subscription.swift in Sources */,
 				8401AEC32642A71D000B03E3 /* StakingRebondConfirmationViewController.swift in Sources */,
-				841AAC2D26F7315300F0A25E /* RemoteSubscriptionService.swift in Sources */,
+				841AAC2D26F7315300F0A25E /* CrowdloanRemoteSubscriptionService.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
 				84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */,
 				849ABE63262785F200011A2A /* ControllerMapper.swift in Sources */,
@@ -8793,6 +8799,7 @@
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				84DEAA7B265DB987000DDADE /* CrowdloanContributeCall.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,
+				84963D6E26F91826003FE8E4 /* RemoteSubscriptionRequests.swift in Sources */,
 				849DEC5925ED756F00C64C19 /* SubstrateCallFactory.swift in Sources */,
 				84DBEA42265E80DD00FDF73C /* LearnMoreViewModel.swift in Sources */,
 				849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */,
@@ -8871,6 +8878,7 @@
 				840882C12514BC3600177E20 /* SelectConnection+AccountConfirmWireframe.swift in Sources */,
 				84969732251CE71500C39524 /* WalletAssetId.swift in Sources */,
 				8436EDEF25896722004D9E97 /* PurchaseAggregator+Default.swift in Sources */,
+				84963D6C26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift in Sources */,
 				8444D137267117A200AF6D8C /* BifrostBonusService.swift in Sources */,
 				84BB3D00267D364D00676FFE /* CompoundOperationWrapper+Dependency.swift in Sources */,
 				8467FD5524EFD254005D486C /* StorageFacadeProtocol.swift in Sources */,
