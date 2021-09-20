@@ -790,6 +790,7 @@
 		849632072555CE9D00B8E316 /* ExportSeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849632062555CE9D00B8E316 /* ExportSeedData.swift */; };
 		84963D6C26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84963D6B26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift */; };
 		84963D6E26F91826003FE8E4 /* RemoteSubscriptionRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */; };
+		84963D7026F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84963D6F26F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift */; };
 		84969732251CE71500C39524 /* WalletAssetId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969731251CE71500C39524 /* WalletAssetId.swift */; };
 		84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969733251CE9CD00C39524 /* ContactsConfigurator.swift */; };
 		8497FC6026317783002FEAA7 /* AccountInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */; };
@@ -2309,6 +2310,7 @@
 		849632062555CE9D00B8E316 /* ExportSeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSeedData.swift; sourceTree = "<group>"; };
 		84963D6B26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRemoteSubscriptionService.swift; sourceTree = "<group>"; };
 		84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSubscriptionRequests.swift; sourceTree = "<group>"; };
+		84963D6F26F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionService.swift; sourceTree = "<group>"; };
 		84969731251CE71500C39524 /* WalletAssetId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetId.swift; sourceTree = "<group>"; };
 		84969733251CE9CD00C39524 /* ContactsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsConfigurator.swift; sourceTree = "<group>"; };
 		8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoViewModel.swift; sourceTree = "<group>"; };
@@ -3724,6 +3726,7 @@
 				841AAC2C26F7315300F0A25E /* CrowdloanRemoteSubscriptionService.swift */,
 				84963D6B26F91810003FE8E4 /* BaseRemoteSubscriptionService.swift */,
 				84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */,
+				84963D6F26F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift */,
 			);
 			path = RemoteSubscription;
 			sourceTree = "<group>";
@@ -8226,6 +8229,7 @@
 				849842E626587573006BBB9F /* MultilineTableViewCell.swift in Sources */,
 				84BC330026315D7B003C3FF9 /* ExtrinsicConfirmViewModel.swift in Sources */,
 				AEA0C8A6267B6B2600F9666F /* SelectedValidatorListWireframe.swift in Sources */,
+				84963D7026F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift in Sources */,
 				8468B87624F63D5900B76BC6 /* AddAccount+AccountImportWireframe.swift in Sources */,
 				84F6B6482619A87C0038F10D /* ExtrinsicIndexWrapper.swift in Sources */,
 				AEA0C8C8268131DD00F9666F /* ChangeTargetsSelectedValidatorsListWireframe.swift in Sources */,

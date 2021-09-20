@@ -31,7 +31,7 @@ struct UnkeyedSubscriptionRequest: SubscriptionRequestProtocol {
     }
 }
 
-struct MapSubscriptionRequest<T: Encodable> {
+struct MapSubscriptionRequest<T: Encodable>: SubscriptionRequestProtocol {
     let storagePath: StorageCodingPath
     let localKey: String
     let keyParamClosure: () throws -> T
@@ -66,7 +66,7 @@ struct MapSubscriptionRequest<T: Encodable> {
     }
 }
 
-struct DoubleMapSubscriptionRequest<T1: Encodable, T2: Encodable> {
+struct DoubleMapSubscriptionRequest<T1: Encodable, T2: Encodable>: SubscriptionRequestProtocol {
     let storagePath: StorageCodingPath
     let localKey: String
     let keyParamClosure: () throws -> (T1, T2)

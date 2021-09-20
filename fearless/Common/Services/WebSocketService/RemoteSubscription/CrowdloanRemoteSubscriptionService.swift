@@ -23,8 +23,8 @@ extension CrowdloanRemoteSubscriptionServiceProtocol {
     func detach(
         for subscriptionId: UUID,
         chainId: ChainModel.Id,
-        runningCompletionIn queue: DispatchQueue?,
-        completion closure: RemoteSubscriptionClosure?
+        runningCompletionIn _: DispatchQueue?,
+        completion _: RemoteSubscriptionClosure?
     ) {
         detach(for: subscriptionId, chainId: chainId, runningCompletionIn: nil, completion: nil)
     }
