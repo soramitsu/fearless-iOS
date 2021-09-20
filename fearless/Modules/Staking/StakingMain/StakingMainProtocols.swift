@@ -106,7 +106,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showAccountsSelection(from view: StakingMainViewProtocol?)
     func showBondMore(from view: ControllerBackedProtocol?)
     func showRedeem(from view: ControllerBackedProtocol?)
-    func showAnalytics(from view: ControllerBackedProtocol?, includeValidators: Bool)
+    func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)
 
     func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)
 }

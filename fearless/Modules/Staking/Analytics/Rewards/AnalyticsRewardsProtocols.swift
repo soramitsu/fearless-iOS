@@ -21,7 +21,8 @@ protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
     func showRewardDetails(_ rewardModel: AnalyticsRewardDetailsModel, from view: ControllerBackedProtocol?)
-    func showPendingRewards(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
+    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
+    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
 }
 
 protocol AnalyticsRewardsViewModelFactoryProtocol {

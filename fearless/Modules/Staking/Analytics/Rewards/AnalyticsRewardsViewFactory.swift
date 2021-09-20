@@ -3,7 +3,7 @@ import SoraKeystore
 import SoraFoundation
 
 struct AnalyticsRewardsViewFactory {
-    static func createView() -> AnalyticsRewardsViewProtocol? {
+    static func createView(accountIsNominator: Bool) -> AnalyticsRewardsViewProtocol? {
         let settings = SettingsManager.shared
 
         let networkType = settings.selectedConnection.type
@@ -38,6 +38,7 @@ struct AnalyticsRewardsViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
+            accountIsNominator: accountIsNominator,
             logger: Logger.shared
         )
 
