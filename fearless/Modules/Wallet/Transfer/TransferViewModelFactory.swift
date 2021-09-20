@@ -2,7 +2,6 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 import FearlessUtils
-import SoraFoundation
 
 final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
     weak var commandFactory: WalletCommandFactoryProtocol?
@@ -67,62 +66,6 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
     ) throws -> AssetSelectionViewModelProtocol? {
         nil
     }
-
-    // TODO: Move to amount view
-    /*
-     guard
-         let asset = assets
-         .first(where: { $0.identifier == payload.receiveInfo.assetId }),
-         let assetId = WalletAssetId(rawValue: asset.identifier)
-     else {
-         return nil
-     }
-
-     let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
-
-     let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
-     let amount = formatter.stringFromDecimal(balanceContext.available) ?? ""
-
-     let subtitle = R.string.localizable
-         .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)
-
-     let detailsCommand: WalletCommandProtocol?
-
-     if let context = inputState.balance?.context, let commandFactory = commandFactory {
-         let balanceContext = BalanceContext(context: context)
-         let transferring = inputState.amount ?? .zero
-         let fee = inputState.metadata?.feeDescriptions.first?.parameters.first?.decimalValue ?? .zero
-         let remaining = balanceContext.total - (transferring + fee)
-         let transferState = TransferExistentialState(
-             totalAmount: balanceContext.total,
-             availableAmount: balanceContext.available,
-             totalAfterTransfer: remaining,
-             existentialDeposit: balanceContext.minimalBalance
-         )
-
-         let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
-
-         detailsCommand = ExistentialDepositInfoCommand(
-             transferState: transferState,
-             amountFormatter: amountFormatter,
-             commandFactory: commandFactory
-         )
-     } else {
-         detailsCommand = nil
-     }
-
-     let header = R.string.localizable.walletSendAssetTitle(preferredLanguages: locale.rLanguages)
-
-     let viewModel = WalletTokenViewModel(
-         header: header,
-         title: asset.name.value(for: locale),
-         subtitle: subtitle,
-         details: amount,
-         icon: assetId.icon,
-         state: selectedAssetState,
-         detailsCommand: detailsCommand
-     )
-     */
 
     // TODO: Check what it does
     func createAssetSelectionTitle(
@@ -234,98 +177,5 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
             fee: fee,
             limit: TransferConstants.maxAmount
         )
-    }
-}
-
-// TODO: Move into separate file
-protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol, AssetBalanceViewModelProtocol {
-    var balanceViewModelFactory: BalanceViewModelFactoryProtocol { get }
-    var priceData: PriceData? { get }
-    var displayPrice: LocalizableResource<String> { get }
-    var displayBalance: LocalizableResource<String> { get }
-    var decimalBalance: Decimal? { get }
-    var fee: Decimal? { get }
-    var limit: Decimal { get }
-}
-
-final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
-    let amountInputViewModel: AmountInputViewModelProtocol
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-
-    let symbol: String
-    let icon: UIImage?
-    let balance: String?
-    let price: String?
-    let priceData: PriceData?
-    let decimalBalance: Decimal?
-    let fee: Decimal?
-    let limit: Decimal
-
-    var displayAmount: String {
-        amountInputViewModel.displayAmount
-    }
-
-    var decimalAmount: Decimal? {
-        amountInputViewModel.decimalAmount
-    }
-
-    var isValid: Bool {
-        amountInputViewModel.isValid
-    }
-
-    var observable: WalletViewModelObserverContainer<AmountInputViewModelObserver> {
-        amountInputViewModel.observable
-    }
-
-    var displayPrice: LocalizableResource<String> {
-        LocalizableResource<String> { [self] locale in
-            guard let amount = decimalAmount,
-                  let priceData = priceData
-            else { return "" }
-
-            return balanceViewModelFactory.balanceFromPrice(
-                amount,
-                priceData: priceData
-            ).value(for: locale).price ?? ""
-        }
-    }
-
-    var displayBalance: LocalizableResource<String> {
-        LocalizableResource<String> { locale in
-            R.string.localizable
-                .commonAvailableFormat(self.balance ?? "0", preferredLanguages: locale.rLanguages)
-        }
-    }
-
-    init(
-        amountInputViewModel: AmountInputViewModelProtocol,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        symbol: String,
-        icon: UIImage?,
-        balance: String?,
-        price: String?,
-        priceData: PriceData?,
-        decimalBalance: Decimal?,
-        fee: Decimal?,
-        limit: Decimal
-    ) {
-        self.amountInputViewModel = amountInputViewModel
-        self.balanceViewModelFactory = balanceViewModelFactory
-        self.symbol = symbol
-        self.icon = icon
-        self.balance = balance
-        self.price = price
-        self.priceData = priceData
-        self.decimalBalance = decimalBalance
-        self.fee = fee
-        self.limit = limit
-    }
-
-    func didReceiveReplacement(_ string: String, for range: NSRange) -> Bool {
-        amountInputViewModel.didReceiveReplacement(string, for: range)
-    }
-
-    func didUpdateAmount(to newAmount: String) {
-        amountInputViewModel.didUpdateAmount(to: newAmount)
     }
 }
