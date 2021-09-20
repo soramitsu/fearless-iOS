@@ -36328,16 +36328,16 @@ import SoraFoundation
     
     
     
-     func showAnalytics(from view: ControllerBackedProtocol?, includeValidators: Bool)  {
+     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)  {
         
-    return cuckoo_manager.call("showAnalytics(from: ControllerBackedProtocol?, includeValidators: Bool)",
-            parameters: (view, includeValidators),
-            escapingParameters: (view, includeValidators),
+    return cuckoo_manager.call("showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)",
+            parameters: (view, mode),
+            escapingParameters: (view, mode),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.showAnalytics(from: view, includeValidators: includeValidators))
+            defaultCall: __defaultImplStub!.showAnalytics(from: view, mode: mode))
         
     }
     
@@ -36465,9 +36465,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRedeem(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
-	    func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, includeValidators: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, Bool)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, Bool)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: includeValidators) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showAnalytics(from: ControllerBackedProtocol?, includeValidators: Bool)", parameterMatchers: matchers))
+	    func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, mode: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AnalyticsContainerViewMode)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AnalyticsContainerViewMode {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AnalyticsContainerViewMode)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: mode) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)", parameterMatchers: matchers))
 	    }
 	    
 	    func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ stashAddress: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress, ControllerBackedProtocol?)> where M1.MatchedType == AccountAddress, M2.OptionalMatchedType == ControllerBackedProtocol {
@@ -36586,9 +36586,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, includeValidators: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, Bool), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, Bool)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: includeValidators) { $0.1 }]
-	        return cuckoo_manager.verify("showAnalytics(from: ControllerBackedProtocol?, includeValidators: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, mode: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AnalyticsContainerViewMode), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AnalyticsContainerViewMode {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AnalyticsContainerViewMode)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: mode) { $0.1 }]
+	        return cuckoo_manager.verify("showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -36674,7 +36674,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func showAnalytics(from view: ControllerBackedProtocol?, includeValidators: Bool)   {
+     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
