@@ -48,6 +48,8 @@ final class WalletInputAmountView: WalletBaseAmountView {
             locale: localizationManager?.selectedLocale ?? Locale.current
         )
         amountInputView.textField.inputAccessoryView = accessoryView
+        amountInputView.textField.placeholder = "0"
+        amountInputView.textField.text = ""
     }
 }
 
@@ -59,14 +61,16 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 
         self.inputViewModel?.observable.add(observer: self)
 
-        amountInputView.textField.text = inputViewModel.displayAmount
+        amountInputView.textField.text = inputViewModel.displayAmount == "0" ?
+            "" :
+            inputViewModel.displayAmount
 
         fieldBackgroundView.applyEnabledStyle()
 
-        if let viewModel = inputViewModel as? AssetBalanceViewModelProtocol {
+        if let viewModel = inputViewModel as? RichAmountInputViewModelProtocol {
             amountInputView.assetIcon = viewModel.icon
-            amountInputView.balanceText = viewModel.balance
-            amountInputView.priceText = viewModel.price
+            amountInputView.balanceText = viewModel.displayBalance.value(for: selectedLocale)
+            amountInputView.priceText = viewModel.displayPrice.value(for: selectedLocale)
             amountInputView.symbol = viewModel.symbol
         }
     }
@@ -75,6 +79,13 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 extension WalletInputAmountView: AmountInputViewModelObserver {
     func amountInputDidChange() {
         amountInputView.textField.text = inputViewModel?.displayAmount
+
+        guard let model = inputViewModel as? RichAmountInputViewModelProtocol else {
+            amountInputView.priceText = ""
+            return
+        }
+
+        amountInputView.priceText = model.displayPrice.value(for: selectedLocale)
     }
 }
 
@@ -98,11 +109,11 @@ extension WalletInputAmountView: UITextFieldDelegate {
 
 extension WalletInputAmountView: Localizable {
     func applyLocalization() {
-        let locale = localizationManager?.selectedLocale
         amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale?.rLanguages)
+            .walletSendAmountTitle(preferredLanguages: selectedLocale.rLanguages)
 
-        // TODO: localize data
+        guard let model = inputViewModel as? RichAmountInputViewModelProtocol else { return }
+        amountInputView.balanceText = model.displayBalance.value(for: selectedLocale)
     }
 }
 
@@ -121,68 +132,5 @@ extension WalletInputAmountView: AmountInputAccessoryViewDelegate {
 
     func didSelectDone(on _: AmountInputAccessoryView) {
         amountInputView.textField.resignFirstResponder()
-    }
-}
-
-// TODO: Move into separate file
-protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol & AssetBalanceViewModelProtocol {
-    var decimalBalance: Decimal? { get }
-    var fee: Decimal? { get }
-    var limit: Decimal { get }
-}
-
-final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
-    let amountInputViewModel: AmountInputViewModelProtocol
-
-    let symbol: String
-    let icon: UIImage?
-    let balance: String?
-    let price: String?
-    let decimalBalance: Decimal?
-    let fee: Decimal?
-    let limit: Decimal
-
-    var displayAmount: String {
-        amountInputViewModel.displayAmount
-    }
-
-    var decimalAmount: Decimal? {
-        amountInputViewModel.decimalAmount
-    }
-
-    var isValid: Bool {
-        amountInputViewModel.isValid
-    }
-
-    var observable: WalletViewModelObserverContainer<AmountInputViewModelObserver> {
-        amountInputViewModel.observable
-    }
-
-    init(
-        amountInputViewModel: AmountInputViewModelProtocol,
-        symbol: String,
-        icon: UIImage?,
-        balance: String?,
-        price: String?,
-        decimalBalance: Decimal?,
-        fee: Decimal?,
-        limit: Decimal
-    ) {
-        self.amountInputViewModel = amountInputViewModel
-        self.symbol = symbol
-        self.icon = icon
-        self.balance = balance
-        self.price = price
-        self.decimalBalance = decimalBalance
-        self.fee = fee
-        self.limit = limit
-    }
-
-    func didReceiveReplacement(_ string: String, for range: NSRange) -> Bool {
-        amountInputViewModel.didReceiveReplacement(string, for: range)
-    }
-
-    func didUpdateAmount(to newAmount: String) {
-        amountInputViewModel.didUpdateAmount(to: newAmount)
     }
 }

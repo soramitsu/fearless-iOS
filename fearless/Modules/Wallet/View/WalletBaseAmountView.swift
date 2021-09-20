@@ -58,7 +58,7 @@ class WalletBaseAmountView: UIView {
         )
 
         amountInputView.textField.attributedPlaceholder = NSAttributedString(
-            string: "0",
+            string: "",
             attributes: [
                 .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
                 .font: UIFont.h4Title

@@ -15,8 +15,8 @@ final class TransferChangeHandling: OperationDefinitionChangeHandling {
         }
     }
 
-    func clearErrorForChange(event: OperationDefinitionChangeEvent) -> [OperationDefinitionType] {
-        return [.amount, .fee]
+    func clearErrorForChange(event _: OperationDefinitionChangeEvent) -> [OperationDefinitionType] {
+        [.amount, .fee]
     }
 
     func shouldUpdateAccessoryForChange(event _: OperationDefinitionChangeEvent) -> Bool {
