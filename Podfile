@@ -19,6 +19,7 @@ abstract_target 'fearlessAll' do
   pod 'Sourcery', '~> 1.4'
   pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :tag => '3.0.0'
+  pod 'Charts'
 
   target 'fearlessTests' do
     inherit! :search_paths

@@ -36,6 +36,7 @@ final class StakingMainPresenter {
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
     private var controllerAccount: AccountItem?
+    private var nomination: Nomination?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -306,6 +307,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showRedeem(from: view)
     }
 
+    func performAnalyticsAction() {
+        if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+            wireframe.showAnalytics(from: view, includeValidators: false)
+        } else {
+            wireframe.showAnalytics(from: view, includeValidators: nomination != nil)
+        }
+    }
+
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
         interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
     }
@@ -405,6 +414,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
         stateMachine.state.process(nomination: nomination)
 
         if let nomination = nomination {
@@ -486,6 +496,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(maxNominatorsPerValidator):
             stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
+        switch subqueryRewards {
+        case let .success(rewards):
+            stateMachine.state.process(subqueryRewards: (rewards, period))
         case let .failure(error):
             handle(error: error)
         }

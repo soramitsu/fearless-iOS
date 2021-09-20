@@ -140,6 +140,7 @@ extension StakingMainInteractor {
             subscribeToTotalReward(address: stashItem.stash)
             subscribeToPayee(address: stashItem.stash)
             subscribeToControllerAccount(address: stashItem.controller)
+            fetchAnalyticsRewards(stash: stashItem.stash)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -465,6 +466,33 @@ extension StakingMainInteractor {
                 runtimeService: runtimeService
             )
         }
+    }
+
+    private func fetchAnalyticsRewards(stash: AccountAddress) {
+        guard let analyticsURL = currentConnection?.type.chain.analyticsURL else { return }
+        let period = analyticsPeriod
+
+        let now = Date().timeIntervalSince1970
+        let sevenDaysAgo = Date().addingTimeInterval(-(.secondsInDay * 7)).timeIntervalSince1970
+        let subqueryRewardsSource = SubqueryRewardsSource(
+            address: stash,
+            url: analyticsURL,
+            startTimestamp: Int64(sevenDaysAgo),
+            endTimestamp: Int64(now)
+        )
+        let fetchOperation = subqueryRewardsSource.fetchOperation()
+
+        fetchOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData()
+                    self?.presenter?.didReceieve(subqueryRewards: .success(response), period: period)
+                } catch {
+                    self?.presenter?.didReceieve(subqueryRewards: .failure(error), period: period)
+                }
+            }
+        }
+        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
     }
 }
 

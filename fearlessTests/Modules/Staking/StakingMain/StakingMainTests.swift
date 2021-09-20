@@ -35,8 +35,14 @@ class StakingMainTests: XCTestCase {
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
-        let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
-                                                                 logger: Logger.shared)
+        let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balance in
+            AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balance, calendar: .init(identifier: .gregorian))
+        }
+        let stateViewModelFactory = StakingStateViewModelFactory(
+            primitiveFactory: primitiveFactory,
+            analyticsRewardsViewModelFactoryBuilder: analyticsRewardsViewModelFactoryBuilder,
+            logger: Logger.shared
+        )
         let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
@@ -224,8 +230,12 @@ class StakingMainTests: XCTestCase {
         let settings = InMemorySettingsManager()
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
+        let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balance in
+            AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balance, calendar: .init(identifier: .gregorian))
+        }
         let stateViewModelFactory = StakingStateViewModelFactory(
             primitiveFactory: primitiveFactory,
+            analyticsRewardsViewModelFactoryBuilder: analyticsRewardsViewModelFactoryBuilder,
             logger: nil
         )
         let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
