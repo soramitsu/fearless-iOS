@@ -1,9 +1,14 @@
 import Foundation
 import CommonWallet
 import FearlessUtils
+import IrohaCrypto
+import SoraKeystore
 
 final class TransferConfirmViewModelFactory {
     weak var commandFactory: WalletCommandFactoryProtocol?
+
+    private lazy var addressFactory = SS58AddressFactory()
+    private lazy var settings = SettingsManager.shared
 
     let assets: [WalletAsset]
     let amountFormatterFactory: NumberFormatterFactoryProtocol
@@ -71,7 +76,7 @@ final class TransferConfirmViewModelFactory {
             detailsCommand: detailsCommand
         )
 
-        viewModelList.append(WalletFormSeparatedViewModel(content: tokenViewModel, borderType: [.bottom]))
+        viewModelList.append(WalletFormSeparatedViewModel(content: tokenViewModel, borderType: [.none]))
     }
 
     func populateFee(
@@ -99,7 +104,7 @@ final class TransferConfirmViewModelFactory {
                 details: amount,
                 detailsIcon: nil
             )
-            viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
+            viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.none]))
         }
     }
 
@@ -121,7 +126,16 @@ final class TransferConfirmViewModelFactory {
         }
 
         let title = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = WalletFormSpentAmountModel(title: title, amount: amount)
+        let baseViewModel = WalletFormSpentAmountModel(title: title, amount: amount)
+
+        let viewModel = RichAmountDisplayViewModel(
+            displayViewModel: baseViewModel,
+            icon: nil,
+            symbol: payload.transferInfo.asset,
+            balance: payload.transferInfo.amount.stringValue,
+            price: payload.transferInfo.amount.stringValue
+        )
+
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: .none))
     }
 
@@ -159,10 +173,61 @@ final class TransferConfirmViewModelFactory {
             mainIcon: icon,
             actionIcon: R.image.iconMore(),
             command: command,
-            enabled: false
+            enabled: true
         )
 
-        viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
+        viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.none]))
+    }
+
+    func populateSender(
+        in viewModelList: inout [WalletFormViewBindingProtocol],
+        payload: ConfirmationPayload,
+        chain: Chain,
+        locale: Locale
+    ) {
+        guard let commandFactory = commandFactory else {
+            return
+        }
+
+        var senderAddress: AccountAddress?
+
+        if let selectedAccount = settings.selectedAccount {
+            senderAddress = selectedAccount.address
+        } else {
+            senderAddress = try? addressFactory.addressFromAccountId(
+                data: Data(hexString: payload.transferInfo.source),
+                type: chain.addressType
+            )
+        }
+
+        let headerTitle = R.string.localizable
+            .transactionDetailsFrom(preferredLanguages: locale.rLanguages)
+
+        let iconGenerator = PolkadotIconGenerator()
+        let icon = try? iconGenerator.generateFromAddress(senderAddress ?? "")
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
+
+        let command = WalletAccountOpenCommand(
+            address: payload.transferInfo.source,
+            chain: chain,
+            commandFactory: commandFactory,
+            locale: locale
+        )
+
+        let viewModel = WalletCompoundDetailsViewModel(
+            title: headerTitle,
+            details: settings.selectedAccount?.username ?? senderAddress ?? "",
+            mainIcon: icon,
+            actionIcon: R.image.iconMore(),
+            command: command,
+            enabled: true
+        )
+
+        viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.none]))
     }
 }
 
@@ -177,10 +242,9 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
 
         var viewModelList: [WalletFormViewBindingProtocol] = []
 
-        populateAsset(in: &viewModelList, payload: payload, locale: locale)
+        populateSender(in: &viewModelList, payload: payload, chain: chain, locale: locale)
         populateReceiver(in: &viewModelList, payload: payload, chain: chain, locale: locale)
         populateSendingAmount(in: &viewModelList, payload: payload, locale: locale)
-        populateFee(in: &viewModelList, payload: payload, locale: locale)
 
         return viewModelList
     }
@@ -193,20 +257,18 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
             return nil
         }
 
-        var decimalAmount = payload.transferInfo.amount.decimalValue
-
-        for fee in payload.transferInfo.fees {
-            decimalAmount += fee.value.decimalValue
-        }
+        let fee = payload.transferInfo.fees
+            .map(\.value.decimalValue)
+            .reduce(0.0, +)
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
-        guard let amount = formatter.value(for: locale).stringFromDecimal(decimalAmount) else {
+        guard let amount = formatter.value(for: locale).stringFromDecimal(fee) else {
             return nil
         }
 
-        let actionTitle = R.string.localizable.walletSendConfirmTitle(preferredLanguages: locale.rLanguages)
-        let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
+        let actionTitle = R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages)
+        let title = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
 
         return TransferConfirmAccessoryViewModel(
             title: title,

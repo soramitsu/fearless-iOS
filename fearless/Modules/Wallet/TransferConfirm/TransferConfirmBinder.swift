@@ -64,4 +64,6 @@ final class TransferConfirmBinder: WalletFormViewModelBinderOverriding {
         view.bind(viewModel: viewModel)
         return true
     }
+
+    // TODO: Define bind for amount display VM
 }

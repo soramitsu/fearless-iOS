@@ -22,4 +22,10 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
         amountView.localizationManager = localizationManager
         return amountView
     }
+
+    func createFeeView() -> BaseFeeView? {
+        nil
+//        return NetworkFeeView(): BaseFeeView
+        // TODO: Create custom view
+    }
 }

@@ -14,17 +14,23 @@ final class TransferConfirmConfigurator {
     }
 
     let viewModelFactory: TransferConfirmViewModelFactory
+    let localizationManager: LocalizationManagerProtocol
 
-    init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
+    init(
+        assets: [WalletAsset],
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         viewModelFactory = TransferConfirmViewModelFactory(
             assets: assets,
             amountFormatterFactory: amountFormatterFactory
         )
+        self.localizationManager = localizationManager
     }
 
     func configure(builder: TransferConfirmationModuleBuilderProtocol) {
         let title = LocalizableResource { locale in
-            R.string.localizable.walletSendConfirmTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages)
         }
 
         builder

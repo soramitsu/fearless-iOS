@@ -67,7 +67,6 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         nil
     }
 
-    // TODO: Check what it does
     func createAssetSelectionTitle(
         _: TransferInputState,
         payload: TransferPayload,

@@ -3,6 +3,7 @@ import CommonWallet
 import SoraUI
 import SoraFoundation
 
+// TODO: add number formatter to format input
 final class WalletInputAmountView: WalletBaseAmountView {
     var contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0) {
         didSet {
@@ -60,6 +61,8 @@ extension WalletInputAmountView: AmountInputViewProtocol {
         self.inputViewModel = inputViewModel
 
         self.inputViewModel?.observable.add(observer: self)
+
+//        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: selectedLocale)
 
         amountInputView.textField.text = inputViewModel.displayAmount == "0" ?
             "" :
