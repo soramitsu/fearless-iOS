@@ -308,11 +308,25 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAnalyticsAction() {
-        if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
-            wireframe.showAnalytics(from: view, includeValidators: false)
-        } else {
-            wireframe.showAnalytics(from: view, includeValidators: nomination != nil)
-        }
+        let isNominator: AnalyticsContainerViewMode = {
+            if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+                return .none
+            }
+
+            if stateMachine.viewState(using: { (state: BaseStashNextState) in state }) != nil {
+                return .accountIsNominator
+            }
+            return .none
+        }()
+
+        let includeValidators: AnalyticsContainerViewMode = {
+            if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+                return .none
+            }
+            return nomination != nil ? .includeValidatorsTab : .none
+        }()
+
+        wireframe.showAnalytics(from: view, mode: isNominator.union(includeValidators))
     }
 
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {

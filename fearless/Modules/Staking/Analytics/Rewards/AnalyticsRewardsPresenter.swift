@@ -6,6 +6,7 @@ final class AnalyticsRewardsPresenter {
     weak var view: AnalyticsRewardsViewProtocol?
     let wireframe: AnalyticsRewardsWireframeProtocol
     let interactor: AnalyticsRewardsInteractorInputProtocol
+    let accountIsNominator: Bool
     private let logger: LoggerProtocol?
     private let viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol
     private var rewardsData: [SubqueryRewardItemData]?
@@ -19,12 +20,14 @@ final class AnalyticsRewardsPresenter {
         wireframe: AnalyticsRewardsWireframeProtocol,
         viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol?,
+        accountIsNominator: Bool,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
+        self.accountIsNominator = accountIsNominator
         self.localizationManager = localizationManager
     }
 
@@ -66,7 +69,11 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
 
     func handlePendingRewardsAction() {
         guard let stashItem = stashItem else { return }
-        wireframe.showPendingRewards(from: view, stashAddress: stashItem.stash)
+        if accountIsNominator {
+            wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashItem.stash)
+        } else {
+            wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashItem.stash)
+        }
     }
 
     func didUnselectXValue() {
