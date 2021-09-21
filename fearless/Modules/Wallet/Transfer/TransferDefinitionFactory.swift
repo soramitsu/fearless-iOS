@@ -24,8 +24,6 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
     }
 
     func createFeeView() -> BaseFeeView? {
-        nil
-//        return NetworkFeeView(): BaseFeeView
-        // TODO: Create custom view
+        UIFactory().createNetworkFeeView()
     }
 }

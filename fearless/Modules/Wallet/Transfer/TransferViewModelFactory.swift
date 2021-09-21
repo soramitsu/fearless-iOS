@@ -21,8 +21,17 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
+    private func getPriceDataFrom(_ inputState: TransferInputState) -> PriceData? {
+        let priceContext = TransferMetadataContext(context: inputState.metadata?.context ?? [:])
+        let price = priceContext.price
+
+        guard price > 0.0 else { return nil }
+
+        return PriceData(price: price.stringWithPointSeparator, usdDayChange: nil)
+    }
+
     func createFeeViewModel(
-        _: TransferInputState,
+        _ inputState: TransferInputState,
         fee: Fee,
         payload _: TransferPayload,
         locale: Locale
@@ -36,12 +45,27 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let title = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
 
-        let formatter = amountFormatterFactory.createFeeTokenFormatter(for: asset).value(for: locale)
+        let feeAmount = fee.feeDescription.parameters.first?.decimalValue ?? 0
 
-        let amount = formatter
-            .stringFromDecimal(fee.feeDescription.parameters.first?.decimalValue ?? 0) ?? ""
+        let amountFormatter = amountFormatterFactory
+            .createFeeTokenFormatter(for: asset).value(for: locale)
 
-        return FeeViewModel(
+        let amount = amountFormatter.stringFromDecimal(feeAmount) ?? ""
+
+        let priceData = getPriceDataFrom(inputState)
+
+        let price: String = {
+            guard let priceData = priceData else { return "" }
+
+            return balanceViewModelFactory.balanceFromPrice(
+                feeAmount,
+                priceData: priceData
+            ).value(for: locale).price ?? ""
+        }()
+
+        return FeePriceViewModel(
+            amount: amount,
+            price: price,
             title: title,
             details: amount,
             isLoading: false,

@@ -1224,6 +1224,7 @@
 		AEBE173B262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE173A262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift */; };
 		AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */; };
 		AEC167062667671B0058F572 /* RecommendedValidatorListViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC167052667671B0058F572 /* RecommendedValidatorListViewModelFactory.swift */; };
+		AECE7B4526F9E3440045AF9B /* FeePriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */; };
 		AEDD7C0F269C81F500A8405F /* BlockWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDD7C0E269C81F500A8405F /* BlockWeights.swift */; };
 		AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
@@ -2669,6 +2670,7 @@
 		AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutConfirmViewModel.swift; sourceTree = "<group>"; };
 		AEC167052667671B0058F572 /* RecommendedValidatorListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewModelFactory.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
+		AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeePriceViewModel.swift; sourceTree = "<group>"; };
 		AEDD7C0E269C81F500A8405F /* BlockWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockWeights.swift; sourceTree = "<group>"; };
 		AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+MinimalBalance.swift"; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
@@ -5408,6 +5410,7 @@
 				8494D85D25246E9A00614D8F /* WalletTokenViewModel.swift */,
 				8460E12825422C5A00826F55 /* WalletCompoundDetailsViewModel.swift */,
 				AE8EDB0F26F8729100C6F3B3 /* RichAmountViewModel.swift */,
+				AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -8169,6 +8172,7 @@
 				8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */,
 				8460E1192541FD1800826F55 /* TransactionDetailsAccessoryView.swift in Sources */,
 				847DD8DC26034B99003DE053 /* LocalizableViewProtocol.swift in Sources */,
+				AECE7B4526F9E3440045AF9B /* FeePriceViewModel.swift in Sources */,
 				847297CF260B4035009B86D0 /* ChangeTargetConfirmInteractor.swift in Sources */,
 				8428768724AE046300D91AD8 /* LanguageSelectionViewFactory.swift in Sources */,
 				84FAB0672542D06B00319F74 /* WalletContactOperationFactory.swift in Sources */,
