@@ -47,7 +47,7 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
                 return selectedChain
             }
 
-            if let firstRelayChain = chains.min(by: { $0.addressPrefix < $1.addressPrefix }) {
+            if let firstRelayChain = chains.first(where: { $0.hasCrowdloans }) {
                 self.settings.crowdloanChainId = firstRelayChain.chainId
                 return firstRelayChain
             }

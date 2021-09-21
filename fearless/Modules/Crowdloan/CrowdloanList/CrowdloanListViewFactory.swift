@@ -3,6 +3,7 @@ import SoraFoundation
 import FearlessUtils
 import SoraKeystore
 import IrohaCrypto
+import RobinHood
 
 struct CrowdloanListViewFactory {
     static func createView() -> CrowdloanListViewProtocol? {
@@ -50,30 +51,41 @@ struct CrowdloanListViewFactory {
         return view
     }
 
-    private static func createInteractor(from settings: CrowdloanChainSettings) -> CrowdloanListInteractor? {
+    private static func createInteractor(
+        from settings: CrowdloanChainSettings
+    ) -> CrowdloanListInteractor? {
+        let selectedMetaAccount: MetaAccountModel = SelectedWalletSettings.shared.value
+
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let storageFacade = SubstrateDataStorageFacade.shared
+        let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
 
-        guard
-            let selectedWallet = SelectedWalletSettings.shared.value,
-            let selectedChain = settings.value,
-            let selectedAsset = selectedChain.assets.first(where: { $0.isUtility }),
-            let connection = chainRegistry.getConnection(for: selectedChain.chainId),
-            let selectedAddress = try? SS58AddressFactory().address(
-                fromAccountId: selectedWallet.substrateAccountId,
-                type: selectedChain.addressPrefix
-            ) else {
-            return nil
-        }
-
-        let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
+        let logger = Logger.shared
+
+        let remoteSubscriptionService = CrowdloanRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            repository: AnyDataProviderRepository(repository),
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let localSubscriptionFactory = CrowdloanLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
 
-        let providerFactory = SingleValueProviderFactory.shared
+        let crowdloanInfoProvider: AnySingleValueProvider<[CrowdloanDisplayInfo]> =
+            SingleValueProviderFactory.shared.getJson(
+                for: Chain.kusama.crowdloanDisplayInfoURL()
+            )
 
         let crowdloanOperationFactory = CrowdloanOperationFactory(
             requestOperationFactory: storageRequestFactory,
@@ -81,14 +93,14 @@ struct CrowdloanListViewFactory {
         )
 
         return CrowdloanListInteractor(
-            selectedAddress: selectedAddress,
-            runtimeService: runtimeService,
+            selectedMetaAccount: selectedMetaAccount,
+            settings: settings,
+            chainRegistry: chainRegistry,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: connection,
-            singleValueProviderFactory: providerFactory,
-            chain: .polkadot,
-            operationManager: operationManager,
-            logger: Logger.shared
+            localSubscriptionFactory: localSubscriptionFactory,
+            crowdloanRemoteSubscriptionService: remoteSubscriptionService,
+            displayInfoProvider: crowdloanInfoProvider,
+            operationManager: operationManager
         )
     }
 }

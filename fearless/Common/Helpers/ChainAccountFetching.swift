@@ -16,6 +16,10 @@ struct ChainAccountResponse {
     let isEthereumBased: Bool
 }
 
+enum ChainAccountFetchingError: Error {
+    case accountNotExists
+}
+
 extension ChainAccountResponse {
     func toAccountItem() throws -> AccountItem {
         let chainConversion: ChainConversion = isEthereumBased ? .ethereum : .substrate(addressPrefix)

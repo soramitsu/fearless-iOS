@@ -8,6 +8,7 @@ final class CrowdloanListPresenter {
     let viewModelFactory: CrowdloansViewModelFactoryProtocol
     let logger: LoggerProtocol?
 
+    private var selectedChain: ChainModel?
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
     private var blockNumber: BlockNumber?
@@ -171,6 +172,10 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
 
         leaseInfoResult = result
         updateView()
+    }
+
+    func didReceiveSelected(chainModel: ChainModel) {
+        self.selectedChain = chainModel
     }
 }
 

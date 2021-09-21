@@ -15,6 +15,7 @@ protocol CrowdloanListPresenterProtocol: AnyObject {
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
     func setup()
     func refresh()
+    func saveSelected(chainModel: ChainModel)
     func becomeOnline()
     func putOffline()
 }
@@ -27,6 +28,7 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)
     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)
     func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)
+    func didReceiveSelected(chainModel: ChainModel)
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {

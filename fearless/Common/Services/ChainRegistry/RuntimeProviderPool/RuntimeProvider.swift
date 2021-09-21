@@ -2,14 +2,12 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
-protocol RuntimeProviderProtocol: AnyObject {
+protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     var chainId: ChainModel.Id { get }
 
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()
-
-    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol>
 }
 
 enum RuntimeProviderError: Error {
@@ -150,6 +148,27 @@ final class RuntimeProvider {
             pendingRequests.append(request)
         }
     }
+
+    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        ClosureOperation { [weak self] in
+            var fetchedFactory: RuntimeCoderFactoryProtocol?
+
+            let semaphore = DispatchSemaphore(value: 0)
+
+            self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+                fetchedFactory = factory
+                semaphore.signal()
+            }
+
+            semaphore.wait()
+
+            guard let factory = fetchedFactory else {
+                throw RuntimeProviderError.providerUnavailable
+            }
+
+            return factory
+        }
+    }
 }
 
 extension RuntimeProvider: RuntimeProviderProtocol {
@@ -199,27 +218,6 @@ extension RuntimeProvider: RuntimeProviderProtocol {
         currentWrapper = nil
 
         resolveRequests()
-    }
-
-    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        ClosureOperation { [weak self] in
-            var fetchedFactory: RuntimeCoderFactoryProtocol?
-
-            let semaphore = DispatchSemaphore(value: 0)
-
-            self?.fetchCoderFactory(runCompletionIn: nil) { factory in
-                fetchedFactory = factory
-                semaphore.signal()
-            }
-
-            semaphore.wait()
-
-            guard let factory = fetchedFactory else {
-                throw RuntimeProviderError.providerUnavailable
-            }
-
-            return factory
-        }
     }
 }
 

@@ -56,7 +56,7 @@ class LocalSubscriptionFactory {
         let streamableProvider = stremableProviderFactory.createStorageProvider(for: localKey)
 
         let trigger = DataProviderProxyTrigger()
-        let source: LocalStorageProviderSource<T> = LocalStorageProviderSource(
+        let source: StorageProviderSource<T> = StorageProviderSource(
             itemIdentifier: localKey,
             codingPath: storageCodingPath,
             runtimeService: runtimeCodingProvider,

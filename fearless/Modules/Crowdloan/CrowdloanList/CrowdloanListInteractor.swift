@@ -5,47 +5,61 @@ import RobinHood
 final class CrowdloanListInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanListInteractorOutputProtocol!
 
-    let selectedAddress: AccountAddress
-    let runtimeService: RuntimeCodingServiceProtocol
+    let selectedMetaAccount: MetaAccountModel
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
-    let connection: JSONRPCEngine
-    let operationManager: OperationManagerProtocol
+    let chainRegistry: ChainRegistryProtocol
     let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let chain: Chain
+    let subscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
+    let crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol
+    let settings: CrowdloanChainSettings
+    let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
 
     init(
-        selectedAddress: AccountAddress,
-        runtimeService: RuntimeCodingServiceProtocol,
+        selectedMetaAccount: MetaAccountModel,
+        settings: CrowdloanChainSettings,
+        chainRegistry: ChainRegistryProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        connection: JSONRPCEngine,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        chain: Chain,
+        localSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
+        crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol,
+        displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
-        self.selectedAddress = selectedAddress
-        self.runtimeService = runtimeService
+        self.selectedMetaAccount = selectedMetaAccount
         self.crowdloanOperationFactory = crowdloanOperationFactory
-
-        displayInfoProvider = singleValueProviderFactory.getJson(
-            for: chain.crowdloanDisplayInfoURL()
-        )
-
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.connection = connection
+        self.chainRegistry = chainRegistry
+        self.displayInfoProvider = displayInfoProvider
+        subscriptionFactory = localSubscriptionFactory
+        self.crowdloanRemoteSubscriptionService = crowdloanRemoteSubscriptionService
+        self.settings = settings
         self.operationManager = operationManager
-        self.chain = chain
         self.logger = logger
     }
 
     private func provideContributions(for crowdloans: [Crowdloan]) {
         guard !crowdloans.isEmpty else {
             presenter.didReceiveContributions(result: .success([:]))
+            return
+        }
+
+        let chain: ChainModel = settings.value
+
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            presenter.didReceiveContributions(result: .failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            presenter.didReceiveContributions(result: .failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
+
+        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+            presenter.didReceiveContributions(result: .failure(ChainAccountFetchingError.accountNotExists))
             return
         }
 
@@ -57,9 +71,9 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
                 return crowdloans.map { crowdloan in
                     strongSelf.crowdloanOperationFactory.fetchContributionOperation(
-                        connection: strongSelf.connection,
-                        runtimeService: strongSelf.runtimeService,
-                        address: strongSelf.selectedAddress,
+                        connection: connection,
+                        runtimeService: runtimeService,
+                        accountId: accountResponse.accountId,
                         trieIndex: crowdloan.fundInfo.trieIndex
                     )
                 }
@@ -88,6 +102,18 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     private func provideLeaseInfo(for crowdloans: [Crowdloan]) {
         guard !crowdloans.isEmpty else {
             presenter.didReceiveLeaseInfo(result: .success([:]))
+            return
+        }
+
+        let chainId = settings.value.chainId
+
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            presenter.didReceiveLeaseInfo(result: .failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            presenter.didReceiveLeaseInfo(result: .failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
 
@@ -124,10 +150,27 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             return
         }
 
+        let chainId = settings.value.chainId
+
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            let error = ChainRegistryError.connectionUnavailable
+            presenter.didReceiveCrowdloans(result: .failure(error))
+            presenter.didReceiveContributions(result: .failure(error))
+            presenter.didReceiveLeaseInfo(result: .failure(error))
+            return
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            let error = ChainRegistryError.runtimeMetadaUnavailable
+            presenter.didReceiveCrowdloans(result: .failure(error))
+            presenter.didReceiveContributions(result: .failure(error))
+            presenter.didReceiveLeaseInfo(result: .failure(error))
+            return
+        }
+
         let crowdloanWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
             connection: connection,
-            runtimeService: runtimeService,
-            chain: chain
+            runtimeService: runtimeService
         )
 
         crowdloansRequest = crowdloanWrapper
@@ -183,6 +226,15 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     }
 
     private func provideConstants() {
+        let chainId = settings.value.chainId
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            let error = ChainRegistryError.runtimeMetadaUnavailable
+            presenter.didReceiveBlockDuration(result: .failure(error))
+            presenter.didReceiveLeasingPeriod(result: .failure(error))
+            return
+        }
+
         fetchConstant(
             for: .babeBlockTime,
             runtimeCodingService: runtimeService,
@@ -223,7 +275,7 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
             return
         }
 
-        blockNumberProvider = subscribeToBlockNumber(for: chain, runtimeService: runtimeService)
+        blockNumberProvider = subscribeToBlockNumber(for: settings.value.chainId)
     }
 
     func putOffline() {
@@ -231,9 +283,9 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     }
 }
 
-extension CrowdloanListInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+extension CrowdloanListInteractor: CrowdloanLocalStorageSubscriber, CrowdloanLocalSubscriptionHandler,
     AnyProviderAutoCleaning {
-    func handleBlockNumber(result: Result<BlockNumber?, Error>, chain _: Chain) {
+    func handleBlockNumber(result: Result<BlockNumber?, Error>, chainId _: ChainModel.Id) {
         provideCrowdloans()
         presenter.didReceiveBlockNumber(result: result)
     }

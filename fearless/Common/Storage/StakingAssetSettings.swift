@@ -50,16 +50,15 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
                 return ChainAsset(chain: selectedChain, asset: selectedAsset)
             }
 
-            let relayChains = chains.filter { $0.assets.contains { $0.isUtility }}
+            let maybeChain = chains.first { chain in
+                chain.assets.contains { $0.staking != nil }
+            }
 
-            if
-                let firstRelayChain = relayChains.min(by: { $0.addressPrefix < $1.addressPrefix }),
-                let asset = firstRelayChain.assets.first(where: { $0.isUtility }) {
-                self.settings.stakingAsset = ChainAssetId(
-                    chainId: firstRelayChain.chainId,
-                    assetId: asset.assetId
-                )
-                return ChainAsset(chain: firstRelayChain, asset: asset)
+            let maybeAsset = maybeChain?.assets.first { $0.staking != nil }
+
+            if let chain = maybeChain, let asset = maybeAsset {
+                self.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
+                return ChainAsset(chain: chain, asset: asset)
             }
 
             return nil

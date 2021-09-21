@@ -5,8 +5,6 @@ import FearlessUtils
 typealias RemoteSubscriptionClosure = (Result<Void, Error>) -> Void
 
 enum RemoteSubscriptionServiceError: Error {
-    case connectionUnavailable
-    case runtimeMetadaUnavailable
     case remoteKeysNotMatchLocal
 }
 
@@ -160,7 +158,9 @@ class RemoteSubscriptionService {
         cacheKey: String
     ) -> CompoundOperationWrapper<StorageSubscriptionContainer> {
         guard let runtimeProvider = chainRegistry.getRuntimeProvider(for: chainId) else {
-            return CompoundOperationWrapper.createWithError(RemoteSubscriptionServiceError.runtimeMetadaUnavailable)
+            return CompoundOperationWrapper.createWithError(
+                ChainRegistryError.runtimeMetadaUnavailable
+            )
         }
 
         let coderFactoryOperation = runtimeProvider.fetchCoderFactoryOperation()
@@ -220,7 +220,7 @@ class RemoteSubscriptionService {
         }
 
         guard let connection = chainRegistry.getConnection(for: chainId) else {
-            throw RemoteSubscriptionServiceError.connectionUnavailable
+            throw ChainRegistryError.connectionUnavailable
         }
 
         let subscriptions = zip(remoteKeys, localKeys).map { keysPair in
