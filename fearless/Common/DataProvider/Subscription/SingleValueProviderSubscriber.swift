@@ -40,6 +40,11 @@ protocol SingleValueProviderSubscriber {
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedActiveEra>?
 
+    func subscribeToCurrentEraProvider(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedEraIndex>?
+
     func subscribeToPayeeProvider(
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol

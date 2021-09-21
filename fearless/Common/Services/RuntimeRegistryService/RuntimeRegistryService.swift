@@ -256,6 +256,10 @@ final class RuntimeRegistryService {
 
         case let .failure(error):
             logger?.error("Loading runtime snapshot failed: \(error)")
+
+            if shouldSyncFiles {
+                syncTypeFiles()
+            }
         }
     }
 
@@ -278,7 +282,6 @@ final class RuntimeRegistryService {
 extension RuntimeRegistryService {
     private func syncTypeFiles() {
         guard
-            let snapshot = snapshot,
             let baseRemoteUrl = chain.typeDefDefaultFileURL(),
             let networkRemoteUrl = chain.typeDefNetworkFileURL()
         else {
@@ -351,7 +354,7 @@ extension RuntimeRegistryService {
     }
 
     private func createBaseSaveOperation(
-        for snapshot: Snapshot,
+        for snapshot: Snapshot?,
         dependingOn baseRemote: BaseOperation<Data>,
         networkRemote: BaseOperation<Data>,
         hasher: StorageHasher
@@ -362,7 +365,7 @@ extension RuntimeRegistryService {
 
             let remoteDataHash = try hasher.hash(data: data)
 
-            guard remoteDataHash != snapshot.localBaseHash else {
+            guard remoteDataHash != snapshot?.localBaseHash else {
                 throw RuntimeRegistryServiceError.noNeedToUpdateTypes
             }
 
@@ -371,7 +374,7 @@ extension RuntimeRegistryService {
     }
 
     private func createNetworkSaveOperation(
-        for snapshot: Snapshot,
+        for snapshot: Snapshot?,
         dependingOn baseRemote: BaseOperation<Data>,
         networkRemote: BaseOperation<Data>,
         hasher: StorageHasher
@@ -382,7 +385,7 @@ extension RuntimeRegistryService {
 
             let remoteDataHash = try hasher.hash(data: data)
 
-            guard remoteDataHash != snapshot.localNetworkHash else {
+            guard remoteDataHash != snapshot?.localNetworkHash else {
                 throw RuntimeRegistryServiceError.noNeedToUpdateTypes
             }
 

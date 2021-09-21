@@ -20,6 +20,8 @@ protocol SingleValueSubscriptionHandler {
 
     func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain: Chain)
 
+    func handleCurrentEra(result: Result<EraIndex?, Error>, chain: Chain)
+
     func handlePayee(result: Result<RewardDestinationArg?, Error>, address: AccountAddress)
 
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chain: Chain)
@@ -49,6 +51,8 @@ extension SingleValueSubscriptionHandler {
     func handleLedgerInfo(result _: Result<StakingLedger?, Error>, address _: AccountAddress) {}
 
     func handleActiveEra(result _: Result<ActiveEraInfo?, Error>, chain _: Chain) {}
+
+    func handleCurrentEra(result _: Result<EraIndex?, Error>, chain _: Chain) {}
 
     func handlePayee(result _: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {}
 

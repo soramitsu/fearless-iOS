@@ -5,8 +5,13 @@ enum StakingViewState {
     case undefined
     case nominator(
         viewModel: LocalizableResource<NominationViewModelProtocol>,
-        alerts: [StakingAlert]
+        alerts: [StakingAlert],
+        analyticsViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
     )
-    case validator(viewModel: LocalizableResource<ValidationViewModelProtocol>, alerts: [StakingAlert])
+    case validator(
+        viewModel: LocalizableResource<ValidationViewModelProtocol>,
+        alerts: [StakingAlert],
+        analyticsViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
+    )
     case noStash(viewModel: StakingEstimationViewModel, alerts: [StakingAlert])
 }
