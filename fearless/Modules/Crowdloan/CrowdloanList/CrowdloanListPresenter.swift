@@ -45,11 +45,13 @@ final class CrowdloanListPresenter {
             let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber,
             let contributionsResult = contributionsResult,
-            let leaseInfoResult = leaseInfoResult else {
+            let leaseInfoResult = leaseInfoResult,
+            let chain = selectedChain else {
             return
         }
 
         guard
+            let asset = chain.utilityAssets().first,
             case let .success(crowdloans) = crowdloansResult,
             case let .success(contributions) = contributionsResult,
             case let .success(leaseInfo) = leaseInfoResult else {
@@ -77,12 +79,19 @@ final class CrowdloanListPresenter {
             leasingPeriod: leasingPeriod
         )
 
-        let viewModel = viewModelFactory.createViewModel(
-            from: crowdloans,
+        let viewInfo = CrowdloansViewInfo(
             contributions: contributions,
             leaseInfo: leaseInfo,
             displayInfo: displayInfo,
-            metadata: metadata,
+            metadata: metadata
+        )
+
+        let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.conversion)
+
+        let viewModel = viewModelFactory.createViewModel(
+            from: crowdloans,
+            viewInfo: viewInfo,
+            chainAsset: chainAsset,
             locale: selectedLocale
         )
 
@@ -175,7 +184,8 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
     }
 
     func didReceiveSelected(chainModel: ChainModel) {
-        self.selectedChain = chainModel
+        selectedChain = chainModel
+        updateView()
     }
 }
 

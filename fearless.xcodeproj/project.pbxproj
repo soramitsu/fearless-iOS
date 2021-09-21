@@ -428,6 +428,8 @@
 		844CB57226F9EB2000396E13 /* RuntimeCodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CB57126F9EB2000396E13 /* RuntimeCodingService.swift */; };
 		844CB57426FA01DD00396E13 /* SubstrateRepositoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CB57326FA01DD00396E13 /* SubstrateRepositoryFactory.swift */; };
 		844CB57626FA064700396E13 /* ChainRegistryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CB57526FA064700396E13 /* ChainRegistryError.swift */; };
+		844CB57826FA702700396E13 /* CrowdloansViewInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CB57726FA702700396E13 /* CrowdloansViewInfo.swift */; };
+		844CB57A26FA706C00396E13 /* ChainAssetDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844CB57926FA706C00396E13 /* ChainAssetDisplayInfo.swift */; };
 		844D229125EE5CD600C022F7 /* DataProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844D229025EE5CD600C022F7 /* DataProviderStub.swift */; };
 		844D229925EE5E8400C022F7 /* SingleValueProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844D229825EE5E8400C022F7 /* SingleValueProviderStub.swift */; };
 		844D229E25EE79EA00C022F7 /* ExtrinsicServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844D229D25EE79EA00C022F7 /* ExtrinsicServiceStub.swift */; };
@@ -1952,6 +1954,8 @@
 		844CB57126F9EB2000396E13 /* RuntimeCodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeCodingService.swift; sourceTree = "<group>"; };
 		844CB57326FA01DD00396E13 /* SubstrateRepositoryFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateRepositoryFactory.swift; sourceTree = "<group>"; };
 		844CB57526FA064700396E13 /* ChainRegistryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainRegistryError.swift; sourceTree = "<group>"; };
+		844CB57726FA702700396E13 /* CrowdloansViewInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloansViewInfo.swift; sourceTree = "<group>"; };
+		844CB57926FA706C00396E13 /* ChainAssetDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetDisplayInfo.swift; sourceTree = "<group>"; };
 		844D229025EE5CD600C022F7 /* DataProviderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProviderStub.swift; sourceTree = "<group>"; };
 		844D229825EE5E8400C022F7 /* SingleValueProviderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleValueProviderStub.swift; sourceTree = "<group>"; };
 		844D229D25EE79EA00C022F7 /* ExtrinsicServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicServiceStub.swift; sourceTree = "<group>"; };
@@ -5296,6 +5300,7 @@
 				841AAC2226F6879900F0A25E /* AssetBalanceDisplayInfo.swift */,
 				841AAC2426F692EF00F0A25E /* AddressConversion.swift */,
 				841AAC2626F6A2A500F0A25E /* ChainAccountFetching.swift */,
+				844CB57926FA706C00396E13 /* ChainAssetDisplayInfo.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -5755,6 +5760,7 @@
 			children = (
 				8498430826592E5D006BBB9F /* CrowdloanViewModel.swift */,
 				848EAEB72659859600676CEA /* CrowdloansViewModelFactory.swift */,
+				844CB57726FA702700396E13 /* CrowdloansViewInfo.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -8476,6 +8482,7 @@
 				84FACCD425F8B07B00F32ED4 /* ReceiveAccountViewModel.swift in Sources */,
 				8430AAD42602285B005B1066 /* StakingStateCommonData.swift in Sources */,
 				F4F2296C260DBDCE00ACFDB8 /* StakingPayoutLabelTableCell.swift in Sources */,
+				844CB57826FA702700396E13 /* CrowdloansViewInfo.swift in Sources */,
 				AEACD5F9265E94AB00A09892 /* StatusViewModel.swift in Sources */,
 				84CCBFBC2509709500180F4F /* UIBarButtonItem+Style.swift in Sources */,
 				8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */,
@@ -9119,6 +9126,7 @@
 				F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */,
 				6D6C6FD2F13603BCE83CFC65 /* ExportMnemonicConfirmInteractor.swift in Sources */,
 				0CA307BC2F570941CD22C9AA /* ExportMnemonicConfirmViewFactory.swift in Sources */,
+				844CB57A26FA706C00396E13 /* ChainAssetDisplayInfo.swift in Sources */,
 				845B821F26EF8E8900D25C72 /* ManagedMetaAccountModel.swift in Sources */,
 				8430AB1226023C9F005B1066 /* PendingBondedState.swift in Sources */,
 				841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */,

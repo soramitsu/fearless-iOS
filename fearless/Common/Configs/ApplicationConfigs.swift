@@ -103,7 +103,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/chains/chains.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/chains/chains_dev.json")!
     }
 
     var commonTypesURL: URL {

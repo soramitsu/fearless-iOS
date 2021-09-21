@@ -15,9 +15,7 @@ struct CrowdloanListViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        guard
-            let interactor = createInteractor(from: crowdloanSettings),
-            let asset = crowdloanSettings.value.utilityAssets().first else {
+        guard let interactor = createInteractor(from: crowdloanSettings) else {
             return nil
         }
 
@@ -26,9 +24,7 @@ struct CrowdloanListViewFactory {
         let localizationManager = LocalizationManager.shared
 
         let viewModelFactory = CrowdloansViewModelFactory(
-            amountFormatterFactory: AssetBalanceFormatterFactory(),
-            assetInfo: asset.displayInfo,
-            chainConversion: crowdloanSettings.value.conversion
+            amountFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let presenter = CrowdloanListPresenter(
@@ -41,7 +37,6 @@ struct CrowdloanListViewFactory {
 
         let view = CrowdloanListViewController(
             presenter: presenter,
-            tokenSymbol: LocalizableResource { _ in asset.symbol },
             localizationManager: localizationManager
         )
 

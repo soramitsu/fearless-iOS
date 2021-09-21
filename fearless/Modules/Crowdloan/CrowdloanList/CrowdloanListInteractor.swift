@@ -9,14 +9,21 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
     let chainRegistry: ChainRegistryProtocol
     let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
-    let subscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
+    let localSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
     let crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol
     let settings: CrowdloanChainSettings
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
 
+    private var remoteSubscriptionId: UUID?
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
+
+    deinit {
+        if let chainId = settings.value?.chainId, let subscriptionId = remoteSubscriptionId {
+            crowdloanRemoteSubscriptionService.detach(for: subscriptionId, chainId: chainId)
+        }
+    }
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -33,28 +40,21 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.crowdloanOperationFactory = crowdloanOperationFactory
         self.chainRegistry = chainRegistry
         self.displayInfoProvider = displayInfoProvider
-        subscriptionFactory = localSubscriptionFactory
+        self.localSubscriptionFactory = localSubscriptionFactory
         self.crowdloanRemoteSubscriptionService = crowdloanRemoteSubscriptionService
         self.settings = settings
         self.operationManager = operationManager
         self.logger = logger
     }
 
-    private func provideContributions(for crowdloans: [Crowdloan]) {
+    private func provideContributions(
+        for crowdloans: [Crowdloan],
+        chain: ChainModel,
+        connection: ChainConnection,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) {
         guard !crowdloans.isEmpty else {
             presenter.didReceiveContributions(result: .success([:]))
-            return
-        }
-
-        let chain: ChainModel = settings.value
-
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            presenter.didReceiveContributions(result: .failure(ChainRegistryError.connectionUnavailable))
-            return
-        }
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            presenter.didReceiveContributions(result: .failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
 
@@ -99,21 +99,13 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: [contributionsOperation], in: .transient)
     }
 
-    private func provideLeaseInfo(for crowdloans: [Crowdloan]) {
+    private func provideLeaseInfo(
+        for crowdloans: [Crowdloan],
+        connection: ChainConnection,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) {
         guard !crowdloans.isEmpty else {
             presenter.didReceiveLeaseInfo(result: .success([:]))
-            return
-        }
-
-        let chainId = settings.value.chainId
-
-        guard let connection = chainRegistry.getConnection(for: chainId) else {
-            presenter.didReceiveLeaseInfo(result: .failure(ChainRegistryError.connectionUnavailable))
-            return
-        }
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            presenter.didReceiveLeaseInfo(result: .failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
 
@@ -145,26 +137,28 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: queryWrapper.allOperations, in: .transient)
     }
 
+    private func notifyCrowdloansFetchSame(error: Error) {
+        presenter.didReceiveCrowdloans(result: .failure(error))
+        presenter.didReceiveContributions(result: .failure(error))
+        presenter.didReceiveLeaseInfo(result: .failure(error))
+    }
+
     private func provideCrowdloans() {
         guard crowdloansRequest == nil else {
             return
         }
 
-        let chainId = settings.value.chainId
-
-        guard let connection = chainRegistry.getConnection(for: chainId) else {
-            let error = ChainRegistryError.connectionUnavailable
-            presenter.didReceiveCrowdloans(result: .failure(error))
-            presenter.didReceiveContributions(result: .failure(error))
-            presenter.didReceiveLeaseInfo(result: .failure(error))
+        guard let chain = settings.value else {
             return
         }
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            let error = ChainRegistryError.runtimeMetadaUnavailable
-            presenter.didReceiveCrowdloans(result: .failure(error))
-            presenter.didReceiveContributions(result: .failure(error))
-            presenter.didReceiveLeaseInfo(result: .failure(error))
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            notifyCrowdloansFetchSame(error: ChainRegistryError.connectionUnavailable)
+            return
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            notifyCrowdloansFetchSame(error: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -181,8 +175,17 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
                 do {
                     let crowdloans = try crowdloanWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.provideContributions(for: crowdloans)
-                    self?.provideLeaseInfo(for: crowdloans)
+                    self?.provideContributions(
+                        for: crowdloans,
+                        chain: chain,
+                        connection: connection,
+                        runtimeService: runtimeService
+                    )
+                    self?.provideLeaseInfo(
+                        for: crowdloans,
+                        connection: connection,
+                        runtimeService: runtimeService
+                    )
                     self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
                     if
@@ -192,9 +195,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                         self?.presenter.didReceiveContributions(result: .success([:]))
                         self?.presenter.didReceiveLeaseInfo(result: .success([:]))
                     } else {
-                        self?.presenter.didReceiveCrowdloans(result: .failure(error))
-                        self?.presenter.didReceiveContributions(result: .failure(error))
-                        self?.presenter.didReceiveLeaseInfo(result: .failure(error))
+                        self?.notifyCrowdloansFetchSame(error: error)
                     }
                 }
             }
@@ -255,6 +256,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {
+        if let chain = settings.value {
+            presenter.didReceiveSelected(chainModel: chain)
+        }
+
         provideCrowdloans()
 
         subscribeToDisplayInfo()
@@ -270,21 +275,46 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
         provideConstants()
     }
 
+    func saveSelected(chainModel: ChainModel) {
+        if settings.value?.chainId != chainModel.chainId {
+            putOffline()
+
+            settings.save(value: chainModel)
+
+            subscribeToDisplayInfo()
+            provideCrowdloans()
+            provideConstants()
+
+            becomeOnline()
+        }
+    }
+
     func becomeOnline() {
+        guard let chainId = settings.value?.chainId else {
+            return
+        }
+
         guard blockNumberProvider == nil else {
             return
         }
 
+        remoteSubscriptionId = crowdloanRemoteSubscriptionService.attach(for: chainId)
         blockNumberProvider = subscribeToBlockNumber(for: settings.value.chainId)
     }
 
     func putOffline() {
+        if let chainId = settings.value?.chainId, let subscriptionId = remoteSubscriptionId {
+            crowdloanRemoteSubscriptionService.detach(for: subscriptionId, chainId: chainId)
+        }
+
         clear(dataProvider: &blockNumberProvider)
     }
 }
 
 extension CrowdloanListInteractor: CrowdloanLocalStorageSubscriber, CrowdloanLocalSubscriptionHandler,
     AnyProviderAutoCleaning {
+    var subscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol { localSubscriptionFactory }
+
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chainId _: ChainModel.Id) {
         provideCrowdloans()
         presenter.didReceiveBlockNumber(result: result)

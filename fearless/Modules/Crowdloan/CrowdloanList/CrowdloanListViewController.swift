@@ -7,19 +7,15 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
     let presenter: CrowdloanListPresenterProtocol
 
-    let tokenSymbol: LocalizableResource<String>
-
     private var state: CrowdloanListState = .loading
 
     private var shouldUpdateOnAppearance: Bool = false
 
     init(
         presenter: CrowdloanListPresenterProtocol,
-        tokenSymbol: LocalizableResource<String>,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.presenter = presenter
-        self.tokenSymbol = tokenSymbol
 
         super.init(nibName: nil, bundle: nil)
 
@@ -148,9 +144,8 @@ extension CrowdloanListViewController: UITableViewDataSource {
             switch indexPath.row {
             case 0:
                 let titleCell = tableView.dequeueReusableCellWithType(MultilineTableViewCell.self)!
-                let symbol = tokenSymbol.value(for: selectedLocale)
                 let title = R.string.localizable.crowdloanListSectionFormat(
-                    symbol,
+                    viewModel.tokenSymbol,
                     preferredLanguages: selectedLocale.rLanguages
                 )
                 titleCell.bind(title: title)
