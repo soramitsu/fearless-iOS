@@ -2,8 +2,7 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
-@available(*, deprecated, message: "Use LocalStorageProviderSource instead")
-final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
+final class LocalStorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
     enum LastSeen: Equatable {
         case waiting
         case received(value: ChainStorageItem?)
@@ -22,7 +21,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
     let itemIdentifier: String
     let codingPath: StorageCodingPath
-    let runtimeService: RuntimeCodingServiceProtocol
+    let runtimeService: RuntimeProviderProtocol
     let provider: StreamableProvider<ChainStorageItem>
     let trigger: DataProviderTriggerProtocol
     let shouldUseFallback: Bool
@@ -35,7 +34,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     init(
         itemIdentifier: String,
         codingPath: StorageCodingPath,
-        runtimeService: RuntimeCodingServiceProtocol,
+        runtimeService: RuntimeProviderProtocol,
         provider: StreamableProvider<ChainStorageItem>,
         trigger: DataProviderTriggerProtocol,
         shouldUseFallback: Bool
@@ -165,7 +164,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     }
 }
 
-extension StorageProviderSource {
+extension LocalStorageProviderSource {
     func fetchOperation(by modelId: String) -> CompoundOperationWrapper<Model?> {
         lock.lock()
 
