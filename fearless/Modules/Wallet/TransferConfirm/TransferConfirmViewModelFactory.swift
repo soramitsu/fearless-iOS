@@ -234,12 +234,26 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
         let actionTitle = R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages)
         let title = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
 
-        return TransferConfirmAccessoryViewModel(
+        let priceData = getPriceDataFrom(payload.transferInfo)
+
+        let price: String? = {
+            guard let amount = Decimal(string: amount),
+                  let priceData = priceData
+            else { return nil }
+
+            return balanceViewModelFactory.balanceFromPrice(
+                amount,
+                priceData: priceData
+            ).value(for: locale).price ?? nil
+        }()
+
+        return ExtrinisicConfirmViewModel(
             title: title,
+            amount: amount,
+            price: price,
             icon: nil,
             action: actionTitle,
             numberOfLines: 1,
-            amount: amount,
             shouldAllowAction: true
         )
     }

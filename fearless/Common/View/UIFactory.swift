@@ -20,6 +20,7 @@ struct UIConstants {
     static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
+    static let networkFeeViewDefaultHeight = 132.0
 }
 
 enum AccountViewMode {
@@ -444,7 +445,12 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView()
+        NetworkFeeConfirmView(
+            frame: CGRect(
+                x: 0.0, y: 0.0,
+                width: 0.0, height: UIConstants.networkFeeViewDefaultHeight
+            )
+        )
     }
 
     func createTitleValueView() -> TitleValueView {

@@ -194,7 +194,6 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
             symbol: asset.symbol,
             icon: assetId.icon,
             balance: balance,
-            price: nil,
             priceData: priceData,
             decimalBalance: balanceContext.available,
             fee: fee,
