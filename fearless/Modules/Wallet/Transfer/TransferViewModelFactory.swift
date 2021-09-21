@@ -54,13 +54,13 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let priceData = getPriceDataFrom(inputState)
 
-        let price: String = {
-            guard let priceData = priceData else { return "" }
+        let price: String? = {
+            guard let priceData = priceData else { return nil }
 
             return balanceViewModelFactory.balanceFromPrice(
                 feeAmount,
                 priceData: priceData
-            ).value(for: locale).price ?? ""
+            ).value(for: locale).price ?? nil
         }()
 
         return FeePriceViewModel(
