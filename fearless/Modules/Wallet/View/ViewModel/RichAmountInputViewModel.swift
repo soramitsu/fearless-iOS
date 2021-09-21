@@ -1,14 +1,16 @@
 import SoraFoundation
 import CommonWallet
 
-protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol, AssetBalanceViewModelProtocol {
+protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol {
     var balanceViewModelFactory: BalanceViewModelFactoryProtocol { get }
     var priceData: PriceData? { get }
     var displayPrice: LocalizableResource<String> { get }
     var displayBalance: LocalizableResource<String> { get }
     var decimalBalance: Decimal? { get }
     var fee: Decimal? { get }
-    var limit: Decimal { get }
+    var symbol: String { get }
+    var icon: UIImage? { get }
+    var balance: String? { get }
 
     func didSelectPercentage(_ percentage: Float)
 }
@@ -21,7 +23,6 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     let symbol: String
     let icon: UIImage?
     let balance: String?
-    let price: String?
     let priceData: PriceData?
     let decimalBalance: Decimal?
     let fee: Decimal?
@@ -70,7 +71,6 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
         symbol: String,
         icon: UIImage?,
         balance: String?,
-        price: String?,
         priceData: PriceData?,
         decimalBalance: Decimal?,
         fee: Decimal?,
@@ -82,7 +82,6 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
         self.symbol = symbol
         self.icon = icon
         self.balance = balance
-        self.price = price
         self.priceData = priceData
         self.decimalBalance = decimalBalance
         self.fee = fee

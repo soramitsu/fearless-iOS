@@ -14,6 +14,8 @@ extension NetworkFeeView: FeeViewProtocol {
     }
 
     func bind(viewModel: FeeViewModelProtocol) {
+        titleLabel.text = viewModel.title
+
         if let viewModel = viewModel as? BalanceViewModelProtocol {
             bind(viewModel: viewModel)
         }

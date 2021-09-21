@@ -45,7 +45,7 @@ final class WalletInputAmountView: WalletBaseAmountView {
 
         let accessoryView = UIFactory().createAmountAccessoryView(
             for: self,
-            locale: localizationManager?.selectedLocale ?? Locale.current
+            locale: selectedLocale
         )
 
         amountInputView.textField.inputAccessoryView = accessoryView

@@ -40,7 +40,6 @@ final class TransferConfirmConfigurator {
             .with(accessoryViewType: .onlyActionBar)
             .with(completion: .hide)
             .with(viewModelFactoryOverriding: viewModelFactory)
-            .with(viewBinder: TransferConfirmBinder())
             .with(definitionFactory: WalletFearlessDefinitionFactory())
             .with(accessoryViewFactory: TransferConfirmAccessoryViewFactory.self)
     }
