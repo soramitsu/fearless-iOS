@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 import FearlessUtils
+import SoraFoundation
 
 final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
     weak var commandFactory: WalletCommandFactoryProtocol?
@@ -167,6 +168,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         return RichAmountInputViewModel(
             amountInputViewModel: amountInputViewModel,
             balanceViewModelFactory: balanceViewModelFactory,
+            tokenFormatter: formatter,
             symbol: asset.symbol,
             icon: assetId.icon,
             balance: balance,

@@ -9,11 +9,14 @@ protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol, AssetBa
     var decimalBalance: Decimal? { get }
     var fee: Decimal? { get }
     var limit: Decimal { get }
+
+    func didSelectPercentage(_ percentage: Float)
 }
 
 final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     let amountInputViewModel: AmountInputViewModelProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let tokenFormatter: LocalizableDecimalFormatting
 
     let symbol: String
     let icon: UIImage?
@@ -63,6 +66,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     init(
         amountInputViewModel: AmountInputViewModelProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        tokenFormatter: LocalizableDecimalFormatting,
         symbol: String,
         icon: UIImage?,
         balance: String?,
@@ -74,6 +78,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     ) {
         self.amountInputViewModel = amountInputViewModel
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.tokenFormatter = tokenFormatter
         self.symbol = symbol
         self.icon = icon
         self.balance = balance
@@ -90,5 +95,18 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
 
     func didUpdateAmount(to newAmount: String) {
         amountInputViewModel.didUpdateAmount(to: newAmount)
+    }
+
+    func didSelectPercentage(_ percentage: Float) {
+        if let balance = decimalBalance,
+           let fee = fee {
+            var newAmount = max(balance - fee, 0.0)
+            newAmount = min(newAmount, limit)
+            newAmount *= Decimal(Double(percentage))
+
+            let displayAmount = tokenFormatter.stringFromDecimal(newAmount) ?? ""
+
+            didUpdateAmount(to: displayAmount)
+        }
     }
 }

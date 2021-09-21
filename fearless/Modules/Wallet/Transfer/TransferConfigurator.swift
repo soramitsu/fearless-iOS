@@ -111,7 +111,9 @@ final class TransferConfigurator {
             R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages)
         }
 
-        let definitionFactory = TransferDefinitionFactory(localizationManager: localizationManager)
+        let definitionFactory = TransferDefinitionFactory(
+            localizationManager: localizationManager
+        )
 
         builder
             .with(localizableTitle: title)
