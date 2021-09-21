@@ -16,7 +16,7 @@ protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol, AssetBa
 final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     let amountInputViewModel: AmountInputViewModelProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let tokenFormatter: LocalizableDecimalFormatting
+    let inputFormatter: LocalizableDecimalFormatting
 
     let symbol: String
     let icon: UIImage?
@@ -66,7 +66,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     init(
         amountInputViewModel: AmountInputViewModelProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        tokenFormatter: LocalizableDecimalFormatting,
+        inputFormatter: LocalizableDecimalFormatting,
         symbol: String,
         icon: UIImage?,
         balance: String?,
@@ -78,7 +78,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     ) {
         self.amountInputViewModel = amountInputViewModel
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.tokenFormatter = tokenFormatter
+        self.inputFormatter = inputFormatter
         self.symbol = symbol
         self.icon = icon
         self.balance = balance
@@ -104,7 +104,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
             newAmount = min(newAmount, limit)
             newAmount *= Decimal(Double(percentage))
 
-            let displayAmount = tokenFormatter.stringFromDecimal(newAmount) ?? ""
+            let displayAmount = inputFormatter.stringFromDecimal(newAmount) ?? ""
 
             didUpdateAmount(to: displayAmount)
         }

@@ -150,6 +150,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         }
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+        let inputFormatter = amountFormatterFactory.createInputFormatter(for: asset).value(for: locale)
 
         let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
         let balance = formatter.stringFromDecimal(balanceContext.available) ?? ""
@@ -168,7 +169,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         return RichAmountInputViewModel(
             amountInputViewModel: amountInputViewModel,
             balanceViewModelFactory: balanceViewModelFactory,
-            tokenFormatter: formatter,
+            inputFormatter: inputFormatter,
             symbol: asset.symbol,
             icon: assetId.icon,
             balance: balance,

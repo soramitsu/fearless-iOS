@@ -1155,6 +1155,7 @@
 		AE7129B4260872ED000AA3F5 /* EraStakersInfoChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */; };
 		AE7129BC2608C069000AA3F5 /* NetworkStakingInfoOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */; };
 		AE7129C12608CAE7000AA3F5 /* NetworkStakingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7129C02608CAE7000AA3F5 /* NetworkStakingInfo.swift */; };
+		AE727DD426F9C65600D0739E /* NetworkFeeView+Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE727DD326F9C65600D0739E /* NetworkFeeView+Protocol.swift */; };
 		AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */; };
 		AE74EBD025F911E700C494E7 /* ValidatorInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */; };
 		AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */; };
@@ -2597,6 +2598,7 @@
 		AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraStakersInfoChanged.swift; sourceTree = "<group>"; };
 		AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfoOperationFactory.swift; sourceTree = "<group>"; };
 		AE7129C02608CAE7000AA3F5 /* NetworkStakingInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfo.swift; sourceTree = "<group>"; };
+		AE727DD326F9C65600D0739E /* NetworkFeeView+Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkFeeView+Protocol.swift"; sourceTree = "<group>"; };
 		AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Helpers.swift"; sourceTree = "<group>"; };
 		AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoTests.swift; sourceTree = "<group>"; };
 		AE74EC1625FCF09000C494E7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -5158,6 +5160,7 @@
 				843A2C7226A8641400266F53 /* MultiValueView.swift */,
 				843A2C7626A86FD000266F53 /* TitleStatusView.swift */,
 				84BAFCD126AF5EE700871E86 /* IconDetailsView.swift */,
+				AE727DD326F9C65600D0739E /* NetworkFeeView+Protocol.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -8614,6 +8617,7 @@
 				84F47D4B2666EF1C00F7647A /* KaruraStatementData.swift in Sources */,
 				8443FE24255586230092893D /* ExportMnemonicConfirmProtocols.swift in Sources */,
 				84644A0C256713D5004EAA4B /* TriangularedBlurView+Inspectable.swift in Sources */,
+				AE727DD426F9C65600D0739E /* NetworkFeeView+Protocol.swift in Sources */,
 				846A2C4D2529FBB700731018 /* NSPredicate+Filter.swift in Sources */,
 				84378768264D14B600E6AFD2 /* UsernameSetupMetadata.swift in Sources */,
 				843910B2253ED4D100E3C217 /* CDChainStorageItem+CoreDataDecodable.swift in Sources */,
