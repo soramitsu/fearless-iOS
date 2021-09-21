@@ -149,26 +149,26 @@ final class TransferConfirmViewModelFactory {
         chain: Chain,
         locale: Locale
     ) {
-        guard let commandFactory = commandFactory else {
-            return
-        }
+        guard let commandFactory = commandFactory else { return }
 
-        var senderAddress: AccountAddress?
+        let senderAddress: AccountAddress? = {
+            if let selectedAccount = settings.selectedAccount {
+                return selectedAccount.address
+            } else {
+                return try? addressFactory.addressFromAccountId(
+                    data: Data(hexString: payload.transferInfo.source),
+                    type: chain.addressType
+                )
+            }
+        }()
 
-        if let selectedAccount = settings.selectedAccount {
-            senderAddress = selectedAccount.address
-        } else {
-            senderAddress = try? addressFactory.addressFromAccountId(
-                data: Data(hexString: payload.transferInfo.source),
-                type: chain.addressType
-            )
-        }
+        guard let senderAddress = senderAddress else { return }
 
         let headerTitle = R.string.localizable
             .transactionDetailsFrom(preferredLanguages: locale.rLanguages)
 
         let iconGenerator = PolkadotIconGenerator()
-        let icon = try? iconGenerator.generateFromAddress(senderAddress ?? "")
+        let icon = try? iconGenerator.generateFromAddress(senderAddress)
             .imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
@@ -176,7 +176,7 @@ final class TransferConfirmViewModelFactory {
             )
 
         let command = WalletAccountOpenCommand(
-            address: payload.transferInfo.source,
+            address: senderAddress,
             chain: chain,
             commandFactory: commandFactory,
             locale: locale
@@ -184,7 +184,7 @@ final class TransferConfirmViewModelFactory {
 
         let viewModel = WalletCompoundDetailsViewModel(
             title: headerTitle,
-            details: settings.selectedAccount?.username ?? senderAddress ?? "",
+            details: settings.selectedAccount?.username ?? senderAddress,
             mainIcon: icon,
             actionIcon: R.image.iconMore(),
             command: command,
