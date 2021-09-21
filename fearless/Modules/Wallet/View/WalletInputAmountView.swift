@@ -47,9 +47,12 @@ final class WalletInputAmountView: WalletBaseAmountView {
             for: self,
             locale: localizationManager?.selectedLocale ?? Locale.current
         )
+
         amountInputView.textField.inputAccessoryView = accessoryView
         amountInputView.textField.placeholder = "0"
         amountInputView.textField.text = ""
+
+        applyLocalization()
     }
 }
 
@@ -69,10 +72,10 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 
         if let viewModel = inputViewModel as? RichAmountInputViewModelProtocol {
             amountInputView.assetIcon = viewModel.icon
-            amountInputView.balanceText = viewModel.displayBalance.value(for: selectedLocale)
-            amountInputView.priceText = viewModel.displayPrice.value(for: selectedLocale)
             amountInputView.symbol = viewModel.symbol
         }
+
+        applyLocalization()
     }
 }
 
@@ -112,8 +115,10 @@ extension WalletInputAmountView: Localizable {
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: selectedLocale.rLanguages)
 
-        guard let model = inputViewModel as? RichAmountInputViewModelProtocol else { return }
-        amountInputView.balanceText = model.displayBalance.value(for: selectedLocale)
+        guard let viewModel = inputViewModel as? RichAmountInputViewModelProtocol else { return }
+
+        amountInputView.balanceText = viewModel.displayBalance.value(for: selectedLocale)
+        amountInputView.priceText = viewModel.displayPrice.value(for: selectedLocale)
     }
 }
 

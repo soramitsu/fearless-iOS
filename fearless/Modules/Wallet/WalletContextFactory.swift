@@ -222,6 +222,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let confirmConfigurator = TransferConfirmConfigurator(
             assets: accountSettings.assets,
             amountFormatterFactory: amountFormatterFactory,
+            balanceViewModelFactory: balanceViewModelFactory,
             localizationManager: localizationManager
         )
         confirmConfigurator.configure(builder: builder.transferConfirmationBuilder)

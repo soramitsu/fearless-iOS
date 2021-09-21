@@ -1173,7 +1173,7 @@
 		AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */; };
 		AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */; };
 		AE8EDB0C26F4A72300C6F3B3 /* TransferConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8EDB0B26F4A72300C6F3B3 /* TransferConstants.swift */; };
-		AE8EDB1026F8729100C6F3B3 /* RichAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8EDB0F26F8729100C6F3B3 /* RichAmountViewModel.swift */; };
+		AE8EDB1026F8729100C6F3B3 /* RichAmountInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8EDB0F26F8729100C6F3B3 /* RichAmountInputViewModel.swift */; };
 		AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF254260A82830026910A /* StoriesViewController.swift */; };
 		AE9EF25A260A82970026910A /* StoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF259260A82970026910A /* StoriesInteractor.swift */; };
 		AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF25E260A82A50026910A /* StoriesPresenter.swift */; };
@@ -1225,6 +1225,7 @@
 		AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */; };
 		AEC167062667671B0058F572 /* RecommendedValidatorListViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC167052667671B0058F572 /* RecommendedValidatorListViewModelFactory.swift */; };
 		AECE7B4526F9E3440045AF9B /* FeePriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */; };
+		AECE7B4726FA0BA90045AF9B /* RichAmountDisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */; };
 		AEDD7C0F269C81F500A8405F /* BlockWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDD7C0E269C81F500A8405F /* BlockWeights.swift */; };
 		AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
@@ -2618,7 +2619,7 @@
 		AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStakingAmountCell.swift; sourceTree = "<group>"; };
 		AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoBaseTableCell.swift; sourceTree = "<group>"; };
 		AE8EDB0B26F4A72300C6F3B3 /* TransferConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConstants.swift; sourceTree = "<group>"; };
-		AE8EDB0F26F8729100C6F3B3 /* RichAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichAmountViewModel.swift; sourceTree = "<group>"; };
+		AE8EDB0F26F8729100C6F3B3 /* RichAmountInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichAmountInputViewModel.swift; sourceTree = "<group>"; };
 		AE9EF254260A82830026910A /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
 		AE9EF259260A82970026910A /* StoriesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesInteractor.swift; sourceTree = "<group>"; };
 		AE9EF25E260A82A50026910A /* StoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesPresenter.swift; sourceTree = "<group>"; };
@@ -2671,6 +2672,7 @@
 		AEC167052667671B0058F572 /* RecommendedValidatorListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewModelFactory.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeePriceViewModel.swift; sourceTree = "<group>"; };
+		AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichAmountDisplayViewModel.swift; sourceTree = "<group>"; };
 		AEDD7C0E269C81F500A8405F /* BlockWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockWeights.swift; sourceTree = "<group>"; };
 		AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+MinimalBalance.swift"; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
@@ -5409,8 +5411,9 @@
 			children = (
 				8494D85D25246E9A00614D8F /* WalletTokenViewModel.swift */,
 				8460E12825422C5A00826F55 /* WalletCompoundDetailsViewModel.swift */,
-				AE8EDB0F26F8729100C6F3B3 /* RichAmountViewModel.swift */,
+				AE8EDB0F26F8729100C6F3B3 /* RichAmountInputViewModel.swift */,
 				AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */,
+				AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -8455,6 +8458,7 @@
 				84BB3CF8267D276D00676FFE /* BaseCrowdloanTableViewCell.swift in Sources */,
 				84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */,
 				AE8EDB0C26F4A72300C6F3B3 /* TransferConstants.swift in Sources */,
+				AECE7B4726FA0BA90045AF9B /* RichAmountDisplayViewModel.swift in Sources */,
 				8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */,
 				AEA0C8A4267B6B1900F9666F /* SelectedValidatorListProtocols.swift in Sources */,
 				8475AE34258B934F00B058F3 /* TransferValidatingError.swift in Sources */,
@@ -8875,7 +8879,7 @@
 				F022F1444E0F75CCA42F4648 /* YourValidatorListProtocols.swift in Sources */,
 				F7EB8F835CFA7FC949EF4C22 /* YourValidatorListWireframe.swift in Sources */,
 				AEA0C8AC267B6B5200F9666F /* SelectedValidatorListViewFactory.swift in Sources */,
-				AE8EDB1026F8729100C6F3B3 /* RichAmountViewModel.swift in Sources */,
+				AE8EDB1026F8729100C6F3B3 /* RichAmountInputViewModel.swift in Sources */,
 				DBA436B3B1C90965FE8F9B79 /* YourValidatorListPresenter.swift in Sources */,
 				E7CAD629FF0D4E97594F7A05 /* YourValidatorListInteractor.swift in Sources */,
 				A32E1373E3671D518FFC3BC2 /* YourValidatorListViewController.swift in Sources */,

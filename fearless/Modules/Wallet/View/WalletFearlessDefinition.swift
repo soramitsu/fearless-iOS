@@ -10,21 +10,25 @@ final class WalletFearlessDefinition: WalletFearlessFormDefining {
         self.itemViewFactory = itemViewFactory
     }
 
-    func defineViewForSpentAmountModel(_ model: WalletFormSpentAmountModel) -> WalletFormItemView? {
-        let amountView = WalletDisplayAmountView()
-        amountView.bind(viewModel: model)
-        return amountView
-    }
-
-    func defineViewForFearlessTokenViewModel(_ model: WalletTokenViewModel) -> WalletFormItemView? {
-        let assetView = WalletDisplayTokenView()
-        assetView.bind(viewModel: model)
-        return assetView
+    func defineViewForFearlessTokenViewModel(_: WalletTokenViewModel) -> WalletFormItemView? {
+        nil
     }
 
     func defineViewForCompoundDetails(_ viewModel: WalletCompoundDetailsViewModel) -> WalletFormItemView? {
         let detailsView = R.nib.walletCompoundDetailsView(owner: nil)!
         detailsView.bind(viewModel: viewModel)
         return detailsView
+    }
+
+    func defineViewForAmountDisplay(
+        _ viewModel: RichAmountDisplayViewModel) -> WalletFormItemView? {
+        let amountDisplayView = WalletDisplayAmountView()
+        amountDisplayView.bind(viewModel: viewModel)
+        return amountDisplayView
+    }
+
+    func defineViewForPriceAccessory(
+        _: WalletCompoundDetailsViewModel) -> WalletFormItemView? {
+        nil
     }
 }

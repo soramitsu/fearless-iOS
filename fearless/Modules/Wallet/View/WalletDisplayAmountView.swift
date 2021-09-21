@@ -1,11 +1,14 @@
 import UIKit
 import SoraUI
 import CommonWallet
+import SoraFoundation
 
 final class WalletDisplayAmountView: WalletBaseAmountView {
     override var intrinsicContentSize: CGSize {
         CGSize(width: UIView.noIntrinsicMetric, height: 116.0)
     }
+
+    var viewModel: RichAmountDisplayViewModelProtocol?
 }
 
 extension WalletDisplayAmountView: WalletFormBordering {
@@ -18,53 +21,29 @@ extension WalletDisplayAmountView: WalletFormBordering {
         }
     }
 
-    func bind(viewModel: WalletFormSpentAmountModel) {
+    func bind(viewModel: RichAmountDisplayViewModel) {
+        self.viewModel = viewModel
+
         amountInputView.titleLabel.text = viewModel.title
         amountInputView.textField.text = viewModel.amount
         amountInputView.isUserInteractionEnabled = false
 
         fieldBackgroundView.applyDisabledStyle()
 
-        if let model = viewModel as? RichAmountDisplayViewModelProtocol {
-            amountInputView.assetIcon = model.icon
-            amountInputView.symbol = model.symbol
-        }
+        amountInputView.assetIcon = viewModel.icon
+        amountInputView.symbol = viewModel.symbol
+
+        applyLocalization()
     }
 }
 
-protocol RichAmountDisplayViewModelProtocol: WalletFormViewBindingProtocol, AssetBalanceViewModelProtocol {}
+extension WalletDisplayAmountView: Localizable {
+    func applyLocalization() {
+        amountInputView.title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: selectedLocale.rLanguages)
 
-final class RichAmountDisplayViewModel: RichAmountDisplayViewModelProtocol {
-    let displayViewModel: WalletFormSpentAmountModel
-
-    let icon: UIImage?
-    let symbol: String
-    let balance: String?
-    let price: String?
-
-    var title: String {
-        displayViewModel.title
-    }
-
-    var amount: String {
-        displayViewModel.amount
-    }
-
-    init(
-        displayViewModel: WalletFormSpentAmountModel,
-        icon: UIImage?,
-        symbol: String,
-        balance: String?,
-        price: String?
-    ) {
-        self.displayViewModel = displayViewModel
-        self.icon = icon
-        self.symbol = symbol
-        self.balance = balance
-        self.price = price
-    }
-
-    func accept(definition: WalletFormDefining) -> WalletFormItemView? {
-        displayViewModel.accept(definition: definition)
+        guard let viewModel = viewModel else { return }
+        amountInputView.balanceText = viewModel.displayBalance.value(for: selectedLocale)
+        amountInputView.priceText = viewModel.displayPrice.value(for: selectedLocale)
     }
 }

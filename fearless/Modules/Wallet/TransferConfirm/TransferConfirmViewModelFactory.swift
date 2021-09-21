@@ -12,71 +12,25 @@ final class TransferConfirmViewModelFactory {
 
     let assets: [WalletAsset]
     let amountFormatterFactory: NumberFormatterFactoryProtocol
+    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
-    init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
+    init(
+        assets: [WalletAsset],
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    ) {
         self.assets = assets
         self.amountFormatterFactory = amountFormatterFactory
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    func populateAsset(
-        in viewModelList: inout [WalletFormViewBindingProtocol],
-        payload: ConfirmationPayload,
-        locale: Locale
-    ) {
-        guard
-            let asset = assets
-            .first(where: { $0.identifier == payload.transferInfo.asset }),
-            let assetId = WalletAssetId(rawValue: asset.identifier)
-        else {
-            return
-        }
+    private func getPriceDataFrom(_ transferInfo: TransferInfo) -> PriceData? {
+        let priceContext = BalanceContext(context: transferInfo.context ?? [:])
+        let price = priceContext.price
 
-        let headerTitle = R.string.localizable.walletSendAssetTitle(preferredLanguages: locale.rLanguages)
+        guard price > 0.0 else { return nil }
 
-        let subtitle: String = R.string.localizable
-            .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)
-
-        let context = BalanceContext(context: payload.transferInfo.context ?? [:])
-
-        let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
-        let details = amountFormatter.value(for: locale).stringFromDecimal(context.available) ?? ""
-
-        let detailsCommand: WalletCommandProtocol?
-
-        if let commandFactory = commandFactory {
-            let transferring = payload.transferInfo.amount.decimalValue
-            let fee = payload.transferInfo.fees.reduce(Decimal(0.0)) { $0 + $1.value.decimalValue }
-            let remaining = context.total - (transferring + fee)
-            let transferState = TransferExistentialState(
-                totalAmount: context.total,
-                availableAmount: context.available,
-                totalAfterTransfer: remaining,
-                existentialDeposit: context.minimalBalance
-            )
-
-            let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
-
-            detailsCommand = ExistentialDepositInfoCommand(
-                transferState: transferState,
-                amountFormatter: amountFormatter,
-                commandFactory: commandFactory
-            )
-        } else {
-            detailsCommand = nil
-        }
-
-        let selectedState = SelectedAssetState(isSelecting: false, canSelect: false)
-        let tokenViewModel = WalletTokenViewModel(
-            header: headerTitle,
-            title: assetId.titleForLocale(locale),
-            subtitle: subtitle,
-            details: details,
-            icon: assetId.icon,
-            state: selectedState,
-            detailsCommand: detailsCommand
-        )
-
-        viewModelList.append(WalletFormSeparatedViewModel(content: tokenViewModel, borderType: [.none]))
+        return PriceData(price: price.stringWithPointSeparator, usdDayChange: nil)
     }
 
     func populateFee(
@@ -113,27 +67,37 @@ final class TransferConfirmViewModelFactory {
         payload: ConfirmationPayload,
         locale: Locale
     ) {
-        guard let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }) else {
+        guard let asset = assets
+            .first(where: { $0.identifier == payload.transferInfo.asset }),
+            let assetId = WalletAssetId(rawValue: asset.identifier)
+        else {
             return
         }
 
-        let formatter = amountFormatterFactory.createInputFormatter(for: asset)
+        let formatter = amountFormatterFactory.createInputFormatter(for: asset).value(for: locale)
+        let balanceFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         let decimalAmount = payload.transferInfo.amount.decimalValue
 
-        guard let amount = formatter.value(for: locale).string(from: decimalAmount as NSNumber) else {
+        guard let amount = formatter.string(from: decimalAmount as NSNumber) else {
             return
         }
+
+        let balanceContext = BalanceContext(context: payload.transferInfo.context ?? [:])
+        let balance = balanceFormatter.stringFromDecimal(balanceContext.available) ?? ""
 
         let title = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
         let baseViewModel = WalletFormSpentAmountModel(title: title, amount: amount)
 
+        let priceData = getPriceDataFrom(payload.transferInfo)
+
         let viewModel = RichAmountDisplayViewModel(
+            balanceViewModelFactory: balanceViewModelFactory,
             displayViewModel: baseViewModel,
-            icon: nil,
-            symbol: payload.transferInfo.asset,
-            balance: payload.transferInfo.amount.stringValue,
-            price: payload.transferInfo.amount.stringValue
+            icon: assetId.icon,
+            symbol: asset.symbol,
+            balance: balance,
+            priceData: priceData
         )
 
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: .none))

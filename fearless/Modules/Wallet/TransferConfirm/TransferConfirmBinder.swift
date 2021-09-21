@@ -49,12 +49,12 @@ final class TransferConfirmBinder: WalletFormViewModelBinderOverriding {
         to view: WalletFormTitleIconViewProtocol
     ) -> Bool {
         view.style = headerStyle
-        let mappedViewMode = MultilineTitleIconViewModel(
+        let mappedViewModel = MultilineTitleIconViewModel(
             text: viewModel.title,
             icon: viewModel.icon
         )
 
-        view.bind(viewModel: mappedViewMode)
+        view.bind(viewModel: mappedViewModel)
 
         return true
     }
@@ -65,5 +65,10 @@ final class TransferConfirmBinder: WalletFormViewModelBinderOverriding {
         return true
     }
 
-    // TODO: Define bind for amount display VM
+    func bind(
+        viewModel _: RichAmountDisplayViewModel,
+        to _: RichAmountDisplayViewModelProtocol
+    ) -> Bool {
+        true
+    }
 }

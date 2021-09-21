@@ -185,10 +185,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let fee = inputState.metadata?.feeDescriptions.first?.parameters.first?.decimalValue ?? .zero
 
-        let priceContext = TransferMetadataContext(context: inputState.metadata?.context ?? [:])
-        let priceData = priceContext.price > .zero ?
-            PriceData(price: priceContext.price.stringWithPointSeparator, usdDayChange: nil) :
-            nil
+        let priceData = getPriceDataFrom(inputState)
 
         return RichAmountInputViewModel(
             amountInputViewModel: amountInputViewModel,
