@@ -86,18 +86,35 @@ final class TransferConfirmViewModelFactory {
         let balanceContext = BalanceContext(context: payload.transferInfo.context ?? [:])
         let balance = balanceFormatter.stringFromDecimal(balanceContext.available) ?? ""
 
-        let title = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        let baseViewModel = WalletFormSpentAmountModel(title: title, amount: amount)
+        let displayBalance = R.string.localizable.commonAvailableFormat(
+            balance,
+            preferredLanguages: locale.rLanguages
+        )
+
+        let title = R.string.localizable.walletSendAmountTitle(
+            preferredLanguages: locale.rLanguages
+        )
 
         let priceData = getPriceDataFrom(payload.transferInfo)
 
+        let price: String? = {
+            guard let amount = Decimal(string: amount),
+                  let priceData = priceData
+            else { return nil }
+
+            return balanceViewModelFactory.balanceFromPrice(
+                amount,
+                priceData: priceData
+            ).value(for: locale).price ?? nil
+        }()
+
         let viewModel = RichAmountDisplayViewModel(
-            balanceViewModelFactory: balanceViewModelFactory,
-            displayViewModel: baseViewModel,
+            title: title,
+            amount: amount,
             icon: assetId.icon,
             symbol: asset.symbol,
-            balance: balance,
-            priceData: priceData
+            balance: displayBalance,
+            price: price
         )
 
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: .none))

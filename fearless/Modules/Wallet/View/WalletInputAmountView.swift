@@ -43,12 +43,6 @@ final class WalletInputAmountView: WalletBaseAmountView {
         amountInputView.textField.delegate = self
         amountInputView.textField.keyboardType = .decimalPad
 
-        let accessoryView = UIFactory().createAmountAccessoryView(
-            for: self,
-            locale: selectedLocale
-        )
-
-        amountInputView.textField.inputAccessoryView = accessoryView
         amountInputView.textField.placeholder = "0"
         amountInputView.textField.text = ""
 
@@ -114,6 +108,13 @@ extension WalletInputAmountView: Localizable {
     func applyLocalization() {
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: selectedLocale.rLanguages)
+
+        let accessoryView = UIFactory().createAmountAccessoryView(
+            for: self,
+            locale: selectedLocale
+        )
+
+        amountInputView.textField.inputAccessoryView = accessoryView
 
         guard let viewModel = inputViewModel as? RichAmountInputViewModelProtocol else { return }
 

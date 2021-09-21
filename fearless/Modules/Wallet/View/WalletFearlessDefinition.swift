@@ -5,16 +5,13 @@ import SoraFoundation
 final class WalletFearlessDefinition: WalletFearlessFormDefining {
     let binder: WalletFormViewModelBinderProtocol
     let itemViewFactory: WalletFormItemViewFactoryProtocol
-    let localizationManager: LocalizationManagerProtocol
 
     init(
         binder: WalletFormViewModelBinderProtocol,
-        itemViewFactory: WalletFormItemViewFactoryProtocol,
-        localizationManager: LocalizationManagerProtocol
+        itemViewFactory: WalletFormItemViewFactoryProtocol
     ) {
         self.binder = binder
         self.itemViewFactory = itemViewFactory
-        self.localizationManager = localizationManager
     }
 
     func defineViewForFearlessTokenViewModel(_: WalletTokenViewModel) -> WalletFormItemView? {
@@ -31,7 +28,6 @@ final class WalletFearlessDefinition: WalletFearlessFormDefining {
         _ viewModel: RichAmountDisplayViewModel) -> WalletFormItemView? {
         let amountDisplayView = WalletDisplayAmountView()
         amountDisplayView.bind(viewModel: viewModel)
-        amountDisplayView.localizationManager = localizationManager
         return amountDisplayView
     }
 }

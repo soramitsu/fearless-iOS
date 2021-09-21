@@ -9,8 +9,7 @@ struct WalletFearlessDefinitionFactory: WalletFormDefinitionFactoryProtocol {
     ) -> WalletFormDefining {
         WalletFearlessDefinition(
             binder: binder,
-            itemViewFactory: itemFactory,
-            localizationManager: LocalizationManager.shared
+            itemViewFactory: itemFactory
         )
     }
 }
