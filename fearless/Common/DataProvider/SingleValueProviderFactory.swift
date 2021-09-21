@@ -53,6 +53,7 @@ protocol SingleValueProviderFactoryProtocol {
     ) -> AnyDataProvider<DecodedCrowdloanFunds>
 }
 
+@available(*, deprecated, message: "Use subsclass of LocalSubscriptionFactory instead")
 final class SingleValueProviderFactory {
     static let shared = SingleValueProviderFactory(
         facade: SubstrateDataStorageFacade.shared,

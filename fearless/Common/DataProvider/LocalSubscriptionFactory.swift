@@ -57,13 +57,13 @@ class LocalSubscriptionFactory {
 
         let trigger = DataProviderProxyTrigger()
         let source: LocalStorageProviderSource<T> = LocalStorageProviderSource(
-                itemIdentifier: localKey,
-                codingPath: storageCodingPath,
-                runtimeService: runtimeCodingProvider,
-                provider: streamableProvider,
-                trigger: trigger,
-                shouldUseFallback: shouldUseFallback
-            )
+            itemIdentifier: localKey,
+            codingPath: storageCodingPath,
+            runtimeService: runtimeCodingProvider,
+            provider: streamableProvider,
+            trigger: trigger,
+            shouldUseFallback: shouldUseFallback
+        )
 
         let dataProvider = DataProvider(
             source: AnyDataProviderSource(source),
