@@ -34,10 +34,43 @@ final class CrowdloanListPresenter {
     private func provideViewErrorState() {
         let message = R.string.localizable
             .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
-        view?.didReceive(state: .error(message: message))
+        view?.didReceive(listState: .error(message: message))
     }
 
-    private func updateView() {
+    private func updateChainView() {
+        guard let chainResult = selectedChainResult else {
+            return
+        }
+
+        guard
+            case let .success(chain) = chainResult,
+            let asset = chain.utilityAssets().first else {
+            provideViewErrorState()
+            return
+        }
+
+        let viewModel = viewModelFactory.createChainViewModel(
+            from: chain,
+            asset: asset,
+            balance: nil,
+            locale: selectedLocale
+        )
+
+        view?.didReceive(chainInfo: viewModel)
+    }
+
+    private func updateListView() {
+        guard let chainResult = selectedChainResult else {
+            return
+        }
+
+        guard
+            case let .success(chain) = chainResult,
+            let asset = chain.utilityAssets().first else {
+            provideViewErrorState()
+            return
+        }
+
         guard
             let crowdloansResult = crowdloansResult,
             let displayInfoResult = displayInfoResult,
@@ -45,14 +78,11 @@ final class CrowdloanListPresenter {
             let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber,
             let contributionsResult = contributionsResult,
-            let leaseInfoResult = leaseInfoResult,
-            let chainResult = selectedChainResult else {
+            let leaseInfoResult = leaseInfoResult else {
             return
         }
 
         guard
-            case let .success(chain) = chainResult,
-            let asset = chain.utilityAssets().first,
             case let .success(crowdloans) = crowdloansResult,
             case let .success(contributions) = contributionsResult,
             case let .success(leaseInfo) = leaseInfoResult else {
@@ -61,7 +91,7 @@ final class CrowdloanListPresenter {
         }
 
         guard !crowdloans.isEmpty else {
-            view?.didReceive(state: .empty)
+            view?.didReceive(listState: .empty)
             return
         }
 
@@ -96,14 +126,12 @@ final class CrowdloanListPresenter {
             locale: selectedLocale
         )
 
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+        view?.didReceive(listState: .loaded(viewModel: viewModel))
     }
 }
 
 extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func setup() {
-        updateView()
-
         interactor.setup()
     }
 
@@ -111,7 +139,7 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
         crowdloansResult = nil
 
         if shouldReset {
-            view?.didReceive(state: .loading)
+            view?.didReceive(listState: .loading)
         }
 
         if case .success = selectedChainResult {
@@ -139,14 +167,14 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         logger?.info("Did receive display info: \(result)")
 
         displayInfoResult = result
-        updateView()
+        updateListView()
     }
 
     func didReceiveCrowdloans(result: Result<[Crowdloan], Error>) {
         logger?.info("Did receive crowdloans: \(result)")
 
         crowdloansResult = result
-        updateView()
+        updateListView()
     }
 
     func didReceiveBlockNumber(result: Result<BlockNumber?, Error>) {
@@ -154,7 +182,7 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         case let .success(blockNumber):
             self.blockNumber = blockNumber
 
-            updateView()
+            updateListView()
         case let .failure(error):
             logger?.error("Did receivee block number error: \(error)")
         }
@@ -162,12 +190,12 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
 
     func didReceiveBlockDuration(result: Result<BlockTime, Error>) {
         blockDurationResult = result
-        updateView()
+        updateListView()
     }
 
     func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>) {
         leasingPeriodResult = result
-        updateView()
+        updateListView()
     }
 
     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>) {
@@ -176,7 +204,7 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         }
 
         contributionsResult = result
-        updateView()
+        updateListView()
     }
 
     func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>) {
@@ -185,19 +213,21 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         }
 
         leaseInfoResult = result
-        updateView()
+        updateListView()
     }
 
     func didReceiveSelectedChain(result: Result<ChainModel, Error>) {
         selectedChainResult = result
-        updateView()
+        updateChainView()
+        updateListView()
     }
 }
 
 extension CrowdloanListPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
-            updateView()
+            updateChainView()
+            updateListView()
         }
     }
 }

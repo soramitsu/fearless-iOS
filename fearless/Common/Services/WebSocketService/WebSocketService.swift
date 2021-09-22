@@ -104,25 +104,7 @@ final class WebSocketService: WebSocketServiceProtocol {
         subscriptions = nil
     }
 
-    private func setupConnection() {
-        if
-            let address = settings.address,
-            let type = settings.addressType,
-            let engine = chainRegistry.getConnection(for: type.chain.genesisHash) as? WebSocketEngine {
-            engine.delegate = self
-            self.engine = engine
-
-            subscriptions = try? subscriptionsFactory.createSubscriptions(
-                address: address,
-                type: type,
-                engine: engine
-            )
-        } else {
-            engine?.delegate = nil
-            engine = nil
-            subscriptions = nil
-        }
-    }
+    private func setupConnection() {}
 }
 
 extension WebSocketService: ApplicationHandlerDelegate {

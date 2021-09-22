@@ -7,6 +7,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
     let presenter: CrowdloanListPresenterProtocol
 
+    private var chainInfo: CrowdloansChainViewModel?
     private var state: CrowdloanListState = .loading
 
     private var shouldUpdateOnAppearance: Bool = false
@@ -60,7 +61,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     }
 
     func configure() {
-        rootView.tableView.registerClassForCell(MultilineTableViewCell.self)
+        rootView.tableView.registerClassForCell(CrowdloanChainTableViewCell.self)
         rootView.tableView.registerClassForCell(YourCrowdloansTableViewCell.self)
         rootView.tableView.registerClassForCell(ActiveCrowdloanTableViewCell.self)
         rootView.tableView.registerClassForCell(CompletedCrowdloanTableViewCell.self)
@@ -84,18 +85,17 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     private func applyState() {
         switch state {
         case .loading:
-            rootView.tableView.isHidden = true
             didStartLoading()
         case .loaded:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
-            rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
         case .empty, .error:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
-            rootView.tableView.isHidden = true
         }
+
+        rootView.tableView.reloadData()
 
         reloadEmptyState(animated: false)
     }
@@ -107,6 +107,10 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
 extension CrowdloanListViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
+        guard chainInfo != nil else {
+            return 0
+        }
+
         switch state {
         case let .loaded(viewModel):
             if viewModel.active != nil, viewModel.completed != nil {
@@ -117,55 +121,47 @@ extension CrowdloanListViewController: UITableViewDataSource {
                 return 1
             }
         case .loading, .empty, .error:
-            return 0
+            return 1
         }
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard case let .loaded(viewModel) = state else {
-            return 0
-        }
-
         if section == 0 {
-            return viewModel.contributionsCount != nil ? 2 : 1
-        } else if section == 1 {
-            return viewModel.active?.crowdloans.count ?? viewModel.completed?.crowdloans.count ?? 0
+            return 1
         } else {
-            return viewModel.completed?.crowdloans.count ?? 0
+            guard case let .loaded(viewModel) = state else {
+                return 0
+            }
+
+            if section == 1 {
+                return viewModel.active?.crowdloans.count ?? viewModel.completed?.crowdloans.count ?? 0
+            } else {
+                return viewModel.completed?.crowdloans.count ?? 0
+            }
         }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == 0 {
+            let chainInfoCell = tableView.dequeueReusableCellWithType(CrowdloanChainTableViewCell.self)!
+
+            if let viewModel = chainInfo {
+                chainInfoCell.bind(viewModel: viewModel)
+            }
+
+            return chainInfoCell
+        }
+
         guard case let .loaded(viewModel) = state else {
             return UITableViewCell()
         }
 
-        if indexPath.section == 0 {
-            switch indexPath.row {
-            case 0:
-                let titleCell = tableView.dequeueReusableCellWithType(MultilineTableViewCell.self)!
-                let title = R.string.localizable.crowdloanListSectionFormat(
-                    viewModel.tokenSymbol,
-                    preferredLanguages: selectedLocale.rLanguages
-                )
-                titleCell.bind(title: title)
-                return titleCell
-            case 1:
-                let yourCrowdloansCell = tableView.dequeueReusableCellWithType(YourCrowdloansTableViewCell.self)!
-                let counter = viewModel.contributionsCount ?? ""
-                yourCrowdloansCell.bind(details: counter, for: selectedLocale)
-                return yourCrowdloansCell
-            default:
-                return UITableViewCell()
-            }
-        } else if indexPath.section == 1, let active = viewModel.active {
+        if indexPath.section == 1, let active = viewModel.active {
             return createActiveTableViewCell(
                 tableView,
                 viewModel: active.crowdloans[indexPath.row].content
             )
-        }
-
-        if let completed = viewModel.completed {
+        } else if let completed = viewModel.completed {
             return createCompletedTableViewCell(
                 tableView,
                 viewModel: completed.crowdloans[indexPath.row].content
@@ -229,8 +225,14 @@ extension CrowdloanListViewController: UITableViewDelegate {
 }
 
 extension CrowdloanListViewController: CrowdloanListViewProtocol {
-    func didReceive(state: CrowdloanListState) {
-        self.state = state
+    func didReceive(chainInfo: CrowdloansChainViewModel) {
+        self.chainInfo = chainInfo
+
+        rootView.tableView.reloadData()
+    }
+
+    func didReceive(listState: CrowdloanListState) {
+        state = listState
 
         applyState()
     }

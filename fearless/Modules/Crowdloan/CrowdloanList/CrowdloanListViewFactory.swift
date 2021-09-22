@@ -15,6 +15,8 @@ struct CrowdloanListViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        crowdloanSettings.setup()
+
         guard let interactor = createInteractor(from: crowdloanSettings) else {
             return nil
         }

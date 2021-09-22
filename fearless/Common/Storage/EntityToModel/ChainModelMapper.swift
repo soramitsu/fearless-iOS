@@ -154,8 +154,8 @@ final class ChainModelMapper {
         entity.historyApiType = apis?.history?.type
         entity.historyApiUrl = apis?.history?.url
 
-        entity.historyApiType = apis?.crowdloans?.type
-        entity.historyApiUrl = apis?.crowdloans?.url
+        entity.crowdloansApiType = apis?.crowdloans?.type
+        entity.crowdloansApiUrl = apis?.crowdloans?.url
     }
 }
 
