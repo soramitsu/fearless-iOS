@@ -13,12 +13,18 @@
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
         <attribute name="addressPrefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="chainId" attributeType="String"/>
+        <attribute name="crowdloansApiType" optional="YES" attributeType="String"/>
+        <attribute name="crowdloansApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="hasCrowdloans" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="historyApiType" optional="YES" attributeType="String"/>
+        <attribute name="historyApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="icon" attributeType="URI"/>
         <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
+        <attribute name="stakingApiType" optional="YES" attributeType="String"/>
+        <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
@@ -86,7 +92,7 @@
     </entity>
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="149"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="209"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="299"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>

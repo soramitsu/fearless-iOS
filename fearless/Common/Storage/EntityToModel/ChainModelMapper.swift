@@ -114,6 +114,49 @@ final class ChainModelMapper {
 
         entity.nodes = Set(nodeEntities) as NSSet
     }
+
+    private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApis? {
+        let staking: ChainModel.ExternalApi?
+
+        if let type = entity.stakingApiType, let url = entity.stakingApiUrl {
+            staking = ChainModel.ExternalApi(type: type, url: url)
+        } else {
+            staking = nil
+        }
+
+        let history: ChainModel.ExternalApi?
+
+        if let type = entity.historyApiType, let url = entity.historyApiUrl {
+            history = ChainModel.ExternalApi(type: type, url: url)
+        } else {
+            history = nil
+        }
+
+        let crowdloans: ChainModel.ExternalApi?
+
+        if let type = entity.crowdloansApiType, let url = entity.crowdloansApiUrl {
+            crowdloans = ChainModel.ExternalApi(type: type, url: url)
+        } else {
+            crowdloans = nil
+        }
+
+        if staking != nil || history != nil || crowdloans != nil {
+            return ChainModel.ExternalApis(staking: staking, history: history, crowdloans: crowdloans)
+        } else {
+            return nil
+        }
+    }
+
+    private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApis?) {
+        entity.stakingApiType = apis?.staking?.type
+        entity.stakingApiUrl = apis?.staking?.url
+
+        entity.historyApiType = apis?.history?.type
+        entity.historyApiUrl = apis?.history?.url
+
+        entity.historyApiType = apis?.crowdloans?.type
+        entity.historyApiUrl = apis?.crowdloans?.url
+    }
 }
 
 extension ChainModelMapper: CoreDataMapperProtocol {
@@ -156,6 +199,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options.append(.crowdloans)
         }
 
+        let externalApis = createExternalApi(from: entity)
+
         return ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
@@ -165,7 +210,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon!,
-            options: options
+            options: options,
+            externalApi: externalApis
         )
     }
 
@@ -189,5 +235,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         updateEntityAssets(for: entity, from: model, context: context)
 
         updateEntityNodes(for: entity, from: model, context: context)
+
+        updateExternalApis(in: entity, from: model.externalApi)
     }
 }

@@ -10,6 +10,17 @@ struct ChainModel: Equatable, Codable, Hashable {
         let overridesCommon: Bool
     }
 
+    struct ExternalApi: Codable, Hashable {
+        let type: String
+        let url: URL
+    }
+
+    struct ExternalApis: Codable, Hashable {
+        let staking: ExternalApi?
+        let history: ExternalApi?
+        let crowdloans: ExternalApi?
+    }
+
     enum TypesUsage {
         case onlyCommon
         case both
@@ -25,6 +36,7 @@ struct ChainModel: Equatable, Codable, Hashable {
     let types: TypesSettings?
     let icon: URL
     let options: [ChainOptions]?
+    let externalApi: ExternalApis?
 
     var isEthereumBased: Bool {
         options?.contains(.ethereumBased) ?? false
