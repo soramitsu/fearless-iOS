@@ -60,14 +60,28 @@ struct CrowdloanListViewFactory {
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
-        let remoteSubscriptionService = CrowdloanRemoteSubscriptionService(
+        let crowdloanRemoteSubscriptionService = CrowdloanRemoteSubscriptionService(
             chainRegistry: chainRegistry,
             repository: AnyDataProviderRepository(repository),
             operationManager: operationManager,
             logger: logger
         )
 
-        let localSubscriptionFactory = CrowdloanLocalSubscriptionFactory(
+        let crowdloanLocalSubscriptionFactory = CrowdloanLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let walletRemoteSubscriptionService = WalletRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            repository: repository,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: storageFacade,
             operationManager: operationManager,
@@ -89,10 +103,13 @@ struct CrowdloanListViewFactory {
             settings: settings,
             chainRegistry: chainRegistry,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            localSubscriptionFactory: localSubscriptionFactory,
-            crowdloanRemoteSubscriptionService: remoteSubscriptionService,
+            crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
+            crowdloanLocalSubscriptionFactory: crowdloanLocalSubscriptionFactory,
+            walletRemoteSubscriptonService: walletRemoteSubscriptionService,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: logger
         )
     }
 }

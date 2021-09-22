@@ -30,6 +30,7 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)
     func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)
     func didReceiveSelectedChain(result: Result<ChainModel, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {

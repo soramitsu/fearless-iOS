@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import BigInt
 
 final class CrowdloanListPresenter {
     weak var view: CrowdloanListViewProtocol?
@@ -9,6 +10,7 @@ final class CrowdloanListPresenter {
     let logger: LoggerProtocol?
 
     private var selectedChainResult: Result<ChainModel, Error>?
+    private var accountInfoResult: Result<AccountInfo?, Error>?
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
     private var blockNumber: BlockNumber?
@@ -49,10 +51,18 @@ final class CrowdloanListPresenter {
             return
         }
 
+        let balance: BigUInt?
+
+        if let accountInfoResult = accountInfoResult {
+            balance = (try? accountInfoResult.get()?.data.available) ?? 0
+        } else {
+            balance = nil
+        }
+
         let viewModel = viewModelFactory.createChainViewModel(
             from: chain,
             asset: asset,
-            balance: nil,
+            balance: balance,
             locale: selectedLocale
         )
 
@@ -220,6 +230,11 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         selectedChainResult = result
         updateChainView()
         updateListView()
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        accountInfoResult = result
+        updateChainView()
     }
 }
 

@@ -3,6 +3,10 @@ import UIKit
 final class CrowdloanChainTableViewCell: UITableViewCell {
     let networkSelectionView: DetailsTriangularedView = {
         let view = UIFactory.default.createDetailsView(with: .largeIconTitleSubtitle, filled: false)
+        view.titleLabel.textColor = R.color.colorWhite()
+        view.titleLabel.font = .p1Paragraph
+        view.subtitleLabel?.textColor = R.color.colorLightGray()
+        view.subtitleLabel?.font = .p2Paragraph
         view.highlightedFillColor = R.color.colorCellSelection()!
         view.actionImage = R.image.iconHorMore()
         return view

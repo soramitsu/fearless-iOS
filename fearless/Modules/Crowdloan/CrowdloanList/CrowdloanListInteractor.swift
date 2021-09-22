@@ -9,14 +9,18 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
     let jsonDataProviderFactory: JsonDataProviderFactoryProtocol
     let chainRegistry: ChainRegistryProtocol
-    let localSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
     let crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol
+    let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
+    let walletRemoteSubscriptonService: WalletRemoteSubscriptionServiceProtocol
+    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let settings: CrowdloanChainSettings
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
 
-    private var remoteSubscriptionId: UUID?
+    private var blockNumberSubscriptionId: UUID?
+    private var accountInfoSubscriptionId: UUID?
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
+    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
@@ -29,8 +33,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         settings: CrowdloanChainSettings,
         chainRegistry: ChainRegistryProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        localSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
         crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol,
+        crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
+        walletRemoteSubscriptonService: WalletRemoteSubscriptionServiceProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         jsonDataProviderFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -39,8 +45,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.crowdloanOperationFactory = crowdloanOperationFactory
         self.chainRegistry = chainRegistry
         self.jsonDataProviderFactory = jsonDataProviderFactory
-        self.localSubscriptionFactory = localSubscriptionFactory
+        self.crowdloanLocalSubscriptionFactory = crowdloanLocalSubscriptionFactory
         self.crowdloanRemoteSubscriptionService = crowdloanRemoteSubscriptionService
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.walletRemoteSubscriptonService = walletRemoteSubscriptonService
         self.settings = settings
         self.operationManager = operationManager
         self.logger = logger
@@ -230,6 +238,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         )
     }
 
+    private func subscribeToAccountInfo(for accountId: AccountId, chain: ChainModel) {
+        accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+    }
+
     private func provideConstants(for chain: ChainModel) {
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             let error = ChainRegistryError.runtimeMetadaUnavailable
@@ -255,12 +267,46 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         }
     }
 
+    private func attachToRemoteAccountInfo(for accountId: AccountId, chain: ChainModel) {
+        accountInfoSubscriptionId = walletRemoteSubscriptonService.attachToAccountInfo(
+            of: accountId,
+            chainId: chain.chainId,
+            queue: .main
+        ) { [weak self] result in
+            if case let .failure(error) = result {
+                self?.accountInfoSubscriptionId = nil
+                self?.presenter.didReceiveAccountInfo(result: .failure(error))
+            }
+        }
+    }
+
+    private func detachFromRemoteAccountInfo(for accountId: AccountId, chain: ChainModel) {
+        guard let subscriptioId = accountInfoSubscriptionId else {
+            return
+        }
+
+        accountInfoSubscriptionId = nil
+
+        walletRemoteSubscriptonService.detachFromAccountInfo(
+            for: subscriptioId,
+            accountId: accountId,
+            chainId: chain.chainId,
+            queue: nil,
+            closure: nil
+        )
+    }
+
     private func clear() {
         if let oldChain = settings.value {
             putOffline(with: oldChain)
+
+            if let accountId = selectedMetaAccount.fetch(for: oldChain.accountRequest())?.accountId {
+                detachFromRemoteAccountInfo(for: accountId, chain: oldChain)
+            }
         }
 
-        displayInfoProvider = nil
+        clear(singleValueProvider: &displayInfoProvider)
+        clear(dataProvider: &accountInfoProvider)
 
         crowdloansRequest?.cancel()
         crowdloansRequest = nil
@@ -276,11 +322,21 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
             return
         }
 
-        setup(with: chain)
+        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+            presenter.didReceiveAccountInfo(
+                result: .failure(ChainAccountFetchingError.accountNotExists)
+            )
+            return
+        }
+
+        setup(with: accountId, chain: chain)
     }
 
-    private func setup(with chain: ChainModel) {
+    private func setup(with accountId: AccountId, chain: ChainModel) {
         presenter.didReceiveSelectedChain(result: .success(chain))
+
+        attachToRemoteAccountInfo(for: accountId, chain: chain)
+        subscribeToAccountInfo(for: accountId, chain: chain)
 
         provideCrowdloans(for: chain)
 
@@ -315,13 +371,24 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
             settings.save(value: chainModel, runningCompletionIn: .main) { [weak self] result in
                 switch result {
                 case .success:
-                    self?.setup(with: chainModel)
-                    self?.becomeOnline(with: chainModel)
+                    self?.handleNewSelected(chain: chainModel)
                 case let .failure(error):
                     self?.presenter.didReceiveSelectedChain(result: .failure(error))
                 }
             }
         }
+    }
+
+    private func handleNewSelected(chain: ChainModel) {
+        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+            presenter.didReceiveAccountInfo(
+                result: .failure(ChainAccountFetchingError.accountNotExists)
+            )
+            return
+        }
+
+        setup(with: accountId, chain: chain)
+        becomeOnline(with: chain)
     }
 
     func becomeOnline() {
@@ -333,8 +400,8 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     }
 
     private func becomeOnline(with chain: ChainModel) {
-        if remoteSubscriptionId == nil {
-            remoteSubscriptionId = crowdloanRemoteSubscriptionService.attach(for: chain.chainId)
+        if blockNumberSubscriptionId == nil {
+            blockNumberSubscriptionId = crowdloanRemoteSubscriptionService.attach(for: chain.chainId)
         }
 
         if blockNumberProvider == nil {
@@ -351,8 +418,8 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     }
 
     private func putOffline(with chain: ChainModel) {
-        if let subscriptionId = remoteSubscriptionId {
-            remoteSubscriptionId = nil
+        if let subscriptionId = blockNumberSubscriptionId {
+            blockNumberSubscriptionId = nil
             crowdloanRemoteSubscriptionService.detach(for: subscriptionId, chainId: chain.chainId)
         }
 
@@ -362,12 +429,24 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
 
 extension CrowdloanListInteractor: CrowdloanLocalStorageSubscriber, CrowdloanLocalSubscriptionHandler,
     AnyProviderAutoCleaning {
-    var subscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol { localSubscriptionFactory }
-
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chainId: ChainModel.Id) {
         if let chain = settings.value, chain.chainId == chainId {
             provideCrowdloans(for: chain)
             presenter.didReceiveBlockNumber(result: result)
+        }
+    }
+}
+
+extension CrowdloanListInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId: AccountId,
+        chainId: ChainModel.Id
+    ) {
+        if let chain = settings.value, chain.chainId == chainId {
+            let address = try? accountId.toAddress(using: chain.conversion)
+            logger?.debug("Did receive balance for address: \(address ?? ""))")
+            presenter.didReceiveAccountInfo(result: result)
         }
     }
 }
