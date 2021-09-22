@@ -13,6 +13,7 @@ final class ServiceCoordinator {
     let validatorService: EraValidatorServiceProtocol
     let gitHubPhishingAPIService: ApplicationServiceProtocol
     let rewardCalculatorService: RewardCalculatorServiceProtocol
+    let accountInfoService: ApplicationServiceProtocol
     let settings: SettingsManagerProtocol
 
     init(
@@ -21,6 +22,7 @@ final class ServiceCoordinator {
         validatorService: EraValidatorServiceProtocol,
         gitHubPhishingAPIService: ApplicationServiceProtocol,
         rewardCalculatorService: RewardCalculatorServiceProtocol,
+        accountInfoService: ApplicationServiceProtocol,
         settings: SettingsManagerProtocol
     ) {
         self.webSocketService = webSocketService
@@ -28,6 +30,7 @@ final class ServiceCoordinator {
         self.validatorService = validatorService
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
         self.rewardCalculatorService = rewardCalculatorService
+        self.accountInfoService = accountInfoService
         self.settings = settings
     }
 
@@ -108,6 +111,8 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 
         rewardCalculatorService.update(to: chain)
         rewardCalculatorService.setup()
+
+        accountInfoService.setup()
     }
 
     func throttle() {
@@ -116,6 +121,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         validatorService.throttle()
         gitHubPhishingAPIService.throttle()
         rewardCalculatorService.throttle()
+        accountInfoService.throttle()
     }
 }
 
@@ -127,12 +133,29 @@ extension ServiceCoordinator {
         let validatorService = EraValidatorFacade.sharedService
         let rewardCalculatorService = RewardCalculatorFacade.sharedService
 
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
+        let logger = Logger.shared
+        let walletRemoteSubscription = WalletRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: logger
+        )
+        let accountInfoService = AccountInfoUpdatingService(
+            selectedAccount: SelectedWalletSettings.shared.value,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            remoteSubscriptionService: walletRemoteSubscription,
+            logger: logger
+        )
+
         return ServiceCoordinator(
             webSocketService: webSocketService,
             runtimeService: runtimeService,
             validatorService: validatorService,
             gitHubPhishingAPIService: gitHubPhishingAPIService,
             rewardCalculatorService: rewardCalculatorService,
+            accountInfoService: accountInfoService,
             settings: SettingsManager.shared
         )
     }

@@ -74,13 +74,6 @@ struct CrowdloanListViewFactory {
             logger: logger
         )
 
-        let walletRemoteSubscriptionService = WalletRemoteSubscriptionService(
-            chainRegistry: chainRegistry,
-            repository: repository,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: storageFacade,
@@ -105,7 +98,6 @@ struct CrowdloanListViewFactory {
             crowdloanOperationFactory: crowdloanOperationFactory,
             crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
             crowdloanLocalSubscriptionFactory: crowdloanLocalSubscriptionFactory,
-            walletRemoteSubscriptonService: walletRemoteSubscriptionService,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,

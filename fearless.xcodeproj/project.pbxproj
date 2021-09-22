@@ -158,6 +158,7 @@
 		8401F24F24E524900081D8F8 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401F24E24E524900081D8F8 /* String+Helpers.swift */; };
 		84031C17263EC95C008FD9D4 /* SetPayeeCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */; };
 		840689FC26321F2700A017B1 /* StorageQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840689FB26321F2700A017B1 /* StorageQuery.swift */; };
+		8406B5AB26FBD9EB00635B61 /* AccountInfoUpdatingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8406B5AA26FBD9EB00635B61 /* AccountInfoUpdatingService.swift */; };
 		840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840882AF2514024800177E20 /* SelectedConnectionChanged.swift */; };
 		840882B4251413D000177E20 /* SelectConnection+OnboardingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840882B3251413D000177E20 /* SelectConnection+OnboardingMainWireframe.swift */; };
 		840882B62514A5ED00177E20 /* SelectConnection+UsernameSetupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840882B52514A5ED00177E20 /* SelectConnection+UsernameSetupWireframe.swift */; };
@@ -1683,6 +1684,7 @@
 		8401F24E24E524900081D8F8 /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
 		84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetPayeeCall.swift; sourceTree = "<group>"; };
 		840689FB26321F2700A017B1 /* StorageQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageQuery.swift; sourceTree = "<group>"; };
+		8406B5AA26FBD9EB00635B61 /* AccountInfoUpdatingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoUpdatingService.swift; sourceTree = "<group>"; };
 		840882AF2514024800177E20 /* SelectedConnectionChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedConnectionChanged.swift; sourceTree = "<group>"; };
 		840882B3251413D000177E20 /* SelectConnection+OnboardingMainWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectConnection+OnboardingMainWireframe.swift"; sourceTree = "<group>"; };
 		840882B52514A5ED00177E20 /* SelectConnection+UsernameSetupWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectConnection+UsernameSetupWireframe.swift"; sourceTree = "<group>"; };
@@ -3757,6 +3759,7 @@
 				84963D6B26F91810003FE8E4 /* RemoteSubscriptionService.swift */,
 				84963D6D26F91826003FE8E4 /* RemoteSubscriptionRequests.swift */,
 				84963D6F26F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift */,
+				8406B5AA26FBD9EB00635B61 /* AccountInfoUpdatingService.swift */,
 			);
 			path = RemoteSubscription;
 			sourceTree = "<group>";
@@ -8587,6 +8590,7 @@
 				84FB1F672526920B00E0242B /* SubscanTransferData.swift in Sources */,
 				84D97EBB251FE5B500F07405 /* TransferViewModelFactory.swift in Sources */,
 				84FB298426393D0900BE0FCD /* YourValidatorListViewModelFactory.swift in Sources */,
+				8406B5AB26FBD9EB00635B61 /* AccountInfoUpdatingService.swift in Sources */,
 				84CD82AE263C1452001A6F01 /* SubstrateProviderSubscriber.swift in Sources */,
 				AE6F7FE62685F2C3002BBC3E /* ValidatorListFilterViewModel.swift in Sources */,
 				84FB1F652526879200E0242B /* WalletSingleProviderIdFactory.swift in Sources */,
