@@ -8,7 +8,8 @@ protocol WalletLocalSubscriptionFactoryProtocol {
     ) throws -> AnyDataProvider<DecodedAccountInfo>
 }
 
-final class WalletLocalSubscriptionFactory: LocalSubscriptionFactory, WalletLocalSubscriptionFactoryProtocol {
+final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
+    WalletLocalSubscriptionFactoryProtocol {
     func getAccountProvider(
         for accountId: AccountId,
         chainId: ChainModel.Id

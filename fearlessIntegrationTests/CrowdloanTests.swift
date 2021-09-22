@@ -39,8 +39,7 @@ class CrowdloanTests: XCTestCase {
 
             let crowdloansWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
                 connection: connection,
-                runtimeService: runtimeService,
-                chain: chain
+                runtimeService: runtimeService
             )
 
             let contributionsOperation: BaseOperation<[CrowdloanContributionResponse]> =

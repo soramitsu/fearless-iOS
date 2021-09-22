@@ -77,11 +77,6 @@ struct CrowdloanListViewFactory {
             operationManager: operationManager
         )
 
-        let crowdloanInfoProvider: AnySingleValueProvider<[CrowdloanDisplayInfo]> =
-            SingleValueProviderFactory.shared.getJson(
-                for: Chain.kusama.crowdloanDisplayInfoURL()
-            )
-
         let crowdloanOperationFactory = CrowdloanOperationFactory(
             requestOperationFactory: storageRequestFactory,
             operationManager: operationManager
@@ -94,7 +89,7 @@ struct CrowdloanListViewFactory {
             crowdloanOperationFactory: crowdloanOperationFactory,
             localSubscriptionFactory: localSubscriptionFactory,
             crowdloanRemoteSubscriptionService: remoteSubscriptionService,
-            displayInfoProvider: crowdloanInfoProvider,
+            jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager
         )
     }

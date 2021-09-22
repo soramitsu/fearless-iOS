@@ -1,11 +1,7 @@
 import Foundation
 import RobinHood
 
-enum LocalSubscriptionFactoryError: Error {
-    case missingRuntimeProvider
-}
-
-class LocalSubscriptionFactory {
+class SubstrateLocalSubscriptionFactory {
     private var providers: [String: WeakWrapper] = [:]
 
     let chainRegistry: ChainRegistryProtocol
@@ -48,7 +44,7 @@ class LocalSubscriptionFactory {
         }
 
         guard let runtimeCodingProvider = chainRegistry.getRuntimeProvider(for: chainId) else {
-            throw LocalSubscriptionFactoryError.missingRuntimeProvider
+            throw ChainRegistryError.runtimeMetadaUnavailable
         }
 
         let repository = InMemoryDataProviderRepository<ChainStorageDecodedItem<T>>()

@@ -8,7 +8,7 @@ final class CrowdloanListPresenter {
     let viewModelFactory: CrowdloansViewModelFactoryProtocol
     let logger: LoggerProtocol?
 
-    private var selectedChain: ChainModel?
+    private var selectedChainResult: Result<ChainModel, Error>?
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
     private var blockNumber: BlockNumber?
@@ -46,11 +46,12 @@ final class CrowdloanListPresenter {
             let blockNumber = blockNumber,
             let contributionsResult = contributionsResult,
             let leaseInfoResult = leaseInfoResult,
-            let chain = selectedChain else {
+            let chainResult = selectedChainResult else {
             return
         }
 
         guard
+            case let .success(chain) = chainResult,
             let asset = chain.utilityAssets().first,
             case let .success(crowdloans) = crowdloansResult,
             case let .success(contributions) = contributionsResult,
@@ -113,7 +114,11 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
             view?.didReceive(state: .loading)
         }
 
-        interactor.refresh()
+        if case .success = selectedChainResult {
+            interactor.refresh()
+        } else {
+            interactor.setup()
+        }
     }
 
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
@@ -183,8 +188,8 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         updateView()
     }
 
-    func didReceiveSelected(chainModel: ChainModel) {
-        selectedChain = chainModel
+    func didReceiveSelectedChain(result: Result<ChainModel, Error>) {
+        selectedChainResult = result
         updateView()
     }
 }
