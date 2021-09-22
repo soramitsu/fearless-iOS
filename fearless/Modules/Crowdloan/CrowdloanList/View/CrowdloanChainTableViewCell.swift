@@ -1,7 +1,7 @@
 import UIKit
 
 final class CrowdloanChainTableViewCell: UITableViewCell {
-    let networkSelectionView: DetailsTriangularedView = {
+    let chainSelectionView: DetailsTriangularedView = {
         let view = UIFactory.default.createDetailsView(with: .largeIconTitleSubtitle, filled: false)
         view.titleLabel.textColor = R.color.colorWhite()
         view.titleLabel.font = .p1Paragraph
@@ -9,6 +9,8 @@ final class CrowdloanChainTableViewCell: UITableViewCell {
         view.subtitleLabel?.font = .p2Paragraph
         view.highlightedFillColor = R.color.colorCellSelection()!
         view.actionImage = R.image.iconHorMore()
+        view.contentInsets = UIEdgeInsets(top: 7.0, left: 16.0, bottom: 8.0, right: 16.0)
+        view.iconRadius = 16.0
         return view
     }()
 
@@ -25,7 +27,7 @@ final class CrowdloanChainTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        viewModel?.imageViewModel?.cancel(on: networkSelectionView.iconView)
+        viewModel?.imageViewModel?.cancel(on: chainSelectionView.iconView)
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -42,17 +44,18 @@ final class CrowdloanChainTableViewCell: UITableViewCell {
     }
 
     func bind(viewModel: CrowdloansChainViewModel) {
-        self.viewModel?.imageViewModel?.cancel(on: networkSelectionView.iconView)
-        networkSelectionView.iconView.image = nil
+        self.viewModel?.imageViewModel?.cancel(on: chainSelectionView.iconView)
+        chainSelectionView.iconView.image = nil
 
         self.viewModel = viewModel
 
-        networkSelectionView.title = viewModel.networkName
-        networkSelectionView.subtitle = viewModel.balance
+        chainSelectionView.title = viewModel.networkName
+        chainSelectionView.subtitle = viewModel.balance
 
+        let iconSize = 2 * chainSelectionView.iconRadius
         viewModel.imageViewModel?.loadImage(
-            on: networkSelectionView.iconView,
-            targetSize: CGSize(width: 24.0, height: 24.0),
+            on: chainSelectionView.iconView,
+            targetSize: CGSize(width: iconSize, height: iconSize),
             animated: true
         )
 
@@ -60,9 +63,9 @@ final class CrowdloanChainTableViewCell: UITableViewCell {
     }
 
     private func setupLayout() {
-        contentView.addSubview(networkSelectionView)
+        contentView.addSubview(chainSelectionView)
 
-        networkSelectionView.snp.makeConstraints { make in
+        chainSelectionView.snp.makeConstraints { make in
             make.left.right.top.equalToSuperview().inset(16.0)
             make.height.equalTo(48.0)
         }
@@ -70,7 +73,7 @@ final class CrowdloanChainTableViewCell: UITableViewCell {
         contentView.addSubview(descriptionLabel)
 
         descriptionLabel.snp.makeConstraints { make in
-            make.top.equalTo(networkSelectionView.snp.bottom).offset(16.0)
+            make.top.equalTo(chainSelectionView.snp.bottom).offset(16.0)
             make.left.right.bottom.equalToSuperview().inset(16.0)
         }
     }

@@ -10,6 +10,8 @@ final class CrowdloanListViewLayout: UIView {
         return view
     }()
 
+    let loadingView = UIView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -22,6 +24,12 @@ final class CrowdloanListViewLayout: UIView {
     }
 
     func setup() {
+        addSubview(loadingView)
+        loadingView.snp.makeConstraints { make in
+            make.left.right.bottom.equalToSuperview()
+            make.top.equalTo(safeAreaLayoutGuide).inset(64.0)
+        }
+
         addSubview(tableView)
 
         tableView.snp.makeConstraints { make in
