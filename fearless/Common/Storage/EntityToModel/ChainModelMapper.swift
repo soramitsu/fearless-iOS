@@ -35,6 +35,85 @@ final class ChainModelMapper {
             apikey: apiKey
         )
     }
+
+    private func updateEntityAssets(
+        for entity: CDChain,
+        from model: ChainModel,
+        context: NSManagedObjectContext
+    ) {
+        let assetEntities: [CDAsset] = model.assets.map { asset in
+            let assetEntity: CDAsset
+            let assetEntityId = Int32(bitPattern: asset.assetId)
+
+            let maybeExistingEntity = entity.assets?
+                .first { ($0 as? CDAsset)?.assetId == assetEntityId } as? CDAsset
+
+            if let existingEntity = maybeExistingEntity {
+                assetEntity = existingEntity
+            } else {
+                assetEntity = CDAsset(context: context)
+            }
+
+            assetEntity.assetId = assetEntityId
+            assetEntity.name = asset.name
+            assetEntity.precision = Int16(bitPattern: asset.precision)
+            assetEntity.icon = asset.icon
+            assetEntity.symbol = asset.symbol
+            assetEntity.staking = asset.staking
+
+            return assetEntity
+        }
+
+        let existingAssetIds = Set(model.assets.map(\.assetId))
+
+        if let oldAssets = entity.assets as? Set<CDAsset> {
+            for oldAsset in oldAssets {
+                if !existingAssetIds.contains(UInt32(bitPattern: oldAsset.assetId)) {
+                    context.delete(oldAsset)
+                }
+            }
+        }
+
+        entity.assets = Set(assetEntities) as NSSet
+    }
+
+    private func updateEntityNodes(
+        for entity: CDChain,
+        from model: ChainModel,
+        context: NSManagedObjectContext
+    ) {
+        let nodeEntities: [CDChainNode] = model.nodes.map { node in
+            let nodeEntity: CDChainNode
+
+            let maybeExistingEntity = entity.nodes?
+                .first { ($0 as? CDChainNode)?.url == node.url } as? CDChainNode
+
+            if let existingEntity = maybeExistingEntity {
+                nodeEntity = existingEntity
+            } else {
+                nodeEntity = CDChainNode(context: context)
+            }
+
+            nodeEntity.url = node.url
+            nodeEntity.name = node.name
+            nodeEntity.apiQueryName = node.apikey?.queryName
+            nodeEntity.apiKeyName = node.apikey?.keyName
+
+            return nodeEntity
+        }
+
+        let existingNodeIds = Set(model.nodes.map(\.url))
+
+        if let oldNodes = entity.nodes as? Set<CDChainNode> {
+            for oldNode in oldNodes {
+                if !existingNodeIds.contains(oldNode.url!) {
+                    context.delete(oldNode)
+                }
+            }
+        }
+
+        entity.nodes = Set(nodeEntities) as NSSet
+    }
 }
 
 extension ChainModelMapper: CoreDataMapperProtocol {
@@ -90,7 +169,11 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         )
     }
 
-    func populate(entity: CDChain, from model: ChainModel, using context: NSManagedObjectContext) throws {
+    func populate(
+        entity: CDChain,
+        from model: ChainModel,
+        using context: NSManagedObjectContext
+    ) throws {
         entity.chainId = model.chainId
         entity.parentId = model.parentId
         entity.name = model.name
@@ -103,45 +186,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
 
-        model.assets.forEach { asset in
-            let assetEntity: CDAsset
-            let assetEntityId = Int32(bitPattern: asset.assetId)
+        updateEntityAssets(for: entity, from: model, context: context)
 
-            let maybeExistingEntity = entity.assets?
-                .first { ($0 as? CDAsset)?.assetId == assetEntityId } as? CDAsset
-
-            if let existingEntity = maybeExistingEntity {
-                assetEntity = existingEntity
-            } else {
-                assetEntity = CDAsset(context: context)
-                entity.addToAssets(assetEntity)
-            }
-
-            assetEntity.assetId = assetEntityId
-            assetEntity.name = asset.name
-            assetEntity.precision = Int16(bitPattern: asset.precision)
-            assetEntity.icon = asset.icon
-            assetEntity.symbol = asset.symbol
-            assetEntity.staking = asset.staking
-        }
-
-        model.nodes.forEach { node in
-            let nodeEntity: CDChainNode
-
-            let maybeExistingEntity = entity.nodes?
-                .first { ($0 as? CDChainNode)?.url == node.url } as? CDChainNode
-
-            if let existingEntity = maybeExistingEntity {
-                nodeEntity = existingEntity
-            } else {
-                nodeEntity = CDChainNode(context: context)
-                entity.addToNodes(nodeEntity)
-            }
-
-            nodeEntity.url = node.url
-            nodeEntity.name = node.name
-            nodeEntity.apiQueryName = node.apikey?.queryName
-            nodeEntity.apiKeyName = node.apikey?.keyName
-        }
+        updateEntityNodes(for: entity, from: model, context: context)
     }
 }
