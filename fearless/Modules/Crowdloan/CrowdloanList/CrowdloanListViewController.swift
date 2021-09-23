@@ -86,18 +86,21 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         switch state {
         case .loading:
             didStartLoading()
-            rootView.bringSubviewToFront(rootView.loadingView)
+
+            rootView.setSeparators(enabled: false)
+            rootView.bringSubviewToFront(rootView.tableView)
         case .loaded:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
-            rootView.tableView.reloadData()
 
+            rootView.setSeparators(enabled: true)
             rootView.bringSubviewToFront(rootView.tableView)
         case .empty, .error:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
 
-            rootView.bringSubviewToFront(rootView.loadingView)
+            rootView.setSeparators(enabled: false)
+            rootView.bringSubviewToFront(rootView.statusView)
         }
 
         rootView.tableView.reloadData()
@@ -176,7 +179,9 @@ extension CrowdloanListViewController: UITableViewDataSource {
                 tableView,
                 viewModel: active.crowdloans[indexPath.row].content
             )
-        } else if let completed = viewModel.completed {
+        }
+
+        if let completed = viewModel.completed {
             return createCompletedTableViewCell(
                 tableView,
                 viewModel: completed.crowdloans[indexPath.row].content
@@ -262,13 +267,13 @@ extension CrowdloanListViewController: Localizable {
 }
 
 extension CrowdloanListViewController: LoadableViewProtocol {
-    var loadableContentView: UIView! { rootView.loadingView }
+    var loadableContentView: UIView! { rootView.statusView }
 }
 
 extension CrowdloanListViewController: EmptyStateViewOwnerProtocol {
     var emptyStateDelegate: EmptyStateDelegate { self }
     var emptyStateDataSource: EmptyStateDataSource { self }
-    var contentViewForEmptyState: UIView { rootView.loadingView }
+    var contentViewForEmptyState: UIView { rootView.statusView }
 }
 
 extension CrowdloanListViewController: EmptyStateDataSource {
