@@ -8,8 +8,14 @@ protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState
 }
 
+typealias AnalyticsRewardsViewModelFactoryBuilder = (
+    Chain,
+    BalanceViewModelFactoryProtocol
+) -> AnalyticsRewardsViewModelFactoryProtocol
+
 final class StakingStateViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
+    let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
     let logger: LoggerProtocol?
 
     private var lastViewModel: StakingViewState = .undefined
@@ -20,8 +26,13 @@ final class StakingStateViewModelFactory {
 
     private lazy var addressFactory = SS58AddressFactory()
 
-    init(primitiveFactory: WalletPrimitiveFactoryProtocol, logger: LoggerProtocol? = nil) {
+    init(
+        primitiveFactory: WalletPrimitiveFactoryProtocol,
+        analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
+        logger: LoggerProtocol? = nil
+    ) {
         self.primitiveFactory = primitiveFactory
+        self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
     }
 
@@ -154,6 +165,30 @@ final class StakingStateViewModelFactory {
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
                 hasPrice: commonData.price != nil
+            )
+        }
+    }
+
+    private func createAnalyticsViewModel(
+        commonData: StakingStateCommonData,
+        chain: Chain
+    ) -> LocalizableResource<RewardAnalyticsWidgetViewModel>? {
+        guard let rewardsForPeriod = commonData.subqueryRewards, let rewards = rewardsForPeriod.0 else {
+            return nil
+        }
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+
+        let analyticsViewModelFactory = analyticsRewardsViewModelFactoryBuilder(chain, balanceViewModelFactory)
+        let fullViewModel = analyticsViewModelFactory.createViewModel(
+            from: rewards,
+            priceData: commonData.price,
+            period: rewardsForPeriod.1,
+            selectedChartIndex: nil
+        )
+        return LocalizableResource { locale in
+            RewardAnalyticsWidgetViewModel(
+                summary: fullViewModel.value(for: locale).summaryViewModel,
+                chartData: fullViewModel.value(for: locale).chartData
             )
         }
     }
@@ -322,8 +357,13 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: status
         )
 
+        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
         let alerts = stakingAlertsForBondedState(state)
-        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
+        lastViewModel = .nominator(
+            viewModel: viewModel,
+            alerts: alerts,
+            analyticsViewModel: analyticsViewModel
+        )
     }
 
     func visit(state: PendingNominatorState) {
@@ -357,8 +397,13 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
+        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
         let alerts = stakingAlertsForNominatorState(state)
-        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
+        lastViewModel = .nominator(
+            viewModel: viewModel,
+            alerts: alerts,
+            analyticsViewModel: analyticsViewModel
+        )
     }
 
     func visit(state: PendingValidatorState) {
@@ -392,7 +437,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         )
 
         let alerts = stakingAlertsForValidatorState(state)
-        lastViewModel = .validator(viewModel: viewModel, alerts: alerts)
+        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
+        lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: analyticsViewModel)
     }
 }
 

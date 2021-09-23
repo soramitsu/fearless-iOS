@@ -1,6 +1,7 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import FearlessUtils
 
 final class EraValidatorServiceStub: EraValidatorServiceProtocol {
     let info: EraStakersInfo
