@@ -11,8 +11,6 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
-    // TODO: Create key for locks
-
     func bondedKeyForId(_ identifier: Data) throws -> Data {
         try createStorageKey(
             moduleName: "Staking",
@@ -28,6 +26,15 @@ extension StorageKeyFactoryProtocol {
             storageName: "Ledger",
             key: identifier,
             hasher: .blake128Concat
+        )
+    }
+
+    func locksForId(_ identifier: Data) throws -> Data {
+        try createStorageKey(
+            moduleName: "Balances",
+            storageName: "Locks",
+            key: identifier,
+            hasher: .blake128Concat // TODO: Check hashing function
         )
     }
 
