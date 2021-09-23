@@ -53,6 +53,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             networkType: type
         )
 
+        // TODO: Create locks subscription
+
         let accountSubscription =
             try createAccountInfoSubscription(
                 transactionSubscription: transactionSubscription,
@@ -135,6 +137,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         return subscriptions
     }
+
+    // TODO: Implement locks subscription
 
     private func createAccountInfoSubscription(
         transactionSubscription: TransactionSubscription,

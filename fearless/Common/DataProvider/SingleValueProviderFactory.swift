@@ -42,6 +42,7 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedPayee>
     func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedBlockNumber>
+    // TODO: Define function for fetching locks
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 
@@ -479,4 +480,6 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         return AnyDataProvider(dataProvider)
     }
+
+    // TODO: Implement function for fetching locks
 }

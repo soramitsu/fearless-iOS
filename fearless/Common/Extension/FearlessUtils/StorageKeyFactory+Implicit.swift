@@ -11,6 +11,8 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
+    // TODO: Create key for locks
+
     func bondedKeyForId(_ identifier: Data) throws -> Data {
         try createStorageKey(
             moduleName: "Staking",

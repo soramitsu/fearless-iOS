@@ -62,6 +62,7 @@ extension WalletNetworkFacade {
         }
     }
 
+    // TODO: replace staking ledger with locks
     private func createBalanceMappingOperation(
         asset: WalletAsset,
         dependingOn accountInfoWrapper: CompoundOperationWrapper<AccountInfo?>,
