@@ -86,20 +86,23 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         switch state {
         case .loading:
             didStartLoading()
+            rootView.bringSubviewToFront(rootView.loadingView)
         case .loaded:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
             rootView.tableView.reloadData()
+
+            rootView.bringSubviewToFront(rootView.tableView)
         case .empty, .error:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
+
+            rootView.bringSubviewToFront(rootView.loadingView)
         }
 
         rootView.tableView.reloadData()
 
         reloadEmptyState(animated: false)
-
-        rootView.bringSubviewToFront(rootView.tableView)
     }
 
     @objc func actionRefresh() {
@@ -265,9 +268,7 @@ extension CrowdloanListViewController: LoadableViewProtocol {
 extension CrowdloanListViewController: EmptyStateViewOwnerProtocol {
     var emptyStateDelegate: EmptyStateDelegate { self }
     var emptyStateDataSource: EmptyStateDataSource { self }
-    var displayInsetsForEmptyState: UIEdgeInsets {
-        UIEdgeInsets(top: 64.0, left: 0.0, bottom: 0.0, right: 0.0)
-    }
+    var contentViewForEmptyState: UIView { rootView.loadingView }
 }
 
 extension CrowdloanListViewController: EmptyStateDataSource {

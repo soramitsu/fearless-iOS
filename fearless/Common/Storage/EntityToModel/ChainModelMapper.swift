@@ -59,6 +59,7 @@ final class ChainModelMapper {
             assetEntity.precision = Int16(bitPattern: asset.precision)
             assetEntity.icon = asset.icon
             assetEntity.symbol = asset.symbol
+            assetEntity.priceId = asset.priceId
             assetEntity.staking = asset.staking
 
             return assetEntity
@@ -210,7 +211,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon!,
-            options: options,
+            options: options.isEmpty ? nil : options,
             externalApi: externalApis
         )
     }
