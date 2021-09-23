@@ -98,10 +98,16 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         rootView.tableView.reloadData()
 
         reloadEmptyState(animated: false)
+
+        rootView.bringSubviewToFront(rootView.tableView)
     }
 
     @objc func actionRefresh() {
         presenter.refresh(shouldReset: false)
+    }
+
+    @objc func actionSelectChain() {
+        presenter.selectChain()
     }
 }
 
@@ -148,6 +154,12 @@ extension CrowdloanListViewController: UITableViewDataSource {
             if let viewModel = chainInfo {
                 chainInfoCell.bind(viewModel: viewModel)
             }
+
+            chainInfoCell.chainSelectionView.addTarget(
+                self,
+                action: #selector(actionSelectChain),
+                for: .touchUpInside
+            )
 
             return chainInfoCell
         }
@@ -253,6 +265,9 @@ extension CrowdloanListViewController: LoadableViewProtocol {
 extension CrowdloanListViewController: EmptyStateViewOwnerProtocol {
     var emptyStateDelegate: EmptyStateDelegate { self }
     var emptyStateDataSource: EmptyStateDataSource { self }
+    var displayInsetsForEmptyState: UIEdgeInsets {
+        UIEdgeInsets(top: 64.0, left: 0.0, bottom: 0.0, right: 0.0)
+    }
 }
 
 extension CrowdloanListViewController: EmptyStateDataSource {

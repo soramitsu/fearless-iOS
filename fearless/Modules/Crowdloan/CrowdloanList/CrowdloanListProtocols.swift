@@ -11,6 +11,7 @@ protocol CrowdloanListPresenterProtocol: AnyObject {
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)
     func becomeOnline()
     func putOffline()
+    func selectChain()
 }
 
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
@@ -35,4 +36,9 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
 
 protocol CrowdloanListWireframeProtocol: AnyObject {
     func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId)
+    func selecteChain(
+        from view: CrowdloanListViewProtocol?,
+        delegate: ChainSelectionDelegate,
+        selectedChainId: ChainModel.Id?
+    )
 }

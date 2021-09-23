@@ -407,8 +407,7 @@ extension CrowdloanListInteractor: WalletLocalStorageSubscriber, WalletLocalSubs
         chainId: ChainModel.Id
     ) {
         if let chain = settings.value, chain.chainId == chainId {
-            let address = try? accountId.toAddress(using: chain.conversion)
-            logger?.debug("Did receive balance for address: \(address ?? ""))")
+            logger?.debug("Did receive balance for accountId: \(accountId.toHex()))")
             presenter.didReceiveAccountInfo(result: result)
         }
     }

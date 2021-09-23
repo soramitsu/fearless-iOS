@@ -170,6 +170,16 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func putOffline() {
         interactor.putOffline()
     }
+
+    func selectChain() {
+        let chainId = try? selectedChainResult?.get().chainId
+
+        wireframe.selecteChain(
+            from: view,
+            delegate: self,
+            selectedChainId: chainId
+        )
+    }
 }
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
@@ -235,6 +245,25 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         accountInfoResult = result
         updateChainView()
+    }
+}
+
+extension CrowdloanListPresenter: ChainSelectionDelegate {
+    func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel) {
+        selectedChainResult = .success(chain)
+        accountInfoResult = nil
+        crowdloansResult = nil
+        displayInfoResult = nil
+        blockNumber = nil
+        blockDurationResult = nil
+        leasingPeriodResult = nil
+        contributionsResult = nil
+        leaseInfoResult = nil
+
+        updateChainView()
+        view?.didReceive(listState: .loading)
+
+        interactor.saveSelected(chainModel: chain)
     }
 }
 
