@@ -11,16 +11,13 @@ final class ProfileInteractor {
 
     let selectedWalletSettings: SelectedWalletSettings
     let eventCenter: EventCenterProtocol
-    let logger: LoggerProtocol
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
-        eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
-        self.logger = logger
     }
 
     private func provideUserSettings() {

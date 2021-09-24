@@ -17,8 +17,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
 
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
+            eventCenter: EventCenter.shared
         )
 
         let wireframe = ProfileWireframe()
