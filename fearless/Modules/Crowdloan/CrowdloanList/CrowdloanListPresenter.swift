@@ -69,74 +69,97 @@ final class CrowdloanListPresenter {
         view?.didReceive(chainInfo: viewModel)
     }
 
+    private func createMetadataResult() -> Result<CrowdloanMetadata, Error>? {
+        guard
+            let blockDurationResult = blockDurationResult,
+            let leasingPeriodResult = leasingPeriodResult,
+            let blockNumber = blockNumber else {
+            return nil
+        }
+
+        do {
+            let blockDuration = try blockDurationResult.get()
+            let leasingPeriod = try leasingPeriodResult.get()
+
+            let metadata = CrowdloanMetadata(
+                blockNumber: blockNumber,
+                blockDuration: blockDuration,
+                leasingPeriod: leasingPeriod
+            )
+
+            return .success(metadata)
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    private func createViewInfoResult() -> Result<CrowdloansViewInfo, Error>? {
+        guard
+            let displayInfoResult = displayInfoResult,
+            let metadataResult = createMetadataResult(),
+            let contributionsResult = contributionsResult,
+            let leaseInfoResult = leaseInfoResult else {
+            return nil
+        }
+
+        do {
+            let contributions = try contributionsResult.get()
+            let leaseInfo = try leaseInfoResult.get()
+            let metadata = try metadataResult.get()
+            let displayInfo = try? displayInfoResult.get()
+
+            let viewInfo = CrowdloansViewInfo(
+                contributions: contributions,
+                leaseInfo: leaseInfo,
+                displayInfo: displayInfo,
+                metadata: metadata
+            )
+
+            return .success(viewInfo)
+        } catch {
+            return .failure(error)
+        }
+    }
+
     private func updateListView() {
         guard let chainResult = selectedChainResult else {
             return
         }
 
-        guard
-            case let .success(chain) = chainResult,
-            let asset = chain.utilityAssets().first else {
+        guard case let .success(chain) = chainResult, let asset = chain.utilityAssets().first else {
             provideViewErrorState()
             return
         }
 
         guard
             let crowdloansResult = crowdloansResult,
-            let displayInfoResult = displayInfoResult,
-            let blockDurationResult = blockDurationResult,
-            let leasingPeriodResult = leasingPeriodResult,
-            let blockNumber = blockNumber,
-            let contributionsResult = contributionsResult,
-            let leaseInfoResult = leaseInfoResult else {
+            let viewInfoResult = createViewInfoResult() else {
             return
         }
 
-        guard
-            case let .success(crowdloans) = crowdloansResult,
-            case let .success(contributions) = contributionsResult,
-            case let .success(leaseInfo) = leaseInfoResult else {
+        do {
+            let crowdloans = try crowdloansResult.get()
+
+            guard !crowdloans.isEmpty else {
+                view?.didReceive(listState: .empty)
+                return
+            }
+
+            let viewInfo = try viewInfoResult.get()
+
+            let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.conversion)
+
+            let viewModel = viewModelFactory.createViewModel(
+                from: crowdloans,
+                viewInfo: viewInfo,
+                chainAsset: chainAsset,
+                locale: selectedLocale
+            )
+
+            view?.didReceive(listState: .loaded(viewModel: viewModel))
+        } catch {
             provideViewErrorState()
-            return
         }
-
-        guard !crowdloans.isEmpty else {
-            view?.didReceive(listState: .empty)
-            return
-        }
-
-        guard
-            case let .success(blockDuration) = blockDurationResult,
-            case let .success(leasingPeriod) = leasingPeriodResult else {
-            provideViewErrorState()
-            return
-        }
-
-        let displayInfo = try? displayInfoResult.get()
-
-        let metadata = CrowdloanMetadata(
-            blockNumber: blockNumber,
-            blockDuration: blockDuration,
-            leasingPeriod: leasingPeriod
-        )
-
-        let viewInfo = CrowdloansViewInfo(
-            contributions: contributions,
-            leaseInfo: leaseInfo,
-            displayInfo: displayInfo,
-            metadata: metadata
-        )
-
-        let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.conversion)
-
-        let viewModel = viewModelFactory.createViewModel(
-            from: crowdloans,
-            viewInfo: viewInfo,
-            chainAsset: chainAsset,
-            locale: selectedLocale
-        )
-
-        view?.didReceive(listState: .loaded(viewModel: viewModel))
     }
 }
 
