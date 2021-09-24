@@ -20,7 +20,8 @@ class StakingSettingsTests: XCTestCase {
         // then
 
         let expectedValue = ChainAsset(chain: chain, asset: asset)
-        XCTAssertEqual(expectedValue, stakingSettings.value)
+        let actualValue = stakingSettings.value
+        XCTAssertEqual(expectedValue, actualValue)
     }
 
     func testSetupWhenChainAssetNotExists() throws {
@@ -136,7 +137,11 @@ class StakingSettingsTests: XCTestCase {
         )
 
         let chains: [ChainModel] = (0..<10).map { index in
-            ChainModelGenerator.generateChain(generatingAssets: 2, addressPrefix: UInt16(index))
+            ChainModelGenerator.generateChain(
+                generatingAssets: 2,
+                addressPrefix: UInt16(index),
+                hasStaking: true
+            )
         }
 
         let saveOperation = repository.saveOperation({ chains }, { [] })

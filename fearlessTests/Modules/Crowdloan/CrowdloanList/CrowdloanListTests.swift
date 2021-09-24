@@ -1,4 +1,4 @@
-import XCTest
+/*import XCTest
 @testable import fearless
 import SoraFoundation
 import SoraKeystore
@@ -92,17 +92,22 @@ class CrowdloanListTests: XCTestCase {
 
         var actualViewModel: CrowdloansViewModel?
 
-        let completionExpectation = XCTestExpectation()
+        let chainCompletionExpectation = XCTestExpectation()
+        let listCompletionExpectation = XCTestExpectation()
 
         stub(view) { stub in
             stub.isSetup.get.thenReturn(false, true)
 
-            stub.didReceive(state: any()).then { state in
+            stub.didReceive(listState: any()).then { state in
                 if case let .loaded(viewModel) = state {
                     actualViewModel = viewModel
 
-                    completionExpectation.fulfill()
+                    listCompletionExpectation.fulfill()
                 }
+            }
+
+            stub.didReceive(chainInfo: any()).then { state in
+                chainCompletionExpectation.fulfill()
             }
         }
 
@@ -118,7 +123,7 @@ class CrowdloanListTests: XCTestCase {
 
         // then
 
-        wait(for: [completionExpectation], timeout: 10)
+        wait(for: [listCompletionExpectation, chainCompletionExpectation], timeout: 10)
 
         let actualActiveParaIds = actualViewModel?.active?.crowdloans
             .reduce(into: Set<ParaId>()) { (result, crowdloan) in
@@ -162,13 +167,8 @@ class CrowdloanListTests: XCTestCase {
 
         let wireframe = CrowdloanListWireframe()
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
         let viewModelFactory = CrowdloansViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
-            asset: asset,
-            chain: chain
+            amountFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let presenter = CrowdloanListPresenter(
@@ -185,22 +185,17 @@ class CrowdloanListTests: XCTestCase {
     }
 
     private func createInteractor(
-        settings: SettingsManagerProtocol,
+        selectedAccount: MetaAccountModel,
+        selectedChain: ChainModel,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> CrowdloanListInteractor? {
-        guard let selectedAddress = settings.selectedAccount?.address else {
-            return nil
-        }
+        let settings = CrowdloanChainSettings(
+            storageFacade: SubstrateStorageTestFacade(),
+            settings: InMemorySettingsManager(),
+            operationQueue: OperationQueue()
+        )
 
-        let chain = settings.selectedConnection.type.chain
-
-        let connection = MockJSONRPCEngine()
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let providerFactory = SingleValueProviderFactoryStub
-            .westendNominatorStub()
-            .withBlockNumber(blockNumber: Self.currentBlockNumber)
-            .withJSON(value: CrowdloanDisplayInfoList(), for: chain.crowdloanDisplayInfoURL())
+        settings.save(value: selectedChain)
 
         let crowdloans = activeCrowdloans + endedCrowdloans + wonCrowdloans
         let crowdloanOperationFactory = CrowdloansOperationFactoryStub(
@@ -209,14 +204,16 @@ class CrowdloanListTests: XCTestCase {
         )
 
         return CrowdloanListInteractor(
-            selectedAddress: selectedAddress,
-            runtimeService: runtimeService,
+            selectedMetaAccount: selectedAccount,
+            settings: settings,
+            chainRegistry: ,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: connection,
-            singleValueProviderFactory: providerFactory,
-            chain: chain,
-            operationManager: operationManager,
-            logger: Logger.shared
+            crowdloanRemoteSubscriptionService: ,
+            crowdloanLocalSubscriptionFactory: ,
+            walletLocalSubscriptionFactory: ,
+            jsonDataProviderFactory: ,
+            operationManager: OperationManagerFacade.sharedManager
         )
     }
 }
+*/

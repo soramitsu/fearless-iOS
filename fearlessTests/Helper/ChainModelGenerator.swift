@@ -2,7 +2,12 @@ import Foundation
 @testable import fearless
 
 enum ChainModelGenerator {
-    static func generate(count: Int, withTypes: Bool = true) -> [ChainModel] {
+    static func generate(
+        count: Int,
+        withTypes: Bool = true,
+        hasStaking: Bool = false,
+        hasCrowdloans: Bool = false
+    ) -> [ChainModel] {
         (0..<count).map { index in
             let chainId = Data.random(of: 32)!.toHex()
 
@@ -13,7 +18,7 @@ enum ChainModelGenerator {
                 symbol: chainId.prefix(3).uppercased(),
                 precision: 12,
                 priceId: nil,
-                staking: "relaychain"
+                staking: hasStaking ? "relaychain" : nil
             )
 
             let node = ChainNodeModel(
@@ -27,6 +32,18 @@ enum ChainModelGenerator {
                 overridesCommon: false
             ) : nil
 
+            var options: [ChainOptions] = []
+
+            if hasCrowdloans {
+                options.append(.crowdloans)
+            }
+
+            let externalApi: ChainModel.ExternalApis? = generateExternaApis(
+                for: chainId,
+                hasStaking: hasStaking,
+                hasCrowdloans: hasCrowdloans
+            )
+
             return ChainModel(
                 chainId: chainId,
                 parentId: nil,
@@ -36,14 +53,22 @@ enum ChainModelGenerator {
                 addressPrefix: UInt16(index),
                 types: types,
                 icon: URL(string: "https://github.com")!,
-                options: []
+                options: options.isEmpty ? nil : options,
+                externalApi: externalApi
             )
         }
     }
 
-    static func generateChain(generatingAssets count: Int, addressPrefix: UInt16) -> ChainModel {
+    static func generateChain(
+        generatingAssets count: Int,
+        addressPrefix: UInt16,
+        hasStaking: Bool = false,
+        hasCrowdloans: Bool = false
+    ) -> ChainModel {
+        let chainId = Data.random(of: 32)!.toHex()
+
         let assets = (0..<count).map { index in
-            generateAssetWithId(AssetModel.Id(index))
+            generateAssetWithId(AssetModel.Id(index), hasStaking: hasStaking)
         }
 
         let urlString = "node\(Data.random(of: 32)!.toHex()).io"
@@ -54,8 +79,20 @@ enum ChainModelGenerator {
             apikey: nil
         )
 
+        var options: [ChainOptions] = []
+
+        if hasCrowdloans {
+            options.append(.crowdloans)
+        }
+
+        let externalApi: ChainModel.ExternalApis? = generateExternaApis(
+            for: chainId,
+            hasStaking: hasStaking,
+            hasCrowdloans: hasCrowdloans
+        )
+
         return ChainModel(
-            chainId: Data.random(of: 32)!.toHex(),
+            chainId: chainId,
             parentId: nil,
             name: UUID().uuidString,
             assets: Set(assets),
@@ -63,11 +100,12 @@ enum ChainModelGenerator {
             addressPrefix: addressPrefix,
             types: nil,
             icon: Constants.dummyURL,
-            options: []
+            options: options.isEmpty ? nil : options,
+            externalApi: externalApi
         )
     }
 
-    static func generateAssetWithId(_ identifier: AssetModel.Id) -> AssetModel {
+    static func generateAssetWithId(_ identifier: AssetModel.Id, hasStaking: Bool = false) -> AssetModel {
         AssetModel(
             assetId: identifier,
             icon: Constants.dummyURL,
@@ -75,7 +113,41 @@ enum ChainModelGenerator {
             symbol: String(UUID().uuidString.prefix(3)),
             precision: (9...18).randomElement()!,
             priceId: nil,
-            staking: nil
+            staking: hasStaking ? "relaychain" : nil
         )
+    }
+
+    private static func generateExternaApis(
+        for chainId: ChainModel.Id,
+        hasStaking: Bool,
+        hasCrowdloans: Bool
+    ) -> ChainModel.ExternalApis? {
+        let crowdloanApi: ChainModel.ExternalApi?
+
+        if hasCrowdloans {
+            crowdloanApi = ChainModel.ExternalApi(
+                type: "test",
+                url: URL(string: "https://crowdloan.io/\(chainId)-\(UUID().uuidString).json")!
+            )
+        } else {
+            crowdloanApi = nil
+        }
+
+        let stakingApi: ChainModel.ExternalApi?
+
+        if hasStaking {
+            stakingApi = ChainModel.ExternalApi(
+                type: "test",
+                url: URL(string: "https://staking.io/\(chainId)-\(UUID().uuidString).json")!
+            )
+        } else {
+            stakingApi = nil
+        }
+
+        if crowdloanApi != nil || stakingApi != nil {
+            return ChainModel.ExternalApis(staking: stakingApi, history: nil, crowdloans: crowdloanApi)
+        } else {
+            return nil
+        }
     }
 }
