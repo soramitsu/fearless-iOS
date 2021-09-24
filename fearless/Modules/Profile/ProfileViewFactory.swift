@@ -14,11 +14,13 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         view.iconGenerating = PolkadotIconGenerator()
 
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
+
         let interactor = ProfileInteractor(
-            settingsManager: SettingsManager.shared,
+            selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )
+
         let wireframe = ProfileWireframe()
 
         view.presenter = presenter

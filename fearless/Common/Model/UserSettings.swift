@@ -1,6 +1,6 @@
 import Foundation
 
 struct UserSettings {
-    let account: AccountItem
-    let connection: ConnectionItem
+    let userName: String
+    let details: String
 }

@@ -29,17 +29,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     }
 
     func createUserViewModel(from settings: UserSettings, locale _: Locale) -> ProfileUserViewModelProtocol {
-        let icon = try? iconGenerator.generateFromAddress(settings.account.address)
+        let icon = try? iconGenerator.generateFromAddress(settings.details)
 
         return ProfileUserViewModel(
-            name: settings.account.username,
-            details: settings.account.address,
+            name: settings.userName,
+            details: settings.details,
             icon: icon
         )
     }
 
     func createOptionViewModels(
-        from settings: UserSettings,
+        from _: UserSettings,
         language: Language,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
@@ -48,7 +48,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .accountList:
                 return createAccountListViewModel(for: locale)
             case .connectionList:
-                return createConnectionListViewModel(from: settings.connection, locale: locale)
+                return createConnectionListViewModel(for: locale)
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
@@ -72,19 +72,14 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         return viewModel
     }
 
-    private func createConnectionListViewModel(
-        from connection: ConnectionItem,
-        locale: Locale
-    ) -> ProfileOptionViewModel {
+    private func createConnectionListViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileNetworkTitle(preferredLanguages: locale.rLanguages)
-
-        let subtitle: String = connection.type.titleForLocale(locale)
 
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconProfileNetworks()!,
-            accessoryTitle: subtitle
+            accessoryTitle: nil
         )
 
         return viewModel
