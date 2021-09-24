@@ -145,6 +145,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     ) -> AnyDataProvider<DecodedCrowdloanFunds> {
         crowdloanFunds
     }
+
+    // TODO: Add balanceLocksProvider here
 }
 
 extension SingleValueProviderFactoryStub {

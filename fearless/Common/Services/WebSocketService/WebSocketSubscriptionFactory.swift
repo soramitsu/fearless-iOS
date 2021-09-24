@@ -62,6 +62,12 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                 localStorageIdFactory: localStorageIdFactory
             )
 
+        let balanceLockSubscription = try createAccountInfoSubscription(
+            transactionSubscription: transactionSubscription,
+            accountId: accountId,
+            localStorageIdFactory: localStorageIdFactory
+        )
+
         let accountSubscriptions: [StorageChildSubscribing] = [
             accountSubscription
         ]
@@ -138,8 +144,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return subscriptions
     }
 
-    // TODO: Implement locks subscription
-
     private func createAccountInfoSubscription(
         transactionSubscription: TransactionSubscription,
         accountId: Data,
@@ -156,6 +160,28 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return AccountInfoSubscription(
             transactionSubscription: transactionSubscription,
             remoteStorageKey: accountStorageKey,
+            localStorageKey: localStorageKey,
+            storage: AnyDataProviderRepository(storage),
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared,
+            eventCenter: EventCenter.shared
+        )
+    }
+
+    private func createBalanceLockSubscription(
+        accountId: Data,
+        localStorageIdFactory: ChainStorageIdFactoryProtocol
+    )
+        throws -> BalanceLockSubscription {
+        let balanceLockStorageKey = try storageKeyFactory.locksForId(accountId)
+
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: balanceLockStorageKey)
+
+        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            storageFacade.createRepository()
+
+        return BalanceLockSubscription(
+            remoteStorageKey: balanceLockStorageKey,
             localStorageKey: localStorageKey,
             storage: AnyDataProviderRepository(storage),
             operationManager: OperationManagerFacade.sharedManager,

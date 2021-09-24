@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 import FearlessUtils
 
-struct BalanceLock: Codable {
+struct BalanceLock: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case identifier = "id"
         case amount

@@ -15,6 +15,7 @@ typealias DecodedEraIndex = ChainStorageDecodedItem<StringScaleMapper<EraIndex>>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
 typealias DecodedCrowdloanFunds = ChainStorageDecodedItem<CrowdloanFunds>
+typealias DecodedBalanceLocks = ChainStorageDecodedItem<BalanceLock>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -42,7 +43,8 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedPayee>
     func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedBlockNumber>
-    // TODO: Define function for fetching locks
+    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedBlockNumber>
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 
@@ -189,6 +191,16 @@ final class SingleValueProviderFactory {
 }
 
 extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
+    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedBlockNumber> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .balanceLocks,
+            hasher: .blake128Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
         clearIfNeeded()
 
