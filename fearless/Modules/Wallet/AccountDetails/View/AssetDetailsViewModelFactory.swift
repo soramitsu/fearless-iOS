@@ -55,8 +55,6 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
             WalletPriceChangeViewModel.goingUp(displayValue: priceChangeString) :
             WalletPriceChangeViewModel.goingDown(displayValue: priceChangeString)
 
-        let context = BalanceContext(context: balance.context ?? [:])
-
         let numberFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
 
         let leftTitle = R.string.localizable
@@ -67,11 +65,11 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let leftDetails = numberFormatter
             .value(for: locale)
-            .stringFromDecimal(context.available) ?? ""
+            .stringFromDecimal(balanceContext.available) ?? ""
 
         let rightDetails = numberFormatter
             .value(for: locale)
-            .stringFromDecimal(context.frozen) ?? ""
+            .stringFromDecimal(balanceContext.frozen) ?? ""
 
         let imageViewModel: WalletImageViewModelProtocol?
 
