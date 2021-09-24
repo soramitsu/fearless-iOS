@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SoraFoundation
 
 struct ChainSelectionViewFactory {
     static func createView(
@@ -7,11 +8,9 @@ struct ChainSelectionViewFactory {
         selectedChainId: ChainModel.Id?,
         repositoryFilter: NSPredicate?
     ) -> ChainSelectionViewProtocol? {
-        let mapper = ChainModelMapper()
-        let repository = SubstrateDataStorageFacade.shared.createRepository(
-            filter: repositoryFilter,
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix],
-            mapper: AnyCoreDataMapper(mapper)
+        let repository = ChainRepositoryFactory().createRepository(
+            for: repositoryFilter,
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
         let localSubscriptionFactory = WalletLocalSubscriptionFactory(
@@ -33,16 +32,20 @@ struct ChainSelectionViewFactory {
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
 
+        let localizationManager = LocalizationManager.shared
+
         let presenter = ChainSelectionPresenter(
             interactor: interactor,
             wireframe: wireframe,
             selectedChainId: selectedChainId,
-            assetBalanceFormatterFactory: assetBalanceFormatterFactory
+            assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+            localizationManager: localizationManager
         )
 
         let view = ChainSelectionViewController(
             nibName: R.nib.selectionListViewController.name,
-            presenter: presenter
+            presenter: presenter,
+            localizationManager: localizationManager
         )
 
         presenter.view = view

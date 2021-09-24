@@ -28,11 +28,12 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
                 mapper: AnyCoreDataMapper(mapper),
                 predicate: { _ in true }
             )
-        let repository = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [NSSortDescriptor.accountsByOrder],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(
+                for: nil,
+                sortDescriptors: [NSSortDescriptor.accountsByOrder]
+            )
 
         let view = AccountManagementViewController(nib: R.nib.accountManagementViewController)
 

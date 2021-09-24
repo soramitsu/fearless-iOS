@@ -76,12 +76,9 @@ extension ChainSelectionInteractor: ChainSelectionInteractorInputProtocol {
 extension ChainSelectionInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
-        accountId: AccountId,
+        accountId _: AccountId,
         chainId: ChainModel.Id
     ) {
-        Logger.shared.info(
-            "Did receive result \(result) for chain \(chainId) accountId \(accountId.toHex())"
-        )
         presenter.didReceiveAccountInfo(result: result, for: chainId)
     }
 }
