@@ -20,10 +20,9 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         for wireframe: AccountManagementWireframeProtocol
     ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
-        let mapper = ManagedAccountItemMapper()
+        let mapper = ManagedMetaAccountMapper()
 
-        // TODO: Fix logic
-        let observer: CoreDataContextObservable<ManagedAccountItem, CDMetaAccount> =
+        let observer: CoreDataContextObservable<ManagedMetaAccountModel, CDMetaAccount> =
             CoreDataContextObservable(
                 service: facade.databaseService,
                 mapper: AnyCoreDataMapper(mapper),
@@ -41,16 +40,15 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: iconGenerator)
 
         let presenter = AccountManagementPresenter(
-            viewModelFactory: viewModelFactory,
-            supportedNetworks: SNAddressType.supported
+            viewModelFactory: viewModelFactory
         )
 
         let anyObserver = AnyDataProviderRepositoryObservable(observer)
         let interactor = AccountManagementInteractor(
             repository: AnyDataProviderRepository(repository),
             repositoryObservable: anyObserver,
-            settings: SettingsManager.shared,
-            operationManager: OperationManagerFacade.sharedManager,
+            settings: SelectedWalletSettings.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared
         )
 

@@ -4,41 +4,40 @@ import RobinHood
 protocol AccountManagementViewProtocol: ControllerBackedProtocol {
     func reload()
 
-    func didRemoveItem(at index: Int, in section: Int)
-    func didRemoveSection(at section: Int)
+    func didRemoveItem(at index: Int)
 }
 
 protocol AccountManagementPresenterProtocol: AnyObject {
     func setup()
 
-    func numberOfSections() -> Int
-    func section(at index: Int) -> ManagedAccountViewModelSection
+    func numberOfItems() -> Int
 
-    func activateDetails(at index: Int, in section: Int)
+    func item(at index: Int) -> ManagedAccountViewModelItem
+
+    func activateDetails(at index: Int)
     func activateAddAccount()
 
-    func selectItem(at index: Int, in section: Int)
-    func moveItem(at startIndex: Int, to finalIndex: Int, in section: Int)
+    func selectItem(at index: Int)
+    func moveItem(at startIndex: Int, to finalIndex: Int)
 
-    func removeItem(at index: Int, in section: Int)
-    func removeSection(at index: Int)
+    func removeItem(at index: Int)
 }
 
 protocol AccountManagementInteractorInputProtocol: AnyObject {
     func setup()
-    func select(item: ManagedAccountItem)
-    func save(items: [ManagedAccountItem])
-    func remove(item: ManagedAccountItem)
+    func select(item: ManagedMetaAccountModel)
+    func save(items: [ManagedMetaAccountModel])
+    func remove(item: ManagedMetaAccountModel)
 }
 
 protocol AccountManagementInteractorOutputProtocol: AnyObject {
-    func didReceiveSelected(item: AccountItem)
-    func didReceive(changes: [DataProviderChange<ManagedAccountItem>])
+    func didCompleteSelection(of metaAccount: MetaAccountModel)
+    func didReceive(changes: [DataProviderChange<ManagedMetaAccountModel>])
     func didReceive(error: Error)
 }
 
 protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?)
+    func showAccountDetails(from view: AccountManagementViewProtocol?, metaAccount: MetaAccountModel)
     func showAddAccount(from view: AccountManagementViewProtocol?)
     func complete(from view: AccountManagementViewProtocol?)
 }

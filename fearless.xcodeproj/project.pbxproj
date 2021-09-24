@@ -3866,8 +3866,9 @@
 		8428764224ADDE0200D91AD8 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				8428764624ADDE0200D91AD8 /* ProfileViewModel */,
-				8428764A24ADDE0200D91AD8 /* ProfileView */,
+				8493D0DD26FE5D0800A28008 /* Model */,
+				8428764624ADDE0200D91AD8 /* ViewModel */,
+				8428764A24ADDE0200D91AD8 /* View */,
 				8428764D24ADDE0200D91AD8 /* ProfileProtocol.swift */,
 				8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */,
 				8428764E24ADDE0200D91AD8 /* ProfileViewFactory.swift */,
@@ -3879,17 +3880,17 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
-		8428764624ADDE0200D91AD8 /* ProfileViewModel */ = {
+		8428764624ADDE0200D91AD8 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
 				8428764724ADDE0200D91AD8 /* ProfileViewModelFactory.swift */,
 				8428764824ADDE0200D91AD8 /* ProfileUserViewModel.swift */,
 				8428764924ADDE0200D91AD8 /* ProfileOptionViewModel.swift */,
 			);
-			path = ProfileViewModel;
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		8428764A24ADDE0200D91AD8 /* ProfileView */ = {
+		8428764A24ADDE0200D91AD8 /* View */ = {
 			isa = PBXGroup;
 			children = (
 				8428764B24ADDE0200D91AD8 /* ProfileTableViewCell.swift */,
@@ -3899,7 +3900,7 @@
 				8467FD4624ED6496005D486C /* ProfileDetailsTableViewCell.xib */,
 				8467FD4824ED64A5005D486C /* ProfileDetailsTableViewCell.swift */,
 			);
-			path = ProfileView;
+			path = View;
 			sourceTree = "<group>";
 		};
 		8428766524ADF20700D91AD8 /* Animation */ = {
@@ -5198,7 +5199,6 @@
 				8414943F2604E71C000D8D1A /* TotalRewardItem.swift */,
 				8434C9E325401EF3009E4191 /* TransactionHistoryItem.swift */,
 				846A2C4225271CDE00731018 /* TransactionType.swift */,
-				8428765E24ADE0BB00D91AD8 /* UserSettings.swift */,
 				8401620525E130D60087A5F3 /* ViewAction.swift */,
 				84969731251CE71500C39524 /* WalletAssetId.swift */,
 				84ACEBF9261E684A00AAE665 /* WalletHistoryFilter.swift */,
@@ -5704,6 +5704,14 @@
 				8448221B26B1850D007F4492 /* TitleIconViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		8493D0DD26FE5D0800A28008 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				8428765E24ADE0BB00D91AD8 /* UserSettings.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		84944248265306AC0016E7BD /* ViewModel */ = {

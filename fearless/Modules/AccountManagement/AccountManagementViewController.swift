@@ -5,8 +5,6 @@ import SoraUI
 final class AccountManagementViewController: UIViewController {
     private enum Constants {
         static let cellHeight: CGFloat = 48.0
-        static let headerHeight: CGFloat = 33.0
-        static let headerId = "accountHeaderId"
         static let addActionVerticalInset: CGFloat = 16
     }
 
@@ -78,10 +76,8 @@ final class AccountManagementViewController: UIViewController {
         tableView.contentInset = .init(top: 0, left: 0, bottom: bottomInset, right: 0)
 
         tableView.register(R.nib.accountTableViewCell)
-        tableView.register(
-            UINib(resource: R.nib.iconTitleHeaderView),
-            forHeaderFooterViewReuseIdentifier: Constants.headerId
-        )
+
+        tableView.rowHeight = Constants.cellHeight
     }
 
     @objc func actionEdit() {
@@ -102,21 +98,8 @@ final class AccountManagementViewController: UIViewController {
 
 // swiftlint:disable force_cast
 extension AccountManagementViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        presenter.numberOfSections()
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: Constants.headerId) as! IconTitleHeaderView
-
-        let section = presenter.section(at: section)
-        view.bind(title: section.title, icon: section.icon)
-
-        return view
-    }
-
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.section(at: section).items.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        presenter.numberOfItems()
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -128,7 +111,7 @@ extension AccountManagementViewController: UITableViewDataSource {
         cell.delegate = self
         cell.setReordering(tableView.isEditing, animated: false)
 
-        let item = presenter.section(at: indexPath.section).items[indexPath.row]
+        let item = presenter.item(at: indexPath.row)
         cell.bind(viewModel: item)
 
         return cell
@@ -138,18 +121,10 @@ extension AccountManagementViewController: UITableViewDataSource {
 // swiftlint:enable force_cast
 
 extension AccountManagementViewController: UITableViewDelegate {
-    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        Constants.cellHeight
-    }
-
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        Constants.headerHeight
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        presenter.selectItem(at: indexPath.row, in: indexPath.section)
+        presenter.selectItem(at: indexPath.row)
     }
 
     func tableView(_: UITableView, canMoveRowAt _: IndexPath) -> Bool {
@@ -163,8 +138,7 @@ extension AccountManagementViewController: UITableViewDelegate {
     ) {
         presenter.moveItem(
             at: sourceIndexPath.row,
-            to: destinationIndexPath.row,
-            in: destinationIndexPath.section
+            to: destinationIndexPath.row
         )
     }
 
@@ -187,21 +161,15 @@ extension AccountManagementViewController: UITableViewDelegate {
         _: UITableView,
         editingStyleForRowAt indexPath: IndexPath
     ) -> UITableViewCell.EditingStyle {
-        !presenter.section(at: indexPath.section).items[indexPath.row].isSelected ? .delete : .none
+        !presenter.item(at: indexPath.row).isSelected ? .delete : .none
     }
 
     func tableView(
-        _ tableView: UITableView,
+        _: UITableView,
         commit _: UITableViewCell.EditingStyle,
         forRowAt indexPath: IndexPath
     ) {
-        let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
-
-        if numberOfRows == 1 {
-            presenter.removeSection(at: indexPath.section)
-        } else {
-            presenter.removeItem(at: indexPath.row, in: indexPath.section)
-        }
+        presenter.removeItem(at: indexPath.row)
     }
 }
 
@@ -210,13 +178,9 @@ extension AccountManagementViewController: AccountManagementViewProtocol {
         tableView.reloadData()
     }
 
-    func didRemoveItem(at index: Int, in section: Int) {
-        let indexPath = IndexPath(row: index, section: section)
+    func didRemoveItem(at index: Int) {
+        let indexPath = IndexPath(row: index, section: 0)
         tableView.deleteRows(at: [indexPath], with: .left)
-    }
-
-    func didRemoveSection(at section: Int) {
-        tableView.deleteSections([section], with: .automatic)
     }
 }
 
@@ -234,6 +198,6 @@ extension AccountManagementViewController: AccountTableViewCellDelegate {
             return
         }
 
-        presenter.activateDetails(at: indexPath.row, in: indexPath.section)
+        presenter.activateDetails(at: indexPath.row)
     }
 }
