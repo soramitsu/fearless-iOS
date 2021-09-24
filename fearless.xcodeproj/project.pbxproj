@@ -875,6 +875,10 @@
 		84B018AE26E03FB500C75E28 /* NominatorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B018AD26E03FB500C75E28 /* NominatorStateView.swift */; };
 		84B018B026E0450F00C75E28 /* ValidatorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B018AF26E0450F00C75E28 /* ValidatorStateView.swift */; };
 		84B66A0B26FDB70F0038B963 /* CrowdloansListInteractor+Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B66A0A26FDB70F0038B963 /* CrowdloansListInteractor+Protocols.swift */; };
+		84B66A1226FDF0230038B963 /* CrowdloanLocalSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B66A1126FDF0230038B963 /* CrowdloanLocalSubscriptionFactoryStub.swift */; };
+		84B66A1426FDF29A0038B963 /* WalletLocalSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B66A1326FDF29A0038B963 /* WalletLocalSubscriptionFactoryStub.swift */; };
+		84B66A1626FDF7D70038B963 /* JsonSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B66A1526FDF7D70038B963 /* JsonSubscriptionFactoryStub.swift */; };
+		84B66A1826FE05B00038B963 /* ChainRegistryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B66A1726FE05B00038B963 /* ChainRegistryStub.swift */; };
 		84B677D626AED45500863DC6 /* SharedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B677D526AED45500863DC6 /* SharedList.swift */; };
 		84B71DE5260B90270003A100 /* SubstrateAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B71DE4260B90270003A100 /* SubstrateAlias.swift */; };
 		84BAB6102642C286007782D0 /* SelectedRebondVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAB60F2642C286007782D0 /* SelectedRebondVariant.swift */; };
@@ -2418,6 +2422,10 @@
 		84B018AD26E03FB500C75E28 /* NominatorStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominatorStateView.swift; sourceTree = "<group>"; };
 		84B018AF26E0450F00C75E28 /* ValidatorStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorStateView.swift; sourceTree = "<group>"; };
 		84B66A0A26FDB70F0038B963 /* CrowdloansListInteractor+Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrowdloansListInteractor+Protocols.swift"; sourceTree = "<group>"; };
+		84B66A1126FDF0230038B963 /* CrowdloanLocalSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanLocalSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
+		84B66A1326FDF29A0038B963 /* WalletLocalSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLocalSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
+		84B66A1526FDF7D70038B963 /* JsonSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
+		84B66A1726FE05B00038B963 /* ChainRegistryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainRegistryStub.swift; sourceTree = "<group>"; };
 		84B677D526AED45500863DC6 /* SharedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedList.swift; sourceTree = "<group>"; };
 		84B71DE4260B90270003A100 /* SubstrateAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateAlias.swift; sourceTree = "<group>"; };
 		84BAB60F2642C286007782D0 /* SelectedRebondVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedRebondVariant.swift; sourceTree = "<group>"; };
@@ -4030,6 +4038,7 @@
 				842D1E8C24D2091A00C30A7A /* CommonMocks.swift */,
 				842D1E8B24D2091A00C30A7A /* ModuleMocks.swift */,
 				84F43BB825DEFA0A00AEDA56 /* DefaultStub.swift */,
+				84B66A1726FE05B00038B963 /* ChainRegistryStub.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -4396,6 +4405,9 @@
 				84F81317265B9E990043FA1D /* CrowdloansOperationFactoryStub.swift */,
 				F4897BB026AED13D0075F291 /* EraCountdownOperationFactoryStub.swift */,
 				AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */,
+				84B66A1126FDF0230038B963 /* CrowdloanLocalSubscriptionFactoryStub.swift */,
+				84B66A1326FDF29A0038B963 /* WalletLocalSubscriptionFactoryStub.swift */,
+				84B66A1526FDF7D70038B963 /* JsonSubscriptionFactoryStub.swift */,
 			);
 			path = DataProviders;
 			sourceTree = "<group>";
@@ -7983,7 +7995,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/Misc/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/../Pods/FearlessUtils/FearlessUtils/Classes/Network/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionAutobalancing.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionStateReporting.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/Misc/DataOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeFilesOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProviderPool.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProviderFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeCodingService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSyncService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/CommonTypesSyncService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProvider.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionPool.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/SpecVersionSubscriptionFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/SpecVersionSubscription.swift\" \\\n";
+			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/Misc/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/../Pods/FearlessUtils/FearlessUtils/Classes/Network/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionAutobalancing.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionStateReporting.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/Misc/DataOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeFilesOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProviderPool.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProviderFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeCodingService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSyncService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/CommonTypesSyncService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProvider.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionPool.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/SpecVersionSubscriptionFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/SpecVersionSubscription.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ChainRegistry.swift\" \\\n\"$INPUT_DIR/Common/Services/WebSocketService/RemoteSubscription/CrowdloanRemoteSubscriptionService.swift\" \\\n\"$INPUT_DIR/Common/Services/WebSocketService/RemoteSubscription/WalletRemoteSubscriptionService.swift\" \\\n";
 		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -9403,6 +9415,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84B66A1826FE05B00038B963 /* ChainRegistryStub.swift in Sources */,
 				8467FD3924EACE08005D486C /* AccountCreationHelper.swift in Sources */,
 				8476CA0625EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift in Sources */,
 				8454C2832632FC2500657DAD /* ExtrinsicProcessingTests.swift in Sources */,
@@ -9430,6 +9443,7 @@
 				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
 				AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */,
 				84D9C41126CD361C004AB2AB /* SpecVersionSubscriptionTests.swift in Sources */,
+				84B66A1626FDF7D70038B963 /* JsonSubscriptionFactoryStub.swift in Sources */,
 				8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */,
 				84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */,
 				844D229925EE5E8400C022F7 /* SingleValueProviderStub.swift in Sources */,
@@ -9457,6 +9471,7 @@
 				8467FD5C24EFDCC9005D486C /* UserDataStorageTestFacade.swift in Sources */,
 				84F4387F25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift in Sources */,
 				8434C9EA2540AE51009E4191 /* ExtrinsicEraTests.swift in Sources */,
+				84B66A1226FDF0230038B963 /* CrowdloanLocalSubscriptionFactoryStub.swift in Sources */,
 				AE7E5C322615F13D006D5637 /* StoriesTests.swift in Sources */,
 				84625101263EDBD4001039B2 /* ExtrinsicServiceFactoryStub.swift in Sources */,
 				846A2C54252A0FDF00731018 /* FilterTests.swift in Sources */,
@@ -9484,6 +9499,7 @@
 				8400F0BA252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift in Sources */,
 				F477CD75262FFA4F004DF739 /* PayoutRewardsServiceStub.swift in Sources */,
 				845B822326EFDF3F00D25C72 /* SelectedAccountSettingsTests.swift in Sources */,
+				84B66A1426FDF29A0038B963 /* WalletLocalSubscriptionFactoryStub.swift in Sources */,
 				844D229E25EE79EA00C022F7 /* ExtrinsicServiceStub.swift in Sources */,
 				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
 				1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */,
