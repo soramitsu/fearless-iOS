@@ -197,7 +197,7 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func selectChain() {
         let chainId = try? selectedChainResult?.get().chainId
 
-        wireframe.selecteChain(
+        wireframe.selectChain(
             from: view,
             delegate: self,
             selectedChainId: chainId

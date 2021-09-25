@@ -36,7 +36,7 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
 
 protocol CrowdloanListWireframeProtocol: AnyObject {
     func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId)
-    func selecteChain(
+    func selectChain(
         from view: CrowdloanListViewProtocol?,
         delegate: ChainSelectionDelegate,
         selectedChainId: ChainModel.Id?

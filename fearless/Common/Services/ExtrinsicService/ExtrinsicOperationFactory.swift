@@ -80,20 +80,39 @@ extension ExtrinsicOperationFactoryProtocol {
 }
 
 final class ExtrinsicOperationFactory {
-    let address: String
-    let cryptoType: CryptoType
+    let accountId: AccountId
+    let cryptoType: MultiassetCryptoType
+    let chainConversion: ChainConversion
     let runtimeRegistry: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
     let eraOperationFactory: ExtrinsicEraOperationFactoryProtocol
 
+    @available(*, deprecated, message: "Use init(accountId:cryptoType:) instead")
     init(
         address: String,
-        cryptoType: CryptoType,
+        cryptoType _: CryptoType,
         runtimeRegistry: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
         eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
     ) {
-        self.address = address
+        accountId = (try? address.toAccountId()) ?? Data(repeating: 0, count: 32)
+        chainConversion = .ethereum
+        cryptoType = .substrateEcdsa
+        self.runtimeRegistry = runtimeRegistry
+        self.engine = engine
+        self.eraOperationFactory = eraOperationFactory
+    }
+
+    init(
+        accountId: AccountId,
+        chainConversion: ChainConversion,
+        cryptoType: MultiassetCryptoType,
+        runtimeRegistry: RuntimeCodingServiceProtocol,
+        engine: JSONRPCEngine,
+        eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
+    ) {
+        self.accountId = accountId
+        self.chainConversion = chainConversion
         self.cryptoType = cryptoType
         self.runtimeRegistry = runtimeRegistry
         self.engine = engine
@@ -101,11 +120,16 @@ final class ExtrinsicOperationFactory {
     }
 
     private func createNonceOperation() -> BaseOperation<UInt32> {
-        JSONRPCListOperation<UInt32>(
-            engine: engine,
-            method: RPCMethod.getExtrinsicNonce,
-            parameters: [address]
-        )
+        do {
+            let address = try accountId.toAddress(using: chainConversion)
+            return JSONRPCListOperation<UInt32>(
+                engine: engine,
+                method: RPCMethod.getExtrinsicNonce,
+                parameters: [address]
+            )
+        } catch {
+            return BaseOperation.createWithError(error)
+        }
     }
 
     private func createBlockHashOperation(
@@ -136,7 +160,8 @@ final class ExtrinsicOperationFactory {
         signingClosure: @escaping (Data) throws -> Data
     ) -> CompoundOperationWrapper<[Data]> {
         let currentCryptoType = cryptoType
-        let currentAddress = address
+        let currentAccountId = accountId
+        let currentChainConversion = chainConversion
 
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
@@ -166,12 +191,14 @@ final class ExtrinsicOperationFactory {
             let era = try eraWrapper.targetOperation.extractNoCancellableResultData().extrinsicEra
             let eraBlockHash = try eraBlockOperation.extractNoCancellableResultData()
 
-            let addressFactory = SS58AddressFactory()
-
-            let addressType = try addressFactory.extractAddressType(from: currentAddress)
-            let accountId = try addressFactory.accountId(fromAddress: currentAddress, type: addressType)
-
-            let account = MultiAddress.accoundId(accountId)
+            let account: MultiAddress = {
+                switch currentChainConversion {
+                case .ethereum:
+                    return MultiAddress.address20(currentAccountId)
+                case .substrate:
+                    return MultiAddress.accoundId(currentAccountId)
+                }
+            }()
 
             let extrinsics: [Data] = try (0 ..< numberOfExtrinsics).map { index in
                 var builder: ExtrinsicBuilderProtocol =

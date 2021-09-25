@@ -4,13 +4,13 @@ import RobinHood
 final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     typealias Model = PriceData
 
-    let priceId: String?
+    let priceId: AssetModel.PriceId?
 
     init(assetId: WalletAssetId) {
         priceId = assetId.coingeckoTokenId
     }
 
-    init(priceId: String) {
+    init(priceId: AssetModel.PriceId) {
         self.priceId = priceId
     }
 

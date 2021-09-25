@@ -6,22 +6,12 @@ import IrohaCrypto
 import RobinHood
 
 struct CrowdloanListViewFactory {
-    static func createView() -> CrowdloanListViewProtocol? {
-        let settings = SettingsManager.shared
-
-        let crowdloanSettings = CrowdloanChainSettings(
-            storageFacade: SubstrateDataStorageFacade.shared,
-            settings: settings,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        crowdloanSettings.setup()
-
-        guard let interactor = createInteractor(from: crowdloanSettings) else {
+    static func createView(with sharedState: CrowdloanSharedState) -> CrowdloanListViewProtocol? {
+        guard let interactor = createInteractor(from: sharedState) else {
             return nil
         }
 
-        let wireframe = CrowdloanListWireframe()
+        let wireframe = CrowdloanListWireframe(state: sharedState)
 
         let localizationManager = LocalizationManager.shared
 
@@ -49,7 +39,7 @@ struct CrowdloanListViewFactory {
     }
 
     private static func createInteractor(
-        from settings: CrowdloanChainSettings
+        from state: CrowdloanSharedState
     ) -> CrowdloanListInteractor? {
         let selectedMetaAccount: MetaAccountModel = SelectedWalletSettings.shared.value
 
@@ -63,13 +53,6 @@ struct CrowdloanListViewFactory {
         let crowdloanRemoteSubscriptionService = CrowdloanRemoteSubscriptionService(
             chainRegistry: chainRegistry,
             repository: AnyDataProviderRepository(repository),
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let crowdloanLocalSubscriptionFactory = CrowdloanLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: storageFacade,
             operationManager: operationManager,
             logger: logger
         )
@@ -93,11 +76,11 @@ struct CrowdloanListViewFactory {
 
         return CrowdloanListInteractor(
             selectedMetaAccount: selectedMetaAccount,
-            settings: settings,
+            settings: state.settings,
             chainRegistry: chainRegistry,
             crowdloanOperationFactory: crowdloanOperationFactory,
             crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
-            crowdloanLocalSubscriptionFactory: crowdloanLocalSubscriptionFactory,
+            crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,

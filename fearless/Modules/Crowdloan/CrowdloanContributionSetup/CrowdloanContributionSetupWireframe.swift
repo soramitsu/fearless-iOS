@@ -1,6 +1,12 @@
 import Foundation
 
 final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWireframeProtocol {
+    let state: CrowdloanSharedState
+
+    init(state: CrowdloanSharedState) {
+        self.state = state
+    }
+
     func showConfirmation(
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
@@ -10,7 +16,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         guard let confirmationView = CrowdloanContributionConfirmViewFactory.createView(
             with: paraId,
             inputAmount: inputAmount,
-            bonusService: bonusService
+            bonusService: bonusService,
+            state: state
         ) else {
             return
         }
@@ -60,7 +67,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
-            existingService: existingService
+            existingService: existingService,
+            state: state
         ) else {
             return
         }
@@ -83,7 +91,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
-            existingService: existingService
+            existingService: existingService,
+            state: state
         ) else {
             return
         }
