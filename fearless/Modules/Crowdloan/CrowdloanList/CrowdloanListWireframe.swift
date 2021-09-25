@@ -1,8 +1,17 @@
 import Foundation
 
 final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
+    let state: CrowdloanSharedState
+
+    init(state: CrowdloanSharedState) {
+        self.state = state
+    }
+
     func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId) {
-        guard let setupView = CrowdloanContributionSetupViewFactory.createView(for: paraId) else {
+        guard let setupView = CrowdloanContributionSetupViewFactory.createView(
+            for: paraId,
+            state: state
+        ) else {
             return
         }
 
@@ -10,7 +19,7 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
         view?.controller.navigationController?.pushViewController(setupView.controller, animated: true)
     }
 
-    func selecteChain(
+    func selectChain(
         from view: CrowdloanListViewProtocol?,
         delegate: ChainSelectionDelegate,
         selectedChainId: ChainModel.Id?

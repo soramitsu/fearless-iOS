@@ -2,11 +2,11 @@ import Foundation
 import RobinHood
 
 protocol PriceProviderFactoryProtocol {
-    func getPriceProvider(for priceId: String) -> AnySingleValueProvider<PriceData>
+    func getPriceProvider(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData>
 }
 
 class PriceProviderFactory {
-    private var providers: [String: WeakWrapper] = [:]
+    private var providers: [AssetModel.PriceId: WeakWrapper] = [:]
 
     let storageFacade: StorageFacadeProtocol
 
@@ -18,13 +18,13 @@ class PriceProviderFactory {
         providers = providers.filter { $0.value.target != nil }
     }
 
-    static func localIdentifier(for priceId: String) -> String {
+    static func localIdentifier(for priceId: AssetModel.PriceId) -> String {
         "coingecko_price_\(priceId)"
     }
 }
 
 extension PriceProviderFactory: PriceProviderFactoryProtocol {
-    func getPriceProvider(for priceId: String) -> AnySingleValueProvider<PriceData> {
+    func getPriceProvider(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData> {
         clearIfNeeded()
 
         let identifier = Self.localIdentifier(for: priceId)

@@ -35,20 +35,17 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
     var basePresentable: BaseErrorPresentable { presentable }
 
     let presentable: CrowdloanErrorPresentable
-    let chain: Chain
-    let asset: WalletAsset
-    let amountFormatterFactory: NumberFormatterFactoryProtocol
+    let assetInfo: AssetBalanceDisplayInfo
+    let amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
     init(
         presentable: CrowdloanErrorPresentable,
-        amountFormatterFactory: NumberFormatterFactoryProtocol,
-        chain: Chain,
-        asset: WalletAsset
+        assetInfo: AssetBalanceDisplayInfo,
+        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
     ) {
         self.presentable = presentable
+        self.assetInfo = assetInfo
         self.amountFormatterFactory = amountFormatterFactory
-        self.chain = chain
-        self.asset = asset
     }
 
     func contributesAtLeastMinContribution(
@@ -57,16 +54,16 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
         locale: Locale
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
-            guard
-                let view = self?.view,
-                let formatter = self?.amountFormatterFactory
-                .createDisplayFormatter(for: self?.asset).value(for: locale),
-                let precision = self?.chain.addressType.precision else {
+            guard let strongSelf = self, let view = strongSelf.view else {
                 return
             }
 
+            let formatter = strongSelf.amountFormatterFactory.createDisplayFormatter(
+                for: strongSelf.assetInfo
+            ).value(for: locale)
+
             let minimumBalanceString = minimumBalance
-                .map { Decimal.fromSubstrateAmount($0, precision: precision) }?
+                .map { Decimal.fromSubstrateAmount($0, precision: strongSelf.assetInfo.assetPrecision) }?
                 .map { formatter.stringFromDecimal($0) } ?? nil
 
             self?.presentable.presentMinimalBalanceContributionError(
@@ -101,15 +98,13 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
                cap > raised {
                 let decimalDiff = Decimal.fromSubstrateAmount(
                     cap - raised,
-                    precision: strongSelf.chain.addressType.precision
+                    precision: strongSelf.assetInfo.assetPrecision
                 )
 
                 let diffString = decimalDiff.map {
-                    strongSelf.amountFormatterFactory.createDisplayFormatter(
-                        for: strongSelf.asset
-                    )
-                    .value(for: locale)
-                    .stringFromDecimal($0)
+                    strongSelf.amountFormatterFactory.createDisplayFormatter(for: strongSelf.assetInfo)
+                        .value(for: locale)
+                        .stringFromDecimal($0)
                 } ?? nil
 
                 self?.presentable.presentAmountExceedsCapError(diffString ?? "", from: view, locale: locale)
