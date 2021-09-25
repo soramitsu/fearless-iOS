@@ -28,7 +28,7 @@ extension AssetBalanceDisplayInfo {
             assetPrecision: 5,
             symbol: info.token,
             symbolValueSeparator: " ",
-            symbolPosition: .prefix,
+            symbolPosition: .suffix,
             icon: URL(string: info.icon)
         )
     }
