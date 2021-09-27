@@ -127,11 +127,11 @@ extension Chain {
 
     // swiftlint:disable line_length
     func typeDefDefaultFileURL() -> URL? {
-        URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")
+        URL(string: "https://raw.githubusercontent.com/valentunn/py-scale-codec/fearless_stable/scalecodec/type_registry/default.json")
     }
 
     func typeDefNetworkFileURL() -> URL? {
-        let base = URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry")
+        let base = URL(string: "https://raw.githubusercontent.com/valentunn/py-scale-codec/fearless_stable/scalecodec/type_registry")
 
         switch self {
         case .westend:
