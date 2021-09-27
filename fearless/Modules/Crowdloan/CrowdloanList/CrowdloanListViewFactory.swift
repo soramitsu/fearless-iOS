@@ -44,7 +44,6 @@ struct CrowdloanListViewFactory {
         let selectedMetaAccount: MetaAccountModel = SelectedWalletSettings.shared.value
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let storageFacade = SubstrateDataStorageFacade.shared
         let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
 
         let operationManager = OperationManagerFacade.sharedManager
@@ -53,13 +52,6 @@ struct CrowdloanListViewFactory {
         let crowdloanRemoteSubscriptionService = CrowdloanRemoteSubscriptionService(
             chainRegistry: chainRegistry,
             repository: AnyDataProviderRepository(repository),
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: storageFacade,
             operationManager: operationManager,
             logger: logger
         )
@@ -81,7 +73,7 @@ struct CrowdloanListViewFactory {
             crowdloanOperationFactory: crowdloanOperationFactory,
             crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,
             logger: logger

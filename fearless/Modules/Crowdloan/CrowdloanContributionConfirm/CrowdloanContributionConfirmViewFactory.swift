@@ -100,21 +100,6 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
-
-        let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
-
         let keystore = Keychain()
         let signingWrapper = SigningWrapper(
             keystore: keystore,
@@ -131,9 +116,9 @@ struct CrowdloanContributionConfirmViewFactory {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            priceLocalSubscriptionFactory: PriceProviderFactory.shared,
+            jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
             bonusService: bonusService,
             operationManager: operationManager
