@@ -36,6 +36,7 @@ final class StakingMainPresenter {
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
     private var controllerAccount: AccountItem?
+    private var nomination: Nomination?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -306,6 +307,28 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showRedeem(from: view)
     }
 
+    func performAnalyticsAction() {
+        let isNominator: AnalyticsContainerViewMode = {
+            if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+                return .none
+            }
+
+            if stateMachine.viewState(using: { (state: BaseStashNextState) in state }) != nil {
+                return .accountIsNominator
+            }
+            return .none
+        }()
+
+        let includeValidators: AnalyticsContainerViewMode = {
+            if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+                return .none
+            }
+            return nomination != nil ? .includeValidatorsTab : .none
+        }()
+
+        wireframe.showAnalytics(from: view, mode: isNominator.union(includeValidators))
+    }
+
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
         interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
     }
@@ -405,6 +428,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
         stateMachine.state.process(nomination: nomination)
 
         if let nomination = nomination {
@@ -486,6 +510,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(maxNominatorsPerValidator):
             stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
+        switch subqueryRewards {
+        case let .success(rewards):
+            stateMachine.state.process(subqueryRewards: (rewards, period))
         case let .failure(error):
             handle(error: error)
         }

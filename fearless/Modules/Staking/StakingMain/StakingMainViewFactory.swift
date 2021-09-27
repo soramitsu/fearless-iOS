@@ -33,8 +33,16 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         // MARK: - Presenter
 
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
+        let analyticsVMFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balanceViewModelFactory in
+            AnalyticsRewardsViewModelFactory(
+                chain: chain,
+                balanceViewModelFactory: balanceViewModelFactory,
+                calendar: Calendar(identifier: .gregorian)
+            )
+        }
         let stateViewModelFactory = StakingStateViewModelFactory(
             primitiveFactory: primitiveFactory,
+            analyticsRewardsViewModelFactoryBuilder: analyticsVMFactoryBuilder,
             logger: logger
         )
         let networkInfoViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
