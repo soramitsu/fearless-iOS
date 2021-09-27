@@ -2,24 +2,25 @@ import Foundation
 import CommonWallet
 import FearlessUtils
 import IrohaCrypto
-import SoraKeystore
 
 final class TransferConfirmViewModelFactory {
     weak var commandFactory: WalletCommandFactoryProtocol?
 
     private lazy var addressFactory = SS58AddressFactory()
-    private lazy var settings = SettingsManager.shared
 
     let assets: [WalletAsset]
+    let selectedAccount: AccountItem
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
         assets: [WalletAsset],
+        selectedAccount: AccountItem,
         amountFormatterFactory: NumberFormatterFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.assets = assets
+        self.selectedAccount = selectedAccount
         self.amountFormatterFactory = amountFormatterFactory
         self.balanceViewModelFactory = balanceViewModelFactory
     }
@@ -74,20 +75,19 @@ final class TransferConfirmViewModelFactory {
             return
         }
 
-        let formatter = amountFormatterFactory.createInputFormatter(for: asset).value(for: locale)
         let balanceFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         let decimalAmount = payload.transferInfo.amount.decimalValue
+        let priceData = getPriceDataFrom(payload.transferInfo)
 
-        guard let amount = formatter.string(from: decimalAmount as NSNumber) else {
-            return
-        }
+        let inputBalance = balanceViewModelFactory
+            .balanceFromPrice(decimalAmount, priceData: priceData).value(for: locale)
 
         let balanceContext = BalanceContext(context: payload.transferInfo.context ?? [:])
-        let balance = balanceFormatter.stringFromDecimal(balanceContext.available) ?? ""
+        let availableBalance = balanceFormatter.stringFromDecimal(balanceContext.available) ?? ""
 
         let displayBalance = R.string.localizable.commonAvailableFormat(
-            balance,
+            availableBalance,
             preferredLanguages: locale.rLanguages
         )
 
@@ -95,26 +95,13 @@ final class TransferConfirmViewModelFactory {
             preferredLanguages: locale.rLanguages
         )
 
-        let priceData = getPriceDataFrom(payload.transferInfo)
-
-        let price: String? = {
-            guard let amount = Decimal(string: amount),
-                  let priceData = priceData
-            else { return nil }
-
-            return balanceViewModelFactory.balanceFromPrice(
-                amount,
-                priceData: priceData
-            ).value(for: locale).price ?? nil
-        }()
-
         let viewModel = RichAmountDisplayViewModel(
             title: title,
-            amount: amount,
+            amount: inputBalance.amount,
             icon: assetId.icon,
             symbol: asset.symbol,
             balance: displayBalance,
-            price: price
+            price: inputBalance.price
         )
 
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: .none))
@@ -162,27 +149,16 @@ final class TransferConfirmViewModelFactory {
 
     func populateSender(
         in viewModelList: inout [WalletFormViewBindingProtocol],
-        payload: ConfirmationPayload,
+        payload _: ConfirmationPayload,
         chain: Chain,
         locale: Locale
     ) {
         guard let commandFactory = commandFactory else { return }
 
-        let senderAddress: AccountAddress? = {
-            if let selectedAccount = settings.selectedAccount {
-                return selectedAccount.address
-            } else {
-                return try? addressFactory.addressFromAccountId(
-                    data: Data(hexString: payload.transferInfo.source),
-                    type: chain.addressType
-                )
-            }
-        }()
-
-        guard let senderAddress = senderAddress else { return }
-
         let headerTitle = R.string.localizable
             .transactionDetailsFrom(preferredLanguages: locale.rLanguages)
+
+        let senderAddress = selectedAccount.address
 
         let iconGenerator = PolkadotIconGenerator()
         let icon = try? iconGenerator.generateFromAddress(senderAddress)
@@ -201,7 +177,7 @@ final class TransferConfirmViewModelFactory {
 
         let viewModel = WalletCompoundDetailsViewModel(
             title: headerTitle,
-            details: settings.selectedAccount?.username ?? senderAddress,
+            details: selectedAccount.username,
             mainIcon: icon,
             actionIcon: R.image.iconMore(),
             command: command,

@@ -80,7 +80,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: networkType, // TODO: Is it correct?
+            selectedAddressType: networkType,
             limit: TransferConstants.maxAmount
         )
 
@@ -221,6 +221,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let confirmConfigurator = TransferConfirmConfigurator(
             assets: accountSettings.assets,
+            selectedAccount: selectedAccount,
             amountFormatterFactory: amountFormatterFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             localizationManager: localizationManager

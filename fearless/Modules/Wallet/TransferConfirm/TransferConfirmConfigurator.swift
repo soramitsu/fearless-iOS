@@ -18,12 +18,14 @@ final class TransferConfirmConfigurator {
 
     init(
         assets: [WalletAsset],
+        selectedAccount: AccountItem,
         amountFormatterFactory: NumberFormatterFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         viewModelFactory = TransferConfirmViewModelFactory(
             assets: assets,
+            selectedAccount: selectedAccount,
             amountFormatterFactory: amountFormatterFactory,
             balanceViewModelFactory: balanceViewModelFactory
         )

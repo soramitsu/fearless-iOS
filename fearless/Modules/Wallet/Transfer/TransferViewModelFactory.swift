@@ -36,60 +36,24 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         payload _: TransferPayload,
         locale: Locale
     ) throws -> FeeViewModelProtocol? {
-        guard
-            let asset = assets
-            .first(where: { $0.identifier == fee.feeDescription.assetId })
-        else {
-            return nil
-        }
-
         let title = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
 
         let feeAmount = fee.feeDescription.parameters.first?.decimalValue ?? 0
 
-        let amountFormatter = amountFormatterFactory
-            .createFeeTokenFormatter(for: asset).value(for: locale)
-
-        let amount = amountFormatter.stringFromDecimal(feeAmount) ?? ""
-
         let priceData = getPriceDataFrom(inputState)
-
-        let price: String? = {
-            guard let priceData = priceData else { return nil }
-
-            return balanceViewModelFactory.balanceFromPrice(
-                feeAmount,
-                priceData: priceData
-            ).value(for: locale).price ?? nil
-        }()
+        let balance = balanceViewModelFactory.balanceFromPrice(
+            feeAmount,
+            priceData: priceData
+        ).value(for: locale)
 
         return FeePriceViewModel(
-            amount: amount,
-            price: price,
+            amount: balance.amount,
+            price: balance.price,
             title: title,
-            details: amount,
+            details: balance.amount,
             isLoading: false,
             allowsEditing: false
         )
-    }
-
-    func createDescriptionViewModel(
-        _: TransferInputState,
-        details _: String?,
-        payload _: TransferPayload,
-        locale _: Locale
-    ) throws
-        -> WalletOverridingResult<DescriptionInputViewModelProtocol?>? {
-        WalletOverridingResult(item: nil)
-    }
-
-    func createSelectedAssetViewModel(
-        _: TransferInputState,
-        selectedAssetState _: SelectedAssetState,
-        payload _: TransferPayload,
-        locale _: Locale
-    ) throws -> AssetSelectionViewModelProtocol? {
-        nil
     }
 
     func createAssetSelectionTitle(
