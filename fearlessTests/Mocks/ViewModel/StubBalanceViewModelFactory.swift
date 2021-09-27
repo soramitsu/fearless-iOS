@@ -30,7 +30,12 @@ struct StubBalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
     func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?) -> LocalizableResource<AssetBalanceViewModelProtocol> {
         LocalizableResource { _ in
-            AssetBalanceViewModel(icon: nil, symbol: "KSM", balance: balance?.description, price: priceData?.price.description)
+            AssetBalanceViewModel(
+                symbol: "KSM",
+                balance: balance?.description,
+                price: priceData?.price.description,
+                iconViewModel: nil
+            )
         }
     }
 }

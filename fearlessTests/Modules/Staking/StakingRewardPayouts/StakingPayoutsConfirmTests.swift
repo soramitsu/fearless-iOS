@@ -50,7 +50,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
                                                            logger: nil)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
-        let signer = try DummySigner(cryptoType: .sr25519)
+        let signer = try DummySigner(cryptoType: CryptoType.sr25519)
 
         let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
 
