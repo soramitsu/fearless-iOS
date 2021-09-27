@@ -147,7 +147,7 @@ final class CrowdloanListPresenter {
 
             let viewInfo = try viewInfoResult.get()
 
-            let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.conversion)
+            let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.chainFormat)
 
             let viewModel = viewModelFactory.createViewModel(
                 from: crowdloans,

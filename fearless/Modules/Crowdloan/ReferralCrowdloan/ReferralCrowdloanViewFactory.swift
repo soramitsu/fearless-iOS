@@ -15,7 +15,7 @@ struct ReferralCrowdloanViewFactory {
             let chain = state.settings.value,
             let accountResponse = selectedAccount.fetch(for: chain.accountRequest()),
             let selectedAddress = try? accountResponse.accountId.toAddress(
-                using: chain.conversion
+                using: chain.chainFormat
             ) else {
             return nil
         }

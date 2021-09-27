@@ -24,7 +24,7 @@ extension AssetBalanceDisplayInfo {
 
     static func fromCrowdloan(info: CrowdloanDisplayInfo) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            preferrableDisplayPrecision: 5,
+            displayPrecision: 5,
             assetPrecision: 5,
             symbol: info.token,
             symbolValueSeparator: " ",
@@ -48,7 +48,7 @@ extension AssetModel {
 
     func displayInfo(with chainIcon: URL) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            preferrableDisplayPrecision: 5,
+            displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
             symbol: symbol,
             symbolValueSeparator: " ",
