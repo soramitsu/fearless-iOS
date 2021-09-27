@@ -36,8 +36,8 @@ extension ChainAccountResponse {
     }
 
     func toDisplayAddress() throws -> DisplayAddress {
-        let chainConversion: ChainConversion = isEthereumBased ? .ethereum : .substrate(addressPrefix)
-        let address = try accountId.toAddress(using: chainConversion)
+        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
+        let address = try accountId.toAddress(using: chainFormat)
 
         return DisplayAddress(address: address, username: name)
     }

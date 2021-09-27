@@ -32,6 +32,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
         let chain = ChainModelGenerator.generateChain(
             generatingAssets: 1,
             addressPrefix: 42,
+            assetPresicion: 12,
             hasCrowdloans: true
         )
 

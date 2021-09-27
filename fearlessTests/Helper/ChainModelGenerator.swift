@@ -62,13 +62,18 @@ enum ChainModelGenerator {
     static func generateChain(
         generatingAssets count: Int,
         addressPrefix: UInt16,
+        assetPresicion: UInt16 = (9...18).randomElement()!,
         hasStaking: Bool = false,
         hasCrowdloans: Bool = false
     ) -> ChainModel {
         let chainId = Data.random(of: 32)!.toHex()
 
         let assets = (0..<count).map { index in
-            generateAssetWithId(AssetModel.Id(index), hasStaking: hasStaking)
+            generateAssetWithId(
+                AssetModel.Id(index),
+                assetPresicion: assetPresicion,
+                hasStaking: hasStaking
+            )
         }
 
         let urlString = "node\(Data.random(of: 32)!.toHex()).io"
@@ -105,13 +110,17 @@ enum ChainModelGenerator {
         )
     }
 
-    static func generateAssetWithId(_ identifier: AssetModel.Id, hasStaking: Bool = false) -> AssetModel {
+    static func generateAssetWithId(
+        _ identifier: AssetModel.Id,
+        assetPresicion: UInt16 = (9...18).randomElement()!,
+        hasStaking: Bool = false
+    ) -> AssetModel {
         AssetModel(
             assetId: identifier,
             icon: Constants.dummyURL,
             name: UUID().uuidString,
             symbol: String(UUID().uuidString.prefix(3)),
-            precision: (9...18).randomElement()!,
+            precision: assetPresicion,
             priceId: nil,
             staking: hasStaking ? "relaychain" : nil
         )

@@ -82,7 +82,7 @@ extension ExtrinsicOperationFactoryProtocol {
 final class ExtrinsicOperationFactory {
     let accountId: AccountId
     let cryptoType: MultiassetCryptoType
-    let chainConversion: ChainConversion
+    let chainFormat: ChainFormat
     let runtimeRegistry: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
     let eraOperationFactory: ExtrinsicEraOperationFactoryProtocol
@@ -96,7 +96,7 @@ final class ExtrinsicOperationFactory {
         eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
     ) {
         accountId = (try? address.toAccountId()) ?? Data(repeating: 0, count: 32)
-        chainConversion = .ethereum
+        chainFormat = .ethereum
         cryptoType = .substrateEcdsa
         self.runtimeRegistry = runtimeRegistry
         self.engine = engine
@@ -105,14 +105,14 @@ final class ExtrinsicOperationFactory {
 
     init(
         accountId: AccountId,
-        chainConversion: ChainConversion,
+        chainFormat: ChainFormat,
         cryptoType: MultiassetCryptoType,
         runtimeRegistry: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
         eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
     ) {
         self.accountId = accountId
-        self.chainConversion = chainConversion
+        self.chainFormat = chainFormat
         self.cryptoType = cryptoType
         self.runtimeRegistry = runtimeRegistry
         self.engine = engine
@@ -121,7 +121,7 @@ final class ExtrinsicOperationFactory {
 
     private func createNonceOperation() -> BaseOperation<UInt32> {
         do {
-            let address = try accountId.toAddress(using: chainConversion)
+            let address = try accountId.toAddress(using: chainFormat)
             return JSONRPCListOperation<UInt32>(
                 engine: engine,
                 method: RPCMethod.getExtrinsicNonce,
@@ -161,7 +161,7 @@ final class ExtrinsicOperationFactory {
     ) -> CompoundOperationWrapper<[Data]> {
         let currentCryptoType = cryptoType
         let currentAccountId = accountId
-        let currentChainConversion = chainConversion
+        let currentChainFormat = chainFormat
 
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
@@ -192,7 +192,7 @@ final class ExtrinsicOperationFactory {
             let eraBlockHash = try eraBlockOperation.extractNoCancellableResultData()
 
             let account: MultiAddress = {
-                switch currentChainConversion {
+                switch currentChainFormat {
                 case .ethereum:
                     return MultiAddress.address20(currentAccountId)
                 case .substrate:

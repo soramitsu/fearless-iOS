@@ -79,7 +79,7 @@ struct CrowdloanContributionSetupViewFactory {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainConversion: chain.conversion,
+            chainFormat: chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
