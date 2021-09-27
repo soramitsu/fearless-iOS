@@ -116,7 +116,7 @@ final class ChainModelMapper {
         entity.nodes = Set(nodeEntities) as NSSet
     }
 
-    private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApis? {
+    private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApiSet? {
         let staking: ChainModel.ExternalApi?
 
         if let type = entity.stakingApiType, let url = entity.stakingApiUrl {
@@ -142,13 +142,13 @@ final class ChainModelMapper {
         }
 
         if staking != nil || history != nil || crowdloans != nil {
-            return ChainModel.ExternalApis(staking: staking, history: history, crowdloans: crowdloans)
+            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans)
         } else {
             return nil
         }
     }
 
-    private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApis?) {
+    private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
         entity.stakingApiType = apis?.staking?.type
         entity.stakingApiUrl = apis?.staking?.url
 
@@ -200,7 +200,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options.append(.crowdloans)
         }
 
-        let externalApis = createExternalApi(from: entity)
+        let externalApiSet = createExternalApi(from: entity)
 
         return ChainModel(
             chainId: entity.chainId!,
@@ -212,7 +212,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             types: types,
             icon: entity.icon!,
             options: options.isEmpty ? nil : options,
-            externalApi: externalApis
+            externalApi: externalApiSet
         )
     }
 

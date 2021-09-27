@@ -24,7 +24,7 @@ class AssetBalanceFormatterFactory {
         for info: AssetBalanceDisplayInfo,
         roundingMode: NumberFormatter.RoundingMode
     ) -> LocalizableResource<TokenFormatter> {
-        let formatter = createCompoundFormatter(for: info.preferrableDisplayPrecision, roundingMode: roundingMode)
+        let formatter = createCompoundFormatter(for: info.displayPrecision, roundingMode: roundingMode)
 
         let tokenFormatter = TokenFormatter(
             decimalFormatter: formatter,
@@ -111,7 +111,7 @@ extension AssetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
     func createDisplayFormatter(
         for info: AssetBalanceDisplayInfo
     ) -> LocalizableResource<LocalizableDecimalFormatting> {
-        let formatter = createCompoundFormatter(for: info.preferrableDisplayPrecision)
+        let formatter = createCompoundFormatter(for: info.displayPrecision)
         return LocalizableResource { locale in
             formatter.locale = locale
             return formatter
