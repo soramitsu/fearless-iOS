@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 struct AssetBalanceDisplayInfo {
-    let preferrableDisplayPrecision: UInt16
+    let displayPrecision: UInt16
     let assetPrecision: Int16
     let symbol: String
     let symbolValueSeparator: String
@@ -13,7 +13,7 @@ struct AssetBalanceDisplayInfo {
 extension AssetBalanceDisplayInfo {
     static func usd() -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            preferrableDisplayPrecision: 2,
+            displayPrecision: 2,
             assetPrecision: 2,
             symbol: "$",
             symbolValueSeparator: "",
@@ -37,7 +37,7 @@ extension AssetBalanceDisplayInfo {
 extension AssetModel {
     var displayInfo: AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            preferrableDisplayPrecision: 5,
+            displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
             symbol: symbol,
             symbolValueSeparator: " ",

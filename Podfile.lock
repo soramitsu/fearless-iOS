@@ -1,5 +1,8 @@
 PODS:
   - BigInt (5.2.0)
+  - Charts (3.6.0):
+    - Charts/Core (= 3.6.0)
+  - Charts/Core (3.6.0)
   - CocoaLumberjack (3.7.2):
     - CocoaLumberjack/Core (= 3.7.2)
   - CocoaLumberjack/Core (3.7.2)
@@ -117,6 +120,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
+  - Charts
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `4133ff9b81cda094dd8e2b7f32129172224b0227`)
   - Cuckoo
   - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `66ea67f4dd3c25b28ebbf18913346b20b92b25d2`)
@@ -140,6 +144,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BigInt
+    - Charts
     - CocoaLumberjack
     - Cuckoo
     - FireMock
@@ -193,6 +198,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
+  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
   CommonWallet: cdc58c26a9bbac8d45edba7c09313896b5d7350d
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
@@ -220,6 +226,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: f1aabf89300da94773aa68ef1c5802d15999cad4
+PODFILE CHECKSUM: ed2e4e52b452c1bcaac8e43782ab6a194e4254c4
 
 COCOAPODS: 1.10.2

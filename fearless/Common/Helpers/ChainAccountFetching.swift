@@ -23,8 +23,8 @@ enum ChainAccountFetchingError: Error {
 
 extension ChainAccountResponse {
     func toAccountItem() throws -> AccountItem {
-        let chainConversion: ChainConversion = isEthereumBased ? .ethereum : .substrate(addressPrefix)
-        let address = try accountId.toAddress(using: chainConversion)
+        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
+        let address = try accountId.toAddress(using: chainFormat)
         let cryptoType = CryptoType(rawValue: cryptoType.rawValue) ?? .ecdsa
 
         return AccountItem(

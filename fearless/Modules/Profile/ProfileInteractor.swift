@@ -28,7 +28,7 @@ final class ProfileInteractor {
 
             // TODO: Apply total account value logic instead
             let genericAddress = try wallet.substrateAccountId.toAddress(
-                using: ChainConversion.substrate(42)
+                using: ChainFormat.substrate(42)
             )
 
             let userSettings = UserSettings(

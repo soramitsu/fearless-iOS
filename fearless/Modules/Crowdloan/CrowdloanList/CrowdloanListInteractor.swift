@@ -140,7 +140,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: queryWrapper.allOperations, in: .transient)
     }
 
-    private func notifyCrowdloansFetchSame(error: Error) {
+    private func notifyCrowdolansFetchWithError(error: Error) {
         presenter.didReceiveCrowdloans(result: .failure(error))
         presenter.didReceiveContributions(result: .failure(error))
         presenter.didReceiveLeaseInfo(result: .failure(error))
@@ -240,7 +240,7 @@ extension CrowdloanListInteractor {
         crowdloansRequest = nil
     }
 
-    func handleNewSelected(chain: ChainModel) {
+    func handleSelectionChange(to chain: ChainModel) {
         guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
             presenter.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists)
@@ -277,12 +277,12 @@ extension CrowdloanListInteractor {
         }
 
         guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            notifyCrowdloansFetchSame(error: ChainRegistryError.connectionUnavailable)
+            notifyCrowdolansFetchWithError(error: ChainRegistryError.connectionUnavailable)
             return
         }
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            notifyCrowdloansFetchSame(error: ChainRegistryError.runtimeMetadaUnavailable)
+            notifyCrowdolansFetchWithError(error: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -319,7 +319,7 @@ extension CrowdloanListInteractor {
                         self?.presenter.didReceiveContributions(result: .success([:]))
                         self?.presenter.didReceiveLeaseInfo(result: .success([:]))
                     } else {
-                        self?.notifyCrowdloansFetchSame(error: error)
+                        self?.notifyCrowdolansFetchWithError(error: error)
                     }
                 }
             }
