@@ -12316,16 +12316,16 @@ import SoraFoundation
     
     
     
-     func selecteChain(from view: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)  {
+     func selectChain(from view: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)  {
         
-    return cuckoo_manager.call("selecteChain(from: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)",
+    return cuckoo_manager.call("selectChain(from: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)",
             parameters: (view, delegate, selectedChainId),
             escapingParameters: (view, delegate, selectedChainId),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.selecteChain(from: view, delegate: delegate, selectedChainId: selectedChainId))
+            defaultCall: __defaultImplStub!.selectChain(from: view, delegate: delegate, selectedChainId: selectedChainId))
         
     }
     
@@ -12343,9 +12343,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListWireframeProtocol.self, method: "presentContributionSetup(from: CrowdloanListViewProtocol?, paraId: ParaId)", parameterMatchers: matchers))
 	    }
 	    
-	    func selecteChain<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(from view: M1, delegate: M2, selectedChainId: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(CrowdloanListViewProtocol?, ChainSelectionDelegate, ChainModel.Id?)> where M1.OptionalMatchedType == CrowdloanListViewProtocol, M2.MatchedType == ChainSelectionDelegate, M3.OptionalMatchedType == ChainModel.Id {
+	    func selectChain<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(from view: M1, delegate: M2, selectedChainId: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(CrowdloanListViewProtocol?, ChainSelectionDelegate, ChainModel.Id?)> where M1.OptionalMatchedType == CrowdloanListViewProtocol, M2.MatchedType == ChainSelectionDelegate, M3.OptionalMatchedType == ChainModel.Id {
 	        let matchers: [Cuckoo.ParameterMatcher<(CrowdloanListViewProtocol?, ChainSelectionDelegate, ChainModel.Id?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: delegate) { $0.1 }, wrap(matchable: selectedChainId) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListWireframeProtocol.self, method: "selecteChain(from: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListWireframeProtocol.self, method: "selectChain(from: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -12371,9 +12371,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func selecteChain<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(from view: M1, delegate: M2, selectedChainId: M3) -> Cuckoo.__DoNotUse<(CrowdloanListViewProtocol?, ChainSelectionDelegate, ChainModel.Id?), Void> where M1.OptionalMatchedType == CrowdloanListViewProtocol, M2.MatchedType == ChainSelectionDelegate, M3.OptionalMatchedType == ChainModel.Id {
+	    func selectChain<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(from view: M1, delegate: M2, selectedChainId: M3) -> Cuckoo.__DoNotUse<(CrowdloanListViewProtocol?, ChainSelectionDelegate, ChainModel.Id?), Void> where M1.OptionalMatchedType == CrowdloanListViewProtocol, M2.MatchedType == ChainSelectionDelegate, M3.OptionalMatchedType == ChainModel.Id {
 	        let matchers: [Cuckoo.ParameterMatcher<(CrowdloanListViewProtocol?, ChainSelectionDelegate, ChainModel.Id?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: delegate) { $0.1 }, wrap(matchable: selectedChainId) { $0.2 }]
-	        return cuckoo_manager.verify("selecteChain(from: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("selectChain(from: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -12389,7 +12389,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func selecteChain(from view: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)   {
+     func selectChain(from view: CrowdloanListViewProtocol?, delegate: ChainSelectionDelegate, selectedChainId: ChainModel.Id?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

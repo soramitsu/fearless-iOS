@@ -5,6 +5,7 @@ import CommonWallet
 import RobinHood
 import SoraFoundation
 import Cuckoo
+import BigInt
 
 class CrowdloanContributionConfirmTests: XCTestCase {
     static let currentBlockNumber: BlockNumber = 1337
@@ -27,33 +28,34 @@ class CrowdloanContributionConfirmTests: XCTestCase {
     func testContributionConfirmation() throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-
-        let chain = Chain.westend
-
-        let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService(
-            specVersion: 9010,
-            txVersion: 5
+        let selectedAccount = AccountGenerator.generateMetaAccount()
+        let chain = ChainModelGenerator.generateChain(
+            generatingAssets: 1,
+            addressPrefix: 42,
+            hasCrowdloans: true
         )
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
+        let asset = chain.assets.first!
+
+        let chainRegistry = MockChainRegistryProtocol().applyDefault(for: [chain])
 
         let view = MockCrowdloanContributionConfirmViewProtocol()
         let wireframe = MockCrowdloanContributionConfirmWireframeProtocol()
 
-        let expectedAmount: Decimal = 0.1
+        let expectedAmount: Decimal = 1.0
 
-        let presenter = try createPresenter(
+        guard let presenter = try createPresenter(
             for: view,
             wireframe: wireframe,
-            settings: settings,
+            chainRegistry: chainRegistry,
             inputAmount: expectedAmount,
-            runtimeService: runtimeCodingService
-        )
+            selectedMetaAccount: selectedAccount,
+            chain: chain,
+            asset: asset
+        ) else {
+            XCTFail("Unexpected empty presenter")
+            return
+        }
 
         // when
 
@@ -125,35 +127,33 @@ class CrowdloanContributionConfirmTests: XCTestCase {
     private func createPresenter(
         for view: MockCrowdloanContributionConfirmViewProtocol,
         wireframe: MockCrowdloanContributionConfirmWireframeProtocol,
-        settings: SettingsManagerProtocol,
+        chainRegistry: ChainRegistryProtocol,
         inputAmount: Decimal,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) throws -> CrowdloanContributionConfirmPresenter {
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let addressType = settings.selectedConnection.type
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
+        selectedMetaAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel
+    ) throws -> CrowdloanContributionConfirmPresenter? {
 
-        let interactor = createInteractor(asset: asset, settings: settings, runtimeService: runtimeService)
+        guard let interactor = createInteractor(
+            chainRegistry: chainRegistry,
+            selectedMetaAccount: selectedMetaAccount,
+            chain: chain,
+            asset: asset
+        ) else {
+            return nil
+        }
 
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
-        )
-
-        let amountFormatterFactory = AmountFormatterFactory()
+        let assetInfo = asset.displayInfo(with: chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
 
         let crowdloanViewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: amountFormatterFactory,
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(
             presentable: wireframe,
-            amountFormatterFactory: amountFormatterFactory,
-            chain: addressType.chain,
-            asset: asset
+            assetInfo: assetInfo
         )
 
         let presenter = CrowdloanContributionConfirmPresenter(
@@ -164,7 +164,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             dataValidatingFactory: dataValidatingFactory,
             inputAmount: inputAmount,
             bonusRate: nil,
-            chain: addressType.chain,
+            assetInfo: assetInfo,
             localizationManager: LocalizationManager.shared
         )
 
@@ -176,35 +176,55 @@ class CrowdloanContributionConfirmTests: XCTestCase {
     }
 
     private func createInteractor(
-        asset: WalletAsset,
-        settings: SettingsManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> CrowdloanContributionConfirmInteractor {
-        let chain = settings.selectedConnection.type.chain
+        chainRegistry: ChainRegistryProtocol,
+        selectedMetaAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel
+    ) -> CrowdloanContributionConfirmInteractor? {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
 
-        let providerFactory = SingleValueProviderFactoryStub
-            .westendNominatorStub()
-            .withBlockNumber(blockNumber: Self.currentBlockNumber)
-            .withCrowdloanFunds(crowdloan.fundInfo)
+        guard let crowdloanInfoUrl = chain.externalApi?.crowdloans?.url else {
+            return nil
+        }
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
 
-        let signingWrapper = try! DummySigner(cryptoType: .sr25519)
+        let crowdloanSubscriptionFactory = CrowdloanLocalSubscriptionFactoryStub(
+            blockNumber: Self.currentBlockNumber,
+            crowdloanFunds: crowdloan.fundInfo
+        )
 
-        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
+        let walletSubscriptionFactory = WalletLocalSubscriptionFactoryStub(
+            balance: BigUInt(1e+18)
+        )
+
+        let priceProviderFactory = PriceProviderFactoryStub(
+            priceData: PriceData(price: "100", usdDayChange: 0.01)
+        )
+
+        let jsonProviderFactory = JsonDataProviderFactoryStub(
+            sources: [crowdloanInfoUrl: CrowdloanDisplayInfoList()]
+        )
+
+        guard let signingWrapper = try? DummySigner(cryptoType: MultiassetCryptoType.sr25519) else {
+            return nil
+        }
 
         return CrowdloanContributionConfirmInteractor(
             paraId: crowdloan.paraId,
-            selectedAccountAddress: settings.selectedAccount!.address,
+            selectedMetaAccount: selectedMetaAccount,
             chain: chain,
-            assetId: WalletAssetId(rawValue: asset.identifier)!,
+            asset: asset,
             runtimeService: runtimeService,
             feeProxy: ExtrinsicFeeProxy(),
             extrinsicService: extrinsicService,
+            crowdloanLocalSubscriptionFactory: crowdloanSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceProviderFactory,
+            jsonLocalSubscriptionFactory: jsonProviderFactory,
             signingWrapper: signingWrapper,
-            accountRepository: accountRepository,
-            crowdloanFundsProvider: providerFactory.crowdloanFunds,
-            singleValueProviderFactory: providerFactory,
             bonusService: nil,
             operationManager: OperationManager()
         )

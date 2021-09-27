@@ -20,28 +20,21 @@ class ReferralCrowdloanTests: XCTestCase {
     func testReferralInputSuccess() throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
+        let chain = ChainModelGenerator.generateChain(
+            generatingAssets: 1,
+            addressPrefix: 42,
+            hasStaking: false,
+            hasCrowdloans: true
+        )
 
-        let chain = Chain.westend
+        let asset = chain.assets.first!
 
         let expectedCode = KaruraBonusService.defaultReferralCode
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
-
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let addressType = settings.selectedConnection.type
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
-        let amountFormatterFactory = AmountFormatterFactory()
-
+        let assetInfo = asset.displayInfo(with: chain.icon)
         let crowdloanViewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: amountFormatterFactory,
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let view = MockReferralCrowdloanViewProtocol()
