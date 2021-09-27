@@ -38,7 +38,7 @@ enum ChainModelGenerator {
                 options.append(.crowdloans)
             }
 
-            let externalApi: ChainModel.ExternalApis? = generateExternaApis(
+            let externalApi: ChainModel.ExternalApiSet? = generateExternaApis(
                 for: chainId,
                 hasStaking: hasStaking,
                 hasCrowdloans: hasCrowdloans
@@ -85,7 +85,7 @@ enum ChainModelGenerator {
             options.append(.crowdloans)
         }
 
-        let externalApi: ChainModel.ExternalApis? = generateExternaApis(
+        let externalApi: ChainModel.ExternalApiSet? = generateExternaApis(
             for: chainId,
             hasStaking: hasStaking,
             hasCrowdloans: hasCrowdloans
@@ -121,7 +121,7 @@ enum ChainModelGenerator {
         for chainId: ChainModel.Id,
         hasStaking: Bool,
         hasCrowdloans: Bool
-    ) -> ChainModel.ExternalApis? {
+    ) -> ChainModel.ExternalApiSet? {
         let crowdloanApi: ChainModel.ExternalApi?
 
         if hasCrowdloans {
@@ -145,7 +145,7 @@ enum ChainModelGenerator {
         }
 
         if crowdloanApi != nil || stakingApi != nil {
-            return ChainModel.ExternalApis(staking: stakingApi, history: nil, crowdloans: crowdloanApi)
+            return ChainModel.ExternalApiSet(staking: stakingApi, history: nil, crowdloans: crowdloanApi)
         } else {
             return nil
         }

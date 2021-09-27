@@ -15,7 +15,7 @@ struct ChainModel: Equatable, Codable, Hashable {
         let url: URL
     }
 
-    struct ExternalApis: Codable, Hashable {
+    struct ExternalApiSet: Codable, Hashable {
         let staking: ExternalApi?
         let history: ExternalApi?
         let crowdloans: ExternalApi?
@@ -36,7 +36,7 @@ struct ChainModel: Equatable, Codable, Hashable {
     let types: TypesSettings?
     let icon: URL
     let options: [ChainOptions]?
-    let externalApi: ExternalApis?
+    let externalApi: ExternalApiSet?
 
     var isEthereumBased: Bool {
         options?.contains(.ethereumBased) ?? false

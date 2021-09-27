@@ -38,7 +38,7 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
             settings.save(value: chainModel, runningCompletionIn: .main) { [weak self] result in
                 switch result {
                 case .success:
-                    self?.handleNewSelected(chain: chainModel)
+                    self?.handleSelectionChange(to: chainModel)
                 case let .failure(error):
                     self?.presenter.didReceiveSelectedChain(result: .failure(error))
                 }

@@ -6,11 +6,11 @@ final class StakingBalanceUnbondingItemView: UIView {
         static let iconSize: CGFloat = 32
     }
 
-    private let transactionTypeView: UIView = {
+    let transactionTypeView: UIImageView = {
         UIImageView(image: R.image.iconStakingTransactionType())
     }()
 
-    private let titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.lineBreakMode = .byTruncatingMiddle
@@ -18,20 +18,20 @@ final class StakingBalanceUnbondingItemView: UIView {
         return label
     }()
 
-    private let daysLeftLabel: UILabel = {
+    let daysLeftLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
         return label
     }()
 
-    private let tokenAmountLabel: UILabel = {
+    let tokenAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
         return label
     }()
 
-    private let usdAmountLabel: UILabel = {
+    let usdAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorLightGray()

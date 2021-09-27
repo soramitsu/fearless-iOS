@@ -1,13 +1,13 @@
 import Foundation
 import IrohaCrypto
 
-enum ChainConversion {
+enum ChainFormat {
     case ethereum
     case substrate(_ prefix: UInt16)
 }
 
 extension AccountId {
-    func toAddress(using conversion: ChainConversion) throws -> AccountAddress {
+    func toAddress(using conversion: ChainFormat) throws -> AccountAddress {
         switch conversion {
         case .ethereum:
             return toHex(includePrefix: true)
@@ -18,7 +18,7 @@ extension AccountId {
 }
 
 extension AccountAddress {
-    func toAccountId(using conversion: ChainConversion) throws -> AccountId {
+    func toAccountId(using conversion: ChainFormat) throws -> AccountId {
         switch conversion {
         case .ethereum:
             return try AccountId(hexString: self)
@@ -37,7 +37,7 @@ extension AccountAddress {
 }
 
 extension ChainModel {
-    var conversion: ChainConversion {
+    var conversion: ChainFormat {
         if isEthereumBased {
             return .ethereum
         } else {
