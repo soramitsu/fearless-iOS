@@ -20,6 +20,7 @@ struct UIConstants {
     static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
+    static let amountInputIconSize = CGSize(width: 24.0, height: 24.0)
 }
 
 enum AccountViewMode {

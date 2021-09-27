@@ -25,6 +25,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     private(set) var bonusView: RowView<TitleValueSelectionView>?
 
+    private var assetViewModel: AssetBalanceViewModelProtocol?
+
     let leasingPeriodView = TitleMultiValueView()
 
     let crowdloanInfoTitleLabel: UILabel = {
@@ -68,6 +70,11 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
+        amountInputView.iconView.image = nil
+
+        self.assetViewModel = assetViewModel
+
         amountInputView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
@@ -79,10 +86,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             amountInputView.balanceText = nil
         }
 
-        amountInputView.assetIcon = assetViewModel.icon
-
         let symbol = assetViewModel.symbol.uppercased()
         amountInputView.symbol = symbol
+
+        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
 
         hintView.titleLabel.text = R.string.localizable.crowdloanUnlockHint(
             symbol,

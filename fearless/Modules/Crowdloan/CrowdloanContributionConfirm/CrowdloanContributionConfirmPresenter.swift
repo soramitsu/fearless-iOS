@@ -192,7 +192,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
 
             dataValidatingFactory.contributesAtLeastMinContribution(
                 contribution: contributionValue,
-                minimumBalance: minimumBalance,
+                minimumBalance: minimumContribution,
                 locale: selectedLocale
             ),
 
