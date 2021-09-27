@@ -125,6 +125,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
         let symbol = targetAssetInfo.symbol
 
+        let iconViewModel = targetAssetInfo.icon.map { RemoteImageViewModel(url: $0) }
+
         return LocalizableResource { locale in
             let priceString: String?
 
@@ -148,10 +150,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             }
 
             return AssetBalanceViewModel(
-                icon: nil,
                 symbol: symbol,
                 balance: balanceString,
-                price: priceString
+                price: priceString,
+                iconViewModel: iconViewModel
             )
         }
     }
