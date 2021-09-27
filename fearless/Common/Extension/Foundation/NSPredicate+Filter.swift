@@ -67,4 +67,8 @@ extension NSPredicate {
     static func chainBy(identifier: ChainModel.Id) -> NSPredicate {
         NSPredicate(format: "%K == %@", #keyPath(CDChain.chainId), identifier)
     }
+
+    static func hasCrowloans() -> NSPredicate {
+        NSPredicate(format: "%K == true", #keyPath(CDChain.hasCrowdloans))
+    }
 }

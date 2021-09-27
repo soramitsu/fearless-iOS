@@ -137,9 +137,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createStakingController(
         for localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
-        guard let viewController = StakingMainViewFactory.createView()?.controller else {
-            return nil
-        }
+        // TODO: Remove when staking is fixed
+        let viewController = StakingMainViewFactory.createView()?.controller ?? UIViewController()
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -170,11 +169,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createProfileController(
         for localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
-        guard let settingsView = ProfileViewFactory.createView() else {
-            return nil
-        }
+        // TODO: Remove when settings fixed
+        let viewController = ProfileViewFactory.createView()?.controller ?? UIViewController()
 
-        let navigationController = FearlessNavigationController(rootViewController: settingsView.controller)
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)

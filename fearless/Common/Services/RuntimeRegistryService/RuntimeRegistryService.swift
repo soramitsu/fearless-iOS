@@ -43,10 +43,7 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
-    func fetchCoderFactoryOperation(
-        with _: TimeInterval,
-        closure _: RuntimeMetadataClosure?
-    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
+    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         mutex.lock()
 
         defer {

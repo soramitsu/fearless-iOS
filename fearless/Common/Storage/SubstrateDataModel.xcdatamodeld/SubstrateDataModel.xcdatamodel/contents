@@ -5,17 +5,26 @@
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="priceId" optional="YES" attributeType="String"/>
+        <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" attributeType="String"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="assets" inverseEntity="CDChain"/>
     </entity>
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
         <attribute name="addressPrefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="chainId" attributeType="String"/>
+        <attribute name="crowdloansApiType" optional="YES" attributeType="String"/>
+        <attribute name="crowdloansApiUrl" optional="YES" attributeType="URI"/>
+        <attribute name="hasCrowdloans" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="historyApiType" optional="YES" attributeType="String"/>
+        <attribute name="historyApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="icon" attributeType="URI"/>
         <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
+        <attribute name="stakingApiType" optional="YES" attributeType="String"/>
+        <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
@@ -27,6 +36,8 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CDChainNode" representedClassName="CDChainNode" syncable="YES" codeGenerationType="class">
+        <attribute name="apiKeyName" optional="YES" attributeType="String"/>
+        <attribute name="apiQueryName" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String" defaultValueString=""/>
         <attribute name="url" attributeType="URI"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="nodes" inverseEntity="CDChain"/>
@@ -80,9 +91,9 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
-        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="119"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="194"/>
-        <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="74"/>
+        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="149"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="299"/>
+        <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
         <element name="CDPhishingItem" positionX="-36" positionY="90" width="128" height="74"/>

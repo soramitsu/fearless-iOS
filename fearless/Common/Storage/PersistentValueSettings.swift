@@ -1,5 +1,9 @@
 import Foundation
 
+enum PersistentValueSettingsError: Error {
+    case missingValue
+}
+
 class PersistentValueSettings<T> {
     let storageFacade: StorageFacadeProtocol
 

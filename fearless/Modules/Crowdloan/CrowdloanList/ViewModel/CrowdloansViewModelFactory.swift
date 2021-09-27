@@ -1,16 +1,21 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
-import IrohaCrypto
 import FearlessUtils
+import BigInt
 
 protocol CrowdloansViewModelFactoryProtocol {
+    func createChainViewModel(
+        from chain: ChainModel,
+        asset: AssetModel,
+        balance: BigUInt?,
+        locale: Locale
+    ) -> CrowdloansChainViewModel
+
     func createViewModel(
         from crowdloans: [Crowdloan],
-        contributions: CrowdloanContributionDict,
-        leaseInfo: ParachainLeaseInfoDict,
-        displayInfo: CrowdloanDisplayInfoDict?,
-        metadata: CrowdloanMetadata,
+        viewInfo: CrowdloansViewInfo,
+        chainAsset: ChainAssetDisplayInfo,
         locale: Locale
     ) -> CrowdloansViewModel
 }
@@ -31,34 +36,30 @@ final class CrowdloansViewModelFactory {
         let time: TimeFormatterProtocol
     }
 
-    let amountFormatterFactory: NumberFormatterFactoryProtocol
-    let asset: WalletAsset
-    let chain: Chain
+    let amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
-    private lazy var addressFactory = SS58AddressFactory()
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     private lazy var dateFormatter = {
         CompoundDateFormatterBuilder()
     }()
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol, asset: WalletAsset, chain: Chain) {
+    init(
+        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    ) {
         self.amountFormatterFactory = amountFormatterFactory
-        self.asset = asset
-        self.chain = chain
     }
 
     private func createCommonContent(
         from model: Crowdloan,
-        contributions: CrowdloanContributionDict?,
-        displayInfo: CrowdloanDisplayInfo?,
+        viewInfo: CrowdloansViewInfo,
+        chainAsset: ChainAssetDisplayInfo,
         formatters: Formatters,
         locale: Locale
     ) -> CommonContent? {
-        guard let depositorAddress = try? addressFactory.addressFromAccountId(
-            data: model.fundInfo.depositor,
-            type: chain.addressType
-        ) else {
+        let displayInfo = viewInfo.displayInfo?[model.paraId]
+
+        guard let depositorAddress = try? model.fundInfo.depositor.toAddress(using: chainAsset.chain) else {
             return nil
         }
 
@@ -73,8 +74,14 @@ final class CrowdloansViewModelFactory {
 
         let progress: String = {
             if
-                let raised = Decimal.fromSubstrateAmount(model.fundInfo.raised, precision: asset.precision),
-                let cap = Decimal.fromSubstrateAmount(model.fundInfo.cap, precision: asset.precision),
+                let raised = Decimal.fromSubstrateAmount(
+                    model.fundInfo.raised,
+                    precision: chainAsset.asset.assetPrecision
+                ),
+                let cap = Decimal.fromSubstrateAmount(
+                    model.fundInfo.cap,
+                    precision: chainAsset.asset.assetPrecision
+                ),
                 let raisedString = formatters.display.stringFromDecimal(raised),
                 let totalString = formatters.token.stringFromDecimal(cap) {
                 return R.string.localizable.crowdloanProgressFormat(
@@ -104,8 +111,11 @@ final class CrowdloansViewModelFactory {
 
         let contributionString: String? = {
             if
-                let contributionInPlank = contributions?[model.fundInfo.trieIndex]?.balance,
-                let contributionDecimal = Decimal.fromSubstrateAmount(contributionInPlank, precision: asset.precision) {
+                let contributionInPlank = viewInfo.contributions[model.fundInfo.trieIndex]?.balance,
+                let contributionDecimal = Decimal.fromSubstrateAmount(
+                    contributionInPlank,
+                    precision: chainAsset.asset.assetPrecision
+                ) {
                 return formatters.token.stringFromDecimal(contributionDecimal).map { value in
                     R.string.localizable.crowdloanContributionFormat(value, preferredLanguages: locale.rLanguages)
                 }
@@ -125,16 +135,15 @@ final class CrowdloansViewModelFactory {
 
     private func createActiveCrowdloanViewModel(
         from model: Crowdloan,
-        contributions: CrowdloanContributionDict?,
-        displayInfo: CrowdloanDisplayInfo?,
-        metadata: CrowdloanMetadata,
+        viewInfo: CrowdloansViewInfo,
+        chainAsset: ChainAssetDisplayInfo,
         formatters: Formatters,
         locale: Locale
     ) -> ActiveCrowdloanViewModel? {
         guard let commonContent = createCommonContent(
             from: model,
-            contributions: contributions,
-            displayInfo: displayInfo,
+            viewInfo: viewInfo,
+            chainAsset: chainAsset,
             formatters: formatters,
             locale: locale
         ) else {
@@ -143,8 +152,8 @@ final class CrowdloansViewModelFactory {
 
         let timeLeft: String = {
             let remainedTime = model.remainedTime(
-                at: metadata.blockNumber,
-                blockDuration: metadata.blockDuration
+                at: viewInfo.metadata.blockNumber,
+                blockDuration: viewInfo.metadata.blockDuration
             )
 
             if remainedTime.daysFromSeconds > 0 {
@@ -173,15 +182,15 @@ final class CrowdloansViewModelFactory {
 
     private func createCompletedCrowdloanViewModel(
         from model: Crowdloan,
-        contributions: CrowdloanContributionDict?,
-        displayInfo: CrowdloanDisplayInfo?,
+        viewInfo: CrowdloansViewInfo,
+        chainAsset: ChainAssetDisplayInfo,
         formatters: Formatters,
         locale: Locale
     ) -> CompletedCrowdloanViewModel? {
         guard let commonContent = createCommonContent(
             from: model,
-            contributions: contributions,
-            displayInfo: displayInfo,
+            viewInfo: viewInfo,
+            chainAsset: chainAsset,
             formatters: formatters,
             locale: locale
         ) else {
@@ -199,10 +208,8 @@ final class CrowdloansViewModelFactory {
 
     func createSections(
         from crowdloans: [Crowdloan],
-        contributions: CrowdloanContributionDict,
-        leaseInfo: ParachainLeaseInfoDict,
-        displayInfo: CrowdloanDisplayInfoDict?,
-        metadata: CrowdloanMetadata,
+        viewInfo: CrowdloansViewInfo,
+        chainAsset: ChainAssetDisplayInfo,
         formatters: Formatters,
         locale: Locale
     ) -> ([CrowdloanActiveSection], [CrowdloanCompletedSection]) {
@@ -218,12 +225,12 @@ final class CrowdloansViewModelFactory {
                 return crowdloan1.fundInfo.end < crowdloan2.fundInfo.end
             }
         }.reduce(into: initial) { result, crowdloan in
-            let hasWonAuction = leaseInfo[crowdloan.paraId]?.leasedAmount != nil
-            if hasWonAuction || crowdloan.isCompleted(for: metadata) {
+            let hasWonAuction = viewInfo.leaseInfo[crowdloan.paraId]?.leasedAmount != nil
+            if hasWonAuction || crowdloan.isCompleted(for: viewInfo.metadata) {
                 if let viewModel = createCompletedCrowdloanViewModel(
                     from: crowdloan,
-                    contributions: contributions,
-                    displayInfo: displayInfo?[crowdloan.paraId],
+                    viewInfo: viewInfo,
+                    chainAsset: chainAsset,
                     formatters: formatters,
                     locale: locale
                 ) {
@@ -233,9 +240,8 @@ final class CrowdloansViewModelFactory {
             } else {
                 if let viewModel = createActiveCrowdloanViewModel(
                     from: crowdloan,
-                    contributions: contributions,
-                    displayInfo: displayInfo?[crowdloan.paraId],
-                    metadata: metadata,
+                    viewInfo: viewInfo,
+                    chainAsset: chainAsset,
                     formatters: formatters,
                     locale: locale
                 ) {
@@ -248,18 +254,61 @@ final class CrowdloansViewModelFactory {
 }
 
 extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
+    func createChainViewModel(
+        from chain: ChainModel,
+        asset: AssetModel,
+        balance: BigUInt?,
+        locale: Locale
+    ) -> CrowdloansChainViewModel {
+        let displayInfo = asset.displayInfo
+
+        let amountFormatter = amountFormatterFactory.createTokenFormatter(
+            for: asset.displayInfo
+        ).value(for: locale)
+
+        let amount: String
+
+        if
+            let balance = balance,
+            let decimalAmount = Decimal.fromSubstrateAmount(
+                balance,
+                precision: displayInfo.assetPrecision
+            ) {
+            amount = amountFormatter.stringFromDecimal(decimalAmount) ?? ""
+        } else {
+            amount = ""
+        }
+
+        let imageViewModel = RemoteImageViewModel(url: chain.icon)
+
+        let description = R.string.localizable.crowdloanListSectionFormat(
+            displayInfo.symbol,
+            preferredLanguages: locale.rLanguages
+        )
+
+        return CrowdloansChainViewModel(
+            networkName: chain.name,
+            balance: amount,
+            imageViewModel: imageViewModel,
+            description: description
+        )
+    }
+
     func createViewModel(
         from crowdloans: [Crowdloan],
-        contributions: CrowdloanContributionDict,
-        leaseInfo: ParachainLeaseInfoDict,
-        displayInfo: CrowdloanDisplayInfoDict?,
-        metadata: CrowdloanMetadata,
+        viewInfo: CrowdloansViewInfo,
+        chainAsset: ChainAssetDisplayInfo,
         locale: Locale
     ) -> CrowdloansViewModel {
         let timeFormatter = TotalTimeFormatter()
         let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
-        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
-        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
+        let tokenFormatter = amountFormatterFactory.createTokenFormatter(
+            for: chainAsset.asset
+        ).value(for: locale)
+
+        let displayFormatter = amountFormatterFactory.createDisplayFormatter(
+            for: chainAsset.asset
+        ).value(for: locale)
 
         let formatters = Formatters(
             token: tokenFormatter,
@@ -270,10 +319,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
 
         let (active, completed) = createSections(
             from: crowdloans,
-            contributions: contributions,
-            leaseInfo: leaseInfo,
-            displayInfo: displayInfo,
-            metadata: metadata,
+            viewInfo: viewInfo,
+            chainAsset: chainAsset,
             formatters: formatters,
             locale: locale
         )
@@ -306,6 +353,7 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
         }()
 
         return CrowdloansViewModel(
+            tokenSymbol: chainAsset.asset.symbol,
             contributionsCount: nil,
             active: activeSection,
             completed: completedSection

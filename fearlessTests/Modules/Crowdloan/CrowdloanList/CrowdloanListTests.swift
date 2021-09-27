@@ -4,6 +4,7 @@ import SoraFoundation
 import SoraKeystore
 import FearlessUtils
 import Cuckoo
+import BigInt
 
 class CrowdloanListTests: XCTestCase {
     static let currentBlockNumber: BlockNumber = 1337
@@ -92,17 +93,22 @@ class CrowdloanListTests: XCTestCase {
 
         var actualViewModel: CrowdloansViewModel?
 
-        let completionExpectation = XCTestExpectation()
+        let chainCompletionExpectation = XCTestExpectation()
+        let listCompletionExpectation = XCTestExpectation()
 
         stub(view) { stub in
             stub.isSetup.get.thenReturn(false, true)
 
-            stub.didReceive(state: any()).then { state in
+            stub.didReceive(listState: any()).then { state in
                 if case let .loaded(viewModel) = state {
                     actualViewModel = viewModel
 
-                    completionExpectation.fulfill()
+                    listCompletionExpectation.fulfill()
                 }
+            }
+
+            stub.didReceive(chainInfo: any()).then { state in
+                chainCompletionExpectation.fulfill()
             }
         }
 
@@ -118,7 +124,7 @@ class CrowdloanListTests: XCTestCase {
 
         // then
 
-        wait(for: [completionExpectation], timeout: 10)
+        wait(for: [listCompletionExpectation, chainCompletionExpectation], timeout: 10)
 
         let actualActiveParaIds = actualViewModel?.active?.crowdloans
             .reduce(into: Set<ParaId>()) { (result, crowdloan) in
@@ -139,36 +145,29 @@ class CrowdloanListTests: XCTestCase {
         wireframe: MockCrowdloanListWireframeProtocol
     ) throws -> CrowdloanListPresenter? {
         let localizationManager = LocalizationManager.shared
-        let chain = Chain.westend
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-
-        try! AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                             networkType: chain,
-                                                             keychain: keychain,
-                                                             settings: settings)
-
-        let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService(
-            specVersion: 9010,
-            txVersion: 5
+        let selectedAccount = AccountGenerator.generateMetaAccount()
+        let selectedChain = ChainModelGenerator.generateChain(
+            generatingAssets: 2,
+            addressPrefix: 42,
+            hasCrowdloans: true
         )
 
-        guard let interactor = createInteractor(
-                settings: settings,
-                runtimeService: runtimeCodingService
-        ) else {
+        let chainRegistry = MockChainRegistryProtocol().applyDefault(for: [selectedChain])
+
+        let maybeInteractor = createInteractor(
+            selectedAccount: selectedAccount,
+            selectedChain: selectedChain,
+            chainRegistry: chainRegistry
+        )
+
+        guard let interactor = maybeInteractor else {
             return nil
         }
 
         let wireframe = CrowdloanListWireframe()
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
         let viewModelFactory = CrowdloansViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
-            asset: asset,
-            chain: chain
+            amountFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let presenter = CrowdloanListPresenter(
@@ -185,22 +184,17 @@ class CrowdloanListTests: XCTestCase {
     }
 
     private func createInteractor(
-        settings: SettingsManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        selectedAccount: MetaAccountModel,
+        selectedChain: ChainModel,
+        chainRegistry: ChainRegistryProtocol
     ) -> CrowdloanListInteractor? {
-        guard let selectedAddress = settings.selectedAccount?.address else {
-            return nil
-        }
+        let settings = CrowdloanChainSettings(
+            storageFacade: SubstrateStorageTestFacade(),
+            settings: InMemorySettingsManager(),
+            operationQueue: OperationQueue()
+        )
 
-        let chain = settings.selectedConnection.type.chain
-
-        let connection = MockJSONRPCEngine()
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let providerFactory = SingleValueProviderFactoryStub
-            .westendNominatorStub()
-            .withBlockNumber(blockNumber: Self.currentBlockNumber)
-            .withJSON(value: CrowdloanDisplayInfoList(), for: chain.crowdloanDisplayInfoURL())
+        settings.save(value: selectedChain)
 
         let crowdloans = activeCrowdloans + endedCrowdloans + wonCrowdloans
         let crowdloanOperationFactory = CrowdloansOperationFactoryStub(
@@ -208,15 +202,37 @@ class CrowdloanListTests: XCTestCase {
             parachainLeaseInfo: leaseInfo
         )
 
+        let crowdloanRemoteSubscriptionService = MockCrowdloanRemoteSubscriptionServiceProtocol()
+            .applyDefaultStub()
+
+        let crowdloanLocalSubscriptionService = CrowdloanLocalSubscriptionFactoryStub(
+            blockNumber: Self.currentBlockNumber
+        )
+
+        let walletLocalSubscriptionService = WalletLocalSubscriptionFactoryStub(
+            balance: BigUInt(1e+18)
+        )
+
+        guard let crowdloanInfoURL = selectedChain.externalApi?.crowdloans?.url else {
+            return nil
+        }
+
+        let jsonProviderFactory = JsonDataProviderFactoryStub(
+            sources: [
+                crowdloanInfoURL: CrowdloanDisplayInfoList()
+            ]
+        )
+
         return CrowdloanListInteractor(
-            selectedAddress: selectedAddress,
-            runtimeService: runtimeService,
+            selectedMetaAccount: selectedAccount,
+            settings: settings,
+            chainRegistry: chainRegistry,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: connection,
-            singleValueProviderFactory: providerFactory,
-            chain: chain,
-            operationManager: operationManager,
-            logger: Logger.shared
+            crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
+            crowdloanLocalSubscriptionFactory: crowdloanLocalSubscriptionService,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionService,
+            jsonDataProviderFactory: jsonProviderFactory,
+            operationManager: OperationManagerFacade.sharedManager
         )
     }
 }

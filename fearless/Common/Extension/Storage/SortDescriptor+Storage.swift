@@ -13,4 +13,8 @@ extension NSSortDescriptor {
     static var contactsByTime: NSSortDescriptor {
         NSSortDescriptor(key: #keyPath(CDContactItem.updatedAt), ascending: false)
     }
+
+    static var chainsByAddressPrefix: NSSortDescriptor {
+        NSSortDescriptor(key: #keyPath(CDChain.addressPrefix), ascending: true)
+    }
 }

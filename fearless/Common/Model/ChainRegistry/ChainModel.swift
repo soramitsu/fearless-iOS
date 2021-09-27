@@ -10,6 +10,17 @@ struct ChainModel: Equatable, Codable, Hashable {
         let overridesCommon: Bool
     }
 
+    struct ExternalApi: Codable, Hashable {
+        let type: String
+        let url: URL
+    }
+
+    struct ExternalApiSet: Codable, Hashable {
+        let staking: ExternalApi?
+        let history: ExternalApi?
+        let crowdloans: ExternalApi?
+    }
+
     enum TypesUsage {
         case onlyCommon
         case both
@@ -25,6 +36,7 @@ struct ChainModel: Equatable, Codable, Hashable {
     let types: TypesSettings?
     let icon: URL
     let options: [ChainOptions]?
+    let externalApi: ExternalApiSet?
 
     var isEthereumBased: Bool {
         options?.contains(.ethereumBased) ?? false
@@ -32,6 +44,14 @@ struct ChainModel: Equatable, Codable, Hashable {
 
     var isTestnet: Bool {
         options?.contains(.testnet) ?? false
+    }
+
+    var hasCrowdloans: Bool {
+        options?.contains(.crowdloans) ?? false
+    }
+
+    func utilityAssets() -> Set<AssetModel> {
+        assets.filter { $0.isUtility }
     }
 
     var typesUsage: TypesUsage {
@@ -50,4 +70,5 @@ extension ChainModel: Identifiable {
 enum ChainOptions: String, Codable {
     case ethereumBased
     case testnet
+    case crowdloans
 }

@@ -8,6 +8,55 @@ enum StorageKeyEncodingOperationError: Error {
     case invalidStoragePath
 }
 
+class UnkeyedEncodingOperation: BaseOperation<Data> {
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: StorageCodingPath
+    let storageKeyFactory: StorageKeyFactoryProtocol
+
+    init(path: StorageCodingPath, storageKeyFactory: StorageKeyFactoryProtocol) {
+        self.path = path
+        self.storageKeyFactory = storageKeyFactory
+
+        super.init()
+    }
+
+    private func performEncoding() {
+        do {
+            guard let factory = codingFactory else {
+                throw StorageKeyEncodingOperationError.missingRequiredParams
+            }
+
+            guard factory.metadata.getStorageMetadata(in: path.moduleName, storageName: path.itemName) != nil else {
+                throw StorageKeyEncodingOperationError.invalidStoragePath
+            }
+
+            let keyData: Data = try storageKeyFactory.createStorageKey(
+                moduleName: path.moduleName,
+                storageName: path.itemName
+            )
+
+            result = .success(keyData)
+        } catch {
+            result = .failure(error)
+        }
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        performEncoding()
+    }
+}
+
 class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
     var keyParams: [T]?
     var codingFactory: RuntimeCoderFactoryProtocol?
@@ -23,17 +72,7 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
         super.init()
     }
 
-    override func main() {
-        super.main()
-
-        if isCancelled {
-            return
-        }
-
-        if result != nil {
-            return
-        }
-
+    private func performEncoding() {
         do {
             guard let factory = codingFactory, let keyParams = keyParams else {
                 throw StorageKeyEncodingOperationError.missingRequiredParams
@@ -87,6 +126,20 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
         } catch {
             result = .failure(error)
         }
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        performEncoding()
     }
 }
 
