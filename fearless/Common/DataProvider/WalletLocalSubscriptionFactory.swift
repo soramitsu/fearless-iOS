@@ -10,6 +10,13 @@ protocol WalletLocalSubscriptionFactoryProtocol {
 
 final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
     WalletLocalSubscriptionFactoryProtocol {
+    static let shared = WalletLocalSubscriptionFactory(
+        chainRegistry: ChainRegistryFacade.sharedRegistry,
+        storageFacade: SubstrateDataStorageFacade.shared,
+        operationManager: OperationManagerFacade.sharedManager,
+        logger: Logger.shared
+    )
+
     func getAccountProvider(
         for accountId: AccountId,
         chainId: ChainModel.Id

@@ -6,6 +6,8 @@ protocol PriceProviderFactoryProtocol {
 }
 
 class PriceProviderFactory {
+    static let shared = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
+
     private var providers: [AssetModel.PriceId: WeakWrapper] = [:]
 
     let storageFacade: StorageFacadeProtocol
