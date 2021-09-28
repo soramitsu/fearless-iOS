@@ -57,14 +57,31 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
         let infoWrapper = extrinsicFactory.estimateFeeOperation(builderClosure)
 
+        let priceOperation: CompoundOperationWrapper<PriceData?> = {
+            if let assetId = WalletAssetId(rawValue: asset.identifier) {
+                return CoingeckoPriceSource(assetId: assetId).fetchOperation()
+            } else {
+                return CompoundOperationWrapper.createWithResult(nil)
+            }
+        }()
+
         let mapOperation: ClosureOperation<TransferMetaData?> = ClosureOperation {
             let paymentInfo = try infoWrapper.targetOperation.extractNoCancellableResultData()
+            let priceData = try priceOperation.targetOperation.extractNoCancellableResultData()
 
             guard let fee = BigUInt(paymentInfo.fee),
                   let decimalFee = Decimal.fromSubstrateAmount(fee, precision: asset.precision)
             else {
                 return nil
             }
+
+            let price: Decimal = {
+                if let priceData = priceData {
+                    return Decimal(string: priceData.price) ?? .zero
+                } else {
+                    return .zero
+                }
+            }()
 
             let amount = AmountDecimal(value: decimalFee)
 
@@ -79,7 +96,8 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) {
                 let context = TransferMetadataContext(
                     data: receiverInfo.data,
-                    precision: asset.precision
+                    precision: asset.precision,
+                    price: price
                 ).toContext()
                 return TransferMetaData(feeDescriptions: [feeDescription], context: context)
             } else {
@@ -87,7 +105,7 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             }
         }
 
-        let dependencies = compoundReceiver.allOperations + infoWrapper.allOperations
+        let dependencies = compoundReceiver.allOperations + infoWrapper.allOperations + priceOperation.allOperations
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
