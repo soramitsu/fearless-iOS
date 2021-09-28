@@ -4,7 +4,7 @@ import SoraUI
 import SoraFoundation
 
 final class WalletInputAmountView: WalletBaseAmountView {
-    var contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0) {
+    var contentInsets = UIEdgeInsets(top: 4.0, left: 0.0, bottom: 14.0, right: 0.0) {
         didSet {
             invalidateIntrinsicContentSize()
         }
@@ -23,7 +23,7 @@ final class WalletInputAmountView: WalletBaseAmountView {
     override var intrinsicContentSize: CGSize {
         CGSize(
             width: UIView.noIntrinsicMetric,
-            height: 84.0 + contentInsets.top + contentInsets.bottom
+            height: 72.0 + contentInsets.top + contentInsets.bottom
         )
     }
 
@@ -44,7 +44,7 @@ final class WalletInputAmountView: WalletBaseAmountView {
         amountInputView.textField.keyboardType = .decimalPad
 
         amountInputView.textField.placeholder = "0"
-        amountInputView.textField.text = ""
+        amountInputView.textField.text = nil
 
         applyLocalization()
     }
@@ -59,7 +59,7 @@ extension WalletInputAmountView: AmountInputViewProtocol {
         self.inputViewModel?.observable.add(observer: self)
 
         amountInputView.textField.text = inputViewModel.displayAmount == "0" ?
-            "" :
+            nil :
             inputViewModel.displayAmount
 
         fieldBackgroundView.applyEnabledStyle()
@@ -78,7 +78,7 @@ extension WalletInputAmountView: AmountInputViewModelObserver {
         amountInputView.textField.text = inputViewModel?.displayAmount
 
         guard let model = inputViewModel as? RichAmountInputViewModelProtocol else {
-            amountInputView.priceText = ""
+            amountInputView.priceText = nil
             return
         }
 
@@ -92,7 +92,7 @@ extension WalletInputAmountView: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        guard let model = inputViewModel else {
+        guard let model = inputViewModel as? RichAmountInputViewModel else {
             return false
         }
 

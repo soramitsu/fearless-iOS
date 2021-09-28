@@ -56,6 +56,16 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         )
     }
 
+    func createDescriptionViewModel(
+        _: TransferInputState,
+        details _: String?,
+        payload _: TransferPayload,
+        locale _: Locale
+    ) throws
+        -> WalletOverridingResult<DescriptionInputViewModelProtocol?>? {
+        WalletOverridingResult(item: nil)
+    }
+
     func createAssetSelectionTitle(
         _: TransferInputState,
         payload: TransferPayload,

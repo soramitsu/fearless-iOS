@@ -9,7 +9,7 @@ final class TransferConfigurator {
             font: UIFont.p1Paragraph,
             color: R.color.colorWhite()!
         )
-        let contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
+        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
 
         return WalletContainingHeaderStyle(
             titleStyle: text,
