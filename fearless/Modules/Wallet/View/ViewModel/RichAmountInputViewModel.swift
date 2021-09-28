@@ -92,7 +92,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
         amountInputViewModel.didReceiveReplacement(string, for: range)
     }
 
-    func didUpdateAmount(to newAmount: String) {
+    func didUpdateAmount(to newAmount: Decimal) {
         amountInputViewModel.didUpdateAmount(to: newAmount)
     }
 
@@ -103,9 +103,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
             newAmount = min(newAmount, limit)
             newAmount *= Decimal(Double(percentage))
 
-            let displayAmount = inputFormatter.stringFromDecimal(newAmount) ?? ""
-
-            didUpdateAmount(to: displayAmount)
+            didUpdateAmount(to: newAmount)
         }
     }
 }
