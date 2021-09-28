@@ -15,15 +15,9 @@ final class WebSocketService: WebSocketServiceProtocol {
             address: address
         )
         let storageFacade = SubstrateDataStorageFacade.shared
-        let subscriptionFactory = WebSocketSubscriptionFactory(
-            storageFacade: storageFacade,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager
-        )
         return WebSocketService(
             settings: settings,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            subscriptionsFactory: subscriptionFactory,
             applicationHandler: ApplicationHandler()
         )
     }()
@@ -38,7 +32,6 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     let applicationHandler: ApplicationHandlerProtocol
     let chainRegistry: ChainRegistryProtocol
-    let subscriptionsFactory: WebSocketSubscriptionFactoryProtocol
 
     private(set) var settings: WebSocketServiceSettings
     private(set) var engine: WebSocketEngine?
@@ -52,13 +45,11 @@ final class WebSocketService: WebSocketServiceProtocol {
     init(
         settings: WebSocketServiceSettings,
         chainRegistry: ChainRegistryProtocol,
-        subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol
     ) {
         self.settings = settings
         self.applicationHandler = applicationHandler
         self.chainRegistry = chainRegistry
-        self.subscriptionsFactory = subscriptionsFactory
     }
 
     func setup() {

@@ -15,13 +15,12 @@ final class StakingAccountResolver: WebSocketSubscribing {
         let ledger: StakingLedger?
     }
 
-    let address: String
-    let chain: Chain
-    let engine: JSONRPCEngine
-    let runtimeService: RuntimeCodingServiceProtocol
+    let accountId: AccountId
+    let chainId: ChainModel.Id
+    let chainFormat: ChainFormat
+    let chainRegistry: ChainRegistryProtocol
     let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
-    let addressFactory: SS58AddressFactoryProtocol
-    let operationManager: OperationManagerProtocol
+    let operationQueue: OperationQueue
     let repository: AnyDataProviderRepository<StashItem>
     let logger: LoggerProtocol?
 
@@ -30,24 +29,22 @@ final class StakingAccountResolver: WebSocketSubscribing {
     private var subscription: Subscription?
 
     init(
-        address: String,
-        chain: Chain,
-        engine: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol,
-        repository: AnyDataProviderRepository<StashItem>,
+        accountId: AccountId,
+        chainId: ChainModel.Id,
+        chainFormat: ChainFormat,
+        chainRegistry: ChainRegistryProtocol,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
-        addressFactory: SS58AddressFactoryProtocol,
-        operationManager: OperationManagerProtocol,
-        logger: LoggerProtocol?
+        operationQueue: OperationQueue,
+        repository: AnyDataProviderRepository<StashItem>,
+        logger: LoggerProtocol? = nil
     ) {
-        self.address = address
-        self.chain = chain
-        self.engine = engine
-        self.runtimeService = runtimeService
+        self.accountId = accountId
+        self.chainId = chainId
+        self.chainFormat = chainFormat
+        self.chainRegistry = chainRegistry
         self.childSubscriptionFactory = childSubscriptionFactory
         self.repository = repository
-        self.addressFactory = addressFactory
-        self.operationManager = operationManager
+        self.operationQueue = operationQueue
         self.logger = logger
 
         resolveKeysAndSubscribe()
@@ -59,9 +56,11 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
     private func resolveKeysAndSubscribe() {
         do {
-            let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+                throw ChainRegistryError.runtimeMetadaUnavailable
+            }
 
-            let accountId = try addressFactory.accountId(fromAddress: address, type: chain.addressType)
+            let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
             let storageKeyFactory = StorageKeyFactory()
 
@@ -71,10 +70,23 @@ final class StakingAccountResolver: WebSocketSubscribing {
                 keyParams: [accountId]
             )
 
+            let localKeyFactory = LocalStorageKeyFactory()
+            let controllerLocalKey = try localKeyFactory.createFromStoragePath(
+                .controller,
+                accountId: accountId,
+                chainId: chainId
+            )
+
             let ledgerOperation = MapKeyEncodingOperation(
                 path: .stakingLedger,
                 storageKeyFactory: storageKeyFactory,
                 keyParams: [accountId]
+            )
+
+            let ledgerLocalKey = try localKeyFactory.createFromStoragePath(
+                .stakingLedger,
+                accountId: accountId,
+                chainId: chainId
             )
 
             [controllerOperation, ledgerOperation].forEach { operation in
@@ -98,7 +110,10 @@ final class StakingAccountResolver: WebSocketSubscribing {
                     let controllerKey = try controllerOperation.extractNoCancellableResultData()[0]
                     let ledgerKey = try ledgerOperation.extractNoCancellableResultData()[0]
 
-                    self?.subscribe(with: controllerKey, ledgerKey: ledgerKey)
+                    self?.subscribe(
+                        with: SubscriptionStorageKeys(remote: controllerKey, local: controllerLocalKey),
+                        ledgerKeys: SubscriptionStorageKeys(remote: ledgerKey, local: ledgerLocalKey)
+                    )
                 } catch {
                     self?.logger?.error("Did receiver error: \(error)")
                 }
@@ -106,7 +121,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
             let operations = [codingFactoryOperation, controllerOperation, ledgerOperation, syncOperation]
 
-            operationManager.enqueue(operations: operations, in: .transient)
+            operationQueue.addOperations(operations, waitUntilFinished: false)
 
         } catch {
             logger?.error("Did receive error: \(error)")
@@ -124,11 +139,14 @@ final class StakingAccountResolver: WebSocketSubscribing {
             return
         }
 
-        engine.cancelForIdentifier(subscription.subscriptionId)
+        chainRegistry.getConnection(for: chainId)?.cancelForIdentifier(subscription.subscriptionId)
         self.subscription = nil
     }
 
-    private func subscribe(with controllerKey: Data, ledgerKey: Data) {
+    private func subscribe(
+        with controllerKeys: SubscriptionStorageKeys,
+        ledgerKeys: SubscriptionStorageKeys
+    ) {
         mutex.lock()
 
         defer {
@@ -136,17 +154,20 @@ final class StakingAccountResolver: WebSocketSubscribing {
         }
 
         do {
-            let controllerSubscription = childSubscriptionFactory
-                .createEmptyHandlingSubscription(remoteKey: controllerKey)
-            let ledgerSubscription = childSubscriptionFactory
-                .createEventEmittingSubscription(
-                    remoteKey: ledgerKey,
-                    eventFactory: { _ in WalletStakingInfoChanged() }
-                )
+            guard let connection = chainRegistry.getConnection(for: chainId) else {
+                throw ChainRegistryError.connectionUnavailable
+            }
+
+            let controllerSubscription = childSubscriptionFactory.createEmptyHandlingSubscription(
+                keys: controllerKeys
+            )
+            let ledgerSubscription = childSubscriptionFactory.createEmptyHandlingSubscription(
+                keys: ledgerKeys
+            )
 
             let storageParams = [
-                controllerKey.toHex(includePrefix: true),
-                ledgerKey.toHex(includePrefix: true)
+                controllerKeys.remote.toHex(includePrefix: true),
+                ledgerKeys.remote.toHex(includePrefix: true)
             ]
 
             let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] update in
@@ -157,7 +178,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
                 self?.logger?.error("Did receive subscription error: \(error) \(unsubscribed)")
             }
 
-            let subscriptionId = try engine.subscribe(
+            let subscriptionId = try connection.subscribe(
                 RPCMethod.storageSubscribe,
                 params: [storageParams],
                 updateClosure: updateClosure,
@@ -193,9 +214,8 @@ final class StakingAccountResolver: WebSocketSubscribing {
         let decodingWrapper = createDecodingWrapper(from: updateData, subscription: subscription)
         let processingOperation = createProcessingOperation(
             dependingOn: decodingWrapper.targetOperation,
-            initAddress: address,
-            type: chain.addressType,
-            addressFactory: addressFactory
+            initAccountId: accountId,
+            chainFormat: chainFormat
         )
         processingOperation.addDependency(decodingWrapper.targetOperation)
         let saveWrapper = createSaveWrapper(dependingOn: processingOperation)
@@ -203,7 +223,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
         let operations = decodingWrapper.allOperations + [processingOperation] + saveWrapper.allOperations
 
-        operationManager.enqueue(operations: operations, in: .transient)
+        operationQueue.addOperations(operations, waitUntilFinished: false)
     }
 
     private func updateChild(subscription: StorageChildSubscribing, for update: StorageUpdateData) {
@@ -218,6 +238,10 @@ extension StakingAccountResolver {
         from updateData: StorageUpdateData,
         subscription: Subscription
     ) -> CompoundOperationWrapper<DecodedChanges> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let codingFactory = runtimeService.fetchCoderFactoryOperation()
 
         let controllerDecoding: BaseOperation<Data>? = createDecodingOperation(
@@ -284,19 +308,19 @@ extension StakingAccountResolver {
 
     private func createProcessingOperation(
         dependingOn decodinigOperation: BaseOperation<DecodedChanges>,
-        initAddress: String,
-        type: SNAddressType,
-        addressFactory: SS58AddressFactoryProtocol
+        initAccountId: AccountId,
+        chainFormat: ChainFormat
     ) -> BaseOperation<StashItem?> {
         ClosureOperation<StashItem?> {
+            let initAddress = try initAccountId.toAddress(using: chainFormat)
             let changes = try decodinigOperation.extractNoCancellableResultData()
             if let controller = changes.controller {
-                let controllerAddress = try addressFactory.addressFromAccountId(data: controller, type: type)
+                let controllerAddress = try controller.toAddress(using: chainFormat)
                 return StashItem(stash: initAddress, controller: controllerAddress)
             }
 
             if let stash = changes.ledger?.stash {
-                let stashAddress = try addressFactory.addressFromAccountId(data: stash, type: type)
+                let stashAddress = try stash.toAddress(using: chainFormat)
                 return StashItem(stash: stashAddress, controller: initAddress)
             }
 

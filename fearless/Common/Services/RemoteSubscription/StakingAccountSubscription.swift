@@ -9,14 +9,13 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         let subscriptionId: UInt16
     }
 
-    let address: String
-    let chain: Chain
+    let accountId: AccountId
+    let chainId: ChainModel.Id
+    let chainFormat: ChainFormat
+    let chainRegistry: ChainRegistryProtocol
     let provider: StreamableProvider<StashItem>
-    let runtimeService: RuntimeCodingServiceProtocol
-    let addressFactory: SS58AddressFactoryProtocol
     let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    let engine: JSONRPCEngine
+    let operationQueue: OperationQueue
     let logger: LoggerProtocol?
 
     private let mutex = NSLock()
@@ -24,24 +23,22 @@ final class StakingAccountSubscription: WebSocketSubscribing {
     private var subscription: Subscription?
 
     init(
-        address: String,
-        chain: Chain,
-        engine: JSONRPCEngine,
+        accountId: AccountId,
+        chainId: ChainModel.Id,
+        chainFormat: ChainFormat,
+        chainRegistry: ChainRegistryProtocol,
         provider: StreamableProvider<StashItem>,
-        runtimeService: RuntimeCodingServiceProtocol,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
-        operationManager: OperationManagerProtocol,
-        addressFactory: SS58AddressFactoryProtocol,
-        logger: LoggerProtocol?
+        operationQueue: OperationQueue,
+        logger: LoggerProtocol? = nil
     ) {
-        self.address = address
-        self.chain = chain
-        self.engine = engine
+        self.accountId = accountId
+        self.chainId = chainId
+        self.chainFormat = chainFormat
+        self.chainRegistry = chainRegistry
         self.provider = provider
-        self.operationManager = operationManager
-        self.runtimeService = runtimeService
         self.childSubscriptionFactory = childSubscriptionFactory
-        self.addressFactory = addressFactory
+        self.operationQueue = operationQueue
         self.logger = logger
 
         subscribeLocal()
@@ -86,7 +83,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         mutex.lock()
 
         if let subscriptionId = subscription?.subscriptionId {
-            engine.cancelForIdentifier(subscriptionId)
+            chainRegistry.getConnection(for: chainId)?.cancelForIdentifier(subscriptionId)
         }
 
         subscription = nil
@@ -97,15 +94,16 @@ final class StakingAccountSubscription: WebSocketSubscribing {
     private func createRequest(for stashItem: StashItem) throws -> [(StorageCodingPath, Data)] {
         var requests: [(StorageCodingPath, Data)] = []
 
-        let stashId = try addressFactory.accountId(from: stashItem.stash)
+        let stashId = try stashItem.stash.toAccountId(using: chainFormat)
 
-        if stashItem.stash != address {
+        if stashId != accountId {
             requests.append((.controller, stashId))
             requests.append((.account, stashId))
         }
 
-        if stashItem.controller != address {
-            let controllerId = try addressFactory.accountId(from: stashItem.controller)
+        let controllerId = try stashItem.controller.toAccountId(using: chainFormat)
+
+        if controllerId != accountId {
             requests.append((.stakingLedger, controllerId))
             requests.append((.account, controllerId))
         }
@@ -125,7 +123,16 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
 
         do {
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+                throw ChainRegistryError.runtimeMetadaUnavailable
+            }
+
             let requests = try createRequest(for: stashItem)
+
+            let localKeyFactory = LocalStorageKeyFactory()
+            let localKeys = try requests.map {
+                try localKeyFactory.createFromStoragePath($0.0, accountId: $0.1, chainId: chainId)
+            }
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -149,16 +156,12 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
             mapOperation.completionBlock = { [weak self] in
                 do {
-                    let keys = try mapOperation.extractNoCancellableResultData()
-
-                    let ledgerKey: Data?
-                    if let ledgerOperation = codingOperations.first(where: { $0.path == .stakingLedger }) {
-                        ledgerKey = try ledgerOperation.extractNoCancellableResultData().first
-                    } else {
-                        ledgerKey = nil
+                    let remoteKeys = try mapOperation.extractNoCancellableResultData()
+                    let keysList = zip(remoteKeys, localKeys).map {
+                        SubscriptionStorageKeys(remote: $0.0, local: $0.1)
                     }
 
-                    self?.subscribeToRemote(with: keys, ledgerKey: ledgerKey)
+                    self?.subscribeToRemote(with: keysList)
                 } catch {
                     self?.logger?.error("Did receive error: \(error)")
                 }
@@ -166,14 +169,16 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
             let operations = [codingFactoryOperation] + codingOperations + [mapOperation]
 
-            operationManager.enqueue(operations: operations, in: .transient)
+            operationQueue.addOperations(operations, waitUntilFinished: false)
 
         } catch {
             logger?.error("Did receive unexpected error \(error)")
         }
     }
 
-    private func subscribeToRemote(with keys: [Data], ledgerKey: Data?) {
+    private func subscribeToRemote(
+        with keysList: [SubscriptionStorageKeys]
+    ) {
         mutex.lock()
 
         defer {
@@ -181,7 +186,11 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
 
         do {
-            let storageParams = keys.map { $0.toHex(includePrefix: true) }
+            guard let connection = chainRegistry.getConnection(for: chainId) else {
+                throw ChainRegistryError.connectionUnavailable
+            }
+
+            let storageParams = keysList.map { $0.remote.toHex(includePrefix: true) }
 
             let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] update in
                 self?.handleUpdate(update.params.result)
@@ -191,21 +200,17 @@ final class StakingAccountSubscription: WebSocketSubscribing {
                 self?.logger?.error("Did receive subscription error: \(error) \(unsubscribed)")
             }
 
-            let subscriptionId = try engine.subscribe(
+            let subscriptionId = try connection.subscribe(
                 RPCMethod.storageSubscribe,
                 params: [storageParams],
                 updateClosure: updateClosure,
                 failureClosure: failureClosure
             )
 
-            let handlers: [StorageChildSubscribing] = keys.map { key in
-                if key == ledgerKey {
-                    return childSubscriptionFactory
-                        .createEventEmittingSubscription(remoteKey: key) { _ in WalletStakingInfoChanged() }
-                } else {
-                    return childSubscriptionFactory.createEmptyHandlingSubscription(remoteKey: key)
-                }
+            let handlers: [StorageChildSubscribing] = keysList.map { keys in
+                childSubscriptionFactory.createEmptyHandlingSubscription(keys: keys)
             }
+
             subscription = Subscription(handlers: handlers, subscriptionId: subscriptionId)
 
         } catch {
