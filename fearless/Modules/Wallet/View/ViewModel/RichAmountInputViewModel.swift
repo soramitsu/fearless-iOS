@@ -18,7 +18,6 @@ protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol {
 final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     let amountInputViewModel: AmountInputViewModelProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let inputFormatter: LocalizableDecimalFormatting
 
     let symbol: String
     let icon: UIImage?
@@ -67,7 +66,6 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     init(
         amountInputViewModel: AmountInputViewModelProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        inputFormatter: LocalizableDecimalFormatting,
         symbol: String,
         icon: UIImage?,
         balance: String?,
@@ -78,7 +76,6 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     ) {
         self.amountInputViewModel = amountInputViewModel
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.inputFormatter = inputFormatter
         self.symbol = symbol
         self.icon = icon
         self.balance = balance
