@@ -9,13 +9,15 @@ struct BalanceLock: Codable, Equatable {
         case reasons
     }
 
-    let identifier: String
+    @BytesCodable var identifier: Data
     @StringCodable var amount: BigUInt
     let reasons: LockReason
+
+    var displayId: String? { String(data: identifier, encoding: .utf8) }
 }
 
-enum LockReason: String, Codable {
-    case all = "All"
-    case fee = "Fee"
-    case misc = "Misc"
+enum LockReason: UInt8, Codable {
+    case fee
+    case misc
+    case all
 }

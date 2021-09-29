@@ -126,22 +126,22 @@ extension BalanceContext {
         precision: Int16
     ) -> BalanceContext {
         let vestedLock = balanceLocks.first { lock in
-            lock.identifier == "vested"
+            lock.displayId == "vested"
         }?.amount ?? .zero
 
         let stakedLock = balanceLocks.first { lock in
-            lock.identifier == "staked"
+            lock.displayId == "staked"
         }?.amount ?? .zero
 
         let democracyLock = balanceLocks.first { lock in
-            lock.identifier == "democrac"
+            lock.displayId == "democrac"
         }?.amount ?? .zero
 
         let vested = Decimal.fromSubstrateAmount(vestedLock, precision: precision) ?? .zero
         let staked = Decimal.fromSubstrateAmount(stakedLock, precision: precision) ?? .zero
         let democracy = Decimal.fromSubstrateAmount(democracyLock, precision: precision) ?? .zero
 
-        BalanceContext(
+        return BalanceContext(
             free: free,
             reserved: reserved,
             miscFrozen: miscFrozen,
