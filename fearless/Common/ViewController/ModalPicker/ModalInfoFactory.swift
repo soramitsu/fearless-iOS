@@ -183,6 +183,7 @@ struct ModalInfoFactory {
         priceFormatter: LocalizableResource<TokenFormatter>,
         precision: Int16
     ) -> [LocalizableResource<StakingAmountViewModel>] {
+        print(balanceContext.toContext())
         let staticModels: [LocalizableResource<StakingAmountViewModel>] = [
             LocalizableResource { locale in
                 let title = R.string.localizable

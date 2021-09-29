@@ -335,4 +335,39 @@ extension SingleValueProviderFactoryStub {
             balanceLocks: balanceLocks
         )
     }
+
+    func withBalanceLocks(
+        _ locks: BalanceLocks
+    ) -> SingleValueProviderFactoryStub {
+
+        let decodedBalanceLocks: [DecodedBalanceLocks] = locks.compactMap { lock in
+            guard let identifier = lock.displayId else { return nil }
+
+            return DecodedBalanceLocks(
+                identifier: identifier,
+                item: lock
+            )
+        }
+
+        let dataProvider = DataProviderStub(models: decodedBalanceLocks)
+
+        return SingleValueProviderFactoryStub(
+            price: price,
+            totalReward: totalReward,
+            balance: balance,
+            nomination: nomination,
+            validatorPrefs: validatorPrefs,
+            ledgerInfo: ledgerInfo,
+            activeEra: activeEra,
+            currentEra: currentEra,
+            payee: payee,
+            blockNumber: blockNumber,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount,
+            jsonProviders: jsonProviders,
+            crowdloanFunds: crowdloanFunds,
+            balanceLocks: AnyDataProvider(dataProvider)
+        )
+    }
 }

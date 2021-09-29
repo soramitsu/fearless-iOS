@@ -1234,6 +1234,7 @@
 		AECE7B4526F9E3440045AF9B /* FeePriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */; };
 		AECE7B4726FA0BA90045AF9B /* RichAmountDisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */; };
 		AECE7B4926FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4826FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift */; };
+		AED21AED2705211600AEEB96 /* BalanceLocksTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED21AEC2705211600AEEB96 /* BalanceLocksTest.swift */; };
 		AEDD7C0F269C81F500A8405F /* BlockWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDD7C0E269C81F500A8405F /* BlockWeights.swift */; };
 		AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
@@ -2763,6 +2764,7 @@
 		AECE7B4426F9E3440045AF9B /* FeePriceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeePriceViewModel.swift; sourceTree = "<group>"; };
 		AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichAmountDisplayViewModel.swift; sourceTree = "<group>"; };
 		AECE7B4826FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkFeeConfirmView+Protocol.swift"; sourceTree = "<group>"; };
+		AED21AEC2705211600AEEB96 /* BalanceLocksTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksTest.swift; sourceTree = "<group>"; };
 		AEDD7C0E269C81F500A8405F /* BlockWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockWeights.swift; sourceTree = "<group>"; };
 		AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+MinimalBalance.swift"; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
@@ -3475,6 +3477,7 @@
 		6784511E27C7B7E095FFD4AB /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				AED21AEB270520CE00AEEB96 /* BalanceLocks */,
 				A295FB13D957CD217E826AEC /* AccountConfirm */,
 				22B9046077E8FAFCD285B645 /* AccountCreate */,
 				842113004E02999B03AB4199 /* AccountExportPassword */,
@@ -6933,6 +6936,14 @@
 			path = Coingecko;
 			sourceTree = "<group>";
 		};
+		AED21AEB270520CE00AEEB96 /* BalanceLocks */ = {
+			isa = PBXGroup;
+			children = (
+				AED21AEC2705211600AEEB96 /* BalanceLocksTest.swift */,
+			);
+			path = BalanceLocks;
+			sourceTree = "<group>";
+		};
 		AEE5FAF826414C0A002B8FDC /* StakingRebondSetup */ = {
 			isa = PBXGroup;
 			children = (
@@ -9523,6 +9534,7 @@
 				F47BBD6F263144D10087DA11 /* StakingBalanceTests.swift in Sources */,
 				84155DF3253A1DBA00A27058 /* SchedulerTests.swift in Sources */,
 				84FACB1F25F55EC900F32ED4 /* RuntimeCodingServiceStub.swift in Sources */,
+				AED21AED2705211600AEEB96 /* BalanceLocksTest.swift in Sources */,
 				91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */,
 				58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */,
 				84F4388D25DA4F4A00AEDA56 /* TypeDefFileMock.swift in Sources */,
