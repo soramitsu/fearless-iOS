@@ -46,7 +46,6 @@ extension BalanceLocks {
     }
 }
 
-
 enum LockReason: UInt8, Codable {
     case fee
     case misc

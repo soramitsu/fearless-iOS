@@ -119,7 +119,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     private func centerHeader() {
         headerView.trailingAnchor.constraint(
             equalTo: headerBackgroundView.trailingAnchor,
-            constant: -20.0
+            constant: -16.0
         ).isActive = true
     }
 
