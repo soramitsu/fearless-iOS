@@ -60,27 +60,31 @@ struct ModalInfoFactory {
 
     static func createFromBalanceContext(
         _ balanceContext: BalanceContext,
-        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
+        priceFormatter: LocalizableResource<TokenFormatter>
     ) -> UIViewController {
-        let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
+        let viewController: ModalPickerViewController<ValidatorInfoStakingAmountCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
         viewController.headerHeight = Self.headerHeight
         viewController.footerHeight = Self.footerHeight
         viewController.allowsSelection = false
-        viewController.hasCloseItem = true
+        viewController.hasCloseItem = false
+        viewController.separatorStyle = .singleLine
+        viewController.separatorColor = R.color.colorDarkGray()
 
         viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.walletBalanceFrozen(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
         }
 
-        viewController.cellNib = UINib(resource: R.nib.detailsDisplayTableViewCell)
         viewController.modalPresentationStyle = .custom
 
         let viewModels = createViewModelsForContext(
             balanceContext,
-            amountFormatter: amountFormatter
+            amountFormatter: amountFormatter,
+            priceFormatter: priceFormatter
         )
+
         viewController.viewModels = viewModels
 
         let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
@@ -173,48 +177,37 @@ struct ModalInfoFactory {
 
     private static func createViewModelsForContext(
         _ balanceContext: BalanceContext,
-        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>
-    ) -> [LocalizableResource<TitleWithSubtitleViewModel>] {
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
+        priceFormatter: LocalizableResource<TokenFormatter>
+    ) -> [LocalizableResource<StakingAmountViewModel>] {
+        // TODO: Leave Reserved below
+        // TODO: Change title to Locked
+        // TODO: Parse and map context
         [
             LocalizableResource { locale in
                 let title = R.string.localizable
-                    .walletBalanceLocked(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.locked) ?? ""
-
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
-
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceBonded(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.bonded) ?? ""
-
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
-
-            LocalizableResource { locale in
-                let title = R.string.localizable
                     .walletBalanceReserved(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.reserved) ?? ""
 
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
+                let amountString = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.reserved) ?? ""
 
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.redeemable) ?? ""
+                let formatter = priceFormatter.value(for: locale)
 
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
+                let price = balanceContext.reserved * balanceContext.price
+                let priceString = formatter.stringFromDecimal(price)
 
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.unbonding) ?? ""
+                let balance = BalanceViewModel(
+                    amount: amountString,
+                    price: priceString
+                )
 
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
+                return StakingAmountViewModel(title: title, balance: balance)
             }
         ]
+        /*
+         let priceString = priceFormater.stringFromDecimal(balanceContext.price) ?? ""
+
+         let totalPrice = balanceContext.price * balance.balance.decimalValue
+         let totalPriceString = priceFormater.stringFromDecimal(totalPrice) ?? ""
+         */
     }
 }

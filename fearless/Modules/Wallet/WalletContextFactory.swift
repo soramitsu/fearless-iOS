@@ -58,7 +58,7 @@ final class WalletContextFactory {
 extension WalletContextFactory: WalletContextFactoryProtocol {
     // swiftlint:disable function_body_length
     func createContext() throws -> CommonWalletContextProtocol {
-        guard let selectedAccount = SettingsManager.shared.selectedAccount else {
+        guard let selectedAccount = settings.selectedAccount else {
             throw WalletContextFactoryError.missingAccount
         }
 
@@ -76,9 +76,15 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let amountFormatterFactory = AmountFormatterFactory()
 
-        logger.debug("Loading wallet account: \(selectedAccount.address)")
-
         let networkType = SettingsManager.shared.selectedConnection.type
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: TransferConstants.maxAmount
+        )
+
+        logger.debug("Loading wallet account: \(selectedAccount.address)")
 
         let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
 
@@ -208,13 +214,17 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let transferConfigurator = TransferConfigurator(
             assets: accountSettings.assets,
             amountFormatterFactory: amountFormatterFactory,
+            balanceViewModelFactory: balanceViewModelFactory,
             localizationManager: localizationManager
         )
         transferConfigurator.configure(builder: builder.transferModuleBuilder)
 
         let confirmConfigurator = TransferConfirmConfigurator(
             assets: accountSettings.assets,
-            amountFormatterFactory: amountFormatterFactory
+            selectedAccount: selectedAccount,
+            amountFormatterFactory: amountFormatterFactory,
+            balanceViewModelFactory: balanceViewModelFactory,
+            localizationManager: localizationManager
         )
         confirmConfigurator.configure(builder: builder.transferConfirmationBuilder)
 

@@ -10,7 +10,7 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
     }
 
     func createAssetView() -> BaseSelectedAssetView? {
-        WalletTransferTokenView()
+        DummySelectedAssetView()
     }
 
     func createReceiverView() -> BaseReceiverView? {
@@ -21,5 +21,9 @@ final class TransferDefinitionFactory: OperationDefinitionViewFactoryOverriding 
         let amountView = WalletInputAmountView()
         amountView.localizationManager = localizationManager
         return amountView
+    }
+
+    func createFeeView() -> BaseFeeView? {
+        UIFactory().createNetworkFeeView()
     }
 }

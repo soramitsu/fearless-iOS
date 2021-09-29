@@ -481,6 +481,7 @@ transfers will appear here";
 "wallet.search.empty.title_v1.10.0" = "Address format is invalid.\
 Make sure that address\
 belongs to the right network";
+"common.max" = "max";
 "staking.analytics.period.7d" = "7d";
 "staking.analytics.period.30d" = "30d";
 "staking.analytics.period.1y" = "1y";
