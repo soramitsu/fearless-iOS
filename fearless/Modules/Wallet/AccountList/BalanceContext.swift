@@ -141,7 +141,7 @@ extension BalanceContext {
         let staked = Decimal.fromSubstrateAmount(stakedLock, precision: precision) ?? .zero
         let democracy = Decimal.fromSubstrateAmount(democracyLock, precision: precision) ?? .zero
 
-        BalanceContext(
+        return BalanceContext(
             free: free,
             reserved: reserved,
             miscFrozen: miscFrozen,
