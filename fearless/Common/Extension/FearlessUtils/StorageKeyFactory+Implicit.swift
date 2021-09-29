@@ -34,7 +34,7 @@ extension StorageKeyFactoryProtocol {
             moduleName: "Balances",
             storageName: "Locks",
             key: identifier,
-            hasher: .blake128Concat // TODO: Check hashing function
+            hasher: .blake128Concat
         )
     }
 

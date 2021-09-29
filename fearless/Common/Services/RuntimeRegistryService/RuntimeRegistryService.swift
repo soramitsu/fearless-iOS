@@ -181,10 +181,28 @@ final class RuntimeRegistryService {
                 throw RuntimeRegistryServiceError.brokenMetadata
             }
 
+            let weakBoundedVecAlias = AliasNode(
+                typeName: "WeakBoundedVec<BalanceLock<Balance>, MaxLocks>",
+                underlyingTypeName: "Vec<BalanceLock<Balance>>"
+            )
+
+            let vecBalanceLock = AliasNode(
+                typeName: "BalanceLock<Balance>",
+                underlyingTypeName: "BalanceLock"
+            )
+
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 baseData,
                 versioningData: networkData,
-                runtimeMetadata: metadata
+                runtimeMetadata: metadata,
+                customNodes: [
+                    vecBalanceLock,
+                    weakBoundedVecAlias,
+                    VectorNode(
+                        typeName: "Vec<BalanceLock<Balance>>",
+                        underlying: vecBalanceLock
+                    )
+                ]
             )
 
             let localBaseHash = try hasher.hash(data: baseData)

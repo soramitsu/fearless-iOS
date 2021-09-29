@@ -6,6 +6,10 @@ struct BalanceContext {
     static let miscFrozenKey = "account.balance.misc.frozen.key"
     static let feeFrozenKey = "account.balance.fee.frozen.key"
 
+    static let vestedKey = "account.balance.vested.key"
+    static let stakedKey = "account.balance.staked.key"
+    static let democracyKey = "account.balance.democracy.key"
+
     static let bondedKey = "account.balance.bonded.key"
     static let redeemableKey = "account.balance.redeemable.key"
     static let unbondingKey = "account.balance.unbonding.key"
@@ -23,6 +27,10 @@ struct BalanceContext {
     let bonded: Decimal
     let redeemable: Decimal
     let unbonding: Decimal
+
+    let vested: Decimal
+    let staked: Decimal
+    let democracy: Decimal
 
     let price: Decimal
     let priceChange: Decimal
@@ -48,6 +56,10 @@ extension BalanceContext {
         redeemable = Self.parseContext(key: BalanceContext.redeemableKey, context: context)
         unbonding = Self.parseContext(key: BalanceContext.unbondingKey, context: context)
 
+        vested = Self.parseContext(key: BalanceContext.unbondingKey, context: context)
+        staked = Self.parseContext(key: BalanceContext.stakedKey, context: context)
+        democracy = Self.parseContext(key: BalanceContext.democracyKey, context: context)
+
         price = Self.parseContext(key: BalanceContext.priceKey, context: context)
         priceChange = Self.parseContext(key: BalanceContext.priceChangeKey, context: context)
 
@@ -65,7 +77,10 @@ extension BalanceContext {
             BalanceContext.unbondingKey: unbonding.stringWithPointSeparator,
             BalanceContext.priceKey: price.stringWithPointSeparator,
             BalanceContext.priceChangeKey: priceChange.stringWithPointSeparator,
-            BalanceContext.minimalBalanceKey: minimalBalance.stringWithPointSeparator
+            BalanceContext.minimalBalanceKey: minimalBalance.stringWithPointSeparator,
+            BalanceContext.vestedKey: vested.stringWithPointSeparator,
+            BalanceContext.stakedKey: staked.stringWithPointSeparator,
+            BalanceContext.democracyKey: democracy.stringWithPointSeparator
         ]
     }
 
@@ -97,6 +112,46 @@ extension BalanceContext {
             bonded: bonded,
             redeemable: redeemable,
             unbonding: unbonding,
+            vested: vested,
+            staked: staked,
+            democracy: democracy,
+            price: price,
+            priceChange: priceChange,
+            minimalBalance: minimalBalance
+        )
+    }
+
+    func byChangingBalanceLocks(
+        _ balanceLocks: [BalanceLock],
+        precision: Int16
+    ) -> BalanceContext {
+        let vestedLock = balanceLocks.first { lock in
+            lock.identifier == "vested"
+        }?.amount ?? .zero
+
+        let stakedLock = balanceLocks.first { lock in
+            lock.identifier == "staked"
+        }?.amount ?? .zero
+
+        let democracyLock = balanceLocks.first { lock in
+            lock.identifier == "democrac"
+        }?.amount ?? .zero
+
+        let vested = Decimal.fromSubstrateAmount(vestedLock, precision: precision) ?? .zero
+        let staked = Decimal.fromSubstrateAmount(stakedLock, precision: precision) ?? .zero
+        let democracy = Decimal.fromSubstrateAmount(democracyLock, precision: precision) ?? .zero
+
+        BalanceContext(
+            free: free,
+            reserved: reserved,
+            miscFrozen: miscFrozen,
+            feeFrozen: feeFrozen,
+            bonded: bonded,
+            redeemable: redeemable,
+            unbonding: unbonding,
+            vested: vested,
+            staked: staked,
+            democracy: democracy,
             price: price,
             priceChange: priceChange,
             minimalBalance: minimalBalance
@@ -134,6 +189,9 @@ extension BalanceContext {
             bonded: bonded,
             redeemable: redeemable,
             unbonding: unbonding,
+            vested: vested,
+            staked: staked,
+            democracy: democracy,
             price: price,
             priceChange: priceChange,
             minimalBalance: minimalBalance
@@ -149,6 +207,9 @@ extension BalanceContext {
             bonded: bonded,
             redeemable: redeemable,
             unbonding: unbonding,
+            vested: vested,
+            staked: staked,
+            democracy: democracy,
             price: newPrice,
             priceChange: newPriceChange,
             minimalBalance: minimalBalance
@@ -164,6 +225,9 @@ extension BalanceContext {
             bonded: bonded,
             redeemable: redeemable,
             unbonding: unbonding,
+            vested: vested,
+            staked: staked,
+            democracy: democracy,
             price: price,
             priceChange: priceChange,
             minimalBalance: newMinimalBalance

@@ -6,12 +6,12 @@ struct BalanceLock: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case identifier = "id"
         case amount
-        case reason
+        case reasons
     }
 
     let identifier: String
     @StringCodable var amount: BigUInt
-    let reason: LockReason
+    let reasons: LockReason
 }
 
 enum LockReason: String, Codable {

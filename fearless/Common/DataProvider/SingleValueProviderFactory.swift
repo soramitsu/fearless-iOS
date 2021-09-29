@@ -44,7 +44,7 @@ protocol SingleValueProviderFactoryProtocol {
     func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedBlockNumber>
     func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-        -> AnyDataProvider<DecodedBlockNumber>
+        -> AnyDataProvider<DecodedBalanceLocks>
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 
@@ -191,7 +191,7 @@ final class SingleValueProviderFactory {
 }
 
 extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
-    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedBlockNumber> {
+    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedBalanceLocks> {
         try getAccountIdKeyedProvider(
             address: address,
             path: .balanceLocks,

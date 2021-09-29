@@ -38,7 +38,7 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
             }
 
             subscriptionId = try engine.subscribe(
-                RPCMethod.storageSubscibe,
+                RPCMethod.storageSubscribe,
                 params: [storageKeys],
                 updateClosure: updateClosure,
                 failureClosure: failureClosure

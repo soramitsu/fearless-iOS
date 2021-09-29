@@ -62,14 +62,13 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                 localStorageIdFactory: localStorageIdFactory
             )
 
-        let balanceLockSubscription = try createAccountInfoSubscription(
-            transactionSubscription: transactionSubscription,
+        let balanceLockSubscription = try createBalanceLockSubscription(
             accountId: accountId,
             localStorageIdFactory: localStorageIdFactory
         )
 
         let accountSubscriptions: [StorageChildSubscribing] = [
-            accountSubscription
+            accountSubscription, balanceLockSubscription
         ]
 
         let globalSubscriptions = try createGlobalSubscriptions(childSubscriptionFactory)

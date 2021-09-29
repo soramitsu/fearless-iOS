@@ -192,7 +192,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             }
 
             let subscriptionId = try engine.subscribe(
-                RPCMethod.storageSubscibe,
+                RPCMethod.storageSubscribe,
                 params: [storageParams],
                 updateClosure: updateClosure,
                 failureClosure: failureClosure
