@@ -245,7 +245,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         let source = SubqueryRewardSource(
             address: address,
-            chain: chain,
+            assetPrecision: chain.addressType.precision,
             targetIdentifier: identifier,
             repository: AnyDataProviderRepository(repository),
             operationFactory: operationFactory,

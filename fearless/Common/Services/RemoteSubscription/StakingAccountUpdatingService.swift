@@ -10,14 +10,16 @@ class StakingAccountUpdatingService {
         chainId: ChainModel.Id,
         chainFormat: ChainFormat,
         chainRegistry: ChainRegistryProtocol,
-        storageFacade: StorageFacadeProtocol,
+        substrateRepositoryFactory: SubstrateRepositoryFactoryProtocol,
+        substrateDataProviderFactory: SubstrateDataProviderFactoryProtocol,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        logger: LoggerProtocol
-    ) {
-        let stashItemRepository = SubstrateRepositoryFactory(
-            storageFacade: storageFacade
-        ).createStashItemRepository()
+        logger _: LoggerProtocol
+    ) throws {
+        let stashItemRepository = substrateRepositoryFactory.createStashItemRepository()
+
+        let address = try accountId.toAddress(using: chainFormat)
+        let stashItemProvider = substrateDataProviderFactory.createStashItemProvider(for: address)
 
         accountResolver = StakingAccountResolver(
             accountId: accountId,
@@ -34,6 +36,9 @@ class StakingAccountUpdatingService {
             chainId: chainId,
             chainFormat: chainFormat,
             chainRegistry: chainRegistry,
-            provider: <#T##StreamableProvider<StashItem>#>, childSubscriptionFactory: <#T##ChildSubscriptionFactoryProtocol#>, operationQueue: <#T##OperationQueue#>)
+            provider: stashItemProvider,
+            childSubscriptionFactory: childSubscriptionFactory,
+            operationQueue: operationQueue
+        )
     }
 }
