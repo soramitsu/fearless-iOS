@@ -74,7 +74,7 @@ struct ModalInfoFactory {
         viewController.separatorColor = R.color.colorDarkGray()
 
         viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.walletBalanceFrozen(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
         }
 
         viewController.modalPresentationStyle = .custom

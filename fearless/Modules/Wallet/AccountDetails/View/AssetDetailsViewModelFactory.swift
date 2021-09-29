@@ -63,7 +63,7 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
             .walletBalanceAvailable(preferredLanguages: locale.rLanguages)
 
         let rightTitle = R.string.localizable
-            .walletBalanceFrozen(preferredLanguages: locale.rLanguages)
+            .walletBalanceLocked(preferredLanguages: locale.rLanguages)
 
         let leftDetails = numberFormatter
             .value(for: locale)
