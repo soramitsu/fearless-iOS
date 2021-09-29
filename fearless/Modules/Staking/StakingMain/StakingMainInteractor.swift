@@ -7,16 +7,17 @@ import SoraFoundation
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
-    let providerFactory: SingleValueProviderFactoryProtocol
-    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let stakingSettings: StakingAssetSettings
+    let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let accountProviderFactory: AccountProviderFactoryProtocol
-    let settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let calculatorService: RewardCalculatorServiceProtocol
     let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
-    let primitiveFactory: WalletPrimitiveFactoryProtocol
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
