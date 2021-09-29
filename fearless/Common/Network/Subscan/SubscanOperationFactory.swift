@@ -2,7 +2,6 @@ import Foundation
 import RobinHood
 
 protocol SubscanOperationFactoryProtocol {
-    func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData>
     func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData>
     func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData>
     func fetchConcreteExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) ->
@@ -30,16 +29,16 @@ final class SubscanOperationFactory {
         }
 
         let resultFactory = AnyNetworkResultFactory<Response> { data in
-            let resultData = try JSONDecoder().decode(
+            let result = try JSONDecoder().decode(
                 SubscanStatusData<Response>.self,
                 from: data
             )
 
-            guard resultData.isSuccess, let price = resultData.data else {
-                throw SubscanError(statusData: resultData)
+            guard result.isSuccess, let resultData = result.data else {
+                throw SubscanError(statusData: result)
             }
 
-            return price
+            return resultData
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
@@ -49,11 +48,6 @@ final class SubscanOperationFactory {
 }
 
 extension SubscanOperationFactory: SubscanOperationFactoryProtocol {
-    func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData> {
-        let info = PriceInfo(time: time)
-        return fetchOperation(url, info: info)
-    }
-
     func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData> {
         fetchOperation(url, info: info)
     }

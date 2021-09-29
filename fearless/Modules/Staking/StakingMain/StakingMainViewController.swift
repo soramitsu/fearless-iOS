@@ -23,6 +23,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private var networkInfoView: NetworkInfoView!
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
+    private lazy var analyticsContainerView = UIView()
+    private lazy var analyticsView = RewardAnalyticsWidgetView()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -41,6 +43,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         setupNetworkInfoView()
         setupAlertsView()
+        setupAnalyticsView()
         setupLocalization()
         presenter.setup()
     }
@@ -57,6 +60,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidAppear(animated)
 
         networkInfoView.didAppearSkeleton()
+        analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
@@ -69,6 +73,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
 
         networkInfoView.didDisappearSkeleton()
+        analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didDisappearSkeleton()
@@ -79,6 +84,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLayoutSubviews()
 
         networkInfoView.didUpdateSkeletonLayout()
+        analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
@@ -123,6 +129,22 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         alertsView.delegate = self
     }
 
+    private func setupAnalyticsView() {
+        analyticsContainerView.translatesAutoresizingMaskIntoConstraints = false
+        analyticsContainerView.addSubview(analyticsView)
+
+        applyConstraints(for: analyticsContainerView, innerView: analyticsView)
+
+        stackView.addArrangedSubview(analyticsContainerView)
+        analyticsView.snp.makeConstraints { $0.height.equalTo(228) }
+        analyticsView.backgroundButton.addTarget(self, action: #selector(handleAnalyticsWidgetTap), for: .touchUpInside)
+    }
+
+    @objc
+    private func handleAnalyticsWidgetTap() {
+        presenter.performAnalyticsAction()
+    }
+
     private func configureStoriesView() {
         networkInfoView.collectionView.backgroundView = nil
         networkInfoView.collectionView.backgroundColor = UIColor.clear
@@ -145,6 +167,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateContainerView = nil
         stateView = nil
         alertsContainerView.isHidden = true
+        analyticsContainerView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -168,14 +191,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         ).isActive = true
     }
 
-    private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
+    private func setupView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
         clearStateView()
-
-        guard let prevViewIndex = stackView.arrangedSubviews
-            .firstIndex(of: alertsContainerView)
-        else {
-            return nil
-        }
 
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -188,7 +205,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         applyConstraints(for: containerView, innerView: stateView)
 
-        stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
+        stackView.insertArranged(view: containerView, after: alertsContainerView)
 
         stateContainerView = containerView
         self.stateView = stateView
@@ -201,7 +218,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             return rewardView
         }
 
-        let stateView = setupNibStateView { R.nib.rewardEstimationView(owner: nil) }
+        let stateView = setupView { R.nib.rewardEstimationView(owner: nil) }
 
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
         stateView?.uiFactory = uiFactory
@@ -211,34 +228,32 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
-    private func setupNominationViewIfNeeded() -> NominationView? {
-        if let nominationView = stateView as? NominationView {
-            return nominationView
+    private func setupNominatorViewIfNeeded() -> NominatorStateView? {
+        if let nominatorView = stateView as? NominatorStateView {
+            return nominatorView
         }
 
-        let stateView = setupNibStateView { R.nib.nominationView(owner: nil) }
-
+        let stateView = setupView { NominatorStateView() }
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
 
         return stateView
     }
 
-    private func setupValidatorViewIfNeeded() -> ValidationView? {
-        if let validationView = stateView as? ValidationView {
-            return validationView
+    private func setupValidatorViewIfNeeded() -> ValidatorStateView? {
+        if let validator = stateView as? ValidatorStateView {
+            return validator
         }
 
-        let stateView = setupNibStateView { R.nib.validationView(owner: nil) }
-
+        let stateView = setupView { ValidatorStateView() }
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
 
         return stateView
     }
 
-    private func applyNomination(viewModel: LocalizableResource<NominationViewModelProtocol>) {
-        let nominationView = setupNominationViewIfNeeded()
-        nominationView?.delegate = self
-        nominationView?.bind(viewModel: viewModel)
+    private func applyNominator(viewModel: LocalizableResource<NominationViewModelProtocol>) {
+        let nominatorView = setupNominatorViewIfNeeded()
+        nominatorView?.delegate = self
+        nominatorView?.bind(viewModel: viewModel)
     }
 
     private func applyBonded(viewModel: StakingEstimationViewModel) {
@@ -253,15 +268,20 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyValidator(viewModel: LocalizableResource<ValidationViewModelProtocol>) {
-        let validationView = setupValidatorViewIfNeeded()
-        validationView?.delegate = self
-        validationView?.bind(viewModel: viewModel)
+        let validatorView = setupValidatorViewIfNeeded()
+        validatorView?.delegate = self
+        validatorView?.bind(viewModel: viewModel)
     }
 
     private func applyAlerts(_ alerts: [StakingAlert]) {
         alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
         alertsContainerView.setNeedsLayout()
+    }
+
+    private func applyAnalyticsRewards(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
+        analyticsContainerView.isHidden = false
+        analyticsView.bind(viewModel: viewModel)
     }
 }
 
@@ -276,6 +296,7 @@ extension StakingMainViewController: Localizable {
         networkInfoView.locale = locale
         stateView?.locale = locale
         alertsView.locale = locale
+        analyticsView.locale = locale
     }
 
     func applyLocalization() {
@@ -313,6 +334,10 @@ extension StakingMainViewController: StakingMainViewProtocol {
         networkInfoView.bind(chainName: newChainName)
     }
 
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
+        analyticsView.bind(viewModel: viewModel)
+    }
+
     func didReceive(viewModel: StakingMainViewModelProtocol) {
         let sideSize = iconButtonWidth.constant - iconButton.contentInsets.left
             - iconButton.contentInsets.right
@@ -330,12 +355,17 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .nominator(viewModel, alerts):
-            applyNomination(viewModel: viewModel)
+            expandNetworkInfoView(true)
+        case let .nominator(viewModel, alerts, analyticsViewModel):
+            applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .validator(viewModel, alerts):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+            expandNetworkInfoView(false)
+        case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+            expandNetworkInfoView(false)
         }
     }
 
@@ -409,27 +439,19 @@ extension StakingMainViewController: UICollectionViewDelegate {
     }
 }
 
-// MARK: Nomination View Delegate -
+// MARK: - StakingStateViewDelegate
 
-extension StakingMainViewController: NominationViewDelegate {
-    func nominationViewDidReceiveMoreAction(_: NominationView) {
+extension StakingMainViewController: StakingStateViewDelegate {
+    func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
         presenter.performManageStakingAction()
     }
 
-    func nominationViewDidReceiveStatusAction(_: NominationView) {
-        presenter.performNominationStatusAction()
-    }
-}
-
-// MARK: - ValidationViewDelegate
-
-extension StakingMainViewController: ValidationViewDelegate {
-    func validationViewDidReceiveMoreAction(_: ValidationView) {
-        presenter.performManageStakingAction()
-    }
-
-    func validationViewDidReceiveStatusAction(_: ValidationView) {
-        presenter.performValidationStatusAction()
+    func stakingStateViewDidReceiveStatusAction(_ view: StakingStateView) {
+        if view is NominatorStateView {
+            presenter.performNominationStatusAction()
+        } else if view is ValidatorStateView {
+            presenter.performValidationStatusAction()
+        }
     }
 }
 

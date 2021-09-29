@@ -1,5 +1,6 @@
 import RobinHood
 import SoraKeystore
+import FearlessUtils
 
 protocol ExtrinsicServiceFactoryProtocol {
     func createService(accountItem: AccountItem) -> ExtrinsicServiceProtocol
@@ -40,7 +41,7 @@ extension ExtrinsicServiceFactory: ExtrinsicServiceFactoryProtocol {
         accountItem: AccountItem,
         connectionItem: ConnectionItem
     ) -> SigningWrapperProtocol {
-        var settings = InMemorySettingsManager()
+        let settings = InMemorySettingsManager()
         settings.selectedAccount = accountItem
         settings.selectedConnection = connectionItem
 

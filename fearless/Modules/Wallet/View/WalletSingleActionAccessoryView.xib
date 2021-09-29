@@ -16,7 +16,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y5f-Er-AXF" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="24" width="382" height="52"/>
+                    <rect key="frame" x="16" y="32" width="382" height="52"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="N3X-K2-1pL"/>
@@ -53,7 +53,7 @@
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="Y5f-Er-AXF" secondAttribute="trailing" constant="16" id="EMD-al-vrI"/>
                 <constraint firstItem="Y5f-Er-AXF" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="QZd-5Q-C82"/>
-                <constraint firstItem="Y5f-Er-AXF" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="24" id="tly-zl-lkR"/>
+                <constraint firstItem="Y5f-Er-AXF" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="32" id="tly-zl-lkR"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
@@ -62,11 +62,6 @@
             <point key="canvasLocation" x="139" y="133"/>
         </view>
     </objects>
-    <designables>
-        <designable name="Y5f-Er-AXF">
-            <size key="intrinsicContentSize" width="51.5" height="34"/>
-        </designable>
-    </designables>
     <resources>
         <namedColor name="colorAccent">
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -9,6 +9,16 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
 
     private var viewModel: ValidatorSearchViewModel?
 
+    private lazy var doneButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(
+            title: "",
+            style: .plain,
+            target: self,
+            action: #selector(tapDoneButton)
+        )
+        return button
+    }()
+
     private lazy var searchActivityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .white)
         activityIndicator.color = .white
@@ -59,6 +69,8 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
     private func applyState() {
         rootView.tableView.isHidden = shouldDisplayEmptyState
         reloadEmptyState(animated: false)
+
+        doneButton.isEnabled = viewModel?.differsFromInitial ?? false
     }
 
     private func setupTable() {
@@ -69,22 +81,10 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
     }
 
     private func setupNavigationBar() {
-        let rightBarButtonItem = UIBarButtonItem(
-            title: "",
-            style: .plain,
-            target: self,
-            action: #selector(tapDoneButton)
-        )
+        doneButton.setupDefaultTitleStyle(with: .p0Paragraph)
+        doneButton.isEnabled = false
 
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: R.color.colorWhite()!,
-            .font: UIFont.p0Paragraph
-        ]
-
-        rightBarButtonItem.setTitleTextAttributes(attributes, for: .normal)
-        rightBarButtonItem.setTitleTextAttributes(attributes, for: .highlighted)
-
-        navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationItem.rightBarButtonItem = doneButton
     }
 
     private func setupSearchView() {

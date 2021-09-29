@@ -13,4 +13,5 @@ struct ValidatorSearchCellViewModel {
 struct ValidatorSearchViewModel {
     var headerViewModel: TitleWithSubtitleViewModel?
     var cellViewModels: [ValidatorSearchCellViewModel]
+    var differsFromInitial: Bool = false
 }

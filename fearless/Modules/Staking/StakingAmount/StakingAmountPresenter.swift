@@ -221,9 +221,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 minNominatorBond: minBondAmount,
                 locale: locale
             ),
-            dataValidatingFactory.maxNominatorsCountNotReached(
+            dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,
+                hasExistingNomination: false,
                 locale: locale
             )
         ]).runValidation { [weak self] in

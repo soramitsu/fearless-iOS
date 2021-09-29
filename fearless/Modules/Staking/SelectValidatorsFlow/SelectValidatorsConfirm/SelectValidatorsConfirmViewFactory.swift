@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import RobinHood
+import FearlessUtils
 
 final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {
     static func createInitiatedBondingView(
@@ -211,7 +212,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             operationManager: operationManager
         )
 
-        var controllerSettings = InMemorySettingsManager()
+        let controllerSettings = InMemorySettingsManager()
         controllerSettings.selectedAccount = nomination.bonding.controllerAccount
         controllerSettings.selectedConnection = networkSettings
 

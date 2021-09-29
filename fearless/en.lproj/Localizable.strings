@@ -28,7 +28,7 @@ Terms and Conditions and Privacy Policy";
 "tabbar.staking.title" = "Staking";
 "tabbar.settings.title" = "Settings";
 "wallet.empty.description" = "Incoming and outgoing\
-transfers will appear here";
+operations will appear here";
 "profile.title" = "Settings";
 "profile.about.title" = "About";
 "profile.language.title" = "Language";
@@ -130,7 +130,7 @@ transfers will appear here";
 "wallet.send.amount.title" = "Amount";
 "wallet.send.confirm.title" = "Confirm transfer";
 "wallet.send.available.balance" = "Available balance";
-"wallet.contacts.empty.title" = "Your accounts and contacts to who you were sending transfers will appear here";
+"wallet.contacts.empty.title" = "Your accounts and contacts to whom you were sending transfers will appear here";
 "wallet.search.empty.title" = "Make sure that the address is \
 from the right network";
 "wallet.contacts.search.placeholder" = "Account address or account name";
@@ -316,12 +316,12 @@ Derivation path: %@";
 "staking.alerts.title" = "Alerts";
 "staking.recommended.hint5" = "Limit of 2 validators per identity";
 "staking.set.separate.account.controller" = "Set a separate account as a controller to increase staking management security.";
-"staking.stash.can.hint" = "Stash can bond more and set the controller.";
+"staking.stash.can.hint" = "Stash can stake more and set the controller.";
 "staking.controller.can.hint" = "Controller can unstake, redeem, return to stake, change rewards destination and validators.";
 "staking.switch.account.to.stash" = "Switch your account to stash to set the controller.";
 "staking.inactive.current.minimal.stake" = "Staking is currently inactive.\nCurrent minimal stake is %@.";
 "staking.change.your.validators" = "Change your validators.";
-"staking.bond.more.tokens" = "Bond more tokens.";
+"staking.bond.more.tokens" = "Stake more tokens.";
 "staking.redeem.unbonded.tokens" = "Redeem unstaked tokens.";
 "staking.your.stake" = "Your stake";
 "staking.controller.account.zero.balance" = "We found that this account has no free tokens, are you sure that you want to change the controller?";
@@ -395,7 +395,7 @@ Derivation path: %@";
 "staking.set.validators.message" = "Validators are not selected";
 "staking.max.nominators.reached.title" = "Cannot start staking";
 "staking.max.nominators.reached.message" = "Maximum number of nominators has been reached";
-"staking.custom.blocked.warning" = "This validator is blocked and cannot be selected at the moment. Please, try again in the next era.";
+"staking.custom.blocked.warning" = "This validator is not accepting nominations at this moment. Please, try again in the next era.";
 "staking.alert.start.next.era.message" = "Please wait for the next era to start.";
 "staking.custom.proceed.button.disabled.title" = "Select validators (max %d)";
 "staking.custom.proceed.button.enabled.title" = "Show selected: %d (max %d)";
@@ -464,3 +464,37 @@ to your account to avoid remaining stake.";
 "common.cancel.operation.action" = "Cancel operation";
 "common.keep.editing.action" = "Back to operation";
 "staking.your.validator.title" = "Your validator";
+"staking.analytics.title" = "Analytics";
+"staking.rewards.title" = "Rewards";
+"staking.analytics.activity" = "Activity";
+"staking.analytics.stake.allocation" = "Allocation with current validators";
+"wallet.extrinsic.details.title" = "Extrinsic details";
+"transaction.details.extrinsic.fee" = "Fee";
+"staking.common.era" = "Era";
+"staking.common.validator" = "Validator";
+"staking.common.event.id" = "Event";
+"common.copy.id" = "Copy id";
+"wallet.contacts.search.placeholder_v1.10" = "Search by address or name";
+"wallet.contacts.empty.title_v1.10" = "Your accounts and contacts\
+to whom you were sending\
+transfers will appear here";
+"wallet.search.empty.title_v1.10.0" = "Address format is invalid.\
+Make sure that address\
+belongs to the right network";
+"common.max" = "max";
+"staking.analytics.period.7d" = "7d";
+"staking.analytics.period.30d" = "30d";
+"staking.analytics.period.1y" = "1y";
+"staking.analytics.period.all" = "All";
+"staking.analytics.rewards.empty.message" = "Your rewards \
+will appear here";
+"staking.analytics.stake.empty.message" = "Your stake changes\
+will appear here";
+"common.details" = "Details";
+"staking.analytics.details.type" = "Type";
+"staking.analytics.era.range" = "%d of %d eras";
+"staking.analytics.7days.rewards" = "7 days rewards";
+"staking.analytics.avg" = "%@ avg.";
+"staking.analytics.staking.was.active" = "Staking was active";
+"staking.analytics.staking.was.inactive" = "Staking was inactive";
+"common.choose.action" = "Choose action";

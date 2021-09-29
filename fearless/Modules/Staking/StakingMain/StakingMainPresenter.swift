@@ -36,6 +36,7 @@ final class StakingMainPresenter {
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
     private var controllerAccount: AccountItem?
+    private var nomination: Nomination?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -151,10 +152,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
+        let nomination = stateMachine.viewState(
+            using: { (state: NominatorState) in state }
+        )?.nomination
+
         DataValidationRunner(validators: [
-            dataValidatingFactory.maxNominatorsCountNotReached(
+            dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: commonData.counterForNominators,
                 maxNominatorsCount: commonData.maxNominatorsCount,
+                hasExistingNomination: nomination != nil,
                 locale: locale
             )
         ]).runValidation { [weak self] in
@@ -206,7 +212,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
-        // TODO: add view your validator action
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 return [
@@ -300,6 +305,28 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return
         }
         wireframe.showRedeem(from: view)
+    }
+
+    func performAnalyticsAction() {
+        let isNominator: AnalyticsContainerViewMode = {
+            if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+                return .none
+            }
+
+            if stateMachine.viewState(using: { (state: BaseStashNextState) in state }) != nil {
+                return .accountIsNominator
+            }
+            return .none
+        }()
+
+        let includeValidators: AnalyticsContainerViewMode = {
+            if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
+                return .none
+            }
+            return nomination != nil ? .includeValidatorsTab : .none
+        }()
+
+        wireframe.showAnalytics(from: view, mode: isNominator.union(includeValidators))
     }
 
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
@@ -401,6 +428,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
         stateMachine.state.process(nomination: nomination)
 
         if let nomination = nomination {
@@ -487,11 +515,30 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
+    func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
+        switch subqueryRewards {
+        case let .success(rewards):
+            stateMachine.state.process(subqueryRewards: (rewards, period))
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>) {
         switch result {
         case let .success(minNominatorBond):
             stateMachine.state.process(minNominatorBond: minNominatorBond)
+
+            if let networkStakingInfo = networkStakingInfo {
+                let minStake = networkStakingInfo.calculateMinimumStake(
+                    given: minNominatorBond
+                )
+
+                stateMachine.state.process(minStake: minStake)
+            }
+
             provideStakingInfo()
+
         case let .failure(error):
             handle(error: error)
         }

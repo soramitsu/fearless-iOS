@@ -22,12 +22,16 @@ extension WalletAssetId {
         }
     }
 
-    var hasPrice: Bool {
+    var subqueryHistoryUrl: URL? {
         switch self {
-        case .dot, .kusama:
-            return true
-        case .usd, .westend, .roc:
-            return false
+        case .dot:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet")
+        case .kusama:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-ksm")
+        case .westend:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend")
+        default:
+            return nil
         }
     }
 }

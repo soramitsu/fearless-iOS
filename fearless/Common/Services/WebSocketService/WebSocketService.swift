@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
+import FearlessUtils
 
 final class WebSocketService: WebSocketServiceProtocol {
     static let shared: WebSocketService = {

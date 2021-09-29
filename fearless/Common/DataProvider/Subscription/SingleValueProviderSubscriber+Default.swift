@@ -273,6 +273,42 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
         return activeEraProvider
     }
 
+    func subscribeToCurrentEraProvider(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedEraIndex>? {
+        guard let currentEraProvider = try? singleValueProviderFactory
+            .getCurrentEra(for: chain, runtimeService: runtimeService)
+        else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedEraIndex>]) in
+            let currentEra = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleCurrentEra(result: .success(currentEra?.item?.value), chain: chain)
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleCurrentEra(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        currentEraProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return currentEraProvider
+    }
+
     func subscribeToPayeeProvider(
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol

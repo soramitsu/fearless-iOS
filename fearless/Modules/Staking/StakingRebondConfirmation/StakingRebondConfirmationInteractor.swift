@@ -23,7 +23,6 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var payeeProvider: AnyDataProvider<DecodedPayee>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     private var extrinsicService: ExtrinsicServiceProtocol?
@@ -138,12 +137,6 @@ extension StakingRebondConfirmationInteractor: SingleValueProviderSubscriber, Si
 
                 accountInfoProvider = subscribeToAccountInfoProvider(
                     for: stashItem.controller,
-                    runtimeService: runtimeService
-                )
-
-                // TODO: Remove?
-                payeeProvider = subscribeToPayeeProvider(
-                    for: stashItem.stash,
                     runtimeService: runtimeService
                 )
 

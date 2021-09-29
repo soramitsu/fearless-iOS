@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 protocol EraValidatorServiceProtocol: ApplicationServiceProtocol {
     func update(to chain: Chain, engine: JSONRPCEngine)

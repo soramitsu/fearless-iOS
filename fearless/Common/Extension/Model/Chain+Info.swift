@@ -45,6 +45,17 @@ extension Chain {
         }
     }
 
+    func polkascanEventURL(_ eventId: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkascan.io/polkadot/event/\(eventId)")
+        case .kusama:
+            return URL(string: "https://polkascan.io/kusama/event/\(eventId)")
+        case .westend, .rococo:
+            return nil
+        }
+    }
+
     func subscanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
         case .polkadot:
@@ -53,6 +64,19 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/extrinsic/\(hash)")
         case .westend:
             return URL(string: "https://westend.subscan.io/extrinsic/\(hash)")
+        case .rococo:
+            return nil
+        }
+    }
+
+    func subscanBlockURL(_ block: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkadot.subscan.io/block/\(block)")
+        case .kusama:
+            return URL(string: "https://kusama.subscan.io/block/\(block)")
+        case .westend:
+            return URL(string: "https://westend.subscan.io/block/\(block)")
         case .rococo:
             return nil
         }
@@ -71,13 +95,15 @@ extension Chain {
         }
     }
 
-    var totalRewardURL: URL? {
+    var analyticsURL: URL? {
         switch self {
         case .polkadot:
-            return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward")
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet")
         case .kusama:
-            return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward-kusama")
-        case .westend, .rococo:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-ksm")
+        case .westend:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend")
+        case .rococo:
             return nil
         }
     }
@@ -101,11 +127,11 @@ extension Chain {
 
     // swiftlint:disable line_length
     func typeDefDefaultFileURL() -> URL? {
-        URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")
+        URL(string: "https://raw.githubusercontent.com/valentunn/py-scale-codec/fearless_stable/scalecodec/type_registry/default.json")
     }
 
     func typeDefNetworkFileURL() -> URL? {
-        let base = URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry")
+        let base = URL(string: "https://raw.githubusercontent.com/valentunn/py-scale-codec/fearless_stable/scalecodec/type_registry")
 
         switch self {
         case .westend:

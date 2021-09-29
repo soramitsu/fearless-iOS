@@ -16,11 +16,12 @@ extension WalletEmptyStateDataSource {
 
     static var contacts: WalletEmptyStateDataSource {
         let title = LocalizableResource { locale in
-            R.string.localizable.walletContactsEmptyTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletContactsEmptyTitle_v110(preferredLanguages: locale.rLanguages)
         }
 
         let image = R.image.iconEmptyHistory()
         let dataSource = WalletEmptyStateDataSource(titleResource: title, image: image)
+        dataSource.verticalSpacingForEmptyState = .zero
         dataSource.localizationManager = LocalizationManager.shared
 
         return dataSource
@@ -28,11 +29,12 @@ extension WalletEmptyStateDataSource {
 
     static var search: WalletEmptyStateDataSource {
         let title = LocalizableResource { locale in
-            R.string.localizable.walletSearchEmptyTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletSearchEmptyTitle_v1100(preferredLanguages: locale.rLanguages)
         }
 
         let image = R.image.iconEmptySearch()
         let dataSource = WalletEmptyStateDataSource(titleResource: title, image: image)
+        dataSource.verticalSpacingForEmptyState = .zero
         dataSource.localizationManager = LocalizationManager.shared
 
         return dataSource
