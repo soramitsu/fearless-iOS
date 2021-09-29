@@ -20,14 +20,12 @@ struct BalanceContext {
     let miscFrozen: Decimal
     let feeFrozen: Decimal
 
-    let bonded: Decimal
-    let redeemable: Decimal
-    let unbonding: Decimal
-
     let price: Decimal
     let priceChange: Decimal
 
     let minimalBalance: Decimal
+
+    let balanceLocks: [String: Decimal]
 }
 
 extension BalanceContext {
@@ -44,14 +42,12 @@ extension BalanceContext {
         miscFrozen = Self.parseContext(key: BalanceContext.miscFrozenKey, context: context)
         feeFrozen = Self.parseContext(key: BalanceContext.feeFrozenKey, context: context)
 
-        bonded = Self.parseContext(key: BalanceContext.bondedKey, context: context)
-        redeemable = Self.parseContext(key: BalanceContext.redeemableKey, context: context)
-        unbonding = Self.parseContext(key: BalanceContext.unbondingKey, context: context)
-
         price = Self.parseContext(key: BalanceContext.priceKey, context: context)
         priceChange = Self.parseContext(key: BalanceContext.priceChangeKey, context: context)
 
         minimalBalance = Self.parseContext(key: BalanceContext.minimalBalanceKey, context: context)
+
+        balanceLocks = [:]
     }
 
     func toContext() -> [String: String] {
@@ -60,9 +56,6 @@ extension BalanceContext {
             BalanceContext.reservedKey: reserved.stringWithPointSeparator,
             BalanceContext.miscFrozenKey: miscFrozen.stringWithPointSeparator,
             BalanceContext.feeFrozenKey: feeFrozen.stringWithPointSeparator,
-            BalanceContext.bondedKey: bonded.stringWithPointSeparator,
-            BalanceContext.redeemableKey: redeemable.stringWithPointSeparator,
-            BalanceContext.unbondingKey: unbonding.stringWithPointSeparator,
             BalanceContext.priceKey: price.stringWithPointSeparator,
             BalanceContext.priceChangeKey: priceChange.stringWithPointSeparator,
             BalanceContext.minimalBalanceKey: minimalBalance.stringWithPointSeparator
@@ -94,15 +87,14 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: price,
             priceChange: priceChange,
-            minimalBalance: minimalBalance
+            minimalBalance: minimalBalance,
+            balanceLocks: [:]
         )
     }
 
+    // TODO: Remove
     func byChangingStakingInfo(
         _ stakingInfo: StakingLedger,
         activeEra: UInt32,
@@ -131,12 +123,10 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: price,
             priceChange: priceChange,
-            minimalBalance: minimalBalance
+            minimalBalance: minimalBalance,
+            balanceLocks: [:]
         )
     }
 
@@ -146,12 +136,10 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: newPrice,
             priceChange: newPriceChange,
-            minimalBalance: minimalBalance
+            minimalBalance: minimalBalance,
+            balanceLocks: [:]
         )
     }
 
@@ -161,12 +149,10 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: price,
             priceChange: priceChange,
-            minimalBalance: newMinimalBalance
+            minimalBalance: newMinimalBalance,
+            balanceLocks: [:]
         )
     }
 }
