@@ -85,7 +85,8 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
             balanceContext: balanceContext,
             amountFormatter: numberFormatter,
             priceFormatter: localizablePriceFormatter,
-            commandFactory: commandFactory
+            commandFactory: commandFactory,
+            precision: asset.precision
         )
 
         return AssetDetailsViewModel(

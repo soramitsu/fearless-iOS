@@ -191,7 +191,10 @@ final class SingleValueProviderFactory {
 }
 
 extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
-    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedBalanceLocks> {
+    func getBalanceLocks(
+        for address: String,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedBalanceLocks> {
         try getAccountIdKeyedProvider(
             address: address,
             path: .balanceLocks,
@@ -492,6 +495,4 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         return AnyDataProvider(dataProvider)
     }
-
-    // TODO: Implement function for fetching locks
 }

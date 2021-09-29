@@ -56,7 +56,6 @@ extension WalletNetworkFacade {
         }
     }
 
-    // TODO: replace staking ledger with locks
     private func createBalanceMappingOperation(
         asset: WalletAsset,
         dependingOn accountInfoWrapper: CompoundOperationWrapper<AccountInfo?>,
@@ -73,7 +72,7 @@ extension WalletNetworkFacade {
                 )
 
                 if let balanceLocks = try? balanceLocksWrapper.targetOperation.extractNoCancellableResultData() {
-                    context = context.byChangingBalanceLocks(balanceLocks, precision: asset.precision)
+                    context = context.byChangingBalanceLocks(balanceLocks)
                 }
             }
 

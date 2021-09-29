@@ -498,3 +498,5 @@
 "staking.analytics.staking.was.active" = "Стейкинг был активен";
 "staking.analytics.staking.was.inactive" = "Стейкинг был неактивен";
 "common.choose.action" = "Выберите действие";
+"wallet.account.locks.vesting" = "Вестинг";
+"wallet.account.locks.democracy" = "Демократия";

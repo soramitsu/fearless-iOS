@@ -53,8 +53,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             networkType: type
         )
 
-        // TODO: Create locks subscription
-
         let accountSubscription =
             try createAccountInfoSubscription(
                 transactionSubscription: transactionSubscription,

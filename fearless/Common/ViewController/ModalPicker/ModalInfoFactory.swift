@@ -61,7 +61,8 @@ struct ModalInfoFactory {
     static func createFromBalanceContext(
         _ balanceContext: BalanceContext,
         amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
-        priceFormatter: LocalizableResource<TokenFormatter>
+        priceFormatter: LocalizableResource<TokenFormatter>,
+        precision: Int16
     ) -> UIViewController {
         let viewController: ModalPickerViewController<ValidatorInfoStakingAmountCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
@@ -82,7 +83,8 @@ struct ModalInfoFactory {
         let viewModels = createViewModelsForContext(
             balanceContext,
             amountFormatter: amountFormatter,
-            priceFormatter: priceFormatter
+            priceFormatter: priceFormatter,
+            precision: precision
         )
 
         viewController.viewModels = viewModels
@@ -178,12 +180,10 @@ struct ModalInfoFactory {
     private static func createViewModelsForContext(
         _ balanceContext: BalanceContext,
         amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
-        priceFormatter: LocalizableResource<TokenFormatter>
+        priceFormatter: LocalizableResource<TokenFormatter>,
+        precision: Int16
     ) -> [LocalizableResource<StakingAmountViewModel>] {
-        // TODO: Leave Reserved below
-        // TODO: Change title to Locked
-        // TODO: Parse and map context
-        [
+        let staticModels: [LocalizableResource<StakingAmountViewModel>] = [
             LocalizableResource { locale in
                 let title = R.string.localizable
                     .walletBalanceReserved(preferredLanguages: locale.rLanguages)
@@ -193,7 +193,7 @@ struct ModalInfoFactory {
                 let formatter = priceFormatter.value(for: locale)
 
                 let price = balanceContext.reserved * balanceContext.price
-                let priceString = formatter.stringFromDecimal(price)
+                let priceString = balanceContext.price == 0.0 ? nil : formatter.stringFromDecimal(price)
 
                 let balance = BalanceViewModel(
                     amount: amountString,
@@ -203,11 +203,67 @@ struct ModalInfoFactory {
                 return StakingAmountViewModel(title: title, balance: balance)
             }
         ]
-        /*
-         let priceString = priceFormater.stringFromDecimal(balanceContext.price) ?? ""
 
-         let totalPrice = balanceContext.price * balance.balance.decimalValue
-         let totalPriceString = priceFormater.stringFromDecimal(totalPrice) ?? ""
-         */
+        let balanceLockKnownModels: [LocalizableResource<StakingAmountViewModel>] =
+            createLockViewModel(
+                from: balanceContext.balanceLocks.mainLocks(),
+                balanceContext: balanceContext,
+                amountFormatter: amountFormatter,
+                priceFormatter: priceFormatter,
+                precision: precision
+            )
+
+        let balanceLockUnknownModels: [LocalizableResource<StakingAmountViewModel>] =
+            createLockViewModel(
+                from: balanceContext.balanceLocks.auxLocks(),
+                balanceContext: balanceContext,
+                amountFormatter: amountFormatter,
+                priceFormatter: priceFormatter,
+                precision: precision
+            )
+
+        return balanceLockKnownModels + balanceLockUnknownModels + staticModels
+    }
+
+    private static func createLockViewModel(
+        from locks: BalanceLocks,
+        balanceContext: BalanceContext,
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
+        priceFormatter: LocalizableResource<TokenFormatter>,
+        precision: Int16
+    ) -> [LocalizableResource<StakingAmountViewModel>] {
+        locks.map { lock in
+            LocalizableResource<StakingAmountViewModel> { locale in
+                let formatter = priceFormatter.value(for: locale)
+                let amountFormatter = amountFormatter.value(for: locale)
+
+                let title: String = {
+                    guard let mainTitle = LockType(rawValue: lock.displayId ?? "")?
+                        .displayType
+                        .value(for: locale) else {
+                        return lock.displayId?.capitalized ?? ""
+                    }
+                    return mainTitle
+                }()
+
+                let lockAmount = Decimal.fromSubstrateAmount(
+                    lock.amount,
+                    precision: precision
+                ) ?? 0.0
+                let price = lockAmount * balanceContext.price
+
+                let priceString = balanceContext.price == 0.0 ? nil : formatter.stringFromDecimal(price)
+                let amountString = amountFormatter.stringFromDecimal(lockAmount) ?? ""
+
+                let balance = BalanceViewModel(
+                    amount: amountString,
+                    price: priceString
+                )
+
+                return StakingAmountViewModel(
+                    title: title, balance: balance
+                )
+            }
+        }
     }
 }
