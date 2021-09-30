@@ -498,3 +498,5 @@ will appear here";
 "staking.analytics.staking.was.active" = "Staking was active";
 "staking.analytics.staking.was.inactive" = "Staking was inactive";
 "common.choose.action" = "Choose action";
+"wallet.account.locks.vesting" = "Vesting";
+"wallet.account.locks.democracy" = "Democracy";

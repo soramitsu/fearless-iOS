@@ -27,8 +27,8 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
         let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
 
-        let priceFormater = amountFormatterFactory.createTokenFormatter(for: priceAsset)
-            .value(for: locale)
+        let localizablePriceFormatter = amountFormatterFactory.createTokenFormatter(for: priceAsset)
+        let priceFormatter = localizablePriceFormatter.value(for: locale)
 
         let decimalBalance = balance.balance.decimalValue
         let amount: String
@@ -41,10 +41,10 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let balanceContext = BalanceContext(context: balance.context ?? [:])
 
-        let priceString = priceFormater.stringFromDecimal(balanceContext.price) ?? ""
+        let priceString = priceFormatter.stringFromDecimal(balanceContext.price) ?? ""
 
         let totalPrice = balanceContext.price * balance.balance.decimalValue
-        let totalPriceString = priceFormater.stringFromDecimal(totalPrice) ?? ""
+        let totalPriceString = priceFormatter.stringFromDecimal(totalPrice) ?? ""
 
         let priceChangeString = NumberFormatter.signedPercent
             .localizableResource()
@@ -55,23 +55,21 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
             WalletPriceChangeViewModel.goingUp(displayValue: priceChangeString) :
             WalletPriceChangeViewModel.goingDown(displayValue: priceChangeString)
 
-        let context = BalanceContext(context: balance.context ?? [:])
-
         let numberFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
 
         let leftTitle = R.string.localizable
             .walletBalanceAvailable(preferredLanguages: locale.rLanguages)
 
         let rightTitle = R.string.localizable
-            .walletBalanceFrozen(preferredLanguages: locale.rLanguages)
+            .walletBalanceLocked(preferredLanguages: locale.rLanguages)
 
         let leftDetails = numberFormatter
             .value(for: locale)
-            .stringFromDecimal(context.available) ?? ""
+            .stringFromDecimal(balanceContext.available) ?? ""
 
         let rightDetails = numberFormatter
             .value(for: locale)
-            .stringFromDecimal(context.frozen) ?? ""
+            .stringFromDecimal(balanceContext.frozen) ?? ""
 
         let imageViewModel: WalletImageViewModelProtocol?
 
@@ -86,7 +84,9 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
         let infoDetailsCommand = WalletAccountInfoCommand(
             balanceContext: balanceContext,
             amountFormatter: numberFormatter,
-            commandFactory: commandFactory
+            priceFormatter: localizablePriceFormatter,
+            commandFactory: commandFactory,
+            precision: asset.precision
         )
 
         return AssetDetailsViewModel(

@@ -345,7 +345,7 @@ enum ModalPickerFactory {
             return nil
         }
 
-        let viewController: ModalPickerViewController<ValidatorInfoStakingAmountCell, StakingAmountViewModel>
+        let viewController: ModalPickerViewController<BottomSheetInfoBalanceCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
