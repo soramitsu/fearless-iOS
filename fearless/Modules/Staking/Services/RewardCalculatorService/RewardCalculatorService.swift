@@ -22,12 +22,13 @@ final class RewardCalculatorService {
     )
 
     private var isActive: Bool = false
-    private var chain: Chain?
     private var snapshot: BigUInt?
 
     private var totalIssuanceDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
 
+    let chainId: ChainModel.Id
+    let assetPrecision: Int16
     let eraValidatorsService: EraValidatorServiceProtocol
     let logger: LoggerProtocol?
     let operationManager: OperationManagerProtocol
@@ -36,19 +37,23 @@ final class RewardCalculatorService {
     let runtimeCodingService: RuntimeCodingServiceProtocol
 
     init(
+        chainId: ChainModel.Id,
+        assetPrecision: Int16,
         eraValidatorsService: EraValidatorServiceProtocol,
-        logger: LoggerProtocol? = nil,
         operationManager: OperationManagerProtocol,
         providerFactory: SubstrateDataProviderFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
-        storageFacade: StorageFacadeProtocol
+        storageFacade: StorageFacadeProtocol,
+        logger: LoggerProtocol? = nil
     ) {
-        self.logger = logger
+        self.chainId = chainId
+        self.assetPrecision = assetPrecision
         self.storageFacade = storageFacade
         self.providerFactory = providerFactory
         self.operationManager = operationManager
         self.eraValidatorsService = eraValidatorsService
         self.runtimeCodingService = runtimeCodingService
+        self.logger = logger
     }
 
     // MARK: - Private
@@ -60,27 +65,31 @@ final class RewardCalculatorService {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         if let snapshot = snapshot {
-            deliver(snapshot: snapshot, to: request)
+            deliver(snapshot: snapshot, to: request, chainId: chainId, assetPrecision: assetPrecision)
         } else {
             pendingRequests.append(request)
         }
     }
 
-    private func deliver(snapshot: BigUInt, to request: PendingRequest) {
+    private func deliver(
+        snapshot: BigUInt,
+        to request: PendingRequest,
+        chainId: ChainModel.Id,
+        assetPrecision: Int16
+    ) {
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
         eraOperation.completionBlock = {
             dispatchInQueueWhenPossible(request.queue) {
                 switch eraOperation.result {
                 case let .success(eraStakersInfo):
-                    if let chain = self.chain {
-                        let calculator = RewardCalculatorEngine(
-                            totalIssuance: snapshot,
-                            validators: eraStakersInfo.validators,
-                            chain: chain
-                        )
-                        request.resultClosure(calculator)
-                    }
+                    let calculator = RewardCalculatorEngine(
+                        chainId: chainId,
+                        assetPrecision: assetPrecision,
+                        totalIssuance: snapshot,
+                        validators: eraStakersInfo.validators
+                    )
+                    request.resultClosure(calculator)
                 case let .failure(error):
                     self.logger?.error("Era stakers info fetch error: \(error)")
                 case .none:
@@ -105,20 +114,21 @@ final class RewardCalculatorService {
         let requests = pendingRequests
         pendingRequests = []
 
-        requests.forEach { deliver(snapshot: totalIssuance, to: $0) }
+        requests.forEach {
+            deliver(
+                snapshot: totalIssuance,
+                to: $0,
+                chainId: chainId,
+                assetPrecision: assetPrecision
+            )
+        }
 
         logger?.debug("Fulfilled pendings")
     }
 
     private func handleTotalIssuanceDecodingResult(
-        chain: Chain,
         result: Result<StringScaleMapper<BigUInt>, Error>?
     ) {
-        guard chain == self.chain else {
-            logger?.warning("Total Issuance decoding triggered but chain changed. Cancelled.")
-            return
-        }
-
         switch result {
         case let .success(totalIssuance):
             snapshot = totalIssuance.value
@@ -131,11 +141,6 @@ final class RewardCalculatorService {
     }
 
     private func didUpdateTotalIssuanceItem(_ totalIssuanceItem: ChainStorageItem?) {
-        guard let chain = chain else {
-            logger?.warning("Missing chain to proccess total issuance")
-            return
-        }
-
         guard let totalIssuanceItem = totalIssuanceItem else {
             return
         }
@@ -159,7 +164,7 @@ final class RewardCalculatorService {
 
         decodingOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                self?.handleTotalIssuanceDecodingResult(chain: chain, result: decodingOperation.result)
+                self?.handleTotalIssuanceDecodingResult(result: decodingOperation.result)
             }
         }
 
@@ -171,20 +176,11 @@ final class RewardCalculatorService {
 
     private func subscribe() {
         do {
-            guard let chain = self.chain else {
-                logger?.warning("Missing chain to subscribe")
-                return
-            }
-
-            let localFactory = try ChainStorageIdFactory(chain: chain)
-
-            let path = StorageCodingPath.totalIssuance
-            let key = try StorageKeyFactory().createStorageKey(
-                moduleName: path.moduleName,
-                storageName: path.itemName
+            let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+                .totalIssuance,
+                chainId: chainId
             )
 
-            let localKey = localFactory.createIdentifier(for: key)
             let totalIssuanceDataProvider = providerFactory.createStorageProvider(for: localKey)
 
             let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
@@ -246,21 +242,6 @@ extension RewardCalculatorService: RewardCalculatorServiceProtocol {
             self.isActive = false
 
             self.unsubscribe()
-        }
-    }
-
-    func update(to chain: Chain) {
-        syncQueue.async {
-            if self.isActive {
-                self.unsubscribe()
-            }
-
-            self.snapshot = nil
-            self.chain = chain
-
-            if self.isActive {
-                self.subscribe()
-            }
         }
     }
 

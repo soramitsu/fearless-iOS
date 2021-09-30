@@ -2,7 +2,6 @@ import Foundation
 import RobinHood
 
 protocol RewardCalculatorServiceProtocol: ApplicationServiceProtocol {
-    func update(to chain: Chain)
     func fetchCalculatorOperation(with timeout: TimeInterval) -> BaseOperation<RewardCalculatorEngineProtocol>
 }
 

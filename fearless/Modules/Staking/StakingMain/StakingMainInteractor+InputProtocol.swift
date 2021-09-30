@@ -4,9 +4,6 @@ import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
-        currentAccount = settings.selectedAccount
-        currentConnection = settings.selectedConnection
-
         provideNewChain()
         provideSelectedAccount()
         provideMaxNominatorsPerValidator()
@@ -23,16 +20,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         applicationHandler.delegate = self
 
-        let infoViewIsExpanded = settings.bool(for: Self.networkInfoViewExpansionKey) ?? true
-        presenter.networkInfoViewExpansion(isExpanded: infoViewIsExpanded)
-    }
-
-    func saveNetworkInfoViewExpansion(isExpanded: Bool) {
-        settings.set(value: isExpanded, for: Self.networkInfoViewExpansionKey)
-    }
-
-    fileprivate static var networkInfoViewExpansionKey: String {
-        "networkInfoViewExpansionKey"
+        presenter.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
     }
 }
 

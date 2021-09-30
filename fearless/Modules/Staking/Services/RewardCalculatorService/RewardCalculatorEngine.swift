@@ -69,7 +69,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private var totalIssuance: Decimal
     private var validators: [EraValidatorInfo] = []
 
-    private let chain: Chain
+    private let chainId: ChainModel.Id
+    private let assetPrecision: Int16
 
     private let decayRate: Decimal = 0.05
     private let idealStakePortion: Decimal = 0.75
@@ -79,7 +80,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private lazy var totalStake: Decimal = {
         Decimal.fromSubstrateAmount(
             validators.map(\.exposure.total).reduce(0, +),
-            precision: chain.addressType.precision
+            precision: assetPrecision
         ) ?? 0.0
     }()
 
@@ -145,16 +146,18 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }()
 
     init(
+        chainId: ChainModel.Id,
+        assetPrecision: Int16,
         totalIssuance: BigUInt,
-        validators: [EraValidatorInfo],
-        chain: Chain
+        validators: [EraValidatorInfo]
     ) {
+        self.chainId = chainId
+        self.assetPrecision = assetPrecision
         self.totalIssuance = Decimal.fromSubstrateAmount(
             totalIssuance,
-            precision: chain.addressType.precision
+            precision: assetPrecision
         ) ?? 0.0
         self.validators = validators
-        self.chain = chain
     }
 
     func calculateEarnings(
@@ -206,7 +209,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         let commission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
         let stake = Decimal.fromSubstrateAmount(
             validator.exposure.total,
-            precision: chain.addressType.precision
+            precision: assetPrecision
         ) ?? 0.0
 
         return calculateEarningsForAmount(
@@ -253,7 +256,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         dailyInterestRate: Decimal
     ) -> Decimal {
         let numberOfDays = period.inDays
-        let erasPerDay = chain.erasPerDay
+        let erasPerDay = Chain.kusama.erasPerDay // TODO: fix eras per day
 
         guard erasPerDay > 0 else {
             return 0.0

@@ -7,22 +7,24 @@ import SoraFoundation
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
-    let stakingSettings: StakingAssetSettings
+    let selectedWalletSettings: SelectedWalletSettings
+    let chainRegistry: ChainRegistryProtocol
     let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let stakingServiceFactory: StakingServiceFactoryProtocol
     let accountProviderFactory: AccountProviderFactoryProtocol
     let eventCenter: EventCenterProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let calculatorService: RewardCalculatorServiceProtocol
-    let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
-    let logger: LoggerProtocol
+    let commonSettings: SettingsManagerProtocol
+    let logger: LoggerProtocol?
+
+    private(set) var stakingSettings: StakingAssetSettings
+    private(set) var stakingSharedState: StakingSharedState?
 
     var priceProvider: AnySingleValueProvider<PriceData>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -37,46 +39,50 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
-    var currentAccount: AccountItem?
-    var currentConnection: ConnectionItem?
     let analyticsPeriod = AnalyticsPeriod.week
 
     init(
-        providerFactory: SingleValueProviderFactoryProtocol,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        selectedWalletSettings: SelectedWalletSettings,
+        stakingSettings: StakingAssetSettings,
+        chainRegistry: ChainRegistryProtocol,
+        stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        stakingServiceFactory: StakingServiceFactoryProtocol,
         accountProviderFactory: AccountProviderFactoryProtocol,
-        settings: SettingsManagerProtocol,
         eventCenter: EventCenterProtocol,
-        primitiveFactory: WalletPrimitiveFactoryProtocol,
-        eraValidatorService: EraValidatorServiceProtocol,
-        calculatorService: RewardCalculatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
-        logger: Logger
+        commonSettings: SettingsManagerProtocol,
+        logger: LoggerProtocol?
     ) {
-        self.providerFactory = providerFactory
-        self.substrateProviderFactory = substrateProviderFactory
+        self.selectedWalletSettings = selectedWalletSettings
+        self.stakingSettings = stakingSettings
+        self.chainRegistry = chainRegistry
+        self.stakingRemoteSubscriptionService = stakingRemoteSubscriptionService
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.stakingServiceFactory = stakingServiceFactory
         self.accountProviderFactory = accountProviderFactory
-        self.settings = settings
         self.eventCenter = eventCenter
-        self.primitiveFactory = primitiveFactory
-        self.eraValidatorService = eraValidatorService
-        self.calculatorService = calculatorService
-        self.runtimeService = runtimeService
-        self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
+        self.commonSettings = commonSettings
         self.logger = logger
     }
 
     func provideSelectedAccount() {
-        guard let address = currentAccount?.address else {
+        guard
+            let wallet = selectedWalletSettings.value,
+            let chainAsset = stakingSettings.value,
+            let response = wallet.fetch(for: chainAsset.chain.accountRequest()),
+            let address = try? response.toDisplayAddress().address else {
             return
         }
 

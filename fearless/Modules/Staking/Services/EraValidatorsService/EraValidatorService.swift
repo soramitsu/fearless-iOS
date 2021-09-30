@@ -23,31 +23,35 @@ final class EraValidatorService {
     )
 
     private(set) var activeEra: UInt32?
-    private(set) var chain: Chain?
-    private(set) var engine: JSONRPCEngine?
     private var isActive: Bool = false
 
     private var snapshot: EraStakersInfo?
     private var eraDataProvider: StreamableProvider<ChainStorageItem>?
+    private var pendingRequests: [PendingRequest] = []
 
+    let chainId: ChainModel.Id
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
+    let connection: JSONRPCEngine
     let providerFactory: SubstrateDataProviderFactoryProtocol
-    private var pendingRequests: [PendingRequest] = []
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol?
 
     init(
+        chainId: ChainModel.Id,
         storageFacade: StorageFacadeProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
+        connection: JSONRPCEngine,
         providerFactory: SubstrateDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
         logger: LoggerProtocol? = nil
     ) {
+        self.chainId = chainId
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
+        self.connection = connection
         self.providerFactory = providerFactory
         self.operationManager = operationManager
         self.eventCenter = eventCenter
@@ -99,20 +103,7 @@ final class EraValidatorService {
 
     private func subscribe() {
         do {
-            guard let chain = self.chain else {
-                logger?.warning("Missing chain to subscribe")
-                return
-            }
-
-            let localFactory = try ChainStorageIdFactory(chain: chain)
-
-            let path = StorageCodingPath.activeEra
-            let key = try StorageKeyFactory().createStorageKey(
-                moduleName: path.moduleName,
-                storageName: path.itemName
-            )
-
-            let localKey = localFactory.createIdentifier(for: key)
+            let localKey = try LocalStorageKeyFactory().createFromStoragePath(.activeEra, chainId: chainId)
             let eraDataProvider = providerFactory.createStorageProvider(for: localKey)
 
             let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
@@ -174,23 +165,6 @@ extension EraValidatorService: EraValidatorServiceProtocol {
             self.isActive = false
 
             self.unsubscribe()
-        }
-    }
-
-    func update(to chain: Chain, engine: JSONRPCEngine) {
-        syncQueue.async {
-            if self.isActive {
-                self.unsubscribe()
-            }
-
-            self.snapshot = nil
-            self.activeEra = nil
-            self.engine = engine
-            self.chain = chain
-
-            if self.isActive {
-                self.subscribe()
-            }
         }
     }
 

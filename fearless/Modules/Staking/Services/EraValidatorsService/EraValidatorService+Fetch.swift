@@ -6,12 +6,11 @@ private typealias IdentifiableExposure = (Data, ValidatorExposure)
 
 extension EraValidatorService {
     private func updateValidators(
-        chain: Chain,
         activeEra: UInt32,
         exposures: [IdentifiableExposure],
         prefs: [StorageResponse<ValidatorPrefs>]
     ) {
-        guard activeEra == self.activeEra, chain == self.chain else {
+        guard activeEra == self.activeEra else {
             logger?.warning("Validators fetched but parameters changed. Cancelled.")
             return
         }
@@ -110,17 +109,14 @@ extension EraValidatorService {
     }
 
     private func createValidatorsSave(
-        for chain: Chain,
         exposures: BaseOperation<[StorageResponse<ValidatorExposure>]>
     ) -> BaseOperation<Void> {
         do {
+            let currentChainId = chainId
             let path = StorageCodingPath.erasStakers
-            let remoteKey = try StorageKeyFactory().createStorageKey(
-                moduleName: path.moduleName,
-                storageName: path.itemName
-            )
-            let localFactory = try ChainStorageIdFactory(chain: chain)
-            let localKey = localFactory.createIdentifier(for: remoteKey)
+
+            let localKeyFactory = LocalStorageKeyFactory()
+            let localKey = try localKeyFactory.createFromStoragePath(path, chainId: currentChainId)
 
             let filter = NSPredicate.filterByIdPrefix(localKey)
             let newRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
@@ -128,9 +124,9 @@ extension EraValidatorService {
 
             return newRepository.replaceOperation {
                 let result = try exposures.extractNoCancellableResultData()
-                return result.compactMap { item in
+                return try result.compactMap { item in
                     if let data = item.data {
-                        let localId = localFactory.createIdentifier(for: item.key)
+                        let localId = try localKeyFactory.createKey(from: item.key, chainId: currentChainId)
                         return ChainStorageItem(identifier: localId, data: data)
                     } else {
                         return nil
@@ -143,7 +139,6 @@ extension EraValidatorService {
     }
 
     private func handleRemoteUpdate(
-        chain: Chain,
         activeEra: UInt32,
         codingFactory _: RuntimeCoderFactoryProtocol,
         exposureResponse: [StorageResponse<ValidatorExposure>],
@@ -159,7 +154,6 @@ extension EraValidatorService {
         }
 
         updateValidators(
-            chain: chain,
             activeEra: activeEra,
             exposures: exposures,
             prefs: prefsResponse
@@ -167,12 +161,11 @@ extension EraValidatorService {
     }
 
     private func updateFromRemote(
-        chain: Chain,
         activeEra: UInt32,
         prefixKey: Data,
         codingFactory: RuntimeCoderFactoryProtocol
     ) {
-        guard activeEra == self.activeEra, chain == self.chain else {
+        guard activeEra == self.activeEra else {
             logger?.warning("Wanted to fetch exposures but parameters changed. Cancelled.")
             return
         }
@@ -204,7 +197,6 @@ extension EraValidatorService {
         prefsWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
 
         let saveOperation = createValidatorsSave(
-            for: chain,
             exposures: exposureWrapper.targetOperation
         )
 
@@ -226,7 +218,6 @@ extension EraValidatorService {
                     let exposures = try exposureWrapper.targetOperation.extractNoCancellableResultData()
                     let prefs = try prefsWrapper.targetOperation.extractNoCancellableResultData()
                     self?.handleRemoteUpdate(
-                        chain: chain,
                         activeEra: activeEra,
                         codingFactory: codingFactory,
                         exposureResponse: exposures,
@@ -265,11 +256,10 @@ extension EraValidatorService {
 
     private func updateFromLocal(
         validators: [ChainStorageItem],
-        chain: Chain,
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol
     ) {
-        guard activeEra == self.activeEra, chain == self.chain else {
+        guard activeEra == self.activeEra else {
             logger?.warning("Wanted to fetch exposures but parameters changed. Cancelled.")
             return
         }
@@ -293,7 +283,6 @@ extension EraValidatorService {
                     let exposures = try localDecoder.targetOperation.extractNoCancellableResultData()
                     let prefs = try prefs.targetOperation.extractNoCancellableResultData()
                     self?.updateValidators(
-                        chain: chain,
                         activeEra: activeEra,
                         exposures: exposures,
                         prefs: prefs
@@ -310,22 +299,22 @@ extension EraValidatorService {
     }
 
     private func updateIfNeeded(
-        chain: Chain,
         activeEra: UInt32,
         prefixKey: Data,
         codingFactory: RuntimeCoderFactoryProtocol
     ) {
-        guard activeEra == self.activeEra, chain == self.chain else {
+        guard activeEra == self.activeEra else {
             logger?.warning("Update triggered but parameters changed. Cancelled.")
             return
         }
 
-        guard let localFactory = try? ChainStorageIdFactory(chain: chain) else {
-            logger?.error("Can't create local factory")
+        guard let localPrefixKey = try? LocalStorageKeyFactory().createKey(
+                from: prefixKey,
+                chainId: chainId
+        ) else {
+            logger?.error("Can't create local storage key")
             return
         }
-
-        let localPrefixKey = localFactory.createIdentifier(for: prefixKey)
 
         let filter = NSPredicate.filterByIdPrefix(localPrefixKey)
 
@@ -341,7 +330,6 @@ extension EraValidatorService {
 
                     if validators.isEmpty {
                         self?.updateFromRemote(
-                            chain: chain,
                             activeEra: activeEra,
                             prefixKey: prefixKey,
                             codingFactory: codingFactory
@@ -349,7 +337,6 @@ extension EraValidatorService {
                     } else {
                         self?.updateFromLocal(
                             validators: validators,
-                            chain: chain,
                             activeEra: activeEra,
                             codingFactory: codingFactory
                         )
@@ -363,8 +350,8 @@ extension EraValidatorService {
         operationManager.enqueue(operations: [localValidatorsOperation], in: .transient)
     }
 
-    private func preparePrefixKeyAndUpdateIfNeeded(chain: Chain, activeEra: UInt32) {
-        guard activeEra == self.activeEra, chain == self.chain else {
+    private func preparePrefixKeyAndUpdateIfNeeded(activeEra: UInt32) {
+        guard activeEra == self.activeEra else {
             logger?.warning("Prefix key for formed but parameters changed. Cancelled.")
             return
         }
@@ -394,7 +381,6 @@ extension EraValidatorService {
                 case let .success(prefixKeys):
                     if let factory = erasStakersKeyOperation.codingFactory, let prefixKey = prefixKeys.first {
                         self?.updateIfNeeded(
-                            chain: chain,
                             activeEra: activeEra,
                             prefixKey: prefixKey,
                             codingFactory: factory
@@ -416,16 +402,11 @@ extension EraValidatorService {
         )
     }
 
-    private func handleEraDecodingResult(chain: Chain, result: Result<ActiveEraInfo, Error>?) {
-        guard chain == self.chain else {
-            logger?.warning("Era decoding triggered but chain changed. Cancelled.")
-            return
-        }
-
+    private func handleEraDecodingResult(result: Result<ActiveEraInfo, Error>?) {
         switch result {
         case let .success(era):
             didReceiveActiveEra(era.index)
-            preparePrefixKeyAndUpdateIfNeeded(chain: chain, activeEra: era.index)
+            preparePrefixKeyAndUpdateIfNeeded(activeEra: era.index)
         case let .failure(error):
             logger?.error("Did receive era decoding error: \(error)")
         case .none:
@@ -434,11 +415,6 @@ extension EraValidatorService {
     }
 
     func didUpdateActiveEraItem(_ eraItem: ChainStorageItem?) {
-        guard let chain = chain else {
-            logger?.warning("Missing chain to proccess era")
-            return
-        }
-
         guard let eraItem = eraItem else {
             return
         }
@@ -461,7 +437,7 @@ extension EraValidatorService {
 
         decodingOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                self?.handleEraDecodingResult(chain: chain, result: decodingOperation.result)
+                self?.handleEraDecodingResult(result: decodingOperation.result)
             }
         }
 

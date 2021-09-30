@@ -9,6 +9,7 @@ enum SettingsKey: String {
     case selectedConnection
     case crowdloadChainId
     case stakingAsset
+    case stakingNetworkExpansion
 }
 
 extension SettingsManagerProtocol {
@@ -83,6 +84,16 @@ extension SettingsManagerProtocol {
             } else {
                 removeValue(for: SettingsKey.stakingAsset.rawValue)
             }
+        }
+    }
+
+    var stakingNetworkExpansion: Bool {
+        get {
+            bool(for: SettingsKey.stakingNetworkExpansion.rawValue) ?? true
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.stakingNetworkExpansion.rawValue)
         }
     }
 }
