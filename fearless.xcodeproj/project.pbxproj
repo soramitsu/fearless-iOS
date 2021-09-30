@@ -1235,6 +1235,8 @@
 		AECE7B4726FA0BA90045AF9B /* RichAmountDisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */; };
 		AECE7B4926FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECE7B4826FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift */; };
 		AED21AED2705211600AEEB96 /* BalanceLocksTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED21AEC2705211600AEEB96 /* BalanceLocksTest.swift */; };
+		AED21AF02705E80000AEEB96 /* BalanceLockType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED21AEF2705E80000AEEB96 /* BalanceLockType.swift */; };
+		AED21AF22705E85E00AEEB96 /* BalanceLocks+Sort.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED21AF12705E85E00AEEB96 /* BalanceLocks+Sort.swift */; };
 		AEDD7C0F269C81F500A8405F /* BlockWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDD7C0E269C81F500A8405F /* BlockWeights.swift */; };
 		AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
@@ -2765,6 +2767,8 @@
 		AECE7B4626FA0BA90045AF9B /* RichAmountDisplayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichAmountDisplayViewModel.swift; sourceTree = "<group>"; };
 		AECE7B4826FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkFeeConfirmView+Protocol.swift"; sourceTree = "<group>"; };
 		AED21AEC2705211600AEEB96 /* BalanceLocksTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksTest.swift; sourceTree = "<group>"; };
+		AED21AEF2705E80000AEEB96 /* BalanceLockType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLockType.swift; sourceTree = "<group>"; };
+		AED21AF12705E85E00AEEB96 /* BalanceLocks+Sort.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BalanceLocks+Sort.swift"; sourceTree = "<group>"; };
 		AEDD7C0E269C81F500A8405F /* BlockWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockWeights.swift; sourceTree = "<group>"; };
 		AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+MinimalBalance.swift"; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
@@ -5096,6 +5100,8 @@
 				84DBEA46265E98C300FDF73C /* AmountInputResult.swift */,
 				AEDD7C0E269C81F500A8405F /* BlockWeights.swift */,
 				8419C39526EA8F7300A3179C /* PriceData.swift */,
+				AED21AEF2705E80000AEEB96 /* BalanceLockType.swift */,
+				AED21AF12705E85E00AEEB96 /* BalanceLocks+Sort.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -8507,6 +8513,7 @@
 				84D2F45F25EF0599008B914D /* RecommendedValidatorCell.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */,
+				AED21AF22705E85E00AEEB96 /* BalanceLocks+Sort.swift in Sources */,
 				84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */,
 				84CFF1ED26526FBC00DB7CF7 /* StakingBondMoreConfirmationWireframe.swift in Sources */,
 				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
@@ -9214,6 +9221,7 @@
 				F4C086C726D1159E00716AEC /* SubqueryEraStakersInfoSource.swift in Sources */,
 				84DF219F25346696005454AE /* WalletAccountInfoCommand.swift in Sources */,
 				AEF5071E262369C00098574D /* PurchaseProviderProtocol.swift in Sources */,
+				AED21AF02705E80000AEEB96 /* BalanceLockType.swift in Sources */,
 				668141E18654C64F5023815A /* ModifyConnectionViewFactory.swift in Sources */,
 				84F47D532666F13C00F7647A /* KaruraVerifyInfo.swift in Sources */,
 				AE9EF273260A82FB0026910A /* StorySlide.swift in Sources */,
