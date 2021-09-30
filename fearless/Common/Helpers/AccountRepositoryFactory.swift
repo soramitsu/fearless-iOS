@@ -9,6 +9,16 @@ protocol AccountRepositoryFactoryProtocol {
 
     // TODO: remove
     func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>
+
+    func createMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<MetaAccountModel>
+
+    func createManagedMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<ManagedMetaAccountModel>
 }
 
 final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
@@ -31,6 +41,36 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
         for _: SNAddressType
     ) -> AnyDataProviderRepository<AccountItem> {
         Self.createRepository(for: storageFacade)
+    }
+
+    func createMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<MetaAccountModel> {
+        let mapper = MetaAccountMapper()
+
+        let repository = storageFacade.createRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
+        return AnyDataProviderRepository(repository)
+    }
+
+    func createManagedMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<ManagedMetaAccountModel> {
+        let mapper = ManagedMetaAccountMapper()
+
+        let repository = storageFacade.createRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
+        return AnyDataProviderRepository(repository)
     }
 }
 

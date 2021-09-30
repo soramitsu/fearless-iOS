@@ -18,3 +18,9 @@ struct ManagedMetaAccountModel: Equatable {
 extension ManagedMetaAccountModel: Identifiable {
     var identifier: String { info.metaId }
 }
+
+extension ManagedMetaAccountModel {
+    func replacingOrder(_ newOrder: UInt32) -> ManagedMetaAccountModel {
+        ManagedMetaAccountModel(info: info, isSelected: isSelected, order: newOrder)
+    }
+}

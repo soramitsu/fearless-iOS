@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 
 protocol ManagedAccountViewModelFactoryProtocol {
-    func createViewModelFromItem(_ item: ManagedAccountItem, selected: Bool) -> ManagedAccountViewModelItem
+    func createViewModelFromItem(_ item: ManagedMetaAccountModel) -> ManagedAccountViewModelItem
 }
 
 final class ManagedAccountViewModelFactory: ManagedAccountViewModelFactoryProtocol {
@@ -12,14 +12,16 @@ final class ManagedAccountViewModelFactory: ManagedAccountViewModelFactoryProtoc
         self.iconGenerator = iconGenerator
     }
 
-    func createViewModelFromItem(_ item: ManagedAccountItem, selected: Bool) -> ManagedAccountViewModelItem {
-        let icon = try? iconGenerator.generateFromAddress(item.address)
+    func createViewModelFromItem(_ item: ManagedMetaAccountModel) -> ManagedAccountViewModelItem {
+        let address = (try? item.info.substrateAccountId.toAddress(using: .substrate(42))) ?? ""
+        let icon = try? iconGenerator.generateFromAddress(address)
 
         return ManagedAccountViewModelItem(
-            name: item.username,
-            address: item.address,
+            identifier: item.identifier,
+            name: item.info.name,
+            address: address,
             icon: icon,
-            isSelected: selected
+            isSelected: item.isSelected
         )
     }
 }

@@ -18,12 +18,14 @@ final class ChainSelectionPresenter {
         interactor: ChainSelectionInteractorInputProtocol,
         wireframe: ChainSelectionWireframeProtocol,
         selectedChainId: ChainModel.Id?,
-        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.selectedChainId = selectedChainId
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.localizationManager = localizationManager
     }
 
     private func extractBalance(for chain: ChainModel) -> String? {

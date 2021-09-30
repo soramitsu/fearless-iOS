@@ -2,16 +2,8 @@ import Foundation
 
 extension SwitchAccount {
     final class AccountManagementWireframe: AccountManagementWireframeProtocol {
-        func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?) {
-            guard let infoView = AccountInfoViewFactory.createView(address: account.address) else {
-                return
-            }
-
-            let navigationController = ImportantFlowViewFactory.createNavigation(
-                from: infoView.controller
-            )
-
-            view?.controller.present(navigationController, animated: true, completion: nil)
+        func showAccountDetails(from _: AccountManagementViewProtocol?, metaAccount _: MetaAccountModel) {
+            // TODO: Implement when new onboarding process done
         }
 
         func showAddAccount(from view: AccountManagementViewProtocol?) {

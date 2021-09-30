@@ -8,56 +8,31 @@ final class AccountManagementPresenter {
     var wireframe: AccountManagementWireframeProtocol!
     var interactor: AccountManagementInteractorInputProtocol!
 
-    private var selectedAccountItem: AccountItem?
-
     let viewModelFactory: ManagedAccountViewModelFactoryProtocol
-    let supportedNetworks: [SNAddressType]
 
-    private var sections: [ManagedAccountViewModelSection] = []
+    private var viewModels: [ManagedAccountViewModelItem] = []
 
-    private let listCalculator: ListDifferenceCalculator<ManagedAccountItem> = {
-        let calculator = ListDifferenceCalculator<ManagedAccountItem>(initialItems: []) { item1, item2 in
+    private let listCalculator: ListDifferenceCalculator<ManagedMetaAccountModel> = {
+        let calculator = ListDifferenceCalculator<ManagedMetaAccountModel>(
+            initialItems: []
+        ) { item1, item2 in
             item1.order < item2.order
         }
 
         return calculator
     }()
 
-    init(viewModelFactory: ManagedAccountViewModelFactoryProtocol, supportedNetworks: [SNAddressType]) {
+    init(viewModelFactory: ManagedAccountViewModelFactoryProtocol) {
         self.viewModelFactory = viewModelFactory
-        self.supportedNetworks = supportedNetworks
     }
 
     private func updateViewModels() {
-        let groups = listCalculator.allItems
-            .reduce(into: [SNAddressType: [ManagedAccountViewModelItem]]()) { result, item in
-                let selected = (item.address == selectedAccountItem?.address)
-                let viewModel = viewModelFactory.createViewModelFromItem(item, selected: selected)
-
-                var viewModels = result[item.networkType] ?? []
-                viewModels.append(viewModel)
-                result[item.networkType] = viewModels
-            }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let newSections: [ManagedAccountViewModelSection] = supportedNetworks.compactMap { addressType in
-            guard let items = groups[addressType] else {
-                return nil
-            }
-
-            let sectionTitle = addressType.titleForLocale(locale).uppercased()
-            let icon = addressType.icon
-
-            return ManagedAccountViewModelSection(
-                title: sectionTitle,
-                icon: icon,
-                items: items
-            )
+        let viewModels = listCalculator.allItems.map { model in
+            viewModelFactory.createViewModelFromItem(model)
         }
 
-        if newSections != sections {
-            sections = newSections
+        if viewModels != self.viewModels {
+            self.viewModels = viewModels
             view?.reload()
         }
     }
@@ -68,19 +43,13 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         interactor.setup()
     }
 
-    func numberOfSections() -> Int {
-        sections.count
-    }
+    func activateDetails(at index: Int) {
+        let viewModel = viewModels[index]
 
-    func section(at index: Int) -> ManagedAccountViewModelSection {
-        sections[index]
-    }
-
-    func activateDetails(at index: Int, in section: Int) {
-        let viewModel = sections[section].items[index]
-
-        if let item = listCalculator.allItems.first(where: { $0.address == viewModel.address }) {
-            wireframe.showAccountDetails(item, from: view)
+        if let item = listCalculator.allItems.first(
+            where: { $0.identifier == viewModel.identifier }
+        ) {
+            wireframe.showAccountDetails(from: view, metaAccount: item.info)
         }
     }
 
@@ -88,34 +57,39 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         wireframe.showAddAccount(from: view)
     }
 
-    func selectItem(at index: Int, in section: Int) {
-        let viewModel = sections[section].items[index]
+    func numberOfItems() -> Int {
+        viewModels.count
+    }
 
-        if
-            let item = listCalculator.allItems.first(where: { $0.address == viewModel.address }),
-            item.address != selectedAccountItem?.address {
+    func item(at index: Int) -> ManagedAccountViewModelItem {
+        viewModels[index]
+    }
+
+    func selectItem(at index: Int) {
+        let viewModel = viewModels[index]
+
+        if let item = listCalculator.allItems.first(where: { $0.identifier == viewModel.identifier }),
+           !item.isSelected {
             interactor.select(item: item)
-
-            wireframe.complete(from: view)
         }
     }
 
-    func moveItem(at startIndex: Int, to finalIndex: Int, in section: Int) {
+    func moveItem(at startIndex: Int, to finalIndex: Int) {
         guard startIndex != finalIndex else {
             return
         }
 
-        var newItems = sections[section].items
+        var newItems = viewModels
 
-        var saveItems: [ManagedAccountItem]
+        var saveItems: [ManagedMetaAccountModel]
 
         if startIndex > finalIndex {
             saveItems = newItems[finalIndex ... startIndex].map { viewModel in
-                listCalculator.allItems.first { $0.address == viewModel.address }!
+                listCalculator.allItems.first { $0.identifier == viewModel.identifier }!
             }
         } else {
             saveItems = newItems[startIndex ... finalIndex].map { viewModel in
-                listCalculator.allItems.first { $0.address == viewModel.address }!
+                listCalculator.allItems.first { $0.identifier == viewModel.identifier }!
             }.reversed()
         }
 
@@ -134,30 +108,22 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         interactor.save(items: saveItems)
     }
 
-    func removeItem(at index: Int, in section: Int) {
-        askAndPerformRemoveItem(at: index, in: section) { [weak self] result in
+    func removeItem(at index: Int) {
+        askAndPerformRemoveItem(at: index) { [weak self] result in
             if result {
-                self?.view?.didRemoveItem(at: index, in: section)
+                self?.view?.didRemoveItem(at: index)
             }
         }
     }
 
-    func removeSection(at index: Int) {
-        askAndPerformRemoveItem(at: 0, in: index) { [weak self] result in
-            if result {
-                self?.view?.didRemoveSection(at: index)
-            }
-        }
-    }
-
-    private func askAndPerformRemoveItem(at index: Int, in section: Int, completion: @escaping (Bool) -> Void) {
+    private func askAndPerformRemoveItem(at index: Int, completion: @escaping (Bool) -> Void) {
         let locale = localizationManager?.selectedLocale
 
         let removeTitle = R.string.localizable
             .accountDeleteConfirm(preferredLanguages: locale?.rLanguages)
 
         let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
-            self?.performRemoveItem(at: index, in: section)
+            self?.performRemoveItem(at: index)
 
             completion(true)
         }
@@ -181,35 +147,22 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
 
-    private func performRemoveItem(at index: Int, in section: Int) {
-        var newItems = sections[section].items
-        let viewModel = newItems.remove(at: index)
+    private func performRemoveItem(at index: Int) {
+        let viewModel = viewModels.remove(at: index)
 
-        if !newItems.isEmpty {
-            let newSection = ManagedAccountViewModelSection(
-                title: sections[section].title,
-                icon: sections[section].icon,
-                items: newItems
-            )
-            sections[section] = newSection
-        } else {
-            sections.remove(at: section)
-        }
-
-        if let item = listCalculator.allItems.first(where: { $0.address == viewModel.address }) {
+        if let item = listCalculator.allItems.first(where: { $0.identifier == viewModel.identifier }) {
             interactor.remove(item: item)
         }
     }
 }
 
 extension AccountManagementPresenter: AccountManagementInteractorOutputProtocol {
-    func didReceive(changes: [DataProviderChange<ManagedAccountItem>]) {
-        listCalculator.apply(changes: changes)
-        updateViewModels()
+    func didCompleteSelection(of _: MetaAccountModel) {
+        wireframe.complete(from: view)
     }
 
-    func didReceiveSelected(item: AccountItem) {
-        selectedAccountItem = item
+    func didReceive(changes: [DataProviderChange<ManagedMetaAccountModel>]) {
+        listCalculator.apply(changes: changes)
         updateViewModels()
     }
 

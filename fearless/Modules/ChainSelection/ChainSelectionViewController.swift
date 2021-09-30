@@ -9,11 +9,16 @@ final class ChainSelectionViewController: SelectionListViewController<SelectionI
 
     let presenter: ChainSelectionPresenterProtocol
 
-    init(nibName: String, presenter: ChainSelectionPresenterProtocol) {
+    init(
+        nibName: String,
+        presenter: ChainSelectionPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.presenter = presenter
         super.init(nibName: nibName, bundle: nil)
 
         listPresenter = presenter
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)

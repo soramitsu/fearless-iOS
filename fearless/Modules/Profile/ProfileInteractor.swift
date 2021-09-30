@@ -9,31 +9,31 @@ enum ProfileInteractorError: Error {
 final class ProfileInteractor {
     weak var presenter: ProfileInteractorOutputProtocol?
 
-    let settingsManager: SettingsManagerProtocol
+    let selectedWalletSettings: SelectedWalletSettings
     let eventCenter: EventCenterProtocol
-    let logger: LoggerProtocol
 
     init(
-        settingsManager: SettingsManagerProtocol,
-        eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        selectedWalletSettings: SelectedWalletSettings,
+        eventCenter: EventCenterProtocol
     ) {
-        self.settingsManager = settingsManager
+        self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
-        self.logger = logger
     }
 
     private func provideUserSettings() {
         do {
-            guard let account = settingsManager.selectedAccount else {
+            guard let wallet = selectedWalletSettings.value else {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            let connection = settingsManager.selectedConnection
+            // TODO: Apply total account value logic instead
+            let genericAddress = try wallet.substrateAccountId.toAddress(
+                using: ChainFormat.substrate(42)
+            )
 
             let userSettings = UserSettings(
-                account: account,
-                connection: connection
+                userName: wallet.name,
+                details: genericAddress
             )
 
             presenter?.didReceive(userSettings: userSettings)
