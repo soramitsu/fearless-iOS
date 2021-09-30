@@ -64,7 +64,7 @@ struct ModalInfoFactory {
         priceFormatter: LocalizableResource<TokenFormatter>,
         precision: Int16
     ) -> UIViewController {
-        let viewController: ModalPickerViewController<ValidatorInfoStakingAmountCell, StakingAmountViewModel>
+        let viewController: ModalPickerViewController<BottomSheetInfoBalanceCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
         viewController.headerHeight = Self.headerHeight

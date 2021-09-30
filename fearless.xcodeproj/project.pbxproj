@@ -1177,8 +1177,8 @@
 		AE8B8835267349C200AB0AA9 /* CustomVlidatorListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8834267349C200AB0AA9 /* CustomVlidatorListFilter.swift */; };
 		AE8B8837267351E300AB0AA9 /* CustomValidatorListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8836267351E300AB0AA9 /* CustomValidatorListComposer.swift */; };
 		AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D028D2638074D00780D18 /* CIKeys.generated.swift */; };
-		AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */; };
-		AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */; };
+		AE8E67CF263A7CC6002EA1AA /* BottomSheetInfoBalanceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CE263A7CC6002EA1AA /* BottomSheetInfoBalanceCell.swift */; };
+		AE8E67D1263A7D35002EA1AA /* BottomSheetInfoTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67D0263A7D35002EA1AA /* BottomSheetInfoTableCell.swift */; };
 		AE8EDB0C26F4A72300C6F3B3 /* TransferConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8EDB0B26F4A72300C6F3B3 /* TransferConstants.swift */; };
 		AE8EDB1026F8729100C6F3B3 /* RichAmountInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8EDB0F26F8729100C6F3B3 /* RichAmountInputViewModel.swift */; };
 		AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF254260A82830026910A /* StoriesViewController.swift */; };
@@ -2706,8 +2706,8 @@
 		AE8B8834267349C200AB0AA9 /* CustomVlidatorListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVlidatorListFilter.swift; sourceTree = "<group>"; };
 		AE8B8836267351E300AB0AA9 /* CustomValidatorListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListComposer.swift; sourceTree = "<group>"; };
 		AE8D028D2638074D00780D18 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = SOURCE_ROOT; };
-		AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStakingAmountCell.swift; sourceTree = "<group>"; };
-		AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoBaseTableCell.swift; sourceTree = "<group>"; };
+		AE8E67CE263A7CC6002EA1AA /* BottomSheetInfoBalanceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoBalanceCell.swift; sourceTree = "<group>"; };
+		AE8E67D0263A7D35002EA1AA /* BottomSheetInfoTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoTableCell.swift; sourceTree = "<group>"; };
 		AE8EDB0B26F4A72300C6F3B3 /* TransferConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConstants.swift; sourceTree = "<group>"; };
 		AE8EDB0F26F8729100C6F3B3 /* RichAmountInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichAmountInputViewModel.swift; sourceTree = "<group>"; };
 		AE9EF254260A82830026910A /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
@@ -5327,6 +5327,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				AED21AEE2705E6D500AEEB96 /* BottomSheet */,
 				F40966FA26B29A58008CD244 /* Chart */,
 				84100F3426A602A700A5054E /* TableViewCell */,
 				F406B0E426299E25004FDCCC /* ErrorView */,
@@ -6624,19 +6625,9 @@
 				AE2C84E325EF98C700986716 /* ValidatorInfoViewController.swift */,
 				AE2C84E825EF98D500986716 /* ValidatorInfoViewFactory.swift */,
 				AE2C84D425EF989A00986716 /* ValidatorInfoWireframe.swift */,
-				AE2C850825F0D7A500986716 /* View */,
 				AE2C850925F0D7AE00986716 /* ViewModel */,
 			);
 			path = ValidatorInfo;
-			sourceTree = "<group>";
-		};
-		AE2C850825F0D7A500986716 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */,
-				AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		AE2C850925F0D7AE00986716 /* ViewModel */ = {
@@ -6942,6 +6933,15 @@
 				AED21AEC2705211600AEEB96 /* BalanceLocksTest.swift */,
 			);
 			path = BalanceLocks;
+			sourceTree = "<group>";
+		};
+		AED21AEE2705E6D500AEEB96 /* BottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				AE8E67D0263A7D35002EA1AA /* BottomSheetInfoTableCell.swift */,
+				AE8E67CE263A7CC6002EA1AA /* BottomSheetInfoBalanceCell.swift */,
+			);
+			path = BottomSheet;
 			sourceTree = "<group>";
 		};
 		AEE5FAF826414C0A002B8FDC /* StakingRebondSetup */ = {
@@ -8834,7 +8834,7 @@
 				844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
 				84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */,
-				AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */,
+				AE8E67CF263A7CC6002EA1AA /* BottomSheetInfoBalanceCell.swift in Sources */,
 				847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */,
 				849AFEB326DADC1300B65924 /* SubqueryHistory.swift in Sources */,
 				AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */,
@@ -8947,7 +8947,7 @@
 				AE7129BC2608C069000AA3F5 /* NetworkStakingInfoOperationFactory.swift in Sources */,
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				AE2C84E425EF98C700986716 /* ValidatorInfoViewController.swift in Sources */,
-				AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */,
+				AE8E67D1263A7D35002EA1AA /* BottomSheetInfoTableCell.swift in Sources */,
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				84BAB6102642C286007782D0 /* SelectedRebondVariant.swift in Sources */,
 				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
