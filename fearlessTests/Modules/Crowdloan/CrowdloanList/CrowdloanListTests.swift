@@ -164,7 +164,7 @@ class CrowdloanListTests: XCTestCase {
             return nil
         }
 
-        let wireframe = CrowdloanListWireframe()
+        let wireframe = MockCrowdloanListWireframeProtocol()
 
         let viewModelFactory = CrowdloansViewModelFactory(
             amountFormatterFactory: AssetBalanceFormatterFactory()

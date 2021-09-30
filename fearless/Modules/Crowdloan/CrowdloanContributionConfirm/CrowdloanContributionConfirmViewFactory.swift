@@ -7,43 +7,37 @@ struct CrowdloanContributionConfirmViewFactory {
     static func createView(
         with paraId: ParaId,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol?
+        bonusService: CrowdloanBonusServiceProtocol?,
+        state: CrowdloanSharedState
     ) -> CrowdloanContributionConfirmViewProtocol? {
-        let settings = SettingsManager.shared
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
-
-        guard let interactor = createInteractor(for: paraId, assetId: assetId, bonusService: bonusService) else {
+        guard
+            let chain = state.settings.value,
+            let asset = chain.utilityAssets().first,
+            let interactor = createInteractor(
+                for: paraId,
+                chain: chain,
+                asset: asset,
+                bonusService: bonusService,
+                state: state
+            ) else {
             return nil
         }
 
         let wireframe = CrowdloanContributionConfirmWireframe()
 
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
-        )
+        let assetInfo = asset.displayInfo(with: chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
 
         let localizationManager = LocalizationManager.shared
-        let amountFormatterFactory = AmountFormatterFactory()
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: amountFormatterFactory,
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(
             presentable: wireframe,
-            amountFormatterFactory: amountFormatterFactory,
-            chain: addressType.chain,
-            asset: asset
+            assetInfo: assetInfo
         )
 
         let presenter = CrowdloanContributionConfirmPresenter(
@@ -54,7 +48,7 @@ struct CrowdloanContributionConfirmViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             inputAmount: inputAmount,
             bonusRate: bonusService?.bonusRate,
-            chain: addressType.chain,
+            assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared
         )
@@ -73,61 +67,59 @@ struct CrowdloanContributionConfirmViewFactory {
 
     private static func createInteractor(
         for paraId: ParaId,
-        assetId: WalletAssetId,
-        bonusService: CrowdloanBonusServiceProtocol?
+        chain: ChainModel,
+        asset: AssetModel,
+        bonusService: CrowdloanBonusServiceProtocol?,
+        state: CrowdloanSharedState
     ) -> CrowdloanContributionConfirmInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
-
-        let settings = SettingsManager.shared
-        let keystore = Keychain()
-
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
-
-        let chain = settings.selectedConnection.type.chain
 
         let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        let runtimeService = RuntimeRegistryFacade.sharedService
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
+
+        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+            return nil
+        }
 
         let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
-            engine: engine,
+            engine: connection,
             operationManager: operationManager
         )
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let singleValueProviderFactory = SingleValueProviderFactory.shared
-
-        let crowdloanFundsProvider = singleValueProviderFactory.getCrowdloanFunds(
-            for: paraId,
-            connection: settings.selectedConnection,
-            engine: engine,
-            runtimeService: runtimeService
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedMetaAccount.metaId,
+            accountResponse: accountResponse
         )
-
-        let signingWrapper = SigningWrapper(keystore: keystore, settings: settings)
-
-        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
-            selectedAccountAddress: selectedAccount.address,
+            selectedMetaAccount: selectedMetaAccount,
             chain: chain,
-            assetId: assetId,
+            asset: asset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
+            crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            priceLocalSubscriptionFactory: PriceProviderFactory.shared,
+            jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
-            accountRepository: accountRepository,
-            crowdloanFundsProvider: crowdloanFundsProvider,
-            singleValueProviderFactory: singleValueProviderFactory,
             bonusService: bonusService,
             operationManager: operationManager
         )

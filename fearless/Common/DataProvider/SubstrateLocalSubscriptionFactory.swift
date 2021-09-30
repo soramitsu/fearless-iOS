@@ -27,6 +27,12 @@ class SubstrateLocalSubscriptionFactory {
         )
     }
 
+    func saveProvider(_ provider: AnyObject, for key: String) {
+        providers[key] = WeakWrapper(target: provider)
+    }
+
+    func getProvider(for key: String) -> AnyObject? { providers[key]?.target }
+
     func clearIfNeeded() {
         providers = providers.filter { $0.value.target != nil }
     }
@@ -39,7 +45,7 @@ class SubstrateLocalSubscriptionFactory {
     ) throws -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
         clearIfNeeded()
 
-        if let dataProvider = providers[localKey]?.target as? DataProvider<ChainStorageDecodedItem<T>> {
+        if let dataProvider = getProvider(for: localKey) as? DataProvider<ChainStorageDecodedItem<T>> {
             return AnyDataProvider(dataProvider)
         }
 
@@ -67,7 +73,7 @@ class SubstrateLocalSubscriptionFactory {
             updateTrigger: trigger
         )
 
-        providers[localKey] = WeakWrapper(target: dataProvider)
+        saveProvider(dataProvider, for: localKey)
 
         return AnyDataProvider(dataProvider)
     }

@@ -6,49 +6,51 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!
 
     let paraId: ParaId
-    let selectedAccountAddress: AccountAddress
-    let chain: Chain
-    let assetId: WalletAssetId
+    let selectedMetaAccount: MetaAccountModel
+    let chain: ChainModel
+    let asset: AssetModel
     let runtimeService: RuntimeCodingServiceProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
-    let crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>
+    let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
+    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var crowdloanProvider: AnyDataProvider<DecodedCrowdloanFunds>?
+    private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
     private(set) lazy var callFactory = SubstrateCallFactory()
 
     init(
         paraId: ParaId,
-        selectedAccountAddress: AccountAddress,
-        chain: Chain,
-        assetId: WalletAssetId,
+        selectedMetaAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
-        crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.paraId = paraId
-        self.selectedAccountAddress = selectedAccountAddress
+        self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
-        self.assetId = assetId
-        self.crowdloanFundsProvider = crowdloanFundsProvider
-
+        self.asset = asset
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
-        self.singleValueProviderFactory = singleValueProviderFactory
-
-        displayInfoProvider = singleValueProviderFactory.getJson(
-            for: chain.crowdloanDisplayInfoURL()
-        )
+        self.crowdloanLocalSubscriptionFactory = crowdloanLocalSubscriptionFactory
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
 
         self.operationManager = operationManager
     }
@@ -88,67 +90,44 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func subscribeToDisplayInfo() {
-        let updateClosure: ([DataProviderChange<CrowdloanDisplayInfoList>]) -> Void = { [weak self] changes in
-            if let result = changes.reduceToLastChange(), let paraId = self?.paraId {
-                let displayInfoDict = result.toMap()
-                let displayInfo = displayInfoDict[paraId]
-                self?.presenter.didReceiveDisplayInfo(result: .success(displayInfo))
-            }
+        if let displayInfoUrl = chain.externalApi?.crowdloans?.url {
+            displayInfoProvider = subscribeToCrowdloanDisplayInfo(
+                for: displayInfoUrl,
+                chainId: chain.chainId
+            )
+        } else {
+            presenter.didReceiveDisplayInfo(result: .success(nil))
         }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceiveDisplayInfo(result: .failure(error))
-        }
-
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true, waitsInProgressSyncOnAdd: false)
-
-        displayInfoProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
     }
 
     private func subscribeToCrowdloanFunds() {
-        let updateClosure: ([DataProviderChange<DecodedCrowdloanFunds>]) -> Void = { [weak self] changes in
-            if
-                let result = changes.reduceToLastChange(),
-                let crowdloanFunds = result.item,
-                let paraId = self?.paraId {
-                let crowdloan = Crowdloan(paraId: paraId, fundInfo: crowdloanFunds)
-                self?.presenter.didReceiveCrowdloan(result: .success(crowdloan))
-            }
+        crowdloanProvider = subscribeToCrowdloanFunds(for: paraId, chainId: chain.chainId)
+    }
+
+    private func subscribeToAccountInfo() {
+        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+            presenter.didReceiveAccountInfo(result: .failure(ChainAccountFetchingError.accountNotExists))
+            return
         }
 
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceiveDisplayInfo(result: .failure(error))
+        balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+    }
+
+    private func subscribeToPrice() {
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        } else {
+            presenter.didReceivePriceData(result: .success(nil))
         }
-
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false, waitsInProgressSyncOnAdd: false)
-
-        crowdloanFundsProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
     }
 
     func setup() {
         feeProxy.delegate = self
 
-        blockNumberProvider = subscribeToBlockNumber(for: chain, runtimeService: runtimeService)
+        blockNumberProvider = subscribeToBlockNumber(for: chain.chainId)
 
-        balanceProvider = subscribeToAccountInfoProvider(
-            for: selectedAccountAddress,
-            runtimeService: runtimeService
-        )
-
-        priceProvider = subscribeToPriceProvider(for: assetId)
-
+        subscribeToPrice()
+        subscribeToAccountInfo()
         subscribeToDisplayInfo()
         subscribeToCrowdloanFunds()
 
@@ -170,17 +149,61 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 }
 
-extension CrowdloanContributionInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
-    func handleBlockNumber(result: Result<BlockNumber?, Error>, chain _: Chain) {
+extension CrowdloanContributionInteractor: CrowdloanLocalStorageSubscriber,
+    CrowdloanLocalSubscriptionHandler {
+    func handleBlockNumber(result: Result<BlockNumber?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveBlockNumber(result: result)
     }
 
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
+    func handleCrowdloanFunds(
+        result: Result<CrowdloanFunds?, Error>,
+        for paraId: ParaId,
+        chainId _: ChainModel.Id
+    ) {
+        do {
+            if let crowdloanFunds = try result.get() {
+                let crowdloan = Crowdloan(paraId: paraId, fundInfo: crowdloanFunds)
+                presenter.didReceiveCrowdloan(result: .success(crowdloan))
+            }
+        } catch {
+            presenter.didReceiveCrowdloan(result: .failure(error))
+        }
+    }
+}
+
+extension CrowdloanContributionInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
         presenter.didReceiveAccountInfo(result: result)
     }
+}
 
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+extension CrowdloanContributionInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         presenter.didReceivePriceData(result: result)
+    }
+}
+
+extension CrowdloanContributionInteractor: JsonLocalStorageSubscriber, JsonLocalSubscriptionHandler {
+    func handleCrowdloanDisplayInfo(
+        result: Result<CrowdloanDisplayInfoList?, Error>,
+        url _: URL,
+        chainId _: ChainModel.Id
+    ) {
+        do {
+            if let result = try result.get() {
+                let displayInfoDict = result.toMap()
+                let displayInfo = displayInfoDict[paraId]
+                presenter.didReceiveDisplayInfo(result: .success(displayInfo))
+            } else {
+                presenter.didReceiveDisplayInfo(result: .success(nil))
+            }
+        } catch {
+            presenter.didReceiveDisplayInfo(result: .failure(error))
+        }
     }
 }
 

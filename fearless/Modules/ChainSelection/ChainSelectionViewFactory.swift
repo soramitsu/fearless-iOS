@@ -13,17 +13,10 @@ struct ChainSelectionViewFactory {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let localSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            storageFacade: SubstrateDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager,
-            logger: Logger.shared
-        )
-
         let interactor = ChainSelectionInteractor(
             selectedMetaAccount: SelectedWalletSettings.shared.value,
             repository: AnyDataProviderRepository(repository),
-            walletLocalSubscriptionFactory: localSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 

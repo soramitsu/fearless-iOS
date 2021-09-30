@@ -7,11 +7,16 @@ struct ReferralCrowdloanViewFactory {
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        existingService: CrowdloanBonusServiceProtocol?
+        existingService: CrowdloanBonusServiceProtocol?,
+        state: CrowdloanSharedState
     ) -> ReferralCrowdloanViewProtocol? {
-        let settings = SettingsManager.shared
-
-        guard let selectedAddress = settings.selectedAccount?.address else {
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chain = state.settings.value,
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()),
+            let selectedAddress = try? accountResponse.accountId.toAddress(
+                using: chain.chainFormat
+            ) else {
             return nil
         }
 
@@ -19,10 +24,14 @@ struct ReferralCrowdloanViewFactory {
             if let service = existingService as? KaruraBonusService {
                 return service
             } else {
+                let signingWrapper = SigningWrapper(
+                    keystore: Keychain(),
+                    metaId: selectedAccount.metaId,
+                    accountResponse: accountResponse
+                )
                 return KaruraBonusService(
                     address: selectedAddress,
-                    chain: settings.selectedConnection.type.chain,
-                    signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
+                    signingWrapper: signingWrapper,
                     operationManager: OperationManagerFacade.sharedManager
                 )
             }
@@ -33,7 +42,8 @@ struct ReferralCrowdloanViewFactory {
             displayInfo: displayInfo,
             inputAmount: inputAmount,
             bonusService: bonusService,
-            defaultReferralCode: KaruraBonusService.defaultReferralCode
+            defaultReferralCode: KaruraBonusService.defaultReferralCode,
+            state: state
         )
     }
 
@@ -41,7 +51,8 @@ struct ReferralCrowdloanViewFactory {
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        existingService: CrowdloanBonusServiceProtocol?
+        existingService: CrowdloanBonusServiceProtocol?,
+        state: CrowdloanSharedState
     ) -> ReferralCrowdloanViewProtocol? {
         guard let paraId = ParaId(displayInfo.paraid) else {
             return nil
@@ -63,7 +74,8 @@ struct ReferralCrowdloanViewFactory {
             displayInfo: displayInfo,
             inputAmount: inputAmount,
             bonusService: bonusService,
-            defaultReferralCode: BifrostBonusService.defaultReferralCode
+            defaultReferralCode: BifrostBonusService.defaultReferralCode,
+            state: state
         )
     }
 
@@ -72,20 +84,21 @@ struct ReferralCrowdloanViewFactory {
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol,
-        defaultReferralCode: String
+        defaultReferralCode: String,
+        state: CrowdloanSharedState
     ) -> ReferralCrowdloanViewProtocol? {
-        let settings = SettingsManager.shared
+        guard
+            let chain = state.settings.value,
+            let asset = chain.utilityAssets().first else {
+            return nil
+        }
 
         let wireframe = ReferralCrowdloanWireframe()
 
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
+        let assetInfo = asset.displayInfo(with: chain.icon)
         let viewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let localizationManager = LocalizationManager.shared

@@ -14,6 +14,7 @@ struct ChainAccountResponse {
     let cryptoType: MultiassetCryptoType
     let addressPrefix: UInt16
     let isEthereumBased: Bool
+    let isChainAccount: Bool
 }
 
 enum ChainAccountFetchingError: Error {
@@ -33,6 +34,13 @@ extension ChainAccountResponse {
             publicKeyData: publicKey
         )
     }
+
+    func toDisplayAddress() throws -> DisplayAddress {
+        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
+        let address = try accountId.toAddress(using: chainFormat)
+
+        return DisplayAddress(address: address, username: name)
+    }
 }
 
 extension MetaAccountModel {
@@ -49,7 +57,8 @@ extension MetaAccountModel {
                 name: name,
                 cryptoType: cryptoType,
                 addressPrefix: request.addressPrefix,
-                isEthereumBased: request.isEthereumBased
+                isEthereumBased: request.isEthereumBased,
+                isChainAccount: true
             )
         }
 
@@ -65,7 +74,8 @@ extension MetaAccountModel {
                 name: name,
                 cryptoType: MultiassetCryptoType.ethereumEcdsa,
                 addressPrefix: request.addressPrefix,
-                isEthereumBased: request.isEthereumBased
+                isEthereumBased: request.isEthereumBased,
+                isChainAccount: false
             )
         }
 
@@ -80,7 +90,8 @@ extension MetaAccountModel {
             name: name,
             cryptoType: cryptoType,
             addressPrefix: request.addressPrefix,
-            isEthereumBased: false
+            isEthereumBased: false,
+            isChainAccount: false
         )
     }
 }

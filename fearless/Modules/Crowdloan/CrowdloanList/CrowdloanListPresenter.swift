@@ -147,7 +147,7 @@ final class CrowdloanListPresenter {
 
             let viewInfo = try viewInfoResult.get()
 
-            let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.conversion)
+            let chainAsset = ChainAssetDisplayInfo(asset: asset.displayInfo, chain: chain.chainFormat)
 
             let viewModel = viewModelFactory.createViewModel(
                 from: crowdloans,
@@ -197,7 +197,7 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func selectChain() {
         let chainId = try? selectedChainResult?.get().chainId
 
-        wireframe.selecteChain(
+        wireframe.selectChain(
             from: view,
             delegate: self,
             selectedChainId: chainId

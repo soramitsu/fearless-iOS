@@ -37,7 +37,7 @@ extension AccountAddress {
 }
 
 extension ChainModel {
-    var conversion: ChainFormat {
+    var chainFormat: ChainFormat {
         if isEthereumBased {
             return .ethereum
         } else {

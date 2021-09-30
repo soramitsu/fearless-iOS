@@ -9,7 +9,7 @@ final class CrowdloanContributionSetupPresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
-    let chain: Chain
+    let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
 
     private var crowdloan: Crowdloan?
@@ -51,7 +51,7 @@ final class CrowdloanContributionSetupPresenter {
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
         dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
-        chain: Chain,
+        assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -60,7 +60,7 @@ final class CrowdloanContributionSetupPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.contributionViewModelFactory = contributionViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.chain = chain
+        self.assetInfo = assetInfo
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -162,7 +162,7 @@ final class CrowdloanContributionSetupPresenter {
 
     private func refreshFee() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
-        guard let amount = inputAmount.toSubstrateAmount(precision: chain.addressType.precision) else {
+        guard let amount = inputAmount.toSubstrateAmount(precision: assetInfo.assetPrecision) else {
             return
         }
 
@@ -201,9 +201,9 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
 
     func proceed() {
         let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
-        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
+        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: assetInfo.assetPrecision)
         let spendingValue = (controbutionValue ?? 0) +
-            (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
+            (fee?.toSubstrateAmount(precision: assetInfo.assetPrecision) ?? 0)
 
         DataValidationRunner(validators: [
             dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
@@ -314,7 +314,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             totalBalanceValue = accountInfo?.data.total ?? 0
 
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.data.available, precision: assetInfo.assetPrecision)
             } ?? 0.0
 
             provideAssetVewModel()
@@ -373,7 +373,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0, precision: assetInfo.assetPrecision)
             } ?? nil
 
             provideFeeViewModel()

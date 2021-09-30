@@ -8,38 +8,39 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
     }
 
     let signingWrapper: SigningWrapperProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
     let bonusService: CrowdloanBonusServiceProtocol?
 
     init(
         paraId: ParaId,
-        selectedAccountAddress: AccountAddress,
-        chain: Chain,
-        assetId: WalletAssetId,
+        selectedMetaAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         signingWrapper: SigningWrapperProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
-        crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
         operationManager: OperationManagerProtocol
     ) {
         self.signingWrapper = signingWrapper
-        self.accountRepository = accountRepository
         self.bonusService = bonusService
 
         super.init(
             paraId: paraId,
-            selectedAccountAddress: selectedAccountAddress,
+            selectedMetaAccount: selectedMetaAccount,
             chain: chain,
-            assetId: assetId,
+            asset: asset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
-            crowdloanFundsProvider: crowdloanFundsProvider,
-            singleValueProviderFactory: singleValueProviderFactory,
+            crowdloanLocalSubscriptionFactory: crowdloanLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager
         )
     }
@@ -47,25 +48,17 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
     override func setup() {
         super.setup()
 
-        fetchAccount(
-            for: selectedAccountAddress,
-            from: accountRepository,
-            operationManager: operationManager
-        ) { [weak self] result in
-            guard let strongSelf = self else {
-                return
+        do {
+            if let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) {
+                let displayAddress = try accountResponse.toDisplayAddress()
+                confirmPresenter?.didReceiveDisplayAddress(result: .success(displayAddress))
+            } else {
+                confirmPresenter?.didReceiveDisplayAddress(
+                    result: .failure(ChainAccountFetchingError.accountNotExists)
+                )
             }
-
-            switch result {
-            case let .success(maybeAccountItem):
-                let displayAddress = maybeAccountItem.map {
-                    DisplayAddress(address: $0.address, username: $0.username)
-                } ?? DisplayAddress(address: strongSelf.selectedAccountAddress, username: "")
-
-                strongSelf.confirmPresenter?.didReceiveDisplayAddress(result: .success(displayAddress))
-            case let .failure(error):
-                strongSelf.confirmPresenter?.didReceiveDisplayAddress(result: .failure(error))
-            }
+        } catch {
+            confirmPresenter?.didReceiveDisplayAddress(result: .failure(error))
         }
     }
 

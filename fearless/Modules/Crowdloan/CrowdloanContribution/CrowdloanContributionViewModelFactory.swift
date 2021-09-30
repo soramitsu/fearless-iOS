@@ -39,8 +39,8 @@ protocol CrowdloanContributionViewModelFactoryProtocol {
 
 final class CrowdloanContributionViewModelFactory {
     let chainDateCalculator: ChainDateCalculatorProtocol
-    let amountFormatterFactory: NumberFormatterFactoryProtocol
-    let asset: WalletAsset
+    let amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    let assetInfo: AssetBalanceDisplayInfo
 
     struct DisplayLeasingPeriod {
         let leasingPeriod: String
@@ -55,13 +55,13 @@ final class CrowdloanContributionViewModelFactory {
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     init(
-        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        assetInfo: AssetBalanceDisplayInfo,
         chainDateCalculator: ChainDateCalculatorProtocol,
-        asset: WalletAsset
+        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
     ) {
+        self.assetInfo = assetInfo
         self.amountFormatterFactory = amountFormatterFactory
         self.chainDateCalculator = chainDateCalculator
-        self.asset = asset
     }
 
     private func createDisplayLeasingPeriod(
@@ -109,15 +109,21 @@ final class CrowdloanContributionViewModelFactory {
         metadata _: CrowdloanMetadata,
         locale: Locale
     ) -> DisplayProgress {
-        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
-        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
+        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: assetInfo).value(for: locale)
+        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo).value(for: locale)
 
         let percentFormatter = NumberFormatter.percentSingle
         percentFormatter.locale = locale
 
         if
-            let raised = Decimal.fromSubstrateAmount(crowdloan.fundInfo.raised, precision: asset.precision),
-            let cap = Decimal.fromSubstrateAmount(crowdloan.fundInfo.cap, precision: asset.precision),
+            let raised = Decimal.fromSubstrateAmount(
+                crowdloan.fundInfo.raised,
+                precision: assetInfo.assetPrecision
+            ),
+            let cap = Decimal.fromSubstrateAmount(
+                crowdloan.fundInfo.cap,
+                precision: assetInfo.assetPrecision
+            ),
             let raisedString = displayFormatter.stringFromDecimal(raised),
             let totalString = tokenFormatter.stringFromDecimal(cap),
             cap > 0,
@@ -229,7 +235,7 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         let senderName = !confirmationData.displayAddress.username.isEmpty ?
             confirmationData.displayAddress.username : confirmationData.displayAddress.address
 
-        let formatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
+        let formatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo).value(for: locale)
         let inputAmount = formatter.stringFromDecimal(confirmationData.contribution) ?? ""
 
         return CrowdloanContributeConfirmViewModel(
@@ -246,11 +252,14 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         displayInfo: CrowdloanDisplayInfo,
         locale: Locale
     ) -> String? {
-        let formatter = amountFormatterFactory.createDisplayFormatter(for: nil).value(for: locale)
+        let tokenInfo = AssetBalanceDisplayInfo.fromCrowdloan(info: displayInfo)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: tokenInfo).value(for: locale)
 
-        return displayInfo.rewardRate
-            .map { formatter.stringFromDecimal(inputAmount * $0) }?
-            .map { "\($0) \(displayInfo.token)" }
+        if let rewardRate = displayInfo.rewardRate {
+            return formatter.stringFromDecimal(inputAmount * rewardRate)
+        } else {
+            return nil
+        }
     }
 
     func createAdditionalBonusViewModel(
@@ -265,11 +274,14 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
             )
         }
 
-        let formatter = amountFormatterFactory.createDisplayFormatter(for: nil).value(for: locale)
+        let tokenInfo = AssetBalanceDisplayInfo.fromCrowdloan(info: displayInfo)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: tokenInfo).value(for: locale)
 
-        return displayInfo.rewardRate
-            .map { formatter.stringFromDecimal(inputAmount * $0 * bonusRate) }?
-            .map { "\($0) \(displayInfo.token)" }
+        if let rewardRate = displayInfo.rewardRate {
+            return formatter.stringFromDecimal(inputAmount * rewardRate * bonusRate)
+        } else {
+            return nil
+        }
     }
 
     func createLearnMoreViewModel(
