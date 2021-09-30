@@ -68,14 +68,6 @@ extension MainTabBarInteractor: EventVisitorProtocol {
         }
     }
 
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        if currentConnection != settings.selectedConnection {
-            serviceCoordinator.updateOnNetworkChange()
-            updateSelectedItems()
-            presenter?.didReloadSelectedNetwork()
-        }
-    }
-
     func processBalanceChanged(event _: WalletBalanceChanged) {
         presenter?.didUpdateWalletInfo()
     }

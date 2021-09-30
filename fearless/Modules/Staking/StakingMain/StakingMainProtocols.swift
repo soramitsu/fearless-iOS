@@ -35,6 +35,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
+    func save(chainAsset: ChainAsset)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
@@ -61,7 +62,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(networkStakingInfoError: Error)
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
-    func didReceive(newChain: Chain)
+    func didReceive(newChainAsset: ChainAsset)
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod)
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)

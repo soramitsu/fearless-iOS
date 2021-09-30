@@ -23,6 +23,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let commonSettings: SettingsManagerProtocol
     let logger: LoggerProtocol?
 
+    var selectedAccount: ChainAccountResponse?
+    var selectedChainAsset: ChainAsset?
+
     private(set) var stakingSettings: StakingAssetSettings
     private(set) var stakingSharedState: StakingSharedState?
 
@@ -77,19 +80,54 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.logger = logger
     }
 
-    func provideSelectedAccount() {
+    func setupSelectedAccountAndChainAsset() {
         guard
             let wallet = selectedWalletSettings.value,
             let chainAsset = stakingSettings.value,
-            let response = wallet.fetch(for: chainAsset.chain.accountRequest()),
-            let address = try? response.toDisplayAddress().address else {
+            let response = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            return
+        }
+
+        selectedAccount = response
+        selectedChainAsset = chainAsset
+    }
+
+    func setupSharedState() {
+        guard let chainAsset = selectedChainAsset else {
+            return
+        }
+
+        do {
+            let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
+                for: chainAsset.chain.chainId
+            )
+
+            let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
+                for: chainAsset.chain.chainId,
+                assetPrecision: Int16(chainAsset.asset.precision),
+                validatorService: eraValidatorService
+            )
+
+            stakingSharedState = StakingSharedState(
+                settings: stakingSettings,
+                eraValidatorService: eraValidatorService,
+                rewardCalculationService: rewardCalculatorService,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            )
+        } catch {
+            logger?.error("Couldn't create shared state")
+        }
+    }
+
+    func provideSelectedAccount() {
+        guard let address = selectedAccount?.toAddress() else {
             return
         }
 
         presenter.didReceive(selectedAddress: address)
     }
 
-    func provideMaxNominatorsPerValidator() {
+    func provideMaxNominatorsPerValidator(from runtimeService: RuntimeCodingServiceProtocol) {
         fetchConstant(
             for: .maxNominatorRewardedPerValidator,
             runtimeCodingService: runtimeService,
@@ -100,14 +138,14 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideNewChain() {
-        guard let chain = currentConnection?.type.chain else {
+        guard let chainAsset = selectedChainAsset else {
             return
         }
 
-        presenter.didReceive(newChain: chain)
+        presenter.didReceive(newChainAsset: chainAsset)
     }
 
-    func provideRewardCalculator() {
+    func provideRewardCalculator(from calculatorService: RewardCalculatorServiceProtocol) {
         let operation = calculatorService.fetchCalculatorOperation()
 
         operation.completionBlock = {
@@ -124,7 +162,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
-    func provideEraStakersInfo() {
+    func provideEraStakersInfo(from eraValidatorService: EraValidatorServiceProtocol) {
         let operation = eraValidatorService.fetchInfoOperation()
 
         operation.completionBlock = {

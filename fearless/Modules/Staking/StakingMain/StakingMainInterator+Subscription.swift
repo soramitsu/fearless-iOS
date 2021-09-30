@@ -1,123 +1,35 @@
 import Foundation
 import RobinHood
 import BigInt
+import CommonWallet
 
 extension StakingMainInteractor {
-    func clearPriceProvider() {
-        priceProvider?.removeObserver(self)
-        priceProvider = nil
-    }
-
-    func subscribeToPriceChanges() {
-        guard priceProvider == nil, let connection = currentConnection else {
-            return
+    func updateOnAccountOrChainChange() -> Bool {
+        guard let newMetaAccount = selectedWalletSettings.value,
+              let newChainAsset = stakingSettings.value,
+              let newAccountResponse = newMetaAccount.fetch(
+                  for: newChainAsset.chain.accountRequest()
+              ) else {
+            return false
         }
 
-        let asset = primitiveFactory.createAssetForAddressType(connection.type)
+        let hasChanges = (selectedAccount?.accountId != newAccountResponse.accountId) ||
+            (selectedChainAsset?.chainAssetId != newChainAsset.chainAssetId)
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            logger.error("Can't create asset id")
-            return
-        }
+        if selectedChainAsset?.chainAssetId != newChainAsset.chainAssetId {
+            selectedChainAsset = newChainAsset
 
-        priceProvider = providerFactory.getPriceProvider(for: assetId)
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(price: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didReceive(price: item)
-                    case .delete:
-                        self?.presenter.didReceive(price: nil)
-                    }
-                }
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(priceError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        priceProvider?.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    func clearAccountProvider() {
-        balanceProvider?.removeObserver(self)
-        balanceProvider = nil
-    }
-
-    func subscribeToAccountChanges() {
-        guard balanceProvider == nil, let selectedAccount = currentAccount else {
-            return
-        }
-
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: selectedAccount.address,
-                runtimeService: runtimeService
-            )
-        else {
-            logger.error("Can't create balance provider")
-            return
-        }
-
-        self.balanceProvider = balanceProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            let accountInfo = changes.reduceToLastChange()?.item
-            self?.presenter.didReceive(accountInfo: accountInfo)
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(balanceError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        balanceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    func updateAccountAndChainIfNeeded() -> Bool {
-        let hasChanges = (currentAccount != settings.selectedAccount) ||
-            (currentConnection != settings.selectedConnection)
-
-        if settings.selectedConnection != currentConnection {
-            currentConnection = settings.selectedConnection
-
-            clearPriceProvider()
-            subscribeToPriceChanges()
+            clear(singleValueProvider: &priceProvider)
+            performPriceSubscription()
 
             provideNewChain()
         }
 
-        if settings.selectedAccount != currentAccount {
-            currentAccount = settings.selectedAccount
+        if selectedAccount?.accountId != newAccountResponse.accountId {
+            selectedAccount = newAccountResponse
 
-            clearAccountProvider()
-            subscribeToAccountChanges()
+            clear(dataProvider: &balanceProvider)
+            performAccountInfoSubscription()
 
             provideSelectedAccount()
         }
@@ -126,19 +38,35 @@ extension StakingMainInteractor {
     }
 
     func handle(stashItem: StashItem?) {
-        clearLedgerProvider()
-        clearNominatorProvider()
-        clearValidatorProvider()
-        clearTotalRewardProvider()
-        clearPayeeProvider()
-        clearControllerAccountProvider()
+        clear(dataProvider: &ledgerProvider)
+        clear(dataProvider: &nominatorProvider)
+        clear(dataProvider: &validatorProvider)
+        clear(singleValueProvider: &totalRewardProvider)
+        clear(dataProvider: &payeeProvider)
+        clear(streamableProvider: &controllerAccountProvider)
 
-        if let stashItem = stashItem {
-            subscribeToLedger(address: stashItem.controller)
-            subscribeToNominator(address: stashItem.stash)
-            subscribeToValidator(address: stashItem.stash)
-            subscribeToTotalReward(address: stashItem.stash)
-            subscribeToPayee(address: stashItem.stash)
+        if
+            let stashItem = stashItem,
+            let chainAsset = selectedChainAsset,
+            let stashAccountId = try? stashItem.stash.toAccountId(),
+            let controllerId = try? stashItem.controller.toAccountId() {
+            let chainId = chainAsset.chain.chainId
+            ledgerProvider = subscribeLedgerInfo(for: controllerId, chainId: chainId)
+            nominatorProvider = subscribeNomination(for: stashAccountId, chainId: chainId)
+            validatorProvider = subscribeValidator(for: stashAccountId, chainId: chainId)
+            payeeProvider = subscribePayee(for: stashAccountId, chainId: chainId)
+
+            if let rewardApi = chainAsset.chain.externalApi?.staking {
+                totalRewardProvider = subscribeTotalReward(
+                    for: stashItem.stash,
+                    api: rewardApi,
+                    assetPrecision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                let zeroReward = TotalRewardItem(address: stashItem.stash, amount: AmountDecimal(value: 0))
+                presenter.didReceive(totalReward: zeroReward)
+            }
+
             subscribeToControllerAccount(address: stashItem.controller)
             fetchAnalyticsRewards(stash: stashItem.stash)
         }
@@ -146,272 +74,57 @@ extension StakingMainInteractor {
         presenter?.didReceive(stashItem: stashItem)
     }
 
-    func clearStashControllerProvider() {
-        clearLedgerProvider()
-        clearNominatorProvider()
-        clearValidatorProvider()
-        clearTotalRewardProvider()
-        clearPayeeProvider()
+    func performPriceSubscription() {
+        guard let chainAsset = stakingSettings.value else {
+            presenter.didReceive(priceError: PersistentValueSettingsError.missingValue)
+            return
+        }
 
-        stashControllerProvider?.removeObserver(self)
-        stashControllerProvider = nil
+        guard let priceId = chainAsset.asset.priceId else {
+            presenter.didReceive(price: nil)
+            return
+        }
+
+        priceProvider = subscribeToPrice(for: priceId)
     }
 
-    func subscribeToStashControllerProvider() {
-        guard stashControllerProvider == nil, let selectedAccount = currentAccount else {
+    func performAccountInfoSubscription() {
+        guard
+            let selectedAccount = selectedWalletSettings.value,
+            let chainAsset = stakingSettings.value else {
+            presenter.didReceive(balanceError: PersistentValueSettingsError.missingValue)
             return
         }
 
-        let provider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
-
-        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
-            let stashItem = changes.reduceToLastChange()
-            self?.handle(stashItem: stashItem)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceive(stashItemError: error)
+        guard let accountResponse = selectedAccount.fetch(
+            for: chainAsset.chain.accountRequest()
+        ) else {
+            presenter.didReceive(balanceError: ChainAccountFetchingError.accountNotExists)
             return
         }
 
-        provider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: changesClosure,
-            failing: failureClosure,
-            options: StreamableProviderObserverOptions.substrateSource()
-        )
-
-        stashControllerProvider = provider
-    }
-
-    func clearLedgerProvider() {
-        ledgerProvider?.removeObserver(self)
-        ledgerProvider = nil
-    }
-
-    func subscribeToLedger(address: String) {
-        guard ledgerProvider == nil else {
-            return
-        }
-
-        guard let ledgerProvider = try? providerFactory
-            .getLedgerInfoProvider(for: address, runtimeService: runtimeService)
-        else {
-            logger.error("Can't create ledger provider")
-            return
-        }
-
-        self.ledgerProvider = ledgerProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedLedgerInfo>]) in
-            if let ledgerInfo = changes.reduceToLastChange() {
-                self?.presenter.didReceive(ledgerInfo: ledgerInfo.item)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(ledgerInfoError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        ledgerProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
+        balanceProvider = subscribeToAccountInfoProvider(
+            for: accountResponse.accountId,
+            chainId: chainAsset.chain.chainId
         )
     }
 
-    func clearNominatorProvider() {
-        nominatorProvider?.removeObserver(self)
-        nominatorProvider = nil
+    func clearStashControllerSubscription() {
+        clear(dataProvider: &ledgerProvider)
+        clear(dataProvider: &nominatorProvider)
+        clear(dataProvider: &validatorProvider)
+        clear(singleValueProvider: &totalRewardProvider)
+        clear(dataProvider: &payeeProvider)
+        clear(streamableProvider: &stashControllerProvider)
     }
 
-    func subscribeToNominator(address: String) {
-        guard nominatorProvider == nil else {
+    func performStashControllerSubscription() {
+        guard let address = selectedAccount?.toAddress() else {
+            presenter.didReceive(stashItemError: ChainAccountFetchingError.accountNotExists)
             return
         }
 
-        guard let nominatorProvider = try? providerFactory
-            .getNominationProvider(for: address, runtimeService: runtimeService)
-        else {
-            logger.error("Can't create nominator provider")
-            return
-        }
-
-        self.nominatorProvider = nominatorProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedNomination>]) in
-            if let nomination = changes.reduceToLastChange() {
-                self?.presenter.didReceive(nomination: nomination.item)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(nominationError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        nominatorProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    func clearValidatorProvider() {
-        validatorProvider?.removeObserver(self)
-        validatorProvider = nil
-    }
-
-    func subscribeToValidator(address: String) {
-        guard validatorProvider == nil else {
-            return
-        }
-
-        guard let validatorProvider = try? providerFactory
-            .getValidatorProvider(for: address, runtimeService: runtimeService)
-        else {
-            logger.error("Can't create validator provider")
-            return
-        }
-
-        self.validatorProvider = validatorProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedValidator>]) in
-            if let validator = changes.reduceToLastChange() {
-                self?.presenter.didReceive(validatorPrefs: validator.item)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(validatorError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        validatorProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    func clearTotalRewardProvider() {
-        totalRewardProvider?.removeObserver(self)
-        totalRewardProvider = nil
-    }
-
-    func subscribeToTotalReward(address: String) {
-        guard totalRewardProvider == nil, let type = currentConnection?.type else {
-            return
-        }
-
-        let asset = primitiveFactory.createAssetForAddressType(type)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            logger.error("Can't create asset id for reward provider")
-            return
-        }
-
-        guard let totalRewardProvider = try? providerFactory
-            .getTotalReward(for: address, assetId: assetId)
-        else {
-            logger.error("Can't create total reward provider")
-            return
-        }
-
-        self.totalRewardProvider = totalRewardProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<TotalRewardItem>]) in
-            if let totalReward = changes.reduceToLastChange() {
-                self?.presenter.didReceive(totalReward: totalReward)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(totalReward: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: true,
-            waitsInProgressSyncOnAdd: false
-        )
-        totalRewardProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-
-        totalRewardProvider.refresh()
-    }
-
-    func clearPayeeProvider() {
-        payeeProvider?.removeObserver(self)
-        payeeProvider = nil
-    }
-
-    func clearControllerAccountProvider() {
-        controllerAccountProvider?.removeObserver(self)
-        controllerAccountProvider = nil
-    }
-
-    func subscribeToPayee(address: String) {
-        guard payeeProvider == nil else {
-            return
-        }
-
-        guard let payeeProvider = try? providerFactory
-            .getPayee(for: address, runtimeService: runtimeService)
-        else {
-            logger.error("Can't create payee provider")
-            return
-        }
-
-        self.payeeProvider = payeeProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPayee>]) in
-            if let payee = changes.reduceToLastChange() {
-                self?.presenter.didReceive(payee: payee.item)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(payeeError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        payeeProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
+        stashControllerProvider = subscribeStashItemProvider(for: address)
     }
 
     func subscribeToControllerAccount(address: AccountAddress) {
@@ -449,27 +162,19 @@ extension StakingMainInteractor {
         clear(dataProvider: &maxNominatorsCountProvider)
     }
 
-    func subscribeToNominatorsLimit() {
-        if let chain = currentConnection?.type.chain {
-            minNominatorBondProvider = subscribeToMinNominatorBondProvider(
-                chain: chain,
-                runtimeService: runtimeService
-            )
-
-            counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
-                chain: chain,
-                runtimeService: runtimeService
-            )
-
-            maxNominatorsCountProvider = subscribeToMaxNominatorsCountProvider(
-                chain: chain,
-                runtimeService: runtimeService
-            )
+    func performNominatorLimitsSubscripion() {
+        guard let chainId = selectedChainAsset?.chain.chainId else {
+            return
         }
+
+        minNominatorBondProvider = subscribeToMinNominatorBond(for: chainId)
+        counterForNominatorsProvider = subscribeToCounterForNominators(for: chainId)
+        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainId)
     }
 
     private func fetchAnalyticsRewards(stash: AccountAddress) {
-        guard let analyticsURL = currentConnection?.type.chain.analyticsURL else { return }
+        guard let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url else { return }
+
         let period = analyticsPeriod
 
         let now = Date().timeIntervalSince1970
@@ -496,22 +201,127 @@ extension StakingMainInteractor {
     }
 }
 
-extension StakingMainInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
-    SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
+extension StakingMainInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler,
     AnyProviderAutoCleaning {
-    var singleValueProviderFactory: SingleValueProviderFactoryProtocol {
-        providerFactory
+    func handleStashItem(result: Result<StashItem?, Error>, for address: AccountAddress) {
+        guard selectedAccount?.toAddress() == address else {
+            return
+        }
+
+        switch result {
+        case let .success(stashItem):
+            presenter.didReceive(stashItem: stashItem)
+        case let .failure(error):
+            presenter.didReceive(stashItemError: error)
+        }
     }
 
-    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {
+    func handleLedgerInfo(
+        result: Result<StakingLedger?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        switch result {
+        case let .success(ledgerInfo):
+            presenter.didReceive(ledgerInfo: ledgerInfo)
+        case let .failure(error):
+            presenter.didReceive(ledgerInfoError: error)
+        }
+    }
+
+    func handleNomination(
+        result: Result<Nomination?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        switch result {
+        case let .success(nomination):
+            presenter.didReceive(nomination: nomination)
+        case let .failure(error):
+            presenter.didReceive(nominationError: error)
+        }
+    }
+
+    func handleValidator(
+        result: Result<ValidatorPrefs?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        switch result {
+        case let .success(validatorPrefs):
+            presenter.didReceive(validatorPrefs: validatorPrefs)
+        case let .failure(error):
+            presenter.didReceive(validatorError: error)
+        }
+    }
+
+    func handlePayee(
+        result: Result<RewardDestinationArg?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        switch result {
+        case let .success(payee):
+            presenter.didReceive(payee: payee)
+        case let .failure(error):
+            presenter.didReceive(payeeError: error)
+        }
+    }
+
+    func handleTotalReward(
+        result: Result<TotalRewardItem, Error>,
+        for address: AccountAddress,
+        api _: ChainModel.ExternalApi
+    ) {
+        guard selectedAccount?.toAddress() == address else {
+            return
+        }
+
+        switch result {
+        case let .success(totalReward):
+            presenter.didReceive(totalReward: totalReward)
+        case let .failure(error):
+            presenter.didReceive(totalReward: error)
+        }
+    }
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveMinNominatorBond(result: result)
     }
 
-    func handleCounterForNominators(result: Result<UInt32?, Error>, chain _: Chain) {
+    func handleCounterForNominators(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveCounterForNominators(result: result)
     }
 
-    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveMaxNominatorsCount(result: result)
+    }
+}
+
+extension StakingMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+        if let chainAsset = stakingSettings.value, chainAsset.asset.priceId == priceId {
+            switch result {
+            case let .success(priceData):
+                presenter.didReceive(price: priceData)
+            case let .failure(error):
+                presenter.didReceive(priceError: error)
+            }
+        }
+    }
+}
+
+extension StakingMainInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        switch result {
+        case let .success(accountInfo):
+            presenter.didReceive(accountInfo: accountInfo)
+        case let .failure(error):
+            presenter.didReceive(balanceError: error)
+        }
     }
 }

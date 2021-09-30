@@ -3,17 +3,34 @@ import SoraFoundation
 import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
+    func saveNetworkInfoViewExpansion(isExpanded: Bool) {
+        commonSettings.stakingNetworkExpansion = isExpanded
+    }
+
     func setup() {
+        setupSelectedAccountAndChainAsset()
+        setupSharedState()
+
         provideNewChain()
         provideSelectedAccount()
-        provideMaxNominatorsPerValidator()
 
-        subscribeToPriceChanges()
-        subscribeToAccountChanges()
-        subscribeToStashControllerProvider()
-        subscribeToNominatorsLimit()
-        provideRewardCalculator()
-        provideEraStakersInfo()
+        guard
+            let chainId = selectedChainAsset?.chain.chainId,
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId),
+            let sharedState = stakingSharedState else {
+            return
+        }
+
+        provideMaxNominatorsPerValidator(from: runtimeService)
+
+        performPriceSubscription()
+        performAccountInfoSubscription()
+        performStashControllerSubscription()
+        performNominatorLimitsSubscripion()
+
+        provideRewardCalculator(from: sharedState.rewardCalculationService)
+        provideEraStakersInfo(from: sharedState.eraValidatorService)
+
         provideNetworkStakingInfo()
 
         eventCenter.add(observer: self, dispatchIn: .main)
@@ -22,35 +39,58 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         presenter.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
     }
+
+    func save(chainAsset: ChainAsset) {
+        guard selectedChainAsset?.chainAssetId != chainAsset.chainAssetId else {
+            return
+        }
+
+        stakingSettings.save(value: chainAsset, runningCompletionIn: .main) { [weak self] _ in
+            self?.updateAfterChainAssetSave()
+        }
+    }
+
+    private func updateAfterChainAssetSave() {
+        if updateOnAccountOrChainChange() {
+            setupSharedState()
+
+            clearNominatorsLimitProviders()
+            performNominatorLimitsSubscripion()
+
+            clearStashControllerSubscription()
+            performStashControllerSubscription()
+
+            guard
+                let chainId = selectedChainAsset?.chain.chainId,
+                let runtimeService = chainRegistry.getRuntimeProvider(for: chainId),
+                let sharedState = stakingSharedState else {
+                return
+            }
+
+            provideEraStakersInfo(from: sharedState.eraValidatorService)
+            provideNetworkStakingInfo()
+            provideRewardCalculator(from: sharedState.rewardCalculationService)
+            provideMaxNominatorsPerValidator(from: runtimeService)
+        }
+    }
 }
 
 extension StakingMainInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        if updateAccountAndChainIfNeeded() {
-            clearStashControllerProvider()
-            subscribeToStashControllerProvider()
-        }
-    }
-
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        if updateAccountAndChainIfNeeded() {
-            clearNominatorsLimitProviders()
-            subscribeToNominatorsLimit()
-
-            clearStashControllerProvider()
-            subscribeToStashControllerProvider()
-
-            provideEraStakersInfo()
-            provideNetworkStakingInfo()
-            provideRewardCalculator()
-            provideMaxNominatorsPerValidator()
+        if updateOnAccountOrChainChange() {
+            clearStashControllerSubscription()
+            performStashControllerSubscription()
         }
     }
 
     func processEraStakersInfoChanged(event _: EraStakersInfoChanged) {
-        provideEraStakersInfo()
+        guard let sharedState = stakingSharedState else {
+            return
+        }
+
         provideNetworkStakingInfo()
-        provideRewardCalculator()
+        provideEraStakersInfo(from: sharedState.eraValidatorService)
+        provideRewardCalculator(from: sharedState.rewardCalculationService)
     }
 }
 

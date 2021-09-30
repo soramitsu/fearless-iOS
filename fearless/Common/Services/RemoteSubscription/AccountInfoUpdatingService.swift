@@ -1,13 +1,17 @@
 import Foundation
 import RobinHood
 
+protocol AccountInfoUpdatingServiceProtocol: ApplicationServiceProtocol {
+    func update(selectedMetaAccount: MetaAccountModel)
+}
+
 final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
         let subscriptionId: UUID
         let accountId: AccountId
     }
 
-    let selectedAccount: MetaAccountModel
+    private(set) var selectedMetaAccount: MetaAccountModel
     let chainRegistry: ChainRegistryProtocol
     let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     let logger: LoggerProtocol?
@@ -26,7 +30,7 @@ final class AccountInfoUpdatingService {
         remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
         logger: LoggerProtocol?
     ) {
-        self.selectedAccount = selectedAccount
+        selectedMetaAccount = selectedAccount
         self.chainRegistry = chainRegistry
         self.remoteSubscriptionService = remoteSubscriptionService
         self.logger = logger
@@ -64,7 +68,7 @@ final class AccountInfoUpdatingService {
     }
 
     private func addSubscriptionIfNeeded(for chain: ChainModel) {
-        guard let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId else {
+        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
             logger?.error("Couldn't create account for chain \(chain.chainId)")
             return
         }
@@ -119,12 +123,20 @@ final class AccountInfoUpdatingService {
     }
 }
 
-extension AccountInfoUpdatingService: ApplicationServiceProtocol {
+extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
     func setup() {
         subscribeToChains()
     }
 
     func throttle() {
         unsubscribeFromChains()
+    }
+
+    func update(selectedMetaAccount: MetaAccountModel) {
+        unsubscribeFromChains()
+
+        self.selectedMetaAccount = selectedMetaAccount
+
+        subscribeToChains()
     }
 }

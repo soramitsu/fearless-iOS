@@ -1,24 +1,17 @@
 import Foundation
+import RobinHood
 
+// TODO: Remove after refactoring
 final class RewardCalculatorFacade {
-    static let sharedService: RewardCalculatorServiceProtocol = {
-        let storageFacade = SubstrateDataStorageFacade.shared
-        let operationManager = OperationManagerFacade.sharedManager
-        let logger = Logger.shared
+    static let sharedService = MockRewardCalculatorService()
+}
 
-        let providerFactory = SubstrateDataProviderFactory(
-            facade: storageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
+final class MockRewardCalculatorService: RewardCalculatorServiceProtocol {
+    func fetchCalculatorOperation(with _: TimeInterval) -> BaseOperation<RewardCalculatorEngineProtocol> {
+        BaseOperation.createWithError(BaseOperationError.unexpectedDependentResult)
+    }
 
-        return RewardCalculatorService(
-            eraValidatorsService: EraValidatorFacade.sharedService,
-            logger: logger,
-            operationManager: operationManager,
-            providerFactory: providerFactory,
-            runtimeCodingService: RuntimeRegistryFacade.sharedService,
-            storageFacade: storageFacade
-        )
-    }()
+    func setup() {}
+
+    func throttle() {}
 }

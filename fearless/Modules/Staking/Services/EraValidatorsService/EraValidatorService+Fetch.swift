@@ -50,11 +50,6 @@ extension EraValidatorService {
         identifiersClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
-        guard let engine = engine else {
-            logger?.warning("Can't find connection")
-            return CompoundOperationWrapper.createWithError(EraValidatorServiceError.missingEngine)
-        }
-
         let keys: () throws -> [Data] = {
             try identifiersClosure()
         }
@@ -65,7 +60,7 @@ extension EraValidatorService {
         )
 
         return requestFactory.queryItems(
-            engine: engine,
+            engine: connection,
             keyParams: keys,
             factory: { codingFactory },
             storagePath: .validatorPrefs
@@ -76,18 +71,13 @@ extension EraValidatorService {
         keysClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> {
-        guard let engine = engine else {
-            logger?.warning("Can't find connection")
-            return CompoundOperationWrapper.createWithError(EraValidatorServiceError.missingEngine)
-        }
-
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
 
         return requestFactory.queryItems(
-            engine: engine,
+            engine: connection,
             keys: keysClosure,
             factory: { codingFactory },
             storagePath: .erasStakers
@@ -95,14 +85,9 @@ extension EraValidatorService {
     }
 
     private func createRemoteValidatorsFetch(for prefixKey: Data) -> BaseOperation<[String]> {
-        guard let engine = engine else {
-            logger?.warning("Can't find connection")
-            return BaseOperation.createWithError(EraValidatorServiceError.missingEngine)
-        }
-
         let request = PagedKeysRequest(key: prefixKey.toHex(includePrefix: true))
         return JSONRPCOperation<PagedKeysRequest, [String]>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.getStorageKeysPaged,
             parameters: request
         )
@@ -309,8 +294,8 @@ extension EraValidatorService {
         }
 
         guard let localPrefixKey = try? LocalStorageKeyFactory().createKey(
-                from: prefixKey,
-                chainId: chainId
+            from: prefixKey,
+            chainId: chainId
         ) else {
             logger?.error("Can't create local storage key")
             return
