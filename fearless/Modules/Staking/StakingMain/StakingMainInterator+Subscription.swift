@@ -4,27 +4,6 @@ import BigInt
 import CommonWallet
 
 extension StakingMainInteractor {
-    func updateOnAccountOrChainChange() -> Bool {
-        guard let newMetaAccount = selectedWalletSettings.value,
-              let newChainAsset = stakingSettings.value,
-              let newAccountResponse = newMetaAccount.fetch(
-                  for: newChainAsset.chain.accountRequest()
-              ) else {
-            return false
-        }
-
-        let hasChanges = (selectedAccount?.accountId != newAccountResponse.accountId) ||
-            (selectedChainAsset?.chainAssetId != newChainAsset.chainAssetId)
-
-        if selectedChainAsset?.chainAssetId != newChainAsset.chainAssetId {
-            selectedChainAsset = newChainAsset
-        }
-
-        if selectedAccount?.accountId != newAccountResponse.accountId {}
-
-        return hasChanges
-    }
-
     func handle(stashItem: StashItem?) {
         clear(dataProvider: &ledgerProvider)
         clear(dataProvider: &nominatorProvider)
@@ -55,7 +34,7 @@ extension StakingMainInteractor {
                 presenter.didReceive(totalReward: zeroReward)
             }
 
-            subscribeToControllerAccount(address: stashItem.controller)
+            subscribeToControllerAccount(address: stashItem.controller, chain: chainAsset.chain)
             fetchAnalyticsRewards(stash: stashItem.stash)
         }
 
@@ -115,18 +94,23 @@ extension StakingMainInteractor {
         stashControllerProvider = subscribeStashItemProvider(for: address)
     }
 
-    func subscribeToControllerAccount(address: AccountAddress) {
-        guard controllerAccountProvider == nil else {
+    func subscribeToControllerAccount(address: AccountAddress, chain: ChainModel) {
+        guard controllerAccountProvider == nil, let accountId = try? address.toAccountId() else {
             return
         }
 
-        let controllerAccountItemProvider = accountProviderFactory.createStreambleProvider(for: address)
+        let controllerAccountItemProvider = accountProviderFactory.createStreambleProvider(for: accountId)
 
         controllerAccountProvider = controllerAccountItemProvider
 
-        let updateClosure = { [weak presenter] (changes: [DataProviderChange<AccountItem>]) in
-            let controller = changes.reduceToLastChange()
-            presenter?.didReceiveControllerAccount(result: .success(controller))
+        let updateClosure = { [weak presenter] (changes: [DataProviderChange<MetaAccountModel>]) in
+            if
+                let controller = changes.reduceToLastChange(),
+                let accountItem = try? controller.fetch(for: chain.accountRequest())?.toAccountItem() {
+                presenter?.didReceiveControllerAccount(result: .success(accountItem))
+            } else {
+                presenter?.didReceiveControllerAccount(result: .success(nil))
+            }
         }
 
         let failureClosure = { [weak presenter] (error: Error) in

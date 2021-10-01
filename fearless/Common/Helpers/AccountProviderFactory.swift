@@ -5,7 +5,9 @@ import RobinHood
 protocol AccountProviderFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }
 
-    func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem>
+    func createStreambleProvider(
+        for accountId: AccountId
+    ) -> StreamableProvider<MetaAccountModel>
 }
 
 final class AccountProviderFactory: AccountProviderFactoryProtocol {
@@ -23,23 +25,36 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
         self.logger = logger
     }
 
-    func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem> {
-        let mapper: CodableCoreDataMapper<AccountItem, CDMetaAccount> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDMetaAccount.metaId))
+    func createStreambleProvider(
+        for accountId: AccountId
+    ) -> StreamableProvider<MetaAccountModel> {
+        let mapper = MetaAccountMapper()
 
-        let filter = NSPredicate.filterAccountItemByAddress(accountAddress)
-        let repository: CoreDataRepository<AccountItem, CDMetaAccount> = storageFacade
+        let filter = NSPredicate.filterAccountItemByAccountId(accountId)
+        let repository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = storageFacade
             .createRepository(
                 filter: filter,
                 sortDescriptors: [],
                 mapper: AnyCoreDataMapper(mapper)
             )
 
-        // TODO: fix filtering by account id
+        let hexAccountId = accountId.toHex()
         let observable = CoreDataContextObservable(
             service: storageFacade.databaseService,
             mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.metaId == accountAddress }
+            predicate: { metaAccount in
+                metaAccount.substrateAccountId == hexAccountId ||
+                    metaAccount.ethereumAddress == hexAccountId ||
+                    metaAccount.chainAccounts?.contains(
+                        where: { chainEntity in
+                            guard let chainAccount = chainEntity as? CDChainAccount else {
+                                return false
+                            }
+
+                            return chainAccount.accountId == hexAccountId
+                        }
+                    ) ?? false
+            }
         )
 
         observable.start { [weak self] error in
@@ -48,7 +63,7 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
             }
         }
 
-        return StreamableProvider<AccountItem>(
+        return StreamableProvider<MetaAccountModel>(
             source: AnyStreamableSource(EmptyStreamableSource()),
             repository: AnyDataProviderRepository(repository),
             observable: AnyDataProviderRepositoryObservable(observable),

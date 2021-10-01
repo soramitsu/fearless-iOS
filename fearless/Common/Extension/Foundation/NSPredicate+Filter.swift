@@ -51,9 +51,28 @@ extension NSPredicate {
         return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])
     }
 
-    // TODO: Get rid of
-    static func filterAccountItemByAddress(_ address: String) -> NSPredicate {
-        NSPredicate(format: "%K == %@", #keyPath(CDMetaAccount.metaId), address)
+    static func filterAccountItemByAccountId(_ accountId: AccountId) -> NSPredicate {
+        let hexAccountId = accountId.toHex()
+
+        let substrateAccountFilter = NSPredicate(
+            format: "%K == %@",
+            #keyPath(CDMetaAccount.substrateAccountId), hexAccountId
+        )
+
+        let ethereumAccountFilter = NSPredicate(
+            format: "%K == %@",
+            #keyPath(CDMetaAccount.ethereumAddress), hexAccountId
+        )
+
+        let chainAccountFilter = NSPredicate(
+            format: "ANY %K == %@", #keyPath(CDMetaAccount.chainAccounts.accountId), hexAccountId
+        )
+
+        return NSCompoundPredicate(orPredicateWithSubpredicates: [
+            substrateAccountFilter,
+            ethereumAccountFilter,
+            chainAccountFilter
+        ])
     }
 
     static func selectedMetaAccount() -> NSPredicate {

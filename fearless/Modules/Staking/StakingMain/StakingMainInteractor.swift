@@ -44,7 +44,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     var totalRewardProvider: AnySingleValueProvider<TotalRewardItem>?
     var payeeProvider: AnyDataProvider<DecodedPayee>?
-    var controllerAccountProvider: StreamableProvider<AccountItem>?
+    var controllerAccountProvider: StreamableProvider<MetaAccountModel>?
     var minNominatorBondProvider: AnyDataProvider<DecodedBigUInt>?
     var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?

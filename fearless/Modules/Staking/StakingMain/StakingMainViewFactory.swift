@@ -7,6 +7,7 @@ import RobinHood
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     static func createView() -> StakingMainViewProtocol? {
         let settings = SettingsManager.shared
+        settings.stakingAsset = ChainAssetId(chainId: Chain.westend.genesisHash, assetId: 0)
 
         guard let sharedState = try? createSharedState() else {
             return nil
