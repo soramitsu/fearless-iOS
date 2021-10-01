@@ -12,6 +12,11 @@ protocol NetworkStakingInfoOperationFactoryProtocol {
 final class NetworkStakingInfoOperationFactory {
     // MARK: - Private functions
 
+    let durationOperationFactory: StakingDurationOperationFactoryProtocol
+    init(durationFactory: StakingDurationOperationFactoryProtocol = StakingDurationOperationFactory()) {
+        durationOperationFactory = durationFactory
+    }
+
     private func createConstOperation<T>(
         dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         path: ConstantCodingPath
@@ -80,7 +85,8 @@ final class NetworkStakingInfoOperationFactory {
         dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
         maxNominatorsOperation: BaseOperation<UInt32>,
         lockUpPeriodOperation: BaseOperation<UInt32>,
-        minBalanceOperation: BaseOperation<BigUInt>
+        minBalanceOperation: BaseOperation<BigUInt>,
+        durationOperation: BaseOperation<StakingDuration>
     ) -> BaseOperation<NetworkStakingInfo> {
         ClosureOperation<NetworkStakingInfo> {
             let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
@@ -100,12 +106,15 @@ final class NetworkStakingInfoOperationFactory {
                 limitedBy: maxNominators
             )
 
+            let stakingDuration = try durationOperation.extractNoCancellableResultData()
+
             return NetworkStakingInfo(
                 totalStake: totalStake,
                 minStakeAmongActiveNominators: minimalStake,
                 minimalBalance: minBalance,
                 activeNominatorsCount: activeNominatorsCount,
-                lockUpPeriod: lockUpPeriod
+                lockUpPeriod: lockUpPeriod,
+                stakingDuration: stakingDuration
             )
         }
     }
@@ -143,17 +152,21 @@ extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactory
 
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
+        let stakingDurationWrapper = durationOperationFactory.createDurationOperation(from: runtimeService)
+
         let mapOperation = createMapOperation(
             dependingOn: eraValidatorsOperation,
             maxNominatorsOperation: maxNominatorsOperation,
             lockUpPeriodOperation: lockUpPeriodOperation,
-            minBalanceOperation: existentialDepositOperation
+            minBalanceOperation: existentialDepositOperation,
+            durationOperation: stakingDurationWrapper.targetOperation
         )
 
         mapOperation.addDependency(eraValidatorsOperation)
         mapOperation.addDependency(maxNominatorsOperation)
         mapOperation.addDependency(lockUpPeriodOperation)
         mapOperation.addDependency(existentialDepositOperation)
+        mapOperation.addDependency(stakingDurationWrapper.targetOperation)
 
         let dependencies = [
             runtimeOperation,
@@ -161,7 +174,7 @@ extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactory
             maxNominatorsOperation,
             lockUpPeriodOperation,
             existentialDepositOperation
-        ]
+        ] + stakingDurationWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
