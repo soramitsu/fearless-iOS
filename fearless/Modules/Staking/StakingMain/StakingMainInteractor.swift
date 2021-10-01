@@ -7,10 +7,17 @@ import SoraFoundation
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
+    var stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol {
+        sharedState.stakingLocalSubscriptionFactory
+    }
+
+    var stakingSettings: StakingAssetSettings { sharedState.settings }
+
     let selectedWalletSettings: SelectedWalletSettings
+    let sharedState: StakingSharedState
     let chainRegistry: ChainRegistryProtocol
     let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingServiceFactory: StakingServiceFactoryProtocol
@@ -26,8 +33,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
 
-    private(set) var stakingSettings: StakingAssetSettings
-    private(set) var stakingSharedState: StakingSharedState?
+    private var chainSubscriptionId: UUID?
+    private var accountSubscriptionId: UUID?
 
     var priceProvider: AnySingleValueProvider<PriceData>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -46,10 +53,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
-        stakingSettings: StakingAssetSettings,
+        sharedState: StakingSharedState,
         chainRegistry: ChainRegistryProtocol,
         stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingServiceFactory: StakingServiceFactoryProtocol,
@@ -63,10 +70,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         logger: LoggerProtocol?
     ) {
         self.selectedWalletSettings = selectedWalletSettings
-        self.stakingSettings = stakingSettings
+        self.sharedState = sharedState
         self.chainRegistry = chainRegistry
         self.stakingRemoteSubscriptionService = stakingRemoteSubscriptionService
-        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.stakingAccountUpdatingService = stakingAccountUpdatingService
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingServiceFactory = stakingServiceFactory
@@ -78,6 +85,14 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.commonSettings = commonSettings
         self.logger = logger
+    }
+
+    deinit {
+        if let selectedChainAsset = selectedChainAsset {
+            clearChainRemoteSubscription(for: selectedChainAsset.chain.chainId)
+        }
+
+        clearAccountRemoteSubscription()
     }
 
     func setupSelectedAccountAndChainAsset() {
@@ -92,7 +107,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         selectedChainAsset = chainAsset
     }
 
-    func setupSharedState() {
+    func updateSharedState() {
         guard let chainAsset = selectedChainAsset else {
             return
         }
@@ -108,14 +123,64 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 validatorService: eraValidatorService
             )
 
-            stakingSharedState = StakingSharedState(
-                settings: stakingSettings,
-                eraValidatorService: eraValidatorService,
-                rewardCalculationService: rewardCalculatorService,
-                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
-            )
+            sharedState.eraValidatorService.throttle()
+            sharedState.rewardCalculationService.throttle()
+
+            sharedState.replaceEraValidatorService(eraValidatorService)
+            sharedState.replaceRewardCalculatorService(rewardCalculatorService)
+
+            eraValidatorService.setup()
+            rewardCalculatorService.setup()
         } catch {
             logger?.error("Couldn't create shared state")
+        }
+    }
+
+    func clearChainRemoteSubscription(for chainId: ChainModel.Id) {
+        if let chainSubscriptionId = chainSubscriptionId {
+            stakingRemoteSubscriptionService.detachFromGlobalData(
+                for: chainSubscriptionId,
+                chainId: chainId,
+                queue: nil,
+                closure: nil
+            )
+
+            self.chainSubscriptionId = nil
+        }
+    }
+
+    func setupChainRemoteSubscription() {
+        guard let chainId = selectedChainAsset?.chain.chainId else {
+            return
+        }
+
+        chainSubscriptionId = stakingRemoteSubscriptionService.attachToGlobalData(
+            for: chainId,
+            queue: nil,
+            closure: nil
+        )
+    }
+
+    func clearAccountRemoteSubscription() {
+        stakingAccountUpdatingService.clearSubscription()
+    }
+
+    func setupAccountRemoteSubscription() {
+        guard
+            let chainId = selectedChainAsset?.chain.chainId,
+            let accountId = selectedAccount?.accountId,
+            let chainFormat = selectedChainAsset?.chain.chainFormat else {
+            return
+        }
+
+        do {
+            try stakingAccountUpdatingService.setupSubscription(
+                for: accountId,
+                chainId: chainId,
+                chainFormat: chainFormat
+            )
+        } catch {
+            logger?.error("Could setup staking account subscription")
         }
     }
 
@@ -181,7 +246,19 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideNetworkStakingInfo() {
-        let wrapper = eraInfoOperationFactory.networkStakingOperation()
+        guard let chainId = selectedChainAsset?.chain.chainId else {
+            return
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            presenter.didReceive(networkStakingInfoError: ChainRegistryError.runtimeMetadaUnavailable)
+            return
+        }
+
+        let wrapper = eraInfoOperationFactory.networkStakingOperation(
+            for: sharedState.eraValidatorService,
+            runtimeService: runtimeService
+        )
 
         wrapper.targetOperation.completionBlock = {
             DispatchQueue.main.async { [weak self] in
@@ -198,7 +275,25 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        guard let chainId = selectedChainAsset?.chain.chainId else {
+            return
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            presenter.didReceive(eraCountdownResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            presenter.didReceive(eraCountdownResult: .failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
+            for: connection,
+            runtimeService: runtimeService
+        )
+
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {

@@ -112,7 +112,7 @@ final class StakingMainPresenter {
                 let rewardDestination = try? RewardDestination(
                     payee: payee,
                     stashItem: bondedState.stashItem,
-                    chain: chain
+                    chainFormat: chainAsset.chain.chainFormat
                 ),
                 let controllerAccount = self?.controllerAccount,
                 controllerAccount.address == bondedState.stashItem.controller

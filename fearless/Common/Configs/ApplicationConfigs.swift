@@ -108,7 +108,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var commonTypesURL: URL {
         // swiftlint:disable:next line_length
-        URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")!
+        URL(string: "https://raw.githubusercontent.com/valentunn/py-scale-codec/fearless_stable/scalecodec/type_registry/default.json")!
     }
 
     var learnPayoutURL: URL {

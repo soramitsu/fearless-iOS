@@ -49,7 +49,7 @@ final class StakingStateViewModelFactory {
         if let amount = amount {
             return Decimal.fromSubstrateAmount(
                 amount,
-                precision: chainAsset.asset.displayInfo.assetPrecision
+                precision: chainAsset.assetDisplayInfo.assetPrecision
             ) ?? defaultValue
         } else {
             return defaultValue
@@ -61,9 +61,7 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(
-            targetAssetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
-        )
+        let factory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
 
         balanceViewModelFactory = factory
 
@@ -75,10 +73,7 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = RewardViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType
-        )
+        let factory = RewardViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
 
         rewardViewModelFactory = factory
 
@@ -253,7 +248,7 @@ final class StakingStateViewModelFactory {
         return StakingEstimationViewModel(
             assetBalance: balanceViewModel,
             rewardViewModel: reward,
-            asset: asset,
+            assetInfo: chainAsset.assetDisplayInfo,
             inputLimit: StakingConstants.maxAmount,
             amount: amount
         )

@@ -1,20 +1,47 @@
 import Foundation
 import RobinHood
 
-class StakingAccountUpdatingService {
-    let accountResolver: StakingAccountResolver
-    let accountSubscription: StakingAccountSubscription
+protocol StakingAccountUpdatingServiceProtocol {
+    func setupSubscription(
+        for accountId: AccountId,
+        chainId: ChainModel.Id,
+        chainFormat: ChainFormat
+    ) throws
+
+    func clearSubscription()
+}
+
+class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol {
+    private var accountResolver: StakingAccountResolver?
+    private var accountSubscription: StakingAccountSubscription?
+
+    let chainRegistry: ChainRegistryProtocol
+    let substrateRepositoryFactory: SubstrateRepositoryFactoryProtocol
+    let substrateDataProviderFactory: SubstrateDataProviderFactoryProtocol
+    let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
+    let operationQueue: OperationQueue
+    let logger: LoggerProtocol?
 
     init(
-        accountId: AccountId,
-        chainId: ChainModel.Id,
-        chainFormat: ChainFormat,
         chainRegistry: ChainRegistryProtocol,
         substrateRepositoryFactory: SubstrateRepositoryFactoryProtocol,
         substrateDataProviderFactory: SubstrateDataProviderFactoryProtocol,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        logger _: LoggerProtocol
+        logger: LoggerProtocol? = nil
+    ) {
+        self.chainRegistry = chainRegistry
+        self.substrateRepositoryFactory = substrateRepositoryFactory
+        self.substrateDataProviderFactory = substrateDataProviderFactory
+        self.childSubscriptionFactory = childSubscriptionFactory
+        self.operationQueue = operationQueue
+        self.logger = logger
+    }
+
+    func setupSubscription(
+        for accountId: AccountId,
+        chainId: ChainModel.Id,
+        chainFormat: ChainFormat
     ) throws {
         let stashItemRepository = substrateRepositoryFactory.createStashItemRepository()
 
@@ -28,7 +55,8 @@ class StakingAccountUpdatingService {
             chainRegistry: chainRegistry,
             childSubscriptionFactory: childSubscriptionFactory,
             operationQueue: operationQueue,
-            repository: stashItemRepository
+            repository: stashItemRepository,
+            logger: logger
         )
 
         accountSubscription = StakingAccountSubscription(
@@ -38,7 +66,13 @@ class StakingAccountUpdatingService {
             chainRegistry: chainRegistry,
             provider: stashItemProvider,
             childSubscriptionFactory: childSubscriptionFactory,
-            operationQueue: operationQueue
+            operationQueue: operationQueue,
+            logger: logger
         )
+    }
+
+    func clearSubscription() {
+        accountResolver = nil
+        accountSubscription = nil
     }
 }

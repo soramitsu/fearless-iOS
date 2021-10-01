@@ -9,15 +9,18 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     func setup() {
         setupSelectedAccountAndChainAsset()
-        setupSharedState()
+        setupChainRemoteSubscription()
+        setupAccountRemoteSubscription()
+
+        sharedState.eraValidatorService.setup()
+        sharedState.rewardCalculationService.setup()
 
         provideNewChain()
         provideSelectedAccount()
 
         guard
             let chainId = selectedChainAsset?.chain.chainId,
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId),
-            let sharedState = stakingSharedState else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
             return
         }
 
@@ -47,47 +50,75 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         stakingSettings.save(value: chainAsset, runningCompletionIn: .main) { [weak self] _ in
             self?.updateAfterChainAssetSave()
+            self?.updateAfterSelectedAccountChange()
         }
     }
 
     private func updateAfterChainAssetSave() {
-        if updateOnAccountOrChainChange() {
-            setupSharedState()
-
-            clearNominatorsLimitProviders()
-            performNominatorLimitsSubscripion()
-
-            clearStashControllerSubscription()
-            performStashControllerSubscription()
-
-            guard
-                let chainId = selectedChainAsset?.chain.chainId,
-                let runtimeService = chainRegistry.getRuntimeProvider(for: chainId),
-                let sharedState = stakingSharedState else {
-                return
-            }
-
-            provideEraStakersInfo(from: sharedState.eraValidatorService)
-            provideNetworkStakingInfo()
-            provideRewardCalculator(from: sharedState.rewardCalculationService)
-            provideMaxNominatorsPerValidator(from: runtimeService)
+        guard let newSelectedChainAsset = stakingSettings.value else {
+            return
         }
+
+        selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
+
+        selectedChainAsset = newSelectedChainAsset
+
+        setupChainRemoteSubscription()
+
+        updateSharedState()
+
+        provideNewChain()
+
+        clear(singleValueProvider: &priceProvider)
+        performPriceSubscription()
+
+        clearNominatorsLimitProviders()
+        performNominatorLimitsSubscripion()
+
+        clearStashControllerSubscription()
+        performStashControllerSubscription()
+
+        guard
+            let chainId = selectedChainAsset?.chain.chainId,
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            return
+        }
+
+        provideEraStakersInfo(from: sharedState.eraValidatorService)
+        provideNetworkStakingInfo()
+        provideRewardCalculator(from: sharedState.rewardCalculationService)
+        provideMaxNominatorsPerValidator(from: runtimeService)
+    }
+
+    private func updateAfterSelectedAccountChange() {
+        clearAccountRemoteSubscription()
+        clear(dataProvider: &balanceProvider)
+        clearStashControllerSubscription()
+
+        guard let selectedChain = selectedChainAsset?.chain,
+              let selectedMetaAccount = selectedWalletSettings.value,
+              let newSelectedAccount = selectedMetaAccount.fetch(for: selectedChain.accountRequest()) else {
+            return
+        }
+
+        selectedAccount = newSelectedAccount
+
+        setupAccountRemoteSubscription()
+
+        performAccountInfoSubscription()
+
+        provideSelectedAccount()
+
+        performStashControllerSubscription()
     }
 }
 
 extension StakingMainInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        if updateOnAccountOrChainChange() {
-            clearStashControllerSubscription()
-            performStashControllerSubscription()
-        }
+        updateAfterSelectedAccountChange()
     }
 
     func processEraStakersInfoChanged(event _: EraStakersInfoChanged) {
-        guard let sharedState = stakingSharedState else {
-            return
-        }
-
         provideNetworkStakingInfo()
         provideEraStakersInfo(from: sharedState.eraValidatorService)
         provideRewardCalculator(from: sharedState.rewardCalculationService)

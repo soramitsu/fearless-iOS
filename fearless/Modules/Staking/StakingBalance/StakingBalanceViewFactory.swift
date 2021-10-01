@@ -90,7 +90,6 @@ struct StakingBalanceViewFactory {
 
         let repository = AccountRepositoryFactory.createRepository()
 
-        let runtimeService = RuntimeRegistryFacade.sharedService
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: keyFactory,
@@ -98,9 +97,7 @@ struct StakingBalanceViewFactory {
         )
 
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
-            runtimeCodingService: runtimeService,
-            storageRequestFactory: storageRequestFactory,
-            webSocketService: WebSocketService.shared
+            storageRequestFactory: storageRequestFactory
         )
 
         let interactor = StakingBalanceInteractor(

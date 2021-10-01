@@ -12,21 +12,18 @@ protocol RewardViewModelFactoryProtocol {
 }
 
 final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
-    let walletPrimitiveFactory: WalletPrimitiveFactoryProtocol
-    let selectedAddressType: SNAddressType
+    let targetAssetInfo: AssetBalanceDisplayInfo
+    let priceAssetInfo: AssetBalanceDisplayInfo
+    let formatterFactory: AssetBalanceFormatterFactoryProtocol
 
-    private lazy var formatterFactory = AmountFormatterFactory()
-    private lazy var priceAsset = {
-        walletPrimitiveFactory.createPriceAsset()
-    }()
-
-    private lazy var targetAsset = {
-        walletPrimitiveFactory.createAssetForAddressType(selectedAddressType)
-    }()
-
-    init(walletPrimitiveFactory: WalletPrimitiveFactoryProtocol, selectedAddressType: SNAddressType) {
-        self.walletPrimitiveFactory = walletPrimitiveFactory
-        self.selectedAddressType = selectedAddressType
+    init(
+        targetAssetInfo: AssetBalanceDisplayInfo,
+        priceAssetInfo: AssetBalanceDisplayInfo = AssetBalanceDisplayInfo.usd(),
+        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+    ) {
+        self.targetAssetInfo = targetAssetInfo
+        self.priceAssetInfo = priceAssetInfo
+        self.formatterFactory = formatterFactory
     }
 
     func createRewardViewModel(
@@ -34,8 +31,8 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         targetReturn: Decimal,
         priceData: PriceData?
     ) -> LocalizableResource<RewardViewModelProtocol> {
-        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
+        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)

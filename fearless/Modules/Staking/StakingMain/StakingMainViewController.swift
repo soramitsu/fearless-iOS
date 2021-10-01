@@ -32,7 +32,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
-    var amountFormatterFactory: NumberFormatterFactoryProtocol?
+    var amountFormatterFactory: AssetBalanceFormatterFactoryProtocol?
 
     var keyboardHandler: KeyboardHandler?
 

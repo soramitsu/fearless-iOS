@@ -3,21 +3,13 @@ import RobinHood
 import BigInt
 
 protocol NetworkStakingInfoOperationFactoryProtocol {
-    func networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>
+    func networkStakingOperation(
+        for eraValidatorService: EraValidatorServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<NetworkStakingInfo>
 }
 
 final class NetworkStakingInfoOperationFactory {
-    let eraValidatorService: EraValidatorServiceProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-
-    init(
-        eraValidatorService: EraValidatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) {
-        self.eraValidatorService = eraValidatorService
-        self.runtimeService = runtimeService
-    }
-
     // MARK: - Private functions
 
     private func createConstOperation<T>(
@@ -122,7 +114,10 @@ final class NetworkStakingInfoOperationFactory {
 // MARK: - NetworkStakingInfoOperationFactoryProtocol
 
 extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
-    func networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo> {
+    func networkStakingOperation(
+        for eraValidatorService: EraValidatorServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<NetworkStakingInfo> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> =

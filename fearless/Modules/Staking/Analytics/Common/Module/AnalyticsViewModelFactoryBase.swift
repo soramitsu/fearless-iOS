@@ -16,16 +16,27 @@ struct AnalyticsSelectedChartData {
 }
 
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
-    let chain: Chain
+    let assetInfo: AssetBalanceDisplayInfo
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let calendar: Calendar
 
+    @available(*, deprecated, message: "Use init(assetInfo:balanceViewModelFactory:calendar:) instead")
     init(
-        chain: Chain,
+        chain _: Chain,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         calendar: Calendar
     ) {
-        self.chain = chain
+        assetInfo = AssetBalanceDisplayInfo.usd()
+        self.balanceViewModelFactory = balanceViewModelFactory
+        self.calendar = calendar
+    }
+
+    init(
+        assetInfo: AssetBalanceDisplayInfo,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        calendar: Calendar
+    ) {
+        self.assetInfo = assetInfo
         self.balanceViewModelFactory = balanceViewModelFactory
         self.calendar = calendar
     }
@@ -236,7 +247,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         guard
             let tokenDecimal = Decimal.fromSubstrateAmount(
                 data.amount,
-                precision: chain.addressType.precision
+                precision: assetInfo.assetPrecision
             )
         else { return "" }
 

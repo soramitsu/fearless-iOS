@@ -16,8 +16,8 @@ protocol StakingRemoteSubscriptionServiceProtocol {
     )
 }
 
-final class StakingRemoteSubscriptionService:
-    RemoteSubscriptionService, StakingRemoteSubscriptionServiceProtocol {
+final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
+    StakingRemoteSubscriptionServiceProtocol {
     private static let globalDataStoragePaths: [StorageCodingPath] = [
         .activeEra,
         .currentEra,

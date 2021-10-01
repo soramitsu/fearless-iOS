@@ -45,7 +45,12 @@ final class StakingRewardPayoutsInteractor {
     }
 
     private func fetchEraCompletionTime() {
-        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper()
+        // TODO: Fix when chain registry integrated
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
+            for: WebSocketService.shared.connection!,
+            runtimeService: RuntimeRegistryFacade.sharedService
+        )
+
         operationWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {

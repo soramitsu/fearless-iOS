@@ -14,4 +14,6 @@ extension ChainAsset {
     var chainAssetId: ChainAssetId {
         ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
     }
+
+    var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
 }

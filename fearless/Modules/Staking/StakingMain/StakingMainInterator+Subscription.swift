@@ -18,21 +18,9 @@ extension StakingMainInteractor {
 
         if selectedChainAsset?.chainAssetId != newChainAsset.chainAssetId {
             selectedChainAsset = newChainAsset
-
-            clear(singleValueProvider: &priceProvider)
-            performPriceSubscription()
-
-            provideNewChain()
         }
 
-        if selectedAccount?.accountId != newAccountResponse.accountId {
-            selectedAccount = newAccountResponse
-
-            clear(dataProvider: &balanceProvider)
-            performAccountInfoSubscription()
-
-            provideSelectedAccount()
-        }
+        if selectedAccount?.accountId != newAccountResponse.accountId {}
 
         return hasChanges
     }
@@ -210,6 +198,7 @@ extension StakingMainInteractor: StakingLocalStorageSubscriber, StakingLocalSubs
 
         switch result {
         case let .success(stashItem):
+            handle(stashItem: stashItem)
             presenter.didReceive(stashItem: stashItem)
         case let .failure(error):
             presenter.didReceive(stashItemError: error)

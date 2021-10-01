@@ -2,8 +2,8 @@ import Foundation
 
 final class StakingSharedState {
     let settings: StakingAssetSettings
-    let eraValidatorService: EraValidatorServiceProtocol
-    let rewardCalculationService: RewardCalculatorServiceProtocol
+    private(set) var eraValidatorService: EraValidatorServiceProtocol
+    private(set) var rewardCalculationService: RewardCalculatorServiceProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
 
     init(
@@ -16,5 +16,13 @@ final class StakingSharedState {
         self.eraValidatorService = eraValidatorService
         self.rewardCalculationService = rewardCalculationService
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+    }
+
+    func replaceEraValidatorService(_ newService: EraValidatorServiceProtocol) {
+        eraValidatorService = newService
+    }
+
+    func replaceRewardCalculatorService(_ newService: RewardCalculatorServiceProtocol) {
+        rewardCalculationService = newService
     }
 }

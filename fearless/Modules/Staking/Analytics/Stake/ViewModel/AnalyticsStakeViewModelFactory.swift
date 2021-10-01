@@ -32,7 +32,7 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         return data.map { stakeChange in
             let amount = Decimal.fromSubstrateAmount(
                 stakeChange.amountInChart,
-                precision: chain.addressType.precision
+                precision: assetInfo.assetPrecision
             ) ?? 0.0
 
             let title = formatter.string(from: stakeChange.date)
@@ -47,7 +47,10 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         locale: Locale
     ) -> BalanceViewModelProtocol {
         let amounts = historyItems.map(\.amountInChart)
-        let totalReceived = Decimal.fromSubstrateAmount(amounts.last ?? 0, precision: chain.addressType.precision) ?? 0
+        let totalReceived = Decimal.fromSubstrateAmount(
+            amounts.last ?? 0,
+            precision: assetInfo.assetPrecision
+        ) ?? 0
 
         let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
             totalReceived,
