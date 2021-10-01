@@ -22,7 +22,8 @@ final class AccountItemMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { "metaId" }
 
     func transform(entity: CDMetaAccount) throws -> AccountItem {
-        let address = try addressFactory.address(fromAccountId: entity.substrateAccountId!, type: addressPrefix)
+        let substrateAccountId = try Data(hexString: entity.substrateAccountId!)
+        let address = try addressFactory.address(fromAccountId: substrateAccountId, type: addressPrefix)
         let cryptoType = CryptoType(rawValue: UInt8(entity.substrateCryptoType))
 
         return AccountItem(

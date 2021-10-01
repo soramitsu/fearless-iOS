@@ -22535,16 +22535,16 @@ import RobinHood
     
     
     
-     func networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo> {
+     func networkStakingOperation(for eraValidatorService: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo> {
         
-    return cuckoo_manager.call("networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("networkStakingOperation(for: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo>",
+            parameters: (eraValidatorService, runtimeService),
+            escapingParameters: (eraValidatorService, runtimeService),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.networkStakingOperation())
+            defaultCall: __defaultImplStub!.networkStakingOperation(for: eraValidatorService, runtimeService: runtimeService))
         
     }
     
@@ -22557,9 +22557,9 @@ import RobinHood
 	    }
 	    
 	    
-	    func networkStakingOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<NetworkStakingInfo>> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkStakingInfoOperationFactoryProtocol.self, method: "networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>", parameterMatchers: matchers))
+	    func networkStakingOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for eraValidatorService: M1, runtimeService: M2) -> Cuckoo.ProtocolStubFunction<(EraValidatorServiceProtocol, RuntimeCodingServiceProtocol), CompoundOperationWrapper<NetworkStakingInfo>> where M1.MatchedType == EraValidatorServiceProtocol, M2.MatchedType == RuntimeCodingServiceProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(EraValidatorServiceProtocol, RuntimeCodingServiceProtocol)>] = [wrap(matchable: eraValidatorService) { $0.0 }, wrap(matchable: runtimeService) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkStakingInfoOperationFactoryProtocol.self, method: "networkStakingOperation(for: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -22579,9 +22579,9 @@ import RobinHood
 	
 	    
 	    @discardableResult
-	    func networkStakingOperation() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<NetworkStakingInfo>> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func networkStakingOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for eraValidatorService: M1, runtimeService: M2) -> Cuckoo.__DoNotUse<(EraValidatorServiceProtocol, RuntimeCodingServiceProtocol), CompoundOperationWrapper<NetworkStakingInfo>> where M1.MatchedType == EraValidatorServiceProtocol, M2.MatchedType == RuntimeCodingServiceProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(EraValidatorServiceProtocol, RuntimeCodingServiceProtocol)>] = [wrap(matchable: eraValidatorService) { $0.0 }, wrap(matchable: runtimeService) { $0.1 }]
+	        return cuckoo_manager.verify("networkStakingOperation(for: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -22593,7 +22593,7 @@ import RobinHood
     
 
     
-     func networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>  {
+     func networkStakingOperation(for eraValidatorService: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo>  {
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<NetworkStakingInfo>).self)
     }
     
@@ -36232,6 +36232,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func save(chainAsset: ChainAsset)  {
+        
+    return cuckoo_manager.call("save(chainAsset: ChainAsset)",
+            parameters: (chainAsset),
+            escapingParameters: (chainAsset),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.save(chainAsset: chainAsset))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingMainInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -36249,6 +36264,11 @@ import SoraFoundation
 	    func saveNetworkInfoViewExpansion<M1: Cuckoo.Matchable>(isExpanded: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
 	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: isExpanded) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "saveNetworkInfoViewExpansion(isExpanded: Bool)", parameterMatchers: matchers))
+	    }
+	    
+	    func save<M1: Cuckoo.Matchable>(chainAsset: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAsset)> where M1.MatchedType == ChainAsset {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainAsset)>] = [wrap(matchable: chainAsset) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "save(chainAsset: ChainAsset)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -36279,6 +36299,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("saveNetworkInfoViewExpansion(isExpanded: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func save<M1: Cuckoo.Matchable>(chainAsset: M1) -> Cuckoo.__DoNotUse<(ChainAsset), Void> where M1.MatchedType == ChainAsset {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainAsset)>] = [wrap(matchable: chainAsset) { $0 }]
+	        return cuckoo_manager.verify("save(chainAsset: ChainAsset)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -36293,6 +36319,10 @@ import SoraFoundation
     }
     
      func saveNetworkInfoViewExpansion(isExpanded: Bool)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func save(chainAsset: ChainAsset)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -36670,16 +36700,16 @@ import SoraFoundation
     
     
     
-     func didReceive(newChain: Chain)  {
+     func didReceive(newChainAsset: ChainAsset)  {
         
-    return cuckoo_manager.call("didReceive(newChain: Chain)",
-            parameters: (newChain),
-            escapingParameters: (newChain),
+    return cuckoo_manager.call("didReceive(newChainAsset: ChainAsset)",
+            parameters: (newChainAsset),
+            escapingParameters: (newChainAsset),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didReceive(newChain: newChain))
+            defaultCall: __defaultImplStub!.didReceive(newChainAsset: newChainAsset))
         
     }
     
@@ -36927,9 +36957,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(payeeError: Error)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
-	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: newChain) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChain: Chain)", parameterMatchers: matchers))
+	    func didReceive<M1: Cuckoo.Matchable>(newChainAsset: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAsset)> where M1.MatchedType == ChainAsset {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainAsset)>] = [wrap(matchable: newChainAsset) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChainAsset: ChainAsset)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceieve<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(subqueryRewards: M1, period: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[SubqueryRewardItemData]?, Error>, AnalyticsPeriod)> where M1.MatchedType == Result<[SubqueryRewardItemData]?, Error>, M2.MatchedType == AnalyticsPeriod {
@@ -37127,9 +37157,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.__DoNotUse<(Chain), Void> where M1.MatchedType == Chain {
-	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: newChain) { $0 }]
-	        return cuckoo_manager.verify("didReceive(newChain: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceive<M1: Cuckoo.Matchable>(newChainAsset: M1) -> Cuckoo.__DoNotUse<(ChainAsset), Void> where M1.MatchedType == ChainAsset {
+	        let matchers: [Cuckoo.ParameterMatcher<(ChainAsset)>] = [wrap(matchable: newChainAsset) { $0 }]
+	        return cuckoo_manager.verify("didReceive(newChainAsset: ChainAsset)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -37281,7 +37311,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceive(newChain: Chain)   {
+     func didReceive(newChainAsset: ChainAsset)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

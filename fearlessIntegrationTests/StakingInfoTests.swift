@@ -36,9 +36,27 @@ class StakingInfoTests: XCTestCase {
                                                 address: address)
 
         let webSocketService = WebSocketServiceFactory.createService()
-        let runtimeService = RuntimeRegistryFacade.sharedService
-        let validatorService = EraValidatorFacade.sharedService
-        let rewardCalculatorService = RewardCalculatorFacade.sharedService
+
+        let stakingServiceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let runtimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(
+            for: addressType.chain.genesisHash
+        )!
+
+        let validatorService = try stakingServiceFactory.createEraValidatorService(
+            for: addressType.chain.genesisHash
+        )
+
+        let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
+            for: addressType.chain.genesisHash,
+            assetPrecision: addressType.precision,
+            validatorService: validatorService
+        )
 
         // when
         webSocketService.update(settings: settings)
@@ -48,12 +66,7 @@ class StakingInfoTests: XCTestCase {
 
         let chain = addressType.chain
 
-        if let engine = webSocketService.connection {
-            validatorService.update(to: chain, engine: engine)
-            validatorService.setup()
-        }
-
-        rewardCalculatorService.update(to: chain)
+        validatorService.setup()
         rewardCalculatorService.setup()
 
         let validatorsOperation = validatorService.fetchInfoOperation()

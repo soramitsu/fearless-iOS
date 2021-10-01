@@ -1,4 +1,4 @@
-import XCTest
+/*import XCTest
 @testable import fearless
 import FearlessUtils
 import RobinHood
@@ -481,3 +481,4 @@ class JSONRPCTests: XCTestCase {
                                 applicationHandler: ApplicationHandler())
     }
 }
+*/
