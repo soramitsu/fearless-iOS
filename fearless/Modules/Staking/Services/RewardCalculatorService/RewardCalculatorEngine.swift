@@ -71,6 +71,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
+    private let eraDurationInSeconds: TimeInterval
 
     private let decayRate: Decimal = 0.05
     private let idealStakePortion: Decimal = 0.75
@@ -149,7 +150,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         chainId: ChainModel.Id,
         assetPrecision: Int16,
         totalIssuance: BigUInt,
-        validators: [EraValidatorInfo]
+        validators: [EraValidatorInfo],
+        eraDurationInSeconds: TimeInterval
     ) {
         self.chainId = chainId
         self.assetPrecision = assetPrecision
@@ -158,6 +160,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             precision: assetPrecision
         ) ?? 0.0
         self.validators = validators
+        self.eraDurationInSeconds = eraDurationInSeconds
     }
 
     func calculateEarnings(
@@ -256,7 +259,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         dailyInterestRate: Decimal
     ) -> Decimal {
         let numberOfDays = period.inDays
-        let erasPerDay = Chain.kusama.erasPerDay // TODO: fix eras per day
+        let erasPerDay = eraDurationInSeconds.intervalsInDay
 
         guard erasPerDay > 0 else {
             return 0.0

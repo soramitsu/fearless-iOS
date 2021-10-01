@@ -73,6 +73,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             operationManager: operationManager,
             providerFactory: substrateDataProviderFactory,
             runtimeCodingService: runtimeService,
+            stakingDurationFactory: StakingDurationOperationFactory(),
             storageFacade: storageFacade,
             logger: logger
         )

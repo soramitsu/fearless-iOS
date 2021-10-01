@@ -35,6 +35,7 @@ final class RewardCalculatorService {
     let providerFactory: SubstrateDataProviderFactoryProtocol
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
+    let stakingDurationFactory: StakingDurationOperationFactoryProtocol
 
     init(
         chainId: ChainModel.Id,
@@ -43,6 +44,7 @@ final class RewardCalculatorService {
         operationManager: OperationManagerProtocol,
         providerFactory: SubstrateDataProviderFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
+        stakingDurationFactory: StakingDurationOperationFactoryProtocol,
         storageFacade: StorageFacadeProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -52,6 +54,7 @@ final class RewardCalculatorService {
         self.providerFactory = providerFactory
         self.operationManager = operationManager
         self.eraValidatorsService = eraValidatorsService
+        self.stakingDurationFactory = stakingDurationFactory
         self.runtimeCodingService = runtimeCodingService
         self.logger = logger
     }
@@ -77,18 +80,32 @@ final class RewardCalculatorService {
         chainId: ChainModel.Id,
         assetPrecision: Int16
     ) {
+        let durationWrapper = stakingDurationFactory.createDurationOperation(
+            from: runtimeCodingService
+        )
+
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
-        eraOperation.completionBlock = {
+        let mapOperation = ClosureOperation<RewardCalculatorEngine> {
+            let eraStakersInfo = try eraOperation.extractNoCancellableResultData()
+            let stakingDuration = try durationWrapper.targetOperation.extractNoCancellableResultData()
+
+            return RewardCalculatorEngine(
+                chainId: chainId,
+                assetPrecision: assetPrecision,
+                totalIssuance: snapshot,
+                validators: eraStakersInfo.validators,
+                eraDurationInSeconds: stakingDuration.era
+            )
+        }
+
+        mapOperation.addDependency(durationWrapper.targetOperation)
+        mapOperation.addDependency(eraOperation)
+
+        mapOperation.completionBlock = {
             dispatchInQueueWhenPossible(request.queue) {
-                switch eraOperation.result {
-                case let .success(eraStakersInfo):
-                    let calculator = RewardCalculatorEngine(
-                        chainId: chainId,
-                        assetPrecision: assetPrecision,
-                        totalIssuance: snapshot,
-                        validators: eraStakersInfo.validators
-                    )
+                switch mapOperation.result {
+                case let .success(calculator):
                     request.resultClosure(calculator)
                 case let .failure(error):
                     self.logger?.error("Era stakers info fetch error: \(error)")
@@ -99,7 +116,7 @@ final class RewardCalculatorService {
         }
 
         operationManager.enqueue(
-            operations: [eraOperation],
+            operations: durationWrapper.allOperations + [eraOperation, mapOperation],
             in: .transient
         )
     }
