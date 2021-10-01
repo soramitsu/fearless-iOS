@@ -74,11 +74,12 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         settings: SettingsManagerProtocol
     ) -> StakingMainInteractor {
         let operationManager = OperationManagerFacade.sharedManager
+        let logger = Logger.shared
 
         let accountProviderFactory = AccountProviderFactory(
             storageFacade: UserDataStorageFacade.shared,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: logger
         )
 
         let keyFactory = StorageKeyFactory()
@@ -101,7 +102,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             repository: chainItemRepository,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: logger
         )
 
         let serviceFactory = StakingServiceFactory(
@@ -120,7 +121,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             storageFacade: SubstrateDataStorageFacade.shared,
             operationManager: operationManager,
             eventCenter: EventCenter.shared,
-            logger: Logger.shared
+            logger: logger
         )
 
         let stakingAccountUpdatingService = StakingAccountUpdatingService(
@@ -147,7 +148,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             applicationHandler: ApplicationHandler(),
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             commonSettings: settings,
-            logger: Logger.shared
+            logger: logger
         )
     }
 

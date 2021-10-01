@@ -93,25 +93,41 @@ extension EraValidatorService {
         )
     }
 
+    private func createLocalExposurePrefixKey(
+        for chainId: ChainModel.Id,
+        activeEra: UInt32?
+    ) throws -> String {
+        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+            .erasStakers,
+            chainId: chainId
+        )
+
+        if let activeEra = activeEra {
+            let encodedActiveEra = try activeEra.scaleEncoded()
+            return localKey + encodedActiveEra.toHex()
+        } else {
+            return localKey
+        }
+    }
+
     private func createValidatorsSave(
-        exposures: BaseOperation<[StorageResponse<ValidatorExposure>]>
+        exposures: BaseOperation<[StorageResponse<ValidatorExposure>]>,
+        activeEra: UInt32
     ) -> BaseOperation<Void> {
         do {
-            let currentChainId = chainId
-            let path = StorageCodingPath.erasStakers
+            let baseLocalKey = try createLocalExposurePrefixKey(for: chainId, activeEra: nil)
+            let activeEraSuffix = try activeEra.scaleEncoded().toHex()
 
-            let localKeyFactory = LocalStorageKeyFactory()
-            let localKey = try localKeyFactory.createFromStoragePath(path, chainId: currentChainId)
-
-            let filter = NSPredicate.filterByIdPrefix(localKey)
+            let filter = NSPredicate.filterByIdPrefix(baseLocalKey)
             let newRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
                 storageFacade.createRepository(filter: filter)
 
             return newRepository.replaceOperation {
                 let result = try exposures.extractNoCancellableResultData()
-                return try result.compactMap { item in
+                return result.compactMap { item in
                     if let data = item.data {
-                        let localId = try localKeyFactory.createKey(from: item.key, chainId: currentChainId)
+                        let localId = baseLocalKey + activeEraSuffix +
+                            item.key.getAccountIdFromKey().toHex()
                         return ChainStorageItem(identifier: localId, data: data)
                     } else {
                         return nil
@@ -125,7 +141,6 @@ extension EraValidatorService {
 
     private func handleRemoteUpdate(
         activeEra: UInt32,
-        codingFactory _: RuntimeCoderFactoryProtocol,
         exposureResponse: [StorageResponse<ValidatorExposure>],
         prefsResponse: [StorageResponse<ValidatorPrefs>]
     ) {
@@ -162,10 +177,7 @@ extension EraValidatorService {
             return try hexKeys.map { try Data(hexString: $0) }
         }
 
-        let exposureWrapper = createExposureWrapper(
-            keysClosure: keysClosure,
-            codingFactory: codingFactory
-        )
+        let exposureWrapper = createExposureWrapper(keysClosure: keysClosure, codingFactory: codingFactory)
 
         exposureWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
 
@@ -182,7 +194,8 @@ extension EraValidatorService {
         prefsWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
 
         let saveOperation = createValidatorsSave(
-            exposures: exposureWrapper.targetOperation
+            exposures: exposureWrapper.targetOperation,
+            activeEra: activeEra
         )
 
         saveOperation.addDependency(exposureWrapper.targetOperation)
@@ -204,7 +217,6 @@ extension EraValidatorService {
                     let prefs = try prefsWrapper.targetOperation.extractNoCancellableResultData()
                     self?.handleRemoteUpdate(
                         activeEra: activeEra,
-                        codingFactory: codingFactory,
                         exposureResponse: exposures,
                         prefsResponse: prefs
                     )
@@ -293,11 +305,11 @@ extension EraValidatorService {
             return
         }
 
-        guard let localPrefixKey = try? LocalStorageKeyFactory().createKey(
-            from: prefixKey,
-            chainId: chainId
+        guard let localPrefixKey = try? createLocalExposurePrefixKey(
+            for: chainId,
+            activeEra: activeEra
         ) else {
-            logger?.error("Can't create local storage key")
+            logger?.error("Can't create local storage key prefix key")
             return
         }
 
@@ -364,7 +376,9 @@ extension EraValidatorService {
             self?.syncQueue.async {
                 switch erasStakersKeyOperation.result {
                 case let .success(prefixKeys):
-                    if let factory = erasStakersKeyOperation.codingFactory, let prefixKey = prefixKeys.first {
+                    if
+                        let factory = erasStakersKeyOperation.codingFactory,
+                        let prefixKey = prefixKeys.first {
                         self?.updateIfNeeded(
                             activeEra: activeEra,
                             prefixKey: prefixKey,

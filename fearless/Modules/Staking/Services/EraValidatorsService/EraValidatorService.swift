@@ -4,7 +4,6 @@ import FearlessUtils
 
 enum EraValidatorServiceError: Error {
     case unsuppotedStoragePath(_ path: StorageCodingPath)
-    case timedOut
     case unexpectedInfo
     case missingEngine
 }
@@ -168,7 +167,7 @@ extension EraValidatorService: EraValidatorServiceProtocol {
         }
     }
 
-    func fetchInfoOperation(with timeout: TimeInterval) -> BaseOperation<EraStakersInfo> {
+    func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
         ClosureOperation {
             var fetchedInfo: EraStakersInfo?
 
@@ -181,18 +180,13 @@ extension EraValidatorService: EraValidatorServiceProtocol {
                 }
             }
 
-            let result = semaphore.wait(timeout: DispatchTime.now() + .milliseconds(timeout.milliseconds))
+            semaphore.wait()
 
-            switch result {
-            case .success:
-                guard let info = fetchedInfo else {
-                    throw EraValidatorServiceError.unexpectedInfo
-                }
-
-                return info
-            case .timedOut:
-                throw EraValidatorServiceError.timedOut
+            guard let info = fetchedInfo else {
+                throw EraValidatorServiceError.unexpectedInfo
             }
+
+            return info
         }
     }
 }

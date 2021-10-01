@@ -7,7 +7,7 @@ final class EraValidatorFacade {
 }
 
 final class MockEraValidatorService: EraValidatorServiceProtocol {
-    func fetchInfoOperation(with _: TimeInterval) -> BaseOperation<EraStakersInfo> {
+    func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
         BaseOperation.createWithError(BaseOperationError.parentOperationCancelled)
     }
 
