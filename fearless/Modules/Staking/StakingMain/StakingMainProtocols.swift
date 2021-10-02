@@ -110,6 +110,12 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)
 
     func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)
+
+    func showChainAssetSelection(
+        from view: StakingMainViewProtocol?,
+        selectedChainAssetId: ChainAssetId?,
+        delegate: AssetSelectionDelegate
+    )
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {

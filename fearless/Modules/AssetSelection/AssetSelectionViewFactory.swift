@@ -2,14 +2,14 @@ import Foundation
 import RobinHood
 import SoraFoundation
 
-struct ChainSelectionViewFactory {
+struct AssetSelectionViewFactory {
     static func createView(
-        delegate: ChainSelectionDelegate,
-        selectedChainId: ChainModel.Id?,
-        repositoryFilter: NSPredicate?
+        delegate: AssetSelectionDelegate,
+        selectedChainId: ChainAssetId?,
+        assetFilter: @escaping AssetSelectionFilter
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
-            for: repositoryFilter,
+            for: nil,
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -20,25 +20,24 @@ struct ChainSelectionViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let wireframe = ChainSelectionWireframe()
+        let wireframe = AssetSelectionWireframe()
         wireframe.delegate = delegate
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
 
         let localizationManager = LocalizationManager.shared
 
-        let presenter = ChainSelectionPresenter(
+        let presenter = AssetSelectionPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            selectedChainId: selectedChainId,
+            assetFilter: assetFilter,
+            selectedChainAssetId: selectedChainId,
             assetBalanceFormatterFactory: assetBalanceFormatterFactory,
             localizationManager: localizationManager
         )
 
         let title = LocalizableResource { locale in
-            R.string.localizable.commonSelectNetwork(
-                preferredLanguages: locale.rLanguages
-            )
+            R.string.localizable.commonSelectAsset(preferredLanguages: locale.rLanguages)
         }
 
         let view = ChainSelectionViewController(

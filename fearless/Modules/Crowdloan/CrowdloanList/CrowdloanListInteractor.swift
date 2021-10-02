@@ -23,7 +23,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
     deinit {
-        clear()
+        if let subscriptionId = blockNumberSubscriptionId, let chain = settings.value {
+            blockNumberSubscriptionId = nil
+            crowdloanRemoteSubscriptionService.detach(for: subscriptionId, chainId: chain.chainId)
+        }
     }
 
     init(

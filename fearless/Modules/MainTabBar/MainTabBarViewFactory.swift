@@ -21,7 +21,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
-            settings: SettingsManager.shared,
             serviceCoordinator: serviceCoordinator,
             keystoreImportService: keystoreImportService
         )

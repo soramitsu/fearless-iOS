@@ -170,4 +170,26 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func showChainAssetSelection(
+        from view: StakingMainViewProtocol?,
+        selectedChainAssetId: ChainAssetId?,
+        delegate: AssetSelectionDelegate
+    ) {
+        let stakingFilter: AssetSelectionFilter = { _, asset in asset.staking != nil }
+
+        guard let selectionView = AssetSelectionViewFactory.createView(
+            delegate: delegate,
+            selectedChainId: selectedChainAssetId,
+            assetFilter: stakingFilter
+        ) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: selectionView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }

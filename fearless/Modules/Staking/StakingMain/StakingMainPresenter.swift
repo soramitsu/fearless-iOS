@@ -149,7 +149,11 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAssetSelection() {
-        
+        wireframe.showChainAssetSelection(
+            from: view,
+            selectedChainAssetId: chainAsset?.chainAssetId,
+            delegate: self
+        )
     }
 
     func performMainAction() {
@@ -628,5 +632,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showYourValidatorInfo(stashAddress, from: view)
             }
         }
+    }
+}
+
+extension StakingMainPresenter: AssetSelectionDelegate {
+    func assetSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
+        interactor.save(chainAsset: chainAsset)
     }
 }
