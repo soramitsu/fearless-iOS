@@ -16,7 +16,6 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let logger: LoggerProtocol?
 
     private var blockNumberSubscriptionId: UUID?
-    private var accountInfoSubscriptionId: UUID?
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
