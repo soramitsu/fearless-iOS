@@ -4,8 +4,7 @@ import CommonWallet
 import BigInt
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: StakingMainViewModelProtocol)
-    func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
+    func didReceive(viewModel: StakingMainViewModel)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
     func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?)
 
@@ -15,6 +14,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
+    func performAssetSelection()
     func performMainAction()
     func performAccountAction()
     func performManageStakingAction()

@@ -19,6 +19,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
 
+    let assetSelectionContainerView = UIView()
+    let assetSelectionView: DetailsTriangularedView = {
+        let view = UIFactory.default.createChainAssetSelectionView()
+        view.borderWidth = 0.0
+        return view
+    }()
+
     private var networkInfoContainerView: UIView!
     private var networkInfoView: NetworkInfoView!
     private lazy var alertsContainerView = UIView()
@@ -29,6 +36,9 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
     private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
+
+    private var balanceViewModel: LocalizableResource<String>?
+    private var assetIconViewModel: ImageViewModelProtocol?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -41,6 +51,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupAssetSelectionView()
         setupNetworkInfoView()
         setupAlertsView()
         setupAnalyticsView()
@@ -97,10 +108,34 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     // MARK: - Private functions
 
+    private func setupAssetSelectionView() {
+        assetSelectionContainerView.translatesAutoresizingMaskIntoConstraints = false
+
+        let backgroundView = TriangularedBlurView()
+        assetSelectionContainerView.addSubview(backgroundView)
+        assetSelectionContainerView.addSubview(assetSelectionView)
+
+        applyConstraints(for: assetSelectionContainerView, innerView: assetSelectionView)
+
+        stackView.insertArranged(view: assetSelectionContainerView, after: headerView)
+
+        assetSelectionView.snp.makeConstraints { make in
+            make.height.equalTo(48.0)
+        }
+
+        backgroundView.snp.makeConstraints { make in
+            make.edges.equalTo(assetSelectionView)
+        }
+
+        assetSelectionView.addTarget(
+            self,
+            action: #selector(actionAssetSelection),
+            for: .touchUpInside
+        )
+    }
+
     private func setupNetworkInfoView() {
-        guard
-            let networkInfoView = R.nib.networkInfoView(owner: self),
-            let headerIndex = stackView.arrangedSubviews.firstIndex(of: headerView) else { return }
+        guard let networkInfoView = R.nib.networkInfoView(owner: self) else { return }
 
         self.networkInfoView = networkInfoView
 
@@ -113,7 +148,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         applyConstraints(for: networkInfoContainerView, innerView: networkInfoView)
 
-        stackView.insertArrangedSubview(networkInfoContainerView, at: headerIndex + 1)
+        stackView.insertArranged(view: networkInfoContainerView, after: assetSelectionContainerView)
 
         configureStoriesView()
     }
@@ -330,15 +365,16 @@ extension StakingMainViewController: StakingMainViewProtocol {
         networkInfoView.bind(viewModel: viewModel)
     }
 
-    func didReceiveChainName(chainName newChainName: LocalizableResource<String>) {
-        networkInfoView.bind(chainName: newChainName)
-    }
-
     func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
         analyticsView.bind(viewModel: viewModel)
     }
 
-    func didReceive(viewModel: StakingMainViewModelProtocol) {
+    func didReceive(viewModel: StakingMainViewModel) {
+        assetIconViewModel?.cancel(on: assetSelectionView.iconView)
+
+        assetIconViewModel = viewModel.assetIcon
+        balanceViewModel = viewModel.balanceViewModel
+
         let sideSize = iconButtonWidth.constant - iconButton.contentInsets.left
             - iconButton.contentInsets.right
         let size = CGSize(width: sideSize, height: sideSize)
@@ -346,6 +382,19 @@ extension StakingMainViewController: StakingMainViewProtocol {
             .imageWithFillColor(R.color.colorWhite()!, size: size, contentScale: UIScreen.main.scale)
         iconButton.imageWithTitleView?.iconImage = icon
         iconButton.invalidateLayout()
+
+        networkInfoView.bind(chainName: viewModel.chainName)
+        assetSelectionView.title = viewModel.assetName
+        assetSelectionView.subtitle = viewModel.balanceViewModel?.value(for: selectedLocale)
+
+        assetSelectionView.iconImage = nil
+
+        let iconSize = 2 * assetSelectionView.iconRadius
+        assetIconViewModel?.loadImage(
+            on: assetSelectionView.iconView,
+            targetSize: CGSize(width: iconSize, height: iconSize),
+            animated: true
+        )
     }
 
     func didReceiveStakingState(viewModel: StakingViewState) {
@@ -371,6 +420,10 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
     func expandNetworkInfoView(_ isExpanded: Bool) {
         networkInfoView.setExpanded(isExpanded, animated: false)
+    }
+
+    @objc func actionAssetSelection() {
+        presenter.performAssetSelection()
     }
 }
 

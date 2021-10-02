@@ -80,16 +80,20 @@ final class StakingMainPresenter {
         view?.didReceiveStakingState(viewModel: state)
     }
 
-    private func provideChain() {
+    private func provideMainViewModel() {
         let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
 
-        guard let chainAsset = commonData?.chainAsset else {
+        guard let address = commonData?.address, let chainAsset = commonData?.chainAsset else {
             return
         }
 
-        let chainModel = networkInfoViewModelFactory.createChainViewModel(for: chainAsset)
+        let viewModel = networkInfoViewModelFactory.createMainViewModel(
+            from: address,
+            chainAsset: chainAsset,
+            balance: balance ?? 0.0
+        )
 
-        view?.didReceiveChainName(chainName: chainModel)
+        view?.didReceive(viewModel: viewModel)
     }
 
     func setupValidators(for bondedState: BondedState) {
@@ -138,10 +142,14 @@ final class StakingMainPresenter {
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
         provideState()
-        provideChain()
+        provideMainViewModel()
         provideStakingInfo()
 
         interactor.setup()
+    }
+
+    func performAssetSelection() {
+        
     }
 
     func performMainAction() {
@@ -377,6 +385,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
 
         stateMachine.state.process(accountInfo: accountInfo)
+
+        provideMainViewModel()
     }
 
     func didReceive(balanceError: Error) {
@@ -386,8 +396,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(selectedAddress: String) {
         stateMachine.state.process(address: selectedAddress)
 
-        let viewModel = StakingMainViewModel(address: selectedAddress)
-        view?.didReceive(viewModel: viewModel)
+        provideMainViewModel()
     }
 
     func didReceive(calculator: RewardCalculatorEngineProtocol) {
@@ -471,7 +480,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
         stateMachine.state.process(chainAsset: newChainAsset)
 
-        provideChain()
+        provideMainViewModel()
         provideStakingInfo()
     }
 

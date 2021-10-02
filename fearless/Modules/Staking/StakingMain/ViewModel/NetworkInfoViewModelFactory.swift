@@ -4,7 +4,12 @@ import BigInt
 import SoraKeystore
 
 protocol NetworkInfoViewModelFactoryProtocol {
-    func createChainViewModel(for chainAsset: ChainAsset) -> LocalizableResource<String>
+    func createMainViewModel(
+        from address: AccountAddress,
+        chainAsset: ChainAsset,
+        balance: Decimal
+    ) -> StakingMainViewModel
+
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chainAsset: ChainAsset,
@@ -104,10 +109,24 @@ final class NetworkInfoViewModelFactory {
 }
 
 extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
-    func createChainViewModel(for chainAsset: ChainAsset) -> LocalizableResource<String> {
-        LocalizableResource { _ in
-            chainAsset.chain.name
+    func createMainViewModel(
+        from address: AccountAddress,
+        chainAsset: ChainAsset,
+        balance: Decimal
+    ) -> StakingMainViewModel {
+        let balanceViewModel = getBalanceViewModelFactory(for: chainAsset).amountFromValue(balance)
+
+        let imageViewModel = chainAsset.assetDisplayInfo.icon.map {
+            RemoteImageViewModel(url: $0)
         }
+
+        return StakingMainViewModel(
+            address: address,
+            chainName: chainAsset.chain.name,
+            assetName: chainAsset.asset.name ?? chainAsset.chain.name,
+            assetIcon: imageViewModel,
+            balanceViewModel: balanceViewModel
+        )
     }
 
     func createNetworkStakingInfoViewModel(
