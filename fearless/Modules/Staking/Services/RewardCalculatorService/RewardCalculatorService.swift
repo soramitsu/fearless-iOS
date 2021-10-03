@@ -262,7 +262,7 @@ extension RewardCalculatorService: RewardCalculatorServiceProtocol {
         }
     }
 
-    func fetchCalculatorOperation(with timeout: TimeInterval) -> BaseOperation<RewardCalculatorEngineProtocol> {
+    func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         ClosureOperation {
             var fetchedInfo: RewardCalculatorEngineProtocol?
 
@@ -275,18 +275,13 @@ extension RewardCalculatorService: RewardCalculatorServiceProtocol {
                 }
             }
 
-            let result = semaphore.wait(timeout: DispatchTime.now() + .milliseconds(timeout.milliseconds))
+            semaphore.wait()
 
-            switch result {
-            case .success:
-                guard let info = fetchedInfo else {
-                    throw RewardCalculatorServiceError.unexpectedInfo
-                }
-
-                return info
-            case .timedOut:
-                throw RewardCalculatorServiceError.timedOut
+            guard let info = fetchedInfo else {
+                throw RewardCalculatorServiceError.unexpectedInfo
             }
+
+            return info
         }
     }
 }

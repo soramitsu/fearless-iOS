@@ -7,7 +7,7 @@ final class RewardCalculatorFacade {
 }
 
 final class MockRewardCalculatorService: RewardCalculatorServiceProtocol {
-    func fetchCalculatorOperation(with _: TimeInterval) -> BaseOperation<RewardCalculatorEngineProtocol> {
+    func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         BaseOperation.createWithError(BaseOperationError.unexpectedDependentResult)
     }
 
