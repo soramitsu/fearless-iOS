@@ -1,4 +1,4 @@
-/*import XCTest
+import XCTest
 @testable import fearless
 import FearlessUtils
 import RobinHood
@@ -293,31 +293,14 @@ class JSONRPCTests: XCTestCase {
     func testWestendStakersFetch() throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-        let chain = Chain.westend
+        let chainId = Chain.westend.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
-
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
-        let runtimeService = createRuntimeService(from: chain, chainRegistry: chainRegistry)
-
-        runtimeService.setup()
-
-        let webSocketService = createWebSocketService(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            settings: settings
-        )
-
-        webSocketService.setup()
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
+        let connection = chainRegistry.getConnection(for: chainId)!
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -339,7 +322,7 @@ class JSONRPCTests: XCTestCase {
         // when
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
-            engine: webSocketService.connection!,
+            engine: connection,
             keys: keys,
             factory: factoryClosure,
             storagePath: .erasStakers
@@ -372,31 +355,15 @@ class JSONRPCTests: XCTestCase {
     func performTestMultipleChangesQuery(keysCount: Int) throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-        let chain = Chain.kusama
+        let chainId = Chain.kusama.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
+        let operationManager = OperationManager()
 
-        let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
-        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
-        let runtimeService = createRuntimeService(from: chain, chainRegistry: chainRegistry)
-
-        runtimeService.setup()
-
-        let webSocketService = createWebSocketService(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            settings: settings
-        )
-
-        webSocketService.setup()
+        let connection = chainRegistry.getConnection(for: chainId)!
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
         let address = "GqpApQStgzzGxYa1XQZQUq9L3aXhukxDWABccbeHEh7zPYR"
 
@@ -424,7 +391,7 @@ class JSONRPCTests: XCTestCase {
         // when
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
-            engine: webSocketService.connection!,
+            engine: connection,
             keyParams1: keyParams1,
             keyParams2: keyParams2,
             factory: factoryClosure,
@@ -444,41 +411,4 @@ class JSONRPCTests: XCTestCase {
 
         XCTAssertEqual(keysCount, resultsCount)
     }
-
-    private func createRuntimeService(
-        from chain: Chain,
-        chainRegistry: ChainRegistryProtocol
-    ) -> RuntimeRegistryService {
-        RuntimeRegistryService(
-            chain: chain,
-            chainRegistry: chainRegistry
-        )
-    }
-
-    private func createWebSocketService(storageFacade: StorageFacadeProtocol,
-                                        runtimeService: RuntimeCodingServiceProtocol,
-                                        operationManager: OperationManagerProtocol,
-                                        settings: SettingsManagerProtocol
-    ) -> WebSocketServiceProtocol {
-        let connectionItem = settings.selectedConnection
-        let address = settings.selectedAccount?.address
-
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: address)
-
-        let factory = WebSocketSubscriptionFactory(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager
-        )
-
-        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
-
-        return WebSocketService(settings: settings,
-                                chainRegistry: chainRegistry,
-                                subscriptionsFactory: factory,
-                                applicationHandler: ApplicationHandler())
-    }
 }
-*/

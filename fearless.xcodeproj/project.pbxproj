@@ -617,6 +617,7 @@
 		846CA77E2709A34D0011124C /* StakingAnalyticsLocalStorageSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA77D2709A34D0011124C /* StakingAnalyticsLocalStorageSubscriber.swift */; };
 		846CA7802709A41E0011124C /* StakingAnalyticsLocalSubscriptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA77F2709A41E0011124C /* StakingAnalyticsLocalSubscriptionHandler.swift */; };
 		846CA7822709AD300011124C /* StakingAnalyticsLocalSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA7812709AD300011124C /* StakingAnalyticsLocalSubscriptionFactoryStub.swift */; };
+		846CA7842709C2BE0011124C /* ChainRegistry+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA7832709C2BE0011124C /* ChainRegistry+Setup.swift */; };
 		846CD24D2656FEB800A2E4B6 /* StorageKeysQueryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CD24C2656FEB800A2E4B6 /* StorageKeysQueryService.swift */; };
 		846CD25B265709A800A2E4B6 /* StorageKeySuffixMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CD25A265709A800A2E4B6 /* StorageKeySuffixMapper.swift */; };
 		846CDECD258D212D009F3E75 /* AlertImageWithTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CDECC258D212D009F3E75 /* AlertImageWithTitleView.swift */; };
@@ -2268,6 +2269,7 @@
 		846CA77D2709A34D0011124C /* StakingAnalyticsLocalStorageSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLocalStorageSubscriber.swift; sourceTree = "<group>"; };
 		846CA77F2709A41E0011124C /* StakingAnalyticsLocalSubscriptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLocalSubscriptionHandler.swift; sourceTree = "<group>"; };
 		846CA7812709AD300011124C /* StakingAnalyticsLocalSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLocalSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
+		846CA7832709C2BE0011124C /* ChainRegistry+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChainRegistry+Setup.swift"; sourceTree = "<group>"; };
 		846CD24C2656FEB800A2E4B6 /* StorageKeysQueryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeysQueryService.swift; sourceTree = "<group>"; };
 		846CD25A265709A800A2E4B6 /* StorageKeySuffixMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeySuffixMapper.swift; sourceTree = "<group>"; };
 		846CDECC258D212D009F3E75 /* AlertImageWithTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertImageWithTitleView.swift; sourceTree = "<group>"; };
@@ -4436,6 +4438,7 @@
 				F49F49A226A5C45600A25931 /* EraCountdownOperationFactoryTests.swift */,
 				8461CC8426BC1306007460E4 /* MortalEraFactoryTests.swift */,
 				8479F31326CD9A0E005D8D24 /* ChainRegistryIntegrationTests.swift */,
+				846CA7832709C2BE0011124C /* ChainRegistry+Setup.swift */,
 			);
 			path = fearlessIntegrationTests;
 			sourceTree = "<group>";
@@ -8636,6 +8639,7 @@
 				AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */,
 				F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */,
 				84FACB7125F57E4400F32ED4 /* SubstrateStorageTestFacade.swift in Sources */,
+				846CA7842709C2BE0011124C /* ChainRegistry+Setup.swift in Sources */,
 				F49F49A326A5C45600A25931 /* EraCountdownOperationFactoryTests.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
