@@ -8,9 +8,10 @@ class EraCountdownOperationFactoryTests: XCTestCase {
     func testService() {
         let operationManager = OperationManagerFacade.sharedManager
 
-        WebSocketService.shared.setup()
-        let runtimeService = RuntimeRegistryFacade.sharedService
-        runtimeService.setup()
+        let chainId = Chain.kusama.genesisHash
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
+        let connection = chainRegistry.getConnection(for: chainId)!
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -22,13 +23,15 @@ class EraCountdownOperationFactoryTests: XCTestCase {
 
         let timeExpectation = XCTestExpectation()
         let operationWrapper = factory.fetchCountdownOperationWrapper(
-            for: WebSocketService.shared.connection!,
+            for: connection,
             runtimeService: runtimeService
         )
         operationWrapper.targetOperation.completionBlock = {
             do {
                 let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                print("Estimating era completion time (in seconds): \(eraCountdown.timeIntervalTillNextActiveEraStart())")
+                Logger.shared.info(
+                    "Estimating era completion time (in seconds): \(eraCountdown.timeIntervalTillNextActiveEraStart())"
+                )
                 timeExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)
