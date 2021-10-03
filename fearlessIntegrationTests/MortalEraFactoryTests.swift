@@ -4,67 +4,29 @@ import IrohaCrypto
 
 class MortalEraFactoryTests: XCTestCase {
     func testMortalEraPolkadot() {
-        let connectionItem = ConnectionItem(
-            title: "Polkadot",
-            url: URL(string: "wss://rpc.polkadot.io/")!,
-            type: .polkadotMain
-        )
-
-        return performMortalEraCalculation(connectionItem)
+        performMortalEraCalculation(chainId: Chain.polkadot.genesisHash)
     }
 
     func testMortalEraKusama() {
-        let connectionItem = ConnectionItem(
-            title: "Kusama",
-            url: URL(string: "wss://kusama-rpc.polkadot.io")!,
-            type: .kusamaMain
-        )
-
-        return performMortalEraCalculation(connectionItem)
+        performMortalEraCalculation(chainId: Chain.kusama.genesisHash)
     }
 
     func testMortalEraWestend() {
-        let connectionItem = ConnectionItem(
-            title: "Westend",
-            url: URL(string: "wss://westend-rpc.polkadot.io/")!,
-            type: .genericSubstrate
-        )
-
-        return performMortalEraCalculation(connectionItem)
+        performMortalEraCalculation(chainId: Chain.westend.genesisHash)
     }
 
 
-    func performMortalEraCalculation(_ connection: ConnectionItem) {
+    func performMortalEraCalculation(chainId: ChainModel.Id) {
         // given
         let logger = Logger.shared
 
         do {
-            let dummyAddress = try SS58AddressFactory().address(
-                fromAccountId: Data(repeating: 0, count: 32),
-                type: UInt16(connection.type.rawValue)
+            let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(
+                with: SubstrateStorageTestFacade()
             )
 
-            let settings = WebSocketServiceSettings(url: connection.url,
-                                                    addressType: connection.type,
-                                                    address: dummyAddress
-            )
-
-            let webSocketService = WebSocketServiceFactory.createService()
-            let runtimeService = RuntimeRegistryFacade.sharedService
-
-            // when
-            webSocketService.update(settings: settings)
-
-            let chain = connection.type.chain
-            runtimeService.update(to: chain)
-
-            webSocketService.setup()
-            runtimeService.setup()
-
-            guard let connection = webSocketService.connection else {
-                XCTFail("Unexpected empty connection")
-                return
-            }
+            let connection = chainRegistry.getConnection(for: chainId)!
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
             let operationFactory = MortalEraOperationFactory()
             let wrapper = operationFactory.createOperation(from: connection, runtimeService: runtimeService)
