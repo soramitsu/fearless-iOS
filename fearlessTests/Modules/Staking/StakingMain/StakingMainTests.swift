@@ -104,11 +104,16 @@ class StakingMainTests: XCTestCase {
             storageFacade: substrateStorageFacade
         )
 
+        let rewardAnalyticsProviderFactory = StakingAnalyticsLocalSubscriptionFactoryStub(
+            weaklyAnalytics: []
+        )
+
         let sharedState = StakingSharedState(
             settings: stakingSettings,
             eraValidatorService: eraValidatorService,
             rewardCalculationService: calculatorService,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            stakingAnalyticsLocalSubscriptionFactory: rewardAnalyticsProviderFactory
         )
 
         let stakingServiceFactory = MockStakingServiceFactoryProtocol().apply(
@@ -182,7 +187,7 @@ class StakingMainTests: XCTestCase {
             }
 
             stub.didReceiveStakingState(viewModel: any()).then { state in
-                if case .nominator = state {
+                if case let .nominator(_, _, analyticsViewModel) = state, analyticsViewModel != nil {
                     nominatorStateExpectation.fulfill()
                 }
             }
