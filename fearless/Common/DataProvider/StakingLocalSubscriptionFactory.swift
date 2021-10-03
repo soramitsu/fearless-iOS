@@ -241,7 +241,7 @@ final class StakingLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
             logger: logger
         ).createStashItemProvider(for: address)
 
-        saveProvider(provider, for: address)
+        saveProvider(provider, for: identifier)
 
         return provider
     }

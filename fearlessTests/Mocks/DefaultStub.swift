@@ -76,3 +76,54 @@ extension MockRuntimeProviderProtocol {
         return self
     }
 }
+
+extension MockStakingRemoteSubscriptionServiceProtocol {
+    func applyDefault() -> MockStakingRemoteSubscriptionServiceProtocol {
+        stub(self) { stub in
+            stub.attachToGlobalData(
+                for: any(),
+                queue: any(),
+                closure: any()
+            ).then { chainId, maybeQueue, maybeClosure in
+
+                if let closure = maybeClosure {
+                    let queue = maybeQueue ?? DispatchQueue.main
+
+                    queue.async {
+                        closure(.success(()))
+                    }
+                }
+
+                return UUID()
+            }
+
+            stub.detachFromGlobalData(
+                for: any(),
+                chainId: any(),
+                queue: any(),
+                closure: any()
+            ).then { subscriptionId, chainId, maybeQueue, maybeClosure in
+                if let closure = maybeClosure {
+                    let queue = maybeQueue ?? DispatchQueue.main
+
+                    queue.async {
+                        closure(.success(()))
+                    }
+                }
+            }
+        }
+
+        return self
+    }
+}
+
+extension MockStakingAccountUpdatingServiceProtocol {
+    func applyDefault() -> MockStakingAccountUpdatingServiceProtocol {
+        stub(self) { stub in
+            stub.setupSubscription(for: any(), chainId: any(), chainFormat: any()).thenDoNothing()
+            stub.clearSubscription().thenDoNothing()
+        }
+
+        return self
+    }
+}

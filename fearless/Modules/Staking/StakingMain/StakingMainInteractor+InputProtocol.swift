@@ -129,5 +129,6 @@ extension StakingMainInteractor: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
         priceProvider?.refresh()
         totalRewardProvider?.refresh()
+        rewardAnalyticsProvider?.refresh()
     }
 }

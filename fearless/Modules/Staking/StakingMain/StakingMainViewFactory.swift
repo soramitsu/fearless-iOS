@@ -188,11 +188,16 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             logger: Logger.shared
         )
 
+        let stakingAnalyticsLocalSubscriptionFactory = StakingAnalyticsLocalSubscriptionFactory(
+            storageFacade: storageFacade
+        )
+
         return StakingSharedState(
             settings: stakingSettings,
             eraValidatorService: eraValidatorService,
             rewardCalculationService: rewardCalculatorService,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            stakingAnalyticsLocalSubscriptionFactory: stakingAnalyticsLocalSubscriptionFactory
         )
     }
 }

@@ -11,6 +11,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         sharedState.stakingLocalSubscriptionFactory
     }
 
+    var stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
+        sharedState.stakingAnalyticsLocalSubscriptionFactory
+    }
+
     var stakingSettings: StakingAssetSettings { sharedState.settings }
 
     let selectedWalletSettings: SelectedWalletSettings
@@ -48,8 +52,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var minNominatorBondProvider: AnyDataProvider<DecodedBigUInt>?
     var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
-
-    let analyticsPeriod = AnalyticsPeriod.week
+    var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -67,7 +70,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         applicationHandler: ApplicationHandlerProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         commonSettings: SettingsManagerProtocol,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol? = nil
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.sharedState = sharedState

@@ -10,6 +10,7 @@ extension StakingMainInteractor {
         clear(dataProvider: &validatorProvider)
         clear(singleValueProvider: &totalRewardProvider)
         clear(dataProvider: &payeeProvider)
+        clear(singleValueProvider: &rewardAnalyticsProvider)
         clear(streamableProvider: &controllerAccountProvider)
 
         if
@@ -35,7 +36,7 @@ extension StakingMainInteractor {
             }
 
             subscribeToControllerAccount(address: stashItem.controller, chain: chainAsset.chain)
-            fetchAnalyticsRewards(stash: stashItem.stash)
+            subscribeRewardsAnalytics(for: stashItem.stash)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -82,6 +83,7 @@ extension StakingMainInteractor {
         clear(dataProvider: &validatorProvider)
         clear(singleValueProvider: &totalRewardProvider)
         clear(dataProvider: &payeeProvider)
+        clear(singleValueProvider: &rewardAnalyticsProvider)
         clear(streamableProvider: &stashControllerProvider)
     }
 
@@ -144,32 +146,15 @@ extension StakingMainInteractor {
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainId)
     }
 
-    private func fetchAnalyticsRewards(stash: AccountAddress) {
-        guard let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url else { return }
-
-        let period = analyticsPeriod
-
-        let now = Date().timeIntervalSince1970
-        let sevenDaysAgo = Date().addingTimeInterval(-(.secondsInDay * 7)).timeIntervalSince1970
-        let subqueryRewardsSource = SubqueryRewardsSource(
-            address: stash,
-            url: analyticsURL,
-            startTimestamp: Int64(sevenDaysAgo),
-            endTimestamp: Int64(now)
-        )
-        let fetchOperation = subqueryRewardsSource.fetchOperation()
-
-        fetchOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData()
-                    self?.presenter?.didReceieve(subqueryRewards: .success(response), period: period)
-                } catch {
-                    self?.presenter?.didReceieve(subqueryRewards: .failure(error), period: period)
-                }
-            }
+    private func subscribeRewardsAnalytics(for stash: AccountAddress) {
+        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url {
+            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: stash, url: analyticsURL)
+        } else {
+            presenter.didReceieve(
+                subqueryRewards: .success(nil),
+                period: .week
+            )
         }
-        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
     }
 }
 
@@ -296,5 +281,20 @@ extension StakingMainInteractor: WalletLocalStorageSubscriber, WalletLocalSubscr
         case let .failure(error):
             presenter.didReceive(balanceError: error)
         }
+    }
+}
+
+extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
+    StakingAnalyticsLocalSubscriptionHandler {
+    func handleWeaklyRewardAnalytics(
+        result: Result<[SubqueryRewardItemData]?, Error>,
+        address: AccountAddress,
+        url _: URL
+    ) {
+        guard selectedAccount?.toAddress() == address else {
+            return
+        }
+
+        presenter.didReceieve(subqueryRewards: result, period: .week)
     }
 }
