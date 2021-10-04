@@ -3,7 +3,7 @@ import CommonWallet
 import SoraUI
 
 final class WalletCompoundDetailsView: WalletFormItemView {
-    var contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0) {
+    var contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0) {
         didSet {
             bottomConstraint.constant = contentInsets.bottom
             invalidateIntrinsicContentSize()
@@ -36,7 +36,11 @@ final class WalletCompoundDetailsView: WalletFormItemView {
     }
 
     private func setupContentInsets() {
-        contentInsets = UIEdgeInsets(top: 4.0, left: 0.0, bottom: 12.0, right: 0.0)
+        if borderType.contains(.bottom) {
+            var contentInsets = self.contentInsets
+            contentInsets.bottom = 16.0
+            self.contentInsets = contentInsets
+        }
     }
 
     func bind(viewModel: WalletCompoundDetailsViewModel) {
