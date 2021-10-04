@@ -39,7 +39,7 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
         setupResetButton()
         setupApplyButton()
         setupTableView()
-        applyLocalization()
+        setupLocalization()
 
         presenter.setup()
     }
@@ -213,18 +213,22 @@ extension ValidatorListFilterViewController: ValidatorListFilterViewProtocol {
 // MARK: - Localizable
 
 extension ValidatorListFilterViewController: Localizable {
+    private func setupLocalization() {
+        title = R.string.localizable
+            .walletFiltersTitle(preferredLanguages: selectedLocale.rLanguages)
+
+        navigationItem.rightBarButtonItem?.title = R.string.localizable
+            .commonReset(preferredLanguages: selectedLocale.rLanguages)
+
+        rootView.applyButton.imageWithTitleView?.title = R.string.localizable
+            .commonApply(preferredLanguages: selectedLocale.rLanguages)
+
+        rootView.tableView.reloadData()
+    }
+
     func applyLocalization() {
         if isViewLoaded {
-            title = R.string.localizable
-                .walletFiltersTitle(preferredLanguages: selectedLocale.rLanguages)
-
-            navigationItem.rightBarButtonItem?.title = R.string.localizable
-                .commonReset(preferredLanguages: selectedLocale.rLanguages)
-
-            rootView.applyButton.imageWithTitleView?.title = R.string.localizable
-                .commonApply(preferredLanguages: selectedLocale.rLanguages)
-
-            rootView.tableView.reloadData()
+            setupLocalization()
         }
     }
 }
