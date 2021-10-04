@@ -205,7 +205,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = NSTextAlignment.center
 
-        let activeStakingText = NSAttributedString(
+        let firstLineText = NSAttributedString(
             string: firstLine,
             attributes: [
                 NSAttributedString.Key.foregroundColor: firstLineColor,
@@ -214,7 +214,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             ]
         )
 
-        let percentsText = NSAttributedString(
+        let secondLineText = NSAttributedString(
             string: secondLine,
             attributes: [
                 NSAttributedString.Key.foregroundColor: R.color.colorWhite()!,
@@ -223,7 +223,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             ]
         )
 
-        let erasRangeText = NSAttributedString(
+        let thirdLineText = NSAttributedString(
             string: thirdLine,
             attributes: [
                 NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!,
@@ -232,11 +232,11 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             ]
         )
 
-        let result = NSMutableAttributedString(attributedString: activeStakingText)
+        let result = NSMutableAttributedString(attributedString: firstLineText)
         result.append(.init(string: "\n"))
-        result.append(percentsText)
+        result.append(secondLineText)
         result.append(.init(string: "\n"))
-        result.append(erasRangeText)
+        result.append(thirdLineText)
         return result
     }
 
@@ -293,7 +293,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         return createChartCenterText(
             firstLine: R.string.localizable
-                .stakingAnalyticsStakingWasInactive(preferredLanguages: locale.rLanguages),
+                .stakingAnalyticsStakingWasInactive(preferredLanguages: locale.rLanguages).uppercased(),
             firstLineColor: R.color.colorGray()!,
             secondLine: percentageString,
             thirdLine: R.string.localizable.stakingAnalyticsValidatorsErasCounter(
