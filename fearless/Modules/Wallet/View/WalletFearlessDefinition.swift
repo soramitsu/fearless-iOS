@@ -21,6 +21,7 @@ final class WalletFearlessDefinition: WalletFearlessFormDefining {
     func defineViewForCompoundDetails(_ viewModel: WalletCompoundDetailsViewModel) -> WalletFormItemView? {
         let detailsView = R.nib.walletCompoundDetailsView(owner: nil)!
         detailsView.bind(viewModel: viewModel)
+        detailsView.contentInsets = UIEdgeInsets(top: 4.0, left: 0.0, bottom: 12.0, right: 0.0)
         return detailsView
     }
 
