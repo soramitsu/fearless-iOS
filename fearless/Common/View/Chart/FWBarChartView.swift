@@ -41,6 +41,8 @@ final class FWBarChartView: BarChartView {
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
         pinchZoomEnabled = false
+        scaleXEnabled = false
+        scaleYEnabled = false
         dragYEnabled = false
 
         xAxis.drawGridLinesEnabled = false
