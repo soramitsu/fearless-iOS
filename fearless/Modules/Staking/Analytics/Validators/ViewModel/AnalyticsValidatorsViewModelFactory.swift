@@ -30,7 +30,16 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     ) -> AnalyticsValidatorsViewModel {
         percentFormatter.locale = locale
 
-        let totalEras = Int(eraRange.end - eraRange.start + 1)
+        let totalEras: Int = {
+            if eraRange.end + 1 >= eraRange.start {
+                // totalEras == 0 is unacceptable for later calculations and UX,
+                // so condider totalEras to be at least 1
+                return max(Int(eraRange.end + 1 - eraRange.start), 1)
+            } else {
+                return 1
+            }
+        }()
+
         let erasWhenStaked = countErasWhenStaked(eraValidatorInfos: eraValidatorInfos)
         let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
         let addressFactory = SS58AddressFactory()
