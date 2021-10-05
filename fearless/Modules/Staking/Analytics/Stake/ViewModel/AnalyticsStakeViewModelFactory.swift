@@ -7,37 +7,61 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         _ items: [SubqueryStakeChangeData],
         byDateRange dateRange: (Date, Date)
     ) -> [SubqueryStakeChangeData] {
-        var filtered = items.filter { item in
+        var filteredItemsByDateRange = items.filter { item in
             let date = Date(timeIntervalSince1970: TimeInterval(item.timestamp))
             return date >= dateRange.0 && date <= dateRange.1
         }
 
         // add last stake change that is out of current dateRange
-        if filtered.isEmpty, let last = items.last {
-            filtered.append(last)
+        if filteredItemsByDateRange.isEmpty, let last = items.last {
+            filteredItemsByDateRange.append(last)
         }
 
-        var res = [SubqueryStakeChangeData]()
-        var lastTimestamp = filtered[0].timestamp
+        return sortItemsByEventIdInsideOneBlock(filteredItemsByDateRange)
+    }
+
+    private func sortItemsByEventIdInsideOneBlock(
+        _ filteredItemsByDateRange: [SubqueryStakeChangeData]
+    ) -> [SubqueryStakeChangeData] {
+        guard filteredItemsByDateRange.count >= 2 else {
+            return filteredItemsByDateRange
+        }
+
+        var itemsSortedByEventIdInsideOneBlock = [SubqueryStakeChangeData]()
+        var lastTimestamp = filteredItemsByDateRange[0].timestamp
         var index = 1
         repeat {
-            let elem = filtered[index]
-            if elem.timestamp == lastTimestamp {
-                let elementsWithEqualTimestamp = filtered
+            let currentItem = filteredItemsByDateRange[index]
+            if currentItem.timestamp == lastTimestamp {
+                let elementsWithEqualTimestamp = filteredItemsByDateRange
                     .filter { $0.timestamp == lastTimestamp }
-//                let idx = elementsWithEqualTimestamp.sorted(by: { lhs, rhs in
-//                    let lhsIdx = lhs.eventId.last lhs.eventId.lastIndex(of: "-")
-//                })
-                res.append(contentsOf: elementsWithEqualTimestamp)
+                let sortedByEventId = elementsWithEqualTimestamp.sorted(by: { lhs, rhs in
+                    // `eventId` property stores "blockNumber-evendIdx"
+                    // so we parse eventIdx after "-" char
+                    guard
+                        let lhsIdx = lhs.eventId.lastIndex(of: "-"),
+                        let rhsIdx = rhs.eventId.lastIndex(of: "-") else {
+                        return false
+                    }
+                    // got "-\(eventIdx)", then revert to get positive number
+                    let leftEventIdx = -(Int(lhs.eventId.suffix(from: lhsIdx)) ?? 0)
+                    let rightEventIdx = -(Int(rhs.eventId.suffix(from: rhsIdx)) ?? 0)
+                    return leftEventIdx < rightEventIdx
+                })
+                // at previous iteration `else` we append currentItem, update lastTimestamp
+                // and in current branch `if` we found all items with equal lastTimestamp
+                // so we need to remove duplicate (last element)
+                itemsSortedByEventIdInsideOneBlock = itemsSortedByEventIdInsideOneBlock.dropLast()
+                itemsSortedByEventIdInsideOneBlock.append(contentsOf: sortedByEventId)
                 index += elementsWithEqualTimestamp.count
             } else {
-                res.append(elem)
+                itemsSortedByEventIdInsideOneBlock.append(currentItem)
                 index += 1
             }
-            lastTimestamp = elem.timestamp
-        } while index != filtered.count
+            lastTimestamp = currentItem.timestamp
+        } while index < filteredItemsByDateRange.count
 
-        return filtered
+        return itemsSortedByEventIdInsideOneBlock
     }
 
     override func getHistoryItemTitle(data: SubqueryStakeChangeData, locale: Locale) -> String {
