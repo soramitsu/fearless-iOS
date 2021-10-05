@@ -11,10 +11,32 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
             let date = Date(timeIntervalSince1970: TimeInterval(item.timestamp))
             return date >= dateRange.0 && date <= dateRange.1
         }
+
         // add last stake change that is out of current dateRange
         if filtered.isEmpty, let last = items.last {
             filtered.append(last)
         }
+
+        var res = [SubqueryStakeChangeData]()
+        var lastTimestamp = filtered[0].timestamp
+        var index = 1
+        repeat {
+            let elem = filtered[index]
+            if elem.timestamp == lastTimestamp {
+                let elementsWithEqualTimestamp = filtered
+                    .filter { $0.timestamp == lastTimestamp }
+//                let idx = elementsWithEqualTimestamp.sorted(by: { lhs, rhs in
+//                    let lhsIdx = lhs.eventId.last lhs.eventId.lastIndex(of: "-")
+//                })
+                res.append(contentsOf: elementsWithEqualTimestamp)
+                index += elementsWithEqualTimestamp.count
+            } else {
+                res.append(elem)
+                index += 1
+            }
+            lastTimestamp = elem.timestamp
+        } while index != filtered.count
+
         return filtered
     }
 
