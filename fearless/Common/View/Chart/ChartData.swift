@@ -10,6 +10,6 @@ struct ChartData: Equatable {
     let amounts: [ChartAmount]
     let xAxisValues: [String]
     let bottomYValue: String
-    let averageAmountValue: Double
+    let averageAmountValue: Double?
     let averageAmountText: String?
 }

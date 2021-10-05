@@ -126,8 +126,15 @@ extension FWBarChartView: FWChartViewProtocol {
                 return chartAmount.filled ? chartAmount.value : 0.0
             }
         }
-        let (min, max) = (realAmounts.min() ?? 0.0, realAmounts.max() ?? 0.0)
-        averageLabelHeightPercent = (data.averageAmountValue - min) / (max - min)
+
+        if
+            let averageAmountValue = data.averageAmountValue,
+            let min = realAmounts.min(),
+            let max = realAmounts.max() {
+            averageLabelHeightPercent = (averageAmountValue - min) / (max - min)
+        } else {
+            averageLabelHeightPercent = nil
+        }
         averageAmountLabel.text = data.averageAmountText
         setNeedsLayout()
 

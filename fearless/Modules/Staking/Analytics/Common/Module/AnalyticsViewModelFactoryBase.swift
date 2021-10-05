@@ -112,15 +112,22 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         let amounts = calculateChartAmounts(chartDoubles: chartDoubles)
 
         let bottomYValue = balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
-        let averageAmount = chartDoubles.reduce(0.0, +) / Double(yValues.count)
-        let averageAmountRawText = balanceViewModelFactory
-            .amountFromValue(Decimal(averageAmount))
-            .value(for: locale)
-            .replacingOccurrences(of: " ", with: "\n")
-        let averageAmountText = R.string.localizable.stakingAnalyticsAvg(
-            averageAmountRawText,
-            preferredLanguages: locale.rLanguages
-        )
+        let averageAmount: Double? = {
+            guard !chartDoubles.isEmpty else { return nil }
+            return chartDoubles.reduce(0.0, +) / Double(chartDoubles.count)
+        }()
+
+        let averageAmountText: String? = {
+            guard let averageAmount = averageAmount else { return nil }
+            let averageAmountRawText = balanceViewModelFactory
+                .amountFromValue(Decimal(averageAmount))
+                .value(for: locale)
+                .replacingOccurrences(of: " ", with: "\n")
+            return R.string.localizable.stakingAnalyticsAvg(
+                averageAmountRawText,
+                preferredLanguages: locale.rLanguages
+            )
+        }()
 
         let selectedChartAmounts: [ChartAmount] = {
             guard let selectedIndex = selectedChartIndex else { return amounts }
