@@ -28,6 +28,8 @@ struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {
             localizationManager: LocalizationManager.shared
         )
 
+        presenter.view = view
+
         presenter.delegate = delegate
 
         return view
