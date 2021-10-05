@@ -486,8 +486,8 @@ belongs to the right network";
 "staking.analytics.period.30d" = "30d";
 "staking.analytics.period.1y" = "1y";
 "staking.analytics.period.all" = "All";
-"staking.analytics.rewards.empty.message" = "Your rewards \
-will appear here";
+"staking.analytics.rewards.empty.message" = "No rewards received\
+for the selected period";
 "staking.analytics.stake.empty.message" = "Your stake changes\
 will appear here";
 "common.details" = "Details";

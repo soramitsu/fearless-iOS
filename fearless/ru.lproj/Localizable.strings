@@ -486,8 +486,8 @@
 "staking.analytics.period.30d" = "30д";
 "staking.analytics.period.1y" = "1г";
 "staking.analytics.period.all" = "все";
-"staking.analytics.rewards.empty.message" = "Здесь появятся\
-ваши вознаграждения";
+"staking.analytics.rewards.empty.message" = "Нет полученных вознаграждений\
+в выбранный период";
 "staking.analytics.stake.empty.message" = "Здесь появятся ваши\
 изменения по стейку";
 "common.details" = "Подробности";
