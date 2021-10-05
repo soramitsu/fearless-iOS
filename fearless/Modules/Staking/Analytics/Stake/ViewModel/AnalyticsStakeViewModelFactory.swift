@@ -23,45 +23,30 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
     private func sortItemsByEventIdInsideOneBlock(
         _ filteredItemsByDateRange: [SubqueryStakeChangeData]
     ) -> [SubqueryStakeChangeData] {
-        guard filteredItemsByDateRange.count >= 2 else {
-            return filteredItemsByDateRange
-        }
+        filteredItemsByDateRange.sorted(by: { lhs, rhs in
+            let lhsEventIdComponents = lhs.eventId.split(separator: "-")
+            let rhsEventIdComponents = rhs.eventId.split(separator: "-")
 
-        var itemsSortedByEventIdInsideOneBlock = [SubqueryStakeChangeData]()
-        var lastTimestamp = filteredItemsByDateRange[0].timestamp
-        var index = 1
-        repeat {
-            let currentItem = filteredItemsByDateRange[index]
-            if currentItem.timestamp == lastTimestamp {
-                let elementsWithEqualTimestamp = filteredItemsByDateRange
-                    .filter { $0.timestamp == lastTimestamp }
-                let sortedByEventId = elementsWithEqualTimestamp.sorted(by: { lhs, rhs in
-                    // `eventId` property stores "blockNumber-evendIdx"
-                    // so we parse eventIdx after "-" char
-                    guard
-                        let lhsIdx = lhs.eventId.lastIndex(of: "-"),
-                        let rhsIdx = rhs.eventId.lastIndex(of: "-") else {
-                        return false
-                    }
-                    // got "-\(eventIdx)", then revert to get positive number
-                    let leftEventIdx = -(Int(lhs.eventId.suffix(from: lhsIdx)) ?? 0)
-                    let rightEventIdx = -(Int(rhs.eventId.suffix(from: rhsIdx)) ?? 0)
-                    return leftEventIdx < rightEventIdx
-                })
-                // at previous iteration `else` we append currentItem, update lastTimestamp
-                // and in current branch `if` we found all items with equal lastTimestamp
-                // so we need to remove duplicate (last element)
-                itemsSortedByEventIdInsideOneBlock = itemsSortedByEventIdInsideOneBlock.dropLast()
-                itemsSortedByEventIdInsideOneBlock.append(contentsOf: sortedByEventId)
-                index += elementsWithEqualTimestamp.count
+            guard
+                let lhsBlockNumberString = lhsEventIdComponents.first,
+                let lhsBlockNumber = Int(lhsBlockNumberString),
+                let rhsBlockNumberString = rhsEventIdComponents.first,
+                let rhsBlockNumber = Int(rhsBlockNumberString)
+            else { return false }
+
+            if lhsBlockNumber == rhsBlockNumber {
+                guard
+                    lhsEventIdComponents.count > 1,
+                    rhsEventIdComponents.count > 1,
+                    let lhsEventIdx = Int(lhsEventIdComponents[1]),
+                    let rhsEventIdx = Int(rhsEventIdComponents[1])
+                else { return false }
+
+                return lhsEventIdx < rhsEventIdx
             } else {
-                itemsSortedByEventIdInsideOneBlock.append(currentItem)
-                index += 1
+                return lhsBlockNumber < rhsBlockNumber
             }
-            lastTimestamp = currentItem.timestamp
-        } while index < filteredItemsByDateRange.count
-
-        return itemsSortedByEventIdInsideOneBlock
+        })
     }
 
     override func getHistoryItemTitle(data: SubqueryStakeChangeData, locale: Locale) -> String {
