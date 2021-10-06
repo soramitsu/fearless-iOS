@@ -36,7 +36,13 @@ class StakingMainTests: XCTestCase {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balance in
-            AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balance, calendar: .init(identifier: .gregorian))
+            AnalyticsRewardsViewModelFactory(
+                chain: chain,
+                balanceViewModelFactory: balance,
+                amountFormatterFactory: AmountFormatterFactory(),
+                asset: primitiveFactory.createAssetForAddressType(chain.addressType),
+                calendar: .init(identifier: .gregorian)
+            )
         }
         let stateViewModelFactory = StakingStateViewModelFactory(
             primitiveFactory: primitiveFactory,
@@ -231,7 +237,13 @@ class StakingMainTests: XCTestCase {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balance in
-            AnalyticsRewardsViewModelFactory(chain: chain, balanceViewModelFactory: balance, calendar: .init(identifier: .gregorian))
+            AnalyticsRewardsViewModelFactory(
+                chain: chain,
+                balanceViewModelFactory: balance,
+                amountFormatterFactory: AmountFormatterFactory(),
+                asset: primitiveFactory.createAssetForAddressType(chain.addressType),
+                calendar: .init(identifier: .gregorian)
+            )
         }
         let stateViewModelFactory = StakingStateViewModelFactory(
             primitiveFactory: primitiveFactory,
