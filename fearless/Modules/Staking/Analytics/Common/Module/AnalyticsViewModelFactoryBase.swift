@@ -1,5 +1,6 @@
 import BigInt
 import SoraFoundation
+import CommonWallet
 
 protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }
@@ -18,15 +19,21 @@ struct AnalyticsSelectedChartData {
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     let chain: Chain
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let amountFormatterFactory: NumberFormatterFactoryProtocol
+    let asset: WalletAsset
     let calendar: Calendar
 
     init(
         chain: Chain,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        asset: WalletAsset,
         calendar: Calendar
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.amountFormatterFactory = amountFormatterFactory
+        self.asset = asset
         self.calendar = calendar
     }
 
@@ -119,12 +126,12 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         let averageAmountText: String? = {
             guard let averageAmount = averageAmount else { return nil }
-            let averageAmountRawText = balanceViewModelFactory
-                .amountFromValue(Decimal(averageAmount))
-                .value(for: locale)
-                .replacingOccurrences(of: " ", with: "\n")
+            let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
+            let formattedAmount = displayFormatter.value(for: locale).stringFromDecimal(Decimal(averageAmount)) ?? ""
+            let tokenSymbol = asset.symbol
+
             return R.string.localizable.stakingAnalyticsAvg(
-                averageAmountRawText,
+                formattedAmount + "\n" + tokenSymbol,
                 preferredLanguages: locale.rLanguages
             )
         }()
