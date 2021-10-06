@@ -100,12 +100,13 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
                 }
             }()
             let currentDate = calendar.date(byAdding: component, to: timestampInterval.0) ?? startDate
-            let stakeChangesForCurrentDate = groupedByDate.map { date, stakeChanges -> (Date, [SubqueryStakeChangeData])? in
-                if calendar.isDate(currentDate, equalTo: date, toGranularity: dateGranularity) {
-                    return (date, stakeChanges)
+            let stakeChangesForCurrentDate = groupedByDate
+                .compactMap { date, stakeChanges -> (Date, [SubqueryStakeChangeData])? in
+                    if calendar.isDate(currentDate, equalTo: date, toGranularity: dateGranularity) {
+                        return (date, stakeChanges)
+                    }
+                    return nil
                 }
-                return nil
-            }.compactMap { $0 }
 
             let stakeChangesForCurrentOrPreviousDate: (Date, [SubqueryStakeChangeData])? = {
                 if let items = stakeChangesForCurrentDate.first {
