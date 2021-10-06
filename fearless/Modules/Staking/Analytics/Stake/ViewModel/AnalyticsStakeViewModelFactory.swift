@@ -58,18 +58,96 @@ final class AnalyticsStakeViewModelFactory: AnalyticsViewModelFactoryBase<Subque
         by period: AnalyticsPeriod,
         locale: Locale
     ) -> [AnalyticsSelectedChartData] {
+        let dates = data.map(\.date)
+        guard let startDate = dates.first, let endDate = dates.last else { return [] }
+
+        let dateComponents: Set<Calendar.Component> = {
+            switch period {
+            case .month, .week:
+                return [.year, .month, .day]
+            case .year, .all:
+                return [.year, .month]
+            }
+        }()
+
+        let dateGranularity: Calendar.Component = {
+            switch period {
+            case .month, .week:
+                return .day
+            case .year, .all:
+                return .month
+            }
+        }()
+
+        let groupedByDate = data
+            .groupedBy(dateComponents: dateComponents, calendar: calendar)
+
+        let timestampInterval = period.dateRangeTillNow(startDate: startDate, endDate: endDate, calendar: calendar)
+        let chartBarsCount = period.chartBarsCount(startDate: startDate, endDate: endDate, calendar: calendar)
         let formatter = dateFormatter(period: period, for: locale)
 
-        return data.map { stakeChange in
-            let amount = Decimal.fromSubstrateAmount(
-                stakeChange.amountInChart,
-                precision: chain.addressType.precision
-            ) ?? 0.0
+        let stakeChangesSortedByDate = groupedByDate.sorted(by: { lhs, rhs in
+            lhs.key < rhs.key
+        })
 
-            let title = formatter.string(from: stakeChange.date)
-            let sections = createSections(historyItems: [stakeChange], locale: locale)
-            return AnalyticsSelectedChartData(yValue: amount, dateTitle: title, sections: sections)
+        return (0 ..< chartBarsCount).map { index in
+            let component: DateComponents = {
+                switch period {
+                case .month, .week:
+                    return DateComponents(day: index)
+                case .year, .all:
+                    return DateComponents(month: index)
+                }
+            }()
+            let currentDate = calendar.date(byAdding: component, to: timestampInterval.0) ?? startDate
+            let stakeChangesForCurrentDate = groupedByDate.map { date, stakeChanges -> (Date, [SubqueryStakeChangeData])? in
+                if calendar.isDate(currentDate, equalTo: date, toGranularity: dateGranularity) {
+                    return (date, stakeChanges)
+                }
+                return nil
+            }.compactMap { $0 }
+
+            let stakeChangesForCurrentOrPreviousDate: (Date, [SubqueryStakeChangeData])? = {
+                if let items = stakeChangesForCurrentDate.first {
+                    return items
+                } else {
+                    let stakeChangesForPreviousDate = stakeChangesSortedByDate.last(where: { $0.key < currentDate })
+                    return (currentDate, stakeChangesForPreviousDate?.value ?? [])
+                }
+            }()
+
+            return createSelectedChartData(
+                stakeChangesByDate: stakeChangesForCurrentOrPreviousDate,
+                selectedDate: currentDate,
+                dateFormatter: formatter,
+                locale: locale
+            )
         }
+    }
+
+    private func createSelectedChartData(
+        stakeChangesByDate: (Date, [SubqueryStakeChangeData])?,
+        selectedDate: Date,
+        dateFormatter: DateFormatter,
+        locale: Locale
+    ) -> AnalyticsSelectedChartData {
+        guard let stakeChangesByDate = stakeChangesByDate else {
+            return AnalyticsSelectedChartData(
+                yValue: 0,
+                dateTitle: dateFormatter.string(from: selectedDate),
+                sections: []
+            )
+        }
+
+        let yValue = stakeChangesByDate.1
+            .compactMap { Decimal.fromSubstrateAmount($0.accumulatedAmount, precision: chain.addressType.precision) }
+            .last ?? 0.0
+
+        return AnalyticsSelectedChartData(
+            yValue: yValue,
+            dateTitle: dateFormatter.string(from: stakeChangesByDate.0),
+            sections: createSections(historyItems: stakeChangesByDate.1, locale: locale)
+        )
     }
 
     override func calculateTotalReceivedTokens(
