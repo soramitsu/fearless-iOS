@@ -30,6 +30,8 @@ struct AnalyticsRewardsViewFactory {
         let viewModelFactory = AnalyticsRewardsViewModelFactory(
             chain: chain,
             balanceViewModelFactory: balanceViewModelFactory,
+            amountFormatterFactory: AmountFormatterFactory(),
+            asset: asset,
             calendar: Calendar(identifier: .gregorian)
         )
 
