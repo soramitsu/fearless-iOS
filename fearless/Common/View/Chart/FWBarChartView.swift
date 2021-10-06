@@ -1,11 +1,13 @@
 import UIKit
 import Charts
+import SnapKit
 
 final class FWBarChartView: BarChartView {
     weak var chartDelegate: FWChartViewDelegate?
 
     let xAxisEmptyFormatter = FWXAxisEmptyValueFormatter()
     let xAxisLegend = FWXAxisChartLegendView()
+    private var xAxisLegendLeadingInsetConstraint: Constraint!
     let yAxisFormatter = FWYAxisChartFormatter(hideMiddleLabels: true)
 
     private let averageAmountLabel: UILabel = {
@@ -41,6 +43,8 @@ final class FWBarChartView: BarChartView {
         drawValueAboveBarEnabled = false
         highlightFullBarEnabled = false
         pinchZoomEnabled = false
+        scaleXEnabled = false
+        scaleYEnabled = false
         dragYEnabled = false
 
         xAxis.drawGridLinesEnabled = false
@@ -66,7 +70,8 @@ final class FWBarChartView: BarChartView {
 
         addSubview(xAxisLegend)
         xAxisLegend.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(40)
+            xAxisLegendLeadingInsetConstraint = make.leading.equalToSuperview().constraint
+            xAxisLegendLeadingInsetConstraint.activate()
             make.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
@@ -103,6 +108,9 @@ final class FWBarChartView: BarChartView {
             size: CGSize(width: avgLabelSize.width, height: avgLabelHeight)
         )
         averageAmountLabel.isHidden = false
+
+        let legendLeadingInset = bounds.width - viewPortHandler.contentWidth
+        xAxisLegendLeadingInsetConstraint.update(inset: legendLeadingInset)
 
         averageLineLayer.isHidden = false
         let path = CGMutablePath()
