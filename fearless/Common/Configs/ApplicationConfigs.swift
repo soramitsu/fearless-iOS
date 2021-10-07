@@ -51,7 +51,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var socialURL: URL {
-        URL(string: "https://t.me/fearlesswallet")!
+        URL(string: "https://t.me/fearless_wallet")!
     }
 
     // swiftlint:disable force_cast
