@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import SoraKeystore
 
 enum RuntimeVersionSubscriptionError: Error {
     case skipUnchangedVersion
@@ -93,6 +94,16 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                 self.logger.debug("Did save runtime metadata:")
                 self.logger.debug("spec version: \(runtimeVersion.specVersion)")
                 self.logger.debug("transaction version: \(runtimeVersion.transactionVersion)")
+
+                let breakingUpgradeState = self.chain.metadataBreakingUpgradeState(for: runtimeVersion.specVersion)
+                switch breakingUpgradeState {
+                case let .applyTemporarySolution(_, breakingUpgrade):
+                    breakingUpgrade.temporarySolutionApplied(for: self.chain, value: true)
+                case let .overrideTemporarySolution(breakingUpgrade):
+                    breakingUpgrade.temporarySolutionApplied(for: self.chain, value: false)
+                case .notAffected:
+                    break
+                }
             } catch {
                 if let internalError = error as? RuntimeVersionSubscriptionError,
                    internalError == RuntimeVersionSubscriptionError.skipUnchangedVersion {
@@ -114,18 +125,36 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
         dependingOn localFetch: BaseOperation<RuntimeMetadataItem?>,
         runtimeVersion: RuntimeVersion
     ) -> BaseOperation<String> {
+        let breakingUpgradeState = chain.metadataBreakingUpgradeState(for: runtimeVersion.specVersion)
+
+        let parameters: [String]?
+        switch breakingUpgradeState {
+        case let .applyTemporarySolution(array, _):
+            parameters = array
+        default:
+            parameters = nil
+        }
+
         let method = RPCMethod.getRuntimeMetadata
         let metaOperation = JSONRPCOperation<[String], String>(
             engine: engine,
-            method: method
+            method: method,
+            parameters: parameters
         )
 
         metaOperation.configurationBlock = {
             do {
                 let currentItem = try localFetch
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
                 if let item = currentItem, item.version == runtimeVersion.specVersion {
-                    metaOperation.result = .failure(RuntimeVersionSubscriptionError.skipUnchangedVersion)
+                    switch breakingUpgradeState {
+                    case .notAffected:
+                        metaOperation.result = .failure(RuntimeVersionSubscriptionError.skipUnchangedVersion)
+                    default:
+                        // Do not skip, proceed with update
+                        break
+                    }
                 }
             } catch {
                 metaOperation.result = .failure(error)
@@ -156,5 +185,109 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             return [item]
 
         }, { [] })
+    }
+}
+
+// MARK: - RuntimeMetadataBreakingUpgrade
+
+private protocol RuntimeMetadataBreakingUpgrade {
+    var versionIssueIntroduced: UInt32 { get }
+    var isFixed: Bool { get }
+    func blockHashForBackwardCompatibility(for chain: Chain) -> String?
+}
+
+private extension RuntimeMetadataBreakingUpgrade {
+    /// Provides settings key only if block hash known
+    private func settingsKey(for chain: Chain) -> String? {
+        blockHashForBackwardCompatibility(for: chain).map {
+            "runtime.metadata.breaking.update.\(chain.rawValue).\($0)"
+        }
+    }
+
+    func isTemporarySolutionApplied(for chain: Chain) -> Bool {
+        settingsKey(for: chain).map {
+            SettingsManager.shared.bool(for: $0) ?? false
+        } ?? false
+    }
+
+    func temporarySolutionApplied(for chain: Chain, value: Bool) {
+        if let key = settingsKey(for: chain) {
+            SettingsManager.shared.set(value: value, for: key)
+        }
+    }
+}
+
+// MARK: - Known RuntimeMetadataBreakingUpgrades
+
+private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade {
+    let versionIssueIntroduced: UInt32 = 9110
+    let isFixed = false
+
+    func blockHashForBackwardCompatibility(for chain: Chain) -> String? {
+        switch chain {
+        case .kusama: // block #9 624 000
+            return "0x331cd3019b10cb639b6855e10f411bce33e65c2d129381907ac69f62bc054df9"
+        case .polkadot: // block #7 227 700
+            return "0xe8af816df50b4cabb3f396b61d4574925b2aa6fae556626804aab22fea276234"
+        case .westend: // block #7 500 000
+            return "0xa300b367c112c55e137a6fbba806975910695057ed0f7a3e37ac2fcbe19d70c1"
+        default:
+            return nil
+        }
+    }
+}
+
+// Should be pre-sorted in ascending order
+// Should be left for history purposes, never clear these
+private let knownRuntimeMetadataBreakingUpgrades: [RuntimeMetadataBreakingUpgrade] = [
+    RuntimeMetadataV14BreakingUpdate()
+]
+
+// MARK: - RuntimeMetadataBreakingUpgradeState
+
+private enum RuntimeMetadataBreakingUpgradeState {
+    case applyTemporarySolution([String], RuntimeMetadataBreakingUpgrade)
+    case overrideTemporarySolution(RuntimeMetadataBreakingUpgrade)
+    case notAffected
+}
+
+// MARK: - Chain based breaking update fixes
+
+private extension Chain {
+    private var temporarySolutionApplied: RuntimeMetadataBreakingUpgrade? {
+        knownRuntimeMetadataBreakingUpgrades.first(where: { $0.isTemporarySolutionApplied(for: self) })
+    }
+
+    private func recentBreakingUpgrade(for version: UInt32) -> RuntimeMetadataBreakingUpgrade? {
+        knownRuntimeMetadataBreakingUpgrades
+            .filter { $0.versionIssueIntroduced <= version }
+            .last
+    }
+
+    func metadataBreakingUpgradeState(for version: UInt32) -> RuntimeMetadataBreakingUpgradeState {
+        guard let recent = recentBreakingUpgrade(for: version) else {
+            // No breaking changes known so far
+            return .notAffected
+        }
+
+        if let applied = temporarySolutionApplied {
+            if applied.versionIssueIntroduced == recent.versionIssueIntroduced {
+                if applied.isFixed {
+                    // Previously applied temporary solution no longer needed, as runtime parsing fixed
+                    return .overrideTemporarySolution(applied)
+                } // else issue not fixed, stick with applied solution
+            } else { // recent > applied, provide solution for recent version
+                // also reset applied state, so it no more recognized as applied
+                applied.temporarySolutionApplied(for: self, value: false)
+            }
+        }
+
+        guard !recent.isFixed, let blockHash = recent.blockHashForBackwardCompatibility(for: self) else {
+            // Recent breaking update already supported or no temporary solution known, do nothing
+            return .notAffected
+        }
+
+        // Apply fix from recent breaking upgrade
+        return .applyTemporarySolution([blockHash], recent)
     }
 }
