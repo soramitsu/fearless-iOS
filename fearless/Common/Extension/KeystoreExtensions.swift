@@ -10,6 +10,7 @@ extension KeystoreProtocol {
         return try fetchKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveSecretKey(_ secretKey: Data, address: String) throws {
         let tag = KeystoreTag.secretKeyTagForAddress(address)
 
@@ -27,6 +28,7 @@ extension KeystoreProtocol {
         return try checkKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveEntropy(_ entropy: Data, address: String) throws {
         let tag = KeystoreTag.entropyTagForAddress(address)
 
@@ -44,6 +46,7 @@ extension KeystoreProtocol {
         return try checkKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveDeriviation(_ path: String, address: String) throws {
         guard let data = path.data(using: .utf8) else {
             return
@@ -69,6 +72,7 @@ extension KeystoreProtocol {
         return try checkKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveSeed(_ data: Data, address: String) throws {
         let tag = KeystoreTag.seedTagForAddress(address)
 

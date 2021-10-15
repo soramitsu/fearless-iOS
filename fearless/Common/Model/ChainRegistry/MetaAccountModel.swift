@@ -15,3 +15,24 @@ struct MetaAccountModel: Equatable {
 extension MetaAccountModel: Identifiable {
     var identifier: String { metaId }
 }
+
+extension MetaAccountModel {
+    func replacingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
+        var newChainAccounts = chainAccounts.filter {
+            $0.chainId != newChainAccount.chainId
+        }
+
+        newChainAccounts.insert(newChainAccount)
+
+        return MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: newChainAccounts
+        )
+    }
+}
