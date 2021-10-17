@@ -35,4 +35,30 @@ extension MetaAccountModel {
             chainAccounts: newChainAccounts
         )
     }
+
+    func replacingEthereumAddress(_ newEthereumAddress: Data?) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: newEthereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts
+        )
+    }
+
+    func replacingEthereumPublicKey(_ newEthereumPublicKey: Data?) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: newEthereumPublicKey,
+            chainAccounts: chainAccounts
+        )
+    }
 }

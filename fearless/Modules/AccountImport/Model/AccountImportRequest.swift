@@ -1,5 +1,6 @@
 import Foundation
 
+@available(*, deprecated, message: "Use ChainAccountImportMnemonicRequest instead")
 struct AccountImportMnemonicRequest {
     let mnemonic: String
     let username: String
@@ -8,6 +9,7 @@ struct AccountImportMnemonicRequest {
     let cryptoType: CryptoType
 }
 
+@available(*, deprecated, message: "Use ChainAccountImportSeedRequest instead")
 struct AccountImportSeedRequest {
     let seed: String
     let username: String
@@ -16,6 +18,7 @@ struct AccountImportSeedRequest {
     let cryptoType: CryptoType
 }
 
+@available(*, deprecated, message: "Use ChainAccountImportKeystoreRequest instead")
 struct AccountImportKeystoreRequest {
     let keystore: String
     let password: String
@@ -24,7 +27,6 @@ struct AccountImportKeystoreRequest {
     let cryptoType: CryptoType
 }
 
-@available(*, deprecated, message: "Use AccountImportMnemonicRequest instead")
 struct ChainAccountImportMnemonicRequest {
     let mnemonic: String
     let username: String
@@ -33,7 +35,6 @@ struct ChainAccountImportMnemonicRequest {
     let cryptoType: MultiassetCryptoType
 }
 
-@available(*, deprecated, message: "Use AccountImportSeedRequest instead")
 struct ChainAccountImportSeedRequest {
     let seed: String
     let username: String
@@ -42,7 +43,6 @@ struct ChainAccountImportSeedRequest {
     let cryptoType: MultiassetCryptoType
 }
 
-@available(*, deprecated, message: "Use AccountImportKeystoreRequest instead")
 struct ChainAccountImportKeystoreRequest {
     let keystore: String
     let password: String
