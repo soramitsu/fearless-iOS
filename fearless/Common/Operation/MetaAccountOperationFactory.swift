@@ -5,7 +5,7 @@ import RobinHood
 import SoraKeystore
 
 protocol MetaAccountOperationFactoryProtocol {
-    func newMetaAccountOperation(request: MetaaccountCreationRequest, mnemonic: IRMnemonicProtocol)
+    func newMetaAccountOperation(request: MetaAccountCreationRequest, mnemonic: IRMnemonicProtocol)
         -> BaseOperation<MetaAccountModel>
     func newMetaAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
     func newMetaAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
@@ -57,7 +57,7 @@ final class MetaAccountOperationFactory {
         from derivationPath: String,
         ethereumBased: Bool
     ) throws -> JunctionResult? {
-        guard derivationPath.isEmpty else { return nil }
+        guard !derivationPath.isEmpty else { return nil }
 
         let junctionFactory = ethereumBased ?
             BIP32JunctionFactory() : SubstrateJunctionFactory()
@@ -191,7 +191,7 @@ final class MetaAccountOperationFactory {
 
 extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(
-        request: MetaaccountCreationRequest,
+        request: MetaAccountCreationRequest,
         mnemonic: IRMnemonicProtocol
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in

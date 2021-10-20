@@ -8,7 +8,7 @@ struct AccountCreationRequest {
     let cryptoType: CryptoType
 }
 
-struct MetaaccountCreationRequest {
+struct MetaAccountCreationRequest {
     let username: String
     let derivationPath: String
     let cryptoType: MultiassetCryptoType
