@@ -7,8 +7,8 @@ import SoraKeystore
 protocol MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(request: MetaAccountCreationRequest, mnemonic: IRMnemonicProtocol)
         -> BaseOperation<MetaAccountModel>
-    func newMetaAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
-    func newMetaAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
 
     func replaceChainAccountOperation(
         for metaAccount: MetaAccountModel,
@@ -265,7 +265,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         }
     }
 
-    func newMetaAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
+    func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let junctionResult = try getJunctionResult(
                 from: request.derivationPath,
@@ -297,7 +297,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         }
     }
 
-    func newMetaAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
+    func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
 
