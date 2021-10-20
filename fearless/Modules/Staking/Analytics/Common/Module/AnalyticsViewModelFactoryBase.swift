@@ -279,7 +279,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         return sortedByDay
             .map { date, rewards in
-                let items = createViewModelItems(rewardsData: rewards, locale: locale)
+                let rewardsSortedByDesc = rewards.sorted(by: { $0.date > $1.date })
+                let items = createViewModelItems(rewardsData: rewardsSortedByDesc, locale: locale)
                 let title = dateTitleFormatter.string(from: date).uppercased()
 
                 return AnalyticsRewardSection(
