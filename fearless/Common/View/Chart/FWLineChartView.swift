@@ -62,7 +62,12 @@ extension FWLineChartView: FWChartViewProtocol {
     func setChartData(_ data: ChartData, animated: Bool) {
         let chartValues = data.amounts.map(\.value)
         let dataEntries: [ChartDataEntry] = {
-            if chartValues.count == 1 {
+            if chartValues.isEmpty {
+                // when passing empty ChartDataEntry array the chart crashes
+                // so if there is nothing to pass, just pass zero value
+                return [ChartDataEntry(x: Double(0), y: 0)]
+            } else if chartValues.count == 1 {
+                // draw horizontal line along whole axis
                 return [
                     ChartDataEntry(x: Double(0), y: chartValues[0]),
                     ChartDataEntry(x: Double(1), y: chartValues[0])
