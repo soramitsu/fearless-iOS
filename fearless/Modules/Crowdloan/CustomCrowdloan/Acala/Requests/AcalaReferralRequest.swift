@@ -11,7 +11,7 @@ struct AcalaReferralRequest: HTTPRequestConfig {
         nil
     }
 
-    var body: Data? {
+    func body() throws -> Data? {
         nil
     }
 

@@ -20,7 +20,7 @@ struct AcalaContributeRequest: HTTPRequestConfig {
         nil
     }
 
-    var body: Data? {
-        try? JSONEncoder().encode(contributeInfo)
+    func body() throws -> Data? {
+        try JSONEncoder().encode(contributeInfo)
     }
 }

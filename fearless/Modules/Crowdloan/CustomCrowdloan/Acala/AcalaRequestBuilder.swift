@@ -1,11 +1,3 @@
-//
-//  AcalaRequestBuilder.swift
-//  fearless
-//
-//  Created by Ярослав Екимов on 22.10.2021.
-//  Copyright © 2021 Soramitsu. All rights reserved.
-//
-
 import Foundation
 
 final class AcalaHTTPRequestBuilder: HTTPRequestBuilder {

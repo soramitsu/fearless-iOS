@@ -1,15 +1,16 @@
 import Foundation
 import RobinHood
 
-struct AcalaTransferRequest: HTTPRequestConfig {
-    let transferInfo: AcalaTransferInfo
+struct MoonbeamMakeSignatureRequest: HTTPRequestConfig {
+    let address: String
+    let info: MoonbeamMakeSignatureInfo
 
     var path: String {
-        "/transfer"
+        "/make-signature"
     }
 
     var httpMethod: String {
-        HTTPRequestMethod.post.rawValue
+        HttpMethod.post.rawValue
     }
 
     var headers: [String: String]? {
@@ -21,6 +22,6 @@ struct AcalaTransferRequest: HTTPRequestConfig {
     }
 
     func body() throws -> Data? {
-        try JSONEncoder().encode(transferInfo)
+        try MoonbeamJSONEncoder().encode(info)
     }
 }

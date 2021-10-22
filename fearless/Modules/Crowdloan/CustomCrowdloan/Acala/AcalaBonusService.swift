@@ -57,22 +57,20 @@ final class AcalaBonusService: CrowdloanBonusServiceProtocol {
 
     func createTransferOperation(
         dependingOn infoOperation: BaseOperation<AcalaTransferInfo>
-    ) -> BaseOperation<Void> {
+    ) -> BaseOperation<AcalaTransferData> {
         let requestFactory = BlockNetworkRequestFactory {
             let info = try infoOperation.extractNoCancellableResultData()
             let request = try self.requestBuilder.buildRequest(with: AcalaTransferRequest(transferInfo: info))
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<Void> { data in
+        let resultFactory = AnyNetworkResultFactory<AcalaTransferData> { data in
             let resultData = try JSONDecoder().decode(
                 AcalaTransferData.self,
                 from: data
             )
 
-            guard resultData.result else {
-                throw CrowdloanBonusServiceError.veficationFailed
-            }
+            return resultData
         }
 
         return NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
@@ -80,22 +78,20 @@ final class AcalaBonusService: CrowdloanBonusServiceProtocol {
 
     func createContributeOperation(
         dependingOn infoOperation: BaseOperation<AcalaContributeInfo>
-    ) -> BaseOperation<Void> {
+    ) -> BaseOperation<AcalaContributeData> {
         let requestFactory = BlockNetworkRequestFactory {
             let info = try infoOperation.extractNoCancellableResultData()
             let request = try self.requestBuilder.buildRequest(with: AcalaContributeRequest(contributeInfo: info))
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<Void> { data in
+        let resultFactory = AnyNetworkResultFactory<AcalaContributeData> { data in
             let resultData = try JSONDecoder().decode(
                 AcalaContributeData.self,
                 from: data
             )
 
-            guard resultData.result else {
-                throw CrowdloanBonusServiceError.veficationFailed
-            }
+            return resultData
         }
 
         return NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)

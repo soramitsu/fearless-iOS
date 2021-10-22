@@ -1299,6 +1299,18 @@
 		C20ED4531583D0C8E38715E0 /* PurchaseProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782CC21A2F9EEF5DBA3AB1AA /* PurchaseProtocols.swift */; };
 		C21129B2B8D8B33BCBD5843E /* StakingRedeemViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8821119C96944A0E3526E93A /* StakingRedeemViewFactory.swift */; };
 		C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EBA536340AA12142068C2D /* AccountCreateViewController.swift */; };
+		C40738D327230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D227230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift */; };
+		C40738D5272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D4272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift */; };
+		C40738D7272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D6272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift */; };
+		C40738D927231722006DC6D4 /* MoonbeamVerifyRemarkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D827231722006DC6D4 /* MoonbeamVerifyRemarkData.swift */; };
+		C40738DB2723179B006DC6D4 /* MoonbeamMakeSignatureInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738DA2723179B006DC6D4 /* MoonbeamMakeSignatureInfo.swift */; };
+		C40738DD272317FF006DC6D4 /* MoonbeamMakeSignatureData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738DC272317FF006DC6D4 /* MoonbeamMakeSignatureData.swift */; };
+		C40738DF272318D6006DC6D4 /* MoonbeamGuidInfoRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738DE272318D6006DC6D4 /* MoonbeamGuidInfoRequest.swift */; };
+		C40738E127231A54006DC6D4 /* MoonbeamCheckRemarkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E027231A54006DC6D4 /* MoonbeamCheckRemarkData.swift */; };
+		C40738E3272323EF006DC6D4 /* MoonbeamCheckRemarkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E2272323EF006DC6D4 /* MoonbeamCheckRemarkInfo.swift */; };
+		C40738E5272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E4272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift */; };
+		C40738E72723279C006DC6D4 /* MoonbeamJSONDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */; };
+		C40738E927232CFA006DC6D4 /* MoonbeamJSONEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */; };
 		C422767C272279A0005D3153 /* AcalaBonusServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422767B272279A0005D3153 /* AcalaBonusServiceTests.swift */; };
 		C422767F27228593005D3153 /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422767E27228593005D3153 /* HTTPRequest.swift */; };
 		C422768227228664005D3153 /* HTTPRequestBuilderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */; };
@@ -1308,6 +1320,13 @@
 		C422768C2722A118005D3153 /* AcalaContributeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768B2722A118005D3153 /* AcalaContributeRequest.swift */; };
 		C422768E2722A132005D3153 /* AcalaTransferRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768D2722A132005D3153 /* AcalaTransferRequest.swift */; };
 		C42276902722B680005D3153 /* AcalaReferralRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768F2722B680005D3153 /* AcalaReferralRequest.swift */; };
+		C42276932722BB1B005D3153 /* MoonbeamBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276922722BB1B005D3153 /* MoonbeamBonusService.swift */; };
+		C42276962722C593005D3153 /* MoonbeamHealthRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276952722C593005D3153 /* MoonbeamHealthRequest.swift */; };
+		C42276982722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */; };
+		C422769A2722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276992722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift */; };
+		C422769C2722CF9A005D3153 /* MoonbeamAgreeRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */; };
+		C422769E2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */; };
+		C42276A02722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */; };
 		C4427244A22EA7BA7F7C9E9F /* StakingRedeemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D8D690B564EDC04996945 /* StakingRedeemTests.swift */; };
 		C45FCD7827213C3F00CB34BC /* AcalaBonusServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45FCD7727213C3F00CB34BC /* AcalaBonusServiceProtocol.swift */; };
 		C46EEF6A9A9A601694E72DB1 /* StakingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F09665083031502F9693F8 /* StakingMainWireframe.swift */; };
@@ -2842,6 +2861,18 @@
 		C191A3875F3255B72E01FA92 /* CrowdloanListWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanListWireframe.swift; sourceTree = "<group>"; };
 		C2956D0C69019DDCDAB2EB34 /* CustomValidatorListViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewLayout.swift; sourceTree = "<group>"; };
 		C316BE4F5A0342D379F783E8 /* StartSelectValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StartSelectValidatorsTests.swift; sourceTree = "<group>"; };
+		C40738D227230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreeRemarkInfo.swift; sourceTree = "<group>"; };
+		C40738D4272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreeRemarkData.swift; sourceTree = "<group>"; };
+		C40738D6272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamVerifyRemarkInfo.swift; sourceTree = "<group>"; };
+		C40738D827231722006DC6D4 /* MoonbeamVerifyRemarkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamVerifyRemarkData.swift; sourceTree = "<group>"; };
+		C40738DA2723179B006DC6D4 /* MoonbeamMakeSignatureInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamMakeSignatureInfo.swift; sourceTree = "<group>"; };
+		C40738DC272317FF006DC6D4 /* MoonbeamMakeSignatureData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamMakeSignatureData.swift; sourceTree = "<group>"; };
+		C40738DE272318D6006DC6D4 /* MoonbeamGuidInfoRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamGuidInfoRequest.swift; sourceTree = "<group>"; };
+		C40738E027231A54006DC6D4 /* MoonbeamCheckRemarkData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamCheckRemarkData.swift; sourceTree = "<group>"; };
+		C40738E2272323EF006DC6D4 /* MoonbeamCheckRemarkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamCheckRemarkInfo.swift; sourceTree = "<group>"; };
+		C40738E4272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamGuidinfoInfo.swift; sourceTree = "<group>"; };
+		C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamJSONDecoder.swift; sourceTree = "<group>"; };
+		C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamJSONEncoder.swift; sourceTree = "<group>"; };
 		C422767B272279A0005D3153 /* AcalaBonusServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaBonusServiceTests.swift; sourceTree = "<group>"; };
 		C422767E27228593005D3153 /* HTTPRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequest.swift; sourceTree = "<group>"; };
 		C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestBuilderProtocol.swift; sourceTree = "<group>"; };
@@ -2851,6 +2882,13 @@
 		C422768B2722A118005D3153 /* AcalaContributeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaContributeRequest.swift; sourceTree = "<group>"; };
 		C422768D2722A132005D3153 /* AcalaTransferRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaTransferRequest.swift; sourceTree = "<group>"; };
 		C422768F2722B680005D3153 /* AcalaReferralRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaReferralRequest.swift; sourceTree = "<group>"; };
+		C42276922722BB1B005D3153 /* MoonbeamBonusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamBonusService.swift; sourceTree = "<group>"; };
+		C42276952722C593005D3153 /* MoonbeamHealthRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamHealthRequest.swift; sourceTree = "<group>"; };
+		C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamHTTPRequestBuilder.swift; sourceTree = "<group>"; };
+		C42276992722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamCheckRemarkRequest.swift; sourceTree = "<group>"; };
+		C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreeRemarkRequest.swift; sourceTree = "<group>"; };
+		C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamVerifyRemarkRequest.swift; sourceTree = "<group>"; };
+		C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamMakeSignatureRequest.swift; sourceTree = "<group>"; };
 		C45FCD7727213C3F00CB34BC /* AcalaBonusServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaBonusServiceProtocol.swift; sourceTree = "<group>"; };
 		C47631BD272017C900EB953A /* AcalaBonusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaBonusService.swift; sourceTree = "<group>"; };
 		C47631BF27202A3700EB953A /* AcalaStatementData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaStatementData.swift; sourceTree = "<group>"; };
@@ -6238,6 +6276,7 @@
 		84DED4012666533300A153BB /* CustomCrowdloan */ = {
 			isa = PBXGroup;
 			children = (
+				C42276912722B953005D3153 /* Moonbeam */,
 				C47631BC272017A900EB953A /* Acala */,
 				8444D1352671179000AF6D8C /* Bifrost */,
 				84981CC72666DFC500C4C691 /* Karura */,
@@ -7161,6 +7200,22 @@
 			path = AddConnection;
 			sourceTree = "<group>";
 		};
+		C40738D127230E38006DC6D4 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C40738D227230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift */,
+				C40738D4272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift */,
+				C40738D6272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift */,
+				C40738D827231722006DC6D4 /* MoonbeamVerifyRemarkData.swift */,
+				C40738DA2723179B006DC6D4 /* MoonbeamMakeSignatureInfo.swift */,
+				C40738DC272317FF006DC6D4 /* MoonbeamMakeSignatureData.swift */,
+				C40738E027231A54006DC6D4 /* MoonbeamCheckRemarkData.swift */,
+				C40738E2272323EF006DC6D4 /* MoonbeamCheckRemarkInfo.swift */,
+				C40738E4272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		C42276792722797E005D3153 /* CustomCrowdloan */ = {
 			isa = PBXGroup;
 			children = (
@@ -7217,6 +7272,32 @@
 				C47631C927202D9100EB953A /* AcalaReferralData.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		C42276912722B953005D3153 /* Moonbeam */ = {
+			isa = PBXGroup;
+			children = (
+				C40738D127230E38006DC6D4 /* Models */,
+				C42276942722C583005D3153 /* Requests */,
+				C42276922722BB1B005D3153 /* MoonbeamBonusService.swift */,
+				C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */,
+				C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */,
+				C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */,
+			);
+			path = Moonbeam;
+			sourceTree = "<group>";
+		};
+		C42276942722C583005D3153 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				C42276952722C593005D3153 /* MoonbeamHealthRequest.swift */,
+				C42276992722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift */,
+				C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */,
+				C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */,
+				C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */,
+				C40738DE272318D6006DC6D4 /* MoonbeamGuidInfoRequest.swift */,
+			);
+			path = Requests;
 			sourceTree = "<group>";
 		};
 		C47631BC272017A900EB953A /* Acala */ = {
@@ -8303,9 +8384,11 @@
 				F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */,
 				8428769024AE046300D91AD8 /* AboutTitleCell.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
+				C40738DB2723179B006DC6D4 /* MoonbeamMakeSignatureInfo.swift in Sources */,
 				AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
 				F40966B726B297D6008CD244 /* AnalyticsContainerViewController.swift in Sources */,
 				84FD3DC02541B10B00A234E3 /* TransactionDetailsViewModelFactory.swift in Sources */,
+				C40738E3272323EF006DC6D4 /* MoonbeamCheckRemarkInfo.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
 				84DBEA47265E98C300FDF73C /* AmountInputResult.swift in Sources */,
@@ -8319,6 +8402,7 @@
 				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
 				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
+				C42276932722BB1B005D3153 /* MoonbeamBonusService.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				842876A424AE049B00D91AD8 /* SelectableSubtitleListViewModel.swift in Sources */,
@@ -8367,6 +8451,7 @@
 				840882BD2514B3DC00177E20 /* SelectConnection+AccountImportInteractor.swift in Sources */,
 				842D1E8424D197C900C30A7A /* KeyboardAdoptable.swift in Sources */,
 				849DEBD425ED015C00C64C19 /* SelectValidatorsConfirmViewModel.swift in Sources */,
+				C42276982722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift in Sources */,
 				84CD82B8263C3249001A6F01 /* SubstrateProviderSubscriber+Default.swift in Sources */,
 				845BB8B825E4465F00E5FCDC /* ExtrinsicService.swift in Sources */,
 				F4F65C2E26D8B7F7002EE838 /* FWXAxisChartLegendView.swift in Sources */,
@@ -8379,6 +8464,7 @@
 				AEE5FB1826457AC1002B8FDC /* StakingRewardDestSetupViewController.swift in Sources */,
 				846AF8462525C93A00868F37 /* BalanceContext.swift in Sources */,
 				842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */,
+				C40738E72723279C006DC6D4 /* MoonbeamJSONDecoder.swift in Sources */,
 				F4FDA0F826A57626003D753B /* EraCountdownOperationFactory.swift in Sources */,
 				845CB6EF26276104005F798B /* SubscanQueryService.swift in Sources */,
 				849ABE5126276C3400011A2A /* SubscanQueryParams.swift in Sources */,
@@ -8473,6 +8559,7 @@
 				84B71DE5260B90270003A100 /* SubstrateAlias.swift in Sources */,
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
 				84D97EB5251FC58100F07405 /* TransferConfigurator.swift in Sources */,
+				C40738E927232CFA006DC6D4 /* MoonbeamJSONEncoder.swift in Sources */,
 				AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */,
 				AEFC6D672600A808000BD310 /* StoriesPreviewCollectionItem.swift in Sources */,
 				84FAB076254378FC00319F74 /* ContactsListViewModelFactory.swift in Sources */,
@@ -8540,6 +8627,7 @@
 				840689FC26321F2700A017B1 /* StorageQuery.swift in Sources */,
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8423ADD026B2C38600057EDD /* ImportantFlowViewFactory.swift in Sources */,
+				C40738E5272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */,
 				84F6B6432619A8480038F10D /* SubscanConcreteExtrinsicsData.swift in Sources */,
@@ -8610,6 +8698,7 @@
 				84F30E9C25FD3DBC00039D09 /* EmptyHandlingStorageSubscription.swift in Sources */,
 				84DF21B525388B35005454AE /* Scheduler.swift in Sources */,
 				8490150524AB6D25008F705E /* WalletPrimitiveFactory.swift in Sources */,
+				C40738DF272318D6006DC6D4 /* MoonbeamGuidInfoRequest.swift in Sources */,
 				84DB9E982640A49E00F23DD3 /* StakingRedeemViewModelFactory.swift in Sources */,
 				84ACEBF2261E664900AAE665 /* WalletHistoryFilterViewModel.swift in Sources */,
 				AEE5FAFD26415DE2002B8FDC /* StakingRebondSetupViewController.swift in Sources */,
@@ -8628,6 +8717,7 @@
 				84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */,
 				AED21AF22705E85E00AEEB96 /* BalanceLocks+Sort.swift in Sources */,
 				84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */,
+				C40738D7272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift in Sources */,
 				84CFF1ED26526FBC00DB7CF7 /* StakingBondMoreConfirmationWireframe.swift in Sources */,
 				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
 				84F2FF0F25E7D059008338D5 /* EraValidatorFacade.swift in Sources */,
@@ -8692,6 +8782,7 @@
 				8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */,
 				F408E9BE26B80FD30043CFE0 /* AnalyticsSectionHeader.swift in Sources */,
 				84C6801824D7053B00006BF5 /* BorderedSubtitleActionView.swift in Sources */,
+				C40738D5272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift in Sources */,
 				84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */,
 				84452F2B25D5B84200F47EC5 /* RuntimeRegistryServiceProtocol.swift in Sources */,
 				8460E1162541E03400826F55 /* WalletFormCellStyle+Internal.swift in Sources */,
@@ -8706,6 +8797,7 @@
 				848FFE9525E6DF2200652AA5 /* PagedKeysRequest.swift in Sources */,
 				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
 				84F30E9725FD3C5300039D09 /* EventEmittingStorageSubscription.swift in Sources */,
+				C42276962722C593005D3153 /* MoonbeamHealthRequest.swift in Sources */,
 				8494D85E25246E9A00614D8F /* WalletTokenViewModel.swift in Sources */,
 				AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */,
 				8472C5B4265CF9C500E2481B /* StakingRewardDestConfirmPresenter.swift in Sources */,
@@ -8775,6 +8867,7 @@
 				84293E6C261BCCF1008E5EDD /* TransactionDetailsViewModelFactory+Extrinsic.swift in Sources */,
 				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
 				8468B86A24F63CBA00B76BC6 /* AddAccount+AccountImportInteractor.swift in Sources */,
+				C40738E127231A54006DC6D4 /* MoonbeamCheckRemarkData.swift in Sources */,
 				F40966BE26B297D6008CD244 /* AnalyticsRewardsItemView.swift in Sources */,
 				84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */,
 				AEBE16E6262EA7C100DF257C /* StakingErrors.swift in Sources */,
@@ -8815,6 +8908,7 @@
 				84DF21A125347031005454AE /* DetailsDisplayTableViewCell.swift in Sources */,
 				8494D86725247CFC00614D8F /* TransferValidator.swift in Sources */,
 				AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */,
+				C422769A2722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift in Sources */,
 				F43A8A95265B9CF400A8A5A8 /* CustomValidatorCell.swift in Sources */,
 				84FB1F672526920B00E0242B /* SubscanTransferData.swift in Sources */,
 				84D97EBB251FE5B500F07405 /* TransferViewModelFactory.swift in Sources */,
@@ -9020,6 +9114,7 @@
 				AEDD7C0F269C81F500A8405F /* BlockWeights.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
 				AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */,
+				C42276A02722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
@@ -9086,6 +9181,7 @@
 				8466BB472640152A00E065A8 /* StakingUnbondConfirmViewModelFactory.swift in Sources */,
 				C4227684272286A1005D3153 /* HTTPRequestBuilder.swift in Sources */,
 				84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */,
+				C40738DD272317FF006DC6D4 /* MoonbeamMakeSignatureData.swift in Sources */,
 				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 				6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */,
 				84EBAB0B265E28590015E446 /* ChainDateCalculator.swift in Sources */,
@@ -9103,6 +9199,7 @@
 				AEF50716262359DC0098574D /* WalletSelectPurchaseProviderCommand.swift in Sources */,
 				9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */,
 				AEA2C1B82681E9BD0069492E /* ValidatorSearchWireframe.swift in Sources */,
+				C40738D327230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift in Sources */,
 				F40966DB26B29839008CD244 /* SubqueryRewardData.swift in Sources */,
 				84C4C2D7255D2B780045B582 /* PinChangeWireframe.swift in Sources */,
 				84FB29992639AC2300BE0FCD /* YourValidatorList+SelectionConfirm.swift in Sources */,
@@ -9122,6 +9219,7 @@
 				8475AE39258B958300B058F3 /* ErrorContent+Wallet.swift in Sources */,
 				9B4F0484B81BBF8DFA618599 /* AccountCreateViewFactory.swift in Sources */,
 				846CDECD258D212D009F3E75 /* AlertImageWithTitleView.swift in Sources */,
+				C422769C2722CF9A005D3153 /* MoonbeamAgreeRemarkRequest.swift in Sources */,
 				8419378125442FEE00CFA50C /* WalletQRCoderFactory.swift in Sources */,
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
 				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
@@ -9257,6 +9355,7 @@
 				84FAB0782543791A00319F74 /* ContactContext.swift in Sources */,
 				C7E39E732B9CA6D826FF7910 /* AccountInfoPresenter.swift in Sources */,
 				8460516D25536C4800A1F0B4 /* ExportOption+ViewModel.swift in Sources */,
+				C40738D927231722006DC6D4 /* MoonbeamVerifyRemarkData.swift in Sources */,
 				84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */,
 				843461CF26E25AD400DCE0CD /* SubscanHistoryItem+Wallet.swift in Sources */,
 				F458D3982642911B0055CB75 /* ControllerAccountViewModel.swift in Sources */,
@@ -9460,6 +9559,7 @@
 				20B2942A4241F6713A1C70D9 /* StakingRewardDetailsViewFactory.swift in Sources */,
 				84BB3CEE267CD6B500676FFE /* CrowdloanContributionDict.swift in Sources */,
 				849842EC26587B20006BBB9F /* YourCrowdloansTableViewCell.swift in Sources */,
+				C422769E2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift in Sources */,
 				F409673326B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift in Sources */,
 				5869563D0EA593FBD02C169C /* StakingPayoutConfirmationProtocols.swift in Sources */,
 				84293E62261BBFD7008E5EDD /* TransactionDetailsViewModelFactory+Transfer.swift in Sources */,

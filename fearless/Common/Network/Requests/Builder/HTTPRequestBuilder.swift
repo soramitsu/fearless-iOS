@@ -4,6 +4,7 @@ enum HTTPRequestBuilderError: Error {
     case invalidSchemeOrHost
     case invalidURLPath
     case invalidURLParameters
+    case invalidBody
 }
 
 class HTTPRequestBuilder {
@@ -41,7 +42,13 @@ extension HTTPRequestBuilder: HTTPRequestBuilderProtocol {
         var request = URLRequest(url: url)
 
         request.httpMethod = config.httpMethod
-        request.httpBody = config.body
+
+        do {
+            request.httpBody = try config.body()
+        } catch {
+            throw HTTPRequestBuilderError.invalidBody
+        }
+
         request.allHTTPHeaderFields = config.headers
 
         return request

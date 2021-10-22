@@ -13,5 +13,6 @@ protocol HTTPRequestConfig {
     var httpMethod: String { get }
     var headers: [String: String]? { get }
     var queryParameters: [URLQueryItem]? { get }
-    var body: Data? { get }
+
+    func body() throws -> Data?
 }

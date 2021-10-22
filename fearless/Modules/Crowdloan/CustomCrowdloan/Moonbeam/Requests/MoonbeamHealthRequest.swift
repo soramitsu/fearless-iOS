@@ -1,6 +1,15 @@
 import Foundation
+import RobinHood
 
-struct AcalaStatementRequest: HTTPRequestConfig {
+struct MoonbeamHealthRequest: HTTPRequestConfig {
+    var path: String {
+        "/health"
+    }
+
+    var httpMethod: String {
+        HttpMethod.get.rawValue
+    }
+
     var headers: [String: String]? {
         nil
     }
@@ -11,13 +20,5 @@ struct AcalaStatementRequest: HTTPRequestConfig {
 
     func body() throws -> Data? {
         nil
-    }
-
-    var path: String {
-        "/statement"
-    }
-
-    var httpMethod: String {
-        HTTPRequestMethod.get.rawValue
     }
 }
