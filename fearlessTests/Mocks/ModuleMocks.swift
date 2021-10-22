@@ -2685,9 +2685,9 @@ import SoraFoundation
     
     
     
-     func didReceive(metadata: AccountCreationMetadata)  {
+     func didReceive(metadata: MetaAccountCreationMetadata)  {
         
-    return cuckoo_manager.call("didReceive(metadata: AccountCreationMetadata)",
+    return cuckoo_manager.call("didReceive(metadata: MetaAccountCreationMetadata)",
             parameters: (metadata),
             escapingParameters: (metadata),
             superclassCall:
@@ -2722,9 +2722,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(metadata: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreationMetadata)> where M1.MatchedType == AccountCreationMetadata {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreationMetadata)>] = [wrap(matchable: metadata) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorOutputProtocol.self, method: "didReceive(metadata: AccountCreationMetadata)", parameterMatchers: matchers))
+	    func didReceive<M1: Cuckoo.Matchable>(metadata: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(MetaAccountCreationMetadata)> where M1.MatchedType == MetaAccountCreationMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(MetaAccountCreationMetadata)>] = [wrap(matchable: metadata) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorOutputProtocol.self, method: "didReceive(metadata: MetaAccountCreationMetadata)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveMnemonicGeneration<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
@@ -2749,9 +2749,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(metadata: M1) -> Cuckoo.__DoNotUse<(AccountCreationMetadata), Void> where M1.MatchedType == AccountCreationMetadata {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreationMetadata)>] = [wrap(matchable: metadata) { $0 }]
-	        return cuckoo_manager.verify("didReceive(metadata: AccountCreationMetadata)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceive<M1: Cuckoo.Matchable>(metadata: M1) -> Cuckoo.__DoNotUse<(MetaAccountCreationMetadata), Void> where M1.MatchedType == MetaAccountCreationMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(MetaAccountCreationMetadata)>] = [wrap(matchable: metadata) { $0 }]
+	        return cuckoo_manager.verify("didReceive(metadata: MetaAccountCreationMetadata)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -2769,7 +2769,7 @@ import SoraFoundation
     
 
     
-     func didReceive(metadata: AccountCreationMetadata)   {
+     func didReceive(metadata: MetaAccountCreationMetadata)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2806,9 +2806,9 @@ import SoraFoundation
     
     
     
-     func confirm(from view: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)  {
+     func confirm(from view: AccountCreateViewProtocol?, request: MetaAccountCreationRequest, metadata: MetaAccountCreationMetadata)  {
         
-    return cuckoo_manager.call("confirm(from: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)",
+    return cuckoo_manager.call("confirm(from: AccountCreateViewProtocol?, request: MetaAccountCreationRequest, metadata: MetaAccountCreationMetadata)",
             parameters: (view, request, metadata),
             escapingParameters: (view, request, metadata),
             superclassCall:
@@ -2821,9 +2821,9 @@ import SoraFoundation
     
     
     
-     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)  {
+     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [MultiassetCryptoType], selectedType: MultiassetCryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)  {
         
-    return cuckoo_manager.call("presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)",
+    return cuckoo_manager.call("presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [MultiassetCryptoType], selectedType: MultiassetCryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)",
             parameters: (view, availableTypes, selectedType, delegate, context),
             escapingParameters: (view, availableTypes, selectedType, delegate, context),
             superclassCall:
@@ -2873,14 +2873,14 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, request: M2, metadata: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == AccountCreationRequest, M3.MatchedType == AccountCreationMetadata {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: request) { $0.1 }, wrap(matchable: metadata) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "confirm(from: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)", parameterMatchers: matchers))
+	    func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, request: M2, metadata: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, MetaAccountCreationRequest, MetaAccountCreationMetadata)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == MetaAccountCreationRequest, M3.MatchedType == MetaAccountCreationMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, MetaAccountCreationRequest, MetaAccountCreationMetadata)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: request) { $0.1 }, wrap(matchable: metadata) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "confirm(from: AccountCreateViewProtocol?, request: MetaAccountCreationRequest, metadata: MetaAccountCreationMetadata)", parameterMatchers: matchers))
 	    }
 	    
-	    func presentCryptoTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, [CryptoType], CryptoType, ModalPickerViewControllerDelegate?, AnyObject?)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [CryptoType], M3.MatchedType == CryptoType, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, [CryptoType], CryptoType, ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: availableTypes) { $0.1 }, wrap(matchable: selectedType) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: context) { $0.4 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", parameterMatchers: matchers))
+	    func presentCryptoTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, [MultiassetCryptoType], MultiassetCryptoType, ModalPickerViewControllerDelegate?, AnyObject?)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [MultiassetCryptoType], M3.MatchedType == MultiassetCryptoType, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, [MultiassetCryptoType], MultiassetCryptoType, ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: availableTypes) { $0.1 }, wrap(matchable: selectedType) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: context) { $0.4 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [MultiassetCryptoType], selectedType: MultiassetCryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
@@ -2910,15 +2910,15 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, request: M2, metadata: M3) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == AccountCreationRequest, M3.MatchedType == AccountCreationMetadata {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: request) { $0.1 }, wrap(matchable: metadata) { $0.2 }]
-	        return cuckoo_manager.verify("confirm(from: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, request: M2, metadata: M3) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?, MetaAccountCreationRequest, MetaAccountCreationMetadata), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == MetaAccountCreationRequest, M3.MatchedType == MetaAccountCreationMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, MetaAccountCreationRequest, MetaAccountCreationMetadata)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: request) { $0.1 }, wrap(matchable: metadata) { $0.2 }]
+	        return cuckoo_manager.verify("confirm(from: AccountCreateViewProtocol?, request: MetaAccountCreationRequest, metadata: MetaAccountCreationMetadata)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func presentCryptoTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?, [CryptoType], CryptoType, ModalPickerViewControllerDelegate?, AnyObject?), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [CryptoType], M3.MatchedType == CryptoType, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, [CryptoType], CryptoType, ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: availableTypes) { $0.1 }, wrap(matchable: selectedType) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: context) { $0.4 }]
-	        return cuckoo_manager.verify("presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentCryptoTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?, [MultiassetCryptoType], MultiassetCryptoType, ModalPickerViewControllerDelegate?, AnyObject?), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [MultiassetCryptoType], M3.MatchedType == MultiassetCryptoType, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, [MultiassetCryptoType], MultiassetCryptoType, ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: availableTypes) { $0.1 }, wrap(matchable: selectedType) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: context) { $0.4 }]
+	        return cuckoo_manager.verify("presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [MultiassetCryptoType], selectedType: MultiassetCryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -2942,11 +2942,11 @@ import SoraFoundation
     
 
     
-     func confirm(from view: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)   {
+     func confirm(from view: AccountCreateViewProtocol?, request: MetaAccountCreationRequest, metadata: MetaAccountCreationMetadata)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)   {
+     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [MultiassetCryptoType], selectedType: MultiassetCryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
