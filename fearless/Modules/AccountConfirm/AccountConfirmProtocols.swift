@@ -27,20 +27,20 @@ protocol AccountConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
 
 protocol AccountConfirmViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        request: MetaAccountCreationRequest,
+        metadata: MetaAccountCreationMetadata
     ) -> AccountConfirmViewProtocol?
     static func createViewForAdding(
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        request: MetaAccountCreationRequest,
+        metadata: MetaAccountCreationMetadata
     ) -> AccountConfirmViewProtocol?
     static func createViewForConnection(
         item: ConnectionItem,
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        request: MetaAccountCreationRequest,
+        metadata: MetaAccountCreationMetadata
     ) -> AccountConfirmViewProtocol?
     static func createViewForSwitch(
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        request: MetaAccountCreationRequest,
+        metadata: MetaAccountCreationMetadata
     ) -> AccountConfirmViewProtocol?
 }

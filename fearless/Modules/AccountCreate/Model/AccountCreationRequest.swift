@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 
+@available(*, deprecated, message: "Use MetaAccountCreationRequest instead")
 struct AccountCreationRequest {
     let username: String
     let type: Chain

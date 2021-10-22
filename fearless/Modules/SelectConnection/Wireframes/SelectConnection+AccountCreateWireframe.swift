@@ -11,8 +11,8 @@ extension SelectConnection {
 
         func confirm(
             from view: AccountCreateViewProtocol?,
-            request: AccountCreationRequest,
-            metadata: AccountCreationMetadata
+            request: MetaAccountCreationRequest,
+            metadata: MetaAccountCreationMetadata
         ) {
             guard let accountConfirmation = AccountConfirmViewFactory
                 .createViewForConnection(item: connectionItem, request: request, metadata: metadata)?
@@ -28,8 +28,8 @@ extension SelectConnection {
 
         func presentCryptoTypeSelection(
             from view: AccountCreateViewProtocol?,
-            availableTypes: [CryptoType],
-            selectedType: CryptoType,
+            availableTypes: [MultiassetCryptoType],
+            selectedType: MultiassetCryptoType,
             delegate: ModalPickerViewControllerDelegate?,
             context: AnyObject?
         ) {

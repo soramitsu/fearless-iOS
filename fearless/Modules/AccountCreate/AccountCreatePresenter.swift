@@ -9,9 +9,9 @@ final class AccountCreatePresenter {
 
     let usernameSetup: UsernameSetupModel
 
-    private var metadata: AccountCreationMetadata?
+    private var metadata: MetaAccountCreationMetadata?
 
-    private var selectedCryptoType: CryptoType?
+    private var selectedCryptoType: MultiassetCryptoType?
 
     private var derivationPathViewModel: InputViewModelProtocol?
 
@@ -59,10 +59,11 @@ final class AccountCreatePresenter {
         view?.didValidateDerivationPath(.none)
     }
 
-    private func presentDerivationPathError(_ cryptoType: CryptoType) {
+    private func presentDerivationPathError(_ cryptoType: MultiassetCryptoType) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        switch cryptoType {
+        // TODO: Check correctness
+        switch cryptoType.utilsType {
         case .sr25519:
             _ = wireframe.present(
                 error: AccountCreationError.invalidDerivationHardSoftPassword,
@@ -138,9 +139,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             return
         }
 
-        let request = AccountCreationRequest(
+        let request = MetaAccountCreationRequest(
             username: usernameSetup.username,
-            type: usernameSetup.selectedNetwork,
             derivationPath: viewModel.inputHandler.value,
             cryptoType: cryptoType
         )
@@ -154,7 +154,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 }
 
 extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
-    func didReceive(metadata: AccountCreationMetadata) {
+    func didReceive(metadata: MetaAccountCreationMetadata) {
         self.metadata = metadata
 
         selectedCryptoType = metadata.defaultCryptoType

@@ -13,10 +13,10 @@ extension SelectConnection {
 
         init(
             connectionItem: ConnectionItem,
-            request: AccountCreationRequest,
+            request: MetaAccountCreationRequest,
             mnemonic: IRMnemonicProtocol,
-            accountOperationFactory: AccountOperationFactoryProtocol,
-            accountRepository: AnyDataProviderRepository<AccountItem>,
+            accountOperationFactory: MetaAccountOperationFactoryProtocol,
+            accountRepository: AnyDataProviderRepository<MetaAccountModel>,
             settings: SettingsManagerProtocol,
             operationManager: OperationManagerProtocol,
             eventCenter: EventCenterProtocol
@@ -34,7 +34,7 @@ extension SelectConnection {
             )
         }
 
-        override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+        override func createAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
             guard currentOperation == nil else {
                 return
             }
@@ -49,47 +49,47 @@ extension SelectConnection {
 
             persistentOperation.addDependency(importOperation)
 
-            let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-                let accountItem = try importOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
-
-                guard type.uint8Value == selectedConnection.type.rawValue else {
-                    throw AccountCreateError.unsupportedNetwork
-                }
-
-                return (accountItem, selectedConnection)
-            }
-
-            connectionOperation.addDependency(persistentOperation)
-
-            currentOperation = connectionOperation
-
-            connectionOperation.completionBlock = { [weak self] in
-                DispatchQueue.main.async {
-                    self?.currentOperation = nil
-
-                    switch connectionOperation.result {
-                    case .success(let (accountItem, connectionItem)):
-                        self?.settings.selectedAccount = accountItem
-                        self?.settings.selectedConnection = connectionItem
-
-                        self?.eventCenter.notify(with: SelectedConnectionChanged())
-                        self?.eventCenter.notify(with: SelectedAccountChanged())
-
-                        self?.presenter?.didCompleteConfirmation()
-                    case let .failure(error):
-                        self?.presenter?.didReceive(error: error)
-                    case .none:
-                        let error = BaseOperationError.parentOperationCancelled
-                        self?.presenter?.didReceive(error: error)
-                    }
-                }
-            }
+//            let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
+//                let accountItem = try importOperation
+//                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+//
+//                let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
+//
+//                guard type.uint8Value == selectedConnection.type.rawValue else {
+//                    throw AccountCreateError.unsupportedNetwork
+//                }
+//
+//                return (accountItem, selectedConnection)
+//            }
+//
+//            connectionOperation.addDependency(persistentOperation)
+//
+//            currentOperation = connectionOperation
+//
+//            connectionOperation.completionBlock = { [weak self] in
+//                DispatchQueue.main.async {
+//                    self?.currentOperation = nil
+//
+//                    switch connectionOperation.result {
+//                    case .success(let (accountItem, connectionItem)):
+//                        self?.settings.selectedAccount = accountItem
+//                        self?.settings.selectedConnection = connectionItem
+//
+//                        self?.eventCenter.notify(with: SelectedConnectionChanged())
+//                        self?.eventCenter.notify(with: SelectedAccountChanged())
+//
+//                        self?.presenter?.didCompleteConfirmation()
+//                    case let .failure(error):
+//                        self?.presenter?.didReceive(error: error)
+//                    case .none:
+//                        let error = BaseOperationError.parentOperationCancelled
+//                        self?.presenter?.didReceive(error: error)
+//                    }
+//                }
+//            }
 
             operationManager.enqueue(
-                operations: [importOperation, persistentOperation, connectionOperation],
+                operations: [importOperation, persistentOperation],
                 in: .transient
             )
         }
