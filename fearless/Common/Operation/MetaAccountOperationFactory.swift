@@ -111,8 +111,8 @@ final class MetaAccountOperationFactory {
         else { return }
 
         let tag = ethereumBased ?
-            KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId) :
-            KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId)
+            KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId) :
+            KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
 
         try keystore.saveKey(derivationPathData, with: tag)
     }
