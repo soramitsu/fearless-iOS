@@ -125,13 +125,16 @@ extension AcalaBonusService: AcalaSpecificBonusServiceProtocol {
                         self?.referralCode = referralCode
                         closure(.success(()))
                     } else {
+                        // TODO: proper error handling
                         closure(.failure(CrowdloanBonusServiceError.invalidReferral))
                     }
 
                 } catch {
                     if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                        // TODO: proper error handling
                         closure(.failure(CrowdloanBonusServiceError.invalidReferral))
                     } else {
+                        // TODO: proper error handling
                         closure(.failure(CrowdloanBonusServiceError.internalError))
                     }
                 }
@@ -180,6 +183,7 @@ extension AcalaBonusService: AcalaSpecificBonusServiceProtocol {
                     closure(.success(()))
                 } catch {
                     if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                        // TODO: proper error handling
                         closure(.failure(CrowdloanBonusServiceError.veficationFailed))
                     } else {
                         closure(.failure(error))
@@ -214,6 +218,7 @@ extension AcalaBonusService: AcalaSpecificBonusServiceProtocol {
         let infoOperation = ClosureOperation<AcalaContributeInfo> {
             guard
                 let statement = try statementOperation.extractNoCancellableResultData().data(using: .utf8) else {
+                // TODO: proper error handling
                 throw CrowdloanBonusServiceError.veficationFailed
             }
 
@@ -246,6 +251,7 @@ extension AcalaBonusService: AcalaSpecificBonusServiceProtocol {
                     closure(.success(()))
                 } catch {
                     if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                        // TODO: proper error handling
                         closure(.failure(CrowdloanBonusServiceError.veficationFailed))
                     } else {
                         closure(.failure(error))

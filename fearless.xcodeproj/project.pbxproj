@@ -952,7 +952,7 @@
 		84DED3EF26661CC600A153BB /* CrowdloanFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED3EE26661CC600A153BB /* CrowdloanFlow.swift */; };
 		84DED3F726662CF200A153BB /* TitleValueSelectionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED3F626662CF200A153BB /* TitleValueSelectionControl.swift */; };
 		84DED3FC266651EB00A153BB /* ReferralCrowdloanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED3FB266651EB00A153BB /* ReferralCrowdloanViewModel.swift */; };
-		84DED4032666537600A153BB /* CrowdloanBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED4022666537600A153BB /* CrowdloanBonusService.swift */; };
+		84DED4032666537600A153BB /* CrowdloanBonusServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED4022666537600A153BB /* CrowdloanBonusServiceProtocol.swift */; };
 		84DED40B266656D400A153BB /* KaruraBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED40A266656D400A153BB /* KaruraBonusService.swift */; };
 		84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DED40F266659EC00A153BB /* CustomCrowdloanDelegate.swift */; };
 		84DF219F25346696005454AE /* WalletAccountInfoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF219E25346696005454AE /* WalletAccountInfoCommand.swift */; };
@@ -1311,6 +1311,7 @@
 		C40738E5272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E4272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift */; };
 		C40738E72723279C006DC6D4 /* MoonbeamJSONDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */; };
 		C40738E927232CFA006DC6D4 /* MoonbeamJSONEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */; };
+		C40738EB2723A1D4006DC6D4 /* MoonbeamServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738EA2723A1D4006DC6D4 /* MoonbeamServiceProtocol.swift */; };
 		C422767C272279A0005D3153 /* AcalaBonusServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422767B272279A0005D3153 /* AcalaBonusServiceTests.swift */; };
 		C422767F27228593005D3153 /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422767E27228593005D3153 /* HTTPRequest.swift */; };
 		C422768227228664005D3153 /* HTTPRequestBuilderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */; };
@@ -1320,7 +1321,7 @@
 		C422768C2722A118005D3153 /* AcalaContributeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768B2722A118005D3153 /* AcalaContributeRequest.swift */; };
 		C422768E2722A132005D3153 /* AcalaTransferRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768D2722A132005D3153 /* AcalaTransferRequest.swift */; };
 		C42276902722B680005D3153 /* AcalaReferralRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768F2722B680005D3153 /* AcalaReferralRequest.swift */; };
-		C42276932722BB1B005D3153 /* MoonbeamBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276922722BB1B005D3153 /* MoonbeamBonusService.swift */; };
+		C42276932722BB1B005D3153 /* MoonbeamService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276922722BB1B005D3153 /* MoonbeamService.swift */; };
 		C42276962722C593005D3153 /* MoonbeamHealthRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276952722C593005D3153 /* MoonbeamHealthRequest.swift */; };
 		C42276982722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */; };
 		C422769A2722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42276992722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift */; };
@@ -2523,7 +2524,7 @@
 		84DED3EE26661CC600A153BB /* CrowdloanFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanFlow.swift; sourceTree = "<group>"; };
 		84DED3F626662CF200A153BB /* TitleValueSelectionControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleValueSelectionControl.swift; sourceTree = "<group>"; };
 		84DED3FB266651EB00A153BB /* ReferralCrowdloanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewModel.swift; sourceTree = "<group>"; };
-		84DED4022666537600A153BB /* CrowdloanBonusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanBonusService.swift; sourceTree = "<group>"; };
+		84DED4022666537600A153BB /* CrowdloanBonusServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanBonusServiceProtocol.swift; sourceTree = "<group>"; };
 		84DED40A266656D400A153BB /* KaruraBonusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaruraBonusService.swift; sourceTree = "<group>"; };
 		84DED40F266659EC00A153BB /* CustomCrowdloanDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCrowdloanDelegate.swift; sourceTree = "<group>"; };
 		84DF219E25346696005454AE /* WalletAccountInfoCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAccountInfoCommand.swift; sourceTree = "<group>"; };
@@ -2873,6 +2874,7 @@
 		C40738E4272326E9006DC6D4 /* MoonbeamGuidinfoInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamGuidinfoInfo.swift; sourceTree = "<group>"; };
 		C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamJSONDecoder.swift; sourceTree = "<group>"; };
 		C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamJSONEncoder.swift; sourceTree = "<group>"; };
+		C40738EA2723A1D4006DC6D4 /* MoonbeamServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamServiceProtocol.swift; sourceTree = "<group>"; };
 		C422767B272279A0005D3153 /* AcalaBonusServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaBonusServiceTests.swift; sourceTree = "<group>"; };
 		C422767E27228593005D3153 /* HTTPRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequest.swift; sourceTree = "<group>"; };
 		C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestBuilderProtocol.swift; sourceTree = "<group>"; };
@@ -2882,7 +2884,7 @@
 		C422768B2722A118005D3153 /* AcalaContributeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaContributeRequest.swift; sourceTree = "<group>"; };
 		C422768D2722A132005D3153 /* AcalaTransferRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaTransferRequest.swift; sourceTree = "<group>"; };
 		C422768F2722B680005D3153 /* AcalaReferralRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaReferralRequest.swift; sourceTree = "<group>"; };
-		C42276922722BB1B005D3153 /* MoonbeamBonusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamBonusService.swift; sourceTree = "<group>"; };
+		C42276922722BB1B005D3153 /* MoonbeamService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamService.swift; sourceTree = "<group>"; };
 		C42276952722C593005D3153 /* MoonbeamHealthRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamHealthRequest.swift; sourceTree = "<group>"; };
 		C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamHTTPRequestBuilder.swift; sourceTree = "<group>"; };
 		C42276992722CF8A005D3153 /* MoonbeamCheckRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamCheckRemarkRequest.swift; sourceTree = "<group>"; };
@@ -6280,7 +6282,7 @@
 				C47631BC272017A900EB953A /* Acala */,
 				8444D1352671179000AF6D8C /* Bifrost */,
 				84981CC72666DFC500C4C691 /* Karura */,
-				84DED4022666537600A153BB /* CrowdloanBonusService.swift */,
+				84DED4022666537600A153BB /* CrowdloanBonusServiceProtocol.swift */,
 				84DED40F266659EC00A153BB /* CustomCrowdloanDelegate.swift */,
 				8444D1BD2671465A00AF6D8C /* CrowdloanBonusServiceError.swift */,
 			);
@@ -7279,7 +7281,8 @@
 			children = (
 				C40738D127230E38006DC6D4 /* Models */,
 				C42276942722C583005D3153 /* Requests */,
-				C42276922722BB1B005D3153 /* MoonbeamBonusService.swift */,
+				C42276922722BB1B005D3153 /* MoonbeamService.swift */,
+				C40738EA2723A1D4006DC6D4 /* MoonbeamServiceProtocol.swift */,
 				C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */,
 				C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */,
 				C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */,
@@ -8402,7 +8405,7 @@
 				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
 				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
-				C42276932722BB1B005D3153 /* MoonbeamBonusService.swift in Sources */,
+				C42276932722BB1B005D3153 /* MoonbeamService.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				842876A424AE049B00D91AD8 /* SelectableSubtitleListViewModel.swift in Sources */,
@@ -8473,7 +8476,7 @@
 				8423B0E4251A774700B8687C /* SNAddressType+Chain.swift in Sources */,
 				84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */,
 				84D97ECF2521CA2F00F07405 /* WalletBaseTokenView.swift in Sources */,
-				84DED4032666537600A153BB /* CrowdloanBonusService.swift in Sources */,
+				84DED4032666537600A153BB /* CrowdloanBonusServiceProtocol.swift in Sources */,
 				844EFB5A265FCD9F0090ACB1 /* CrowdloanContributionProtocols.swift in Sources */,
 				F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */,
 				AE8B8837267351E300AB0AA9 /* CustomValidatorListComposer.swift in Sources */,
@@ -8998,6 +9001,7 @@
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
+				C40738EB2723A1D4006DC6D4 /* MoonbeamServiceProtocol.swift in Sources */,
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
