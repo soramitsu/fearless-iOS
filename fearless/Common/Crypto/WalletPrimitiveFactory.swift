@@ -49,7 +49,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                 identifier = WalletAssetId.moonbeam.rawValue
                 localizableName = LocalizableResource<String> { _ in "Moonbeam" }
                 platformName = LocalizableResource<String> { _ in "Moonbeam" }
-                symbol = "GLMR"
+                symbol = "DOT"
         #endif
         default:
             identifier = WalletAssetId.kusama.rawValue
