@@ -22,18 +22,6 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         )
     }
 
-    static func createViewForConnection(
-        item: ConnectionItem,
-        model: UsernameSetupModel
-    ) -> AccountCreateViewProtocol? {
-        let wireframe = SelectConnection.AccountCreateWireframe(connectionItem: item)
-
-        return createViewForUsername(
-            model: model,
-            wireframe: wireframe
-        )
-    }
-
     static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
         let wireframe = SwitchAccount.AccountCreateWireframe()
         return createViewForUsername(model: model, wireframe: wireframe)

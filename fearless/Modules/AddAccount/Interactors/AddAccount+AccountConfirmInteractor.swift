@@ -1,77 +1,76 @@
 import UIKit
-import SoraKeystore
 import IrohaCrypto
+import FearlessUtils
 import RobinHood
+import SoraKeystore
 
 extension AddAccount {
-    final class AccountConfirmInteractor: BaseAccountConfirmInteractor {
-        private(set) var settings: SettingsManagerProtocol
+    final class AccountImportInteractor: BaseAccountImportInteractor {
+        private(set) var settings: SelectedWalletSettings
         let eventCenter: EventCenterProtocol
 
-        private var currentOperation: Operation?
-
         init(
-            request: MetaAccountCreationRequest,
-            mnemonic: IRMnemonicProtocol,
             accountOperationFactory: MetaAccountOperationFactoryProtocol,
             accountRepository: AnyDataProviderRepository<MetaAccountModel>,
             operationManager: OperationManagerProtocol,
-            settings: SettingsManagerProtocol,
+            settings: SelectedWalletSettings,
+            keystoreImportService: KeystoreImportServiceProtocol,
             eventCenter: EventCenterProtocol
         ) {
             self.settings = settings
             self.eventCenter = eventCenter
 
             super.init(
-                request: request,
-                mnemonic: mnemonic,
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
-                operationManager: operationManager
+                operationManager: operationManager,
+                keystoreImportService: keystoreImportService,
+                supportedNetworks: Chain.allCases, // TODO: Remove after interactors are done
+                defaultNetwork: Chain.kusama // TODO: Remove after interactors are done
             )
         }
 
-        private func handleResult(_ result: Result<(MetaAccountModel, ConnectionItem), Error>?) {
-            switch result {
-            case .success(let (accountItem, connectionItem)):
-//                settings.selectedAccount = accountItem
-//
-//                if settings.selectedConnection != connectionItem {
-//                    settings.selectedConnection = connectionItem
-//
-//                    eventCenter.notify(with: SelectedConnectionChanged())
-//                }
+        private func importAccountItem(_ item: MetaAccountModel) {
+            let checkOperation = accountRepository.fetchOperation(
+                by: item.identifier,
+                options: RepositoryFetchOptions()
+            )
 
-                eventCenter.notify(with: SelectedAccountChanged())
+            let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+                if try checkOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
+                    throw AccountCreateError.duplicated
+                }
 
-                presenter?.didCompleteConfirmation()
-            case let .failure(error):
-                presenter?.didReceive(error: error)
-            case .none:
-                let error = BaseOperationError.parentOperationCancelled
-                presenter?.didReceive(error: error)
-            }
-        }
+                self?.settings.save(value: item)
 
-        override func createAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
-            guard currentOperation == nil else {
-                return
+                return item
             }
 
-            let selectedConnection = settings.selectedConnection
-
-            let persistentOperation = accountRepository.saveOperation({
-                let accountItem = try importOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                return [accountItem]
-            }, { [] })
-
-            persistentOperation.addDependency(importOperation)
+            saveOperation.addDependency(checkOperation)
 
             operationManager.enqueue(
-                operations: [importOperation, persistentOperation],
+                operations: [checkOperation, saveOperation],
                 in: .transient
             )
+        }
+
+        override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
+            importOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    switch importOperation.result {
+                    case let .success(accountItem):
+                        self?.importAccountItem(accountItem)
+                    case let .failure(error):
+                        self?.presenter?.didReceiveAccountImport(error: error)
+                    case .none:
+                        let error = BaseOperationError.parentOperationCancelled
+                        self?.presenter?.didReceiveAccountImport(error: error)
+                    }
+                }
+            }
+
+            operationManager.enqueue(operations: [importOperation], in: .transient)
         }
     }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 
+@available(*, deprecated, message: "No longer used in 2.0")
 enum Chain: String, Codable, CaseIterable {
     case kusama = "Kusama"
     case polkadot = "Polkadot"

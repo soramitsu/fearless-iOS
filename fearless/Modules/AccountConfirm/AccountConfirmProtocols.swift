@@ -34,11 +34,6 @@ protocol AccountConfirmViewFactoryProtocol: AnyObject {
         request: MetaAccountCreationRequest,
         metadata: MetaAccountCreationMetadata
     ) -> AccountConfirmViewProtocol?
-    static func createViewForConnection(
-        item: ConnectionItem,
-        request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
-    ) -> AccountConfirmViewProtocol?
     static func createViewForSwitch(
         request: MetaAccountCreationRequest,
         metadata: MetaAccountCreationMetadata

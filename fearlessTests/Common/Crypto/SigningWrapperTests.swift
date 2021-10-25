@@ -251,7 +251,7 @@ class SigningWrapperTests: XCTestCase {
 
         let publicKey = try SECPublicKey(rawData: publicKeyData)
 
-        let verificationData = try originalData.blake2b32()
+        let verificationData = try originalData.keccak256()
         XCTAssertTrue(verifier.verify(signature,
                                       forOriginalData: verificationData,
                                       usingPublicKey: publicKey))

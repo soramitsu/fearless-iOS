@@ -30,17 +30,17 @@ protocol AccountImportPresenterProtocol: AnyObject {
 
 protocol AccountImportInteractorInputProtocol: AnyObject {
     func setup()
-    func importAccountWithMnemonic(request: AccountImportMnemonicRequest)
-    func importAccountWithSeed(request: AccountImportSeedRequest)
-    func importAccountWithKeystore(request: AccountImportKeystoreRequest)
+    func importAccountWithMnemonic(request: MetaAccountImportMnemonicRequest)
+    func importAccountWithSeed(request: MetaAccountImportSeedRequest)
+    func importAccountWithKeystore(request: MetaAccountImportKeystoreRequest)
     func deriveMetadataFromKeystore(_ keystore: String)
 }
 
 protocol AccountImportInteractorOutputProtocol: AnyObject {
-    func didReceiveAccountImport(metadata: AccountImportMetadata)
+    func didReceiveAccountImport(metadata: MetaAccountImportMetadata)
     func didCompleteAccountImport()
     func didReceiveAccountImport(error: Error)
-    func didSuggestKeystore(text: String, preferredInfo: AccountImportPreferredInfo?)
+    func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?)
 }
 
 protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
@@ -56,8 +56,8 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
 
     func presentCryptoTypeSelection(
         from view: AccountImportViewProtocol?,
-        availableTypes: [CryptoType],
-        selectedType: CryptoType,
+        availableTypes: [MultiassetCryptoType],
+        selectedType: MultiassetCryptoType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
@@ -74,6 +74,5 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
 protocol AccountImportViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding() -> AccountImportViewProtocol?
     static func createViewForAdding() -> AccountImportViewProtocol?
-    static func createViewForConnection(item: ConnectionItem) -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
 }

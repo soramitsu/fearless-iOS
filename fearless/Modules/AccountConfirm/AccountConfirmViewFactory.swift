@@ -37,40 +37,6 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    static func createViewForConnection(
-        item: ConnectionItem,
-        request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
-    ) -> AccountConfirmViewProtocol? {
-        guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
-        else {
-            return nil
-        }
-
-        let keychain = Keychain()
-
-        let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let operationManager = OperationManagerFacade.sharedManager
-        let interactor = SelectConnection
-            .AccountConfirmInteractor(
-                connectionItem: item,
-                request: request,
-                mnemonic: mnemonic,
-                accountOperationFactory: accountOperationFactory,
-                accountRepository: accountRepository,
-                settings: SettingsManager.shared,
-                operationManager: operationManager,
-                eventCenter: EventCenter.shared
-            )
-        let wireframe = SelectConnection.AccountConfirmWireframe()
-
-        return createView(for: interactor, wireframe: wireframe)
-    }
-
     static func createViewForSwitch(
         request: MetaAccountCreationRequest,
         metadata: MetaAccountCreationMetadata

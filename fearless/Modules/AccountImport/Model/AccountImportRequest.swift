@@ -1,6 +1,6 @@
 import Foundation
 
-@available(*, deprecated, message: "Use ChainAccountImportMnemonicRequest instead")
+@available(*, deprecated, message: "Use MetaAccountImportMnemonicRequest or ChainAccountImportMnemonicRequest instead")
 struct AccountImportMnemonicRequest {
     let mnemonic: String
     let username: String
@@ -9,7 +9,7 @@ struct AccountImportMnemonicRequest {
     let cryptoType: CryptoType
 }
 
-@available(*, deprecated, message: "Use ChainAccountImportSeedRequest instead")
+@available(*, deprecated, message: "Use MetaAccountImportSeedRequest or ChainAccountImportSeedRequest instead")
 struct AccountImportSeedRequest {
     let seed: String
     let username: String
@@ -18,13 +18,20 @@ struct AccountImportSeedRequest {
     let cryptoType: CryptoType
 }
 
-@available(*, deprecated, message: "Use ChainAccountImportKeystoreRequest instead")
+@available(*, deprecated, message: "Use MetaAccountImportKeystoreRequest or ChainAccountImportKeystoreRequest instead")
 struct AccountImportKeystoreRequest {
     let keystore: String
     let password: String
     let username: String
     let networkType: Chain
     let cryptoType: CryptoType
+}
+
+struct MetaAccountImportMnemonicRequest {
+    let mnemonic: String
+    let username: String
+    let derivationPath: String
+    let cryptoType: MultiassetCryptoType
 }
 
 struct MetaAccountImportSeedRequest {
@@ -44,7 +51,6 @@ struct MetaAccountImportKeystoreRequest {
 struct ChainAccountImportMnemonicRequest {
     let mnemonic: String
     let username: String
-    let networkType: Chain
     let derivationPath: String
     let cryptoType: MultiassetCryptoType
 }
@@ -52,7 +58,6 @@ struct ChainAccountImportMnemonicRequest {
 struct ChainAccountImportSeedRequest {
     let seed: String
     let username: String
-    let networkType: Chain
     let derivationPath: String
     let cryptoType: MultiassetCryptoType
 }
@@ -61,6 +66,5 @@ struct ChainAccountImportKeystoreRequest {
     let keystore: String
     let password: String
     let username: String
-    let networkType: Chain
     let cryptoType: MultiassetCryptoType
 }

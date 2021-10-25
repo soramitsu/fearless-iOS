@@ -10,16 +10,16 @@ class BaseAccountImportInteractor {
     private(set) lazy var jsonDecoder = JSONDecoder()
     private(set) lazy var mnemonicCreator = IRMnemonicCreator()
 
-    let accountOperationFactory: AccountOperationFactoryProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
+    let accountOperationFactory: MetaAccountOperationFactoryProtocol
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let supportedNetworks: [Chain]
     let defaultNetwork: Chain
 
     init(
-        accountOperationFactory: AccountOperationFactoryProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
+        accountOperationFactory: MetaAccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
         keystoreImportService: KeystoreImportServiceProtocol,
         supportedNetworks: [Chain],
@@ -57,19 +57,19 @@ class BaseAccountImportInteractor {
     }
 
     private func provideMetadata() {
-        let metadata = AccountImportMetadata(
+        let metadata = MetaAccountImportMetadata(
             availableSources: AccountImportSource.allCases,
             defaultSource: .mnemonic,
             availableNetworks: supportedNetworks,
             defaultNetwork: defaultNetwork,
-            availableCryptoTypes: CryptoType.allCases,
+            availableCryptoTypes: MultiassetCryptoType.allCases,
             defaultCryptoType: .sr25519
         )
 
         presenter.didReceiveAccountImport(metadata: metadata)
     }
 
-    func importAccountUsingOperation(_: BaseOperation<AccountItem>) {}
+    func importAccountUsingOperation(_: BaseOperation<MetaAccountModel>) {}
 }
 
 extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
@@ -78,20 +78,19 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         setupKeystoreImportObserver()
     }
 
-    func importAccountWithMnemonic(request: AccountImportMnemonicRequest) {
+    func importAccountWithMnemonic(request: MetaAccountImportMnemonicRequest) {
         guard let mnemonic = try? mnemonicCreator.mnemonic(fromList: request.mnemonic) else {
             presenter.didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
             return
         }
 
-        let creationRequest = AccountCreationRequest(
+        let creationRequest = MetaAccountCreationRequest(
             username: request.username,
-            type: request.networkType,
             derivationPath: request.derivationPath,
             cryptoType: request.cryptoType
         )
 
-        let accountOperation = accountOperationFactory.newAccountOperation(
+        let accountOperation = accountOperationFactory.newMetaAccountOperation(
             request: creationRequest,
             mnemonic: mnemonic
         )
@@ -99,13 +98,13 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         importAccountUsingOperation(accountOperation)
     }
 
-    func importAccountWithSeed(request: AccountImportSeedRequest) {
-        let operation = accountOperationFactory.newAccountOperation(request: request)
+    func importAccountWithSeed(request: MetaAccountImportSeedRequest) {
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
         importAccountUsingOperation(operation)
     }
 
-    func importAccountWithKeystore(request: AccountImportKeystoreRequest) {
-        let operation = accountOperationFactory.newAccountOperation(request: request)
+    func importAccountWithKeystore(request: MetaAccountImportKeystoreRequest) {
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
         importAccountUsingOperation(operation)
     }
 

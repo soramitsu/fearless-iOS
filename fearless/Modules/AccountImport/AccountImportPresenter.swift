@@ -7,6 +7,10 @@ enum AccountImportContext: String {
     case addressType
 }
 
+// TODO: 1. Create MetaAccountImport scene
+// TODO: 2. Create ChainAccountImport scene
+// Can we inherit from a base?
+
 final class AccountImportPresenter {
     static let maxMnemonicLength: Int = 250
     static let maxMnemonicSize: Int = 24
@@ -17,10 +21,10 @@ final class AccountImportPresenter {
     var wireframe: AccountImportWireframeProtocol!
     var interactor: AccountImportInteractorInputProtocol!
 
-    private(set) var metadata: AccountImportMetadata?
+    private(set) var metadata: MetaAccountImportMetadata?
 
     private(set) var selectedSourceType: AccountImportSource?
-    private(set) var selectedCryptoType: CryptoType?
+    private(set) var selectedCryptoType: MultiassetCryptoType?
     private(set) var selectedNetworkType: Chain?
 
     private(set) var sourceViewModel: InputViewModelProtocol?
@@ -30,7 +34,7 @@ final class AccountImportPresenter {
 
     private lazy var jsonDeserializer = JSONSerialization()
 
-    private func applySourceType(_ value: String = "", preferredInfo: AccountImportPreferredInfo? = nil) {
+    private func applySourceType(_ value: String = "", preferredInfo: MetaAccountImportPreferredInfo? = nil) {
         guard let selectedSourceType = selectedSourceType, let metadata = metadata else {
             return
         }
@@ -146,7 +150,7 @@ final class AccountImportPresenter {
         }
     }
 
-    private func showUploadWarningIfNeeded(_ preferredInfo: AccountImportPreferredInfo) {
+    private func showUploadWarningIfNeeded(_ preferredInfo: MetaAccountImportPreferredInfo) {
         guard let metadata = metadata else {
             return
         }
@@ -171,7 +175,7 @@ final class AccountImportPresenter {
         }
     }
 
-    private func applyAdvanced(_ preferredInfo: AccountImportPreferredInfo?) {
+    private func applyAdvanced(_ preferredInfo: MetaAccountImportPreferredInfo?) {
         guard let selectedSourceType = selectedSourceType else {
             let locale = localizationManager?.selectedLocale
             let warning = R.string.localizable.accountImportJsonNoNetwork(preferredLanguages: locale?.rLanguages)
@@ -191,7 +195,7 @@ final class AccountImportPresenter {
         }
     }
 
-    private func applyCryptoTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
+    private func applyCryptoTypeViewModel(_ preferredInfo: MetaAccountImportPreferredInfo?) {
         guard let cryptoType = selectedCryptoType else {
             return
         }
@@ -217,7 +221,7 @@ final class AccountImportPresenter {
         ))
     }
 
-    private func applyNetworkTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
+    private func applyNetworkTypeViewModel(_ preferredInfo: MetaAccountImportPreferredInfo?) {
         guard let networkType = selectedNetworkType else {
             return
         }
@@ -290,41 +294,26 @@ final class AccountImportPresenter {
 
     private func presentDerivationPathError(
         sourceType: AccountImportSource,
-        cryptoType: CryptoType
+        cryptoType: MultiassetCryptoType
     ) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
+        let error: AccountCreationError
 
         switch cryptoType {
         case .sr25519:
-            if sourceType == .mnemonic {
-                _ = wireframe.present(
-                    error: AccountCreationError.invalidDerivationHardSoftPassword,
-                    from: view,
-                    locale: locale
-                )
-            } else {
-                _ = wireframe.present(
-                    error: AccountCreationError.invalidDerivationHardSoft,
-                    from: view,
-                    locale: locale
-                )
-            }
+            error = sourceType == .mnemonic ?
+                .invalidDerivationHardSoftPassword : .invalidDerivationHardSoft
 
-        case .ed25519, .ecdsa:
-            if sourceType == .mnemonic {
-                _ = wireframe.present(
-                    error: AccountCreationError.invalidDerivationHardPassword,
-                    from: view,
-                    locale: locale
-                )
-            } else {
-                _ = wireframe.present(
-                    error: AccountCreationError.invalidDerivationHard,
-                    from: view,
-                    locale: locale
-                )
-            }
+        case .ed25519, .substrateEcdsa:
+            error = sourceType == .mnemonic ?
+                .invalidDerivationHardPassword : .invalidDerivationHard
+
+        case .ethereumEcdsa:
+            error = sourceType == .mnemonic ?
+                .invalidDerivationHardSoftNumericPassword : .invalidDerivationHardSoftNumeric
         }
+
+        _ = wireframe.present(error: error, from: view, locale: locale)
     }
 
     func validateSourceViewModel() -> Error? {
@@ -485,10 +474,9 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let mnemonic = sourceViewModel.inputHandler.normalizedValue
             let username = usernameViewModel.inputHandler.value
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
-            let request = AccountImportMnemonicRequest(
+            let request = MetaAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
                 username: username,
-                networkType: selectedNetworkType,
                 derivationPath: derivationPath,
                 cryptoType: selectedCryptoType
             )
@@ -497,10 +485,9 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let seed = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
-            let request = AccountImportSeedRequest(
+            let request = MetaAccountImportSeedRequest(
                 seed: seed,
                 username: username,
-                networkType: selectedNetworkType,
                 derivationPath: derivationPath,
                 cryptoType: selectedCryptoType
             )
@@ -509,11 +496,10 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let keystore = sourceViewModel.inputHandler.value
             let password = passwordViewModel?.inputHandler.value ?? ""
             let username = usernameViewModel.inputHandler.value
-            let request = AccountImportKeystoreRequest(
+            let request = MetaAccountImportKeystoreRequest(
                 keystore: keystore,
                 password: password,
                 username: username,
-                networkType: selectedNetworkType,
                 cryptoType: selectedCryptoType
             )
 
@@ -523,7 +509,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 }
 
 extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
-    func didReceiveAccountImport(metadata: AccountImportMetadata) {
+    func didReceiveAccountImport(metadata: MetaAccountImportMetadata) {
         self.metadata = metadata
 
         selectedSourceType = metadata.defaultSource
@@ -551,7 +537,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         )
     }
 
-    func didSuggestKeystore(text: String, preferredInfo: AccountImportPreferredInfo?) {
+    func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?) {
         selectedSourceType = .keystore
 
         applySourceType(text, preferredInfo: preferredInfo)

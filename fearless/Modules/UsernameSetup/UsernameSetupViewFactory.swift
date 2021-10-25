@@ -23,16 +23,6 @@ final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
         return createView(for: wireframe, interactor: interactor)
     }
 
-    static func createViewForConnection(item: ConnectionItem) -> UsernameSetupViewProtocol? {
-        let wireframe = SelectConnection.UsernameSetupWireframe(connectionItem: item)
-        let interactor = UsernameSetupInteractor(
-            supportedNetworkTypes: [item.type.chain],
-            defaultNetwork: item.type.chain
-        )
-
-        return createView(for: wireframe, interactor: interactor)
-    }
-
     static func createViewForSwitch() -> UsernameSetupViewProtocol? {
         let defaultChain = SettingsManager.shared.selectedConnection.type.chain
 
