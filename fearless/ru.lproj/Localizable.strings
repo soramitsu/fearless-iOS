@@ -42,6 +42,10 @@
 "no.email.bound.error.message" = "Пожалуйста, убедитесь, что на устройстве установлено почтовое приложение.";
 "connection.management.title" = "Сети";
 "onboarding.create.account" = "Создать аккаунт";
+"NSCameraUsageDescription" = "Камера используется для сканирования QR кода.";
+"NSFaceIDUsageDescription" = "Face ID используется для авторизации в приложении";
+"NSPhotoLibraryUsageDescription" = "Загрузить изображения из библиотеки";
+"NSPhotoLibraryAddUsageDescription" = "Вы можете сохранить запрос на перевод в виде QR кода";
 "username.setup.choose.title" = "Имя";
 "username.setup.hint" = "Данное имя будет отображаться только для вас и храниться только на вашем мобильном устройстве.";
 "username.setup.title" = "Создать аккаунт";
@@ -331,7 +335,7 @@
 "staking.your.not.allocated.description" = "Другие, которые активны без вашего стейка.";
 "staking.your.inactive.description" = "Валидаторы, которые не были избраны в этой эре.";
 "tabbar.crowdloan.title" = "Краудлоуны";
-"crowdloan.list.section.format" = "Выберите парачейны для внесения своего вклада %@. Вы получите вознаграждение, если парачейн приобретет слот до конца аукциона.";
+"crowdloan.list.section.format" = "Выберите кампанию краудлана, в которую вы хотите внести свой вклад. Вы получите вознаграждение, если кампания выиграет слот парачейна в аукционе.";
 "crowdloan.you.contributions.title" = "Ваш вклад";
 "crowdloan.progress.format" = "Собрано: %@ из %@";
 "crowdloan.active.section.format" = "Активные (%@)";
@@ -448,6 +452,7 @@
 "staking.hint.reward.bond.more" = "Ваши вознаграждения увеличатся со следующей эры.";
 "staking.hint.unbond.kills.stash" = "Fearless wallet изменит назначение вознаграждений \
 на ваш аккаунт, чтобы избежать остатка в стейкинге.";
+"crowdloan.privacy.policy" = "Я подтверждаю, что прочитал и согласен с Условиями использования и Политикой конфиденциальности";
 "staking.story.staking.title" = "Что такое стейкинг?";
 "staking.story.staking.page.1" = "Стейкинг — это один из способов пассивного дохода с помощью удержания токенов в сети. Вознаграждения за стейкинг выпускаются каждую эру (6 часов в Kusama и 24 часа в Polkadot). Вы можете стейкать неограниченное количество времени, и для вывода из стейкинга вам нужно будет подождать период вывода, после которого вы сможете забрать свои токены.";
 "staking.story.staking.page.2" = "Стейкинг играет ключевую роль в безопасности и надежности сети. Любой может запустить собственную ноду, но только тот, кто наберёт необходимое количество токенов в стейкинге, будет избран сетью для создания новых блоков и получения наград. Часто валидаторы не имеют необходимого количества токенов, поэтому номинаторы помогают им с помощью своих токенов.";
@@ -500,3 +505,27 @@
 "common.choose.action" = "Выберите действие";
 "wallet.account.locks.vesting" = "Вестинг";
 "wallet.account.locks.democracy" = "Демократия";
+"common.select.network" = "Выбрать сеть";
+"common.select.asset" = "Выбор актива";
+"parachain.crowdloans" = "Краудлоуны парачейнов";
+"crowdloan.confirmation.name" = "%@ краудлоун";
+"apply.fearless.wallet.bonus" = "Нажмите, чтобы применить бонус кошелька Fearless";
+"applied.fearless.wallet.bonus" = "Бонус кошелька Fearless применен";
+"crowdloan.learn.bonuses" = "Узнайте о бонусах %@";
+"crowdloan.astar.referral.code.invalid" = "Недействительный реферальный адрес, допускается ввод только адреса сети Polkadot, попробуйте еще раз";
+"astar.bonus" = "Ваш бонус";
+"astar.friend.bonus" = "Бонус для вашего друга";
+"moonbeam.crowdloan.terms" = "Правила и условия Moonbeam краудлоуна";
+"moonbeam.registration" = "Регистрация в краудлоуне Moonbeam";
+"moonbeam.registration.description" = "Эта транзакция подтверждает, что вы согласны с правилами и условиями краудлоуна Moonbeam.\
+В качестве доказательства вашего согласия будет отправлена подписанная транзакция system.remark extrinsic. Эта информация будет обработана и сохранена в Polkadot Relay Chain.\
+Обратите внимание, что за данную подписанную транзакцию будет взиматься комиссия в сети Polkadot.";
+"transaction.successful" = "Транзакция успешна!";
+"moonbeam.signed.successful" = "Вы успешно подписали правила и условия краудлоуна Moonbeam, и транзакция была отправлена.\
+Это хэш вашей транзакции:";
+"moonbean.ethereum.address" = "Адрес Moonbeam Ethereum";
+"about.twitter" = "Следить за новостями в Twitter";
+"about.youtube" = "Подписаться на YouTube";
+"about.medium" = "Читать на Medium";
+"about.announcement" = "Следить за новостями в Telegram";
+"about.support" = "Обратиться за поддержкой";

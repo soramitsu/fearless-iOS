@@ -6,6 +6,7 @@ struct UIConstants {
     static let actionHeight: CGFloat = 52.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
+    static let verticalInset: CGFloat = 16.0
     static let triangularedViewHeight: CGFloat = 52.0
     static let expandableViewHeight: CGFloat = 50.0
     static let formSeparatorWidth: CGFloat = 0.5
