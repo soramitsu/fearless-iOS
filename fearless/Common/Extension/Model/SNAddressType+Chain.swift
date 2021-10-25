@@ -34,6 +34,11 @@ extension SNAddressType {
         switch self {
         case .polkadotMain: return 10
         case .genericSubstrate: return 12
+
+        #if F_DEV
+            case .moonbeam: return 10
+        #endif
+
         default: return 12
         }
     }
