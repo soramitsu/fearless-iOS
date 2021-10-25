@@ -129,7 +129,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,
-                settings: SettingsManager.shared,
+                settings: SelectedWalletSettings.shared,
                 eventCenter: EventCenter.shared
             )
 

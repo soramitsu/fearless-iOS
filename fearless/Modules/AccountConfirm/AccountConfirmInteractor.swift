@@ -69,6 +69,5 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             operations: [importOperation, saveOperation],
             in: .transient
         )
-
     }
 }

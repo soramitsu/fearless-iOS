@@ -1,76 +1,76 @@
 import UIKit
-import IrohaCrypto
-import FearlessUtils
-import RobinHood
 import SoraKeystore
+import IrohaCrypto
+import RobinHood
 
+// TODO: Check how to convert this to chain account import
 extension AddAccount {
-    final class AccountImportInteractor: BaseAccountImportInteractor {
+    final class AccountConfirmInteractor: BaseAccountConfirmInteractor {
         private(set) var settings: SelectedWalletSettings
         let eventCenter: EventCenterProtocol
 
+        private var currentOperation: Operation?
+
         init(
+            request: MetaAccountCreationRequest,
+            mnemonic: IRMnemonicProtocol,
             accountOperationFactory: MetaAccountOperationFactoryProtocol,
             accountRepository: AnyDataProviderRepository<MetaAccountModel>,
             operationManager: OperationManagerProtocol,
             settings: SelectedWalletSettings,
-            keystoreImportService: KeystoreImportServiceProtocol,
             eventCenter: EventCenterProtocol
         ) {
             self.settings = settings
             self.eventCenter = eventCenter
 
             super.init(
+                request: request,
+                mnemonic: mnemonic,
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
-                operationManager: operationManager,
-                keystoreImportService: keystoreImportService,
-                supportedNetworks: Chain.allCases, // TODO: Remove after interactors are done
-                defaultNetwork: Chain.kusama // TODO: Remove after interactors are done
+                operationManager: operationManager
             )
         }
 
-        private func importAccountItem(_ item: MetaAccountModel) {
-            let checkOperation = accountRepository.fetchOperation(
-                by: item.identifier,
-                options: RepositoryFetchOptions()
-            )
-
-            let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
-                if try checkOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
-                    throw AccountCreateError.duplicated
-                }
-
-                self?.settings.save(value: item)
-
-                return item
+        override func createAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
+            guard currentOperation == nil else {
+                return
             }
 
-            saveOperation.addDependency(checkOperation)
+            let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+                let accountItem = try importOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                self?.settings.save(value: accountItem)
 
-            operationManager.enqueue(
-                operations: [checkOperation, saveOperation],
-                in: .transient
-            )
-        }
+                return accountItem
+            }
 
-        override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
-            importOperation.completionBlock = { [weak self] in
+            saveOperation.completionBlock = { [weak self] in
                 DispatchQueue.main.async {
-                    switch importOperation.result {
-                    case let .success(accountItem):
-                        self?.importAccountItem(accountItem)
+                    self?.currentOperation = nil
+
+                    switch saveOperation.result {
+                    case .success:
+                        self?.settings.setup()
+                        self?.eventCenter.notify(with: SelectedAccountChanged())
+                        self?.presenter?.didCompleteConfirmation()
+
                     case let .failure(error):
-                        self?.presenter?.didReceiveAccountImport(error: error)
+                        self?.presenter?.didReceive(error: error)
+
                     case .none:
                         let error = BaseOperationError.parentOperationCancelled
-                        self?.presenter?.didReceiveAccountImport(error: error)
+                        self?.presenter?.didReceive(error: error)
                     }
                 }
             }
 
-            operationManager.enqueue(operations: [importOperation], in: .transient)
+            saveOperation.addDependency(importOperation)
+
+            operationManager.enqueue(
+                operations: [importOperation, saveOperation],
+                in: .transient
+            )
         }
     }
 }
