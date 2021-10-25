@@ -3,7 +3,6 @@ import SoraKeystore
 import SoraFoundation
 
 struct ReferralCrowdloanViewFactory {
-
     static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,

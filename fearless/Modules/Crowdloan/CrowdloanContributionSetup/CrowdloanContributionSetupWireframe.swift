@@ -46,6 +46,15 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
+        case .moonbeam:
+            // TODO: REPLACE
+            showBifrostCustomFlow(
+                from: view,
+                for: displayInfo,
+                inputAmount: inputAmount,
+                delegate: delegate,
+                existingService: existingService
+            )
         }
     }
 
