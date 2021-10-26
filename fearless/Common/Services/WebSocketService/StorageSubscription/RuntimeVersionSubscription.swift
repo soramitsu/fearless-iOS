@@ -101,7 +101,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                     breakingUpgrade.temporarySolutionApplied(for: self.chain, value: true)
                 case let .overrideTemporarySolution(breakingUpgrade):
                     breakingUpgrade.temporarySolutionApplied(for: self.chain, value: false)
-                case .notAffected:
+                default:
                     break
                 }
             } catch {
@@ -144,6 +144,13 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
 
         metaOperation.configurationBlock = {
             do {
+                switch breakingUpgradeState {
+                case let .forceResponse(response):
+                    metaOperation.result = .success(response)
+                default:
+                    break
+                }
+
                 let currentItem = try localFetch
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
@@ -194,6 +201,7 @@ private protocol RuntimeMetadataBreakingUpgrade {
     var versionIssueIntroduced: UInt32 { get }
     var isFixed: Bool { get }
     func blockHashForBackwardCompatibility(for chain: Chain) -> String?
+    func forcedResponse(for chain: Chain) -> String?
 }
 
 private extension RuntimeMetadataBreakingUpgrade {
@@ -235,6 +243,19 @@ private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade 
             return nil
         }
     }
+
+    func forcedResponse(for chain: Chain) -> String? {
+        switch chain {
+        #if F_DEV
+            case .moonbeam:
+                return R.file.moonbeamTestNodeRuntime.path().map {
+                    try? String(contentsOfFile: $0)
+                } ?? nil
+        #endif
+        default:
+            return nil
+        }
+    }
 }
 
 // Should be pre-sorted in ascending order
@@ -248,6 +269,7 @@ private let knownRuntimeMetadataBreakingUpgrades: [RuntimeMetadataBreakingUpgrad
 private enum RuntimeMetadataBreakingUpgradeState {
     case applyTemporarySolution([String], RuntimeMetadataBreakingUpgrade)
     case overrideTemporarySolution(RuntimeMetadataBreakingUpgrade)
+    case forceResponse(String)
     case notAffected
 }
 
@@ -268,6 +290,10 @@ private extension Chain {
         guard let recent = recentBreakingUpgrade(for: version) else {
             // No breaking changes known so far
             return .notAffected
+        }
+
+        if let response = recent.forcedResponse(for: self) {
+            return .forceResponse(response)
         }
 
         if let applied = temporarySolutionApplied {

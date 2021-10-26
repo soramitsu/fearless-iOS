@@ -17,4 +17,9 @@ protocol CrowdloanAgreementInteractorOutputProtocol: AnyObject {
     func didReceiveAgreementText(result: Result<String, Error>)
 }
 
-protocol CrowdloanAgreementWireframeProtocol: AnyObject {}
+protocol CrowdloanAgreementWireframeProtocol: AnyObject {
+    func showAgreementConfirm(
+        from view: CrowdloanAgreementViewProtocol?,
+        paraId: ParaId
+    )
+}

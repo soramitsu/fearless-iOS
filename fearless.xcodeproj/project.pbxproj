@@ -1343,6 +1343,7 @@
 		C46EEF6A9A9A601694E72DB1 /* StakingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F09665083031502F9693F8 /* StakingMainWireframe.swift */; };
 		C4A4D40A08DAB4A71C21C1A8 /* StakingRedeemInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560C48D7A83F51F001622D71 /* StakingRedeemInteractor.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
+		C74FABA32726D97000B5C452 /* moonbeam-test-node-runtime in Resources */ = {isa = PBXBuildFile; fileRef = C74FABA22726D97000B5C452 /* moonbeam-test-node-runtime */; };
 		C7D77690E10875CF1856EBA1 /* StakingRewardPayoutsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7911693957DFAF141EBDAFEC /* StakingRewardPayoutsProtocols.swift */; };
 		C7E39E732B9CA6D826FF7910 /* AccountInfoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD61FE3740525F79D8A04A /* AccountInfoPresenter.swift */; };
 		C80B2FDBD395CDEAD1B7E996 /* AnalyticsRewardDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2C9D26B9F9CC048C67796F /* AnalyticsRewardDetailsViewLayout.swift */; };
@@ -2913,6 +2914,7 @@
 		C503100478AB56E903598A78 /* ReferralCrowdloanPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanPresenter.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewFactory.swift; sourceTree = "<group>"; };
+		C74FABA22726D97000B5C452 /* moonbeam-test-node-runtime */ = {isa = PBXFileReference; lastKnownFileType = text; path = "moonbeam-test-node-runtime"; sourceTree = "<group>"; };
 		C7B15FAB5FF28DE88EC2A66A /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C96C3B5ABF4A8124848EFD17 /* ControllerAccountConfirmationWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountConfirmationWireframe.swift; sourceTree = "<group>"; };
 		C96F6CB06F5F49DB7E73F1CE /* AddConnectionProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionProtocols.swift; sourceTree = "<group>"; };
@@ -4817,6 +4819,7 @@
 		8470D6CE253E31FB009E9A5D /* StorageSubscription */ = {
 			isa = PBXGroup;
 			children = (
+				C74FABA12726D94F00B5C452 /* Overrides */,
 				8470D6CC253E3170009E9A5D /* AccountInfoSubscription.swift */,
 				843910C0253F36F300E3C217 /* BaseStorageChildSubscription.swift */,
 				84452F9725D6728B00F47EC5 /* RuntimeVersionSubscription.swift */,
@@ -7357,6 +7360,14 @@
 			path = Requests;
 			sourceTree = "<group>";
 		};
+		C74FABA12726D94F00B5C452 /* Overrides */ = {
+			isa = PBXGroup;
+			children = (
+				C74FABA22726D97000B5C452 /* moonbeam-test-node-runtime */,
+			);
+			path = Overrides;
+			sourceTree = "<group>";
+		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
 			isa = PBXGroup;
 			children = (
@@ -8069,6 +8080,7 @@
 			files = (
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				841937872544772F00CFA50C /* animatedBg.gif in Resources */,
+				C74FABA32726D97000B5C452 /* moonbeam-test-node-runtime in Resources */,
 				84C1B98D24F55EB200FE5470 /* AccountTableViewCell.xib in Resources */,
 				8419377D25441D2F00CFA50C /* ReceiveHeaderView.xib in Resources */,
 				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,

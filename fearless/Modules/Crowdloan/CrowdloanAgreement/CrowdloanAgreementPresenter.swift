@@ -7,13 +7,19 @@ final class CrowdloanAgreementPresenter {
 
     private var agreementTextResult: Result<String, Error>?
     private var isTermsAgreed: Bool = false
+    private var paraId: ParaId
+    private var crowdloanTitle: String
 
     init(
         interactor: CrowdloanAgreementInteractorInputProtocol,
-        wireframe: CrowdloanAgreementWireframeProtocol
+        wireframe: CrowdloanAgreementWireframeProtocol,
+        paraId: ParaId,
+        crowdloanTitle: String
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
+        self.paraId = paraId
+        self.crowdloanTitle = crowdloanTitle
     }
 
     private func updateView() {
@@ -38,7 +44,12 @@ final class CrowdloanAgreementPresenter {
 }
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
-    func confirmAgreement() {}
+    func confirmAgreement() {
+        wireframe.showAgreementConfirm(
+            from: view,
+            paraId: paraId
+        )
+    }
 
     func setTermsAgreed(value: Bool) {
         isTermsAgreed = value

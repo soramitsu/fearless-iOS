@@ -13,19 +13,14 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h5Title
+        label.font = .h4Title
         label.textAlignment = .left
         label.numberOfLines = 2
         return label
     }()
 
-    let accountView: TriangularedView = {
-        let view = TriangularedView()
-        view.fillColor = .clear
-        view.highlightedFillColor = .clear
-        view.strokeColor = R.color.colorDarkGray()!
-        view.highlightedStrokeColor = R.color.colorDarkGray()!
-        view.strokeWidth = 1.0
+    let accountView: TriangularedBlurView = {
+        let view = TriangularedBlurView()
         return view
     }()
 
@@ -55,18 +50,21 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
 
     let infoLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
+        label.font = .p2Paragraph
+        label.numberOfLines = 0
         return label
     }()
 
     let bottomView: UIView = {
         let view = UIView()
+        view.backgroundColor = R.color.colorAlmostBlack()
         return view
     }()
 
     let networkFeeTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
+        label.textColor = R.color.colorAlmostWhite()
         return label
     }()
 
@@ -79,11 +77,14 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
     let networkFeeUsdLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
+        label.textColor = R.color.colorStrokeGray()
         return label
     }()
 
     let confirmButton: TriangularedButton = {
-        TriangularedButton()
+        let button = TriangularedButton()
+        button.applyDefaultStyle()
+        return button
     }()
 
     let feeStackView: UIStackView = {
@@ -98,8 +99,27 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
         return stackView
     }()
 
+    let bottomSeparatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.color.colorBlurSeparator()
+        return view
+    }()
+
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        setupLayout()
+        applyLocalization()
+
+        backgroundColor = R.color.colorBlack()
     }
 
     @available(*, unavailable)
@@ -108,25 +128,35 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
     }
 
     private func applyLocalization() {
-//        termsLabel.text = R.string.localizable.crowdloanPrivacyPolicy(preferredLanguages: locale.rLanguages)
-//
-//        confirmAgreementButton.imageWithTitleView?.title = R.string.localizable.commonApply(
-//            preferredLanguages: locale.rLanguages
-//        ).uppercased()
+        titleLabel.text = R.string.localizable.moonbeamRegistration(preferredLanguages: locale.rLanguages)
+        accountViewTitleLabel.text = R.string.localizable.accountInfoTitle(preferredLanguages: locale.rLanguages)
+        infoLabel.text = R.string.localizable.moonbeamRegistrationDescription(preferredLanguages: locale.rLanguages)
+        networkFeeTitleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
+        confirmButton.imageWithTitleView?.title = R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages).uppercased()
     }
 
     private func setupLayout() {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
-            make.width.equalToSuperview().offset(-2 * UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide)
+            make.width.equalToSuperview()
+            make.centerX.equalToSuperview()
         }
 
         contentView.stackView.addArrangedSubview(titleLabel)
 
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(UIConstants.bigOffset)
+        }
+
         contentView.stackView.addArrangedSubview(accountView)
+
+        accountView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.leading.equalTo(UIConstants.bigOffset)
+            make.width.equalToSuperview().offset(-2 * UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.triangularedViewHeight)
+        }
 
         accountView.addSubview(accountViewTitleLabel)
 
@@ -152,7 +182,7 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        contentView.stackView.addSubview(infoContainer)
+        contentView.stackView.addArrangedSubview(infoContainer)
 
         infoContainer.addSubview(infoIconImageView)
 
@@ -173,12 +203,45 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
         }
 
         addSubview(bottomView)
+        bottomView.snp.makeConstraints { make in
+            make.top.equalTo(contentView.snp.bottom)
+            make.leading.equalToSuperview()
+            make.trailing.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide)
+        }
+
         bottomView.addSubview(feeStackView)
+
+        feeStackView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.leading.equalTo(UIConstants.bigOffset * 2)
+            make.top.equalToSuperview().offset(UIConstants.bigOffset)
+        }
         feeStackView.addArrangedSubview(networkFeeTitleLabel)
         feeStackView.addArrangedSubview(feeCurrenciesStackView)
         feeCurrenciesStackView.addArrangedSubview(networkFeeDotLabel)
         feeCurrenciesStackView.addArrangedSubview(networkFeeUsdLabel)
+
+        bottomView.addSubview(bottomSeparatorView)
+
+        bottomSeparatorView.snp.makeConstraints { make in
+            make.top.equalTo(feeStackView.snp.bottom).offset(UIConstants.bigOffset)
+            make.leading.equalTo(UIConstants.bigOffset * 2)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(UIConstants.separatorHeight)
+        }
+
         bottomView.addSubview(confirmButton)
+
+        confirmButton.snp.makeConstraints { make in
+            make.top.equalTo(bottomSeparatorView.snp.bottom).offset(UIConstants.bigOffset)
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview().offset(-2 * UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.triangularedViewHeight)
+            make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
+        }
+
+        confirmButton.applyEnabledStyle()
 
 //        contentView.stackView.addArrangedSubview(textView)
 //

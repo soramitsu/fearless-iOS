@@ -30,5 +30,14 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {
-    func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId)
+    func presentContributionSetup(
+        from view: CrowdloanListViewProtocol?,
+        paraId: ParaId
+    )
+
+    func presentMoonbeamAgreement(
+        from view: CrowdloanListViewProtocol?,
+        paraId: ParaId,
+        crowdloanTitle: String
+    )
 }

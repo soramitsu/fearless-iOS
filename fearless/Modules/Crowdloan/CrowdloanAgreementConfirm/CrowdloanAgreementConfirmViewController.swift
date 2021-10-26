@@ -1,6 +1,7 @@
 import UIKit
+import SoraFoundation
 
-final class CrowdloanAgreementConfirmViewController: UIViewController {
+final class CrowdloanAgreementConfirmViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanAgreementConfirmViewLayout
 
     let presenter: CrowdloanAgreementConfirmPresenterProtocol
@@ -22,8 +23,24 @@ final class CrowdloanAgreementConfirmViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupLocalization()
+
         presenter.setup()
+    }
+
+    private func setupLocalization() {
+        title = R.string.localizable.commonConfirm(preferredLanguages: selectedLocale.rLanguages)
+
+        rootView.locale = selectedLocale
     }
 }
 
 extension CrowdloanAgreementConfirmViewController: CrowdloanAgreementConfirmViewProtocol {}
+
+extension CrowdloanAgreementConfirmViewController: Localizable {
+    func applyLocalization() {
+        if isViewLoaded {
+            setupLocalization()
+        }
+    }
+}

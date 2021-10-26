@@ -60,6 +60,8 @@ final class CrowdloanAgreementViewLayout: UIView {
 
         setupLayout()
         applyLocalization()
+
+        backgroundColor = R.color.colorBlack()
     }
 
     @available(*, unavailable)
@@ -70,7 +72,7 @@ final class CrowdloanAgreementViewLayout: UIView {
     private func applyLocalization() {
         termsLabel.text = R.string.localizable.crowdloanPrivacyPolicy(preferredLanguages: locale.rLanguages)
 
-        confirmAgreementButton.imageWithTitleView?.title = R.string.localizable.commonApply(
+        confirmAgreementButton.imageWithTitleView?.title = R.string.localizable.commonContinue(
             preferredLanguages: locale.rLanguages
         ).uppercased()
     }
