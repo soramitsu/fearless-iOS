@@ -5,12 +5,12 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
         crowdloanTitle: String,
-        moonbeamFlowData: MoonbeamFlowData
+        customFlow: CustomCrowdloanFlow
     ) {
         let setupView = CrowdloanAgreementViewFactory.createMoonbeamView(
             for: paraId,
             crowdloanName: crowdloanTitle,
-            moonbeamFlowData: moonbeamFlowData
+            customFlow: customFlow
         )
 
         guard let setupView = setupView else {

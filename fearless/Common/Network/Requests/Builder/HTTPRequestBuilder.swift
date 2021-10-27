@@ -8,12 +8,17 @@ enum HTTPRequestBuilderError: Error {
 }
 
 class HTTPRequestBuilder {
-    private let scheme: String
-    private let host: String
+    private var scheme: String?
+    private var host: String?
 
     init(scheme: String = "https", host: String) {
-        self.scheme = scheme
-        self.host = host
+        if let url = URL(string: host) {
+            self.scheme = url.scheme
+            self.host = url.host
+        } else {
+            self.scheme = scheme
+            self.host = host
+        }
     }
 }
 

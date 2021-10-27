@@ -1,10 +1,6 @@
 import Foundation
 
 struct CrowdloanDisplayInfo: Codable, Equatable {
-    static func == (lhs: CrowdloanDisplayInfo, rhs: CrowdloanDisplayInfo) -> Bool {
-        lhs.paraid == rhs.paraid
-    }
-
     let paraid: String
     let name: String
     let token: String

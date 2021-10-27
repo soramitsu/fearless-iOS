@@ -74,7 +74,7 @@ final class CrowdloanAgreementViewLayout: UIView {
 
         confirmAgreementButton.imageWithTitleView?.title = R.string.localizable.commonContinue(
             preferredLanguages: locale.rLanguages
-        ).uppercased()
+        ).capitalized
     }
 
     private func setupLayout() {

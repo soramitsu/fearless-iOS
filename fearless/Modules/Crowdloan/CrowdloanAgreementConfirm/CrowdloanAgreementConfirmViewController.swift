@@ -35,7 +35,15 @@ final class CrowdloanAgreementConfirmViewController: UIViewController, ViewHolde
     }
 }
 
-extension CrowdloanAgreementConfirmViewController: CrowdloanAgreementConfirmViewProtocol {}
+extension CrowdloanAgreementConfirmViewController: CrowdloanAgreementConfirmViewProtocol {
+    func didReceiveFee(viewModel: BalanceViewModelProtocol?) {
+        rootView.bind(feeViewModel: viewModel)
+    }
+
+    func didReceiveAccount(viewModel: CrowdloanAccountViewModel?) {
+        rootView.bind(accountViewModel: viewModel)
+    }
+}
 
 extension CrowdloanAgreementConfirmViewController: Localizable {
     func applyLocalization() {

@@ -529,3 +529,5 @@
 "about.medium" = "Читать на Medium";
 "about.announcement" = "Следить за новостями в Telegram";
 "about.support" = "Обратиться за поддержкой";
+"crowdloan.location.unsupported.error" = "К сожалению, Вы не можете принимать участие в краудлоне %@ из-за локации, в которой Вы находитесь.";
+"crowdloan.terms.with.name" = "Условия использования %@";

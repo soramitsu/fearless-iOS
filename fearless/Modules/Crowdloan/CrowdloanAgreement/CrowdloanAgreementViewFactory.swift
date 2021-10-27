@@ -6,34 +6,41 @@ struct CrowdloanAgreementViewFactory {
     static func createMoonbeamView(
         for paraId: ParaId,
         crowdloanName: String,
-        moonbeamFlowData: MoonbeamFlowData
+        customFlow: CustomCrowdloanFlow
     ) -> CrowdloanAgreementViewProtocol? {
-        let localizationManager = LocalizationManager.shared
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            let localizationManager = LocalizationManager.shared
 
-        guard let interactor = CrowdloanAgreementViewFactory.createMoonbeamInteractor(
-            paraId: paraId,
-            moonbeamFlowData: moonbeamFlowData
-        ) else {
+            guard let interactor = CrowdloanAgreementViewFactory.createMoonbeamInteractor(
+                paraId: paraId,
+                moonbeamFlowData: moonbeamFlowData
+            ) else {
+                return nil
+            }
+            let wireframe = CrowdloanAgreementWireframe()
+
+            let presenter = CrowdloanAgreementPresenter(
+                interactor: interactor,
+                wireframe: wireframe,
+                paraId: paraId,
+                crowdloanTitle: crowdloanName,
+                logger: Logger.shared,
+                customFlow: customFlow
+            )
+
+            let view = CrowdloanAgreementViewController(
+                presenter: presenter,
+                localizationManager: localizationManager
+            )
+
+            presenter.view = view
+            interactor.presenter = presenter
+
+            return view
+        default:
             return nil
         }
-        let wireframe = CrowdloanAgreementWireframe()
-
-        let presenter = CrowdloanAgreementPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            paraId: paraId,
-            crowdloanTitle: crowdloanName
-        )
-
-        let view = CrowdloanAgreementViewController(
-            presenter: presenter,
-            localizationManager: localizationManager
-        )
-
-        presenter.view = view
-        interactor.presenter = presenter
-
-        return view
     }
 }
 

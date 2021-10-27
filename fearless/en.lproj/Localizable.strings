@@ -531,3 +531,5 @@ This is the hash of your transaction:";
 "about.medium" = "Read on Medium";
 "about.announcement" = "Receive Announcements";
 "about.support" = "Ask for Support";
+"crowdloan.location.unsupported.error" = "Unfortunately it appears that you might be ineligible to participate in the Moonbeam Crowdloan Campaign due to your detected location.";
+"crowdloan.terms.with.name" = "%@ Crowdloan Terms and Conditions";

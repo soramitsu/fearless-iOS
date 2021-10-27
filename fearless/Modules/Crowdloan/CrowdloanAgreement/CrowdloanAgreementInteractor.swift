@@ -25,12 +25,24 @@ final class CrowdloanAgreementInteractor {
         }
     }
 
-    private func checkRemark() {}
+    private func checkRemark() {
+        agreementService?.checkRemark(with: { result in
+            switch result {
+            case let .success(verified):
+                if verified {
+                    self.presenter.didReceiveVerified(result: .success(verified))
+                } else {
+                    self.loadAgreementContents()
+                }
+            case let .failure(error):
+                self.presenter.didReceiveVerified(result: .failure(error))
+            }
+        })
+    }
 }
 
 extension CrowdloanAgreementInteractor: CrowdloanAgreementInteractorInputProtocol {
     func setup() {
         checkRemark()
-        loadAgreementContents()
     }
 }

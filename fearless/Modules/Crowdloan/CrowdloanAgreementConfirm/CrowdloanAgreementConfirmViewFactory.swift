@@ -1,8 +1,13 @@
 import Foundation
 import SoraKeystore
+import FearlessUtils
+import RobinHood
 
 struct CrowdloanAgreementConfirmViewFactory {
-    static func createView(paraId: ParaId) -> CrowdloanAgreementConfirmViewProtocol? {
+    static func createMoonbeamView(
+        paraId: ParaId,
+        moonbeamFlowData: MoonbeamFlowData
+    ) -> CrowdloanAgreementConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -12,12 +17,32 @@ struct CrowdloanAgreementConfirmViewFactory {
             return nil
         }
 
-        guard let interactor = createInteractor(for: paraId, assetId: assetId) else {
+        guard let interactor = createMoonbeamInteractor(
+            for: paraId,
+            assetId: assetId,
+            moonbeamFlowData: moonbeamFlowData
+        ) else {
             return nil
         }
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let agreementViewModelFactory = CrowdloanAgreementViewModelFactory(iconGenerator: PolkadotIconGenerator())
+
         let wireframe = CrowdloanAgreementConfirmWireframe()
 
-        let presenter = CrowdloanAgreementConfirmPresenter(interactor: interactor, wireframe: wireframe)
+        let presenter = CrowdloanAgreementConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            balanceViewModelFactory: balanceViewModelFactory,
+            agreementViewModelFactory: agreementViewModelFactory,
+            chain: settings.selectedConnection.type.chain,
+            logger: Logger.shared
+        )
 
         let view = CrowdloanAgreementConfirmViewController(presenter: presenter)
 
@@ -27,17 +52,16 @@ struct CrowdloanAgreementConfirmViewFactory {
         return view
     }
 
-    private static func createInteractor(
+    private static func createMoonbeamInteractor(
         for paraId: ParaId,
-        assetId _: WalletAssetId
+        assetId: WalletAssetId,
+        moonbeamFlowData: MoonbeamFlowData
     ) -> CrowdloanAgreementConfirmInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
-            return nil
-        }
-
         let settings = SettingsManager.shared
 
-        guard let selectedAccount = settings.selectedAccount else {
+        guard let engine = WebSocketService.shared.connection,
+              let selectedAccount = settings.selectedAccount,
+              let selectedAddress = settings.selectedAccount?.address else {
             return nil
         }
 
@@ -47,6 +71,11 @@ struct CrowdloanAgreementConfirmViewFactory {
 
         let runtimeService = RuntimeRegistryFacade.sharedService
 
+        let signingWrapper = SigningWrapper(
+            keystore: Keychain(),
+            settings: settings
+        )
+
         let extrinsicService = ExtrinsicService(
             address: selectedAccount.address,
             cryptoType: selectedAccount.cryptoType,
@@ -55,12 +84,35 @@ struct CrowdloanAgreementConfirmViewFactory {
             operationManager: operationManager
         )
 
-        let feeProxy = ExtrinsicFeeProxy()
+        let requestBuilder: HTTPRequestBuilderProtocol = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
+
+        let agreementService = MoonbeamService(
+            address: selectedAddress,
+            chain: settings.selectedConnection.type.chain,
+            signingWrapper: signingWrapper,
+            operationManager: OperationManagerFacade.sharedManager,
+            requestBuilder: requestBuilder
+        )
+
+        let singleValueProviderFactory = SingleValueProviderFactory.shared
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
+        let callFactory = SubstrateCallFactory()
 
         return CrowdloanAgreementConfirmInteractor(
             paraId: paraId,
-            feeProxy: feeProxy,
-            extrinsicService: extrinsicService
+            selectedAccountAddress: selectedAddress,
+            chain: chain,
+            assetId: assetId,
+            extrinsicService: extrinsicService,
+            signingWrapper: signingWrapper,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            agreementService: agreementService,
+            callFactory: callFactory,
+            operationManager: operationManager,
+            singleValueProviderFactory: singleValueProviderFactory
         )
     }
 }

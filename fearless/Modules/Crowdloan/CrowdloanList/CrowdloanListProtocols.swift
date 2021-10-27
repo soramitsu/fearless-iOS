@@ -39,6 +39,6 @@ protocol CrowdloanListWireframeProtocol: AnyObject {
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
         crowdloanTitle: String,
-        moonbeamFlowData: MoonbeamFlowData
+        customFlow: CustomCrowdloanFlow
     )
 }

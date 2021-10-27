@@ -2,19 +2,23 @@ import Foundation
 
 // MARK: - CustomCrowdloanFlow
 
-enum CustomCrowdloanFlow: Codable {
+private typealias FlowData = Codable & Equatable
+
+enum CustomCrowdloanFlow {
+    case karura
+    case bifrost
+    case moonbeam(MoonbeamFlowData)
+}
+
+extension CustomCrowdloanFlow: Codable {
     private struct NoDataFlow: Codable {
         let name: String
     }
 
-    private struct FlowWithData<T: Codable>: Codable {
+    private struct FlowWithData<T: FlowData>: Codable {
         let name: String
         let data: T
     }
-
-    case karura
-    case bifrost
-    case moonbeam(MoonbeamFlowData)
 
     init(from decoder: Decoder) throws {
         let noDataFlow = try NoDataFlow(from: decoder)
@@ -39,9 +43,23 @@ enum CustomCrowdloanFlow: Codable {
     }
 }
 
+extension CustomCrowdloanFlow: Equatable {
+    static func == (lhs: CustomCrowdloanFlow, rhs: CustomCrowdloanFlow) -> Bool {
+        switch lhs {
+        case .karura: return rhs == .karura
+        case .bifrost: return rhs == .bifrost
+        case let .moonbeam(lhsData):
+            switch rhs {
+            case let .moonbeam(rhsData): return lhsData == rhsData
+            default: return false
+            }
+        }
+    }
+}
+
 // MARK: - Moonbeam
 
-struct MoonbeamFlowData: Codable {
+struct MoonbeamFlowData: FlowData {
     let prodApiUrl: String
     let devApiUrl: String
 }
