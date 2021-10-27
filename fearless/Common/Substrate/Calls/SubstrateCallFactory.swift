@@ -32,6 +32,8 @@ protocol SubstrateCallFactoryProtocol {
 
     func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>
     func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo>
+
+    func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -131,6 +133,11 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo> {
         let args = CrowdloanAddMemo(index: paraId, memo: memo)
         return RuntimeCall(moduleName: "Crowdloan", callName: "add_memo", args: args)
+    }
+
+    func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall> {
+        let args = AddRemarkCall(remark: data)
+        return RuntimeCall(moduleName: "System", callName: "remark", args: args)
     }
 }
 
