@@ -81,16 +81,14 @@ extension CrowdloanAgreementConfirmPresenter {
         }
     }
 
-    func didReceivePriceData(result _: Result<PriceData?, Error>) {
-//        switch result {
-//        case let .success(priceData):
-//            self.priceData = priceData
-//
-//            provideAssetVewModel()
-//            provideFeeViewModel()
-//        case let .failure(error):
-//            logger?.error("Did receive price error: \(error)")
-//        }
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+            provideFeeViewModel()
+        case let .failure(error):
+            logger.error("Did receive price error: \(error)")
+        }
     }
 }
 

@@ -62,7 +62,6 @@ final class MoonbeamService {
         let requestFactory = BlockNetworkRequestFactory {
             let info = try infoOperation.extractNoCancellableResultData()
             let request = try self.requestBuilder.buildRequest(with: MoonbeamAgreeRemarkRequest(
-                address: info.address,
                 info: infoOperation.extractNoCancellableResultData()
             ))
 
@@ -173,7 +172,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
     }
 
     func agreeRemark(
-        signedMessage: String,
+        signedMessage: Data,
         with closure: @escaping (Result<MoonbeamAgreeRemarkData, Error>
         ) -> Void
     ) {
@@ -185,6 +184,8 @@ extension MoonbeamService: MoonbeamServiceProtocol {
         }
 
         let agreeRemarkOperation = createAgreeRemarkOperation(dependingOn: infoOperation)
+
+        agreeRemarkOperation.addDependency(infoOperation)
 
         agreeRemarkOperation.completionBlock = {
             DispatchQueue.main.async {

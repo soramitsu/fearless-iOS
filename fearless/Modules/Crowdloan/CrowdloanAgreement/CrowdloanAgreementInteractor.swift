@@ -4,9 +4,15 @@ final class CrowdloanAgreementInteractor {
     weak var presenter: CrowdloanAgreementInteractorOutputProtocol!
 
     private let agreementService: CrowdloanAgreementServiceProtocol?
+    private let signingWrapper: SigningWrapperProtocol
+    private var attestation: String?
 
-    init(agreementService: CrowdloanAgreementServiceProtocol?) {
+    init(
+        agreementService: CrowdloanAgreementServiceProtocol?,
+        signingWrapper: SigningWrapperProtocol
+    ) {
         self.agreementService = agreementService
+        self.signingWrapper = signingWrapper
     }
 
     private func loadAgreementContents() {
@@ -16,6 +22,7 @@ final class CrowdloanAgreementInteractor {
             do {
                 // TODO: modify text by appending newlines and margin
                 let contents = try String(contentsOf: url, encoding: .utf8)
+                attestation = contents
                 presenter.didReceiveAgreementText(result: .success(contents))
             } catch {
                 presenter.didReceiveAgreementText(result: .failure(CrowdloanAgreementError.invalidAgreementContents))
@@ -44,5 +51,16 @@ final class CrowdloanAgreementInteractor {
 extension CrowdloanAgreementInteractor: CrowdloanAgreementInteractorInputProtocol {
     func setup() {
         checkRemark()
+    }
+
+    func agreeRemark() {
+        if let sha256 = attestation?.sha256(),
+           let signedMessage = try? signingWrapper.sign(sha256) {
+            agreementService?.agreeRemark(signedMessage: signedMessage.rawData(), with: { result in
+                self.presenter.didReceiveRemark(result: result)
+            })
+        } else {
+//            presenter.didReceiveRemark(result: .failure(error))
+        }
     }
 }

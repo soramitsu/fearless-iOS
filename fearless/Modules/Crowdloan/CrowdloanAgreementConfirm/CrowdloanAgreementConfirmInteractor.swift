@@ -1,6 +1,7 @@
 import UIKit
 import FearlessUtils
 import RobinHood
+import BigInt
 
 final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgreementConfirmInteractorInputProtocol {
     var presenter: CrowdloanAgreementConfirmInteractorOutputProtocol?
@@ -45,8 +46,6 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
     }
 
     func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
-
         fetchAccount(
             for: selectedAccountAddress,
             from: accountRepository,
@@ -67,35 +66,26 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
                 strongSelf.presenter?.didReceiveDisplayAddress(result: .failure(error))
             }
         }
+
+        estimateFee()
+        priceProvider = subscribeToPriceProvider(for: assetId)
     }
 }
 
 extension CrowdloanAgreementConfirmInteractor {
     func estimateFee() {
-//        let callFactory = SubstrateCallFactory()
-//
-//        let randomBytes = (0...1000).map { _ in UInt8.random(in: 0...UInt8.max) }
-//        let data = Data(randomBytes)
-//
-//        let closure: ExtrinsicBuilderClosure = { builder in
-//            let call = callFactory.addRemark(data)
-//            _ = try builder.adding(call: call)
-//            return builder
-//        }
-//
-//        extrinsicService.estimateFee(closure, runningIn: .main) { result in
-//            switch result {
-//            case let .success(paymentInfo):
-//                if
-//                    let feeValue = BigUInt(paymentInfo.fee),
-//                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision),
-//                    fee > 0 {
-//
-//                } else {
-//                }
-//            case let .failure(error):
-//            }
-//        }
+        let randomBytes = (0 ... 200).map { _ in UInt8.random(in: 0 ... UInt8.max) }
+        let data = Data(randomBytes)
+
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let call = self.callFactory.addRemark(data)
+            _ = try builder.adding(call: call)
+            return builder
+        }
+
+        extrinsicService.estimateFee(closure, runningIn: .main) { result in
+            self.presenter?.didReceiveFee(result: result)
+        }
     }
 }
 

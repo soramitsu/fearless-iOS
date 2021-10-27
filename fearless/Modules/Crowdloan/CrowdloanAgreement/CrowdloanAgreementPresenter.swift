@@ -50,10 +50,8 @@ final class CrowdloanAgreementPresenter {
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
-}
 
-extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
-    func confirmAgreement() {
+    private func proceedToConfirm(with _: String) {
         switch customFlow {
         case let .moonbeam(data):
             wireframe.showMoonbeamAgreementConfirm(
@@ -62,6 +60,16 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
                 moonbeamFlowData: data
             )
         default: break
+        }
+    }
+}
+
+extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
+    func confirmAgreement() {
+        do {
+            try interactor.agreeRemark()
+        } catch {
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
     }
 
@@ -78,6 +86,15 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
 }
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementInteractorOutputProtocol {
+    func didReceiveRemark(result: Result<MoonbeamAgreeRemarkData, Error>) {
+        switch result {
+        case let .success(remarkData):
+            proceedToConfirm(with: remarkData.remark)
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
+        }
+    }
+
     func didReceiveAgreementText(result: Result<String, Error>) {
         logger.info("Did receive agreement text: \(result)")
 

@@ -36,25 +36,7 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
         return label
     }()
 
-    let bottomView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorAlmostBlack()
-        return view
-    }()
-
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
-
-    let confirmButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyDefaultStyle()
-        return button
-    }()
-
-    let bottomSeparatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorBlurSeparator()
-        return view
-    }()
 
     var locale = Locale.current {
         didSet {
@@ -97,7 +79,8 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
         titleLabel.text = R.string.localizable.moonbeamRegistration(preferredLanguages: locale.rLanguages)
         accountView.title = R.string.localizable.accountInfoTitle(preferredLanguages: locale.rLanguages)
         infoLabel.text = R.string.localizable.moonbeamRegistrationDescription(preferredLanguages: locale.rLanguages)
-        confirmButton.imageWithTitleView?.title = R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages).capitalized
+
+        networkFeeConfirmView.locale = locale
     }
 
     private func setupLayout() {
@@ -143,41 +126,12 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
             make.trailing.equalToSuperview()
         }
 
-        addSubview(bottomView)
-        bottomView.snp.makeConstraints { make in
+        addSubview(networkFeeConfirmView)
+        networkFeeConfirmView.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.bottom)
             make.leading.equalToSuperview()
             make.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
-
-        bottomView.addSubview(networkFeeConfirmView)
-
-        networkFeeConfirmView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.leading.equalTo(UIConstants.bigOffset * 2)
-            make.top.equalToSuperview().offset(UIConstants.bigOffset)
-        }
-
-        bottomView.addSubview(bottomSeparatorView)
-
-        bottomSeparatorView.snp.makeConstraints { make in
-            make.top.equalTo(networkFeeConfirmView.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.equalTo(UIConstants.bigOffset * 2)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(UIConstants.separatorHeight)
-        }
-
-        bottomView.addSubview(confirmButton)
-
-        confirmButton.snp.makeConstraints { make in
-            make.top.equalTo(bottomSeparatorView.snp.bottom).offset(UIConstants.bigOffset)
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview().offset(-2 * UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.triangularedViewHeight)
-            make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
-        }
-
-        confirmButton.applyEnabledStyle()
     }
 }

@@ -69,6 +69,9 @@ extension CrowdloanAgreementViewFactory {
             operationManager: OperationManagerFacade.sharedManager,
             requestBuilder: requestBuilder
         )
-        return CrowdloanAgreementInteractor(agreementService: agreementService)
+        return CrowdloanAgreementInteractor(
+            agreementService: agreementService,
+            signingWrapper: signingWrapper
+        )
     }
 }

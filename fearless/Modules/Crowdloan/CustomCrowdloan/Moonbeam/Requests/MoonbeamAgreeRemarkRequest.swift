@@ -2,7 +2,6 @@ import Foundation
 import RobinHood
 
 struct MoonbeamAgreeRemarkRequest: HTTPRequestConfig {
-    let address: String
     let info: MoonbeamAgreeRemarkInfo
 
     var path: String {

@@ -11,14 +11,16 @@ protocol CrowdloanAgreementPresenterProtocol: AnyObject {
 
 protocol CrowdloanAgreementInteractorInputProtocol: AnyObject {
     func setup()
+    func agreeRemark() throws
 }
 
 protocol CrowdloanAgreementInteractorOutputProtocol: AnyObject {
     func didReceiveAgreementText(result: Result<String, Error>)
     func didReceiveVerified(result: Result<Bool, Error>)
+    func didReceiveRemark(result: Result<MoonbeamAgreeRemarkData, Error>)
 }
 
-protocol CrowdloanAgreementWireframeProtocol: AlertPresentable {
+protocol CrowdloanAgreementWireframeProtocol: AlertPresentable, ErrorPresentable {
     func showMoonbeamAgreementConfirm(
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,

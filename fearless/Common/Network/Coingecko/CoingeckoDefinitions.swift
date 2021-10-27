@@ -13,6 +13,8 @@ extension WalletAssetId {
             return "polkadot"
         case .kusama:
             return "kusama"
+        case .moonbeam:
+            return "polkadot"
         default:
             return nil
         }

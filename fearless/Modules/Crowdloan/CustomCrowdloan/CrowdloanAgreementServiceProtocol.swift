@@ -8,7 +8,7 @@ protocol CrowdloanAgreementServiceProtocol {
         ) -> Void)
 
     func agreeRemark(
-        signedMessage: String,
+        signedMessage: Data,
         with closure: @escaping (Result<MoonbeamAgreeRemarkData, Error>
         ) -> Void
     )
