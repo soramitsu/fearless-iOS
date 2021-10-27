@@ -1,6 +1,10 @@
 import Foundation
 
 struct CrowdloanDisplayInfo: Codable, Equatable {
+    static func == (lhs: CrowdloanDisplayInfo, rhs: CrowdloanDisplayInfo) -> Bool {
+        lhs.paraid == rhs.paraid
+    }
+
     let paraid: String
     let name: String
     let token: String
@@ -8,7 +12,7 @@ struct CrowdloanDisplayInfo: Codable, Equatable {
     let website: String
     let icon: String
     let rewardRate: Decimal?
-    let customFlow: CrowdloanFlow?
+    let flow: CustomCrowdloanFlow?
 }
 
 typealias CrowdloanDisplayInfoList = [CrowdloanDisplayInfo]

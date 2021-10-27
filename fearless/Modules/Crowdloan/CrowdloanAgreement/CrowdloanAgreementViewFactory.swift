@@ -5,12 +5,14 @@ import SoraKeystore
 struct CrowdloanAgreementViewFactory {
     static func createMoonbeamView(
         for paraId: ParaId,
-        crowdloanName: String
+        crowdloanName: String,
+        moonbeamFlowData: MoonbeamFlowData
     ) -> CrowdloanAgreementViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
         guard let interactor = CrowdloanAgreementViewFactory.createMoonbeamInteractor(
-            paraId: paraId
+            paraId: paraId,
+            moonbeamFlowData: moonbeamFlowData
         ) else {
             return nil
         }
@@ -37,7 +39,8 @@ struct CrowdloanAgreementViewFactory {
 
 extension CrowdloanAgreementViewFactory {
     static func createMoonbeamInteractor(
-        paraId _: ParaId
+        paraId _: ParaId,
+        moonbeamFlowData: MoonbeamFlowData
     ) -> CrowdloanAgreementInteractor? {
         let settings = SettingsManager.shared
 
@@ -50,7 +53,7 @@ extension CrowdloanAgreementViewFactory {
             settings: settings
         )
 
-        let requestBuilder: HTTPRequestBuilderProtocol = HTTPRequestBuilder(host: "")
+        let requestBuilder: HTTPRequestBuilderProtocol = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
 
         let agreementService = MoonbeamService(
             address: selectedAddress,

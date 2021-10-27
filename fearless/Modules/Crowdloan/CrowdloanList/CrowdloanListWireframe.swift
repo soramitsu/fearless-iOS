@@ -4,11 +4,13 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
     func presentMoonbeamAgreement(
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
-        crowdloanTitle: String
+        crowdloanTitle: String,
+        moonbeamFlowData: MoonbeamFlowData
     ) {
         let setupView = CrowdloanAgreementViewFactory.createMoonbeamView(
             for: paraId,
-            crowdloanName: crowdloanTitle
+            crowdloanName: crowdloanTitle,
+            moonbeamFlowData: moonbeamFlowData
         )
 
         guard let setupView = setupView else {

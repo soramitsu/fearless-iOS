@@ -38,6 +38,7 @@ protocol CrowdloanListWireframeProtocol: AnyObject {
     func presentMoonbeamAgreement(
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
-        crowdloanTitle: String
+        crowdloanTitle: String,
+        moonbeamFlowData: MoonbeamFlowData
     )
 }

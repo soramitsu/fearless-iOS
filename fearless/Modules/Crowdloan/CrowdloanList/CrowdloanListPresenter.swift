@@ -116,14 +116,23 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
                 })?
             .value
 
-        let customFlow: CrowdloanFlow? = crowdloanDisplayInfo?.customFlow
+        let customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flow
 
-        if customFlow == .moonbeam || true {
-            wireframe.presentMoonbeamAgreement(
-                from: view,
-                paraId: viewModel.paraId,
-                crowdloanTitle: viewModel.content.title
-            )
+        if customFlow != nil {
+            switch customFlow {
+            case let .moonbeam(data):
+                wireframe.presentMoonbeamAgreement(
+                    from: view,
+                    paraId: viewModel.paraId,
+                    crowdloanTitle: viewModel.content.title,
+                    moonbeamFlowData: data
+                )
+            default:
+                wireframe.presentContributionSetup(
+                    from: view,
+                    paraId: viewModel.paraId
+                )
+            }
         } else {
             wireframe.presentContributionSetup(
                 from: view,
