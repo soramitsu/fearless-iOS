@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import FearlessUtils
 import SoraKeystore
+import Rswift
 
 enum RuntimeVersionSubscriptionError: Error {
     case skipUnchangedVersion
@@ -245,12 +246,18 @@ private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade 
     }
 
     func forcedResponse(for chain: Chain) -> String? {
+        func asString(_ resource: FileResource) -> String? {
+            resource.path().map {
+                try? String(contentsOfFile: $0)
+            } ?? nil
+        }
+
         switch chain {
+        case .polkadot:
+            return asString(R.file.polkadotV14Runtime)
         #if F_DEV
             case .moonbeam:
-                return R.file.moonbeamTestNodeRuntime.path().map {
-                    try? String(contentsOfFile: $0)
-                } ?? nil
+                return asString(R.file.moonbeamTestNodeRuntime)
         #endif
         default:
             return nil

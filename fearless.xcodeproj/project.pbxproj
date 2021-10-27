@@ -1327,6 +1327,7 @@
 		C4A4D40A08DAB4A71C21C1A8 /* StakingRedeemInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560C48D7A83F51F001622D71 /* StakingRedeemInteractor.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C74FABA32726D97000B5C452 /* moonbeam-test-node-runtime in Resources */ = {isa = PBXBuildFile; fileRef = C74FABA22726D97000B5C452 /* moonbeam-test-node-runtime */; };
+		C74FABA52729509100B5C452 /* polkadot-v14-runtime in Resources */ = {isa = PBXBuildFile; fileRef = C74FABA42729509100B5C452 /* polkadot-v14-runtime */; };
 		C7D77690E10875CF1856EBA1 /* StakingRewardPayoutsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7911693957DFAF141EBDAFEC /* StakingRewardPayoutsProtocols.swift */; };
 		C7E39E732B9CA6D826FF7910 /* AccountInfoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD61FE3740525F79D8A04A /* AccountInfoPresenter.swift */; };
 		C80B2FDBD395CDEAD1B7E996 /* AnalyticsRewardDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2C9D26B9F9CC048C67796F /* AnalyticsRewardDetailsViewLayout.swift */; };
@@ -2876,6 +2877,7 @@
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewFactory.swift; sourceTree = "<group>"; };
 		C74FABA22726D97000B5C452 /* moonbeam-test-node-runtime */ = {isa = PBXFileReference; lastKnownFileType = text; path = "moonbeam-test-node-runtime"; sourceTree = "<group>"; };
+		C74FABA42729509100B5C452 /* polkadot-v14-runtime */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-v14-runtime"; sourceTree = "<group>"; };
 		C7B15FAB5FF28DE88EC2A66A /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C96C3B5ABF4A8124848EFD17 /* ControllerAccountConfirmationWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountConfirmationWireframe.swift; sourceTree = "<group>"; };
 		C96F6CB06F5F49DB7E73F1CE /* AddConnectionProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionProtocols.swift; sourceTree = "<group>"; };
@@ -7239,6 +7241,7 @@
 		C74FABA12726D94F00B5C452 /* Overrides */ = {
 			isa = PBXGroup;
 			children = (
+				C74FABA42729509100B5C452 /* polkadot-v14-runtime */,
 				C74FABA22726D97000B5C452 /* moonbeam-test-node-runtime */,
 			);
 			path = Overrides;
@@ -7973,6 +7976,7 @@
 				84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */,
 				84D2F45A25EF0556008B914D /* RecommendedValidatorCell.xib in Resources */,
 				84452F7625D5E2B300F47EC5 /* runtime-default.json in Resources */,
+				C74FABA52729509100B5C452 /* polkadot-v14-runtime in Resources */,
 				8409C2662522110F0049B5C8 /* WalletAmountView.xib in Resources */,
 				84CD35792526554A0081BC0B /* WalletAssetCell.xib in Resources */,
 				8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */,
