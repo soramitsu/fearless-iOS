@@ -66,11 +66,7 @@ final class CrowdloanAgreementPresenter {
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
     func confirmAgreement() {
-        do {
-            try interactor.agreeRemark()
-        } catch {
-            wireframe.present(error: error, from: view, locale: selectedLocale)
-        }
+        interactor.agreeRemark()
     }
 
     func setTermsAgreed(value: Bool) {
@@ -110,16 +106,7 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementInteractorOutputProtoco
             }
         case let .failure(error):
             logger.error(error.localizedDescription)
-
-            if let view = view,
-               let error = error as? NetworkResponseError,
-               error == .unexpectedStatusCode {
-                wireframe.presentUnavailableWarning(
-                    message: R.string.localizable.crowdloanLocationUnsupportedError(crowdloanTitle, preferredLanguages: selectedLocale.rLanguages),
-                    view: view,
-                    locale: selectedLocale
-                )
-            }
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
     }
 }

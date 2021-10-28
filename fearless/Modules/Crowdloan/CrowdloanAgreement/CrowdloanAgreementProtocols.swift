@@ -11,7 +11,7 @@ protocol CrowdloanAgreementPresenterProtocol: AnyObject {
 
 protocol CrowdloanAgreementInteractorInputProtocol: AnyObject {
     func setup()
-    func agreeRemark() throws
+    func agreeRemark()
 }
 
 protocol CrowdloanAgreementInteractorOutputProtocol: AnyObject {

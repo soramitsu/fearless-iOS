@@ -2,7 +2,7 @@ import Foundation
 
 struct MoonbeamAgreeRemarkInfo: Encodable {
     let address: String
-    let signedMessage: Data
+    let signedMessage: String
 
     enum CodingKeys: String, CodingKey {
         case address

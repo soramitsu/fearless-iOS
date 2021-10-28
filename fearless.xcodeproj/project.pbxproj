@@ -1344,6 +1344,7 @@
 		C45698F82729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */; };
 		C45698FB27293BA200D4B64E /* CrowdloanAgreementViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698FA27293BA200D4B64E /* CrowdloanAgreementViewModelFactory.swift */; };
 		C45698FD2729B87D00D4B64E /* SHA256.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698FC2729B87D00D4B64E /* SHA256.swift */; };
+		C45698FF272A535C00D4B64E /* CrowdloanAgreementServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698FE272A535C00D4B64E /* CrowdloanAgreementServiceError.swift */; };
 		C46EEF6A9A9A601694E72DB1 /* StakingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F09665083031502F9693F8 /* StakingMainWireframe.swift */; };
 		C4A4D40A08DAB4A71C21C1A8 /* StakingRedeemInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560C48D7A83F51F001622D71 /* StakingRedeemInteractor.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
@@ -2921,6 +2922,7 @@
 		C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementConfirmViewModel.swift; sourceTree = "<group>"; };
 		C45698FA27293BA200D4B64E /* CrowdloanAgreementViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementViewModelFactory.swift; sourceTree = "<group>"; };
 		C45698FC2729B87D00D4B64E /* SHA256.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SHA256.swift; sourceTree = "<group>"; };
+		C45698FE272A535C00D4B64E /* CrowdloanAgreementServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementServiceError.swift; sourceTree = "<group>"; };
 		C503100478AB56E903598A78 /* ReferralCrowdloanPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanPresenter.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewFactory.swift; sourceTree = "<group>"; };
@@ -5090,6 +5092,7 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				C4569900272A714B00D4B64E /* Errors */,
 				849014C924AA8B75008F705E /* Animation */,
 				849013D524A927E2008F705E /* Configs */,
 				8490147C24AA14AF008F705E /* Crypto */,
@@ -6351,6 +6354,7 @@
 				84DED40F266659EC00A153BB /* CustomCrowdloanDelegate.swift */,
 				8444D1BD2671465A00AF6D8C /* CrowdloanBonusServiceError.swift */,
 				C40738EF27267508006DC6D4 /* CrowdloanAgreementServiceProtocol.swift */,
+				C45698FE272A535C00D4B64E /* CrowdloanAgreementServiceError.swift */,
 			);
 			path = CustomCrowdloan;
 			sourceTree = "<group>";
@@ -7391,6 +7395,13 @@
 				C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C4569900272A714B00D4B64E /* Errors */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Errors;
 			sourceTree = "<group>";
 		};
 		C74FABA12726D94F00B5C452 /* Overrides */ = {
@@ -9268,6 +9279,7 @@
 				8466BB472640152A00E065A8 /* StakingUnbondConfirmViewModelFactory.swift in Sources */,
 				C4227684272286A1005D3153 /* HTTPRequestBuilder.swift in Sources */,
 				84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */,
+				C45698FF272A535C00D4B64E /* CrowdloanAgreementServiceError.swift in Sources */,
 				C40738DD272317FF006DC6D4 /* MoonbeamMakeSignatureData.swift in Sources */,
 				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 				6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */,

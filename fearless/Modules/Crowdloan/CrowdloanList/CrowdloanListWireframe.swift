@@ -7,7 +7,7 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
         crowdloanTitle: String,
         customFlow: CustomCrowdloanFlow
     ) {
-        let setupView = CrowdloanAgreementViewFactory.createMoonbeamView(
+        let setupView = CrowdloanAgreementViewFactory.createView(
             for: paraId,
             crowdloanName: crowdloanTitle,
             customFlow: customFlow

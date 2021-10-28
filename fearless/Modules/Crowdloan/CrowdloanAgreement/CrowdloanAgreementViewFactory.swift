@@ -3,55 +3,61 @@ import SoraFoundation
 import SoraKeystore
 
 struct CrowdloanAgreementViewFactory {
-    static func createMoonbeamView(
+    static func createView(
         for paraId: ParaId,
         crowdloanName: String,
         customFlow: CustomCrowdloanFlow
     ) -> CrowdloanAgreementViewProtocol? {
-        switch customFlow {
-        case let .moonbeam(moonbeamFlowData):
-            let localizationManager = LocalizationManager.shared
+        let localizationManager = LocalizationManager.shared
 
-            guard let interactor = CrowdloanAgreementViewFactory.createMoonbeamInteractor(
-                paraId: paraId,
-                moonbeamFlowData: moonbeamFlowData
-            ) else {
-                return nil
-            }
-            let wireframe = CrowdloanAgreementWireframe()
-
-            let presenter = CrowdloanAgreementPresenter(
-                interactor: interactor,
-                wireframe: wireframe,
-                paraId: paraId,
-                crowdloanTitle: crowdloanName,
-                logger: Logger.shared,
-                customFlow: customFlow
-            )
-
-            let view = CrowdloanAgreementViewController(
-                presenter: presenter,
-                localizationManager: localizationManager
-            )
-
-            presenter.view = view
-            interactor.presenter = presenter
-
-            return view
-        default:
+        guard let interactor = CrowdloanAgreementViewFactory.createInteractor(
+            paraId: paraId,
+            customFlow: customFlow
+        ) else {
             return nil
         }
+        let wireframe = CrowdloanAgreementWireframe()
+
+        let presenter = CrowdloanAgreementPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            paraId: paraId,
+            crowdloanTitle: crowdloanName,
+            logger: Logger.shared,
+            customFlow: customFlow
+        )
+
+        let view = CrowdloanAgreementViewController(
+            presenter: presenter,
+            localizationManager: localizationManager
+        )
+
+        presenter.view = view
+        interactor.presenter = presenter
+
+        return view
     }
 }
 
 extension CrowdloanAgreementViewFactory {
-    static func createMoonbeamInteractor(
+    static func createInteractor(
         paraId _: ParaId,
-        moonbeamFlowData: MoonbeamFlowData
+        customFlow: CustomCrowdloanFlow
     ) -> CrowdloanAgreementInteractor? {
         let settings = SettingsManager.shared
 
-        guard let selectedAddress = settings.selectedAccount?.address else {
+        var requestBuilder: HTTPRequestBuilderProtocol?
+
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            requestBuilder = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
+        default: break
+        }
+
+        guard
+            let selectedAddress = settings.selectedAccount?.address,
+            let requestBuilder = requestBuilder
+        else {
             return nil
         }
 
@@ -60,18 +66,19 @@ extension CrowdloanAgreementViewFactory {
             settings: settings
         )
 
-        let requestBuilder: HTTPRequestBuilderProtocol = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
-
         let agreementService = MoonbeamService(
             address: selectedAddress,
             chain: settings.selectedConnection.type.chain,
             signingWrapper: signingWrapper,
             operationManager: OperationManagerFacade.sharedManager,
-            requestBuilder: requestBuilder
+            requestBuilder: requestBuilder,
+            dataOperationFactory: DataOperationFactory()
         )
+
         return CrowdloanAgreementInteractor(
             agreementService: agreementService,
-            signingWrapper: signingWrapper
+            signingWrapper: signingWrapper,
+            customFlow: customFlow
         )
     }
 }

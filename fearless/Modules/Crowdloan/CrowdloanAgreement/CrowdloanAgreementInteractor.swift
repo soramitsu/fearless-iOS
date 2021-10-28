@@ -5,44 +5,57 @@ final class CrowdloanAgreementInteractor {
 
     private let agreementService: CrowdloanAgreementServiceProtocol?
     private let signingWrapper: SigningWrapperProtocol
-    private var attestation: String?
+    private var agreementData: Data?
+    private var customFlow: CustomCrowdloanFlow
 
     init(
         agreementService: CrowdloanAgreementServiceProtocol?,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        customFlow: CustomCrowdloanFlow
     ) {
         self.agreementService = agreementService
         self.signingWrapper = signingWrapper
+        self.customFlow = customFlow
     }
 
     private func loadAgreementContents() {
-        if let url = URL(
-            string: "https://raw.githubusercontent.com/moonbeam-foundation/crowdloan-self-attestation/main/moonbeam/README.md"
-        ) {
-            do {
-                // TODO: modify text by appending newlines and margin
-                let contents = try String(contentsOf: url, encoding: .utf8)
-                attestation = contents
-                presenter.didReceiveAgreementText(result: .success(contents))
-            } catch {
-                presenter.didReceiveAgreementText(result: .failure(CrowdloanAgreementError.invalidAgreementContents))
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            guard let termsURL = URL(string: moonbeamFlowData.termsURL) else {
+                presenter.didReceiveAgreementText(result: .failure(CommonError.internal))
+                return
             }
-        } else {
-            presenter.didReceiveAgreementText(result: .failure(CrowdloanAgreementError.invalidAgreementUrl))
+
+            agreementService?.fetchAgreementContent(from: termsURL, with: { [weak self] result in
+                switch result {
+                case let .success(agreementData):
+                    self?.agreementData = agreementData
+
+                    guard let agreementText = String(data: agreementData, encoding: .utf8) else {
+                        self?.presenter.didReceiveAgreementText(result: .failure(CommonError.internal))
+                        return
+                    }
+
+                    self?.presenter.didReceiveAgreementText(result: .success(agreementText))
+                case let .failure(error):
+                    self?.presenter.didReceiveAgreementText(result: .failure(CommonError.network))
+                }
+            })
+        default: break
         }
     }
 
     private func checkRemark() {
-        agreementService?.checkRemark(with: { result in
+        agreementService?.checkRemark(with: { [weak self] result in
             switch result {
             case let .success(verified):
                 if verified {
-                    self.presenter.didReceiveVerified(result: .success(verified))
+                    self?.presenter.didReceiveVerified(result: .success(verified))
                 } else {
-                    self.loadAgreementContents()
+                    self?.loadAgreementContents()
                 }
             case let .failure(error):
-                self.presenter.didReceiveVerified(result: .failure(error))
+                self?.presenter.didReceiveVerified(result: .failure(error))
             }
         })
     }
@@ -54,13 +67,14 @@ extension CrowdloanAgreementInteractor: CrowdloanAgreementInteractorInputProtoco
     }
 
     func agreeRemark() {
-        if let sha256 = attestation?.sha256(),
-           let signedMessage = try? signingWrapper.sign(sha256) {
-            agreementService?.agreeRemark(signedMessage: signedMessage.rawData(), with: { result in
-                self.presenter.didReceiveRemark(result: result)
-            })
-        } else {
-//            presenter.didReceiveRemark(result: .failure(error))
+        guard let agreementData = agreementData else {
+            assertionFailure("This method MUST be called only when there is attestation loaded")
+            presenter.didReceiveRemark(result: .failure(CommonError.internal))
+            return
         }
+
+        agreementService?.agreeRemark(agreementData: agreementData, with: { [weak self] result in
+            self?.presenter.didReceiveRemark(result: result)
+        })
     }
 }

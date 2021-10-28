@@ -1,34 +1,27 @@
 import Foundation
 
-enum CommonError: Error {
-    case undefined
-    case network
-    case `internal`
-}
+enum CrowdloanAgreementServiceError: Error, ErrorContentConvertible {
+    case networkError
+    case internalError
+    case moonbeamForbidden
 
-extension CommonError: ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent {
-        let title: String
-        let message: String
-
         switch self {
-        case .undefined:
-            title = R.string.localizable
-                .commonUndefinedErrorTitle(preferredLanguages: locale?.rLanguages)
-            message = R.string.localizable
-                .commonUndefinedErrorMessage(preferredLanguages: locale?.rLanguages)
-        case .network:
+        case .networkError:
             return ErrorContent(
                 title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
                 message: R.string.localizable.commonErrorNetwork(preferredLanguages: locale?.rLanguages)
             )
-        case .internal:
+        case .internalError:
             return ErrorContent(
                 title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
                 message: R.string.localizable.commonErrorInternal(preferredLanguages: locale?.rLanguages)
             )
+        case .moonbeamForbidden:
+            return ErrorContent(
+                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
+                message: R.string.localizable.moonbeamLocationUnsupportedError(preferredLanguages: locale?.rLanguages)
+            )
         }
-
-        return ErrorContent(title: title, message: message)
     }
 }

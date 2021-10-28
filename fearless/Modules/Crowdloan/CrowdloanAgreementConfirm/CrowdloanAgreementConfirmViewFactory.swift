@@ -91,7 +91,8 @@ struct CrowdloanAgreementConfirmViewFactory {
             chain: settings.selectedConnection.type.chain,
             signingWrapper: signingWrapper,
             operationManager: OperationManagerFacade.sharedManager,
-            requestBuilder: requestBuilder
+            requestBuilder: requestBuilder,
+            dataOperationFactory: DataOperationFactory()
         )
 
         let singleValueProviderFactory = SingleValueProviderFactory.shared

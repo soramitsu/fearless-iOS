@@ -8,19 +8,26 @@ final class MoonbeamService {
     let chain: Chain
     let operationManager: OperationManagerProtocol
     let requestBuilder: HTTPRequestBuilderProtocol
+    let dataOperationFactory: DataOperationFactoryProtocol
 
     init(
         address: AccountAddress,
         chain: Chain,
         signingWrapper: SigningWrapperProtocol,
         operationManager: OperationManagerProtocol,
-        requestBuilder: HTTPRequestBuilderProtocol
+        requestBuilder: HTTPRequestBuilderProtocol,
+        dataOperationFactory: DataOperationFactoryProtocol
     ) {
         self.address = address
         self.chain = chain
         self.signingWrapper = signingWrapper
         self.operationManager = operationManager
         self.requestBuilder = requestBuilder
+        self.dataOperationFactory = dataOperationFactory
+    }
+
+    func createFetchAgreementContentOperation(with url: URL) -> BaseOperation<Data> {
+        dataOperationFactory.fetchData(from: url)
     }
 
     func createHealthOperation() -> BaseOperation<Void> {
@@ -158,7 +165,7 @@ final class MoonbeamService {
     func makeAccountAddress() throws -> String {
         let addressFactory = SS58AddressFactory()
         let accountId = try addressFactory.accountId(from: address)
-        let addressType = chain == .rococo ? SNAddressType.genericSubstrate : chain.addressType
+        let addressType = chain.addressType
         let finalAddress = try addressFactory.addressFromAccountId(data: accountId, type: addressType)
 
         return finalAddress
@@ -171,15 +178,41 @@ extension MoonbeamService: MoonbeamServiceProtocol {
         URL(string: "https://github.com/moonbeam-foundation/crowdloan-self-attestation/tree/main/moonbeam")!
     }
 
+    func fetchAgreementContent(
+        from url: URL,
+        with closure: @escaping (Result<Data, Error>
+        ) -> Void
+    ) {
+        let fetchOperation = createFetchAgreementContentOperation(with: url)
+        fetchOperation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let resultData: Data = try fetchOperation.extractNoCancellableResultData()
+                    closure(.success(resultData))
+                } catch {
+                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
+                    } else {
+                        closure(.failure(CommonError.network))
+                    }
+                }
+            }
+        }
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
+    }
+
     func agreeRemark(
-        signedMessage: Data,
+        agreementData: Data,
         with closure: @escaping (Result<MoonbeamAgreeRemarkData, Error>
         ) -> Void
     ) {
         let infoOperation = ClosureOperation<MoonbeamAgreeRemarkInfo> {
-            MoonbeamAgreeRemarkInfo(
+            let sha256 = agreementData.sha256()
+            let signedSHA256 = try self.signingWrapper.sign(sha256).rawData().toHex(includePrefix: true)
+
+            return MoonbeamAgreeRemarkInfo(
                 address: try self.makeAccountAddress(),
-                signedMessage: signedMessage
+                signedMessage: signedSHA256
             )
         }
 
@@ -193,11 +226,10 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: MoonbeamAgreeRemarkData = try agreeRemarkOperation.extractNoCancellableResultData()
                     closure(.success(resultData))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
-                        // TODO: proper error handling
-                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
+                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
-                        closure(.failure(error))
+                        closure(.failure(CommonError.network))
                     }
                 }
             }
@@ -234,11 +266,10 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                         return
                     }
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
-                        // TODO: proper error handling
-                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
+                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
-                        closure(.failure(error))
+                        closure(.failure(CommonError.network))
                     }
                 }
             }
@@ -263,11 +294,10 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: MoonbeamMakeSignatureData = try makeSignatureOperation.extractNoCancellableResultData()
                     closure(.success(resultData))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
-                        // TODO: proper error handling
-                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
+                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
-                        closure(.failure(error))
+                        closure(.failure(CommonError.network))
                     }
                 }
             }
@@ -305,11 +335,10 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: MoonbeamCheckRemarkData = try checkRemarkOperation.extractNoCancellableResultData()
                     closure(.success(resultData.verified))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
-                        // TODO: proper error handling
-                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
+                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
-                        closure(.failure(error))
+                        closure(.failure(CommonError.network))
                     }
                 }
             }

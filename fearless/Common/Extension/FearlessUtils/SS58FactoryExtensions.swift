@@ -23,14 +23,14 @@ extension SS58AddressFactoryProtocol {
     }
 
     func accountId(fromAddress: AccountAddress, type: SNAddressType) throws -> AccountId {
-        try accountId(fromAddress: fromAddress, type: UInt16(type.rawValue))
+        try accountId(fromAddress: fromAddress, type: UInt16(type.prefix))
     }
 
     func addressFromAccountId(data: AccountId, type: SNAddressType) throws -> AccountAddress {
-        try address(fromAccountId: data, type: UInt16(type.rawValue))
+        try address(fromAccountId: data, type: UInt16(type.prefix))
     }
 
     func address(fromPublicKey: IRPublicKeyProtocol, type: SNAddressType) throws -> AccountAddress {
-        try address(fromAccountId: fromPublicKey.rawData(), type: UInt16(type.rawValue))
+        try address(fromAccountId: fromPublicKey.rawData(), type: UInt16(type.prefix))
     }
 }
