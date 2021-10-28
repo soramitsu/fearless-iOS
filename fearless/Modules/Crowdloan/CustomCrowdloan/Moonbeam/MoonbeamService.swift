@@ -207,7 +207,10 @@ extension MoonbeamService: MoonbeamServiceProtocol {
         ) -> Void
     ) {
         let infoOperation = ClosureOperation<MoonbeamAgreeRemarkInfo> {
-            let sha256 = agreementData.sha256()
+            guard let sha256 = agreementData.sha256().toHex().data(using: .utf8) else {
+                throw CommonError.internal
+            }
+
             let signedSHA256 = try self.signingWrapper.sign(sha256).rawData().toHex(includePrefix: true)
 
             return MoonbeamAgreeRemarkInfo(

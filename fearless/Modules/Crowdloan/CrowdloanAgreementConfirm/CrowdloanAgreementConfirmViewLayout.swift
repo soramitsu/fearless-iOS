@@ -19,10 +19,18 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
         return label
     }()
 
-    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+    let accountView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView()
+        view.actionView.isHidden = true
+        view.isUserInteractionEnabled = false
+        return view
+    }()
 
     let infoIconImageView: UIImageView = {
-        UIImageView()
+        let imageView = UIImageView()
+        imageView.image = R.image.iconInfoFilled()?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = R.color.colorStrokeGray()
+        return imageView
     }()
 
     let infoContainer: UIView = {
@@ -62,6 +70,14 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+
+        if feeViewModel != nil {
+            networkFeeConfirmView.actionButton.isEnabled = true
+            networkFeeConfirmView.actionButton.applyEnabledStyle()
+        } else {
+            networkFeeConfirmView.actionButton.isEnabled = false
+            networkFeeConfirmView.actionButton.applyDisabledStyle()
+        }
     }
 
     func bind(accountViewModel: CrowdloanAccountViewModel?) {
@@ -102,7 +118,7 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
         accountView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.leading.equalTo(UIConstants.bigOffset)
-            make.width.equalToSuperview().offset(-2 * UIConstants.horizontalInset)
+            make.width.equalToSuperview().offset(-2 * UIConstants.bigOffset)
             make.height.equalTo(UIConstants.triangularedViewHeight)
         }
 
@@ -123,7 +139,7 @@ final class CrowdloanAgreementConfirmViewLayout: UIView {
             make.leading.equalTo(infoIconImageView.snp.trailing).offset(UIConstants.defaultOffset)
             make.top.equalTo(infoIconImageView.snp.top)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.trailing.equalToSuperview()
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         addSubview(networkFeeConfirmView)

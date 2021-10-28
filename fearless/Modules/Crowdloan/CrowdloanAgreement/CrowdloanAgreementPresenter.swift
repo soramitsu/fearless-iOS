@@ -51,13 +51,14 @@ final class CrowdloanAgreementPresenter {
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
 
-    private func proceedToConfirm(with _: String) {
+    private func proceedToConfirm(with remark: String) {
         switch customFlow {
         case let .moonbeam(data):
             wireframe.showMoonbeamAgreementConfirm(
                 from: view,
                 paraId: paraId,
-                moonbeamFlowData: data
+                moonbeamFlowData: data,
+                remark: remark
             )
         default: break
         }

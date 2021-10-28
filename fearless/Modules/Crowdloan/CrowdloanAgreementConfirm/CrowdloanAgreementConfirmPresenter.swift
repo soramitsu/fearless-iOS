@@ -54,6 +54,10 @@ extension CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmPresenter
     func setup() {
         interactor.setup()
     }
+
+    func confirmAgreement() {
+        interactor.confirmAgreement()
+    }
 }
 
 extension CrowdloanAgreementConfirmPresenter {

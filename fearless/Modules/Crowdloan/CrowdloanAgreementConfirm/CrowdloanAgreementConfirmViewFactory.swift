@@ -6,7 +6,8 @@ import RobinHood
 struct CrowdloanAgreementConfirmViewFactory {
     static func createMoonbeamView(
         paraId: ParaId,
-        moonbeamFlowData: MoonbeamFlowData
+        moonbeamFlowData: MoonbeamFlowData,
+        remark: String
     ) -> CrowdloanAgreementConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
@@ -20,7 +21,8 @@ struct CrowdloanAgreementConfirmViewFactory {
         guard let interactor = createMoonbeamInteractor(
             for: paraId,
             assetId: assetId,
-            moonbeamFlowData: moonbeamFlowData
+            moonbeamFlowData: moonbeamFlowData,
+            remark: remark
         ) else {
             return nil
         }
@@ -55,7 +57,8 @@ struct CrowdloanAgreementConfirmViewFactory {
     private static func createMoonbeamInteractor(
         for paraId: ParaId,
         assetId: WalletAssetId,
-        moonbeamFlowData: MoonbeamFlowData
+        moonbeamFlowData: MoonbeamFlowData,
+        remark: String
     ) -> CrowdloanAgreementConfirmInteractor? {
         let settings = SettingsManager.shared
 
@@ -113,7 +116,8 @@ struct CrowdloanAgreementConfirmViewFactory {
             agreementService: agreementService,
             callFactory: callFactory,
             operationManager: operationManager,
-            singleValueProviderFactory: singleValueProviderFactory
+            singleValueProviderFactory: singleValueProviderFactory,
+            remark: remark
         )
     }
 }

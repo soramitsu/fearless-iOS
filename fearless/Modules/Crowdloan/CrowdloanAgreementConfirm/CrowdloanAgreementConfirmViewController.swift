@@ -28,10 +28,22 @@ final class CrowdloanAgreementConfirmViewController: UIViewController, ViewHolde
         presenter.setup()
     }
 
+    private func configure() {
+        rootView.networkFeeConfirmView.actionButton.addTarget(
+            self,
+            action: #selector(actionConfirm),
+            for: .touchUpInside
+        )
+    }
+
     private func setupLocalization() {
         title = R.string.localizable.commonConfirm(preferredLanguages: selectedLocale.rLanguages)
 
         rootView.locale = selectedLocale
+    }
+
+    @objc private func actionConfirm() {
+        presenter.confirmAgreement()
     }
 }
 

@@ -4,11 +4,13 @@ final class CrowdloanAgreementWireframe: CrowdloanAgreementWireframeProtocol {
     func showMoonbeamAgreementConfirm(
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,
-        moonbeamFlowData: MoonbeamFlowData
+        moonbeamFlowData: MoonbeamFlowData,
+        remark: String
     ) {
         guard let confirmationView = CrowdloanAgreementConfirmViewFactory.createMoonbeamView(
             paraId: paraId,
-            moonbeamFlowData: moonbeamFlowData
+            moonbeamFlowData: moonbeamFlowData,
+            remark: remark
         ) else {
             return
         }

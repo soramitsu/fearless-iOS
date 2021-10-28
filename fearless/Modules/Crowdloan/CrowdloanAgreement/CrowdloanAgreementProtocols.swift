@@ -24,7 +24,8 @@ protocol CrowdloanAgreementWireframeProtocol: AlertPresentable, ErrorPresentable
     func showMoonbeamAgreementConfirm(
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,
-        moonbeamFlowData: MoonbeamFlowData
+        moonbeamFlowData: MoonbeamFlowData,
+        remark: String
     )
 
     func presentContributionSetup(

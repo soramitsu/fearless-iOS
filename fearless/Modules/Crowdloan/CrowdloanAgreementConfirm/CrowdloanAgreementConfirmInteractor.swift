@@ -18,6 +18,7 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
     private var callFactory: SubstrateCallFactoryProtocol
     private var operationManager: OperationManagerProtocol
     internal var singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    private var remark: String
 
     init(
         paraId: ParaId,
@@ -30,7 +31,8 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
         agreementService: CrowdloanAgreementServiceProtocol,
         callFactory: SubstrateCallFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        remark: String
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
@@ -43,6 +45,7 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
         self.callFactory = callFactory
         self.operationManager = operationManager
         self.singleValueProviderFactory = singleValueProviderFactory
+        self.remark = remark
     }
 
     func setup() {
@@ -74,17 +77,42 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
 
 extension CrowdloanAgreementConfirmInteractor {
     func estimateFee() {
-        let randomBytes = (0 ... 200).map { _ in UInt8.random(in: 0 ... UInt8.max) }
-        let data = Data(randomBytes)
+        guard let data = remark.data(using: .utf8) else {
+            presenter?.didReceiveFee(result: .failure(CommonError.internal))
+            return
+        }
 
-        let closure: ExtrinsicBuilderClosure = { builder in
-            let call = self.callFactory.addRemark(data)
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let call = self?.callFactory.addRemark(data) else {
+                throw CommonError.internal
+            }
+
             _ = try builder.adding(call: call)
             return builder
         }
 
-        extrinsicService.estimateFee(closure, runningIn: .main) { result in
-            self.presenter?.didReceiveFee(result: result)
+        extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
+            self?.presenter?.didReceiveFee(result: result)
+        }
+    }
+
+    func confirmAgreement() {
+        guard let data = remark.data(using: .utf8) else {
+            presenter?.didReceiveFee(result: .failure(CommonError.internal))
+            return
+        }
+
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let call = self?.callFactory.addRemark(data) else {
+                throw CommonError.internal
+            }
+
+            _ = try builder.adding(call: call)
+            return builder
+        }
+
+        extrinsicService.submit(closure, signer: signingWrapper, runningIn: .main) { [weak self] _ in
+//            self?.presenter?.didReceiveFee(result: result)
         }
     }
 }

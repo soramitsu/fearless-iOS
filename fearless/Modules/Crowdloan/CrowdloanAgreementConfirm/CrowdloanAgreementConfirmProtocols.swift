@@ -5,11 +5,13 @@ protocol CrowdloanAgreementConfirmViewProtocol: ControllerBackedProtocol {
 
 protocol CrowdloanAgreementConfirmPresenterProtocol: AnyObject {
     func setup()
+    func confirmAgreement()
 }
 
 protocol CrowdloanAgreementConfirmInteractorInputProtocol: AnyObject {
     func setup()
     func estimateFee()
+    func confirmAgreement()
 }
 
 protocol CrowdloanAgreementConfirmInteractorOutputProtocol: AnyObject {
