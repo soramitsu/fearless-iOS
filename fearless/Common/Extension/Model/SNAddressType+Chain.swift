@@ -8,10 +8,6 @@ extension SNAddressType {
         case .kusama: self = .kusamaMain
         case .westend: self = .genericSubstrate
         case .rococo: self = .kusamaSecondary
-
-        #if F_DEV
-            case .moonbeam: self = .moonbeam
-        #endif
         }
     }
 
@@ -20,10 +16,6 @@ extension SNAddressType {
         case .kusamaMain: return .kusama
         case .polkadotMain: return .polkadot
         case .kusamaSecondary: return .rococo
-
-        #if F_DEV
-            case .moonbeam: return .moonbeam
-        #endif
 
         default:
             return .westend
@@ -34,11 +26,6 @@ extension SNAddressType {
         switch self {
         case .polkadotMain: return 10
         case .genericSubstrate: return 12
-
-        #if F_DEV
-            case .moonbeam: return 10
-        #endif
-
         default: return 12
         }
     }

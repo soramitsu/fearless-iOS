@@ -8,9 +8,6 @@ extension WalletAssetId {
         case .westend: return R.image.iconWestendSmallBg()
         case .roc: return R.image.iconKsmSmallBg()
         case .usd: return nil
-        #if F_DEV
-            case .moonbeam: return R.image.iconMoonbeamSmallBg()
-        #endif
         }
     }
 
@@ -21,9 +18,6 @@ extension WalletAssetId {
         case .westend: return R.image.iconWestendAsset()
         case .roc: return R.image.iconKsmAsset()
         case .usd: return nil
-        #if F_DEV
-            case .moonbeam: return R.image.iconMoonbeamAsset()
-        #endif
         }
     }
 
@@ -34,9 +28,6 @@ extension WalletAssetId {
         case .westend: return "Westend"
         case .roc: return "Rococo"
         case .usd: return "Usd"
-        #if F_DEV
-            case .moonbeam: return "Moonbeam"
-        #endif
         }
     }
 }

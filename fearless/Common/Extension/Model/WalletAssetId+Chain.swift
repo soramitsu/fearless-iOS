@@ -9,9 +9,6 @@ extension WalletAssetId {
         case .westend: return .westend
         case .roc: return .rococo
         case .usd: return nil
-        #if F_DEV
-            case .moonbeam: return .moonbeam
-        #endif
         }
     }
 }

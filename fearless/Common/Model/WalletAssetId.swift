@@ -6,5 +6,4 @@ enum WalletAssetId: String {
     case westend
     case usd
     case roc
-    case moonbeam
 }
