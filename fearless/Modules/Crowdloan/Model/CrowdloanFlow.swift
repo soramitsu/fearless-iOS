@@ -62,5 +62,7 @@ extension CustomCrowdloanFlow: Equatable {
 struct MoonbeamFlowData: FlowData {
     let prodApiUrl: String
     let devApiUrl: String
-    let termsURL: String
+    let termsUrl: String
+    let devApiKey: String
+    let prodApiKey: String
 }

@@ -94,8 +94,14 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementInteractorOutputProtoco
     func didReceiveAgreementText(result: Result<String, Error>) {
         logger.info("Did receive agreement text: \(result)")
 
-        agreementTextResult = result
-        updateView()
+        switch result {
+        case .success:
+            agreementTextResult = result
+            updateView()
+        case let .failure(error):
+            view?.didReceive(state: .error)
+            wireframe.present(error: error, from: view, locale: selectedLocale)
+        }
     }
 
     func didReceiveVerified(result: Result<Bool, Error>) {

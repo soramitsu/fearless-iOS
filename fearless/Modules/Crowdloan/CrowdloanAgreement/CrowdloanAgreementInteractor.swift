@@ -21,7 +21,9 @@ final class CrowdloanAgreementInteractor {
     private func loadAgreementContents() {
         switch customFlow {
         case let .moonbeam(moonbeamFlowData):
-            guard let termsURL = URL(string: moonbeamFlowData.termsURL) else {
+            guard
+                let termsURL = URL(string: moonbeamFlowData.termsUrl)
+            else {
                 presenter.didReceiveAgreementText(result: .failure(CommonError.internal))
                 return
             }
