@@ -255,10 +255,6 @@ private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade 
         switch chain {
         case .polkadot:
             return asString(R.file.polkadotV14Runtime)
-        #if F_DEV
-            case .moonbeam:
-                return asString(R.file.moonbeamTestNodeRuntime)
-        #endif
         default:
             return nil
         }

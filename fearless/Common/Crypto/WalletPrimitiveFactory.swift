@@ -44,13 +44,6 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             localizableName = LocalizableResource<String> { _ in "Rococo" }
             platformName = LocalizableResource<String> { _ in "Rococo" }
             symbol = "ROC"
-        #if F_DEV
-            case .moonbeam:
-                identifier = WalletAssetId.moonbeam.rawValue
-                localizableName = LocalizableResource<String> { _ in "Moonbeam" }
-                platformName = LocalizableResource<String> { _ in "Moonbeam" }
-                symbol = "DOT"
-        #endif
         default:
             identifier = WalletAssetId.kusama.rawValue
             localizableName = LocalizableResource<String> { _ in "Kusama" }

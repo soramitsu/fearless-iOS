@@ -7,7 +7,4 @@ enum SNAddressType: UInt8 {
     case kusamaMain = 2
     case kusamaSecondary = 3
     case genericSubstrate = 42
-    #if F_DEV
-        case moonbeam = 69
-    #endif
 }

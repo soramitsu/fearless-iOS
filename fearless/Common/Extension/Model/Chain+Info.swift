@@ -7,9 +7,6 @@ extension Chain {
         case .kusama: return "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe"
         case .westend: return "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
         case .rococo: return "1ab7fbd1d7c3532386268ec23fe4ff69f5bb6b3e3697947df3a2ec2786424de3"
-        #if F_DEV
-            case .moonbeam: return "92cf9522510aee390f71fc1a635840918cc78e813c4a5ff76d40b478eca94a81"
-        #endif
         }
     }
 
@@ -17,9 +14,6 @@ extension Chain {
         switch self {
         case .polkadot: return 1
         case .kusama, .westend, .rococo: return 4
-        #if F_DEV
-            case .moonbeam: return 1
-        #endif
         }
     }
 
@@ -118,9 +112,6 @@ extension Chain {
         case .kusama: return R.file.runtimeKusamaJson.path()
         case .westend: return R.file.runtimeWestendJson.path()
         case .rococo: return R.file.runtimeRococoJson.path()
-        #if F_DEV
-            case .moonbeam: return R.file.runtimePolkadotJson.path()
-        #endif
         }
     }
 
@@ -137,10 +128,6 @@ extension Chain {
         case .kusama: return base?.appendingPathComponent("kusama.json")
         case .polkadot: return base?.appendingPathComponent("polkadot.json")
         case .rococo: return base?.appendingPathComponent("rococo.json")
-        #if F_DEV
-            // Assume trying Polkadot type registry
-            case .moonbeam: return base?.appendingPathComponent("polkadot.json")
-        #endif
         }
     }
 
@@ -152,9 +139,6 @@ extension Chain {
         case .kusama: return base.appendingPathComponent("kusama.json")
         case .polkadot: return base.appendingPathComponent("polkadot.json")
         case .rococo: return base.appendingPathComponent("rococo.json")
-        #if F_DEV
-            case .moonbeam: return base.appendingPathComponent("moonbeam-polkatrain.json")
-        #endif
         }
     }
     // swiftlint:enable line_length
