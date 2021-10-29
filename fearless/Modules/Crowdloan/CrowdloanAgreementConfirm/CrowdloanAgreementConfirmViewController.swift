@@ -24,6 +24,7 @@ final class CrowdloanAgreementConfirmViewController: UIViewController, ViewHolde
         super.viewDidLoad()
 
         setupLocalization()
+        configure()
 
         presenter.setup()
     }

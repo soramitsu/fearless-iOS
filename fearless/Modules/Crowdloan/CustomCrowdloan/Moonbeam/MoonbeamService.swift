@@ -241,6 +241,49 @@ extension MoonbeamService: MoonbeamServiceProtocol {
         operationManager.enqueue(operations: [infoOperation, agreeRemarkOperation], in: .transient)
     }
 
+    func verifyRemark(
+        extrinsicHash: String,
+        blockHash: String,
+        with closure: @escaping (Result<MoonbeamVerifyRemarkData, Error>
+        ) -> Void
+    ) {
+        let verifyRemarkInfoOperation = ClosureOperation<MoonbeamVerifyRemarkInfo> {
+            MoonbeamVerifyRemarkInfo(
+                address: try self.makeAccountAddress(),
+                extrinsicHash: extrinsicHash,
+                blockHash: blockHash
+            )
+        }
+
+        let verifyRemarkOperation = createVerifyRemarkOpeartion(dependingOn: verifyRemarkInfoOperation)
+
+        verifyRemarkOperation.addDependency(verifyRemarkInfoOperation)
+
+        verifyRemarkOperation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let resultData: MoonbeamVerifyRemarkData = try verifyRemarkOperation.extractNoCancellableResultData()
+
+                    if !resultData.verified {
+                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
+                        return
+                    }
+                } catch {
+                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
+                    } else {
+                        closure(.failure(CommonError.network))
+                    }
+                }
+            }
+        }
+
+        operationManager.enqueue(
+            operations: [verifyRemarkInfoOperation, verifyRemarkOperation],
+            in: .transient
+        )
+    }
+
     func verifyRemarkAndContribute(
         contribution: String,
         extrinsicHash: String,

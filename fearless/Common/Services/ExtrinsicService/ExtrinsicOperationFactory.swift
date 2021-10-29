@@ -18,6 +18,11 @@ protocol ExtrinsicOperationFactoryProtocol {
         signer: SigningWrapperProtocol,
         numberOfExtrinsics: Int
     ) -> CompoundOperationWrapper<[SubmitExtrinsicResult]>
+
+    func submitAndWatch(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol
+    ) -> CompoundOperationWrapper<SubmitAndWatchExtrinsicResult>
 }
 
 extension ExtrinsicOperationFactoryProtocol {
@@ -269,6 +274,65 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
         return CompoundOperationWrapper(
             targetOperation: wrapperOperation,
             dependencies: builderWrapper.allOperations + feeOperationList
+        )
+    }
+
+    func submitAndWatch(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol
+    ) -> CompoundOperationWrapper<SubmitAndWatchExtrinsicResult> {
+        let wrapperClosure: ExtrinsicBuilderIndexedClosure = { builder, _ in
+            try closure(builder)
+        }
+
+        let signingClosure: (Data) throws -> Data = { data in
+            try signer.sign(data).rawData()
+        }
+
+        let builderWrapper = createExtrinsicOperation(
+            customClosure: wrapperClosure,
+            numberOfExtrinsics: 1,
+            signingClosure: signingClosure
+        )
+
+        let submitOperation = JSONRPCListOperation<String>(
+            engine: engine,
+            method: "author_submitAndWatchExtrinsic", // TODO: add to fearless utils
+            parameters: nil,
+            timeout: 60
+        )
+        submitOperation.configurationBlock = {
+            do {
+                guard let extrinsic = try builderWrapper
+                    .targetOperation
+                    .extractNoCancellableResultData()
+                    .first?
+                    .toHex(includePrefix: true)
+                else {
+                    throw BaseOperationError.unexpectedDependentResult
+                }
+
+                submitOperation.parameters = [extrinsic]
+            } catch {
+                submitOperation.result = .failure(error)
+            }
+        }
+
+        submitOperation.addDependency(builderWrapper.targetOperation)
+
+        let wrapperOperation = ClosureOperation<SubmitAndWatchExtrinsicResult> {
+            if let result = submitOperation.result {
+                return (result, submitOperation.parameters?.first)
+            } else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
+        }
+
+        wrapperOperation.addDependency(submitOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: wrapperOperation,
+            dependencies: builderWrapper.allOperations + [submitOperation]
         )
     }
 

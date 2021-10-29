@@ -117,7 +117,9 @@ struct CrowdloanAgreementConfirmViewFactory {
             callFactory: callFactory,
             operationManager: operationManager,
             singleValueProviderFactory: singleValueProviderFactory,
-            remark: remark
+            remark: remark,
+            webSocketService: WebSocketService.shared,
+            logger: Logger.shared
         )
     }
 }

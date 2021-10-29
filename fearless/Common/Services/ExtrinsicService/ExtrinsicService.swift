@@ -7,9 +7,11 @@ typealias FeeExtrinsicResult = Result<RuntimeDispatchInfo, Error>
 typealias EstimateFeeClosure = (FeeExtrinsicResult) -> Void
 typealias EstimateFeeIndexedClosure = ([FeeExtrinsicResult]) -> Void
 
+typealias SubmitAndWatchExtrinsicResult = (result: Result<String, Error>, extrinsicHash: String?)
 typealias SubmitExtrinsicResult = Result<String, Error>
 typealias ExtrinsicSubmitClosure = (SubmitExtrinsicResult) -> Void
 typealias ExtrinsicSubmitIndexedClosure = ([SubmitExtrinsicResult]) -> Void
+typealias ExtrinsicSubmitAndWatchClosure = (Result<String, Error>, _ extrinsicHash: String?) -> Void
 
 protocol ExtrinsicServiceProtocol {
     func estimateFee(
@@ -38,6 +40,13 @@ protocol ExtrinsicServiceProtocol {
         runningIn queue: DispatchQueue,
         numberOfExtrinsics: Int,
         completion completionClosure: @escaping ExtrinsicSubmitIndexedClosure
+    )
+
+    func submitAndWatch(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping ExtrinsicSubmitAndWatchClosure
     )
 }
 
@@ -106,6 +115,32 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
                         count: numberOfExtrinsics
                     )
                     completionClosure(result)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
+    func submitAndWatch(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping ExtrinsicSubmitAndWatchClosure
+    ) {
+        let wrapper: CompoundOperationWrapper<SubmitAndWatchExtrinsicResult> = operationFactory.submitAndWatch(closure, signer: signer)
+
+        wrapper.targetOperation.completionBlock = {
+            queue.async {
+                if let result = wrapper.targetOperation.result {
+                    switch result {
+                    case let .success(submitAndWatchExtrinsicResult):
+                        completionClosure(submitAndWatchExtrinsicResult.result, submitAndWatchExtrinsicResult.extrinsicHash)
+                    case let .failure(error):
+                        completionClosure(.failure(BaseOperationError.parentOperationCancelled), nil)
+                    }
+                } else {
+                    completionClosure(.failure(BaseOperationError.unexpectedDependentResult), nil)
                 }
             }
         }

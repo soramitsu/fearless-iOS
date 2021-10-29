@@ -19,6 +19,13 @@ protocol CrowdloanAgreementServiceProtocol {
         ) -> Void
     )
 
+    func verifyRemark(
+        extrinsicHash: String,
+        blockHash: String,
+        with closure: @escaping (Result<MoonbeamVerifyRemarkData, Error>
+        ) -> Void
+    )
+
     func verifyRemarkAndContribute(
         contribution: String,
         extrinsicHash: String,

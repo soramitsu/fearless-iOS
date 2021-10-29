@@ -3,7 +3,7 @@ import FearlessUtils
 import RobinHood
 import BigInt
 
-final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgreementConfirmInteractorInputProtocol {
+final class CrowdloanAgreementConfirmInteractor: AccountFetching {
     var presenter: CrowdloanAgreementConfirmInteractorOutputProtocol?
 
     private let signingWrapper: SigningWrapperProtocol
@@ -19,6 +19,10 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
     private var operationManager: OperationManagerProtocol
     internal var singleValueProviderFactory: SingleValueProviderFactoryProtocol
     private var remark: String
+    private let webSocketService: WebSocketServiceProtocol
+    private let logger: LoggerProtocol
+
+    private var submitAndWatchExtrinsicSubscriptionId: UInt16?
 
     init(
         paraId: ParaId,
@@ -32,7 +36,9 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
         callFactory: SubstrateCallFactoryProtocol,
         operationManager: OperationManagerProtocol,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        remark: String
+        remark: String,
+        webSocketService: WebSocketServiceProtocol,
+        logger: LoggerProtocol
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
@@ -46,8 +52,29 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
         self.operationManager = operationManager
         self.singleValueProviderFactory = singleValueProviderFactory
         self.remark = remark
+        self.webSocketService = webSocketService
+        self.logger = logger
     }
 
+    private func verifyRemark(
+        extrinsicHash: String,
+        blockHash: String
+    ) {
+        agreementService.verifyRemark(
+            extrinsicHash: extrinsicHash,
+            blockHash: blockHash
+        ) { _ in
+        }
+    }
+
+    deinit {
+        if let identifier = submitAndWatchExtrinsicSubscriptionId {
+            webSocketService.connection?.cancelForIdentifier(identifier)
+        }
+    }
+}
+
+extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteractorInputProtocol {
     func setup() {
         fetchAccount(
             for: selectedAccountAddress,
@@ -73,9 +100,7 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching, CrowdloanAgree
         estimateFee()
         priceProvider = subscribeToPriceProvider(for: assetId)
     }
-}
 
-extension CrowdloanAgreementConfirmInteractor {
     func estimateFee() {
         guard let data = remark.data(using: .utf8) else {
             presenter?.didReceiveFee(result: .failure(CommonError.internal))
@@ -102,17 +127,56 @@ extension CrowdloanAgreementConfirmInteractor {
             return
         }
 
-        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
-            guard let call = self?.callFactory.addRemark(data) else {
-                throw CommonError.internal
-            }
-
-            _ = try builder.adding(call: call)
-            return builder
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let callFactory = SubstrateCallFactory()
+            let remarkCall = try callFactory.addRemark(data)
+            return try builder.adding(call: remarkCall)
         }
 
-        extrinsicService.submit(closure, signer: signingWrapper, runningIn: .main) { [weak self] _ in
-//            self?.presenter?.didReceiveFee(result: result)
+        extrinsicService.submitAndWatch(
+            closure, signer:
+            signingWrapper,
+            runningIn: .main
+        ) { [weak self] result, exHash in
+
+            let updateClosure: (JSONRPCSubscriptionUpdate<ExtrinsicStatus>) -> Void = { [weak self] statusUpdate in
+                let state = statusUpdate.params.result
+                switch state {
+                case let .finalized(block):
+                    self?.logger.info("extrinsic finalized \(block)")
+                    guard let extrinsicHash = exHash else {
+                        return
+                    }
+
+                    self?.verifyRemark(extrinsicHash: extrinsicHash, blockHash: block)
+
+                default:
+                    self?.logger.info("extrinsic status \(state)")
+                    // TODO: Alert
+                }
+            }
+
+            let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
+                self?.logger.error("Did receive subscription error: \(error) \(unsubscribed)")
+                // TODO: Alert
+            }
+            switch result {
+            case let .success(hash):
+                do {
+                    let params = Data()
+                    self?.submitAndWatchExtrinsicSubscriptionId = try self?.webSocketService.connection?.subscribe(
+                        "author_submitAndWatchExtrinsic",
+                        params: params,
+                        updateClosure: updateClosure,
+                        failureClosure: failureClosure
+                    )
+                } catch {
+                    self?.logger.error("Can't subscribe to storage: \(error)")
+                    // TODO: Alert
+                }
+            case let .failure(error):
+                self?.logger.error("submit and watch request error: \(error)")
+            }
         }
     }
 }
@@ -120,5 +184,9 @@ extension CrowdloanAgreementConfirmInteractor {
 extension CrowdloanAgreementConfirmInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter?.didReceivePriceData(result: result)
+    }
+
+    func handleBlockNumber(result _: Result<BlockNumber?, Error>, chain _: Chain) {
+//        presenter.didReceiveBlockNumber(result: result)
     }
 }
