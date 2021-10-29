@@ -60,10 +60,17 @@ final class CrowdloanAgreementConfirmInteractor: AccountFetching {
         extrinsicHash: String,
         blockHash: String
     ) {
-        agreementService.verifyRemark(
-            extrinsicHash: extrinsicHash,
-            blockHash: blockHash
-        ) { _ in
+        agreementService.verifyRemark(extrinsicHash: extrinsicHash, blockHash: blockHash) { result in
+            switch result {
+            case let .success(verifyRemarkData):
+                if verifyRemarkData.verified {
+                    self.presenter?.didReceiveVerifiedExtrinsicHash(result: .success(extrinsicHash))
+                } else {
+                    self.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(CommonError.internal))
+                }
+            case let .failure(error):
+                self.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(error))
+            }
         }
     }
 
@@ -163,10 +170,15 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
             switch result {
             case let .success(hash):
                 do {
-                    let params = Data()
+                    self?.logger.debug("extrinsic hash: \(hash)")
+                    guard let params: String = hash.data(using: .utf8)?.toHex(includePrefix: true) else {
+                        throw CommonError.internal
+                    }
+                    self?.logger.debug("extrinsic hash parameter: \(params)")
+
                     self?.submitAndWatchExtrinsicSubscriptionId = try self?.webSocketService.connection?.subscribe(
                         "author_submitAndWatchExtrinsic",
-                        params: params,
+                        params: [params],
                         updateClosure: updateClosure,
                         failureClosure: failureClosure
                     )
@@ -184,9 +196,5 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
 extension CrowdloanAgreementConfirmInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter?.didReceivePriceData(result: result)
-    }
-
-    func handleBlockNumber(result _: Result<BlockNumber?, Error>, chain _: Chain) {
-//        presenter.didReceiveBlockNumber(result: result)
     }
 }

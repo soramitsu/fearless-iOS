@@ -58,7 +58,8 @@ final class CrowdloanAgreementPresenter {
                 from: view,
                 paraId: paraId,
                 moonbeamFlowData: data,
-                remark: remark
+                remark: remark,
+                crowdloanName: crowdloanTitle
             )
         default: break
         }

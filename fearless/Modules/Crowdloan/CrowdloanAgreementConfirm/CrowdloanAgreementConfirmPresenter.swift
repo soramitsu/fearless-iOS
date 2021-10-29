@@ -12,9 +12,11 @@ final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInterac
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let agreementViewModelFactory: CrowdloanAgreementViewModelFactoryProtocol
 
+    private var paraId: ParaId
     private var displayAddress: DisplayAddress?
     private var priceData: PriceData?
     private var fee: Decimal?
+    private var crowdloanName: String
 
     init(
         interactor: CrowdloanAgreementConfirmInteractorInputProtocol,
@@ -22,7 +24,9 @@ final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInterac
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         agreementViewModelFactory: CrowdloanAgreementViewModelFactoryProtocol,
         chain: Chain,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        paraId: ParaId,
+        crowdloanName: String
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -30,6 +34,8 @@ final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInterac
         self.agreementViewModelFactory = agreementViewModelFactory
         self.chain = chain
         self.logger = logger
+        self.paraId = paraId
+        self.crowdloanName = crowdloanName
     }
 
     private func provideFeeViewModel() {
@@ -61,6 +67,20 @@ extension CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmPresenter
 }
 
 extension CrowdloanAgreementConfirmPresenter {
+    func didReceiveVerifiedExtrinsicHash(result: Result<String, Error>) {
+        switch result {
+        case let .success(hash):
+            wireframe.showMoonbeamAgreementSigned(
+                from: view,
+                paraId: paraId,
+                remarkExtrinsicHash: hash,
+                crowdloanName: crowdloanName
+            )
+        case let .failure(error):
+            logger.error("Did receive verify remark error: \(error)")
+        }
+    }
+
     func didReceiveDisplayAddress(result: Result<DisplayAddress, Error>) {
         switch result {
         case let .success(displayAddress):

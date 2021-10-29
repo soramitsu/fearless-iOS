@@ -264,10 +264,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                 do {
                     let resultData: MoonbeamVerifyRemarkData = try verifyRemarkOperation.extractNoCancellableResultData()
 
-                    if !resultData.verified {
-                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
-                        return
-                    }
+                    closure(.success(resultData))
                 } catch {
                     if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))

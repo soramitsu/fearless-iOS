@@ -18,6 +18,14 @@ protocol CrowdloanAgreementConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveDisplayAddress(result: Result<DisplayAddress, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveVerifiedExtrinsicHash(result: Result<String, Error>)
 }
 
-protocol CrowdloanAgreementConfirmWireframeProtocol: AnyObject {}
+protocol CrowdloanAgreementConfirmWireframeProtocol: AnyObject {
+    func showMoonbeamAgreementSigned(
+        from view: CrowdloanAgreementConfirmViewProtocol?,
+        paraId: ParaId,
+        remarkExtrinsicHash: String,
+        crowdloanName: String
+    )
+}

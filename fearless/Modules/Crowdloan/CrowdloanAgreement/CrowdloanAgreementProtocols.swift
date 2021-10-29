@@ -25,7 +25,8 @@ protocol CrowdloanAgreementWireframeProtocol: AlertPresentable, ErrorPresentable
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,
         moonbeamFlowData: MoonbeamFlowData,
-        remark: String
+        remark: String,
+        crowdloanName: String
     )
 
     func presentContributionSetup(

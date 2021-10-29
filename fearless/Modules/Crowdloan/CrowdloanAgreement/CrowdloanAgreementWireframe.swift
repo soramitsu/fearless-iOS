@@ -5,12 +5,14 @@ final class CrowdloanAgreementWireframe: CrowdloanAgreementWireframeProtocol {
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,
         moonbeamFlowData: MoonbeamFlowData,
-        remark: String
+        remark: String,
+        crowdloanName: String
     ) {
         guard let confirmationView = CrowdloanAgreementConfirmViewFactory.createMoonbeamView(
             paraId: paraId,
             moonbeamFlowData: moonbeamFlowData,
-            remark: remark
+            remark: remark,
+            crowdloanName: crowdloanName
         ) else {
             return
         }

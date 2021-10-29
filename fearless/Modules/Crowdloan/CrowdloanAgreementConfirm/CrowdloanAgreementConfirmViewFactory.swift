@@ -7,7 +7,8 @@ struct CrowdloanAgreementConfirmViewFactory {
     static func createMoonbeamView(
         paraId: ParaId,
         moonbeamFlowData: MoonbeamFlowData,
-        remark: String
+        remark: String,
+        crowdloanName: String
     ) -> CrowdloanAgreementConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
@@ -43,7 +44,9 @@ struct CrowdloanAgreementConfirmViewFactory {
             balanceViewModelFactory: balanceViewModelFactory,
             agreementViewModelFactory: agreementViewModelFactory,
             chain: settings.selectedConnection.type.chain,
-            logger: Logger.shared
+            logger: Logger.shared,
+            paraId: paraId,
+            crowdloanName: crowdloanName
         )
 
         let view = CrowdloanAgreementConfirmViewController(presenter: presenter)
