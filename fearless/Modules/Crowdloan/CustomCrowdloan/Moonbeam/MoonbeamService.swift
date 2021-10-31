@@ -190,7 +190,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: Data = try fetchOperation.extractNoCancellableResultData()
                     closure(.success(resultData))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
                         closure(.failure(CommonError.network))
@@ -229,7 +229,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: MoonbeamAgreeRemarkData = try agreeRemarkOperation.extractNoCancellableResultData()
                     closure(.success(resultData))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
                         closure(.failure(CommonError.network))
@@ -266,7 +266,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
 
                     closure(.success(resultData))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
                         closure(.failure(CommonError.network))
@@ -309,7 +309,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                         return
                     }
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
                         closure(.failure(CommonError.network))
@@ -337,7 +337,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: MoonbeamMakeSignatureData = try makeSignatureOperation.extractNoCancellableResultData()
                     closure(.success(resultData))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
                         closure(.failure(CommonError.network))
@@ -378,7 +378,7 @@ extension MoonbeamService: MoonbeamServiceProtocol {
                     let resultData: MoonbeamCheckRemarkData = try checkRemarkOperation.extractNoCancellableResultData()
                     closure(.success(resultData.verified))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .unexpectedStatusCode {
+                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
                         closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
                     } else {
                         closure(.failure(CommonError.network))

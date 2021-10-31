@@ -132,7 +132,7 @@ extension Chain {
     }
 
     func crowdloanDisplayInfoURL() -> URL {
-        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/crowdloands/moonbeam/crowdloan")!
+        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
 
         switch self {
         case .westend: return base.appendingPathComponent("westend.json")

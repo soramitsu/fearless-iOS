@@ -136,7 +136,7 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
 
         let closure: ExtrinsicBuilderClosure = { builder in
             let callFactory = SubstrateCallFactory()
-            let remarkCall = try callFactory.addRemark(data)
+            let remarkCall = callFactory.addRemark(data)
             return try builder.adding(call: remarkCall)
         }
 
@@ -145,21 +145,27 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
             signingWrapper,
             runningIn: .main
         ) { [weak self] result, exHash in
+            guard let exHash = exHash else { return } // TODO: show internal error
+            let extrinsicHash: String
+            do {
+                let extrinsic = try Data(hexString: exHash)
+                extrinsicHash = try extrinsic.blake2b32().toHex(includePrefix: true)
+            } catch {
+                // TODO: show alert
+                return
+            }
 
             let updateClosure: (JSONRPCSubscriptionUpdate<ExtrinsicStatus>) -> Void = { [weak self] statusUpdate in
                 let state = statusUpdate.params.result
                 switch state {
                 case let .finalized(block):
                     self?.logger.info("extrinsic finalized \(block)")
-                    guard let extrinsicHash = exHash else {
-                        return
-                    }
 
                     self?.verifyRemark(extrinsicHash: extrinsicHash, blockHash: block)
-
+                    self?.submitAndWatchExtrinsicSubscriptionId = nil
                 default:
-                    self?.logger.info("extrinsic status \(state)")
-                    // TODO: Alert
+                    // Do nothing, wait until finalization
+                    break
                 }
             }
 
@@ -171,17 +177,21 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
             case let .success(hash):
                 do {
                     self?.logger.debug("extrinsic hash: \(hash)")
-                    guard let params: String = hash.data(using: .utf8)?.toHex(includePrefix: true) else {
-                        throw CommonError.internal
-                    }
-                    self?.logger.debug("extrinsic hash parameter: \(params)")
+                    guard let engine = self?.webSocketService.connection else { throw CommonError.internal }
 
-                    self?.submitAndWatchExtrinsicSubscriptionId = try self?.webSocketService.connection?.subscribe(
-                        "author_submitAndWatchExtrinsic",
-                        params: [params],
+                    let requestId = engine.generateRequestId()
+                    self?.submitAndWatchExtrinsicSubscriptionId = requestId
+
+                    let subscription = JSONRPCSubscription(
+                        requestId: requestId,
+                        requestData: .init(),
+                        requestOptions: .init(resendOnReconnect: true),
                         updateClosure: updateClosure,
                         failureClosure: failureClosure
                     )
+
+                    subscription.remoteId = hash
+                    engine.addSubscription(subscription)
                 } catch {
                     self?.logger.error("Can't subscribe to storage: \(error)")
                     // TODO: Alert
