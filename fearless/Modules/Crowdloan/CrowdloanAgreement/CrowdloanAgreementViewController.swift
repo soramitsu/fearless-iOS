@@ -60,7 +60,7 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
             return
         }
 
-        title = agreementViewModel.title
+        title = agreementViewModel.title?.capitalized
 
         if let title = agreementViewModel.title {
             rootView.titleLabel.text = R.string.localizable.crowdloanTermsWithName(
