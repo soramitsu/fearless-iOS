@@ -7,7 +7,8 @@ struct CrowdloanContributionConfirmViewFactory {
     static func createView(
         with paraId: ParaId,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol?
+        bonusService: CrowdloanBonusServiceProtocol?,
+        customFlow: CustomCrowdloanFlow?
     ) -> CrowdloanContributionConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
@@ -56,7 +57,8 @@ struct CrowdloanContributionConfirmViewFactory {
             bonusRate: bonusService?.bonusRate,
             chain: addressType.chain,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            customFlow: customFlow
         )
 
         let view = CrowdloanContributionConfirmVC(

@@ -114,6 +114,10 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
             bonusView.addTarget(self, action: #selector(actionBonuses), for: .touchUpInside)
         }
     }
+
+    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
+        rootView.bind(customFlow: viewModel)
+    }
 }
 
 extension CrowdloanContributionSetupViewController: AmountInputAccessoryViewDelegate {

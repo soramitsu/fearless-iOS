@@ -11,7 +11,7 @@
 		036183230C5F04D0D199330C /* AccountInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */; };
 		03D819679A2C6793E825ED29 /* Pods_fearlessAll_fearless.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93838A49BDD7AC508A6FFB06 /* Pods_fearlessAll_fearless.framework */; };
 		054C4BCDEC29ED5F74A36E8B /* ExportMnemonicPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61EBE466BDCF77E65FDCDF81 /* ExportMnemonicPresenter.swift */; };
-		05A072C8B0CD7FE67332FA98 /* MoonbeamAgreementSignedInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316F6CF36D1C6B809A2767A4 /* MoonbeamAgreementSignedInteractor.swift */; };
+		05A072C8B0CD7FE67332FA98 /* CrowdloanAgreementSignedInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316F6CF36D1C6B809A2767A4 /* CrowdloanAgreementSignedInteractor.swift */; };
 		06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */; };
 		0678271BE1BA5BBC084F478A /* RecommendedValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C624E71FCE0FFF8EAD5BA9 /* RecommendedValidatorListWireframe.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
@@ -30,7 +30,7 @@
 		153B25C7D48B571CFF0FA62C /* AccountInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C148BF4AF36FA6D85EC59AD /* AccountInfoWireframe.swift */; };
 		1550A6E8789263C0D734091A /* StakingUnbondSetupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5083A5751A1A3CC95F4F6F /* StakingUnbondSetupWireframe.swift */; };
 		15A4328BC2309959C6E9FE85 /* AddConnectionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 356A97EF267D4ED718D274BB /* AddConnectionViewController.xib */; };
-		16665106F4434602DF0195BF /* MoonbeamAgreementSignedProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7DAC14A684176ED60F55CCB /* MoonbeamAgreementSignedProtocols.swift */; };
+		16665106F4434602DF0195BF /* CrowdloanAgreementSignedProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7DAC14A684176ED60F55CCB /* CrowdloanAgreementSignedProtocols.swift */; };
 		1795E946F1E386442E96E2BC /* StakingPayoutConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17C0AC11A4A195BB697578CE /* StakingPayoutConfirmationPresenter.swift */; };
 		19A29027666EB5388CBFAD61 /* StakingRewardDetailsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D613E20E96E7BA5B8F4B9799 /* StakingRewardDetailsInteractor.swift */; };
 		1BEADE77C6236CB3BF719A47 /* CrowdloanContributionSetupViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C96E41F878ED0A0A6F469D3 /* CrowdloanContributionSetupViewFactory.swift */; };
@@ -99,7 +99,7 @@
 		506F0D372BCC8302E513637C /* CrowdloanContributionConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */; };
 		50758C9BBB27AE5732FF78BA /* StakingRewardPayoutsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFEBC03AB1841681427D38AF /* StakingRewardPayoutsViewController.swift */; };
 		51FC48FA6FD4D2FB1781424D /* ReferralCrowdloanWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D51D60F19284936A6E9F47D /* ReferralCrowdloanWireframe.swift */; };
-		52A562B89F3F6A297733E463 /* MoonbeamAgreementSignedWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 702E0E8049D305E6A4881DB3 /* MoonbeamAgreementSignedWireframe.swift */; };
+		52A562B89F3F6A297733E463 /* CrowdloanAgreementSignedWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 702E0E8049D305E6A4881DB3 /* CrowdloanAgreementSignedWireframe.swift */; };
 		5678BAE4B652C5C5E4284F28 /* AccountManagementViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18B94164B49123E62FA60B7 /* AccountManagementViewFactory.swift */; };
 		57E20F0723C4748D576C4882 /* StakingUnbondSetupViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82E373FFFBF708D7CF0973E /* StakingUnbondSetupViewFactory.swift */; };
 		5869563D0EA593FBD02C169C /* StakingPayoutConfirmationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F8D055D0481469073AA859 /* StakingPayoutConfirmationProtocols.swift */; };
@@ -1137,7 +1137,7 @@
 		A090FF206B56A0E465C62072 /* CrowdloanListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86F7A369E31DCB9ABD556EE9 /* CrowdloanListPresenter.swift */; };
 		A32E1373E3671D518FFC3BC2 /* YourValidatorListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CEC70F101AA25A4C00021 /* YourValidatorListViewController.swift */; };
 		A565F118B7ED356099662F03 /* ExportMnemonicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32C2DC4CC106A3509BE651D /* ExportMnemonicTests.swift */; };
-		A72E2C5360F1B92FC36FBC89 /* MoonbeamAgreementSignedViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F17499A679F69D07A6D9AAD /* MoonbeamAgreementSignedViewLayout.swift */; };
+		A72E2C5360F1B92FC36FBC89 /* CrowdloanAgreementSignedViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F17499A679F69D07A6D9AAD /* CrowdloanAgreementSignedViewLayout.swift */; };
 		A76B05966CE772DD4B822A3C /* AccountCreateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17717EAA891DDB5A0223718F /* AccountCreateTests.swift */; };
 		A871B6ABACAE8A811010F792 /* StakingPayoutConfirmationWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5ACCFD31E14AF4D30955288 /* StakingPayoutConfirmationWireframe.swift */; };
 		A8F69AC9D7294E7DCBA50470 /* SelectValidatorsStartPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6244A9538B39AFCD3A6F3A /* SelectValidatorsStartPresenter.swift */; };
@@ -1317,7 +1317,7 @@
 		C20ED4531583D0C8E38715E0 /* PurchaseProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782CC21A2F9EEF5DBA3AB1AA /* PurchaseProtocols.swift */; };
 		C21129B2B8D8B33BCBD5843E /* StakingRedeemViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8821119C96944A0E3526E93A /* StakingRedeemViewFactory.swift */; };
 		C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EBA536340AA12142068C2D /* AccountCreateViewController.swift */; };
-		C3671B4465BD31E2D37C0147 /* MoonbeamAgreementSignedViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F78A53B8C2D920E961569E /* MoonbeamAgreementSignedViewFactory.swift */; };
+		C3671B4465BD31E2D37C0147 /* CrowdloanAgreementSignedViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F78A53B8C2D920E961569E /* CrowdloanAgreementSignedViewFactory.swift */; };
 		C40738D327230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D227230E4F006DC6D4 /* MoonbeamAgreeRemarkInfo.swift */; };
 		C40738D5272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D4272315E6006DC6D4 /* MoonbeamAgreeRemarkData.swift */; };
 		C40738D7272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738D6272316D5006DC6D4 /* MoonbeamVerifyRemarkInfo.swift */; };
@@ -1334,7 +1334,7 @@
 		C40738EE272671C4006DC6D4 /* CrowdloanAgreementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738ED272671C4006DC6D4 /* CrowdloanAgreementViewModel.swift */; };
 		C40738F027267508006DC6D4 /* CrowdloanAgreementServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738EF27267508006DC6D4 /* CrowdloanAgreementServiceProtocol.swift */; };
 		C40738F32726A141006DC6D4 /* AgreementParagraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40738F22726A141006DC6D4 /* AgreementParagraphView.swift */; };
-		C4198A48272C4FF200368511 /* MoonbeamAgreementSignedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4198A47272C4FF200368511 /* MoonbeamAgreementSignedViewModel.swift */; };
+		C4198A48272C4FF200368511 /* CrowdloanAgreementSignedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4198A47272C4FF200368511 /* CrowdloanAgreementSignedViewModel.swift */; };
 		C422767C272279A0005D3153 /* AcalaBonusServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422767B272279A0005D3153 /* AcalaBonusServiceTests.swift */; };
 		C422767F27228593005D3153 /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422767E27228593005D3153 /* HTTPRequest.swift */; };
 		C422768227228664005D3153 /* HTTPRequestBuilderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */; };
@@ -1346,6 +1346,8 @@
 		C422769C2722CF9A005D3153 /* MoonbeamAgreeRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */; };
 		C422769E2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */; };
 		C42276A02722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */; };
+		C437401C272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */; };
+		C437401F272E89AB00DE5469 /* EtheriumAddressForRewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */; };
 		C4427244A22EA7BA7F7C9E9F /* StakingRedeemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D8D690B564EDC04996945 /* StakingRedeemTests.swift */; };
 		C45698F62729013600D4B64E /* HTTPConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F52729013600D4B64E /* HTTPConstants.swift */; };
 		C45698F82729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */; };
@@ -1364,7 +1366,7 @@
 		C90FC89D4CCDF3232AC2F2F0 /* AccountCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6AE890B7D082A2CFDB7A9199 /* AccountCreateViewController.xib */; };
 		C937154FA9021AECD72A871B /* StakingRewardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C70EBF83B2547452417E588 /* StakingRewardDetailsViewController.swift */; };
 		C9A608AFCFF4030D63D1FB4F /* AnalyticsValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B0277C3D897EADD48A7C64F /* AnalyticsValidatorsInteractor.swift */; };
-		C9B6E5CCCCCA72D536B8C40F /* MoonbeamAgreementSignedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C9F3AC4CF6EB31B93330F8 /* MoonbeamAgreementSignedViewController.swift */; };
+		C9B6E5CCCCCA72D536B8C40F /* CrowdloanAgreementSignedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C9F3AC4CF6EB31B93330F8 /* CrowdloanAgreementSignedViewController.swift */; };
 		CAA752294BCDA8F109F748E7 /* AccountConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527CD27768E9A75E6CA87FE4 /* AccountConfirmTests.swift */; };
 		CC545DF80038901FA06FDD58 /* SelectValidatorsConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8B0940B2CB25AD9C36206E /* SelectValidatorsConfirmViewController.swift */; };
 		CCF5A7CED175D5E43B2C9971 /* StakingUnbondSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC17D12DCD0CDAF0BC13D80D /* StakingUnbondSetupViewController.swift */; };
@@ -1403,7 +1405,7 @@
 		EDC02F2FDCDB55519DB0273D /* AnalyticsRewardDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761FDEBB414B1CFAD6992352 /* AnalyticsRewardDetailsTests.swift */; };
 		EE6FC6EFB089A94EF105F2CC /* StakingRewardPayoutsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934678CCA0EF35B6AE4AE8A1 /* StakingRewardPayoutsTests.swift */; };
 		EF02C9661F03C8EF58182997 /* StakingAmountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB76FEC075A6FE1D246BA5DD /* StakingAmountViewController.swift */; };
-		EF48ADBFC10F8E3FB3A402DC /* MoonbeamAgreementSignedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E005BCCDD619D98B301F633A /* MoonbeamAgreementSignedPresenter.swift */; };
+		EF48ADBFC10F8E3FB3A402DC /* CrowdloanAgreementSignedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E005BCCDD619D98B301F633A /* CrowdloanAgreementSignedPresenter.swift */; };
 		EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F90A8AA378E1DE4FCEE10F6 /* AddConnectionPresenter.swift */; };
 		F022F1444E0F75CCA42F4648 /* YourValidatorListProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A31780E84948D7FE632ECB02 /* YourValidatorListProtocols.swift */; };
 		F0C3DB0CEE1975626B0014A8 /* StakingUnbondConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C34D496D0F57E685237B3A7 /* StakingUnbondConfirmInteractor.swift */; };
@@ -1608,7 +1610,7 @@
 		1C52C6CD7112BF0E1E3A98CE /* PurchaseWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PurchaseWireframe.swift; sourceTree = "<group>"; };
 		1CC566D6EACB81469B926611 /* ExportMnemonicConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicConfirmInteractor.swift; sourceTree = "<group>"; };
 		1E5CB64B91B35804B3671456 /* ControllerAccountPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountPresenter.swift; sourceTree = "<group>"; };
-		1F17499A679F69D07A6D9AAD /* MoonbeamAgreementSignedViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedViewLayout.swift; sourceTree = "<group>"; };
+		1F17499A679F69D07A6D9AAD /* CrowdloanAgreementSignedViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedViewLayout.swift; sourceTree = "<group>"; };
 		1F3B726402D4DB25059EF156 /* AnalyticsValidatorsProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsProtocols.swift; sourceTree = "<group>"; };
 		200C6B2C85846AED8CA9451A /* ExportMnemonicInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicInteractor.swift; sourceTree = "<group>"; };
 		2136E246C00D07C64E20C9BA /* CrowdloanAgreementPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementPresenter.swift; sourceTree = "<group>"; };
@@ -1640,7 +1642,7 @@
 		30F3EC1C2DAE60DD6BB99B42 /* StakingUnbondConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmViewFactory.swift; sourceTree = "<group>"; };
 		31226053044986BC828AA912 /* AccountExportPasswordPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordPresenter.swift; sourceTree = "<group>"; };
 		312DE7ADA5ABC3214AD3D4AD /* StakingAmountInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingAmountInteractor.swift; sourceTree = "<group>"; };
-		316F6CF36D1C6B809A2767A4 /* MoonbeamAgreementSignedInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedInteractor.swift; sourceTree = "<group>"; };
+		316F6CF36D1C6B809A2767A4 /* CrowdloanAgreementSignedInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedInteractor.swift; sourceTree = "<group>"; };
 		336395FFC4B2104A9651A2DE /* StakingRewardPayoutsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardPayoutsViewFactory.swift; sourceTree = "<group>"; };
 		3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementInteractor.swift; sourceTree = "<group>"; };
 		356A97EF267D4ED718D274BB /* AddConnectionViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AddConnectionViewController.xib; sourceTree = "<group>"; };
@@ -1722,7 +1724,7 @@
 		6D3BFF5C921FEB356E2C39A4 /* StakingRewardDetailsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsTests.swift; sourceTree = "<group>"; };
 		6DE4840EBB9892A5E35FB443 /* AccountExportPasswordViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountExportPasswordViewController.xib; sourceTree = "<group>"; };
 		6EB15D213A91267F3034D9E4 /* AccountInfoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoViewController.swift; sourceTree = "<group>"; };
-		702E0E8049D305E6A4881DB3 /* MoonbeamAgreementSignedWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedWireframe.swift; sourceTree = "<group>"; };
+		702E0E8049D305E6A4881DB3 /* CrowdloanAgreementSignedWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedWireframe.swift; sourceTree = "<group>"; };
 		71285CF636B32ACD8EB5519E /* ReferralCrowdloanViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewFactory.swift; sourceTree = "<group>"; };
 		7306D50F278F6CC90DC88F27 /* AccountConfirmPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmPresenter.swift; sourceTree = "<group>"; };
 		7320E1CD9EA1A33EA29D0700 /* AnalyticsValidatorsPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsPresenter.swift; sourceTree = "<group>"; };
@@ -2721,7 +2723,7 @@
 		A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewController.swift; sourceTree = "<group>"; };
 		A31780E84948D7FE632ECB02 /* YourValidatorListProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListProtocols.swift; sourceTree = "<group>"; };
 		A3BACB7E24BC87F9218DBBC4 /* StakingPayoutConfirmationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationViewController.swift; sourceTree = "<group>"; };
-		A7DAC14A684176ED60F55CCB /* MoonbeamAgreementSignedProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedProtocols.swift; sourceTree = "<group>"; };
+		A7DAC14A684176ED60F55CCB /* CrowdloanAgreementSignedProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedProtocols.swift; sourceTree = "<group>"; };
 		A82E373FFFBF708D7CF0973E /* StakingUnbondSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondSetupViewFactory.swift; sourceTree = "<group>"; };
 		A84638893DC99974E098719E /* StakingUnbondConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmWireframe.swift; sourceTree = "<group>"; };
 		A865455F8FC60413A6CB8A44 /* ExportSeedInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportSeedInteractor.swift; sourceTree = "<group>"; };
@@ -2920,7 +2922,7 @@
 		C40738ED272671C4006DC6D4 /* CrowdloanAgreementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementViewModel.swift; sourceTree = "<group>"; };
 		C40738EF27267508006DC6D4 /* CrowdloanAgreementServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementServiceProtocol.swift; sourceTree = "<group>"; };
 		C40738F22726A141006DC6D4 /* AgreementParagraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgreementParagraphView.swift; sourceTree = "<group>"; };
-		C4198A47272C4FF200368511 /* MoonbeamAgreementSignedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedViewModel.swift; sourceTree = "<group>"; };
+		C4198A47272C4FF200368511 /* CrowdloanAgreementSignedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedViewModel.swift; sourceTree = "<group>"; };
 		C422767B272279A0005D3153 /* AcalaBonusServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcalaBonusServiceTests.swift; sourceTree = "<group>"; };
 		C422767E27228593005D3153 /* HTTPRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequest.swift; sourceTree = "<group>"; };
 		C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestBuilderProtocol.swift; sourceTree = "<group>"; };
@@ -2932,6 +2934,8 @@
 		C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreeRemarkRequest.swift; sourceTree = "<group>"; };
 		C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamVerifyRemarkRequest.swift; sourceTree = "<group>"; };
 		C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamMakeSignatureRequest.swift; sourceTree = "<group>"; };
+		C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementConfirmInteractor.swift; sourceTree = "<group>"; };
+		C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtheriumAddressForRewardView.swift; sourceTree = "<group>"; };
 		C45698F52729013600D4B64E /* HTTPConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPConstants.swift; sourceTree = "<group>"; };
 		C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementConfirmViewModel.swift; sourceTree = "<group>"; };
 		C45698FA27293BA200D4B64E /* CrowdloanAgreementViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementViewModelFactory.swift; sourceTree = "<group>"; };
@@ -2961,7 +2965,7 @@
 		D613E20E96E7BA5B8F4B9799 /* StakingRewardDetailsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsInteractor.swift; sourceTree = "<group>"; };
 		D6470B066E67834BF97E0A68 /* StakingRewardDetailsPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsPresenter.swift; sourceTree = "<group>"; };
 		D6C6573C52692E4A56E35FF9 /* RecommendedValidatorListProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListProtocols.swift; sourceTree = "<group>"; };
-		D6F78A53B8C2D920E961569E /* MoonbeamAgreementSignedViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedViewFactory.swift; sourceTree = "<group>"; };
+		D6F78A53B8C2D920E961569E /* CrowdloanAgreementSignedViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedViewFactory.swift; sourceTree = "<group>"; };
 		D7FE5F01FC9364788A91EFA5 /* SelectValidatorsConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmProtocols.swift; sourceTree = "<group>"; };
 		D852BF894D6E06EB9A92BC71 /* CrowdloanListViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanListViewController.swift; sourceTree = "<group>"; };
 		D9A16451B21451996CAA31F8 /* CustomValidatorListTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomValidatorListTests.swift; sourceTree = "<group>"; };
@@ -2971,9 +2975,9 @@
 		DBA49A762B2FBB66FD6A55FC /* ControllerAccountConfirmationProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountConfirmationProtocols.swift; sourceTree = "<group>"; };
 		DCA8F503A90EFA93C1118E8E /* Pods-fearlessAll-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"; sourceTree = "<group>"; };
 		E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoProtocols.swift; sourceTree = "<group>"; };
-		E005BCCDD619D98B301F633A /* MoonbeamAgreementSignedPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedPresenter.swift; sourceTree = "<group>"; };
+		E005BCCDD619D98B301F633A /* CrowdloanAgreementSignedPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedPresenter.swift; sourceTree = "<group>"; };
 		E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountInfoViewController.xib; sourceTree = "<group>"; };
-		E0C9F3AC4CF6EB31B93330F8 /* MoonbeamAgreementSignedViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementSignedViewController.swift; sourceTree = "<group>"; };
+		E0C9F3AC4CF6EB31B93330F8 /* CrowdloanAgreementSignedViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementSignedViewController.swift; sourceTree = "<group>"; };
 		E11575D8B4F64C2E805372A5 /* AccountExportPasswordViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordViewFactory.swift; sourceTree = "<group>"; };
 		E18B94164B49123E62FA60B7 /* AccountManagementViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementViewFactory.swift; sourceTree = "<group>"; };
 		E1E60EF37AC0A7646ED8FE64 /* AccountImportViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportViewFactory.swift; sourceTree = "<group>"; };
@@ -3606,6 +3610,7 @@
 		5AA9DD83BBA839623389411E /* CrowdloanContributionConfirm */ = {
 			isa = PBXGroup;
 			children = (
+				C437401D272E632500DE5469 /* CustomFlows */,
 				844EFB63265FD5E00090ACB1 /* ViewModel */,
 				AF01941105BCD02536538362 /* CrowdloanContributionConfirmProtocols.swift */,
 				FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */,
@@ -3618,19 +3623,19 @@
 			path = CrowdloanContributionConfirm;
 			sourceTree = "<group>";
 		};
-		5E31593A7FF1D44E6AAC1368 /* MoonbeamAgreementSigned */ = {
+		5E31593A7FF1D44E6AAC1368 /* CrowdloanAgreementSigned */ = {
 			isa = PBXGroup;
 			children = (
-				A7DAC14A684176ED60F55CCB /* MoonbeamAgreementSignedProtocols.swift */,
-				702E0E8049D305E6A4881DB3 /* MoonbeamAgreementSignedWireframe.swift */,
-				E005BCCDD619D98B301F633A /* MoonbeamAgreementSignedPresenter.swift */,
-				316F6CF36D1C6B809A2767A4 /* MoonbeamAgreementSignedInteractor.swift */,
-				E0C9F3AC4CF6EB31B93330F8 /* MoonbeamAgreementSignedViewController.swift */,
-				1F17499A679F69D07A6D9AAD /* MoonbeamAgreementSignedViewLayout.swift */,
-				D6F78A53B8C2D920E961569E /* MoonbeamAgreementSignedViewFactory.swift */,
-				C4198A47272C4FF200368511 /* MoonbeamAgreementSignedViewModel.swift */,
+				A7DAC14A684176ED60F55CCB /* CrowdloanAgreementSignedProtocols.swift */,
+				702E0E8049D305E6A4881DB3 /* CrowdloanAgreementSignedWireframe.swift */,
+				E005BCCDD619D98B301F633A /* CrowdloanAgreementSignedPresenter.swift */,
+				316F6CF36D1C6B809A2767A4 /* CrowdloanAgreementSignedInteractor.swift */,
+				E0C9F3AC4CF6EB31B93330F8 /* CrowdloanAgreementSignedViewController.swift */,
+				1F17499A679F69D07A6D9AAD /* CrowdloanAgreementSignedViewLayout.swift */,
+				D6F78A53B8C2D920E961569E /* CrowdloanAgreementSignedViewFactory.swift */,
+				C4198A47272C4FF200368511 /* CrowdloanAgreementSignedViewModel.swift */,
 			);
-			path = MoonbeamAgreementSigned;
+			path = CrowdloanAgreementSigned;
 			sourceTree = "<group>";
 		};
 		64FCC7EEABFD71322F5AB7AF /* CustomValidators */ = {
@@ -4274,7 +4279,7 @@
 				04F3A39DC84AA3CC794EC7B9 /* ReferralCrowdloan */,
 				8EF961E11781CBBDF8356A5F /* CrowdloanAgreement */,
 				4CB57C75E82DC95518025367 /* CrowdloanAgreementConfirm */,
-				5E31593A7FF1D44E6AAC1368 /* MoonbeamAgreementSigned */,
+				5E31593A7FF1D44E6AAC1368 /* CrowdloanAgreementSigned */,
 			);
 			path = Crowdloan;
 			sourceTree = "<group>";
@@ -5556,6 +5561,7 @@
 				F40966E326B29919008CD244 /* Stacks.swift */,
 				F43A596926D520E0005E973D /* EmptyStateViewCell.swift */,
 				AECE7B4826FA477C0045AF9B /* NetworkFeeConfirmView+Protocol.swift */,
+				C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -7422,6 +7428,14 @@
 			path = Requests;
 			sourceTree = "<group>";
 		};
+		C437401D272E632500DE5469 /* CustomFlows */ = {
+			isa = PBXGroup;
+			children = (
+				C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */,
+			);
+			path = CustomFlows;
+			sourceTree = "<group>";
+		};
 		C45698F42729012700D4B64E /* Constants */ = {
 			isa = PBXGroup;
 			children = (
@@ -8623,6 +8637,7 @@
 				84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				84364D5E252FD09100281F9A /* AssetDetailsViewModel.swift in Sources */,
+				C437401C272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
 				F40966B926B297D6008CD244 /* AnalyticsRewardsViewModel.swift in Sources */,
 				F47BBD472630B6980087DA11 /* StakingBalanceProtocols.swift in Sources */,
@@ -9414,7 +9429,7 @@
 				8467FD5524EFD254005D486C /* StorageFacadeProtocol.swift in Sources */,
 				84CFF1EF26526FBC00DB7CF7 /* StakingBondMoreConfirmationPresenter.swift in Sources */,
 				9E15912C35D50C6D738FD04C /* AccountConfirmProtocols.swift in Sources */,
-				C4198A48272C4FF200368511 /* MoonbeamAgreementSignedViewModel.swift in Sources */,
+				C4198A48272C4FF200368511 /* CrowdloanAgreementSignedViewModel.swift in Sources */,
 				84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */,
 				42B79A8D0D9540C1D97D991C /* AccountConfirmWireframe.swift in Sources */,
 				84DF21B12536DDC1005454AE /* TransferConfirmCommand.swift in Sources */,
@@ -9676,6 +9691,7 @@
 				0678271BE1BA5BBC084F478A /* RecommendedValidatorListWireframe.swift in Sources */,
 				F441BE0E263984DD0096B67B /* BondExtraCall.swift in Sources */,
 				BA7AEE82627CFC0AFD69B299 /* RecommendedValidatorListPresenter.swift in Sources */,
+				C437401F272E89AB00DE5469 /* EtheriumAddressForRewardView.swift in Sources */,
 				8472C5B3265CF9C500E2481B /* StakingRewardDestConfirmViewController.swift in Sources */,
 				B071927DF8DD5C3CA84494BA /* RecommendedValidatorListViewController.swift in Sources */,
 				D6511F7C3E55197F82AB552C /* RecommendedValidatorListViewFactory.swift in Sources */,
@@ -9845,13 +9861,13 @@
 				92583D32A576660BA58EBF5D /* CrowdloanAgreementConfirmViewController.swift in Sources */,
 				85E2E810A8F2C1D88D6D123D /* CrowdloanAgreementConfirmViewLayout.swift in Sources */,
 				7B83A1E3DB1F53B7437DB3BC /* CrowdloanAgreementConfirmViewFactory.swift in Sources */,
-				16665106F4434602DF0195BF /* MoonbeamAgreementSignedProtocols.swift in Sources */,
-				52A562B89F3F6A297733E463 /* MoonbeamAgreementSignedWireframe.swift in Sources */,
-				EF48ADBFC10F8E3FB3A402DC /* MoonbeamAgreementSignedPresenter.swift in Sources */,
-				05A072C8B0CD7FE67332FA98 /* MoonbeamAgreementSignedInteractor.swift in Sources */,
-				C9B6E5CCCCCA72D536B8C40F /* MoonbeamAgreementSignedViewController.swift in Sources */,
-				A72E2C5360F1B92FC36FBC89 /* MoonbeamAgreementSignedViewLayout.swift in Sources */,
-				C3671B4465BD31E2D37C0147 /* MoonbeamAgreementSignedViewFactory.swift in Sources */,
+				16665106F4434602DF0195BF /* CrowdloanAgreementSignedProtocols.swift in Sources */,
+				52A562B89F3F6A297733E463 /* CrowdloanAgreementSignedWireframe.swift in Sources */,
+				EF48ADBFC10F8E3FB3A402DC /* CrowdloanAgreementSignedPresenter.swift in Sources */,
+				05A072C8B0CD7FE67332FA98 /* CrowdloanAgreementSignedInteractor.swift in Sources */,
+				C9B6E5CCCCCA72D536B8C40F /* CrowdloanAgreementSignedViewController.swift in Sources */,
+				A72E2C5360F1B92FC36FBC89 /* CrowdloanAgreementSignedViewLayout.swift in Sources */,
+				C3671B4465BD31E2D37C0147 /* CrowdloanAgreementSignedViewFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

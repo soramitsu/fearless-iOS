@@ -13,6 +13,7 @@ final class CrowdloanContributionConfirmPresenter {
     let bonusRate: Decimal?
     let chain: Chain
     let logger: LoggerProtocol?
+    let customFlow: CustomCrowdloanFlow?
 
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
@@ -63,7 +64,8 @@ final class CrowdloanContributionConfirmPresenter {
         bonusRate: Decimal?,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        customFlow: CustomCrowdloanFlow?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -74,6 +76,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.bonusRate = bonusRate
         self.chain = chain
         self.logger = logger
+        self.customFlow = customFlow
         self.localizationManager = localizationManager
     }
 

@@ -2,7 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 
-final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
+class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
         presenter as? CrowdloanContributionConfirmInteractorOutputProtocol
     }

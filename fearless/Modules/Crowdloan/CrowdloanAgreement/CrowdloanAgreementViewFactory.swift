@@ -5,7 +5,6 @@ import SoraKeystore
 struct CrowdloanAgreementViewFactory {
     static func createView(
         for paraId: ParaId,
-        crowdloanName: String,
         customFlow: CustomCrowdloanFlow
     ) -> CrowdloanAgreementViewProtocol? {
         let localizationManager = LocalizationManager.shared
@@ -22,7 +21,6 @@ struct CrowdloanAgreementViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             paraId: paraId,
-            crowdloanTitle: crowdloanName,
             logger: Logger.shared,
             customFlow: customFlow
         )

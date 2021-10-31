@@ -10,6 +10,7 @@ protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol, Local
     func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel)
     func didReceiveEstimatedReward(viewModel: String?)
     func didReceiveBonus(viewModel: String?)
+    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?)
 }
 
 protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
@@ -31,7 +32,8 @@ protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPre
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol?
+        bonusService: CrowdloanBonusServiceProtocol?,
+        customFlow: CustomCrowdloanFlow?
     )
 
     func showAdditionalBonus(

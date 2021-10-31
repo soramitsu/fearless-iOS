@@ -1,6 +1,6 @@
 import Foundation
 
-struct MoonbeamAgreementSignedViewModel {
+struct CrowdloanAgreementSignedViewModel {
     let title: String
     let hash: String?
 }

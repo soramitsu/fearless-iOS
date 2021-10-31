@@ -4,11 +4,29 @@ import FearlessUtils
 import RobinHood
 
 struct CrowdloanAgreementConfirmViewFactory {
-    static func createMoonbeamView(
+    static func createView(
+        paraId: ParaId,
+        customFlow: CustomCrowdloanFlow,
+        remark: String
+    ) -> CrowdloanAgreementConfirmViewProtocol? {
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            return createMoonbeamView(
+                paraId: paraId,
+                moonbeamFlowData: moonbeamFlowData,
+                remark: remark
+            )
+        default:
+            return nil
+        }
+    }
+}
+
+extension CrowdloanAgreementConfirmViewFactory {
+    private static func createMoonbeamView(
         paraId: ParaId,
         moonbeamFlowData: MoonbeamFlowData,
-        remark: String,
-        crowdloanName: String
+        remark: String
     ) -> CrowdloanAgreementConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
@@ -46,7 +64,7 @@ struct CrowdloanAgreementConfirmViewFactory {
             chain: settings.selectedConnection.type.chain,
             logger: Logger.shared,
             paraId: paraId,
-            crowdloanName: crowdloanName
+            customFlow: .moonbeam(moonbeamFlowData)
         )
 
         let view = CrowdloanAgreementConfirmViewController(presenter: presenter)

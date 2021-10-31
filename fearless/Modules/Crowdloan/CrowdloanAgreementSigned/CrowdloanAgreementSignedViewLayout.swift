@@ -1,6 +1,6 @@
 import UIKit
 
-final class MoonbeamAgreementSignedViewLayout: UIView {
+final class CrowdloanAgreementSignedViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.alignment = .leading
@@ -51,7 +51,7 @@ final class MoonbeamAgreementSignedViewLayout: UIView {
         backgroundColor = R.color.colorBlack()
     }
 
-    func bind(to viewModel: MoonbeamAgreementSignedViewModel) {
+    func bind(to viewModel: CrowdloanAgreementSignedViewModel) {
         if let hash = viewModel.hash {
             let attributedHashString = NSAttributedString(
                 string: hash,

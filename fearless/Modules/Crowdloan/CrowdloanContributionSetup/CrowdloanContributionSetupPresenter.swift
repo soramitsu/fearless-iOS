@@ -11,6 +11,7 @@ final class CrowdloanContributionSetupPresenter {
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
+    let customFlow: CustomCrowdloanFlow?
 
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -53,7 +54,8 @@ final class CrowdloanContributionSetupPresenter {
         dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        customFlow: CustomCrowdloanFlow?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -62,7 +64,12 @@ final class CrowdloanContributionSetupPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.logger = logger
+        self.customFlow = customFlow
         self.localizationManager = localizationManager
+    }
+
+    private func provideCustomFlowViewModel() {
+        view?.didReceiveCustomCrowdloanFlow(viewModel: customFlow)
     }
 
     private func provideAssetVewModel() {
@@ -136,7 +143,7 @@ final class CrowdloanContributionSetupPresenter {
     private func provideBonusViewModel() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel: String? = {
-            if let displayInfo = displayInfo, displayInfo.flow != nil {
+            if let displayInfo = displayInfo, displayInfo.flow != nil, displayInfo.flow?.hasReferralBonus == true {
                 return contributionViewModelFactory.createAdditionalBonusViewModel(
                     inputAmount: inputAmount,
                     displayInfo: displayInfo,
@@ -158,6 +165,7 @@ final class CrowdloanContributionSetupPresenter {
         provideCrowdloanContributionViewModel()
         provideEstimatedRewardViewModel()
         provideBonusViewModel()
+        provideCustomFlowViewModel()
     }
 
     private func refreshFee() {
@@ -201,60 +209,72 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
 
     func proceed() {
         let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
-        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
-        let spendingValue = (controbutionValue ?? 0) +
-            (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
+//        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
+//        let spendingValue = (controbutionValue ?? 0) +
+//            (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
+//
+//        DataValidationRunner(validators: [
+//            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
+//
+//            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+//                self?.refreshFee()
+//            }),
+//
+//            dataValidatingFactory.canPayFeeAndAmount(
+//                balance: balance,
+//                fee: fee,
+//                spendingAmount: contributionDecimal,
+//                locale: selectedLocale
+//            ),
+//
+//            dataValidatingFactory.contributesAtLeastMinContribution(
+//                contribution: controbutionValue,
+//                minimumBalance: minimumContribution,
+//                locale: selectedLocale
+//            ),
+//
+//            dataValidatingFactory.capNotExceeding(
+//                contribution: controbutionValue,
+//                raised: crowdloan?.fundInfo.raised,
+//                cap: crowdloan?.fundInfo.cap,
+//                locale: selectedLocale
+//            ),
+//
+//            dataValidatingFactory.crowdloanIsNotCompleted(
+//                crowdloan: crowdloan,
+//                metadata: crowdloanMetadata,
+//                locale: selectedLocale
+//            ),
+//
+//            dataValidatingFactory.exsitentialDepositIsNotViolated(
+//                spendingAmount: spendingValue,
+//                totalAmount: totalBalanceValue,
+//                minimumBalance: minimumBalance,
+//                locale: selectedLocale
+//            )
+//
+//        ]).runValidation { [weak self] in
+//            guard let strongSelf = self, let contribution = contributionDecimal,
+//                  let paraId = strongSelf.crowdloan?.paraId else { return }
+//            strongSelf.wireframe.showConfirmation(
+//                from: strongSelf.view,
+//                paraId: paraId,
+//                inputAmount: contribution,
+//                bonusService: strongSelf.bonusService,
+//                customFlow: strongSelf.customFlow
+//            )
+//        }
 
-        DataValidationRunner(validators: [
-            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
+        guard let contribution = contributionDecimal,
+              let paraId = crowdloan?.paraId else { return }
 
-            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-                self?.refreshFee()
-            }),
-
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: contributionDecimal,
-                locale: selectedLocale
-            ),
-
-            dataValidatingFactory.contributesAtLeastMinContribution(
-                contribution: controbutionValue,
-                minimumBalance: minimumContribution,
-                locale: selectedLocale
-            ),
-
-            dataValidatingFactory.capNotExceeding(
-                contribution: controbutionValue,
-                raised: crowdloan?.fundInfo.raised,
-                cap: crowdloan?.fundInfo.cap,
-                locale: selectedLocale
-            ),
-
-            dataValidatingFactory.crowdloanIsNotCompleted(
-                crowdloan: crowdloan,
-                metadata: crowdloanMetadata,
-                locale: selectedLocale
-            ),
-
-            dataValidatingFactory.exsitentialDepositIsNotViolated(
-                spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance,
-                locale: selectedLocale
-            )
-
-        ]).runValidation { [weak self] in
-            guard let strongSelf = self, let contribution = contributionDecimal,
-                  let paraId = strongSelf.crowdloan?.paraId else { return }
-            strongSelf.wireframe.showConfirmation(
-                from: strongSelf.view,
-                paraId: paraId,
-                inputAmount: contribution,
-                bonusService: strongSelf.bonusService
-            )
-        }
+        wireframe.showConfirmation(
+            from: view,
+            paraId: paraId,
+            inputAmount: contribution,
+            bonusService: bonusService,
+            customFlow: customFlow
+        )
     }
 
     func presentLearnMore() {

@@ -1,16 +1,16 @@
 import Foundation
 
 final class CrowdloanAgreementConfirmWireframe: CrowdloanAgreementConfirmWireframeProtocol {
-    func showMoonbeamAgreementSigned(
+    func showAgreementSigned(
         from view: CrowdloanAgreementConfirmViewProtocol?,
         paraId: ParaId,
         remarkExtrinsicHash: String,
-        crowdloanName: String
+        customFlow: CustomCrowdloanFlow
     ) {
-        guard let confirmationView = MoonbeamAgreementSignedViewFactory.createView(
+        guard let confirmationView = CrowdloanAgreementSignedViewFactory.createView(
             extrinsicHash: remarkExtrinsicHash,
             paraId: paraId,
-            crowdloanName: crowdloanName
+            customFlow: customFlow
         ) else {
             return
         }

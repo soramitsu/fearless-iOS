@@ -21,16 +21,16 @@ protocol CrowdloanAgreementInteractorOutputProtocol: AnyObject {
 }
 
 protocol CrowdloanAgreementWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func showMoonbeamAgreementConfirm(
+    func showAgreementConfirm(
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,
-        moonbeamFlowData: MoonbeamFlowData,
-        remark: String,
-        crowdloanName: String
+        customFlow: CustomCrowdloanFlow,
+        remark: String
     )
 
     func presentContributionSetup(
         from view: CrowdloanAgreementViewProtocol?,
+        customFlow: CustomCrowdloanFlow,
         paraId: ParaId
     )
 

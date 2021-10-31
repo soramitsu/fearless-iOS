@@ -1,30 +1,36 @@
 import Foundation
 
 final class CrowdloanAgreementWireframe: CrowdloanAgreementWireframeProtocol {
-    func showMoonbeamAgreementConfirm(
+    func showAgreementConfirm(
         from view: CrowdloanAgreementViewProtocol?,
         paraId: ParaId,
-        moonbeamFlowData: MoonbeamFlowData,
-        remark: String,
-        crowdloanName: String
+        customFlow: CustomCrowdloanFlow,
+        remark: String
     ) {
-        guard let confirmationView = CrowdloanAgreementConfirmViewFactory.createMoonbeamView(
-            paraId: paraId,
-            moonbeamFlowData: moonbeamFlowData,
-            remark: remark,
-            crowdloanName: crowdloanName
-        ) else {
-            return
-        }
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            guard let confirmationView = CrowdloanAgreementConfirmViewFactory.createView(
+                paraId: paraId,
+                customFlow: customFlow,
+                remark: remark
+            ) else {
+                return
+            }
 
-        view?.controller.navigationController?.pushViewController(confirmationView.controller, animated: true)
+            view?.controller.navigationController?.pushViewController(confirmationView.controller, animated: true)
+        default: break
+        }
     }
 
     func presentContributionSetup(
         from view: CrowdloanAgreementViewProtocol?,
+        customFlow: CustomCrowdloanFlow,
         paraId: ParaId
     ) {
-        guard let setupView = CrowdloanContributionSetupViewFactory.createView(for: paraId) else {
+        guard let setupView = CrowdloanContributionSetupViewFactory.createView(
+            for: paraId,
+            customFlow: customFlow
+        ) else {
             return
         }
 

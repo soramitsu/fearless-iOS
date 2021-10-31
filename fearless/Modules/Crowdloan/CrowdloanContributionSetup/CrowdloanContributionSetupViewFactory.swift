@@ -3,7 +3,10 @@ import SoraKeystore
 import SoraFoundation
 
 struct CrowdloanContributionSetupViewFactory {
-    static func createView(for paraId: ParaId) -> CrowdloanContributionSetupViewProtocol? {
+    static func createView(
+        for paraId: ParaId,
+        customFlow: CustomCrowdloanFlow?
+    ) -> CrowdloanContributionSetupViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -49,7 +52,8 @@ struct CrowdloanContributionSetupViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chain: addressType.chain,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            customFlow: customFlow
         )
 
         let view = CrowdloanContributionSetupViewController(

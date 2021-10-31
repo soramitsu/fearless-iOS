@@ -11,7 +11,6 @@ final class CrowdloanAgreementPresenter {
     private var agreementTextResult: Result<String, Error>?
     private var isTermsAgreed: Bool = false
     private var paraId: ParaId
-    private var crowdloanTitle: String
     private var logger: LoggerProtocol
     private var customFlow: CustomCrowdloanFlow
 
@@ -19,14 +18,12 @@ final class CrowdloanAgreementPresenter {
         interactor: CrowdloanAgreementInteractorInputProtocol,
         wireframe: CrowdloanAgreementWireframeProtocol,
         paraId: ParaId,
-        crowdloanTitle: String,
         logger: LoggerProtocol,
         customFlow: CustomCrowdloanFlow
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.paraId = paraId
-        self.crowdloanTitle = crowdloanTitle
         self.logger = logger
         self.customFlow = customFlow
     }
@@ -43,7 +40,7 @@ final class CrowdloanAgreementPresenter {
         }
 
         let viewModel = CrowdloanAgreementViewModel(
-            title: crowdloanTitle,
+            title: customFlow.name,
             agreementText: text,
             isTermsAgreed: isTermsAgreed
         )
@@ -52,17 +49,12 @@ final class CrowdloanAgreementPresenter {
     }
 
     private func proceedToConfirm(with remark: String) {
-        switch customFlow {
-        case let .moonbeam(data):
-            wireframe.showMoonbeamAgreementConfirm(
-                from: view,
-                paraId: paraId,
-                moonbeamFlowData: data,
-                remark: remark,
-                crowdloanName: crowdloanTitle
-            )
-        default: break
-        }
+        wireframe.showAgreementConfirm(
+            from: view,
+            paraId: paraId,
+            customFlow: customFlow,
+            remark: remark
+        )
     }
 }
 
@@ -110,7 +102,11 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementInteractorOutputProtoco
         switch result {
         case let .success(verified):
             if verified {
-                wireframe.presentContributionSetup(from: view, paraId: paraId)
+                wireframe.presentContributionSetup(
+                    from: view,
+                    customFlow: customFlow,
+                    paraId: paraId
+                )
             }
         case let .failure(error):
             logger.error(error.localizedDescription)

@@ -1,11 +1,15 @@
 import Foundation
 
-final class MoonbeamAgreementSignedWireframe: MoonbeamAgreementSignedWireframeProtocol {
+final class CrowdloanAgreementSignedWireframe: CrowdloanAgreementSignedWireframeProtocol {
     func presentContributionSetup(
-        from view: MoonbeamAgreementSignedViewProtocol?,
-        paraId: ParaId
+        from view: CrowdloanAgreementSignedViewProtocol?,
+        paraId: ParaId,
+        customFlow: CustomCrowdloanFlow
     ) {
-        guard let setupView = CrowdloanContributionSetupViewFactory.createView(for: paraId) else {
+        guard let setupView = CrowdloanContributionSetupViewFactory.createView(
+            for: paraId,
+            customFlow: customFlow
+        ) else {
             return
         }
 

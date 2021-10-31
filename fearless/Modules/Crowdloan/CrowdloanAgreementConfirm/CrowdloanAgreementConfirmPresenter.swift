@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import SoraFoundation
 import BigInt
+import SwiftUI
 
 final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInteractorOutputProtocol {
     weak var view: CrowdloanAgreementConfirmViewProtocol?
@@ -16,7 +17,7 @@ final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInterac
     private var displayAddress: DisplayAddress?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var crowdloanName: String
+    private var customFlow: CustomCrowdloanFlow
 
     init(
         interactor: CrowdloanAgreementConfirmInteractorInputProtocol,
@@ -26,7 +27,7 @@ final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInterac
         chain: Chain,
         logger: LoggerProtocol,
         paraId: ParaId,
-        crowdloanName: String
+        customFlow: CustomCrowdloanFlow
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -35,7 +36,7 @@ final class CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmInterac
         self.chain = chain
         self.logger = logger
         self.paraId = paraId
-        self.crowdloanName = crowdloanName
+        self.customFlow = customFlow
     }
 
     private func provideFeeViewModel() {
@@ -70,12 +71,13 @@ extension CrowdloanAgreementConfirmPresenter {
     func didReceiveVerifiedExtrinsicHash(result: Result<String, Error>) {
         switch result {
         case let .success(hash):
-            wireframe.showMoonbeamAgreementSigned(
+            wireframe.showAgreementSigned(
                 from: view,
                 paraId: paraId,
                 remarkExtrinsicHash: hash,
-                crowdloanName: crowdloanName
+                customFlow: customFlow
             )
+
         case let .failure(error):
             logger.error("Did receive verify remark error: \(error)")
         }

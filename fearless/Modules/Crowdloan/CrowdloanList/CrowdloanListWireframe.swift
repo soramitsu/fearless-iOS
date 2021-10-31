@@ -1,34 +1,40 @@
 import Foundation
 
 final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
-    func presentMoonbeamAgreement(
+    func presentAgreement(
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
-        crowdloanTitle: String,
         customFlow: CustomCrowdloanFlow
     ) {
-        let setupView = CrowdloanAgreementViewFactory.createView(
-            for: paraId,
-            crowdloanName: crowdloanTitle,
-            customFlow: customFlow
-        )
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            let setupView = CrowdloanAgreementViewFactory.createView(
+                for: paraId,
+                customFlow: customFlow
+            )
 
-        guard let setupView = setupView else {
-            return
+            guard let setupView = setupView else {
+                return
+            }
+
+            setupView.controller.hidesBottomBarWhenPushed = true
+            view?.controller.navigationController?.pushViewController(
+                setupView.controller,
+                animated: true
+            )
+        default: break
         }
-
-        setupView.controller.hidesBottomBarWhenPushed = true
-        view?.controller.navigationController?.pushViewController(
-            setupView.controller,
-            animated: true
-        )
     }
 
     func presentContributionSetup(
         from view: CrowdloanListViewProtocol?,
-        paraId: ParaId
+        paraId: ParaId,
+        customFlow: CustomCrowdloanFlow?
     ) {
-        guard let setupView = CrowdloanContributionSetupViewFactory.createView(for: paraId) else {
+        guard let setupView = CrowdloanContributionSetupViewFactory.createView(
+            for: paraId,
+            customFlow: customFlow
+        ) else {
             return
         }
 

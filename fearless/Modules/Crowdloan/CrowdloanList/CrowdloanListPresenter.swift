@@ -121,22 +121,23 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
         if let customFlow = customFlow {
             switch customFlow {
             case let .moonbeam:
-                wireframe.presentMoonbeamAgreement(
+                wireframe.presentAgreement(
                     from: view,
                     paraId: viewModel.paraId,
-                    crowdloanTitle: viewModel.content.title,
                     customFlow: customFlow
                 )
             default:
                 wireframe.presentContributionSetup(
                     from: view,
-                    paraId: viewModel.paraId
+                    paraId: viewModel.paraId,
+                    customFlow: customFlow
                 )
             }
         } else {
             wireframe.presentContributionSetup(
                 from: view,
-                paraId: viewModel.paraId
+                paraId: viewModel.paraId,
+                customFlow: nil
             )
         }
     }

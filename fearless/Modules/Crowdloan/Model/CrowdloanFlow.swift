@@ -8,6 +8,26 @@ enum CustomCrowdloanFlow {
     case karura
     case bifrost
     case moonbeam(MoonbeamFlowData)
+
+    var name: String {
+        switch self {
+        case .karura:
+            return "karura"
+        case .bifrost:
+            return "bifrost"
+        case .moonbeam:
+            return "moonbeam"
+        }
+    }
+
+    var hasReferralBonus: Bool {
+        switch self {
+        case .karura, .bifrost:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 extension CustomCrowdloanFlow: Codable {
@@ -45,14 +65,15 @@ extension CustomCrowdloanFlow: Codable {
 
 extension CustomCrowdloanFlow: Equatable {
     static func == (lhs: CustomCrowdloanFlow, rhs: CustomCrowdloanFlow) -> Bool {
-        switch lhs {
-        case .karura: return rhs == .karura
-        case .bifrost: return rhs == .bifrost
-        case let .moonbeam(lhsData):
-            switch rhs {
-            case let .moonbeam(rhsData): return lhsData == rhsData
-            default: return false
-            }
+        switch (lhs, rhs) {
+        case (.karura, .karura):
+            return true
+        case (.bifrost, .bifrost):
+            return true
+        case let (.moonbeam(lhsData), .moonbeam(rhsData)):
+            return lhsData == rhsData
+        default:
+            return false
         }
     }
 }

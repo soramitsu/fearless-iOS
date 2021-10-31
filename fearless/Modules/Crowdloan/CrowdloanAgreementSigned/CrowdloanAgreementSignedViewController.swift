@@ -1,12 +1,12 @@
 import UIKit
 import SoraFoundation
 
-final class MoonbeamAgreementSignedViewController: UIViewController, ViewHolder {
-    typealias RootViewType = MoonbeamAgreementSignedViewLayout
+final class CrowdloanAgreementSignedViewController: UIViewController, ViewHolder {
+    typealias RootViewType = CrowdloanAgreementSignedViewLayout
 
-    let presenter: MoonbeamAgreementSignedPresenterProtocol
+    let presenter: CrowdloanAgreementSignedPresenterProtocol
 
-    init(presenter: MoonbeamAgreementSignedPresenterProtocol) {
+    init(presenter: CrowdloanAgreementSignedPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -17,7 +17,7 @@ final class MoonbeamAgreementSignedViewController: UIViewController, ViewHolder 
     }
 
     override func loadView() {
-        view = MoonbeamAgreementSignedViewLayout()
+        view = CrowdloanAgreementSignedViewLayout()
     }
 
     override func viewDidLoad() {
@@ -60,15 +60,15 @@ final class MoonbeamAgreementSignedViewController: UIViewController, ViewHolder 
     }
 }
 
-extension MoonbeamAgreementSignedViewController: MoonbeamAgreementSignedViewProtocol {
-    func didReceive(viewModel: MoonbeamAgreementSignedViewModel) {
+extension CrowdloanAgreementSignedViewController: CrowdloanAgreementSignedViewProtocol {
+    func didReceive(viewModel: CrowdloanAgreementSignedViewModel) {
         title = viewModel.title
 
         rootView.bind(to: viewModel)
     }
 }
 
-extension MoonbeamAgreementSignedViewController: Localizable {
+extension CrowdloanAgreementSignedViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

@@ -22,10 +22,10 @@ protocol CrowdloanAgreementConfirmInteractorOutputProtocol: AnyObject {
 }
 
 protocol CrowdloanAgreementConfirmWireframeProtocol: AnyObject {
-    func showMoonbeamAgreementSigned(
+    func showAgreementSigned(
         from view: CrowdloanAgreementConfirmViewProtocol?,
         paraId: ParaId,
         remarkExtrinsicHash: String,
-        crowdloanName: String
+        customFlow: CustomCrowdloanFlow
     )
 }
