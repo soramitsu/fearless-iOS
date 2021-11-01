@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import FearlessUtils
 
 class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching, CrowdloanContributionConfirmInteractorInputProtocol {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
@@ -24,7 +25,10 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol,
+        crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
+        connection: JSONRPCEngine
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
@@ -40,7 +44,10 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: logger,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: connection
         )
     }
 

@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import RobinHood
+import FearlessUtils
 
 class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInteractor {
     private var moonbeamService: CrowdloanAgreementServiceProtocol
@@ -19,7 +20,10 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
         operationManager: OperationManagerProtocol,
-        moonbeamService: CrowdloanAgreementServiceProtocol
+        moonbeamService: CrowdloanAgreementServiceProtocol,
+        logger: LoggerProtocol,
+        crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
+        connection: JSONRPCEngine
     ) {
         self.moonbeamService = moonbeamService
 
@@ -35,13 +39,18 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
             bonusService: bonusService,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: logger,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: connection
         )
     }
 
     override func submit(contribution: BigUInt) {
+        let prevContribution = crowdloanContribution?.balance ?? 0
+
         moonbeamService.makeSignature(
-            previousTotalContribution: "",
+            previousTotalContribution: String(prevContribution),
             contribution: String(contribution)
         ) { [weak self] result in
             switch result {

@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import FearlessUtils
 
 struct CrowdloanContributionSetupViewFactory {
     static func createView(
@@ -107,6 +108,16 @@ struct CrowdloanContributionSetupViewFactory {
             runtimeService: runtimeService
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
+
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedAccountAddress: selectedAccount.address,
@@ -117,7 +128,10 @@ struct CrowdloanContributionSetupViewFactory {
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: engine
         )
     }
 }
