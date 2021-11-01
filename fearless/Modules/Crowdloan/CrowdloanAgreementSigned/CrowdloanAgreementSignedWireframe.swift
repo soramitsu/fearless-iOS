@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 final class CrowdloanAgreementSignedWireframe: CrowdloanAgreementSignedWireframeProtocol {
     func presentContributionSetup(
@@ -17,7 +18,7 @@ final class CrowdloanAgreementSignedWireframe: CrowdloanAgreementSignedWireframe
 
         guard var viewControllers = view?.controller.navigationController?.viewControllers else { return }
 
-        _ = viewControllers.popLast()
+        viewControllers = Array(viewControllers.prefix(1))
         viewControllers.append(setupView.controller)
 
         view?.controller.navigationController?.setViewControllers(viewControllers, animated: true)

@@ -34,7 +34,17 @@ extension CrowdloanAgreementSignedPresenter: CrowdloanAgreementSignedPresenterPr
         )
     }
 
-    func seeHash() {}
+    func seeHash() {
+        guard let url = URL(string: "https://polkadot.subscan.io/transaction/\(extrinsicHash)") else { return }
+
+        guard let view = view else { return }
+
+        wireframe.showWeb(
+            url: url,
+            from: view,
+            style: .modal
+        )
+    }
 
     func setup() {
         let viewModel = CrowdloanAgreementSignedViewModel(

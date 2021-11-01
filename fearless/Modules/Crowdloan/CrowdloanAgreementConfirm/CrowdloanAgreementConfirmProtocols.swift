@@ -22,7 +22,7 @@ protocol CrowdloanAgreementConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveVerifiedExtrinsicHash(result: Result<String, Error>)
 }
 
-protocol CrowdloanAgreementConfirmWireframeProtocol: AnyObject {
+protocol CrowdloanAgreementConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
     func showAgreementSigned(
         from view: CrowdloanAgreementConfirmViewProtocol?,
         paraId: ParaId,

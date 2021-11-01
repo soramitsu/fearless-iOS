@@ -32,6 +32,7 @@ final class CrowdloanAgreementSignedViewLayout: UIView {
         label.font = .p2Paragraph
         label.textAlignment = .left
         label.numberOfLines = 0
+        label.isUserInteractionEnabled = true
         return label
     }()
 
