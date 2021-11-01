@@ -30,7 +30,7 @@ protocol SubstrateCallFactoryProtocol {
 
     func chill() -> RuntimeCall<NoRuntimeArgs>
 
-    func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>
+    func contribute(to paraId: ParaId, amount: BigUInt, signature: String?) -> RuntimeCall<CrowdloanContributeCall>
     func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo>
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
@@ -125,7 +125,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         RuntimeCall(moduleName: "Staking", callName: "chill")
     }
 
-    func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall> {
+    func contribute(to paraId: ParaId, amount: BigUInt, signature _: String? = nil) -> RuntimeCall<CrowdloanContributeCall> {
         let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
         return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
     }

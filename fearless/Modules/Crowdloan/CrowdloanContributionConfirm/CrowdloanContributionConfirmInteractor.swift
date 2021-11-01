@@ -1,8 +1,9 @@
 import UIKit
 import RobinHood
 import BigInt
+import FearlessUtils
 
-class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
+class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching, CrowdloanContributionConfirmInteractorInputProtocol {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
         presenter as? CrowdloanContributionConfirmInteractorOutputProtocol
     }
@@ -24,7 +25,10 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol,
+        crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
+        connection: JSONRPCEngine
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
@@ -40,7 +44,10 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: logger,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: connection
         )
     }
 
@@ -69,8 +76,12 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         }
     }
 
-    private func submitExtrinsic(for contribution: BigUInt) {
-        let call = callFactory.contribute(to: paraId, amount: contribution)
+    func submitExtrinsic(for contribution: BigUInt, signature: String? = nil) {
+        let call = callFactory.contribute(
+            to: paraId,
+            amount: contribution,
+            signature: signature
+        )
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)
@@ -89,9 +100,8 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
             }
         )
     }
-}
 
-extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
+    /* CrowdloanContributionConfirmInteractorInputProtocol */
     func submit(contribution: BigUInt) {
         if let bonusService = bonusService {
             bonusService.applyOffchainBonusForContribution(amount: contribution) { [weak self] result in

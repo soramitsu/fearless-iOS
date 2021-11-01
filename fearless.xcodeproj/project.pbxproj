@@ -1346,7 +1346,7 @@
 		C422769C2722CF9A005D3153 /* MoonbeamAgreeRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */; };
 		C422769E2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */; };
 		C42276A02722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */; };
-		C437401C272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */; };
+		C437401C272E62C600DE5469 /* MoonbeamContributionConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401B272E62C600DE5469 /* MoonbeamContributionConfirmInteractor.swift */; };
 		C437401F272E89AB00DE5469 /* EtheriumAddressForRewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */; };
 		C4374021272FA29B00DE5469 /* AnyCodingKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374020272FA29B00DE5469 /* AnyCodingKey.swift */; };
 		C4374023272FA5DE00DE5469 /* DashcaseJSONEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */; };
@@ -2938,7 +2938,7 @@
 		C422769B2722CF99005D3153 /* MoonbeamAgreeRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreeRemarkRequest.swift; sourceTree = "<group>"; };
 		C422769D2722CFDA005D3153 /* MoonbeamVerifyRemarkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamVerifyRemarkRequest.swift; sourceTree = "<group>"; };
 		C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamMakeSignatureRequest.swift; sourceTree = "<group>"; };
-		C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementConfirmInteractor.swift; sourceTree = "<group>"; };
+		C437401B272E62C600DE5469 /* MoonbeamContributionConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamContributionConfirmInteractor.swift; sourceTree = "<group>"; };
 		C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtheriumAddressForRewardView.swift; sourceTree = "<group>"; };
 		C4374020272FA29B00DE5469 /* AnyCodingKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCodingKey.swift; sourceTree = "<group>"; };
 		C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashcaseJSONEncoder.swift; sourceTree = "<group>"; };
@@ -7443,7 +7443,7 @@
 		C437401D272E632500DE5469 /* CustomFlows */ = {
 			isa = PBXGroup;
 			children = (
-				C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */,
+				C437401B272E62C600DE5469 /* MoonbeamContributionConfirmInteractor.swift */,
 			);
 			path = CustomFlows;
 			sourceTree = "<group>";
@@ -8649,7 +8649,7 @@
 				84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				84364D5E252FD09100281F9A /* AssetDetailsViewModel.swift in Sources */,
-				C437401C272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift in Sources */,
+				C437401C272E62C600DE5469 /* MoonbeamContributionConfirmInteractor.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
 				C4374021272FA29B00DE5469 /* AnyCodingKey.swift in Sources */,
 				F40966B926B297D6008CD244 /* AnalyticsRewardsViewModel.swift in Sources */,

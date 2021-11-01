@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import FearlessUtils
 
 class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol, RuntimeConstantFetching {
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!
@@ -16,6 +17,12 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
     let crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>
     let operationManager: OperationManagerProtocol
+    let logger: LoggerProtocol
+    let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
+    let connection: JSONRPCEngine
+
+    private(set) var crowdloan: Crowdloan?
+    private(set) var crowdloanContribution: CrowdloanContribution?
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -33,7 +40,10 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         extrinsicService: ExtrinsicServiceProtocol,
         crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol,
+        crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
+        connection: JSONRPCEngine
     ) {
         self.paraId = paraId
         self.selectedAccountAddress = selectedAccountAddress
@@ -45,6 +55,9 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
         self.singleValueProviderFactory = singleValueProviderFactory
+        self.logger = logger
+        self.crowdloanOperationFactory = crowdloanOperationFactory
+        self.connection = connection
 
         displayInfoProvider = singleValueProviderFactory.getJson(
             for: chain.crowdloanDisplayInfoURL()
@@ -118,7 +131,9 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
                 let crowdloanFunds = result.item,
                 let paraId = self?.paraId {
                 let crowdloan = Crowdloan(paraId: paraId, fundInfo: crowdloanFunds)
-                self?.presenter.didReceiveCrowdloan(result: .success(crowdloan))
+                self?.crowdloan = crowdloan
+                self?.provideContribution()
+//                self?.presenter.didReceiveCrowdloan(result: .success(crowdloan))
             }
         }
 
@@ -135,6 +150,36 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             failing: failureClosure,
             options: options
         )
+    }
+
+    private func provideContribution() {
+        guard let crowdloan = crowdloan else {
+            return
+        }
+
+        let contributionOperation: CompoundOperationWrapper<CrowdloanContributionResponse> = crowdloanOperationFactory.fetchContributionOperation(
+            connection: connection,
+            runtimeService: runtimeService,
+            address: selectedAccountAddress,
+            trieIndex: crowdloan.fundInfo.trieIndex
+        )
+
+        contributionOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                if let crowdloan = self?.crowdloan {
+                    self?.presenter.didReceiveCrowdloan(result: .success(crowdloan))
+                }
+
+                do {
+                    let contributionResponse = try contributionOperation.targetOperation.extractNoCancellableResultData()
+                    self?.crowdloanContribution = contributionResponse.contribution
+                } catch {
+                    self?.logger.error("Cannot receive contributions for crowdloan: \(crowdloan)")
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: contributionOperation.allOperations, in: .transient)
     }
 
     func setup() {

@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import IrohaCrypto
 
-final class MoonbeamService {
+final class MoonbeamService: CrowdloanAgreementServiceProtocol {
     let signingWrapper: SigningWrapperProtocol
     let address: AccountAddress
     let chain: Chain
@@ -172,7 +172,7 @@ final class MoonbeamService {
     }
 }
 
-extension MoonbeamService: MoonbeamServiceProtocol {
+extension MoonbeamService {
     var termsURL: URL {
         // TODO: attestation url from utils
         URL(string: "https://github.com/moonbeam-foundation/crowdloan-self-attestation/tree/main/moonbeam")!
@@ -281,47 +281,16 @@ extension MoonbeamService: MoonbeamServiceProtocol {
         )
     }
 
-    func verifyRemarkAndContribute(
+    func makeSignature(
+        previousTotalContribution: String,
         contribution: String,
-        extrinsicHash: String,
-        blockHash: String, with closure: @escaping (Result<MoonbeamMakeSignatureData, Error>
+        with closure: @escaping (Result<MoonbeamMakeSignatureData, Error>
         ) -> Void
     ) {
-        let verifyRemarkInfoOperation = ClosureOperation<MoonbeamVerifyRemarkInfo> {
-            MoonbeamVerifyRemarkInfo(
-                address: try self.makeAccountAddress(),
-                extrinsicHash: extrinsicHash,
-                blockHash: blockHash
-            )
-        }
-
-        let verifyRemarkOperation = createVerifyRemarkOpeartion(dependingOn: verifyRemarkInfoOperation)
-
-        verifyRemarkOperation.addDependency(verifyRemarkInfoOperation)
-
-        verifyRemarkOperation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let resultData: MoonbeamVerifyRemarkData = try verifyRemarkOperation.extractNoCancellableResultData()
-
-                    if !resultData.verified {
-                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
-                        return
-                    }
-                } catch {
-                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
-                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
-                    } else {
-                        closure(.failure(CommonError.network))
-                    }
-                }
-            }
-        }
-
         let makeSignatureInfoOperation = ClosureOperation<MoonbeamMakeSignatureInfo> {
             MoonbeamMakeSignatureInfo(
                 address: try self.makeAccountAddress(),
-                previousTotalContribution: "",
+                previousTotalContribution: previousTotalContribution,
                 contribution: contribution,
                 guid: UUID().uuidString
             )
@@ -347,17 +316,10 @@ extension MoonbeamService: MoonbeamServiceProtocol {
         }
 
         operationManager.enqueue(
-            operations: [verifyRemarkInfoOperation, verifyRemarkOperation, makeSignatureInfoOperation, makeSignatureOperation],
+            operations: [makeSignatureInfoOperation, makeSignatureOperation],
             in: .transient
         )
     }
-
-    func confirmContribution(
-        previousTotalContribution _: String,
-        contribution _: String,
-        with _: @escaping (Result<MoonbeamMakeSignatureData, Error>
-        ) -> Void
-    ) {}
 
     func checkRemark(
         with closure: @escaping (Result<Bool, Error>) -> Void
