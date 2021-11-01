@@ -39,6 +39,7 @@ protocol CrowdloanListWireframeProtocol: AnyObject {
     func presentAgreement(
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
+        contribution: CrowdloanContribution?,
         customFlow: CustomCrowdloanFlow
     )
 }
