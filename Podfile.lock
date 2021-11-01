@@ -1,9 +1,12 @@
 PODS:
   - BigInt (5.2.0)
+  - Charts (3.6.0):
+    - Charts/Core (= 3.6.0)
+  - Charts/Core (3.6.0)
   - CocoaLumberjack (3.7.2):
     - CocoaLumberjack/Core (= 3.7.2)
   - CocoaLumberjack/Core (3.7.2)
-  - CommonWallet/Core (1.15.0):
+  - CommonWallet/Core (1.15.1):
     - RobinHood (~> 2.6.0)
     - SoraFoundation/DateProcessing (~> 1.0.0)
     - SoraFoundation/Localization (~> 1.0.0)
@@ -13,33 +16,36 @@ PODS:
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
   - Cuckoo/Swift (1.5.0)
-  - FearlessUtils (0.11.1):
+  - FearlessUtils (0.13.2):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.8.0)
     - IrohaCrypto/Scrypt (~> 0.8.0)
     - IrohaCrypto/secp256k1 (~> 0.8.0)
     - IrohaCrypto/sr25519 (~> 0.8.0)
     - IrohaCrypto/ss58 (~> 0.8.0)
+    - ReachabilitySwift (~> 5.0)
+    - RobinHood (~> 2.6.1)
+    - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.8.1):
+  - IrohaCrypto/BIP39 (0.8.2):
     - IrohaCrypto/Common
-  - IrohaCrypto/blake2 (0.8.1)
-  - IrohaCrypto/Common (0.8.1)
-  - IrohaCrypto/ed25519 (0.8.1):
+  - IrohaCrypto/blake2 (0.8.2)
+  - IrohaCrypto/Common (0.8.2)
+  - IrohaCrypto/ed25519 (0.8.2):
     - IrohaCrypto/Common
-  - IrohaCrypto/Scrypt (0.8.1):
+  - IrohaCrypto/Scrypt (0.8.2):
     - IrohaCrypto/Common
     - scrypt.c (~> 0.1)
-  - IrohaCrypto/secp256k1 (0.8.1):
+  - IrohaCrypto/secp256k1 (0.8.2):
     - IrohaCrypto/Common
     - secp256k1.c (~> 0.1)
-  - IrohaCrypto/sr25519 (0.8.1):
+  - IrohaCrypto/sr25519 (0.8.2):
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
-  - IrohaCrypto/ss58 (0.8.1):
+  - IrohaCrypto/ss58 (0.8.2):
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - Kingfisher (6.3.0)
@@ -47,7 +53,7 @@ PODS:
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
-  - RobinHood (2.6.0)
+  - RobinHood (2.6.1)
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
@@ -113,14 +119,15 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `4133ff9b81cda094dd8e2b7f32129172224b0227`)
+  - Charts
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `6fe19f304870a4406d1c267b1dc959d6cdf953ba`)
   - Cuckoo
-  - FearlessUtils
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `3d307f8c9b62f85641b3b190ba1f905e7d5b3493`)
   - FireMock
   - Kingfisher
   - R.swift
   - ReachabilitySwift
-  - RobinHood (~> 2.6.0)
+  - RobinHood (from `https://github.com/soramitsu/robinhood-ios.git`, commit `11aba7168859849b2a49a72d507ef0edba9965c0`)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore
@@ -135,16 +142,15 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BigInt
+    - Charts
     - CocoaLumberjack
     - Cuckoo
-    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - Kingfisher
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
-    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
@@ -160,8 +166,14 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 4133ff9b81cda094dd8e2b7f32129172224b0227
+    :commit: 6fe19f304870a4406d1c267b1dc959d6cdf953ba
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: 3d307f8c9b62f85641b3b190ba1f905e7d5b3493
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
+  RobinHood:
+    :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
+    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -171,8 +183,14 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 4133ff9b81cda094dd8e2b7f32129172224b0227
+    :commit: 6fe19f304870a4406d1c267b1dc959d6cdf953ba
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: 3d307f8c9b62f85641b3b190ba1f905e7d5b3493
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
+  RobinHood:
+    :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
+    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -182,17 +200,18 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
+  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
-  CommonWallet: cdc58c26a9bbac8d45edba7c09313896b5d7350d
+  CommonWallet: 4c3c9c7f543842f04a930ddca163a5e0ab60f04a
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
-  FearlessUtils: 760f5884fb83e132d9e6751e216d0bb6cee2b27a
+  FearlessUtils: 2145efb33ac22395d29acbb89112d0b80e520e5f
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: 2f3ced592d33186beeb8818c0cb7481ec1365819
+  IrohaCrypto: 2b7585e71eff4fbd7e7adc2d592ad5c22610524b
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  RobinHood: f8628c9841dc1a082f4565247f6b598e82157b28
+  RobinHood: bd66f17e8aeb64d2a739d4fe07e4725fc87919d5
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
@@ -208,6 +227,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 2b66ed0117007f5bb0c55590f608dfd3e90323ea
+PODFILE CHECKSUM: 56da9fc855d239cd452f6a696a29f863d8c1bbcf
 
 COCOAPODS: 1.11.2
