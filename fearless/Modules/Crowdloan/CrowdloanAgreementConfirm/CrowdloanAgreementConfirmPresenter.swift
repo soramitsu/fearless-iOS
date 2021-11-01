@@ -88,7 +88,7 @@ extension CrowdloanAgreementConfirmPresenter {
                 from: view,
                 locale: selectedLocale
             )
-            
+
             logger.error("Did receive verify remark error: \(error)")
         }
     }

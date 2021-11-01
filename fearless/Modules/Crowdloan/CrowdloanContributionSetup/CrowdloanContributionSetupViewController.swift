@@ -46,7 +46,7 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     private func setupAmountInputView() {
         rootView.amountInputView.textField.delegate = self
-        rootView.etheriumAddressForRewardView?.etheriumAddressView.animatedInputField.textField.delegate = self
+        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.delegate = self
 
         rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
     }
@@ -154,7 +154,7 @@ extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         }
 
-        if textField === rootView.etheriumAddressForRewardView?.etheriumAddressView.animatedInputField.textField {
+        if textField === rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField {
             return false
         }
 

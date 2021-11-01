@@ -21,7 +21,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     let networkFeeView = NetworkFeeView()
 
-    var etheriumAddressForRewardView: EtheriumAddressForRewardView?
+    var ethereumAddressForRewardView: EthereumAddressForRewardView?
 
     private(set) var estimatedRewardView: TitleValueView?
 
@@ -133,10 +133,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     func bind(customFlow: CustomCrowdloanFlow?) {
         if let customFlow = customFlow {
-            createEtheriumAddressViewIfNeeded()
+            createEthereumAddressViewIfNeeded()
             applyLocalization()
         } else {
-            removeEtheriumAddressViewIfNeeded()
+            removeEthereumAddressViewIfNeeded()
         }
     }
 
@@ -169,9 +169,9 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
 
-        etheriumAddressForRewardView?.etheriumAddressView.animatedInputField.title = R.string.localizable.moonbeanEthereumAddress(preferredLanguages: locale.rLanguages)
+        ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.title = R.string.localizable.moonbeanEthereumAddress(preferredLanguages: locale.rLanguages)
 
-        etheriumAddressForRewardView?.etheriumHintView.titleLabel.text = R.string.localizable.moonbeamAddressHint(preferredLanguages: locale.rLanguages)
+        ethereumAddressForRewardView?.ethereumHintView.titleLabel.text = R.string.localizable.moonbeamAddressHint(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -264,7 +264,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
 
         estimatedRewardView = view
-        estimatedRewardView?.borderView.isHidden = etheriumAddressForRewardView != nil
+        estimatedRewardView?.borderView.isHidden = ethereumAddressForRewardView != nil
     }
 
     private func removeEstimatedRewardViewIfNeeded() {
@@ -278,8 +278,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         self.estimatedRewardView = nil
     }
 
-    private func createEtheriumAddressViewIfNeeded() {
-        guard etheriumAddressForRewardView == nil else {
+    private func createEthereumAddressViewIfNeeded() {
+        guard ethereumAddressForRewardView == nil else {
             return
         }
 
@@ -298,21 +298,21 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             return
         }
 
-        let view = EtheriumAddressForRewardView()
+        let view = EthereumAddressForRewardView()
         contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
-        etheriumAddressForRewardView = view
+        ethereumAddressForRewardView = view
         estimatedRewardView?.borderView.isHidden = true
     }
 
-    private func removeEtheriumAddressViewIfNeeded() {
-        guard let etheriumAddressForRewardView = etheriumAddressForRewardView else {
+    private func removeEthereumAddressViewIfNeeded() {
+        guard let ethereumAddressForRewardView = ethereumAddressForRewardView else {
             return
         }
 
-        contentView.stackView.removeArrangedSubview(etheriumAddressForRewardView)
-        etheriumAddressForRewardView.removeFromSuperview()
+        contentView.stackView.removeArrangedSubview(ethereumAddressForRewardView)
+        ethereumAddressForRewardView.removeFromSuperview()
 
-        self.etheriumAddressForRewardView = nil
+        self.ethereumAddressForRewardView = nil
         estimatedRewardView?.borderView.isHidden = false
     }
 

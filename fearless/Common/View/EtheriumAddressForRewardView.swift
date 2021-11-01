@@ -1,9 +1,9 @@
 import UIKit
 
-class EtheriumAddressForRewardView: UIView {
-    let etheriumAddressView = CommonInputView()
+class EthereumAddressForRewardView: UIView {
+    let ethereumAddressView = CommonInputView()
 
-    let etheriumHintView = HintView()
+    let ethereumHintView = HintView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -18,17 +18,17 @@ class EtheriumAddressForRewardView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(etheriumAddressView)
-        etheriumAddressView.snp.makeConstraints { make in
+        addSubview(ethereumAddressView)
+        ethereumAddressView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
         }
 
-        addSubview(etheriumHintView)
+        addSubview(ethereumHintView)
 
-        etheriumHintView.snp.makeConstraints { make in
-            make.top.equalTo(etheriumAddressView.snp.bottom).offset(UIConstants.bigOffset)
+        ethereumHintView.snp.makeConstraints { make in
+            make.top.equalTo(ethereumAddressView.snp.bottom).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview()
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
