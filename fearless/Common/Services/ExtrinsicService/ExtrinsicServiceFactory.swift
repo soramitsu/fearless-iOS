@@ -1,5 +1,6 @@
 import RobinHood
 import SoraKeystore
+import FearlessUtils
 
 protocol ExtrinsicServiceFactoryProtocol {
     func createService(accountItem: AccountItem) -> ExtrinsicServiceProtocol

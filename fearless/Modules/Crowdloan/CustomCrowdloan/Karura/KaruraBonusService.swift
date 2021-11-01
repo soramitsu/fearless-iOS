@@ -126,7 +126,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     }
 
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                    if let responseError = error as? NetworkResponseError, case .invalidParameters = responseError {
                         closure(.failure(CrowdloanBonusServiceError.invalidReferral))
                     } else {
                         closure(.failure(CrowdloanBonusServiceError.internalError))
@@ -184,7 +184,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     _ = try verifyOperation.extractNoCancellableResultData()
                     closure(.success(()))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                    if let responseError = error as? NetworkResponseError, case .invalidParameters = responseError {
                         closure(.failure(CrowdloanBonusServiceError.veficationFailed))
                     } else {
                         closure(.failure(error))
