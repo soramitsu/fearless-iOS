@@ -46,6 +46,7 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     private func setupAmountInputView() {
         rootView.amountInputView.textField.delegate = self
+        rootView.etheriumAddressForRewardView?.etheriumAddressView.animatedInputField.textField.delegate = self
 
         rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
     }
@@ -145,11 +146,19 @@ extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver
 
 extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
     func textField(
-        _: UITextField,
+        textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        if textField === rootView.amountInputView.textField {
+            return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        }
+
+        if textField === rootView.etheriumAddressForRewardView?.etheriumAddressView.animatedInputField.textField {
+            return false
+        }
+
+        return false
     }
 }
 

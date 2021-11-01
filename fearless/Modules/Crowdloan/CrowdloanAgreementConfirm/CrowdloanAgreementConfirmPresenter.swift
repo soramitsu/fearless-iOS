@@ -63,9 +63,10 @@ extension CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmPresenter
     }
 
     func confirmAgreement() {
-        view?.didReceive(state: .confirmLoading)
+        wireframe.showAgreementSigned(from: view, paraId: paraId, remarkExtrinsicHash: "0x8a7s8d787as8d7s8x7079s7d6a5764da78d0sa98d089s5d574ad", customFlow: customFlow)
+//        view?.didReceive(state: .confirmLoading)
 
-        interactor.confirmAgreement()
+//        interactor.confirmAgreement()
     }
 }
 

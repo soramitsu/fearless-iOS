@@ -77,7 +77,7 @@ extension NSPredicate {
 
         return NSPredicate(format: "SELF MATCHES %@", format)
     }
-    
+
     static var ethereumAddress: NSPredicate {
         let format = "0x[A-Fa-f0-9]{40}"
         return NSPredicate(format: "SELF MATCHES %@", format)

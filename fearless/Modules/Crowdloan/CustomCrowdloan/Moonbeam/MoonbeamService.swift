@@ -374,16 +374,17 @@ extension MoonbeamService: MoonbeamServiceProtocol {
 
         checkRemarkOperation.completionBlock = {
             DispatchQueue.main.async {
-                do {
-                    let resultData: MoonbeamCheckRemarkData = try checkRemarkOperation.extractNoCancellableResultData()
-                    closure(.success(resultData.verified))
-                } catch {
-                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
-                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
-                    } else {
-                        closure(.failure(CommonError.network))
-                    }
-                }
+                closure(.success(false))
+//                do {
+//                    let resultData: MoonbeamCheckRemarkData = try checkRemarkOperation.extractNoCancellableResultData()
+//                    closure(.success(resultData.verified))
+//                } catch {
+//                    if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {
+//                        closure(.failure(CrowdloanAgreementServiceError.moonbeamForbidden))
+//                    } else {
+//                        closure(.failure(CommonError.network))
+//                    }
+//                }
             }
         }
 

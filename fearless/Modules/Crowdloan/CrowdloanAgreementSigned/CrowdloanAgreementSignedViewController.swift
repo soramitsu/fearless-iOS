@@ -42,6 +42,7 @@ final class CrowdloanAgreementSignedViewController: UIViewController, ViewHolder
             target: self,
             action: #selector(actionTapHash(_:))
         )
+
         rootView.hashLabel.addGestureRecognizer(tapGestureRecognizer)
     }
 
