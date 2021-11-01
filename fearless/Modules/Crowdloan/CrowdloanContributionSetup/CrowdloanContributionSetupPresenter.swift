@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SoraFoundation
+import SoraUI
 
 final class CrowdloanContributionSetupPresenter {
     weak var view: CrowdloanContributionSetupViewProtocol?
@@ -45,6 +46,7 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private var inputResult: AmountInputResult?
+    private var ethereumAddress: String?
 
     init(
         interactor: CrowdloanContributionSetupInteractorInputProtocol,
@@ -112,6 +114,15 @@ final class CrowdloanContributionSetupPresenter {
         provideInputViewModel()
     }
 
+    private func provideEthereumAddressViewModel() {
+        guard case .moonbeam = customFlow else { return }
+
+        let predicate = NSPredicate.ethereumAddress
+        let inputHandling = InputHandler(predicate: predicate)
+        let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: "")
+        view?.didReceiveEthereumAddress(viewModel: viewModel)
+    }
+
     private func provideCrowdloanContributionViewModel() {
         guard let crowdloan = crowdloan, let metadata = crowdloanMetadata else {
             return
@@ -162,6 +173,7 @@ final class CrowdloanContributionSetupPresenter {
         provideAssetVewModel()
         provideFeeViewModel()
         provideInputViewModel()
+        provideEthereumAddressViewModel()
         provideCrowdloanContributionViewModel()
         provideEstimatedRewardViewModel()
         provideBonusViewModel()
@@ -205,6 +217,10 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         provideAssetVewModel()
         provideEstimatedRewardViewModel()
         provideBonusViewModel()
+    }
+
+    func updateEthereumAddress(_ newValue: String) {
+        ethereumAddress = newValue
     }
 
     func proceed() {

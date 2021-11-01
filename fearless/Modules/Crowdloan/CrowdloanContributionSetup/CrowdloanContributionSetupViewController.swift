@@ -8,6 +8,7 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     let presenter: CrowdloanContributionSetupPresenterProtocol
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var ethereumAddressViewModel: InputViewModelProtocol?
 
     var uiFactory: UIFactoryProtocol = UIFactory.default
 
@@ -57,9 +58,14 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 
+    private var isFormValid: Bool {
+        [amountInputViewModel?.isValid, ethereumAddressViewModel?.inputHandler.completed]
+            .compactMap { $0 }
+            .allSatisfy { $0 }
+    }
+
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.set(enabled: isEnabled)
+        rootView.actionButton.set(enabled: isFormValid)
     }
 
     @objc func actionProceed() {
@@ -91,6 +97,17 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         amountInputViewModel?.observable.add(observer: self)
 
         rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+
+        updateActionButton()
+    }
+
+    func didReceiveEthereumAddress(viewModel: InputViewModelProtocol) {
+        ethereumAddressViewModel?.inputHandler.removeObserver(self)
+
+        ethereumAddressViewModel = viewModel
+        ethereumAddressViewModel?.inputHandler.addObserver(self)
+
+        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.text = ethereumAddressViewModel?.inputHandler.value
 
         updateActionButton()
     }
@@ -144,9 +161,16 @@ extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver
     }
 }
 
+extension CrowdloanContributionSetupViewController: InputHandlingObserver {
+    func didChangeInputValue(_ handler: InputHandling, from _: String) {
+        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.text = handler.value
+        presenter.updateEthereumAddress(handler.value)
+    }
+}
+
 extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
     func textField(
-        textField: UITextField,
+        _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
@@ -155,7 +179,7 @@ extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
         }
 
         if textField === rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField {
-            return false
+            return ethereumAddressViewModel?.inputHandler.didReceiveReplacement(string, for: range) ?? false
         }
 
         return false
