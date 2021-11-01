@@ -154,7 +154,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
             paraIds.map { StringScaleMapper(value: $0) }
         }
 
-        let queryWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainSlotLease]>]> =
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainSlotLease?]>]> =
             requestOperationFactory.queryItems(
                 engine: connection,
                 keyParams: keyParams,
@@ -192,6 +192,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
                 }
 
                 let leasedAmount = leasedAmountList
+                    .compactMap { $0 }
                     .filter { $0.accountId == fundAccountId }
                     .max { $0.amount > $1.amount }?
                     .amount
