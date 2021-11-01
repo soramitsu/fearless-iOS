@@ -5,6 +5,7 @@ final class CrowdloanAgreementConfirmViewController: UIViewController, ViewHolde
     typealias RootViewType = CrowdloanAgreementConfirmViewLayout
 
     let presenter: CrowdloanAgreementConfirmPresenterProtocol
+    private var viewState: CrowdloanAgreementConfirmViewState = .normal
 
     init(presenter: CrowdloanAgreementConfirmPresenterProtocol) {
         self.presenter = presenter
@@ -46,9 +47,23 @@ final class CrowdloanAgreementConfirmViewController: UIViewController, ViewHolde
     @objc private func actionConfirm() {
         presenter.confirmAgreement()
     }
+
+    private func applyState() {
+        switch viewState {
+        case .normal:
+            rootView.networkFeeConfirmView.actionButton.set(loading: false)
+        case .confirmLoading:
+            rootView.networkFeeConfirmView.actionButton.set(loading: true)
+        }
+    }
 }
 
 extension CrowdloanAgreementConfirmViewController: CrowdloanAgreementConfirmViewProtocol {
+    func didReceive(state: CrowdloanAgreementConfirmViewState) {
+        viewState = state
+        applyState()
+    }
+
     func didReceiveFee(viewModel: BalanceViewModelProtocol?) {
         rootView.bind(feeViewModel: viewModel)
     }

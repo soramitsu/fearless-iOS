@@ -1348,6 +1348,8 @@
 		C42276A02722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */; };
 		C437401C272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */; };
 		C437401F272E89AB00DE5469 /* EtheriumAddressForRewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */; };
+		C4374021272FA29B00DE5469 /* AnyCodingKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374020272FA29B00DE5469 /* AnyCodingKey.swift */; };
+		C4374023272FA5DE00DE5469 /* DashcaseJSONEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */; };
 		C4427244A22EA7BA7F7C9E9F /* StakingRedeemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D8D690B564EDC04996945 /* StakingRedeemTests.swift */; };
 		C45698F62729013600D4B64E /* HTTPConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F52729013600D4B64E /* HTTPConstants.swift */; };
 		C45698F82729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */; };
@@ -2936,6 +2938,8 @@
 		C422769F2722CFEE005D3153 /* MoonbeamMakeSignatureRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamMakeSignatureRequest.swift; sourceTree = "<group>"; };
 		C437401B272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamAgreementConfirmInteractor.swift; sourceTree = "<group>"; };
 		C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtheriumAddressForRewardView.swift; sourceTree = "<group>"; };
+		C4374020272FA29B00DE5469 /* AnyCodingKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCodingKey.swift; sourceTree = "<group>"; };
+		C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashcaseJSONEncoder.swift; sourceTree = "<group>"; };
 		C45698F52729013600D4B64E /* HTTPConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPConstants.swift; sourceTree = "<group>"; };
 		C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementConfirmViewModel.swift; sourceTree = "<group>"; };
 		C45698FA27293BA200D4B64E /* CrowdloanAgreementViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7388,6 +7392,8 @@
 			children = (
 				C422768027228658005D3153 /* Builder */,
 				C422767E27228593005D3153 /* HTTPRequest.swift */,
+				C4374020272FA29B00DE5469 /* AnyCodingKey.swift */,
+				C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -8639,6 +8645,7 @@
 				84364D5E252FD09100281F9A /* AssetDetailsViewModel.swift in Sources */,
 				C437401C272E62C600DE5469 /* MoonbeamAgreementConfirmInteractor.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
+				C4374021272FA29B00DE5469 /* AnyCodingKey.swift in Sources */,
 				F40966B926B297D6008CD244 /* AnalyticsRewardsViewModel.swift in Sources */,
 				F47BBD472630B6980087DA11 /* StakingBalanceProtocols.swift in Sources */,
 				AE2C84DA25EF98A900986716 /* ValidatorInfoPresenter.swift in Sources */,
@@ -9856,6 +9863,7 @@
 				77B6E9B6DBFB75BD6397D671 /* CrowdloanAgreementViewFactory.swift in Sources */,
 				AC715AA46DD4260382BE3237 /* CrowdloanAgreementConfirmProtocols.swift in Sources */,
 				362971C618915448E72DA5BE /* CrowdloanAgreementConfirmWireframe.swift in Sources */,
+				C4374023272FA5DE00DE5469 /* DashcaseJSONEncoder.swift in Sources */,
 				8710936306DCBE7C6D80DBAB /* CrowdloanAgreementConfirmPresenter.swift in Sources */,
 				DE536574BEEFCCB3AE70F5AF /* CrowdloanAgreementConfirmInteractor.swift in Sources */,
 				92583D32A576660BA58EBF5D /* CrowdloanAgreementConfirmViewController.swift in Sources */,

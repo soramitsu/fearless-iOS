@@ -60,6 +60,8 @@ final class CrowdloanAgreementPresenter {
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
     func confirmAgreement() {
+        view?.didReceive(state: .confirmLoading)
+
         interactor.agreeRemark()
     }
 
@@ -77,6 +79,8 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementInteractorOutputProtocol {
     func didReceiveRemark(result: Result<MoonbeamAgreeRemarkData, Error>) {
+        updateView()
+
         switch result {
         case let .success(remarkData):
             proceedToConfirm(with: remarkData.remark)

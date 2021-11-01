@@ -63,12 +63,16 @@ extension CrowdloanAgreementConfirmPresenter: CrowdloanAgreementConfirmPresenter
     }
 
     func confirmAgreement() {
+        view?.didReceive(state: .confirmLoading)
+
         interactor.confirmAgreement()
     }
 }
 
 extension CrowdloanAgreementConfirmPresenter {
     func didReceiveVerifiedExtrinsicHash(result: Result<String, Error>) {
+        view?.didReceive(state: .normal)
+
         switch result {
         case let .success(hash):
             wireframe.showAgreementSigned(

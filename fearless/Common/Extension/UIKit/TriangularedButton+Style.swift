@@ -44,4 +44,16 @@ extension TriangularedButton {
 
         contentOpacityWhenDisabled = 1.0
     }
+
+    func applyLoadingStyle() {
+        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.fillColor = R.color.colorDarkGray()!
+        triangularedView?.highlightedFillColor = R.color.colorDarkGray()!
+        triangularedView?.strokeColor = .clear
+        triangularedView?.highlightedStrokeColor = .clear
+
+        imageWithTitleView?.titleColor = .clear
+
+        contentOpacityWhenDisabled = 1.0
+    }
 }

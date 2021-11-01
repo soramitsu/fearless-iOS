@@ -1,5 +1,5 @@
 import Foundation
-protocol CrowdloanAgreementViewProtocol: ControllerBackedProtocol {
+protocol CrowdloanAgreementViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(state: CrowdloanAgreementState)
 }
 

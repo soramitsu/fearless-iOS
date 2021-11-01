@@ -1,4 +1,5 @@
 protocol CrowdloanAgreementConfirmViewProtocol: ControllerBackedProtocol {
+    func didReceive(state: CrowdloanAgreementConfirmViewState)
     func didReceiveFee(viewModel: BalanceViewModelProtocol?)
     func didReceiveAccount(viewModel: CrowdloanAccountViewModel?)
 }

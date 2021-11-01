@@ -91,6 +91,7 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
             agreementViewModel = viewModel
             didStopLoading()
             rootView.contentView.isHidden = false
+            rootView.confirmAgreementButton.set(loading: false)
 
             applyAgreementViewModel()
         case .error:
@@ -99,6 +100,8 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
 
             didStopLoading()
             rootView.contentView.isHidden = true
+        case .confirmLoading:
+            rootView.confirmAgreementButton.set(loading: true)
         }
     }
 }

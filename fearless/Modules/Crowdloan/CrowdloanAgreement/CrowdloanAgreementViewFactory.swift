@@ -7,11 +7,29 @@ struct CrowdloanAgreementViewFactory {
         for paraId: ParaId,
         customFlow: CustomCrowdloanFlow
     ) -> CrowdloanAgreementViewProtocol? {
+        switch customFlow {
+        case let .moonbeam(moonbeamFlowData):
+            return CrowdloanAgreementViewFactory.createMoonbeamView(
+                for: paraId,
+                customFlow: customFlow,
+                moonbeamFlowData: moonbeamFlowData
+            )
+        default:
+            return nil
+        }
+    }
+
+    private static func createMoonbeamView(
+        for paraId: ParaId,
+        customFlow: CustomCrowdloanFlow,
+        moonbeamFlowData: MoonbeamFlowData
+    ) -> CrowdloanAgreementViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
-        guard let interactor = CrowdloanAgreementViewFactory.createInteractor(
+        guard let interactor = CrowdloanAgreementViewFactory.createMoonbeamInteractor(
             paraId: paraId,
-            customFlow: customFlow
+            customFlow: customFlow,
+            moonbeamFlowData: moonbeamFlowData
         ) else {
             return nil
         }
@@ -38,23 +56,17 @@ struct CrowdloanAgreementViewFactory {
 }
 
 extension CrowdloanAgreementViewFactory {
-    static func createInteractor(
+    static func createMoonbeamInteractor(
         paraId _: ParaId,
-        customFlow: CustomCrowdloanFlow
+        customFlow: CustomCrowdloanFlow,
+        moonbeamFlowData: MoonbeamFlowData
     ) -> CrowdloanAgreementInteractor? {
         let settings = SettingsManager.shared
 
-        var requestBuilder: HTTPRequestBuilderProtocol?
-
-        switch customFlow {
-        case let .moonbeam(moonbeamFlowData):
-            requestBuilder = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
-        default: break
-        }
+        var requestBuilder = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
 
         guard
-            let selectedAddress = settings.selectedAccount?.address,
-            let requestBuilder = requestBuilder
+            let selectedAddress = settings.selectedAccount?.address
         else {
             return nil
         }

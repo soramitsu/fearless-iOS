@@ -145,13 +145,17 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
             signingWrapper,
             runningIn: .main
         ) { [weak self] result, exHash in
-            guard let exHash = exHash else { return } // TODO: show internal error
+            guard let exHash = exHash else {
+                self?.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(CommonError.network))
+                return
+            }
+
             let extrinsicHash: String
             do {
                 let extrinsic = try Data(hexString: exHash)
                 extrinsicHash = try extrinsic.blake2b32().toHex(includePrefix: true)
             } catch {
-                // TODO: show alert
+                self?.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(CommonError.internal))
                 return
             }
 
@@ -171,7 +175,7 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
 
             let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
                 self?.logger.error("Did receive subscription error: \(error) \(unsubscribed)")
-                // TODO: Alert
+                self?.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(CommonError.network))
             }
             switch result {
             case let .success(hash):
@@ -194,10 +198,11 @@ extension CrowdloanAgreementConfirmInteractor: CrowdloanAgreementConfirmInteract
                     engine.addSubscription(subscription)
                 } catch {
                     self?.logger.error("Can't subscribe to storage: \(error)")
-                    // TODO: Alert
+                    self?.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(error))
                 }
             case let .failure(error):
                 self?.logger.error("submit and watch request error: \(error)")
+                self?.presenter?.didReceiveVerifiedExtrinsicHash(result: .failure(CommonError.network))
             }
         }
     }
