@@ -5,6 +5,7 @@ import FearlessUtils
 
 class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInteractor {
     private var moonbeamService: CrowdloanAgreementServiceProtocol
+    private var ethereumAccountAddress: String?
 
     init(
         paraId: ParaId,
@@ -23,9 +24,11 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         moonbeamService: CrowdloanAgreementServiceProtocol,
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine,
+        ethereumAddress: String? = nil
     ) {
         self.moonbeamService = moonbeamService
+        ethereumAccountAddress = ethereumAddress
 
         super.init(
             paraId: paraId,
@@ -64,4 +67,40 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             }
         }
     }
+
+    private func addMemoIfNeeded(contribution: BigUInt) {
+        guard
+            let ethereumAccountAddress = ethereumAccountAddress,
+            let memo = ethereumAccountAddress.data(using: .utf8)
+        else {
+            submit(contribution: contribution)
+            return
+        }
+
+        let call = callFactory.addMemo(
+            to: paraId,
+            memo: memo
+        )
+
+        let builderClosure: ExtrinsicBuilderClosure = { builder in
+            let nextBuilder = try builder.adding(call: call)
+            return nextBuilder
+        }
+
+        extrinsicService.submit(
+            builderClosure,
+            signer: signingWrapper,
+            runningIn: .main,
+            completion: { [weak self] result in
+                switch result {
+                case .success:
+                    self?.submit(contribution: contribution)
+                case let .failure(error):
+                    self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
+                }
+            }
+        )
+    }
+
+    private func saveEtheriumAdressAsMoonbeamDefault() {}
 }

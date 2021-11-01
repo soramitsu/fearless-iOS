@@ -35,7 +35,8 @@ protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPre
         paraId: ParaId,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol?,
-        customFlow: CustomCrowdloanFlow?
+        customFlow: CustomCrowdloanFlow?,
+        ethereumAddress: String?
     )
 
     func showAdditionalBonus(

@@ -17,4 +17,5 @@ protocol CrowdloanContributionInteractorOutputProtocol: AnyObject {
     func didReceiveMinimumContribution(result: Result<BigUInt, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveFees(results: [Result<RuntimeDispatchInfo, Error>])
 }

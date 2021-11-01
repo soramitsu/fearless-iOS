@@ -47,7 +47,6 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     private func setupAmountInputView() {
         rootView.amountInputView.textField.delegate = self
-        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.delegate = self
 
         rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
     }
@@ -59,7 +58,8 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     }
 
     private var isFormValid: Bool {
-        [amountInputViewModel?.isValid, ethereumAddressViewModel?.inputHandler.completed]
+        let ethereumValid = !(ethereumAddressViewModel?.inputHandler.value.isEmpty ?? true) ? ethereumAddressViewModel?.inputHandler.completed : true
+        return [amountInputViewModel?.isValid, ethereumValid]
             .compactMap { $0 }
             .allSatisfy { $0 }
     }
@@ -107,8 +107,6 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         ethereumAddressViewModel = viewModel
         ethereumAddressViewModel?.inputHandler.addObserver(self)
 
-        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.text = ethereumAddressViewModel?.inputHandler.value
-
         updateActionButton()
     }
 
@@ -135,6 +133,13 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
     func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
         rootView.bind(customFlow: viewModel)
+
+        switch viewModel {
+        case .moonbeam:
+            rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.delegate = self
+        default:
+            break
+        }
     }
 }
 
@@ -163,7 +168,6 @@ extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver
 
 extension CrowdloanContributionSetupViewController: InputHandlingObserver {
     func didChangeInputValue(_ handler: InputHandling, from _: String) {
-        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.text = handler.value
         presenter.updateEthereumAddress(handler.value)
     }
 }

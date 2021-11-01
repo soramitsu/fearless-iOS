@@ -133,7 +133,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
                 let crowdloan = Crowdloan(paraId: paraId, fundInfo: crowdloanFunds)
                 self?.crowdloan = crowdloan
                 self?.provideContribution()
-//                self?.presenter.didReceiveCrowdloan(result: .success(crowdloan))
             }
         }
 

@@ -9,7 +9,8 @@ struct CrowdloanContributionConfirmViewFactory {
         with paraId: ParaId,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol?,
-        customFlow: CustomCrowdloanFlow?
+        customFlow: CustomCrowdloanFlow?,
+        ethereumAddress: String?
     ) -> CrowdloanContributionConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
@@ -23,9 +24,18 @@ struct CrowdloanContributionConfirmViewFactory {
         var interactor: CrowdloanContributionConfirmInteractor?
         switch customFlow {
         case let .moonbeam(moonbeamFlowData):
-            interactor = createMoonbeamInteractor(for: paraId, assetId: assetId, moonbeamFlowData: moonbeamFlowData)
+            interactor = createMoonbeamInteractor(
+                for: paraId,
+                assetId: assetId,
+                moonbeamFlowData: moonbeamFlowData,
+                ethereumAddress: ethereumAddress
+            )
         default:
-            interactor = createInteractor(for: paraId, assetId: assetId, bonusService: bonusService)
+            interactor = createInteractor(
+                for: paraId,
+                assetId: assetId,
+                bonusService: bonusService
+            )
         }
 
         guard let interactor = interactor else {
@@ -85,7 +95,8 @@ struct CrowdloanContributionConfirmViewFactory {
     private static func createMoonbeamInteractor(
         for paraId: ParaId,
         assetId: WalletAssetId,
-        moonbeamFlowData: MoonbeamFlowData
+        moonbeamFlowData: MoonbeamFlowData,
+        ethereumAddress: String?
     ) -> MoonbeamContributionConfirmInteractor? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
@@ -185,7 +196,8 @@ struct CrowdloanContributionConfirmViewFactory {
             moonbeamService: agreementService,
             logger: Logger.shared,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: engine
+            connection: engine,
+            ethereumAddress: ethereumAddress
         )
     }
 

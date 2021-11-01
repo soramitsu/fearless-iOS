@@ -6,13 +6,15 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         paraId: ParaId,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol?,
-        customFlow: CustomCrowdloanFlow?
+        customFlow: CustomCrowdloanFlow?,
+        ethereumAddress: String?
     ) {
         guard let confirmationView = CrowdloanContributionConfirmViewFactory.createView(
             with: paraId,
             inputAmount: inputAmount,
             bonusService: bonusService,
-            customFlow: customFlow
+            customFlow: customFlow,
+            ethereumAddress: ethereumAddress
         ) else {
             return
         }
