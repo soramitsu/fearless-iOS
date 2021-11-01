@@ -10,8 +10,13 @@ enum HTTPRequestBuilderError: Error {
 class HTTPRequestBuilder {
     private var scheme: String?
     private var host: String?
+    private var headerBuilder: HTTPHeadersBuilderProtocol?
 
-    init(scheme: String = "https", host: String) {
+    init(
+        scheme: String = "https",
+        host: String,
+        headerBuilder: HTTPHeadersBuilderProtocol? = nil
+    ) {
         if let url = URL(string: host) {
             self.scheme = url.scheme
             self.host = url.host
@@ -19,6 +24,8 @@ class HTTPRequestBuilder {
             self.scheme = scheme
             self.host = host
         }
+
+        self.headerBuilder = headerBuilder
     }
 }
 
@@ -54,7 +61,16 @@ extension HTTPRequestBuilder: HTTPRequestBuilderProtocol {
             throw HTTPRequestBuilderError.invalidBody
         }
 
-        request.allHTTPHeaderFields = config.headers
+        var allHeaders: [String: String] = [:]
+
+        if let defaultHeaders = headerBuilder?.buildHeaders() {
+            allHeaders = allHeaders.merging(defaultHeaders) { _, new in new }
+        }
+        if let configHeaders = config.headers {
+            allHeaders = allHeaders.merging(configHeaders) { _, new in new }
+        }
+
+        request.allHTTPHeaderFields = allHeaders
 
         return request
     }

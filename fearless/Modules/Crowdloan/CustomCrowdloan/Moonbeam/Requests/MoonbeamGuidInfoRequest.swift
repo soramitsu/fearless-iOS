@@ -14,7 +14,7 @@ struct MoonbeamGuidInfoRequest: HTTPRequestConfig {
     }
 
     var headers: [String: String]? {
-        ["x-api-key": "JbykAAZTUa8MTggXlb4k03yAW9Ur2DFU1T0rm2Th"]
+        nil
     }
 
     var queryParameters: [URLQueryItem]? {

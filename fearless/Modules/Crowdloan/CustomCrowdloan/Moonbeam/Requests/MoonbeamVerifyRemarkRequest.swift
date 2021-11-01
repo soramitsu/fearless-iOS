@@ -14,8 +14,7 @@ struct MoonbeamVerifyRemarkRequest: HTTPRequestConfig {
     }
 
     var headers: [String: String]? {
-        [HttpHeaderKey.contentType.rawValue: HttpContentType.json.rawValue,
-         "x-api-key": "JbykAAZTUa8MTggXlb4k03yAW9Ur2DFU1T0rm2Th"]
+        [HttpHeaderKey.contentType.rawValue: HttpContentType.json.rawValue]
     }
 
     var queryParameters: [URLQueryItem]? {

@@ -1350,6 +1350,8 @@
 		C437401F272E89AB00DE5469 /* EtheriumAddressForRewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */; };
 		C4374021272FA29B00DE5469 /* AnyCodingKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374020272FA29B00DE5469 /* AnyCodingKey.swift */; };
 		C4374023272FA5DE00DE5469 /* DashcaseJSONEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */; };
+		C4374025272FAEB400DE5469 /* HTTPHeadersBuilderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374024272FAEB400DE5469 /* HTTPHeadersBuilderProtocol.swift */; };
+		C4374027272FAEFF00DE5469 /* MoonbeamHTTPHeadersBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4374026272FAEFF00DE5469 /* MoonbeamHTTPHeadersBuilder.swift */; };
 		C4427244A22EA7BA7F7C9E9F /* StakingRedeemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D8D690B564EDC04996945 /* StakingRedeemTests.swift */; };
 		C45698F62729013600D4B64E /* HTTPConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F52729013600D4B64E /* HTTPConstants.swift */; };
 		C45698F82729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */; };
@@ -2940,6 +2942,8 @@
 		C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtheriumAddressForRewardView.swift; sourceTree = "<group>"; };
 		C4374020272FA29B00DE5469 /* AnyCodingKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCodingKey.swift; sourceTree = "<group>"; };
 		C4374022272FA5DE00DE5469 /* DashcaseJSONEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashcaseJSONEncoder.swift; sourceTree = "<group>"; };
+		C4374024272FAEB400DE5469 /* HTTPHeadersBuilderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeadersBuilderProtocol.swift; sourceTree = "<group>"; };
+		C4374026272FAEFF00DE5469 /* MoonbeamHTTPHeadersBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonbeamHTTPHeadersBuilder.swift; sourceTree = "<group>"; };
 		C45698F52729013600D4B64E /* HTTPConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPConstants.swift; sourceTree = "<group>"; };
 		C45698F72729240200D4B64E /* CrowdloanAgreementConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementConfirmViewModel.swift; sourceTree = "<group>"; };
 		C45698FA27293BA200D4B64E /* CrowdloanAgreementViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanAgreementViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7401,6 +7405,7 @@
 		C422768027228658005D3153 /* Builder */ = {
 			isa = PBXGroup;
 			children = (
+				C4374024272FAEB400DE5469 /* HTTPHeadersBuilderProtocol.swift */,
 				C422768127228664005D3153 /* HTTPRequestBuilderProtocol.swift */,
 				C4227683272286A1005D3153 /* HTTPRequestBuilder.swift */,
 			);
@@ -7417,6 +7422,7 @@
 				C42276972722C5AB005D3153 /* MoonbeamHTTPRequestBuilder.swift */,
 				C40738E62723279C006DC6D4 /* MoonbeamJSONDecoder.swift */,
 				C40738E827232CFA006DC6D4 /* MoonbeamJSONEncoder.swift */,
+				C4374026272FAEFF00DE5469 /* MoonbeamHTTPHeadersBuilder.swift */,
 			);
 			path = Moonbeam;
 			sourceTree = "<group>";
@@ -9197,6 +9203,7 @@
 				8461CC8326BC0006007460E4 /* MortalEraOperationFactory.swift in Sources */,
 				8425EA8B25EA7AF200C307C9 /* UnappliedSlashes.swift in Sources */,
 				84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */,
+				C4374025272FAEB400DE5469 /* HTTPHeadersBuilderProtocol.swift in Sources */,
 				84F51053263AB440005D15AE /* StakingUnbondSetupLayout.swift in Sources */,
 				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8448221826B1624E007F4492 /* SelectValidatorsConfirmViewLayout.swift in Sources */,
@@ -9416,6 +9423,7 @@
 				4A520B7081BE2D7604B69354 /* AccountImportWireframe.swift in Sources */,
 				F4433D5F26C166470002A91E /* AnalyticsValidatorsView.swift in Sources */,
 				846AF8422525BDBF00868F37 /* WalletNetworkFacade+Price.swift in Sources */,
+				C4374027272FAEFF00DE5469 /* MoonbeamHTTPHeadersBuilder.swift in Sources */,
 				7D281FEA78E2E5F44990C184 /* AccountImportPresenter.swift in Sources */,
 				6C56AB4AE63AB2DC73DE98E0 /* AccountImportInteractor.swift in Sources */,
 				3AA2B9B1E34C88EF2671358D /* AccountImportViewController.swift in Sources */,

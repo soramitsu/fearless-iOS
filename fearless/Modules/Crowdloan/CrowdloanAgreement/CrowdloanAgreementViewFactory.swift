@@ -63,8 +63,6 @@ extension CrowdloanAgreementViewFactory {
     ) -> CrowdloanAgreementInteractor? {
         let settings = SettingsManager.shared
 
-        var requestBuilder = HTTPRequestBuilder(host: moonbeamFlowData.devApiUrl)
-
         guard
             let selectedAddress = settings.selectedAccount?.address
         else {
@@ -75,6 +73,28 @@ extension CrowdloanAgreementViewFactory {
             keystore: Keychain(),
             settings: settings
         )
+
+        #if F_DEV
+            let headerBuilder = MoonbeamHTTPHeadersBuilder(
+                apiKey: moonbeamFlowData.devApiKey
+            )
+        #else
+            let headerBuilder = MoonbeamHTTPHeadersBuilder(
+                apiKey: moonbeamFlowData.prodApiKey
+            )
+        #endif
+
+        #if F_DEV
+            let requestBuilder = HTTPRequestBuilder(
+                host: moonbeamFlowData.devApiUrl,
+                headerBuilder: headerBuilder
+            )
+        #else
+            let requestBuilder = HTTPRequestBuilder(
+                host: moonbeamFlowData.prodApiUrl,
+                headerBuilder: headerBuilder
+            )
+        #endif
 
         let agreementService = MoonbeamService(
             address: selectedAddress,
