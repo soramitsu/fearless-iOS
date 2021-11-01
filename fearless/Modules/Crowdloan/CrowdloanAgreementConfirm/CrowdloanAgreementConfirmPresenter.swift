@@ -83,12 +83,12 @@ extension CrowdloanAgreementConfirmPresenter {
             )
 
         case let .failure(error):
-            wireframe.present(
+            _ = wireframe.present(
                 error: error,
                 from: view,
                 locale: selectedLocale
             )
-            
+
             logger.error("Did receive verify remark error: \(error)")
         }
     }

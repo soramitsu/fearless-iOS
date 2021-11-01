@@ -26,15 +26,7 @@ protocol CrowdloanAgreementServiceProtocol {
         ) -> Void
     )
 
-    func verifyRemarkAndContribute(
-        contribution: String,
-        extrinsicHash: String,
-        blockHash: String,
-        with closure: @escaping (Result<MoonbeamMakeSignatureData, Error>
-        ) -> Void
-    )
-
-    func confirmContribution(
+    func makeSignature(
         previousTotalContribution: String,
         contribution: String,
         with closure: @escaping (Result<MoonbeamMakeSignatureData, Error>
