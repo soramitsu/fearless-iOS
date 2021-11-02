@@ -1,7 +1,7 @@
 import Foundation
 
 final class MoonbeamJSONDecoder: JSONDecoder {
-    static let moonbeamDateFormat: String = "yyyy-mm-ddThh:mm:ss.ffffff"
+    static let moonbeamDateFormat: String = "yyyy-mm-dd'T'hh:mm:ss.SSSSSS"
 
     override init() {
         super.init()

@@ -190,7 +190,8 @@ final class CrowdloanContributionSetupPresenter {
 
         interactor.estimateFee(
             for: amount,
-            bonusService: bonusService
+            bonusService: bonusService,
+            memo: ethereumAddress
         )
     }
 }
@@ -439,6 +440,11 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .failure(error):
             logger?.error("Did receive minimum contribution error: \(error)")
         }
+    }
+
+    func didReceiveReferralEthereumAddress(address: String) {
+        ethereumAddress = address
+        provideEthereumAddressViewModel()
     }
 }
 

@@ -1,6 +1,7 @@
 import UIKit
 import CommonWallet
 import SoraFoundation
+import SoraUI
 
 final class CrowdloanContributionSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanContributionSetupViewLayout
@@ -107,6 +108,8 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         ethereumAddressViewModel = viewModel
         ethereumAddressViewModel?.inputHandler.addObserver(self)
 
+        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.text = viewModel.inputHandler.value
+
         updateActionButton()
     }
 
@@ -136,7 +139,7 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
         switch viewModel {
         case .moonbeam:
-            rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField.delegate = self
+            rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.delegate = self
         default:
             break
         }
@@ -172,6 +175,21 @@ extension CrowdloanContributionSetupViewController: InputHandlingObserver {
     }
 }
 
+extension CrowdloanContributionSetupViewController: AnimatedTextFieldDelegate {
+    func animatedTextFieldShouldReturn(_: AnimatedTextField) -> Bool {
+        true
+    }
+
+    func animatedTextField(
+        _: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        _ = ethereumAddressViewModel?.inputHandler.didReceiveReplacement(string, for: range)
+        return false
+    }
+}
+
 extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
     func textField(
         _ textField: UITextField,
@@ -182,11 +200,7 @@ extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         }
 
-        if textField === rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.textField {
-            return ethereumAddressViewModel?.inputHandler.didReceiveReplacement(string, for: range) ?? false
-        }
-
-        return false
+        return true
     }
 }
 

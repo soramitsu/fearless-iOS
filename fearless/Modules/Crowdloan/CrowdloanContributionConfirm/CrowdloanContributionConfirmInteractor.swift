@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import FearlessUtils
+import SoraKeystore
 
 class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching, CrowdloanContributionConfirmInteractorInputProtocol {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
@@ -11,6 +12,8 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
     let signingWrapper: SigningWrapperProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let bonusService: CrowdloanBonusServiceProtocol?
+
+    private var memo: String?
 
     init(
         paraId: ParaId,
@@ -28,11 +31,14 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine,
+        settings: SettingsManagerProtocol,
+        memo: String?
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
         self.bonusService = bonusService
+        self.memo = memo
 
         super.init(
             paraId: paraId,
@@ -47,7 +53,8 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
             operationManager: operationManager,
             logger: logger,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: connection
+            connection: connection,
+            settings: settings
         )
     }
 
@@ -120,6 +127,10 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
     }
 
     func estimateFee(for contribution: BigUInt) {
-        estimateFee(for: contribution, bonusService: bonusService)
+        estimateFee(
+            for: contribution,
+            bonusService: bonusService,
+            memo: memo
+        )
     }
 }

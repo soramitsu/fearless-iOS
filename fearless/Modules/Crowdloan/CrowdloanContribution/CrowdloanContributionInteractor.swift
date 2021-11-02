@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import FearlessUtils
+import SoraKeystore
 
 class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol, RuntimeConstantFetching {
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!
@@ -20,6 +21,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     let logger: LoggerProtocol
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
     let connection: JSONRPCEngine
+    let settings: SettingsManagerProtocol
 
     private(set) var crowdloan: Crowdloan?
     private(set) var crowdloanContribution: CrowdloanContribution?
@@ -43,14 +45,14 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine, settings: SettingsManagerProtocol
     ) {
         self.paraId = paraId
         self.selectedAccountAddress = selectedAccountAddress
         self.chain = chain
         self.assetId = assetId
         self.crowdloanFundsProvider = crowdloanFundsProvider
-
+        self.settings = settings
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
@@ -199,18 +201,47 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         provideConstants()
     }
 
-    func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?) {
-        let call = callFactory.contribute(to: paraId, amount: amount)
+    func fetchReferralAccountAddress() {
+//        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
+//            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
+//        }
+    }
 
-        let identifier = String(amount)
+    func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
+        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+            var newBuilder = builder
+            if let contributeCall = self?.makeContributeCall(amount: amount) {
+                newBuilder = try newBuilder.adding(call: contributeCall)
+            }
 
-        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
-            let nextBuilder = try builder.adding(call: call)
+            if let memoCall = self?.makeMemoCall(memo: memo) {
+                newBuilder = try newBuilder.adding(call: memoCall)
+            }
+
             return try bonusService?.applyOnchainBonusForContribution(
                 amount: amount,
-                using: nextBuilder
-            ) ?? nextBuilder
+                using: newBuilder
+            ) ?? newBuilder
         }
+
+        extrinsicService.estimateFee(builderClosure, runningIn: .main) { [weak self] result in
+            self?.presenter?.didReceiveFee(result: result)
+        }
+    }
+
+    private func makeContributeCall(amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>? {
+        callFactory.contribute(to: paraId, amount: amount)
+    }
+
+    private func makeMemoCall(memo: String?) -> RuntimeCall<CrowdloanAddMemo>? {
+        guard
+            let memo = memo, !memo.isEmpty,
+            let memoData = memo.data(using: .utf8)
+        else {
+            return nil
+        }
+
+        return callFactory.addMemo(to: paraId, memo: memoData)
     }
 }
 
@@ -221,6 +252,8 @@ extension CrowdloanContributionInteractor: SingleValueProviderSubscriber, Single
 
     func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
+
+        fetchReferralAccountAddress()
     }
 
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {

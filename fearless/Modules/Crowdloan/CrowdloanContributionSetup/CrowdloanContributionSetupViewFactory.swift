@@ -131,7 +131,8 @@ struct CrowdloanContributionSetupViewFactory {
             operationManager: operationManager,
             logger: Logger.shared,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: engine
+            connection: engine,
+            settings: SettingsManager.shared
         )
     }
 }

@@ -125,8 +125,17 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         RuntimeCall(moduleName: "Staking", callName: "chill")
     }
 
-    func contribute(to paraId: ParaId, amount: BigUInt, signature _: String? = nil) -> RuntimeCall<CrowdloanContributeCall> {
-        let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
+    func contribute(to paraId: ParaId, amount: BigUInt, signature: String? = nil) -> RuntimeCall<CrowdloanContributeCall> {
+        guard
+            let signature = signature,
+            let signatureData = signature.data(using: .utf8)
+        else {
+            let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
+            return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
+        }
+
+        let multiSignature = MultiSignature.sr25519(data: signatureData)
+        let args = CrowdloanContributeCall(index: paraId, value: amount, signature: multiSignature)
         return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
     }
 

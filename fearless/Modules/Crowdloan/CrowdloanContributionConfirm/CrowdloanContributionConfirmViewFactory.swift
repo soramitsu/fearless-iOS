@@ -34,7 +34,8 @@ struct CrowdloanContributionConfirmViewFactory {
             interactor = createInteractor(
                 for: paraId,
                 assetId: assetId,
-                bonusService: bonusService
+                bonusService: bonusService,
+                memo: ethereumAddress
             )
         }
 
@@ -197,14 +198,16 @@ struct CrowdloanContributionConfirmViewFactory {
             logger: Logger.shared,
             crowdloanOperationFactory: crowdloanOperationFactory,
             connection: engine,
-            ethereumAddress: ethereumAddress
+            ethereumAddress: ethereumAddress,
+            settings: SettingsManager.shared
         )
     }
 
     private static func createInteractor(
         for paraId: ParaId,
         assetId: WalletAssetId,
-        bonusService: CrowdloanBonusServiceProtocol?
+        bonusService: CrowdloanBonusServiceProtocol?,
+        memo: String?
     ) -> CrowdloanContributionConfirmInteractor? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
@@ -273,7 +276,9 @@ struct CrowdloanContributionConfirmViewFactory {
             operationManager: operationManager,
             logger: Logger.shared,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: engine
+            connection: engine,
+            settings: SettingsManager.shared,
+            memo: memo
         )
     }
 }

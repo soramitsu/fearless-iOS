@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import RobinHood
 import FearlessUtils
+import SoraKeystore
 
 class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInteractor {
     private var moonbeamService: CrowdloanAgreementServiceProtocol
@@ -25,7 +26,8 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
         connection: JSONRPCEngine,
-        ethereumAddress: String? = nil
+        ethereumAddress: String? = nil,
+        settings: SettingsManagerProtocol
     ) {
         self.moonbeamService = moonbeamService
         ethereumAccountAddress = ethereumAddress
@@ -45,35 +47,23 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             operationManager: operationManager,
             logger: logger,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: connection
+            connection: connection,
+            settings: settings,
+            memo: ethereumAddress
         )
     }
 
     override func submit(contribution: BigUInt) {
-        let prevContribution = crowdloanContribution?.balance ?? 0
-
-        moonbeamService.makeSignature(
-            previousTotalContribution: String(prevContribution),
-            contribution: String(contribution)
-        ) { [weak self] result in
-            switch result {
-            case let .success(makeSignatureData):
-                self?.submitExtrinsic(
-                    for: contribution,
-                    signature: makeSignatureData.signature
-                )
-            case let .failure(error):
-                self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
-            }
-        }
+        addMemoIfNeeded(contribution: contribution)
     }
 
     private func addMemoIfNeeded(contribution: BigUInt) {
         guard
             let ethereumAccountAddress = ethereumAccountAddress,
-            let memo = ethereumAccountAddress.data(using: .utf8)
+            let memo = ethereumAccountAddress.data(using: .utf8),
+            settings.referralEthereumAddressForSelectedAccount() == nil
         else {
-            submit(contribution: contribution)
+            submitFinally(contribution: contribution)
             return
         }
 
@@ -94,7 +84,8 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             completion: { [weak self] result in
                 switch result {
                 case .success:
-                    self?.submit(contribution: contribution)
+                    self?.saveEtheriumAdressAsMoonbeamDefault()
+                    self?.submitFinally(contribution: contribution)
                 case let .failure(error):
                     self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
                 }
@@ -102,5 +93,30 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         )
     }
 
-    private func saveEtheriumAdressAsMoonbeamDefault() {}
+    private func submitFinally(contribution: BigUInt) {
+        let prevContribution = crowdloanContribution?.balance ?? 0
+
+        moonbeamService.makeSignature(
+            previousTotalContribution: String(prevContribution),
+            contribution: String(contribution)
+        ) { [weak self] result in
+            switch result {
+            case let .success(makeSignatureData):
+                self?.submitExtrinsic(
+                    for: contribution,
+                    signature: makeSignatureData.signature
+                )
+            case let .failure(error):
+                self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
+            }
+        }
+    }
+
+    private func saveEtheriumAdressAsMoonbeamDefault() {
+        guard let ethereumAccountAddress = ethereumAccountAddress else {
+            return
+        }
+
+        settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: ethereumAccountAddress)
+    }
 }
