@@ -202,20 +202,21 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     func fetchReferralAccountAddress() {
-//        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
-//            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
-//        }
+        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
+            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
+        }
     }
 
     func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
         let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
             var newBuilder = builder
-            if let contributeCall = self?.makeContributeCall(amount: amount) {
-                newBuilder = try newBuilder.adding(call: contributeCall)
-            }
 
             if let memoCall = self?.makeMemoCall(memo: memo) {
                 newBuilder = try newBuilder.adding(call: memoCall)
+            }
+
+            if let contributeCall = self?.makeContributeCall(amount: amount) {
+                newBuilder = try newBuilder.adding(call: contributeCall)
             }
 
             return try bonusService?.applyOnchainBonusForContribution(

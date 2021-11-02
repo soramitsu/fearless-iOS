@@ -133,7 +133,8 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
             return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
         }
-
+        
+        //TODO: replace with real crypto type!
         let multiSignature = MultiSignature.sr25519(data: signatureData)
         let args = CrowdloanContributeCall(index: paraId, value: amount, signature: multiSignature)
         return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
