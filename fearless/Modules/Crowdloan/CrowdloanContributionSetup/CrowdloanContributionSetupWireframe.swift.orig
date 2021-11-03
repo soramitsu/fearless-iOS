@@ -50,6 +50,9 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
+<<<<<<< HEAD
+        default: break
+=======
         case .acala:
             showAcalaCustomFlow(
                 from: view,
@@ -58,7 +61,6 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
-        default: break
         }
     }
 
@@ -76,6 +78,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
             existingService: existingService
         ) else {
             return
+>>>>>>> parent of a1aa2673 (Reverted Acala changes for exclusive moonbeam ownership of this branch)
         }
 
         let navigationController = FearlessNavigationController(

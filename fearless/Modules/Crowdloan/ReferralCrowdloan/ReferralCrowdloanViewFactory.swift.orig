@@ -3,6 +3,8 @@ import SoraKeystore
 import SoraFoundation
 
 struct ReferralCrowdloanViewFactory {
+<<<<<<< HEAD
+=======
     static func createAcalaView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
@@ -38,6 +40,7 @@ struct ReferralCrowdloanViewFactory {
         )
     }
 
+>>>>>>> parent of a1aa2673 (Reverted Acala changes for exclusive moonbeam ownership of this branch)
     static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
