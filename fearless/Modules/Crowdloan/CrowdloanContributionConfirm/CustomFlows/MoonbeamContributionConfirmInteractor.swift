@@ -5,12 +5,13 @@ import FearlessUtils
 import SoraKeystore
 
 class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInteractor {
-    private var moonbeamService: CrowdloanAgreementServiceProtocol
-    private var ethereumAccountAddress: String?
+    private let moonbeamService: CrowdloanAgreementServiceProtocol
+    private let ethereumAccountAddress: String?
+    private let selectedAccount: AccountItem
 
     init(
         paraId: ParaId,
-        selectedAccountAddress: AccountAddress,
+        selectedAccount: AccountItem,
         chain: Chain,
         assetId: WalletAssetId,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -31,10 +32,11 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
     ) {
         self.moonbeamService = moonbeamService
         ethereumAccountAddress = ethereumAddress
+        self.selectedAccount = selectedAccount
 
         super.init(
             paraId: paraId,
-            selectedAccountAddress: selectedAccountAddress,
+            selectedAccountAddress: selectedAccount.address,
             chain: chain, assetId: assetId,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
@@ -102,14 +104,40 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         ) { [weak self] result in
             switch result {
             case let .success(makeSignatureData):
-                self?.submitExtrinsic(
-                    for: contribution,
+                self?.submitSignedContribution(
+                    amount: contribution,
                     signature: makeSignatureData.signature
                 )
             case let .failure(error):
                 self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
             }
         }
+    }
+
+    private func submitSignedContribution(
+        amount: BigUInt,
+        signature: String
+    ) {
+        guard
+            let signatureData = try? Data(hexString: signature),
+            let multiSignature = MultiSignature.signature(from: selectedAccount.cryptoType, data: signatureData)
+        else {
+            confirmPresenter?.didSubmitContribution(result: .failure(CommonError.internal))
+            return
+        }
+
+        let call = callFactory.contribute(
+            to: paraId,
+            amount: amount,
+            multiSignature: multiSignature
+        )
+
+        let builderClosure: ExtrinsicBuilderClosure = { builder in
+            let nextBuilder = try builder.adding(call: call)
+            return nextBuilder
+        }
+
+        super.submitContribution(builderClosure: builderClosure)
     }
 
     private func saveEtheriumAdressAsMoonbeamDefault() {
