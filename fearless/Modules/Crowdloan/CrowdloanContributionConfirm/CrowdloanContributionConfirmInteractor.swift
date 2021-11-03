@@ -83,21 +83,27 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         }
     }
 
-    func submitExtrinsic(for contribution: BigUInt, signature: String? = nil) {
+    private func prepareAndContribute(with amount: BigUInt) {
         let call = callFactory.contribute(
             to: paraId,
-            amount: contribution,
-            signature: signature
+            amount: amount,
+            multiSignature: nil
         )
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)
             return try self.bonusService?.applyOnchainBonusForContribution(
-                amount: contribution,
+                amount: amount,
                 using: nextBuilder
             ) ?? nextBuilder
         }
 
+        submitContribution(builderClosure: builderClosure)
+    }
+
+    func submitContribution(
+        builderClosure: @escaping ExtrinsicBuilderClosure
+    ) {
         extrinsicService.submit(
             builderClosure,
             signer: signingWrapper,
@@ -115,14 +121,14 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
                 DispatchQueue.main.async {
                     switch result {
                     case .success:
-                        self?.submitExtrinsic(for: contribution)
+                        self?.prepareAndContribute(with: contribution)
                     case let .failure(error):
                         self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
                     }
                 }
             }
         } else {
-            submitExtrinsic(for: contribution)
+            prepareAndContribute(with: contribution)
         }
     }
 

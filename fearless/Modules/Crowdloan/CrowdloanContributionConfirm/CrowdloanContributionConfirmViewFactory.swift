@@ -182,7 +182,7 @@ struct CrowdloanContributionConfirmViewFactory {
 
         return MoonbeamContributionConfirmInteractor(
             paraId: paraId,
-            selectedAccountAddress: selectedAccount.address,
+            selectedAccount: selectedAccount,
             chain: chain,
             assetId: assetId,
             runtimeService: runtimeService,

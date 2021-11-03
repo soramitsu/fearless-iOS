@@ -30,8 +30,16 @@ protocol SubstrateCallFactoryProtocol {
 
     func chill() -> RuntimeCall<NoRuntimeArgs>
 
-    func contribute(to paraId: ParaId, amount: BigUInt, signature: String?) -> RuntimeCall<CrowdloanContributeCall>
-    func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo>
+    func contribute(
+        to paraId: ParaId,
+        amount: BigUInt,
+        multiSignature: MultiSignature?
+    ) -> RuntimeCall<CrowdloanContributeCall>
+
+    func addMemo(
+        to paraId: ParaId,
+        memo: Data
+    ) -> RuntimeCall<CrowdloanAddMemo>
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
 }
@@ -125,17 +133,11 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         RuntimeCall(moduleName: "Staking", callName: "chill")
     }
 
-    func contribute(to paraId: ParaId, amount: BigUInt, signature: String? = nil) -> RuntimeCall<CrowdloanContributeCall> {
-        guard
-            let signature = signature,
-            let signatureData = signature.data(using: .utf8)
-        else {
-            let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
-            return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
-        }
-        
-        //TODO: replace with real crypto type!
-        let multiSignature = MultiSignature.sr25519(data: signatureData)
+    func contribute(
+        to paraId: ParaId,
+        amount: BigUInt,
+        multiSignature: MultiSignature? = nil
+    ) -> RuntimeCall<CrowdloanContributeCall> {
         let args = CrowdloanContributeCall(index: paraId, value: amount, signature: multiSignature)
         return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
     }
