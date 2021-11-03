@@ -209,14 +209,21 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
-        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+        let contributeCall: RuntimeCall<CrowdloanContributeCall>? = makeContributeCall(amount: amount)
+        let memoCall: RuntimeCall<CrowdloanAddMemo>? = makeMemoCall(memo: memo)
+
+        guard contributeCall != nil || memoCall != nil else {
+            return
+        }
+
+        let builderClosure: ExtrinsicBuilderClosure = { builder in
             var newBuilder = builder
 
-            if let memoCall = self?.makeMemoCall(memo: memo) {
+            if let memoCall = memoCall {
                 newBuilder = try newBuilder.adding(call: memoCall)
             }
 
-            if let contributeCall = self?.makeContributeCall(amount: amount) {
+            if let contributeCall = contributeCall {
                 newBuilder = try newBuilder.adding(call: contributeCall)
             }
 
@@ -238,7 +245,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     private func makeMemoCall(memo: String?) -> RuntimeCall<CrowdloanAddMemo>? {
         guard
             let memo = memo, !memo.isEmpty,
-            let memoData = try? Data(hexString: memo)
+            let memoData = memo.data(using: .utf8)
         else {
             return nil
         }

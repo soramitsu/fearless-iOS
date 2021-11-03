@@ -27,8 +27,8 @@ final class CrowdloanContributionSetupPresenter {
     private var minimumContribution: BigUInt?
 
     private var bonusService: CrowdloanBonusServiceProtocol?
-
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var hasValidEthereumAddress: Bool = false
 
     private var crowdloanMetadata: CrowdloanMetadata? {
         if
@@ -122,7 +122,11 @@ final class CrowdloanContributionSetupPresenter {
         let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: "")
         view?.didReceiveEthereumAddress(viewModel: viewModel)
 
-        refreshFee()
+        if inputHandling.completed != hasValidEthereumAddress {
+            refreshFee()
+        }
+
+        hasValidEthereumAddress = inputHandling.completed
     }
 
     private func provideCrowdloanContributionViewModel() {
