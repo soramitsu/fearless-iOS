@@ -319,7 +319,7 @@ private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade 
     func overridesUrl(for chain: Chain) -> URL? {
         switch chain {
         case .polkadot:
-            return URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/crowdloands/moonbeam/chains/polkadot-overrides.json")
+            return URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/crowdloands/moonbeam/scalecodec/type_registry/polkadot-overrides.json")
         default:
             return nil
         }
