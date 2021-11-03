@@ -3,41 +3,6 @@ import SoraKeystore
 import SoraFoundation
 
 struct ReferralCrowdloanViewFactory {
-    static func createAcalaView(
-        for delegate: CustomCrowdloanDelegate,
-        displayInfo: CrowdloanDisplayInfo,
-        inputAmount: Decimal,
-        existingService: CrowdloanBonusServiceProtocol?
-    ) -> ReferralCrowdloanViewProtocol? {
-        let settings = SettingsManager.shared
-
-        guard let selectedAddress = settings.selectedAccount?.address else {
-            return nil
-        }
-
-        let bonusService: CrowdloanBonusServiceProtocol = {
-            if let service = existingService as? AcalaBonusService {
-                return service
-            } else {
-                return AcalaBonusService(
-                    address: selectedAddress,
-                    chain: settings.selectedConnection.type.chain,
-                    signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
-                    operationManager: OperationManagerFacade.sharedManager,
-                    requestBuilder: AcalaHTTPRequestBuilder()
-                )
-            }
-        }()
-
-        return createView(
-            for: delegate,
-            displayInfo: displayInfo,
-            inputAmount: inputAmount,
-            bonusService: bonusService,
-            defaultReferralCode: AcalaBonusService.defaultReferralCode
-        )
-    }
-
     static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,

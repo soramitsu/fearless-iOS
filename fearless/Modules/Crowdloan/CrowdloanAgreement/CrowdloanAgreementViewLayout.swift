@@ -22,7 +22,14 @@ final class CrowdloanAgreementViewLayout: UIView {
         let textView = UITextView()
         textView.font = .p2Paragraph
         textView.isScrollEnabled = false
-        textView.textContainerInset = .zero
+        textView.isSelectable = false
+        textView.isEditable = false
+        textView.textContainerInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: UIConstants.defaultOffset
+        )
         textView.textContainer.lineFragmentPadding = 0
         return textView
     }()
@@ -60,6 +67,8 @@ final class CrowdloanAgreementViewLayout: UIView {
 
         setupLayout()
         applyLocalization()
+
+        backgroundColor = R.color.colorBlack()
     }
 
     @available(*, unavailable)
@@ -70,21 +79,22 @@ final class CrowdloanAgreementViewLayout: UIView {
     private func applyLocalization() {
         termsLabel.text = R.string.localizable.crowdloanPrivacyPolicy(preferredLanguages: locale.rLanguages)
 
-        confirmAgreementButton.imageWithTitleView?.title = R.string.localizable.commonApply(
+        confirmAgreementButton.imageWithTitleView?.title = R.string.localizable.commonContinue(
             preferredLanguages: locale.rLanguages
-        ).uppercased()
+        ).capitalized
     }
 
     private func setupLayout() {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
-            make.width.equalToSuperview().offset(-2 * UIConstants.horizontalInset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.width.equalToSuperview().offset(-1 * UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(titleLabel)
+
         contentView.stackView.addArrangedSubview(textView)
 
         let privacyView = UIView()

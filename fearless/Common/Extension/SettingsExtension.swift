@@ -7,6 +7,7 @@ enum SettingsKey: String {
     case selectedAccount
     case biometryEnabled
     case selectedConnection
+    case referralEthereumAccount
 }
 
 extension SettingsManagerProtocol {
@@ -54,5 +55,23 @@ extension SettingsManagerProtocol {
         set {
             set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
         }
+    }
+
+    func saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: String) {
+        guard let selectedAccount = selectedAccount else {
+            return
+        }
+
+        let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
+        set(value: ethereumAccountAddress, for: key)
+    }
+
+    func referralEthereumAddressForSelectedAccount() -> String? {
+        guard let selectedAccount = selectedAccount else {
+            return nil
+        }
+
+        let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
+        return string(for: key)
     }
 }

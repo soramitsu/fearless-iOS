@@ -66,3 +66,39 @@ struct Event: Decodable {
         params = try unkeyedContainer.decode(JSON.self)
     }
 }
+
+enum ExtrinsicStatus: Decodable {
+    static let readyField = "ready"
+    static let broadcastField = "broadcast"
+    static let inBlockField = "inBlock"
+    static let finalizedField = "finalized"
+
+    case ready
+    case broadcast([String])
+    case inBlock(String)
+    case finalized(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let decoded = try container.decode(JSON.self)
+
+        let type = decoded.dictValue?.keys.first ?? decoded.stringValue
+        let value = decoded[type!]
+
+        switch type {
+        case ExtrinsicStatus.readyField:
+            self = .ready
+        case ExtrinsicStatus.broadcastField:
+            self = .broadcast(value!.arrayValue!.map { $0.stringValue! })
+        case ExtrinsicStatus.inBlockField:
+            self = .inBlock(value!.stringValue!)
+        case ExtrinsicStatus.finalizedField:
+            self = .finalized(value!.stringValue!)
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unexpected extrinsic state"
+            )
+        }
+    }
+}

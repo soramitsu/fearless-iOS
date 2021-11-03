@@ -30,5 +30,16 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {
-    func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId)
+    func presentContributionSetup(
+        from view: CrowdloanListViewProtocol?,
+        paraId: ParaId,
+        customFlow: CustomCrowdloanFlow?
+    )
+
+    func presentAgreement(
+        from view: CrowdloanListViewProtocol?,
+        paraId: ParaId,
+        contribution: CrowdloanContribution?,
+        customFlow: CustomCrowdloanFlow
+    )
 }

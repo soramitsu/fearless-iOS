@@ -4,6 +4,7 @@ enum CrowdloanAgreementState {
     case loading
     case loaded(viewModel: CrowdloanAgreementViewModel)
     case error
+    case confirmLoading
 }
 
 struct CrowdloanAgreementViewModel {

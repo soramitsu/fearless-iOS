@@ -1,4 +1,7 @@
 import Foundation
+import SwiftUI
+import SoraFoundation
+import RobinHood
 
 final class CrowdloanAgreementPresenter {
     weak var view: CrowdloanAgreementViewProtocol?
@@ -7,13 +10,25 @@ final class CrowdloanAgreementPresenter {
 
     private var agreementTextResult: Result<String, Error>?
     private var isTermsAgreed: Bool = false
+    private var paraId: ParaId
+    private var logger: LoggerProtocol
+    private var contribution: CrowdloanContribution?
+    private var customFlow: CustomCrowdloanFlow
 
     init(
         interactor: CrowdloanAgreementInteractorInputProtocol,
-        wireframe: CrowdloanAgreementWireframeProtocol
+        wireframe: CrowdloanAgreementWireframeProtocol,
+        paraId: ParaId,
+        logger: LoggerProtocol,
+        contribution: CrowdloanContribution?,
+        customFlow: CustomCrowdloanFlow
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
+        self.paraId = paraId
+        self.logger = logger
+        self.contribution = contribution
+        self.customFlow = customFlow
     }
 
     private func updateView() {
@@ -28,17 +43,30 @@ final class CrowdloanAgreementPresenter {
         }
 
         let viewModel = CrowdloanAgreementViewModel(
-            title: "Moonbeam Crowdloan Terms and Conditions",
+            title: customFlow.name,
             agreementText: text,
             isTermsAgreed: isTermsAgreed
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
+
+    private func proceedToConfirm(with remark: String) {
+        wireframe.showAgreementConfirm(
+            from: view,
+            paraId: paraId,
+            customFlow: customFlow,
+            remark: remark
+        )
+    }
 }
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
-    func confirmAgreement() {}
+    func confirmAgreement() {
+        view?.didReceive(state: .confirmLoading)
+
+        interactor.agreeRemark()
+    }
 
     func setTermsAgreed(value: Bool) {
         isTermsAgreed = value
@@ -53,10 +81,47 @@ extension CrowdloanAgreementPresenter: CrowdloanAgreementPresenterProtocol {
 }
 
 extension CrowdloanAgreementPresenter: CrowdloanAgreementInteractorOutputProtocol {
-    func didReceiveAgreementText(result: Result<String, Error>) {
-//        logger?.info("Did receive agreement text: \(result)")
-
-        agreementTextResult = result
+    func didReceiveRemark(result: Result<MoonbeamAgreeRemarkData, Error>) {
         updateView()
+
+        switch result {
+        case let .success(remarkData):
+            proceedToConfirm(with: remarkData.remark)
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
+        }
     }
+
+    func didReceiveAgreementText(result: Result<String, Error>) {
+        logger.info("Did receive agreement text: \(result)")
+
+        switch result {
+        case .success:
+            agreementTextResult = result
+            updateView()
+        case let .failure(error):
+            view?.didReceive(state: .error)
+            wireframe.present(error: error, from: view, locale: selectedLocale)
+        }
+    }
+
+    func didReceiveVerified(result: Result<Bool, Error>) {
+        switch result {
+        case let .success(verified):
+            if verified {
+                wireframe.presentContributionSetup(
+                    from: view,
+                    customFlow: customFlow,
+                    paraId: paraId
+                )
+            }
+        case let .failure(error):
+            logger.error(error.localizedDescription)
+            wireframe.present(error: error, from: view, locale: selectedLocale)
+        }
+    }
+}
+
+extension CrowdloanAgreementPresenter: Localizable {
+    func applyLocalization() {}
 }

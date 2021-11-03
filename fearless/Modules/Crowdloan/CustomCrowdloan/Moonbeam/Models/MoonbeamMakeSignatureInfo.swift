@@ -8,7 +8,7 @@ struct MoonbeamMakeSignatureInfo: Encodable {
 
     enum CodingKeys: String, CodingKey {
         case address
-        case previousTotalContribution = "previous-total-contribution-time"
+        case previousTotalContribution = "previous-total-contribution"
         case contribution
         case guid
     }

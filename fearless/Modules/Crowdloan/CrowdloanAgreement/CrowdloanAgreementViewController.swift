@@ -32,9 +32,8 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         configure()
+        setupLocalization()
         presenter.setup()
-
-        title = "Moonbeam (GLMR)"
     }
 
     private func configure() {
@@ -43,8 +42,6 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.commonBonus(preferredLanguages: selectedLocale.rLanguages)
-
         rootView.locale = selectedLocale
 
         applyAgreementViewModel()
@@ -63,8 +60,16 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
             return
         }
 
+        title = agreementViewModel.title?.capitalized
+
+        if let title = agreementViewModel.title {
+            rootView.titleLabel.text = R.string.localizable.crowdloanTermsWithName(
+                title,
+                preferredLanguages: selectedLocale.rLanguages
+            )
+        }
+
         rootView.textView.text = agreementViewModel.agreementText
-        rootView.titleLabel.text = agreementViewModel.title
         rootView.confirmAgreementButton.isEnabled = agreementViewModel.isTermsAgreed
 
         if agreementViewModel.isTermsAgreed {
@@ -86,6 +91,7 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
             agreementViewModel = viewModel
             didStopLoading()
             rootView.contentView.isHidden = false
+            rootView.confirmAgreementButton.set(loading: false)
 
             applyAgreementViewModel()
         case .error:
@@ -94,6 +100,8 @@ final class CrowdloanAgreementViewController: UIViewController, ViewHolder {
 
             didStopLoading()
             rootView.contentView.isHidden = true
+        case .confirmLoading:
+            rootView.confirmAgreementButton.set(loading: true)
         }
     }
 }

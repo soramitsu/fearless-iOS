@@ -1,8 +1,10 @@
 import UIKit
 import RobinHood
 import BigInt
+import FearlessUtils
+import SoraKeystore
 
-final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
+class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching, CrowdloanContributionConfirmInteractorInputProtocol {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
         presenter as? CrowdloanContributionConfirmInteractorOutputProtocol
     }
@@ -10,6 +12,8 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
     let signingWrapper: SigningWrapperProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let bonusService: CrowdloanBonusServiceProtocol?
+
+    private var memo: String?
 
     init(
         paraId: ParaId,
@@ -24,11 +28,17 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol,
+        crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
+        connection: JSONRPCEngine,
+        settings: SettingsManagerProtocol,
+        memo: String?
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
         self.bonusService = bonusService
+        self.memo = memo
 
         super.init(
             paraId: paraId,
@@ -40,7 +50,11 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: logger,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: connection,
+            settings: settings
         )
     }
 
@@ -69,17 +83,27 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         }
     }
 
-    private func submitExtrinsic(for contribution: BigUInt) {
-        let call = callFactory.contribute(to: paraId, amount: contribution)
+    private func prepareAndContribute(with amount: BigUInt) {
+        let call = callFactory.contribute(
+            to: paraId,
+            amount: amount,
+            multiSignature: nil
+        )
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)
             return try self.bonusService?.applyOnchainBonusForContribution(
-                amount: contribution,
+                amount: amount,
                 using: nextBuilder
             ) ?? nextBuilder
         }
 
+        submitContribution(builderClosure: builderClosure)
+    }
+
+    func submitContribution(
+        builderClosure: @escaping ExtrinsicBuilderClosure
+    ) {
         extrinsicService.submit(
             builderClosure,
             signer: signingWrapper,
@@ -89,27 +113,30 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
             }
         )
     }
-}
 
-extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
+    /* CrowdloanContributionConfirmInteractorInputProtocol */
     func submit(contribution: BigUInt) {
         if let bonusService = bonusService {
             bonusService.applyOffchainBonusForContribution(amount: contribution) { [weak self] result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success:
-                        self?.submitExtrinsic(for: contribution)
+                        self?.prepareAndContribute(with: contribution)
                     case let .failure(error):
                         self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
                     }
                 }
             }
         } else {
-            submitExtrinsic(for: contribution)
+            prepareAndContribute(with: contribution)
         }
     }
 
     func estimateFee(for contribution: BigUInt) {
-        estimateFee(for: contribution, bonusService: bonusService)
+        estimateFee(
+            for: contribution,
+            bonusService: bonusService,
+            memo: memo
+        )
     }
 }

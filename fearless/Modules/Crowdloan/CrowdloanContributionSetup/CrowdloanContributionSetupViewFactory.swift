@@ -1,9 +1,13 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import FearlessUtils
 
 struct CrowdloanContributionSetupViewFactory {
-    static func createView(for paraId: ParaId) -> CrowdloanContributionSetupViewProtocol? {
+    static func createView(
+        for paraId: ParaId,
+        customFlow: CustomCrowdloanFlow?
+    ) -> CrowdloanContributionSetupViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -49,7 +53,8 @@ struct CrowdloanContributionSetupViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chain: addressType.chain,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            customFlow: customFlow
         )
 
         let view = CrowdloanContributionSetupViewController(
@@ -103,6 +108,16 @@ struct CrowdloanContributionSetupViewFactory {
             runtimeService: runtimeService
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
+
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedAccountAddress: selectedAccount.address,
@@ -113,7 +128,11 @@ struct CrowdloanContributionSetupViewFactory {
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: engine,
+            settings: SettingsManager.shared
         )
     }
 }

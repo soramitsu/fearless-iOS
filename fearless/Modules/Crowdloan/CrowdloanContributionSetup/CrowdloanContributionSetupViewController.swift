@@ -1,6 +1,7 @@
 import UIKit
 import CommonWallet
 import SoraFoundation
+import SoraUI
 
 final class CrowdloanContributionSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanContributionSetupViewLayout
@@ -8,6 +9,7 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     let presenter: CrowdloanContributionSetupPresenterProtocol
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var ethereumAddressViewModel: InputViewModelProtocol?
 
     var uiFactory: UIFactoryProtocol = UIFactory.default
 
@@ -56,9 +58,15 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 
+    private var isFormValid: Bool {
+        let ethereumValid = !(ethereumAddressViewModel?.inputHandler.value.isEmpty ?? true) ? ethereumAddressViewModel?.inputHandler.completed : true
+        return [amountInputViewModel?.isValid, ethereumValid]
+            .compactMap { $0 }
+            .allSatisfy { $0 }
+    }
+
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.set(enabled: isEnabled)
+        rootView.actionButton.set(enabled: isFormValid)
     }
 
     @objc func actionProceed() {
@@ -94,6 +102,17 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         updateActionButton()
     }
 
+    func didReceiveEthereumAddress(viewModel: InputViewModelProtocol) {
+        ethereumAddressViewModel?.inputHandler.removeObserver(self)
+
+        ethereumAddressViewModel = viewModel
+        ethereumAddressViewModel?.inputHandler.addObserver(self)
+
+        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.text = viewModel.inputHandler.value
+
+        updateActionButton()
+    }
+
     func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel) {
         title = viewModel.title
         rootView.bind(crowdloanViewModel: viewModel)
@@ -112,6 +131,17 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
         if let bonusView = rootView.bonusView {
             bonusView.addTarget(self, action: #selector(actionBonuses), for: .touchUpInside)
+        }
+    }
+
+    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
+        rootView.bind(customFlow: viewModel)
+
+        switch viewModel {
+        case .moonbeam:
+            rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.delegate = self
+        default:
+            break
         }
     }
 }
@@ -139,13 +169,38 @@ extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver
     }
 }
 
-extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
-    func textField(
-        _: UITextField,
+extension CrowdloanContributionSetupViewController: InputHandlingObserver {
+    func didChangeInputValue(_ handler: InputHandling, from _: String) {
+        presenter.updateEthereumAddress(handler.value)
+    }
+}
+
+extension CrowdloanContributionSetupViewController: AnimatedTextFieldDelegate {
+    func animatedTextFieldShouldReturn(_: AnimatedTextField) -> Bool {
+        true
+    }
+
+    func animatedTextField(
+        _: AnimatedTextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        _ = ethereumAddressViewModel?.inputHandler.didReceiveReplacement(string, for: range)
+        return false
+    }
+}
+
+extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        if textField === rootView.amountInputView.textField {
+            return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        }
+
+        return true
     }
 }
 

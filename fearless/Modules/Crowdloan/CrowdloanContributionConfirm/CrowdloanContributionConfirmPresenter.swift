@@ -13,6 +13,7 @@ final class CrowdloanContributionConfirmPresenter {
     let bonusRate: Decimal?
     let chain: Chain
     let logger: LoggerProtocol?
+    let customFlow: CustomCrowdloanFlow?
 
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
@@ -63,7 +64,8 @@ final class CrowdloanContributionConfirmPresenter {
         bonusRate: Decimal?,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        customFlow: CustomCrowdloanFlow?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -74,6 +76,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.bonusRate = bonusRate
         self.chain = chain
         self.logger = logger
+        self.customFlow = customFlow
         self.localizationManager = localizationManager
     }
 
@@ -177,7 +180,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
             (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
 
         DataValidationRunner(validators: [
-            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
+            //            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
 
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee()
@@ -359,6 +362,10 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
         }
     }
 
+    func didReceiveFees(results _: [Result<RuntimeDispatchInfo, Error>]) {
+        // TODO: Handle many fees input
+    }
+
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimumBalance):
@@ -380,6 +387,8 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             logger?.error("Did receive minimum contribution error: \(error)")
         }
     }
+
+    func didReceiveReferralEthereumAddress(address _: String) {}
 }
 
 extension CrowdloanContributionConfirmPresenter: Localizable {
