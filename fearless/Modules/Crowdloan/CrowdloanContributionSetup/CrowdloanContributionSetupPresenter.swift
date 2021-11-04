@@ -303,10 +303,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
     }
 
     func presentAdditionalBonuses() {
-        guard
-            let displayInfo = displayInfo else {
-            return
-        }
+        guard let displayInfo = displayInfo else { return }
 
         let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
 

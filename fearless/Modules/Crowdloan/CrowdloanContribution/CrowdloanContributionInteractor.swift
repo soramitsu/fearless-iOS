@@ -155,7 +155,11 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func provideContribution() {
-        guard let crowdloan = crowdloan, let connection = connection else { return }
+        guard let crowdloan = crowdloan else { return }
+        guard let connection = connection else {
+            presenter.didReceiveCrowdloan(result: .success(crowdloan))
+            return
+        }
 
         let contributionOperation: CompoundOperationWrapper<CrowdloanContributionResponse> = crowdloanOperationFactory.fetchContributionOperation(
             connection: connection,

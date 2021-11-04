@@ -39,10 +39,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
             txVersion: 5
         )
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
+        try AccountCreationHelper.createAccountFromMnemonic(
+            cryptoType: .sr25519,
+            networkType: chain,
+            keychain: keychain,
+            settings: settings
+        )
 
         let view = MockCrowdloanContributionSetupViewProtocol()
         let wireframe = MockCrowdloanContributionSetupWireframeProtocol()
@@ -61,6 +63,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
         let estimatedRewardReceived = XCTestExpectation()
         let crowdloanReceived = XCTestExpectation()
         let bonusReceived = XCTestExpectation()
+        let customCrowdloanFlowReceived = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceiveInput(viewModel: any()).then { viewModel in
@@ -90,6 +93,10 @@ class CrowdloanContributionSetupTests: XCTestCase {
             when(stub).didReceiveBonus(viewModel: any()).then { _ in
                 bonusReceived.fulfill()
             }
+            
+            when(stub).didReceiveCustomCrowdloanFlow(viewModel: any()).then { _ in
+                customCrowdloanFlowReceived.fulfill()
+            }
 
             when(stub).isSetup.get.thenReturn(false, true)
         }
@@ -103,7 +110,8 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 feeReceived,
                 estimatedRewardReceived,
                 crowdloanReceived,
-                bonusReceived
+                bonusReceived,
+                customCrowdloanFlowReceived
             ],
             timeout: 10
         )
