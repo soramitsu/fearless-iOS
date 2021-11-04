@@ -33,7 +33,7 @@ operations will appear here";
 "profile.about.title" = "About";
 "profile.language.title" = "Language";
 "about.version" = "App version";
-"about.contact.us" = "Contact Us";
+"about.contact.us" = "Contact Email";
 "about.title" = "About";
 "about.privacy" = "Privacy policy";
 "about.terms" = "Terms and conditions";
@@ -42,6 +42,10 @@ operations will appear here";
 "no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
 "connection.management.title" = "Networks";
 "onboarding.create.account" = "Create account";
+"NSCameraUsageDescription" = "Camera is used to capture QR code";
+"NSFaceIDUsageDescription" = "Face ID is used to authorize in application";
+"NSPhotoLibraryUsageDescription" = "Load photos from library";
+"NSPhotoLibraryAddUsageDescription" = "Save transfer request as a qr code";
 "username.setup.choose.title" = "Name";
 "username.setup.hint" = "This name will be displayed only for you and stored locally on your mobile device.";
 "username.setup.title" = "Create account";
@@ -96,7 +100,7 @@ operations will appear here";
 "account.add.already.exists.message" = "Account already exists. Please, try another one.";
 "about.website" = "Official Website";
 "about.github" = "Github Source Code";
-"about.telegram" = "Join Telegram Group";
+"about.telegram" = "Join on Telegram";
 "confirmation.skip.action" = "Skip process";
 "account.info.title" = "Account";
 "account.info.name.title" = "Name";
@@ -347,10 +351,10 @@ Derivation path: %@";
 "crowdloan.cap.reached.title" = "Crowdloan cap exceeded";
 "crowdloan.too.small.contribution.message" = "The minimum allowed amount to contribute is %@.";
 "crowdloan.too.small.contribution.title" = "Contribution amount is too small";
-"crowdloan.learn" = "Learn %@'s crowdloan";
+"crowdloan.learn" = "Learn about %@'s crowdloan";
 "common.time.left" = "Time left";
 "crowdloan.placeholder" = "Active crowdloans\n will appear here";
-"crowdloan.contribute.title" = "Contribute to crowdloan";
+"crowdloan.contribute.title" = "Contribute to Crowdloan";
 "crowdloan.unlock.hint" = "Your %@ tokens will be returned after the leasing period.";
 "crowdloan.info" = "Crowdloan info";
 "crowdloan.raised.amount" = "%@ of %@";
@@ -448,6 +452,7 @@ Derivation path: %@";
 "staking.hint.reward.bond.more" = "Your rewards will be increased starting from the next era.";
 "staking.hint.unbond.kills.stash" = "Fearless wallet will change rewards destination \
 to your account to avoid remaining stake.";
+"crowdloan.privacy.policy" = "I have read and agree to Terms and Conditions";
 "staking.story.staking.title" = "What is staking?";
 "staking.story.staking.page.1" = "Staking is an option to earn passive income by locking your tokens in the network. Staking rewards are allocated every era (6 hours on Kusama and 24 hours on Polkadot). You can stake as long as you wish, and for unstaking your tokens you need to wait for the unstacking period to end, making your tokens available to be redeemed.";
 "staking.story.staking.page.2" = "Staking is an important part of network security and reliability. Anyone can run validator nodes, but only those who have enough tokens staked will be elected by the network to participate in composing new blocks and receive the rewards. Validators often do not have enough tokens by themselves, so nominators are helping them by locking their tokens for them to achieve the required amount of stake.";
@@ -468,3 +473,60 @@ to your account to avoid remaining stake.";
 "staking.common.validator" = "Validator";
 "staking.common.event.id" = "Event";
 "common.copy.id" = "Copy id";
+"wallet.contacts.search.placeholder_v1.10" = "Search by address or name";
+"wallet.contacts.empty.title_v1.10" = "Your accounts and contacts\
+to whom you were sending\
+transfers will appear here";
+"wallet.search.empty.title_v1.10.0" = "Address format is invalid.\
+Make sure that address\
+belongs to the right network";
+"common.max" = "max";
+"staking.analytics.period.7d" = "7d";
+"staking.analytics.period.30d" = "30d";
+"staking.analytics.period.1y" = "1y";
+"staking.analytics.period.all" = "All";
+"staking.analytics.rewards.empty.message" = "No rewards received\
+for the selected period";
+"staking.analytics.stake.empty.message" = "Your stake changes\
+will appear here";
+"common.details" = "Details";
+"staking.analytics.details.type" = "Type";
+"staking.analytics.era.range" = "%d of %d eras";
+"staking.analytics.7days.rewards" = "7 days rewards";
+"staking.analytics.avg" = "%@ avg.";
+"staking.analytics.staking.was.active" = "Staking was active";
+"staking.analytics.staking.was.inactive" = "Staking was inactive";
+"common.choose.action" = "Choose action";
+"wallet.account.locks.vesting" = "Vesting";
+"wallet.account.locks.democracy" = "Democracy";
+"common.select.network" = "Select network";
+"common.select.asset" = "Select asset";
+"parachain.crowdloans" = "Parachain Crowdloans";
+"crowdloan.confirmation.name" = "%@ Crowdloan";
+"apply.fearless.wallet.bonus" = "Tap to apply Fearless wallet bonus";
+"applied.fearless.wallet.bonus" = "Fearless wallet bonus applied";
+"crowdloan.learn.bonuses" = "Learn about %@'s bonuses";
+"crowdloan.astar.referral.code.invalid" = "Invalid referral address, only Polkadot addresses accepted, please try again ";
+"astar.bonus" = "Bonus for you";
+"astar.friend.bonus" = "Bonus for your friend";
+"moonbeam.crowdloan.terms" = "Moonbeam Crowdloan Terms and Conditions";
+"moonbeam.registration" = "Moonbeam Crowdloan Registration";
+"moonbeam.registration.description" = "This transaction confirms that you agree to the Moonbeam Crowdloan Terms and Conditions.\
+A signed system.remark extrinsic transaction will be sent as proof of your agreement.\
+This information will be processed and stored on the Polkadot Relay Chain.\
+Please note that this signing transaction will be subject to transaction fees on the Polkadot network.";
+"transaction.successful" = "Transaction Successful!";
+"moonbeam.signed.successful" = "You have successfully signed the terms and conditions for the Moonbeam Crowdloan and a transaction has been sent.\
+\
+This is the hash of your transaction:";
+"moonbean.ethereum.address" = "Moonbeam Ethereum address";
+"about.twitter" = "Follow on Twitter";
+"about.youtube" = "Subscribe on YouTube";
+"about.medium" = "Read on Medium";
+"about.announcement" = "Receive Announcements";
+"about.support" = "Ask for Support";
+"moonbeam.location.unsupported.error" = "Unfortunately it appears that you might be ineligible to participate in the Moonbeam Crowdloan Campaign due to your detected location.";
+"crowdloan.terms.with.name" = "%@ Crowdloan Terms and Conditions";
+"common.error.network" = "Error occured while communicating with remote server";
+"common.error.internal" = "Internal error occured";
+"moonbeam.address.hint" = "Rewards will be paid out to this address. You can use an existing Ethereum address. PLEASE ENSURE YOU HAVE THE PRIVATE KEYS FOR THIS ADDRESS.";

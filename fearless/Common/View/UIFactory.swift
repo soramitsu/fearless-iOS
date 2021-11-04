@@ -2,10 +2,15 @@ import UIKit
 import SoraUI
 
 struct UIConstants {
+    static let minimalOffset: CGFloat = 4.0
+    static let defaultOffset: CGFloat = 8.0
+    static let bigOffset: CGFloat = 16.0
+    static let hugeOffset: CGFloat = 24.0
     static let actionBottomInset: CGFloat = 16.0
     static let actionHeight: CGFloat = 52.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
+    static let verticalInset: CGFloat = 16.0
     static let triangularedViewHeight: CGFloat = 52.0
     static let expandableViewHeight: CGFloat = 50.0
     static let formSeparatorWidth: CGFloat = 0.5
