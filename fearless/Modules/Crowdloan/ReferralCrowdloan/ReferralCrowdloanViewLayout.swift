@@ -40,6 +40,9 @@ final class ReferralCrowdloanViewLayout: UIView {
 
     let bonusView: TitleValueView = UIFactory.default.createTitleValueView()
 
+    private(set) var friendBonusView: TitleValueView = UIFactory.default.createTitleValueView()
+    private(set) var myBonusView: TitleValueView = UIFactory.default.createTitleValueView()
+
     let termsSwitchView: UISwitch = {
         let switchView = UISwitch()
         switchView.onTintColor = R.color.colorAccent()
@@ -129,6 +132,18 @@ final class ReferralCrowdloanViewLayout: UIView {
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: codeInputView)
+
+        contentView.stackView.addArrangedSubview(myBonusView)
+        myBonusView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+        }
+
+        contentView.stackView.addArrangedSubview(friendBonusView)
+        friendBonusView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+        }
 
         contentView.stackView.addArrangedSubview(bonusView)
         bonusView.snp.makeConstraints { make in
