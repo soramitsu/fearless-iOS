@@ -4,7 +4,9 @@ import BigInt
 import FearlessUtils
 import SoraKeystore
 
-class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
+class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor,
+    CrowdloanContributionConfirmInteractorInputProtocol,
+    AccountFetching {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
         presenter as? CrowdloanContributionConfirmInteractorOutputProtocol
     }
@@ -111,9 +113,7 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
             }
         )
     }
-}
 
-extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
     func estimateFee(for contribution: BigUInt) {
         estimateFee(
             for: contribution,

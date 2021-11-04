@@ -23,7 +23,7 @@ enum CustomCrowdloanFlow {
         default: return false
         }
     }
-    
+
     var hasEthereumReferral: Bool {
         switch self {
         case .moonbeam: return true
