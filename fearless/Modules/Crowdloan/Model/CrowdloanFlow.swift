@@ -11,21 +11,23 @@ enum CustomCrowdloanFlow {
 
     var name: String {
         switch self {
-        case .karura:
-            return "karura"
-        case .bifrost:
-            return "bifrost"
-        case .moonbeam:
-            return "moonbeam"
+        case .karura: return "karura"
+        case .bifrost: return "bifrost"
+        case .moonbeam: return "moonbeam"
         }
     }
 
     var hasReferralBonus: Bool {
         switch self {
-        case .karura, .bifrost:
-            return true
-        default:
-            return false
+        case .karura, .bifrost: return true
+        default: return false
+        }
+    }
+    
+    var hasEthereumReferral: Bool {
+        switch self {
+        case .moonbeam: return true
+        default: return false
         }
     }
 }
