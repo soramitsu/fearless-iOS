@@ -1579,6 +1579,7 @@
 		FA54F5392732A18B00CA7550 /* AcalaTransferRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F52A2732A18A00CA7550 /* AcalaTransferRequest.swift */; };
 		FA54F53A2732A18B00CA7550 /* AcalaStatementRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F52B2732A18A00CA7550 /* AcalaStatementRequest.swift */; };
 		FA54F53B2732A18B00CA7550 /* AstarBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F52D2732A18B00CA7550 /* AstarBonusService.swift */; };
+		FA54F53D2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F53C2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 		FF81780F2929736DE8DAAD62 /* CrowdloanAgreementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEDF0B900FE2080C14FA45C /* CrowdloanAgreementViewController.swift */; };
 /* End PBXBuildFile section */
@@ -3205,6 +3206,7 @@
 		FA54F52A2732A18A00CA7550 /* AcalaTransferRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaTransferRequest.swift; sourceTree = "<group>"; };
 		FA54F52B2732A18A00CA7550 /* AcalaStatementRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaStatementRequest.swift; sourceTree = "<group>"; };
 		FA54F52D2732A18B00CA7550 /* AstarBonusService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AstarBonusService.swift; sourceTree = "<group>"; };
+		FA54F53C2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstarReferralCrowdloanViewModel.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
 		FBFDF844248CD43AAD13139F /* StakingPayoutConfirmationInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationInteractor.swift; sourceTree = "<group>"; };
 		FE4AF0849E32E5B9C72E2ABB /* RecommendedValidatorListViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewFactory.swift; sourceTree = "<group>"; };
@@ -6466,6 +6468,7 @@
 			children = (
 				84E731C226652B5C00D5B15A /* AttributedString+Crowdloan.swift */,
 				84DED3FB266651EB00A153BB /* ReferralCrowdloanViewModel.swift */,
+				FA54F53C2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -8991,6 +8994,7 @@
 				8470D6D0253E321C009E9A5D /* StorageSubscriptionProtocols.swift in Sources */,
 				84C1B98424F5245700FE5470 /* ManagedAccountViewModel.swift in Sources */,
 				8460E1132541DEDA00826F55 /* TransactionDetailsFormViewModelBinder.swift in Sources */,
+				FA54F53D2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift in Sources */,
 				8444D1BE2671465A00AF6D8C /* CrowdloanBonusServiceError.swift in Sources */,
 				8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */,
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,

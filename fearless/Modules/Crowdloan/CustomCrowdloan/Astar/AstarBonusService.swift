@@ -9,7 +9,7 @@ final class AstarBonusService {
 
     static let baseURL = URL(string: "https://salp-api.bifrost.finance")!
 
-    var bonusRate: Decimal { 0.05 }
+    var bonusRate: Decimal { 0.1 }
 
     var termsURL: URL {
         URL(string: "https://docs.google.com/document/d/1PDpgHnIcAmaa7dEFusmLYgjlvAbk2VKtMd755bdEsf4/edit?usp=sharing")!
@@ -27,7 +27,9 @@ final class AstarBonusService {
 }
 
 extension AstarBonusService: CrowdloanBonusServiceProtocol {
-    func save(referralCode _: String, completion _: @escaping (Result<Void, Error>) -> Void) {}
+    func save(referralCode: String, completion _: @escaping (Result<Void, Error>) -> Void) {
+        self.referralCode = referralCode
+    }
 
     func applyOffchainBonusForContribution(
         amount _: BigUInt,

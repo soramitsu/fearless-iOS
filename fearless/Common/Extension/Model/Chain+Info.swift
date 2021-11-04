@@ -131,15 +131,28 @@ extension Chain {
         }
     }
 
-    func crowdloanDisplayInfoURL() -> URL {
-        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
+    #if F_DEV
+        func crowdloanDisplayInfoURL() -> URL {
+            let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/astar_test/crowdloan/")!
 
-        switch self {
-        case .westend: return base.appendingPathComponent("westend.json")
-        case .kusama: return base.appendingPathComponent("kusama.json")
-        case .polkadot: return base.appendingPathComponent("polkadot.json")
-        case .rococo: return base.appendingPathComponent("rococo.json")
+            switch self {
+            case .westend: return base.appendingPathComponent("westend.json")
+            case .kusama: return base.appendingPathComponent("kusama.json")
+            case .polkadot: return base.appendingPathComponent("polkatrain.json")
+            case .rococo: return base.appendingPathComponent("rococo.json")
+            }
         }
-    }
+    #else
+        func crowdloanDisplayInfoURL() -> URL {
+            let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
+
+            switch self {
+            case .westend: return base.appendingPathComponent("westend.json")
+            case .kusama: return base.appendingPathComponent("kusama.json")
+            case .polkadot: return base.appendingPathComponent("polkadot.json")
+            case .rococo: return base.appendingPathComponent("rococo.json")
+            }
+        }
+    #endif
     // swiftlint:enable line_length
 }

@@ -71,12 +71,19 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
             return
         }
 
+        rootView.bonusView.isHidden = !referralViewModel.regularBonusViewVisible
+        rootView.myBonusView.isHidden = !referralViewModel.myBonusViewVisible
+        rootView.friendBonusView.isHidden = !referralViewModel.friendBonusViewVisible
+        rootView.termsSwitchView.isHidden = !referralViewModel.privacyPolicyAgreementVisible
+        rootView.termsLabel.isHidden = !referralViewModel.privacyPolicyAgreementVisible
+
         rootView.applyAppBonusLabel.text = R.string.localizable.crowdloanAppBonusFormat(
             referralViewModel.bonusPercentage,
             preferredLanguages: selectedLocale.rLanguages
         )
 
         rootView.bonusView.valueLabel.text = referralViewModel.bonusValue
+        rootView.myBonusView.valueLabel.text = referralViewModel.bonusValue
 
         if referralViewModel.canApplyDefaultCode {
             rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApply(

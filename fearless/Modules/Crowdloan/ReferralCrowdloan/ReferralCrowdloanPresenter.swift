@@ -63,7 +63,8 @@ final class ReferralCrowdloanPresenter {
             bonusValue: bonusValue ?? "",
             canApplyDefaultCode: currentReferralCode != defaultReferralCode,
             isTermsAgreed: isTermsAgreed,
-            isCodeReceived: !currentReferralCode.isEmpty
+            isCodeReceived: !currentReferralCode.isEmpty,
+            customFlow: displayInfo.flow
         )
 
         view?.didReceiveReferral(viewModel: viewModel)
