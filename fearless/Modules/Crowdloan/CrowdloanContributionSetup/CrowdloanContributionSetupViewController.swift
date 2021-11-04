@@ -59,10 +59,7 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     }
 
     private var isFormValid: Bool {
-        let ethereumValid = !(ethereumAddressViewModel?.inputHandler.value.isEmpty ?? true)
-            ? ethereumAddressViewModel?.inputHandler.completed
-            : true
-        return [amountInputViewModel?.isValid, ethereumValid]
+        [amountInputViewModel?.isValid, ethereumAddressViewModel?.inputHandler.completed]
             .compactMap { $0 }
             .allSatisfy { $0 }
     }
