@@ -33,7 +33,7 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        connection: JSONRPCEngine,
+        connection: JSONRPCEngine?,
         settings: SettingsManagerProtocol,
         memo: String?
     ) {

@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import SoraKeystore
 import CommonWallet
+import FearlessUtils
 import RobinHood
 import SoraFoundation
 import Cuckoo
@@ -21,7 +22,8 @@ class CrowdloanContributionSetupTests: XCTestCase {
             lastContribution: .never,
             firstPeriod: 100,
             lastPeriod: 101,
-            trieIndex: 1)
+            trieIndex: 1
+        )
     )
 
     func testContributionSetupAndContinue() throws {
@@ -117,8 +119,10 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 from: any(),
                 paraId: any(),
                 inputAmount: any(),
-                bonusService: any()
-            ).then { (_, _, amount, _) in
+                bonusService: any(),
+                customFlow: any(),
+                ethereumAddress: any()
+            ).then { (_, _, amount, _, _, _) in
                 XCTAssertEqual(expectedAmount, amount)
                 completionExpectation.fulfill()
             }
@@ -171,7 +175,8 @@ class CrowdloanContributionSetupTests: XCTestCase {
             contributionViewModelFactory: crowdloanViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: addressType.chain,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            customFlow: nil
         )
 
         interactor.presenter = presenter
@@ -194,7 +199,18 @@ class CrowdloanContributionSetupTests: XCTestCase {
             .withCrowdloanFunds(crowdloan.fundInfo)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
+        let operationManager = OperationManagerFacade.sharedManager
+        
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
 
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
+        
         return CrowdloanContributionSetupInteractor(
             paraId: crowdloan.paraId,
             selectedAccountAddress: settings.selectedAccount!.address,
@@ -205,7 +221,11 @@ class CrowdloanContributionSetupTests: XCTestCase {
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: providerFactory.crowdloanFunds,
             singleValueProviderFactory: providerFactory,
-            operationManager: OperationManager()
+            operationManager: operationManager,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: nil,
+            settings: settings
         )
     }
 }

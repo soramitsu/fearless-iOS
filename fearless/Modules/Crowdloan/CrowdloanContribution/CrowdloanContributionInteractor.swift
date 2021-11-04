@@ -20,7 +20,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
-    let connection: JSONRPCEngine
+    let connection: JSONRPCEngine?
     let settings: SettingsManagerProtocol
 
     private(set) var crowdloan: Crowdloan?
@@ -45,7 +45,8 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
-        connection: JSONRPCEngine, settings: SettingsManagerProtocol
+        connection: JSONRPCEngine?,
+        settings: SettingsManagerProtocol
     ) {
         self.paraId = paraId
         self.selectedAccountAddress = selectedAccountAddress
@@ -154,7 +155,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func provideContribution() {
-        guard let crowdloan = crowdloan else { return }
+        guard let crowdloan = crowdloan, let connection = connection else { return }
 
         let contributionOperation: CompoundOperationWrapper<CrowdloanContributionResponse> = crowdloanOperationFactory.fetchContributionOperation(
             connection: connection,
