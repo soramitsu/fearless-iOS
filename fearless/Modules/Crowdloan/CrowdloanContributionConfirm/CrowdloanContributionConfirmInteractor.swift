@@ -4,7 +4,7 @@ import BigInt
 import FearlessUtils
 import SoraKeystore
 
-class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching, CrowdloanContributionConfirmInteractorInputProtocol {
+class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {
         presenter as? CrowdloanContributionConfirmInteractorOutputProtocol
     }
@@ -101,9 +101,7 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         submitContribution(builderClosure: builderClosure)
     }
 
-    func submitContribution(
-        builderClosure: @escaping ExtrinsicBuilderClosure
-    ) {
+    func submitContribution(builderClosure: @escaping ExtrinsicBuilderClosure) {
         extrinsicService.submit(
             builderClosure,
             signer: signingWrapper,
@@ -113,8 +111,17 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
             }
         )
     }
+}
 
-    /* CrowdloanContributionConfirmInteractorInputProtocol */
+extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
+    func estimateFee(for contribution: BigUInt) {
+        estimateFee(
+            for: contribution,
+            bonusService: bonusService,
+            memo: memo
+        )
+    }
+
     func submit(contribution: BigUInt) {
         if let bonusService = bonusService {
             bonusService.applyOffchainBonusForContribution(amount: contribution) { [weak self] result in
@@ -130,13 +137,5 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, A
         } else {
             prepareAndContribute(with: contribution)
         }
-    }
-
-    func estimateFee(for contribution: BigUInt) {
-        estimateFee(
-            for: contribution,
-            bonusService: bonusService,
-            memo: memo
-        )
     }
 }

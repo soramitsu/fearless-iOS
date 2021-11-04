@@ -13,13 +13,9 @@ struct CrowdloanContributionSetupViewFactory {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
 
-        guard let interactor = createInteractor(for: paraId, assetId: assetId) else {
-            return nil
-        }
+        guard let interactor = createInteractor(for: paraId, assetId: assetId) else { return nil }
 
         let wireframe = CrowdloanContributionSetupWireframe()
 
@@ -73,15 +69,11 @@ struct CrowdloanContributionSetupViewFactory {
         for paraId: ParaId,
         assetId: WalletAssetId
     ) -> CrowdloanContributionSetupInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
-            return nil
-        }
+        guard let engine = WebSocketService.shared.connection else { return nil }
 
         let settings = SettingsManager.shared
 
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
+        guard let selectedAccount = settings.selectedAccount else { return nil }
 
         let chain = settings.selectedConnection.type.chain
 

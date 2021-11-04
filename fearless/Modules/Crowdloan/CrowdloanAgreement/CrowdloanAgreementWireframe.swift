@@ -8,7 +8,7 @@ final class CrowdloanAgreementWireframe: CrowdloanAgreementWireframeProtocol {
         remark: String
     ) {
         switch customFlow {
-        case let .moonbeam(moonbeamFlowData):
+        case .moonbeam:
             guard let confirmationView = CrowdloanAgreementConfirmViewFactory.createView(
                 paraId: paraId,
                 customFlow: customFlow,
@@ -65,10 +65,6 @@ final class CrowdloanAgreementWireframe: CrowdloanAgreementWireframeProtocol {
             closeAction: nil
         )
 
-        present(
-            viewModel: viewModel,
-            style: .alert,
-            from: view
-        )
+        present(viewModel: viewModel, style: .alert, from: view)
     }
 }

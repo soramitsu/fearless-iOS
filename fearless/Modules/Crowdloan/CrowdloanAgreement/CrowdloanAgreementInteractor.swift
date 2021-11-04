@@ -13,6 +13,7 @@ final class CrowdloanAgreementInteractor {
         signingWrapper: SigningWrapperProtocol,
         customFlow: CustomCrowdloanFlow
     ) {
+        assert(agreementService != nil)
         self.agreementService = agreementService
         self.signingWrapper = signingWrapper
         self.customFlow = customFlow
@@ -21,9 +22,7 @@ final class CrowdloanAgreementInteractor {
     private func loadAgreementContents() {
         switch customFlow {
         case let .moonbeam(moonbeamFlowData):
-            guard
-                let termsURL = URL(string: moonbeamFlowData.termsUrl)
-            else {
+            guard let termsURL = URL(string: moonbeamFlowData.termsUrl) else {
                 presenter.didReceiveAgreementText(result: .failure(CommonError.internal))
                 return
             }
@@ -39,7 +38,7 @@ final class CrowdloanAgreementInteractor {
                     }
 
                     self?.presenter.didReceiveAgreementText(result: .success(agreementText))
-                case let .failure(error):
+                case .failure:
                     self?.presenter.didReceiveAgreementText(result: .failure(CommonError.network))
                 }
             })
@@ -75,8 +74,8 @@ extension CrowdloanAgreementInteractor: CrowdloanAgreementInteractorInputProtoco
             return
         }
 
-        agreementService?.agreeRemark(agreementData: agreementData, with: { [weak self] result in
-            self?.presenter.didReceiveRemark(result: result)
-        })
+        agreementService?.agreeRemark(agreementData: agreementData) { [weak self] in
+            self?.presenter.didReceiveRemark(result: $0)
+        }
     }
 }

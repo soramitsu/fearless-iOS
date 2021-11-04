@@ -420,10 +420,6 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         }
     }
 
-    func didReceiveFees(results _: [Result<RuntimeDispatchInfo, Error>]) {
-        // TODO: Handle many fees input
-    }
-
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimumBalance):

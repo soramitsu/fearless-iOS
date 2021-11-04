@@ -110,10 +110,7 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
         let crowdloanDisplayInfo: CrowdloanDisplayInfo? = try? displayInfoResult?
             .get()
-            .first(
-                where: { key, _ in
-                    key == viewModel.paraId
-                })?
+            .first(where: { key, _ in key == viewModel.paraId })?
             .value
 
         let customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flow

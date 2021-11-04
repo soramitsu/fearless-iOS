@@ -69,10 +69,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             return
         }
 
-        let call = callFactory.addMemo(
-            to: paraId,
-            memo: memo
-        )
+        let call = callFactory.addMemo(to: paraId, memo: memo)
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)
@@ -114,10 +111,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         }
     }
 
-    private func submitSignedContribution(
-        amount: BigUInt,
-        signature: String
-    ) {
+    private func submitSignedContribution(amount: BigUInt, signature: String) {
         guard
             let signatureData = try? Data(hexString: signature),
             let multiSignature = MultiSignature.signature(from: selectedAccount.cryptoType, data: signatureData)
@@ -126,11 +120,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             return
         }
 
-        let call = callFactory.contribute(
-            to: paraId,
-            amount: amount,
-            multiSignature: multiSignature
-        )
+        let call = callFactory.contribute(to: paraId, amount: amount, multiSignature: multiSignature)
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)
@@ -141,9 +131,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
     }
 
     private func saveEtheriumAdressAsMoonbeamDefault() {
-        guard let ethereumAccountAddress = ethereumAccountAddress else {
-            return
-        }
+        guard let ethereumAccountAddress = ethereumAccountAddress else { return }
 
         settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: ethereumAccountAddress)
     }

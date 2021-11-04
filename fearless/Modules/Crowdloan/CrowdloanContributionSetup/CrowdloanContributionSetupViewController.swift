@@ -59,7 +59,9 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     }
 
     private var isFormValid: Bool {
-        let ethereumValid = !(ethereumAddressViewModel?.inputHandler.value.isEmpty ?? true) ? ethereumAddressViewModel?.inputHandler.completed : true
+        let ethereumValid = !(ethereumAddressViewModel?.inputHandler.value.isEmpty ?? true)
+            ? ethereumAddressViewModel?.inputHandler.completed
+            : true
         return [amountInputViewModel?.isValid, ethereumValid]
             .compactMap { $0 }
             .allSatisfy { $0 }
@@ -136,12 +138,8 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
     func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
         rootView.bind(customFlow: viewModel)
-
-        switch viewModel {
-        case .moonbeam:
+        if case .moonbeam = viewModel {
             rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.delegate = self
-        default:
-            break
         }
     }
 }

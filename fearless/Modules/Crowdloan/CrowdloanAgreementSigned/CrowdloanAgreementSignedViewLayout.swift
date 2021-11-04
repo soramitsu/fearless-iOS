@@ -53,11 +53,11 @@ final class CrowdloanAgreementSignedViewLayout: UIView {
     }
 
     func bind(to viewModel: CrowdloanAgreementSignedViewModel) {
-        if let hash = viewModel.hash {
+        if let hash = viewModel.hash, let color = R.color.colorAccent() {
             let attributedHashString = NSAttributedString(
                 string: hash,
                 attributes: [.underlineStyle: NSUnderlineStyle.single.rawValue,
-                             .foregroundColor: R.color.colorAccent()]
+                             .foregroundColor: color]
             )
             hashLabel.attributedText = attributedHashString
         }

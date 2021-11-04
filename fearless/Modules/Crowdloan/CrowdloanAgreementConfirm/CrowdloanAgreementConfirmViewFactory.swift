@@ -109,26 +109,16 @@ extension CrowdloanAgreementConfirmViewFactory {
         )
 
         #if F_DEV
-            let headerBuilder = MoonbeamHTTPHeadersBuilder(
-                apiKey: moonbeamFlowData.devApiKey
-            )
+            let apiKey = moonbeamFlowData.devApiKey
+            let host = moonbeamFlowData.devApiUrl
         #else
-            let headerBuilder = MoonbeamHTTPHeadersBuilder(
-                apiKey: moonbeamFlowData.prodApiKey
-            )
+            let apiKey = moonbeamFlowData.prodApiKey
+            let host = moonbeamFlowData.prodApiUrl
         #endif
 
-        #if F_DEV
-            let requestBuilder = HTTPRequestBuilder(
-                host: moonbeamFlowData.devApiUrl,
-                headerBuilder: headerBuilder
-            )
-        #else
-            let requestBuilder = HTTPRequestBuilder(
-                host: moonbeamFlowData.prodApiUrl,
-                headerBuilder: headerBuilder
-            )
-        #endif
+        let headerBuilder = MoonbeamHTTPHeadersBuilder(apiKey: apiKey)
+        let requestBuilder = HTTPRequestBuilder(host: host, headerBuilder: headerBuilder)
+
         let agreementService = MoonbeamService(
             address: selectedAddress,
             chain: settings.selectedConnection.type.chain,

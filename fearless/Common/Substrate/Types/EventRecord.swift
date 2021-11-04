@@ -67,6 +67,13 @@ struct Event: Decodable {
     }
 }
 
+private extension Optional {
+    func unwrap(throwing error: Error) throws -> Wrapped {
+        guard let value = self else { throw error }
+        return value
+    }
+}
+
 enum ExtrinsicStatus: Decodable {
     static let readyField = "ready"
     static let broadcastField = "broadcast"
@@ -82,18 +89,27 @@ enum ExtrinsicStatus: Decodable {
         let container = try decoder.singleValueContainer()
         let decoded = try container.decode(JSON.self)
 
-        let type = decoded.dictValue?.keys.first ?? decoded.stringValue
-        let value = decoded[type!]
+        let decodingError = DecodingError.dataCorruptedError(
+            in: container,
+            debugDescription: "Unexpected extrinsic state"
+        )
+
+        let type = try (decoded.dictValue?.keys.first ?? decoded.stringValue).unwrap(throwing: decodingError)
+        let value = try decoded[type].unwrap(throwing: decodingError)
 
         switch type {
         case ExtrinsicStatus.readyField:
             self = .ready
         case ExtrinsicStatus.broadcastField:
-            self = .broadcast(value!.arrayValue!.map { $0.stringValue! })
+            self = .broadcast(
+                try value.arrayValue
+                    .unwrap(throwing: decodingError)
+                    .map { try $0.stringValue.unwrap(throwing: decodingError) }
+            )
         case ExtrinsicStatus.inBlockField:
-            self = .inBlock(value!.stringValue!)
+            self = .inBlock(try value.stringValue.unwrap(throwing: decodingError))
         case ExtrinsicStatus.finalizedField:
-            self = .finalized(value!.stringValue!)
+            self = .finalized(try value.stringValue.unwrap(throwing: decodingError))
         default:
             throw DecodingError.dataCorruptedError(
                 in: container,

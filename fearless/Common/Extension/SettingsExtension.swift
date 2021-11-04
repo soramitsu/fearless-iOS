@@ -58,18 +58,14 @@ extension SettingsManagerProtocol {
     }
 
     func saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: String) {
-        guard let selectedAccount = selectedAccount else {
-            return
-        }
+        guard let selectedAccount = selectedAccount else { return }
 
         let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
         set(value: ethereumAccountAddress, for: key)
     }
 
     func referralEthereumAddressForSelectedAccount() -> String? {
-        guard let selectedAccount = selectedAccount else {
-            return nil
-        }
+        guard let selectedAccount = selectedAccount else { return nil }
 
         let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
         return string(for: key)

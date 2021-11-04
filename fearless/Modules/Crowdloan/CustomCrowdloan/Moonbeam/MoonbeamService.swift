@@ -67,12 +67,9 @@ final class MoonbeamService: CrowdloanAgreementServiceProtocol {
         dependingOn infoOperation: BaseOperation<MoonbeamAgreeRemarkInfo>
     ) -> BaseOperation<MoonbeamAgreeRemarkData> {
         let requestFactory = BlockNetworkRequestFactory {
-            let info = try infoOperation.extractNoCancellableResultData()
-            let request = try self.requestBuilder.buildRequest(with: MoonbeamAgreeRemarkRequest(
+            try self.requestBuilder.buildRequest(with: MoonbeamAgreeRemarkRequest(
                 info: infoOperation.extractNoCancellableResultData()
             ))
-
-            return request
         }
 
         let resultFactory = AnyNetworkResultFactory<MoonbeamAgreeRemarkData> { data in
@@ -174,7 +171,6 @@ final class MoonbeamService: CrowdloanAgreementServiceProtocol {
 
 extension MoonbeamService {
     var termsURL: URL {
-        // TODO: attestation url from utils
         URL(string: "https://github.com/moonbeam-foundation/crowdloan-self-attestation/tree/main/moonbeam")!
     }
 
@@ -203,8 +199,7 @@ extension MoonbeamService {
 
     func agreeRemark(
         agreementData: Data,
-        with closure: @escaping (Result<MoonbeamAgreeRemarkData, Error>
-        ) -> Void
+        with closure: @escaping (Result<MoonbeamAgreeRemarkData, Error>) -> Void
     ) {
         let infoOperation = ClosureOperation<MoonbeamAgreeRemarkInfo> {
             guard let sha256 = agreementData.sha256().toHex().data(using: .utf8) else {
@@ -244,8 +239,7 @@ extension MoonbeamService {
     func verifyRemark(
         extrinsicHash: String,
         blockHash: String,
-        with closure: @escaping (Result<MoonbeamVerifyRemarkData, Error>
-        ) -> Void
+        with closure: @escaping (Result<MoonbeamVerifyRemarkData, Error>) -> Void
     ) {
         let verifyRemarkInfoOperation = ClosureOperation<MoonbeamVerifyRemarkInfo> {
             MoonbeamVerifyRemarkInfo(
@@ -262,7 +256,8 @@ extension MoonbeamService {
         verifyRemarkOperation.completionBlock = {
             DispatchQueue.main.async {
                 do {
-                    let resultData: MoonbeamVerifyRemarkData = try verifyRemarkOperation.extractNoCancellableResultData()
+                    let resultData: MoonbeamVerifyRemarkData = try verifyRemarkOperation
+                        .extractNoCancellableResultData()
 
                     closure(.success(resultData))
                 } catch {
@@ -284,8 +279,7 @@ extension MoonbeamService {
     func makeSignature(
         previousTotalContribution: String,
         contribution: String,
-        with closure: @escaping (Result<MoonbeamMakeSignatureData, Error>
-        ) -> Void
+        with closure: @escaping (Result<MoonbeamMakeSignatureData, Error>) -> Void
     ) {
         let makeSignatureInfoOperation = ClosureOperation<MoonbeamMakeSignatureInfo> {
             MoonbeamMakeSignatureInfo(
@@ -303,7 +297,8 @@ extension MoonbeamService {
         makeSignatureOperation.completionBlock = {
             DispatchQueue.main.async {
                 do {
-                    let resultData: MoonbeamMakeSignatureData = try makeSignatureOperation.extractNoCancellableResultData()
+                    let resultData: MoonbeamMakeSignatureData = try makeSignatureOperation
+                        .extractNoCancellableResultData()
                     closure(.success(resultData))
                 } catch {
                     if let responseError = error as? NetworkResponseError, case .accessForbidden = responseError {

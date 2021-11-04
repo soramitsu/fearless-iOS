@@ -17,9 +17,7 @@ struct CrowdloanContributionConfirmViewFactory {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
 
         var interactor: CrowdloanContributionConfirmInteractor?
         switch customFlow {
@@ -39,9 +37,7 @@ struct CrowdloanContributionConfirmViewFactory {
             )
         }
 
-        guard let interactor = interactor else {
-            return nil
-        }
+        guard let interactor = interactor else { return nil }
 
         let wireframe = CrowdloanContributionConfirmWireframe()
 
@@ -99,16 +95,12 @@ struct CrowdloanContributionConfirmViewFactory {
         moonbeamFlowData: MoonbeamFlowData,
         ethereumAddress: String?
     ) -> MoonbeamContributionConfirmInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
-            return nil
-        }
+        guard let engine = WebSocketService.shared.connection else { return nil }
 
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
+        guard let selectedAccount = settings.selectedAccount else { return nil }
 
         let chain = settings.selectedConnection.type.chain
 
@@ -151,26 +143,16 @@ struct CrowdloanContributionConfirmViewFactory {
         )
 
         #if F_DEV
-            let headerBuilder = MoonbeamHTTPHeadersBuilder(
-                apiKey: moonbeamFlowData.devApiKey
-            )
+            let apiKey = moonbeamFlowData.devApiKey
+            let host = moonbeamFlowData.devApiUrl
         #else
-            let headerBuilder = MoonbeamHTTPHeadersBuilder(
-                apiKey: moonbeamFlowData.prodApiKey
-            )
+            let apiKey = moonbeamFlowData.prodApiKey
+            let host = moonbeamFlowData.prodApiUrl
         #endif
 
-        #if F_DEV
-            let requestBuilder = HTTPRequestBuilder(
-                host: moonbeamFlowData.devApiUrl,
-                headerBuilder: headerBuilder
-            )
-        #else
-            let requestBuilder = HTTPRequestBuilder(
-                host: moonbeamFlowData.prodApiUrl,
-                headerBuilder: headerBuilder
-            )
-        #endif
+        let headerBuilder = MoonbeamHTTPHeadersBuilder(apiKey: apiKey)
+        let requestBuilder = HTTPRequestBuilder(host: host, headerBuilder: headerBuilder)
+
         let agreementService = MoonbeamService(
             address: selectedAccount.address,
             chain: settings.selectedConnection.type.chain,
@@ -209,16 +191,12 @@ struct CrowdloanContributionConfirmViewFactory {
         bonusService: CrowdloanBonusServiceProtocol?,
         memo: String?
     ) -> CrowdloanContributionConfirmInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
-            return nil
-        }
+        guard let engine = WebSocketService.shared.connection else { return nil }
 
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
+        guard let selectedAccount = settings.selectedAccount else { return nil }
 
         let chain = settings.selectedConnection.type.chain
 

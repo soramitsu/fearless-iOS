@@ -154,9 +154,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func provideContribution() {
-        guard let crowdloan = crowdloan else {
-            return
-        }
+        guard let crowdloan = crowdloan else { return }
 
         let contributionOperation: CompoundOperationWrapper<CrowdloanContributionResponse> = crowdloanOperationFactory.fetchContributionOperation(
             connection: connection,
@@ -172,7 +170,8 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
                 }
 
                 do {
-                    let contributionResponse = try contributionOperation.targetOperation.extractNoCancellableResultData()
+                    let contributionResponse = try contributionOperation.targetOperation
+                        .extractNoCancellableResultData()
                     self?.crowdloanContribution = contributionResponse.contribution
                 } catch {
                     self?.logger.error("Cannot receive contributions for crowdloan: \(crowdloan)")
@@ -242,10 +241,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func makeMemoCall(memo: String?) -> RuntimeCall<CrowdloanAddMemo>? {
-        guard
-            let memo = memo, !memo.isEmpty,
-            let memoData = memo.data(using: .utf8)
-        else {
+        guard let memo = memo, !memo.isEmpty, let memoData = memo.data(using: .utf8) else {
             return nil
         }
 
