@@ -1,5 +1,6 @@
 import Foundation
 import SoraUI
+import UIKit
 
 /**
  *  Subclass of `BackgroundedContentControl` designed to provide button that contains
@@ -16,8 +17,16 @@ class TriangularedButton: BackgroundedContentControl {
 
     /// Returns backround view with cut corners
     var triangularedView: TriangularedView? {
-        self.backgroundView as? TriangularedView
+        backgroundView as? TriangularedView
     }
+
+    lazy var activityIndicator: UIActivityIndicatorView = {
+        if #available(iOS 13, *) {
+            return UIActivityIndicatorView(style: .medium)
+        }
+
+        return UIActivityIndicatorView(style: .white)
+    }()
 
     // MARK: Overriden initializers
 
@@ -53,6 +62,12 @@ class TriangularedButton: BackgroundedContentControl {
             contentView = ImageWithTitleView()
             contentView?.isUserInteractionEnabled = false
         }
+
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
     }
 
     func set(enabled: Bool, changeStyle: Bool = true) {
@@ -60,6 +75,16 @@ class TriangularedButton: BackgroundedContentControl {
 
         if changeStyle {
             isEnabled ? applyDefaultStyle() : applyDisabledStyle()
+        }
+    }
+
+    func set(loading: Bool) {
+        if loading {
+            activityIndicator.startAnimating()
+            applyLoadingStyle()
+        } else {
+            activityIndicator.stopAnimating()
+            applyEnabledStyle()
         }
     }
 }

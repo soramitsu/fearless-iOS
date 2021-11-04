@@ -5,12 +5,16 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol?
+        bonusService: CrowdloanBonusServiceProtocol?,
+        customFlow: CustomCrowdloanFlow?,
+        ethereumAddress: String?
     ) {
         guard let confirmationView = CrowdloanContributionConfirmViewFactory.createView(
             with: paraId,
             inputAmount: inputAmount,
-            bonusService: bonusService
+            bonusService: bonusService,
+            customFlow: customFlow,
+            ethereumAddress: ethereumAddress
         ) else {
             return
         }
@@ -25,7 +29,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let customFlow = displayInfo.customFlow else {
+        guard let customFlow = displayInfo.flow else {
             return
         }
 
@@ -46,6 +50,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
+        default: break
         }
     }
 

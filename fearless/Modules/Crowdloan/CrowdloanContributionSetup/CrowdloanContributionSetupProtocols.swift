@@ -7,15 +7,18 @@ protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol, Local
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)
     func didReceiveFee(viewModel: BalanceViewModelProtocol?)
     func didReceiveInput(viewModel: AmountInputViewModelProtocol)
+    func didReceiveEthereumAddress(viewModel: InputViewModelProtocol)
     func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel)
     func didReceiveEstimatedReward(viewModel: String?)
     func didReceiveBonus(viewModel: String?)
+    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?)
 }
 
 protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func setup()
     func selectAmountPercentage(_ percentage: Float)
     func updateAmount(_ newValue: Decimal)
+    func updateEthereumAddress(_ newValue: String)
     func proceed()
     func presentLearnMore()
     func presentAdditionalBonuses()
@@ -31,7 +34,9 @@ protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPre
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol?
+        bonusService: CrowdloanBonusServiceProtocol?,
+        customFlow: CustomCrowdloanFlow?,
+        ethereumAddress: String?
     )
 
     func showAdditionalBonus(

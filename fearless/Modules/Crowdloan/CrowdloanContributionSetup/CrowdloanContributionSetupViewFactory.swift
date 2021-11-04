@@ -1,21 +1,21 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import FearlessUtils
 
 struct CrowdloanContributionSetupViewFactory {
-    static func createView(for paraId: ParaId) -> CrowdloanContributionSetupViewProtocol? {
+    static func createView(
+        for paraId: ParaId,
+        customFlow: CustomCrowdloanFlow?
+    ) -> CrowdloanContributionSetupViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
 
-        guard let interactor = createInteractor(for: paraId, assetId: assetId) else {
-            return nil
-        }
+        guard let interactor = createInteractor(for: paraId, assetId: assetId) else { return nil }
 
         let wireframe = CrowdloanContributionSetupWireframe()
 
@@ -49,7 +49,8 @@ struct CrowdloanContributionSetupViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chain: addressType.chain,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            customFlow: customFlow
         )
 
         let view = CrowdloanContributionSetupViewController(
@@ -68,15 +69,11 @@ struct CrowdloanContributionSetupViewFactory {
         for paraId: ParaId,
         assetId: WalletAssetId
     ) -> CrowdloanContributionSetupInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
-            return nil
-        }
+        guard let engine = WebSocketService.shared.connection else { return nil }
 
         let settings = SettingsManager.shared
 
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
+        guard let selectedAccount = settings.selectedAccount else { return nil }
 
         let chain = settings.selectedConnection.type.chain
 
@@ -103,6 +100,16 @@ struct CrowdloanContributionSetupViewFactory {
             runtimeService: runtimeService
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
+
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedAccountAddress: selectedAccount.address,
@@ -113,7 +120,11 @@ struct CrowdloanContributionSetupViewFactory {
             extrinsicService: extrinsicService,
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: engine,
+            settings: SettingsManager.shared
         )
     }
 }
