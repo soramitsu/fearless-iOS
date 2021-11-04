@@ -5,14 +5,12 @@ import SoraKeystore
 struct CrowdloanAgreementViewFactory {
     static func createView(
         for paraId: ParaId,
-        contribution: CrowdloanContribution?,
         customFlow: CustomCrowdloanFlow
     ) -> CrowdloanAgreementViewProtocol? {
         switch customFlow {
         case let .moonbeam(moonbeamFlowData):
             return CrowdloanAgreementViewFactory.createMoonbeamView(
                 for: paraId,
-                contribution: contribution,
                 customFlow: customFlow,
                 moonbeamFlowData: moonbeamFlowData
             )
@@ -23,7 +21,6 @@ struct CrowdloanAgreementViewFactory {
 
     private static func createMoonbeamView(
         for paraId: ParaId,
-        contribution: CrowdloanContribution?,
         customFlow: CustomCrowdloanFlow,
         moonbeamFlowData: MoonbeamFlowData
     ) -> CrowdloanAgreementViewProtocol? {
@@ -43,7 +40,6 @@ struct CrowdloanAgreementViewFactory {
             wireframe: wireframe,
             paraId: paraId,
             logger: Logger.shared,
-            contribution: contribution,
             customFlow: customFlow
         )
 

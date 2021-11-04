@@ -12,7 +12,6 @@ final class CrowdloanAgreementPresenter {
     private var isTermsAgreed: Bool = false
     private var paraId: ParaId
     private var logger: LoggerProtocol
-    private var contribution: CrowdloanContribution?
     private var customFlow: CustomCrowdloanFlow
 
     init(
@@ -20,14 +19,12 @@ final class CrowdloanAgreementPresenter {
         wireframe: CrowdloanAgreementWireframeProtocol,
         paraId: ParaId,
         logger: LoggerProtocol,
-        contribution: CrowdloanContribution?,
         customFlow: CustomCrowdloanFlow
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.paraId = paraId
         self.logger = logger
-        self.contribution = contribution
         self.customFlow = customFlow
     }
 

@@ -117,13 +117,10 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
 
         if let customFlow = customFlow {
             switch customFlow {
-            case .moonbeam:
-                let trieIndex = try? crowdloansResult?.get().first { $0.paraId == viewModel.paraId }?.fundInfo.trieIndex
-                let contribution = trieIndex.map { try? contributionsResult?.get()[$0] }
+            case let .moonbeam:
                 wireframe.presentAgreement(
                     from: view,
                     paraId: viewModel.paraId,
-                    contribution: contribution ?? nil,
                     customFlow: customFlow
                 )
             default:

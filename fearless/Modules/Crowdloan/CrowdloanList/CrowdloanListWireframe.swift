@@ -4,14 +4,12 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
     func presentAgreement(
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,
-        contribution: CrowdloanContribution?,
         customFlow: CustomCrowdloanFlow
     ) {
         switch customFlow {
-        case .moonbeam:
+        case let .moonbeam(moonbeamFlowData):
             let setupView = CrowdloanAgreementViewFactory.createView(
                 for: paraId,
-                contribution: contribution,
                 customFlow: customFlow
             )
 
