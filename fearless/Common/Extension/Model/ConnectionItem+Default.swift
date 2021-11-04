@@ -5,7 +5,7 @@ extension ConnectionItem {
     static var defaultConnection: ConnectionItem {
         ConnectionItem(
             title: "Kusama, OnFinality node",
-            url: URL(string: "wss://kusama.api.onfinality.io/ws?apikey=767ba403-66b9-402b-8018-640799c48793")!,
+            url: URL(string: "wss://kusama.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b")!,
             type: SNAddressType.kusamaMain
         )
     }
@@ -14,7 +14,7 @@ extension ConnectionItem {
         [
             ConnectionItem(
                 title: "Kusama, OnFinality node",
-                url: URL(string: "wss://kusama.api.onfinality.io/ws?apikey=767ba403-66b9-402b-8018-640799c48793")!,
+                url: URL(string: "wss://kusama.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b")!,
                 type: SNAddressType.kusamaMain
             ),
             ConnectionItem(
@@ -29,7 +29,7 @@ extension ConnectionItem {
             ),
             ConnectionItem(
                 title: "Polkadot, OnFinality node",
-                url: URL(string: "wss://polkadot.api.onfinality.io/ws?apikey=767ba403-66b9-402b-8018-640799c48793")!,
+                url: URL(string: "wss://polkadot.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b")!,
                 type: SNAddressType.polkadotMain
             ),
             ConnectionItem(

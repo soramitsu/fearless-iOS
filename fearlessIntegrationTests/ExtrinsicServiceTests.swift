@@ -129,4 +129,57 @@ class ExtrinsicServiceTests: XCTestCase {
         wait(for: [feeExpectation], timeout: 20)
     }
 
+    func testEstimateFeeForAddRemark() throws {
+        let cryptoType = CryptoType.sr25519
+        let selectedAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
+        let chain = Chain.westend
+
+        let settings = InMemorySettingsManager()
+        let walletFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = walletFactory.createAssetForAddressType(chain.addressType)
+
+        WebSocketService.shared.setup()
+        let connection = WebSocketService.shared.connection!
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        runtimeService.setup()
+
+        let extrinsicService = ExtrinsicService(
+            address: selectedAccount,
+            cryptoType: cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let feeExpectation = XCTestExpectation()
+        let callFactory = SubstrateCallFactory()
+        
+        let randomBytes = (0...1000).map { _ in UInt8.random(in: 0...UInt8.max) }
+        let data = Data(randomBytes)
+        
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let call = callFactory.addRemark(data)
+            _ = try builder.adding(call: call)
+            return builder
+        }
+        
+        extrinsicService.estimateFee(closure, runningIn: .main) { result in
+            switch result {
+            case let .success(paymentInfo):
+                if
+                    let feeValue = BigUInt(paymentInfo.fee),
+                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision),
+                    fee > 0 {
+                    feeExpectation.fulfill()
+                } else {
+                    XCTFail("Cant parse fee")
+                }
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+                feeExpectation.fulfill()
+            }
+        }
+
+        wait(for: [feeExpectation], timeout: 20)
+    }
 }

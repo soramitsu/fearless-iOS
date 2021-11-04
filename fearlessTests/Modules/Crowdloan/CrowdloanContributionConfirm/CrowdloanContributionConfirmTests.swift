@@ -4,6 +4,7 @@ import SoraKeystore
 import CommonWallet
 import RobinHood
 import SoraFoundation
+import FearlessUtils
 import Cuckoo
 
 class CrowdloanContributionConfirmTests: XCTestCase {
@@ -165,7 +166,8 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             inputAmount: inputAmount,
             bonusRate: nil,
             chain: addressType.chain,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            customFlow: nil
         )
 
         interactor.presenter = presenter
@@ -193,6 +195,17 @@ class CrowdloanContributionConfirmTests: XCTestCase {
 
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageTestFacade().createRepository()
+        
+        let operationManager = OperationManagerFacade.sharedManager
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
 
         return CrowdloanContributionConfirmInteractor(
             paraId: crowdloan.paraId,
@@ -207,8 +220,12 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             crowdloanFundsProvider: providerFactory.crowdloanFunds,
             singleValueProviderFactory: providerFactory,
             bonusService: nil,
-            operationManager: OperationManager()
+            operationManager: operationManager,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: nil,
+            settings: settings,
+            memo: nil
         )
     }
-
 }

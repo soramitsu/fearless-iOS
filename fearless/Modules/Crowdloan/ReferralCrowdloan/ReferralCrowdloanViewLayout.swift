@@ -97,6 +97,7 @@ final class ReferralCrowdloanViewLayout: UIView {
     }
 
     private func setupLayout() {
+        // TODO: Move magic numbers to constants
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)

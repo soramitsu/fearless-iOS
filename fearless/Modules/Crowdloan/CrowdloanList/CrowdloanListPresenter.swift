@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SwiftUI
 
 final class CrowdloanListPresenter {
     weak var view: CrowdloanListViewProtocol?
@@ -107,7 +108,35 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     }
 
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
-        wireframe.presentContributionSetup(from: view, paraId: viewModel.paraId)
+        let crowdloanDisplayInfo: CrowdloanDisplayInfo? = try? displayInfoResult?
+            .get()
+            .first(where: { key, _ in key == viewModel.paraId })?
+            .value
+
+        let customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flow
+
+        if let customFlow = customFlow {
+            switch customFlow {
+            case let .moonbeam:
+                wireframe.presentAgreement(
+                    from: view,
+                    paraId: viewModel.paraId,
+                    customFlow: customFlow
+                )
+            default:
+                wireframe.presentContributionSetup(
+                    from: view,
+                    paraId: viewModel.paraId,
+                    customFlow: customFlow
+                )
+            }
+        } else {
+            wireframe.presentContributionSetup(
+                from: view,
+                paraId: viewModel.paraId,
+                customFlow: nil
+            )
+        }
     }
 
     func becomeOnline() {
