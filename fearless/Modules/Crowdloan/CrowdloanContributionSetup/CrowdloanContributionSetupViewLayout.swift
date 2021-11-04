@@ -132,7 +132,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     func bind(customFlow: CustomCrowdloanFlow?) {
-        if case .moonbeam = customFlow {
+        if let customFlow = customFlow, customFlow.hasEthereumReferral {
             createEthereumAddressViewIfNeeded()
             applyLocalization()
         } else {
