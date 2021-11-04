@@ -265,6 +265,8 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
             )
         }
 
+        guard bonusRate > 0 else { return "" }
+
         let formatter = amountFormatterFactory.createDisplayFormatter(for: nil).value(for: locale)
 
         return displayInfo.rewardRate
