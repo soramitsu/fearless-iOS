@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-final class ReferralCrowdloanPresenter {
+class ReferralCrowdloanPresenter {
     weak var view: ReferralCrowdloanViewProtocol?
     let wireframe: ReferralCrowdloanWireframeProtocol
 
@@ -11,12 +11,12 @@ final class ReferralCrowdloanPresenter {
     let crowdloanViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let defaultReferralCode: String
 
-    private var currentReferralCode: String = ""
-    private var isTermsAgreed: Bool = false
+    private(set) var currentReferralCode: String = ""
+    private(set) var isTermsAgreed: Bool = false
 
     weak var crowdloanDelegate: CustomCrowdloanDelegate?
 
-    init(
+    required init(
         wireframe: ReferralCrowdloanWireframeProtocol,
         bonusService: CrowdloanBonusServiceProtocol,
         displayInfo: CrowdloanDisplayInfo,
@@ -38,7 +38,7 @@ final class ReferralCrowdloanPresenter {
         isTermsAgreed = !currentReferralCode.isEmpty
     }
 
-    private func handleSave(result: Result<Void, Error>) {
+    func handleSave(result: Result<Void, Error>) {
         switch result {
         case .success:
             crowdloanDelegate?.didReceive(bonusService: bonusService)
@@ -48,7 +48,7 @@ final class ReferralCrowdloanPresenter {
         }
     }
 
-    private func provideReferralViewModel() {
+    func provideReferralViewModel() {
         let bonusValue = crowdloanViewModelFactory.createAdditionalBonusViewModel(
             inputAmount: inputAmount,
             displayInfo: displayInfo,
@@ -67,7 +67,7 @@ final class ReferralCrowdloanPresenter {
             customFlow: displayInfo.flow
         )
 
-        view?.didReceiveReferral(viewModel: viewModel)
+        view?.didReceiveState(state: .loadedDefaultFlow(viewModel))
     }
 
     private func provideLearnMoreViewModel() {
@@ -104,7 +104,7 @@ extension ReferralCrowdloanPresenter: ReferralCrowdloanPresenterProtocol {
         provideInputViewModel()
     }
 
-    func applyInputCode() {
+    @objc func applyInputCode() {
         if currentReferralCode.isEmpty {
             view?.didReceiveShouldInputCode()
             return
