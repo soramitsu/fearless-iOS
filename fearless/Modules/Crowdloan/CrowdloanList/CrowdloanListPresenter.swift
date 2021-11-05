@@ -113,7 +113,7 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
             .first(where: { key, _ in key == viewModel.paraId })?
             .value
 
-        let customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flow
+        let customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flowIfSupported
 
         if let customFlow = customFlow {
             switch customFlow {
