@@ -28,7 +28,7 @@ final class AstarBonusService {
 
 extension AstarBonusService: CrowdloanBonusServiceProtocol {
     func save(referralCode: String, completion closure: @escaping (Result<Void, Error>) -> Void) {
-        self.referralCode = referralCode.data(using: .utf8)?.toHex(includePrefix: true)
+        self.referralCode = referralCode
         closure(.success(()))
     }
 
@@ -43,7 +43,7 @@ extension AstarBonusService: CrowdloanBonusServiceProtocol {
         amount _: BigUInt,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
-        guard let memo = referralCode?.data(using: .utf8), memo.count <= 32 else {
+        guard let memo = referralCode?.data(using: .utf8) else {
             throw CrowdloanBonusServiceError.invalidReferral
         }
 

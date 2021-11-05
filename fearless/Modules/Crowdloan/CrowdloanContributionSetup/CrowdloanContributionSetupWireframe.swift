@@ -69,7 +69,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let acalaView = ReferralCrowdloanViewFactory.createAstarView(
+        guard let astarView = ReferralCrowdloanViewFactory.createAstarView(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
@@ -79,7 +79,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         }
 
         let navigationController = FearlessNavigationController(
-            rootViewController: acalaView.controller
+            rootViewController: astarView.controller
         )
 
         view?.controller.present(navigationController, animated: true, completion: nil)
