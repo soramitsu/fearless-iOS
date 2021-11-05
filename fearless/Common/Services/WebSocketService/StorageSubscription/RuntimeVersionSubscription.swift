@@ -204,14 +204,33 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                         continue
                     }
 
+                    var constants: [ModuleConstantMetadata] = []
+                    if let constantOverrides = override.constants {
+                        for constant in module.constants {
+                            guard let override = constantOverrides.first(where: { $0.name == constant.name }) else {
+                                constants.append(constant)
+                                continue
+                            }
+
+                            constants.append(ModuleConstantMetadata(
+                                name: constant.name,
+                                type: constant.type,
+                                value: (try? Data(hexString: override.value)) ?? constant.value,
+                                documentation: constant.documentation
+                            ))
+                        }
+                    } else {
+                        constants.append(contentsOf: module.constants)
+                    }
+
                     modules.append(ModuleMetadata(
                         name: module.name,
                         storage: module.storage,
                         calls: module.calls,
                         events: module.events,
-                        constants: module.constants,
+                        constants: constants,
                         errors: module.errors,
-                        index: override.properIndex
+                        index: override.index ?? module.index
                     ))
                 }
 
@@ -275,8 +294,14 @@ private extension RuntimeMetadataBreakingUpgrade {
 
 private struct RuntimeOverrides: Decodable {
     struct ModuleOverride: Decodable {
+        struct ConstantOverride: Decodable {
+            let name: String
+            let value: String
+        }
+
         var name: String
-        let properIndex: UInt8
+        let index: UInt8?
+        let constants: [ConstantOverride]?
     }
 
     let modules: [ModuleOverride]
