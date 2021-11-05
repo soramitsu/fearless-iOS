@@ -286,11 +286,14 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         let maybeLastViewIndex: Int? = {
             if let estimatedRewardView = estimatedRewardView {
+                estimatedRewardView.borderView.isHidden = true
+
                 return contentView.stackView.arrangedSubviews.firstIndex(
                     of: estimatedRewardView
                 )
             }
 
+            leasingPeriodView.borderView.isHidden = true
             return contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView)
         }()
 
@@ -299,7 +302,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         let view = EthereumAddressForRewardView()
         contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
         ethereumAddressForRewardView = view
-        estimatedRewardView?.borderView.isHidden = true
     }
 
     private func removeEthereumAddressViewIfNeeded() {
