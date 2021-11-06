@@ -11,6 +11,16 @@ struct CrowdloanDisplayInfo: Codable, Equatable {
     let flow: CustomCrowdloanFlow?
 }
 
+extension CrowdloanDisplayInfo {
+    var flowIfSupported: CustomCrowdloanFlow? {
+        guard let flow = flow else { return nil }
+        switch flow {
+        case .unsupported: return nil
+        default: return flow
+        }
+    }
+}
+
 typealias CrowdloanDisplayInfoList = [CrowdloanDisplayInfo]
 typealias CrowdloanDisplayInfoDict = [ParaId: CrowdloanDisplayInfo]
 
