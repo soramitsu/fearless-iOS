@@ -103,7 +103,7 @@ class CrowdloanTests: XCTestCase {
         
         do {
             let karura = try decodeText(karuraJsonText, as: CrowdloanDisplayInfo.self)
-            guard let flow = karura.flow else {
+            guard let flow = karura.flowIfSupported else {
                 XCTFail()
                 return
             }
@@ -136,7 +136,7 @@ class CrowdloanTests: XCTestCase {
         
         do {
             let moonbeam = try decodeText(moonbeamJsonText, as: CrowdloanDisplayInfo.self)
-            guard let flow = moonbeam.flow else {
+            guard let flow = moonbeam.flowIfSupported else {
                 XCTFail()
                 return
             }
