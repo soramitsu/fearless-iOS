@@ -1,7 +1,11 @@
 import UIKit
 
 class EthereumAddressForRewardView: UIView {
-    let ethereumAddressView = CommonInputView()
+    let ethereumAddressView: CommonInputView = {
+        let inputView = CommonInputView()
+        inputView.animatedInputField.textField.returnKeyType = .done
+        return inputView
+    }()
 
     let ethereumHintView = HintView()
 
