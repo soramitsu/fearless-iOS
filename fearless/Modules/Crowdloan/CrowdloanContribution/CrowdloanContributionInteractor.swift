@@ -206,9 +206,9 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     func fetchReferralAccountAddress() {
-//        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
-//            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
-//        }
+        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
+            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
+        }
     }
 
     func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
