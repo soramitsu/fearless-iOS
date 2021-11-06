@@ -26,7 +26,7 @@ struct ReferralCrowdloanViewFactory {
 
         var defaultReferralCode: String = AstarBonusService.defaultReferralCode
 
-        if case let .astar(astarFlowData) = displayInfo.flow, let referralCode = astarFlowData?.fearlessReferral {
+        if case let .astar(astarFlowData) = displayInfo.flow, let referralCode = astarFlowData.fearlessReferral {
             defaultReferralCode = referralCode
         }
 

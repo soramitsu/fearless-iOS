@@ -6,13 +6,10 @@ import CommonWallet
 
 final class AstarBonusService {
     static let defaultReferralCode = "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k"
-
-    static let baseURL = URL(string: "https://salp-api.bifrost.finance")!
-
     var bonusRate: Decimal { 0 }
 
-    var termsURL: URL {
-        URL(string: "https://docs.google.com/document/d/1PDpgHnIcAmaa7dEFusmLYgjlvAbk2VKtMd755bdEsf4/edit?usp=sharing")!
+    var termsURL: URL? {
+        nil
     }
 
     private(set) var referralCode: String?

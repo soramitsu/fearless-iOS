@@ -129,11 +129,11 @@ extension ReferralCrowdloanPresenter: ReferralCrowdloanPresenterProtocol {
     }
 
     func presentTerms() {
-        guard let view = view else {
+        guard let view = view, let termsUrl = bonusService.termsURL else {
             return
         }
 
-        wireframe.showWeb(url: bonusService.termsURL, from: view, style: .automatic)
+        wireframe.showWeb(url: termsUrl, from: view, style: .automatic)
     }
 
     func presentLearnMore() {

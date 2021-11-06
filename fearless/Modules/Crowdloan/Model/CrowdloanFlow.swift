@@ -10,7 +10,7 @@ enum CustomCrowdloanFlow {
     case karura
     case bifrost
     case moonbeam(MoonbeamFlowData)
-    case astar(AstarFlowData?)
+    case astar(AstarFlowData)
 
     var name: String {
         switch self {
@@ -58,7 +58,7 @@ extension CustomCrowdloanFlow: Codable {
 
         let noDataFlow = try NoDataFlow(from: decoder)
         switch noDataFlow.name {
-        case "astar": self = .astar(try? FlowWithData<AstarFlowData>(from: decoder).data)
+        case "astar": self = .astar(decodeFlowData(from: decoder, or: AstarFlowData.default))
         case "karura": self = .karura
         case "bifrost": self = .bifrost
         case "moonbeam": self = .moonbeam(decodeFlowData(from: decoder, or: MoonbeamFlowData.default))
@@ -119,5 +119,9 @@ struct MoonbeamFlowData: FlowData {
 // MARK: - Astar
 
 struct AstarFlowData: FlowData {
-    let fearlessReferral: String
+    let fearlessReferral: String?
+
+    static var `default`: Self {
+        .init(fearlessReferral: "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k")
+    }
 }
