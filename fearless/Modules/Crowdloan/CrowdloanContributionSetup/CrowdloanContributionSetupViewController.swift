@@ -171,8 +171,9 @@ extension CrowdloanContributionSetupViewController: InputHandlingObserver {
 }
 
 extension CrowdloanContributionSetupViewController: AnimatedTextFieldDelegate {
-    func animatedTextFieldShouldReturn(_: AnimatedTextField) -> Bool {
-        true
+    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 
     func animatedTextField(
