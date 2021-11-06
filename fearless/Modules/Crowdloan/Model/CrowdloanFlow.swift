@@ -49,17 +49,19 @@ extension CustomCrowdloanFlow: Codable {
     }
 
     init(from decoder: Decoder) throws {
+        func decodeFlowData<T: FlowData>(from decoder: Decoder, or default: T) -> T {
+            guard let data = try? FlowWithData<T>(from: decoder).data else {
+                return `default`
+            }
+            return data
+        }
+
         let noDataFlow = try NoDataFlow(from: decoder)
         switch noDataFlow.name {
         case "astar": self = .astar(try? FlowWithData<AstarFlowData>(from: decoder).data)
         case "karura": self = .karura
         case "bifrost": self = .bifrost
-        case "moonbeam":
-            guard let data = try? FlowWithData<MoonbeamFlowData>(from: decoder).data else {
-                self = .unsupported(noDataFlow.name)
-                return
-            }
-            self = .moonbeam(data)
+        case "moonbeam": self = .moonbeam(decodeFlowData(from: decoder, or: MoonbeamFlowData.default))
 
         default: self = .unsupported(noDataFlow.name)
         }
@@ -102,7 +104,19 @@ struct MoonbeamFlowData: FlowData {
     let termsUrl: String
     let devApiKey: String
     let prodApiKey: String
+
+    static var `default`: Self {
+        .init(
+            prodApiUrl: "https://yy9252r9jh.api.purestake.io",
+            devApiUrl: "https://wallet-test.api.purestake.xyz",
+            termsUrl: "https://raw.githubusercontent.com/moonbeam-foundation/crowdloan-self-attestation/main/moonbeam/README.md",
+            devApiKey: "JbykAAZTUa8MTggXlb4k03yAW9Ur2DFU1T0rm2Th",
+            prodApiKey: "oueZPaKtwAEAooqpdafr33i6yqPgU804E06CqeGb"
+        )
+    }
 }
+
+// MARK: - Astar
 
 struct AstarFlowData: FlowData {
     let fearlessReferral: String
