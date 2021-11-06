@@ -7,15 +7,13 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
         customFlow: CustomCrowdloanFlow
     ) {
         switch customFlow {
-        case let .moonbeam(moonbeamFlowData):
+        case .moonbeam:
             let setupView = CrowdloanAgreementViewFactory.createView(
                 for: paraId,
                 customFlow: customFlow
             )
 
-            guard let setupView = setupView else {
-                return
-            }
+            guard let setupView = setupView else { return }
 
             setupView.controller.hidesBottomBarWhenPushed = true
             view?.controller.navigationController?.pushViewController(
