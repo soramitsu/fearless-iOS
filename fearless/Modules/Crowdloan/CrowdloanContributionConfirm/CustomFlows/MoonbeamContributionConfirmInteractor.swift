@@ -62,7 +62,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
     private func addMemoIfNeeded(contribution: BigUInt) {
         guard
             let ethereumAccountAddress = ethereumAccountAddress,
-            let memo = ethereumAccountAddress.data(using: .utf8),
+            let memo = try? Data(hexString: ethereumAccountAddress),
             settings.referralEthereumAddressForSelectedAccount() == nil
         else {
             submitFinally(contribution: contribution)
