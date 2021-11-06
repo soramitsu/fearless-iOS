@@ -4,7 +4,7 @@ import FearlessUtils
 class MoonbeamContributionSetupInteractor: CrowdloanContributionSetupInteractor {
     override func makeMemoCall(memo: String?) -> RuntimeCall<CrowdloanAddMemo>? {
         guard let memo = memo, !memo.isEmpty,
-              let memoData = try? Data(hexString: memo),
+              let memoData = try? Data(hexString: memo.lowercased()),
               self.settings.referralEthereumAddressForSelectedAccount() != memo
         else {
             return nil
