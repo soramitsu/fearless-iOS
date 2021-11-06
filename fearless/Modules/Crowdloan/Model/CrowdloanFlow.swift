@@ -5,6 +5,8 @@ import Foundation
 private typealias FlowData = Codable & Equatable
 
 enum CustomCrowdloanFlow {
+    case unsupported(String)
+
     case karura
     case bifrost
     case moonbeam(MoonbeamFlowData)
@@ -16,6 +18,8 @@ enum CustomCrowdloanFlow {
         case .bifrost: return "bifrost"
         case .moonbeam: return "moonbeam"
         case .astar: return "astar"
+
+        case let .unsupported(name): return name
         }
     }
 
@@ -50,21 +54,25 @@ extension CustomCrowdloanFlow: Codable {
         case "astar": self = .astar(try? FlowWithData<AstarFlowData>(from: decoder).data)
         case "karura": self = .karura
         case "bifrost": self = .bifrost
-        case "moonbeam": self = .moonbeam(try FlowWithData<MoonbeamFlowData>(from: decoder).data)
-        default:
-            let errorContext = DecodingError.Context(
-                codingPath: [], debugDescription: "Unknown flow with name: \(noDataFlow.name)", underlyingError: nil
-            )
-            throw DecodingError.dataCorrupted(errorContext)
+        case "moonbeam":
+            guard let data = try? FlowWithData<MoonbeamFlowData>(from: decoder).data else {
+                self = .unsupported(noDataFlow.name)
+                return
+            }
+            self = .moonbeam(data)
+
+        default: self = .unsupported(noDataFlow.name)
         }
     }
 
     func encode(to encoder: Encoder) throws {
         switch self {
-        case let .astar(data): try FlowWithData(name: "astar", data: data).encode(to: encoder)
+        case let .unsupported(name): try NoDataFlow(name: name).encode(to: encoder)
+
         case .karura: try NoDataFlow(name: "karura").encode(to: encoder)
         case .bifrost: try NoDataFlow(name: "bifrost").encode(to: encoder)
         case let .moonbeam(data): try FlowWithData(name: "moonbeam", data: data).encode(to: encoder)
+        case let .astar(data): try FlowWithData(name: "astar", data: data).encode(to: encoder)
         }
     }
 }

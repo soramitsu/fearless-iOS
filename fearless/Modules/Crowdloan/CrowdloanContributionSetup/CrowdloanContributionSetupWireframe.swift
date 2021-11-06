@@ -29,7 +29,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let customFlow = displayInfo.flow else {
+        guard let customFlow = displayInfo.flowIfSupported else {
             return
         }
 
