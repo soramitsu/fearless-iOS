@@ -128,7 +128,8 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         runningIn queue: DispatchQueue,
         completion completionClosure: @escaping ExtrinsicSubmitAndWatchClosure
     ) {
-        let wrapper: CompoundOperationWrapper<SubmitAndWatchExtrinsicResult> = operationFactory.submitAndWatch(closure, signer: signer)
+        let wrapper: CompoundOperationWrapper<SubmitAndWatchExtrinsicResult> = operationFactory
+            .submitAndWatch(closure, signer: signer)
 
         wrapper.targetOperation.completionBlock = {
             queue.async {
@@ -136,7 +137,7 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
                     switch result {
                     case let .success(submitAndWatchExtrinsicResult):
                         completionClosure(submitAndWatchExtrinsicResult.result, submitAndWatchExtrinsicResult.extrinsicHash)
-                    case let .failure(error):
+                    case let .failure:
                         completionClosure(.failure(BaseOperationError.parentOperationCancelled), nil)
                     }
                 } else {

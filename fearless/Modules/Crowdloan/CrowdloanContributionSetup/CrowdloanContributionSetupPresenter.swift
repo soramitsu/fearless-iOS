@@ -160,7 +160,9 @@ final class CrowdloanContributionSetupPresenter {
     private func provideBonusViewModel() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel: String? = {
-            if let displayInfo = displayInfo, displayInfo.flowIfSupported != nil, displayInfo.flowIfSupported?.hasReferralBonus == true {
+            if let displayInfo = displayInfo,
+               displayInfo.flowIfSupported != nil,
+               displayInfo.flowIfSupported?.hasReferralBonus == true {
                 return contributionViewModelFactory.createAdditionalBonusViewModel(
                     inputAmount: inputAmount,
                     displayInfo: displayInfo,
