@@ -2,5 +2,5 @@ import UIKit
 import RobinHood
 import BigInt
 
-final class CrowdloanContributionSetupInteractor: CrowdloanContributionInteractor,
+class CrowdloanContributionSetupInteractor: CrowdloanContributionInteractor,
     CrowdloanContributionSetupInteractorInputProtocol {}
