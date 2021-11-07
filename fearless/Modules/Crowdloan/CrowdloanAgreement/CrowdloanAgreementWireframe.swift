@@ -55,9 +55,6 @@ final class CrowdloanAgreementWireframe: CrowdloanAgreementWireframeProtocol {
             view.controller.navigationController?.popViewController(animated: true)
         }
 
-        let closeTitle = R.string.localizable
-            .commonCancel(preferredLanguages: locale?.rLanguages)
-
         let viewModel = AlertPresentableViewModel(
             title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
             message: message,

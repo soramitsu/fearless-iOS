@@ -117,7 +117,7 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
 
         if let customFlow = customFlow {
             switch customFlow {
-            case let .moonbeam:
+            case .moonbeam:
                 wireframe.presentAgreement(
                     from: view,
                     paraId: viewModel.paraId,
