@@ -83,7 +83,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             completion: { [weak self] result in
                 switch result {
                 case .success:
-                    self?.saveEtheriumAdressAsMoonbeamDefault()
+                    self?.saveEthereumAdressAsMoonbeamDefault()
                     self?.submitFinally(contribution: contribution)
                 case let .failure(error):
                     self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
@@ -130,7 +130,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         super.submitContribution(builderClosure: builderClosure)
     }
 
-    private func saveEtheriumAdressAsMoonbeamDefault() {
+    private func saveEthereumAdressAsMoonbeamDefault() {
         guard let ethereumAccountAddress = ethereumAccountAddress else { return }
 
         settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: ethereumAccountAddress)
