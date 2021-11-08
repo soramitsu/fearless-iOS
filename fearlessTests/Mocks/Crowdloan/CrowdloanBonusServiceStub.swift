@@ -3,8 +3,8 @@ import Foundation
 import BigInt
 import FearlessUtils
 
-final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {
-    var termsURL: URL { URL(string: "https://google.com")! }
+final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {    
+    var termsURL: URL? { URL(string: "https://google.com") }
 
     var bonusRate: Decimal { 0.05 }
 

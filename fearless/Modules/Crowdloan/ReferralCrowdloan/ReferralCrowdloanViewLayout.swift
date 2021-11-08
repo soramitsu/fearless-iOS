@@ -5,7 +5,7 @@ final class ReferralCrowdloanViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0, bottom: 0, right: 0)
         return view
     }()
 
