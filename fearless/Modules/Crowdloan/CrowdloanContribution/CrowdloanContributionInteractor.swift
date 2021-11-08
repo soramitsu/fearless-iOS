@@ -205,11 +205,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         provideConstants()
     }
 
-    func fetchReferralAccountAddress() {
-        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
-            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
-        }
-    }
+    func fetchReferralAccountAddress() {}
 
     func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
         let contributeCall: RuntimeCall<CrowdloanContributeCall>? = makeContributeCall(amount: amount)
