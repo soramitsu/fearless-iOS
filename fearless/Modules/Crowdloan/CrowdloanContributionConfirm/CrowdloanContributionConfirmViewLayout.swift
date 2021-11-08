@@ -78,7 +78,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(bonus: String?) {
-        if let bonus = bonus {
+        if let bonus = bonus, !bonus.isEmpty {
             createBonusViewIfNeeded()
             bonusView?.valueLabel.text = bonus
         } else {

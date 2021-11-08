@@ -10,8 +10,8 @@ final class BifrostBonusService {
 
     var bonusRate: Decimal { 0.05 }
 
-    var termsURL: URL {
-        URL(string: "https://docs.google.com/document/d/1PDpgHnIcAmaa7dEFusmLYgjlvAbk2VKtMd755bdEsf4/edit?usp=sharing")!
+    var termsURL: URL? {
+        URL(string: "https://docs.google.com/document/d/1PDpgHnIcAmaa7dEFusmLYgjlvAbk2VKtMd755bdEsf4/edit?usp=sharing")
     }
 
     private(set) var referralCode: String?
