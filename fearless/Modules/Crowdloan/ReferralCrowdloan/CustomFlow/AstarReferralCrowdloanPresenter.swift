@@ -1,22 +1,25 @@
 import Foundation
 
 class AstarReferralCrowdloanPresenter: ReferralCrowdloanPresenter {
-    private var referRate: Decimal {
-        0.01
+    private var astarFlowData: AstarFlowData? {
+        switch self.displayInfo.flow {
+        case let .astar(astarFlowData): return astarFlowData
+        default: return nil
+        }
     }
 
     override func provideReferralViewModel() {
         let friendBonusValue = crowdloanViewModelFactory.createAdditionalBonusViewModel(
             inputAmount: inputAmount,
             displayInfo: displayInfo,
-            bonusRate: bonusService.bonusRate,
+            bonusRate: astarFlowData?.bonusRate,
             locale: selectedLocale
         )
 
         let myBonusValue = crowdloanViewModelFactory.createAdditionalBonusViewModel(
             inputAmount: inputAmount,
             displayInfo: displayInfo,
-            bonusRate: referRate,
+            bonusRate: astarFlowData?.referralRate,
             locale: selectedLocale
         )
 
@@ -27,7 +30,7 @@ class AstarReferralCrowdloanPresenter: ReferralCrowdloanPresenter {
             myBonusValue: myBonusValue ?? "",
             friendBonusValue: friendBonusValue ?? "",
             canApplyDefaultCode: currentReferralCode != defaultReferralCode,
-            isCodeReceived: currentReferralCode.isEmpty
+            isCodeReceived: !currentReferralCode.isEmpty
         )
 
         view?.didReceiveState(state: .loadedAstarFlow(viewModel))

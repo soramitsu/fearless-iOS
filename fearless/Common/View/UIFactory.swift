@@ -26,6 +26,7 @@ struct UIConstants {
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
     static let networkFeeViewDefaultHeight = 132.0
+    static let referralBonusButtonHeight = 30.0
 }
 
 enum AccountViewMode {
@@ -80,6 +81,8 @@ protocol UIFactoryProtocol {
     func createRewardSelectionView() -> RewardSelectionView
 
     func createInfoIndicatingView() -> ImageWithTitleView
+
+    func createWalletReferralBonusButton() -> GradientButton
 }
 
 extension UIFactoryProtocol {
@@ -517,5 +520,14 @@ final class UIFactory: UIFactoryProtocol {
         view.spacingBetweenLabelAndIcon = 5.0
         view.iconImage = R.image.iconInfoFilled()
         return view
+    }
+
+    func createWalletReferralBonusButton() -> GradientButton {
+        let button = GradientButton()
+        button.applyDefaultStyle()
+        button.applyDisabledStyle()
+        button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2.0
+
+        return button
     }
 }

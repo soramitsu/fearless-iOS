@@ -2,27 +2,16 @@ import UIKit
 import SoraUI
 
 final class ReferralCrowdloanViewLayout: UIView {
-    private enum Constants {
-        static let applyAppButtonHeight: CGFloat = 24.0
-    }
-
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
         return view
     }()
 
     let codeInputView = UIFactory.default.createCommonInputView()
 
-    let applyAppBonusButton: GradientButton = {
-        let button = GradientButton()
-        button.applyDefaultStyle()
-        button.applyDisabledStyle()
-        button.gradientBackgroundView?.cornerRadius = Constants.applyAppButtonHeight / 2.0
-        button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
-        return button
-    }()
+    let applyAppBonusButton: GradientButton = UIFactory.default.createWalletReferralBonusButton()
 
     let bonusView: TitleValueView = UIFactory.default.createTitleValueView()
 
@@ -92,7 +81,6 @@ final class ReferralCrowdloanViewLayout: UIView {
     }
 
     private func setupLayout() {
-        // TODO: Move magic numbers to constants
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
@@ -107,39 +95,40 @@ final class ReferralCrowdloanViewLayout: UIView {
         contentView.stackView.addArrangedSubview(applyAppBonusButton)
         applyAppBonusButton.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.referralBonusButtonHeight)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: codeInputView)
-        contentView.stackView.setCustomSpacing(16.0, after: applyAppBonusButton)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: codeInputView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: applyAppBonusButton)
 
         contentView.stackView.addArrangedSubview(friendBonusView)
         friendBonusView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: friendBonusView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: friendBonusView)
 
         contentView.stackView.addArrangedSubview(myBonusView)
         myBonusView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: myBonusView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: myBonusView)
 
         contentView.stackView.addArrangedSubview(bonusView)
         bonusView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: bonusView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: bonusView)
 
         contentView.stackView.addArrangedSubview(privacyView)
         privacyView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         privacyView.addSubview(termsSwitchView)
@@ -149,16 +138,16 @@ final class ReferralCrowdloanViewLayout: UIView {
 
         privacyView.addSubview(termsLabel)
         termsLabel.snp.makeConstraints { make in
-            make.leading.equalTo(termsSwitchView.snp.trailing).offset(16.0)
+            make.leading.equalTo(termsSwitchView.snp.trailing).offset(UIConstants.bigOffset)
             make.trailing.centerY.equalToSuperview()
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: privacyView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: privacyView)
 
         contentView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
             make.width.equalTo(self)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         addSubview(actionButton)

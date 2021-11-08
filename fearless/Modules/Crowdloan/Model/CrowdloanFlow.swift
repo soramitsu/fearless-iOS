@@ -120,8 +120,14 @@ struct MoonbeamFlowData: FlowData {
 
 struct AstarFlowData: FlowData {
     let fearlessReferral: String?
+    let bonusRate: Decimal?
+    let referralRate: Decimal?
 
     static var `default`: Self {
-        .init(fearlessReferral: "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k")
+        .init(
+            fearlessReferral: "1",
+            bonusRate: 0,
+            referralRate: 0.01
+        )
     }
 }
