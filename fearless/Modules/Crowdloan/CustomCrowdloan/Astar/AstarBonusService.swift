@@ -3,6 +3,7 @@ import RobinHood
 import FearlessUtils
 import BigInt
 import CommonWallet
+import IrohaCrypto
 
 final class AstarBonusService {
     static let defaultReferralCode = "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k"
@@ -40,11 +41,15 @@ extension AstarBonusService: CrowdloanBonusServiceProtocol {
         amount _: BigUInt,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
-        guard let memo = referralCode?.data(using: .utf8) else {
+        let addressFactory = SS58AddressFactory()
+
+        guard let memo = referralCode, !memo.isEmpty,
+              let memoData = try? addressFactory.accountId(from: memo)
+        else {
             throw CrowdloanBonusServiceError.invalidReferral
         }
 
-        let addMemo = SubstrateCallFactory().addMemo(to: paraId, memo: memo)
+        let addMemo = SubstrateCallFactory().addMemo(to: paraId, memo: memoData)
 
         return try builder.adding(call: addMemo)
     }
