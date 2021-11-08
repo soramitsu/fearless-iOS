@@ -25,8 +25,8 @@ struct UIConstants {
     static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
-    static let networkFeeViewDefaultHeight = 132.0
-    static let referralBonusButtonHeight = 30.0
+    static let networkFeeViewDefaultHeight: CGFloat = 132
+    static let referralBonusButtonHeight: CGFloat = 30
 }
 
 enum AccountViewMode {
@@ -526,7 +526,7 @@ final class UIFactory: UIFactoryProtocol {
         let button = GradientButton()
         button.applyDefaultStyle()
         button.applyDisabledStyle()
-        button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2.0
+        button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2
 
         return button
     }
