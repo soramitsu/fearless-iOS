@@ -1,22 +1,17 @@
 import Foundation
 
-struct ReferralCrowdloanViewModel: ReferralCrowdloanViewModelProtocol {
+struct AstarReferralCrowdloanViewModel: ReferralCrowdloanViewModelProtocol {
     let bonusPercentage: String
-    let bonusValue: String
+    let myBonusValue: String
+    let friendBonusValue: String
     var canApplyDefaultCode: Bool
-    let isTermsAgreed: Bool
     let isCodeReceived: Bool
-    let customFlow: CustomCrowdloanFlow?
 }
 
-extension ReferralCrowdloanViewModel {
+extension AstarReferralCrowdloanViewModel {
     func actionButtonTitle(for preferredLanguages: [String]?) -> String? {
         if !isCodeReceived {
             return R.string.localizable.karuraReferralCodeAction(
-                preferredLanguages: preferredLanguages
-            )
-        } else if !isTermsAgreed {
-            return R.string.localizable.karuraTermsAction(
                 preferredLanguages: preferredLanguages
             )
         } else {

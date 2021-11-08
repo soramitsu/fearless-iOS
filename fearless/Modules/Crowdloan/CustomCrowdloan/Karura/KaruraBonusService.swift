@@ -18,7 +18,7 @@ final class KaruraBonusService {
     static let apiVerify = "/verify"
 
     var bonusRate: Decimal { 0.05 }
-    var termsURL: URL { URL(string: "https://acala.network/karura/terms")! }
+    var termsURL: URL? { URL(string: "https://acala.network/karura/terms") }
     private(set) var referralCode: String?
 
     let signingWrapper: SigningWrapperProtocol
