@@ -125,7 +125,7 @@ struct AstarFlowData: FlowData {
 
     static var `default`: Self {
         .init(
-            fearlessReferral: "1",
+            fearlessReferral: "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k",
             bonusRate: 0,
             referralRate: 0.01
         )

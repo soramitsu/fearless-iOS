@@ -1563,7 +1563,7 @@
 		FA54F53F2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F53E2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift */; };
 		FA54F5422733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F5412733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift */; };
 		FA54F5452735B6E000CA7550 /* AstarBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F5442735B6DF00CA7550 /* AstarBonusService.swift */; };
-		FA85B6212739174000B9EEFE /* BaseReferralCrowdloanViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B6202739174000B9EEFE /* BaseReferralCrowdloanViewModelProtocol.swift */; };
+		FA85B6212739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B6202739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 		FF81780F2929736DE8DAAD62 /* CrowdloanAgreementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEDF0B900FE2080C14FA45C /* CrowdloanAgreementViewController.swift */; };
 /* End PBXBuildFile section */
@@ -3175,7 +3175,7 @@
 		FA54F5412733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstarReferralCrowdloanPresenter.swift; sourceTree = "<group>"; };
 		FA54F5442735B6DF00CA7550 /* AstarBonusService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AstarBonusService.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
-		FA85B6202739174000B9EEFE /* BaseReferralCrowdloanViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseReferralCrowdloanViewModelProtocol.swift; sourceTree = "<group>"; };
+		FA85B6202739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewModelProtocol.swift; sourceTree = "<group>"; };
 		FBFDF844248CD43AAD13139F /* StakingPayoutConfirmationInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationInteractor.swift; sourceTree = "<group>"; };
 		FE4AF0849E32E5B9C72E2ABB /* RecommendedValidatorListViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewFactory.swift; sourceTree = "<group>"; };
 		FF4688AF0658F8BB7A90C2BE /* ExportMnemonicConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicConfirmViewFactory.swift; sourceTree = "<group>"; };
@@ -6410,7 +6410,7 @@
 				84DED3FB266651EB00A153BB /* ReferralCrowdloanViewModel.swift */,
 				FA54F53C2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift */,
 				FA54F53E2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift */,
-				FA85B6202739174000B9EEFE /* BaseReferralCrowdloanViewModelProtocol.swift */,
+				FA85B6202739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -9291,7 +9291,7 @@
 				84A2A60A26B82B35000C6C6C /* ValidatorOperationFactory+Protocol.swift in Sources */,
 				8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */,
 				84DA3B1924C8200E00B5E27F /* ConnectionItem+Default.swift in Sources */,
-				FA85B6212739174000B9EEFE /* BaseReferralCrowdloanViewModelProtocol.swift in Sources */,
+				FA85B6212739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift in Sources */,
 				84D331AF2519E8080078D044 /* TriangularedView+Style.swift in Sources */,
 				84C74365251E4D60009576C6 /* SigningWrapperProtocol.swift in Sources */,
 				8454C2652632B0EF00657DAD /* EventCodingPath.swift in Sources */,

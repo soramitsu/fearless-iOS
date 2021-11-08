@@ -1,12 +1,12 @@
 import Foundation
 
-protocol BaseReferralCrowdloanViewModelProtocol {
+protocol ReferralCrowdloanViewModelProtocol {
     var canApplyDefaultCode: Bool { get set }
 
     func applyAppBonusButtonTitle(for preferredLanguages: [String]?) -> String?
 }
 
-extension BaseReferralCrowdloanViewModelProtocol {
+extension ReferralCrowdloanViewModelProtocol {
     func applyAppBonusButtonTitle(for preferredLanguages: [String]?) -> String? {
         if canApplyDefaultCode {
             return R.string.localizable.applyFearlessWalletBonus(

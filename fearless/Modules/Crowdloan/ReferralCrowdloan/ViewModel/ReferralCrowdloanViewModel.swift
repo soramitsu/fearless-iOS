@@ -1,6 +1,6 @@
 import Foundation
 
-struct ReferralCrowdloanViewModel: BaseReferralCrowdloanViewModelProtocol {
+struct ReferralCrowdloanViewModel: ReferralCrowdloanViewModelProtocol {
     let bonusPercentage: String
     let bonusValue: String
     var canApplyDefaultCode: Bool
