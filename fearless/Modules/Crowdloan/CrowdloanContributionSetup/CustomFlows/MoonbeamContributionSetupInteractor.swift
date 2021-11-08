@@ -12,4 +12,10 @@ class MoonbeamContributionSetupInteractor: CrowdloanContributionSetupInteractor 
 
         return callFactory.addMemo(to: paraId, memo: memoData)
     }
+
+    override func fetchReferralAccountAddress() {
+        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
+            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
+        }
+    }
 }
