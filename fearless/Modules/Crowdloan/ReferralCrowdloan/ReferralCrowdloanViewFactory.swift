@@ -3,6 +3,44 @@ import SoraKeystore
 import SoraFoundation
 
 struct ReferralCrowdloanViewFactory {
+    static func createAstarView(
+        for delegate: CustomCrowdloanDelegate,
+        displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        existingService: CrowdloanBonusServiceProtocol?
+    ) -> ReferralCrowdloanViewProtocol? {
+        guard let paraId = ParaId(displayInfo.paraid) else {
+            return nil
+        }
+
+        let bonusService: CrowdloanBonusServiceProtocol = {
+            if let service = existingService as? AstarBonusService {
+                return service
+            } else {
+                return AstarBonusService(
+                    paraId: paraId,
+                    operationManager: OperationManagerFacade.sharedManager
+                )
+            }
+        }()
+
+        var defaultReferralCode: String = AstarBonusService.defaultReferralCode
+
+        if case let .astar(astarFlowData) = displayInfo.flow, let referralCode = astarFlowData.fearlessReferral {
+            defaultReferralCode = referralCode
+        }
+
+        let presenter = createAstarPresenter(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            bonusService: bonusService,
+            defaultReferralCode: defaultReferralCode
+        )
+
+        return createView(presenter: presenter)
+    }
+
     static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
@@ -28,13 +66,15 @@ struct ReferralCrowdloanViewFactory {
             }
         }()
 
-        return createView(
+        let presenter = createDefaultPresenter(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
             bonusService: bonusService,
             defaultReferralCode: KaruraBonusService.defaultReferralCode
         )
+
+        return createView(presenter: presenter)
     }
 
     static func createBifrostView(
@@ -58,22 +98,39 @@ struct ReferralCrowdloanViewFactory {
             }
         }()
 
-        return createView(
+        let presenter = createDefaultPresenter(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
             bonusService: bonusService,
             defaultReferralCode: BifrostBonusService.defaultReferralCode
         )
+
+        return createView(presenter: presenter)
     }
 
     private static func createView(
+        presenter: ReferralCrowdloanPresenterProtocol
+    ) -> ReferralCrowdloanViewProtocol? {
+        let localizationManager = LocalizationManager.shared
+
+        let view = ReferralCrowdloanViewController(
+            presenter: presenter,
+            localizationManager: localizationManager
+        )
+
+        presenter.view = view
+
+        return view
+    }
+
+    private static func createPresenter<T: ReferralCrowdloanPresenterProtocol>(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol,
         defaultReferralCode: String
-    ) -> ReferralCrowdloanViewProtocol? {
+    ) -> T {
         let settings = SettingsManager.shared
 
         let wireframe = ReferralCrowdloanWireframe()
@@ -90,7 +147,7 @@ struct ReferralCrowdloanViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
-        let presenter = ReferralCrowdloanPresenter(
+        return T(
             wireframe: wireframe,
             bonusService: bonusService,
             displayInfo: displayInfo,
@@ -100,11 +157,37 @@ struct ReferralCrowdloanViewFactory {
             defaultReferralCode: defaultReferralCode,
             localizationManager: localizationManager
         )
+    }
 
-        let view = ReferralCrowdloanViewController(presenter: presenter, localizationManager: localizationManager)
+    private static func createAstarPresenter(
+        for delegate: CustomCrowdloanDelegate,
+        displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        bonusService: CrowdloanBonusServiceProtocol,
+        defaultReferralCode: String
+    ) -> AstarReferralCrowdloanPresenter {
+        createPresenter(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            bonusService: bonusService,
+            defaultReferralCode: defaultReferralCode
+        )
+    }
 
-        presenter.view = view
-
-        return view
+    private static func createDefaultPresenter(
+        for delegate: CustomCrowdloanDelegate,
+        displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        bonusService: CrowdloanBonusServiceProtocol,
+        defaultReferralCode: String
+    ) -> ReferralCrowdloanPresenter {
+        createPresenter(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            bonusService: bonusService,
+            defaultReferralCode: defaultReferralCode
+        )
     }
 }

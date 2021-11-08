@@ -11561,6 +11561,21 @@ import SoraFoundation
     
     
     
+     func didReceiveState(state: ReferralCrowdloanViewState)  {
+        
+    return cuckoo_manager.call("didReceiveState(state: ReferralCrowdloanViewState)",
+            parameters: (state),
+            escapingParameters: (state),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveState(state: state))
+        
+    }
+    
+    
+    
      func didReceiveLearnMore(viewModel: LearnMoreViewModel)  {
         
     return cuckoo_manager.call("didReceiveLearnMore(viewModel: LearnMoreViewModel)",
@@ -11571,21 +11586,6 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.didReceiveLearnMore(viewModel: viewModel))
-        
-    }
-    
-    
-    
-     func didReceiveReferral(viewModel: ReferralCrowdloanViewModel)  {
-        
-    return cuckoo_manager.call("didReceiveReferral(viewModel: ReferralCrowdloanViewModel)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceiveReferral(viewModel: viewModel))
         
     }
     
@@ -11693,14 +11693,14 @@ import SoraFoundation
 	    }
 	    
 	    
+	    func didReceiveState<M1: Cuckoo.Matchable>(state: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ReferralCrowdloanViewState)> where M1.MatchedType == ReferralCrowdloanViewState {
+	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewState)>] = [wrap(matchable: state) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveState(state: ReferralCrowdloanViewState)", parameterMatchers: matchers))
+	    }
+	    
 	    func didReceiveLearnMore<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LearnMoreViewModel)> where M1.MatchedType == LearnMoreViewModel {
 	        let matchers: [Cuckoo.ParameterMatcher<(LearnMoreViewModel)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveLearnMore(viewModel: LearnMoreViewModel)", parameterMatchers: matchers))
-	    }
-	    
-	    func didReceiveReferral<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ReferralCrowdloanViewModel)> where M1.MatchedType == ReferralCrowdloanViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveReferral(viewModel: ReferralCrowdloanViewModel)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveInput<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
@@ -11765,15 +11765,15 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didReceiveLearnMore<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(LearnMoreViewModel), Void> where M1.MatchedType == LearnMoreViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(LearnMoreViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceiveLearnMore(viewModel: LearnMoreViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceiveState<M1: Cuckoo.Matchable>(state: M1) -> Cuckoo.__DoNotUse<(ReferralCrowdloanViewState), Void> where M1.MatchedType == ReferralCrowdloanViewState {
+	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewState)>] = [wrap(matchable: state) { $0 }]
+	        return cuckoo_manager.verify("didReceiveState(state: ReferralCrowdloanViewState)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func didReceiveReferral<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(ReferralCrowdloanViewModel), Void> where M1.MatchedType == ReferralCrowdloanViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceiveReferral(viewModel: ReferralCrowdloanViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceiveLearnMore<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(LearnMoreViewModel), Void> where M1.MatchedType == LearnMoreViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(LearnMoreViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didReceiveLearnMore(viewModel: LearnMoreViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -11847,11 +11847,11 @@ import SoraFoundation
     
 
     
-     func didReceiveLearnMore(viewModel: LearnMoreViewModel)   {
+     func didReceiveState(state: ReferralCrowdloanViewState)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceiveReferral(viewModel: ReferralCrowdloanViewModel)   {
+     func didReceiveLearnMore(viewModel: LearnMoreViewModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -11898,7 +11898,36 @@ import SoraFoundation
     
 
     
+    
+    
+     var view: ReferralCrowdloanViewProtocol? {
+        get {
+            return cuckoo_manager.getter("view",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.view)
+        }
+        
+        set {
+            cuckoo_manager.setter("view",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.view = newValue)
+        }
+        
+    }
+    
 
+    
+    
+     required init(wireframe: ReferralCrowdloanWireframeProtocol, bonusService: CrowdloanBonusServiceProtocol, displayInfo: CrowdloanDisplayInfo, inputAmount: Decimal, crowdloanDelegate: CustomCrowdloanDelegate, crowdloanViewModelFactory: CrowdloanContributionViewModelFactoryProtocol, defaultReferralCode: String, localizationManager: LocalizationManagerProtocol) {
+        
+    }
     
 
     
@@ -12016,6 +12045,11 @@ import SoraFoundation
 	    }
 	    
 	    
+	    var view: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockReferralCrowdloanPresenterProtocol, ReferralCrowdloanViewProtocol> {
+	        return .init(manager: cuckoo_manager, name: "view")
+	    }
+	    
+	    
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
@@ -12064,6 +12098,11 @@ import SoraFoundation
 	        self.sourceLocation = sourceLocation
 	    }
 	
+	    
+	    
+	    var view: Cuckoo.VerifyOptionalProperty<ReferralCrowdloanViewProtocol> {
+	        return .init(manager: cuckoo_manager, name: "view", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
 	    
 	
 	    
@@ -12114,7 +12153,21 @@ import SoraFoundation
 
  class ReferralCrowdloanPresenterProtocolStub: ReferralCrowdloanPresenterProtocol {
     
+    
+     var view: ReferralCrowdloanViewProtocol? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (ReferralCrowdloanViewProtocol?).self)
+        }
+        
+        set { }
+        
+    }
+    
 
+    
+     required init(wireframe: ReferralCrowdloanWireframeProtocol, bonusService: CrowdloanBonusServiceProtocol, displayInfo: CrowdloanDisplayInfo, inputAmount: Decimal, crowdloanDelegate: CustomCrowdloanDelegate, crowdloanViewModelFactory: CrowdloanContributionViewModelFactoryProtocol, defaultReferralCode: String, localizationManager: LocalizationManagerProtocol) {
+        
+    }
     
 
     
