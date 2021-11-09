@@ -205,12 +205,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         provideConstants()
     }
 
-    func fetchReferralAccountAddress() {
-        if let referralEthereumAccountAddress = settings.referralEthereumAddressForSelectedAccount() {
-            presenter.didReceiveReferralEthereumAddress(address: referralEthereumAccountAddress)
-        }
-    }
-
     func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
         let contributeCall: RuntimeCall<CrowdloanContributeCall>? = makeContributeCall(amount: amount)
         let memoCall: RuntimeCall<CrowdloanAddMemo>? = makeMemoCall(memo: memo)
@@ -252,6 +246,8 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
 
         return callFactory.addMemo(to: paraId, memo: memoData)
     }
+
+    func fetchReferralAccountAddress() {}
 }
 
 extension CrowdloanContributionInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
