@@ -11,6 +11,11 @@ final class ReferralCrowdloanViewLayout: UIView {
 
     let codeInputView = UIFactory.default.createCommonInputView()
 
+    let emailInputView = UIFactory.default.createCommonInputView()
+    let emailSwitchView: SwitchView = {
+        SwitchView()
+    }()
+
     let applyAppBonusButton: GradientButton = UIFactory.default.createWalletReferralBonusButton()
 
     let bonusView: TitleValueView = UIFactory.default.createTitleValueView()
@@ -66,7 +71,7 @@ final class ReferralCrowdloanViewLayout: UIView {
 
     private func applyLocalization() {
         termsLabel.attributedText = NSAttributedString.crowdloanTerms(for: locale)
-
+        emailSwitchView.switchDescriptionLabel.text = R.string.localizable.acalaReceiveEmailAgreement(preferredLanguages: locale.rLanguages)
         applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.applyFearlessWalletBonus(
             preferredLanguages: locale.rLanguages
         ).uppercased()
@@ -74,6 +79,7 @@ final class ReferralCrowdloanViewLayout: UIView {
         codeInputView.animatedInputField.title = R.string.localizable.commonReferralCodeTitle(
             preferredLanguages: locale.rLanguages
         )
+        emailInputView.animatedInputField.title = R.string.localizable.emailTextFieldPlaceholder(preferredLanguages: locale.rLanguages)
 
         bonusView.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
         myBonusView.titleLabel.text = R.string.localizable.astarBonus(preferredLanguages: locale.rLanguages)
@@ -100,6 +106,9 @@ final class ReferralCrowdloanViewLayout: UIView {
 
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: codeInputView)
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: applyAppBonusButton)
+
+        contentView.stackView.addArrangedSubview(emailInputView)
+        contentView.stackView.addArrangedSubview(emailSwitchView)
 
         contentView.stackView.addArrangedSubview(friendBonusView)
         friendBonusView.snp.makeConstraints { make in
@@ -185,6 +194,22 @@ final class ReferralCrowdloanViewLayout: UIView {
 
         applyAppBonusButton.invalidateLayout()
 
+        actionButton.imageWithTitleView?.title = viewModel.actionButtonTitle(for: locale.rLanguages)
+
+        actionButton.invalidateLayout()
+
+        setNeedsLayout()
+    }
+
+    func bind(to viewModel: AcalaReferralCrowdloanViewModel) {
+        bonusView.valueLabel.text = viewModel.bonusValue
+        applyAppBonusButton.isEnabled = viewModel.canApplyDefaultCode
+        applyAppBonusButton.imageWithTitleView?.title = viewModel.applyAppBonusButtonTitle(for: locale.rLanguages)
+        applyAppBonusButton.setEnabled(!viewModel.canApplyDefaultCode)
+
+        applyAppBonusButton.invalidateLayout()
+
+        termsSwitchView.isOn = viewModel.isTermsAgreed
         actionButton.imageWithTitleView?.title = viewModel.actionButtonTitle(for: locale.rLanguages)
 
         actionButton.invalidateLayout()

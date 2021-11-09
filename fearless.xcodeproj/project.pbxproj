@@ -1491,6 +1491,9 @@
 		FA85B659273A596800B9EEFE /* AcalaReferralRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B64C273A596700B9EEFE /* AcalaReferralRequest.swift */; };
 		FA85B65A273A596800B9EEFE /* AcalaTransferRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B64D273A596700B9EEFE /* AcalaTransferRequest.swift */; };
 		FA85B65B273A596800B9EEFE /* AcalaStatementRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B64E273A596700B9EEFE /* AcalaStatementRequest.swift */; };
+		FA85B65D273A61D300B9EEFE /* AcalaReferralCrowdloanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B65C273A61D300B9EEFE /* AcalaReferralCrowdloanViewModel.swift */; };
+		FA85B65F273A61D800B9EEFE /* AcalaReferralCrowdloanPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B65E273A61D800B9EEFE /* AcalaReferralCrowdloanPresenter.swift */; };
+		FA85B661273A620000B9EEFE /* SwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B660273A620000B9EEFE /* SwitchView.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 		FF81780F2929736DE8DAAD62 /* CrowdloanAgreementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEDF0B900FE2080C14FA45C /* CrowdloanAgreementViewController.swift */; };
 /* End PBXBuildFile section */
@@ -3034,6 +3037,9 @@
 		FA85B64C273A596700B9EEFE /* AcalaReferralRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaReferralRequest.swift; sourceTree = "<group>"; };
 		FA85B64D273A596700B9EEFE /* AcalaTransferRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaTransferRequest.swift; sourceTree = "<group>"; };
 		FA85B64E273A596700B9EEFE /* AcalaStatementRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaStatementRequest.swift; sourceTree = "<group>"; };
+		FA85B65C273A61D300B9EEFE /* AcalaReferralCrowdloanViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaReferralCrowdloanViewModel.swift; sourceTree = "<group>"; };
+		FA85B65E273A61D800B9EEFE /* AcalaReferralCrowdloanPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AcalaReferralCrowdloanPresenter.swift; sourceTree = "<group>"; };
+		FA85B660273A620000B9EEFE /* SwitchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwitchView.swift; sourceTree = "<group>"; };
 		FBFDF844248CD43AAD13139F /* StakingPayoutConfirmationInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationInteractor.swift; sourceTree = "<group>"; };
 		FE4AF0849E32E5B9C72E2ABB /* RecommendedValidatorListViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewFactory.swift; sourceTree = "<group>"; };
 		FF4688AF0658F8BB7A90C2BE /* ExportMnemonicConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicConfirmViewFactory.swift; sourceTree = "<group>"; };
@@ -5325,6 +5331,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				FA85B660273A620000B9EEFE /* SwitchView.swift */,
 				84100F3426A602A700A5054E /* TableViewCell */,
 				F406B0E426299E25004FDCCC /* ErrorView */,
 				8401620F25E144DA0087A5F3 /* AmountInputView */,
@@ -6201,6 +6208,7 @@
 		84E731C126652B1500D5B15A /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				FA85B65C273A61D300B9EEFE /* AcalaReferralCrowdloanViewModel.swift */,
 				FA85B63027399F2000B9EEFE /* AstarReferralCrowdloanViewModel.swift */,
 				FA85B62F27399F2000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */,
 				FA85B63127399F2100B9EEFE /* ReferralCrowdloanViewState.swift */,
@@ -7621,6 +7629,7 @@
 		FA54F5402733D7AF00CA7550 /* CustomFlow */ = {
 			isa = PBXGroup;
 			children = (
+				FA85B65E273A61D800B9EEFE /* AcalaReferralCrowdloanPresenter.swift */,
 				FA54F5412733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift */,
 			);
 			path = CustomFlow;
@@ -8191,6 +8200,7 @@
 				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
 				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
+				FA85B65F273A61D800B9EEFE /* AcalaReferralCrowdloanPresenter.swift in Sources */,
 				C42276932722BB1B005D3153 /* MoonbeamService.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
@@ -8223,6 +8233,7 @@
 				84D2F45425EF044B008B914D /* RecommendedValidatorListViewModel.swift in Sources */,
 				843C49DD24DF397800B71DDA /* AccountImportSource.swift in Sources */,
 				8494D86B25247F9600614D8F /* Decimal+String.swift in Sources */,
+				FA85B65D273A61D300B9EEFE /* AcalaReferralCrowdloanViewModel.swift in Sources */,
 				843910AA253E3BAA00E3C217 /* WebSocketSubscriptionProtocols.swift in Sources */,
 				84873B0926029CBD000A83EE /* StakingStateViewModelFactory.swift in Sources */,
 				84C3F78C26020DE800D47501 /* StakingStateMachineProtocols.swift in Sources */,
@@ -9403,6 +9414,7 @@
 				8CDA490B390BFA261906F8FC /* CrowdloanContributionSetupViewLayout.swift in Sources */,
 				1BEADE77C6236CB3BF719A47 /* CrowdloanContributionSetupViewFactory.swift in Sources */,
 				846A2606267C792000429A7F /* CrowdloanContributionResponse.swift in Sources */,
+				FA85B661273A620000B9EEFE /* SwitchView.swift in Sources */,
 				0C2AA829B5CB89B39E0FA95E /* CrowdloanContributionConfirmProtocols.swift in Sources */,
 				506F0D372BCC8302E513637C /* CrowdloanContributionConfirmWireframe.swift in Sources */,
 				D1C6EABB48DC3EE254E5A095 /* CrowdloanContributionConfirmPresenter.swift in Sources */,

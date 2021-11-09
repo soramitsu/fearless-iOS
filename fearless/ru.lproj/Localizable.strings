@@ -525,3 +525,5 @@
 "about.support" = "Обратиться за поддержкой";
 "crowdloan.location.unsupported.error" = "К сожалению, Вы не можете принимать участие в краудлоне %@ из-за локации, в которой Вы находитесь.";
 "crowdloan.terms.with.name" = "Условия использования %@";
+"email.text.field.placeholder" = "email адрес";
+"acala.receive.email.agreement" = "Я хочу получать рассылку от Acala";

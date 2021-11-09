@@ -73,17 +73,18 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
             arrangedSubview.isHidden = true
         }
 
-        var visibleViews: [UIView] = []
+        var visibleViews: [UIView] = [rootView.codeInputView, rootView.applyAppBonusButton, rootView.learnMoreView, rootView.actionButton]
 
         switch state {
-        case .loading:
-            visibleViews = [rootView.codeInputView]
+        case .loading: break
         case let .loadedDefaultFlow(referralCrowdloanViewModel):
-            visibleViews = [rootView.codeInputView, rootView.bonusView, rootView.privacyView, rootView.learnMoreView, rootView.actionButton]
+            visibleViews.append(contentsOf: [rootView.bonusView, rootView.privacyView])
             rootView.bind(to: referralCrowdloanViewModel)
         case let .loadedAstarFlow(astarReferralCrowdloanViewModel):
-            visibleViews = [rootView.codeInputView, rootView.applyAppBonusButton, rootView.learnMoreView, rootView.actionButton]
             rootView.bind(to: astarReferralCrowdloanViewModel)
+        case let .loadedAcalaFlow(acalaReferralCrowdloanViewModel):
+            visibleViews.append(contentsOf: [rootView.emailInputView, rootView.emailSwitchView])
+            rootView.bind(to: acalaReferralCrowdloanViewModel)
         }
 
         visibleViews.forEach { visibleView in

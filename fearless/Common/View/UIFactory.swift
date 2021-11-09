@@ -83,6 +83,8 @@ protocol UIFactoryProtocol {
     func createInfoIndicatingView() -> ImageWithTitleView
 
     func createWalletReferralBonusButton() -> GradientButton
+
+    func createSwitchView() -> SwitchView
 }
 
 extension UIFactoryProtocol {
@@ -98,6 +100,10 @@ extension UIFactoryProtocol {
 }
 
 final class UIFactory: UIFactoryProtocol {
+    func createSwitchView() -> SwitchView {
+        SwitchView()
+    }
+
     static let `default` = UIFactory()
 
     func createMainActionButton() -> TriangularedButton {

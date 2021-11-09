@@ -106,7 +106,7 @@ extension Chain {
     }
 
     func crowdloanDisplayInfoURL() -> URL {
-        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
+        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/acala-flow/crowdloan/")!
 
         switch self {
         case .westend: return base.appendingPathComponent("westend.json")
