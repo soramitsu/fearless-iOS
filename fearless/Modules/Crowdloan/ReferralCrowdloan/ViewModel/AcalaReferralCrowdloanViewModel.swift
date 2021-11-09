@@ -14,10 +14,6 @@ extension AcalaReferralCrowdloanViewModel {
             return R.string.localizable.karuraReferralCodeAction(
                 preferredLanguages: preferredLanguages
             )
-        } else if !isTermsAgreed {
-            return R.string.localizable.karuraTermsAction(
-                preferredLanguages: preferredLanguages
-            )
         } else {
             return R.string.localizable.commonApply(
                 preferredLanguages: preferredLanguages

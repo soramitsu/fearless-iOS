@@ -7,12 +7,6 @@ import FearlessUtils
 final class AcalaBonusService: CrowdloanBonusServiceProtocol {
     static let defaultReferralCode = "0x9642d0db9f3b301b44df74b63b0b930011e3f52154c5ca24b4dc67b3c7322f15"
 
-    #if F_RELEASE
-        static let baseURL = URL(string: "https://crowdloan.aca-dev.network")!
-    #else
-        static let baseURL = URL(string: "https://crowdloan.aca-dev.network")!
-    #endif
-
     var bonusRate: Decimal { 0.05 }
     var termsURL: URL? { URL(string: "https://acala.network/acala/terms")! }
     private(set) var referralCode: String?

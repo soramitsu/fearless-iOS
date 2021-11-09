@@ -79,7 +79,7 @@ final class ReferralCrowdloanViewLayout: UIView {
         codeInputView.animatedInputField.title = R.string.localizable.commonReferralCodeTitle(
             preferredLanguages: locale.rLanguages
         )
-        emailInputView.animatedInputField.title = R.string.localizable.emailTextFieldPlaceholder(preferredLanguages: locale.rLanguages)
+        emailInputView.animatedInputField.title = R.string.localizable.emailTextFieldPlaceholder(preferredLanguages: locale.rLanguages).capitalized
 
         bonusView.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
         myBonusView.titleLabel.text = R.string.localizable.astarBonus(preferredLanguages: locale.rLanguages)
@@ -108,7 +108,19 @@ final class ReferralCrowdloanViewLayout: UIView {
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: applyAppBonusButton)
 
         contentView.stackView.addArrangedSubview(emailInputView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: emailInputView)
+
+        emailInputView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2 * UIConstants.bigOffset)
+        }
+
         contentView.stackView.addArrangedSubview(emailSwitchView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: emailSwitchView)
+
+        emailSwitchView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2 * UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.cellHeight)
+        }
 
         contentView.stackView.addArrangedSubview(friendBonusView)
         friendBonusView.snp.makeConstraints { make in

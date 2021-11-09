@@ -21,4 +21,18 @@ class AcalaReferralCrowdloanPresenter: ReferralCrowdloanPresenter {
 
         view?.didReceiveState(state: .loadedAcalaFlow(viewModel))
     }
+
+    override func applyInputCode() {
+        if currentReferralCode.isEmpty {
+            view?.didReceiveShouldInputCode()
+            return
+        }
+
+        view?.didStartLoading()
+
+        bonusService.save(referralCode: currentReferralCode) { [weak self] result in
+            self?.view?.didStopLoading()
+            self?.handleSave(result: result)
+        }
+    }
 }
