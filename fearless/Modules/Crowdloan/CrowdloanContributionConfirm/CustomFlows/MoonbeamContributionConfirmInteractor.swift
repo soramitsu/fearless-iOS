@@ -55,44 +55,18 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         )
     }
 
-    override func submit(contribution: BigUInt) {
-        addMemoIfNeeded(contribution: contribution)
-    }
-
-    private func addMemoIfNeeded(contribution: BigUInt) {
-        guard
-            let ethereumAccountAddress = ethereumAccountAddress,
-            let memo = try? Data(hexString: ethereumAccountAddress),
-            settings.referralEthereumAddressForSelectedAccount() == nil
+    override func makeMemoCall(memo: String?) -> RuntimeCall<CrowdloanAddMemo>? {
+        guard let memo = memo, !memo.isEmpty,
+              let memoData = try? Data(hexString: memo),
+              self.settings.referralEthereumAddressForSelectedAccount() != memo
         else {
-            submitFinally(contribution: contribution)
-            return
+            return nil
         }
 
-        let call = callFactory.addMemo(to: paraId, memo: memo)
-
-        let builderClosure: ExtrinsicBuilderClosure = { builder in
-            let nextBuilder = try builder.adding(call: call)
-            return nextBuilder
-        }
-
-        extrinsicService.submit(
-            builderClosure,
-            signer: signingWrapper,
-            runningIn: .main,
-            completion: { [weak self] result in
-                switch result {
-                case .success:
-                    self?.saveEthereumAdressAsMoonbeamDefault()
-                    self?.submitFinally(contribution: contribution)
-                case let .failure(error):
-                    self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
-                }
-            }
-        )
+        return callFactory.addMemo(to: paraId, memo: memoData)
     }
 
-    private func submitFinally(contribution: BigUInt) {
+    override func submit(contribution: BigUInt) {
         let prevContribution = crowdloanContribution?.balance ?? 0
 
         moonbeamService.makeSignature(
@@ -122,8 +96,18 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
 
         let call = callFactory.contribute(to: paraId, amount: amount, multiSignature: multiSignature)
 
-        let builderClosure: ExtrinsicBuilderClosure = { builder in
-            let nextBuilder = try builder.adding(call: call)
+        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+            var nextBuilder = builder
+
+            if let ethereumAccountAddress = self?.ethereumAccountAddress,
+               let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {
+                nextBuilder = try nextBuilder.adding(call: memoCall)
+
+                self?.saveEthereumAdressAsMoonbeamDefault()
+            }
+
+            nextBuilder = try nextBuilder.adding(call: call)
+
             return nextBuilder
         }
 
