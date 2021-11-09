@@ -7271,6 +7271,7 @@
 		E01524612035A176DA0793E7 /* CrowdloanContributionSetup */ = {
 			isa = PBXGroup;
 			children = (
+				FA85B5FA2736FB3600B9EEFE /* CustomFlows */,
 				846802A1265DA5390034F9B5 /* ViewModel */,
 				7484BA696561262926D87FE5 /* CrowdloanContributionSetupProtocols.swift */,
 				3574BADE9CF77599048C7010 /* CrowdloanContributionSetupWireframe.swift */,
@@ -8848,6 +8849,7 @@
 				8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */,
 				AEA0C8A4267B6B1900F9666F /* SelectedValidatorListProtocols.swift in Sources */,
 				8475AE34258B934F00B058F3 /* TransferValidatingError.swift in Sources */,
+				FA85B5FC2736FB4A00B9EEFE /* MoonbeamContributionSetupInteractor.swift in Sources */,
 				8494D8552524633300614D8F /* WalletTransferTokenView.swift in Sources */,
 				AE2C84DF25EF98BA00986716 /* AnyValidatorInfoInteractor.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
