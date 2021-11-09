@@ -6,7 +6,6 @@ struct AcalaReferralCrowdloanViewModel: ReferralCrowdloanViewModelProtocol {
     let isTermsAgreed: Bool
     let isReceiveEmailAgreed: Bool
     let isCodeReceived: Bool
-    let customFlow: CustomCrowdloanFlow?
 }
 
 extension AcalaReferralCrowdloanViewModel {

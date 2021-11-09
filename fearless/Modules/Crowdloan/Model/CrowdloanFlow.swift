@@ -10,18 +10,17 @@ enum CustomCrowdloanFlow {
     case karura
     case bifrost
     case moonbeam(MoonbeamFlowData)
+    case acala(AcalaFlowData)
     case astar(AstarFlowData)
-    case acala
+
     var name: String {
         switch self {
         case .karura: return "karura"
         case .bifrost: return "bifrost"
         case .moonbeam: return "moonbeam"
         case .astar: return "astar"
-
+        case .acala: return "acala"
         case let .unsupported(name): return name
-        case .acala:
-            return "acala"
         }
     }
 
@@ -60,8 +59,8 @@ extension CustomCrowdloanFlow: Codable {
 
         let noDataFlow = try NoDataFlow(from: decoder)
         switch noDataFlow.name {
+        case "acala": self = .acala(decodeFlowData(from: decoder, or: AcalaFlowData.default))
         case "astar": self = .astar(decodeFlowData(from: decoder, or: AstarFlowData.default))
-        case "acala": self = .acala
         case "karura": self = .karura
         case "bifrost": self = .bifrost
         case "moonbeam": self = .moonbeam(decodeFlowData(from: decoder, or: MoonbeamFlowData.default))
@@ -74,7 +73,6 @@ extension CustomCrowdloanFlow: Codable {
         switch self {
         case let .unsupported(name): try NoDataFlow(name: name).encode(to: encoder)
         case .acala: try NoDataFlow(name: "acala").encode(to: encoder)
-
         case .karura: try NoDataFlow(name: "karura").encode(to: encoder)
         case .bifrost: try NoDataFlow(name: "bifrost").encode(to: encoder)
         case let .moonbeam(data): try FlowWithData(name: "moonbeam", data: data).encode(to: encoder)
@@ -88,8 +86,8 @@ extension CustomCrowdloanFlow: Equatable {
         switch (lhs, rhs) {
         case let (.astar(lhsData), .astar(rhsData)):
             return lhsData == rhsData
-        case (.acala, .acala):
-            return true
+        case let (.acala(lhsData), .acala(rhsData)):
+            return rhsData == lhsData
         case (.karura, .karura):
             return true
         case (.bifrost, .bifrost):
@@ -134,6 +132,32 @@ struct AstarFlowData: FlowData {
             fearlessReferral: "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k",
             bonusRate: 0,
             referralRate: 0.01
+        )
+    }
+}
+
+// MARK: - Acala
+
+struct AcalaFlowData: FlowData {
+    let prodApiUrl: String
+    let devApiUrl: String
+    let prodApiKey: String
+    let devApiKey: String
+    let bonusUrl: String?
+    let termsUrl: String?
+    let crowdloanInfoUrl: String?
+    let fearlessReferral: String?
+
+    static var `default`: Self {
+        .init(
+            prodApiUrl: "https://crowdloan.aca-api.network",
+            devApiUrl: "https://crowdloan.aca-dev.network",
+            prodApiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZmVhcmVsZXNzd2FsbGV0IiwiaWF0IjoxNjM0Nzg2MDc3fQ.zwz3BSD68AKjo1BySkzrh7SfzO8yF-8YBhgiKZyE5lQ",
+            devApiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZmVhcmVsZXNzd2FsbGV0IiwiaWF0IjoxNjM0MDg1OTg0fQ.3joSiklSRDNrCtVMQc6ReRnEgtp65QOzRt8IPA4bMtw",
+            bonusUrl: "https://wiki.acala.network/acala/acala-crowdloan/crowdloan-rewards",
+            termsUrl: "https://acala.network/acala/terms",
+            crowdloanInfoUrl: "https://wiki.acala.network/acala/acala-crowdloan",
+            fearlessReferral: "0x9642d0db9f3b301b44df74b63b0b930011e3f52154c5ca24b4dc67b3c7322f15"
         )
     }
 }
