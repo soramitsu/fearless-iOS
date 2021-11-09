@@ -73,7 +73,10 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
             arrangedSubview.isHidden = true
         }
 
-        var visibleViews: [UIView] = [rootView.codeInputView, rootView.applyAppBonusButton, rootView.learnMoreView, rootView.actionButton]
+        var visibleViews: [UIView] = [rootView.codeInputView,
+                                      rootView.applyAppBonusButton,
+                                      rootView.learnMoreView,
+                                      rootView.actionButton]
 
         switch state {
         case .loading: break

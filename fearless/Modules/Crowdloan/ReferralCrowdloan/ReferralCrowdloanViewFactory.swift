@@ -67,7 +67,7 @@ struct ReferralCrowdloanViewFactory {
             }
         }()
 
-        let presenter = createDefaultPresenter(
+        let presenter = createAcalaPresenter(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
@@ -203,6 +203,22 @@ struct ReferralCrowdloanViewFactory {
         bonusService: CrowdloanBonusServiceProtocol,
         defaultReferralCode: String
     ) -> AstarReferralCrowdloanPresenter {
+        createPresenter(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            bonusService: bonusService,
+            defaultReferralCode: defaultReferralCode
+        )
+    }
+
+    private static func createAcalaPresenter(
+        for delegate: CustomCrowdloanDelegate,
+        displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        bonusService: CrowdloanBonusServiceProtocol,
+        defaultReferralCode: String
+    ) -> AcalaReferralCrowdloanPresenter {
         createPresenter(
             for: delegate,
             displayInfo: displayInfo,
