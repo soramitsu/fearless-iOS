@@ -13,6 +13,8 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     var uiFactory: UIFactoryProtocol = UIFactory.default
 
+    private var state: CrowdloanContributionSetupViewState = .loading(nil)
+
     init(
         presenter: CrowdloanContributionSetupPresenterProtocol,
         localizationManager: LocalizationManagerProtocol
@@ -40,6 +42,10 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
         setupLocalization()
 
         presenter.setup()
+    }
+
+    private func setupActions() {
+        rootView.learnMoreView.addTarget(self, action: #selector(actionLearMore), for: .touchUpInside)
     }
 
     private func setupLocalization() {
@@ -79,6 +85,96 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     @objc func actionBonuses() {
         presenter.presentAdditionalBonuses()
     }
+
+    private func applyState() {
+        var orderedVisibleViews: [CrowdloanContributionSetupViewLayout.View] = []
+        switch state {
+        case let .loading(defaultViewModel):
+            orderedVisibleViews = [.contributionTitleLabel,
+                                   .amountInputView,
+                                   .hintView,
+                                   .networkFeeView,
+                                   .leasingPeriodView,
+                                   .estimatedRewardView(false),
+                                   .bonusView(false),
+                                   .raisedView,
+                                   .timeleftView,
+                                   .learnMoreView(false)]
+            rootView.update(with: orderedVisibleViews)
+
+            if let defaultViewModel = defaultViewModel {
+                bind(defaultViewModel: defaultViewModel)
+            }
+
+        case let .loadedDefaultFlow(defaultViewModel):
+            orderedVisibleViews = [.contributionTitleLabel,
+                                   .amountInputView,
+                                   .hintView,
+                                   .networkFeeView,
+                                   .leasingPeriodView,
+                                   .estimatedRewardView(defaultViewModel.estimatedReward != nil),
+                                   .bonusView(defaultViewModel.bonus != nil),
+                                   .raisedView,
+                                   .timeleftView,
+                                   .learnMoreView(defaultViewModel.learnMore != nil),
+                                   .actionButton]
+            rootView.update(with: orderedVisibleViews)
+
+            bind(defaultViewModel: defaultViewModel)
+
+        case let .loadedAcalaFlow(acalaViewModel):
+            orderedVisibleViews = [.contributionTitleLabel,
+                                   .amountInputView,
+                                   .contributionTypeView,
+                                   .hintView,
+                                   .networkFeeView,
+                                   .leasingPeriodView,
+                                   .estimatedRewardView(acalaViewModel.estimatedReward != nil),
+                                   .bonusView(acalaViewModel.bonus != nil),
+                                   .raisedView,
+                                   .timeleftView,
+                                   .learnMoreView(acalaViewModel.learnMore != nil),
+                                   .privacy,
+                                   .actionButton]
+            rootView.update(with: orderedVisibleViews)
+
+            bind(acalaViewModel: acalaViewModel)
+
+        case let .loadedMoonbeamFlow(moonbeamViewModel):
+            orderedVisibleViews = [.contributionTitleLabel,
+                                   .amountInputView,
+                                   .hintView,
+                                   .networkFeeView,
+                                   .leasingPeriodView,
+                                   .estimatedRewardView(moonbeamViewModel.estimatedReward != nil),
+                                   .bonusView(moonbeamViewModel.bonus != nil),
+                                   .raisedView,
+                                   .timeleftView,
+                                   .learnMoreView(moonbeamViewModel.learnMore != nil),
+                                   .actionButton]
+            rootView.update(with: orderedVisibleViews)
+
+            bind(moonbeamViewModel: moonbeamViewModel)
+        }
+    }
+
+    private func bind(defaultViewModel: CrowdloanContributionSetupViewModelProtocol) {
+        title = defaultViewModel.title
+
+        rootView.bind(crowdloanViewModel: defaultViewModel)
+        rootView.bind(assetViewModel: defaultViewModel.assetBalance)
+        rootView.bind(feeViewModel: defaultViewModel.fee)
+        rootView.bind(estimatedReward: defaultViewModel.estimatedReward)
+        rootView.bind(bonus: defaultViewModel.bonus)
+    }
+
+    private func bind(acalaViewModel: AcalaCrowdloanContributionSetupViewModel) {
+        bind(defaultViewModel: acalaViewModel)
+    }
+
+    private func bind(moonbeamViewModel: MoonbeamCrowdloanContributionSetupViewModel) {
+        bind(defaultViewModel: moonbeamViewModel)
+    }
 }
 
 extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupViewProtocol {
@@ -90,6 +186,7 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         rootView.bind(feeViewModel: viewModel)
     }
 
+    //TODO: return back inputviewmodel logic
     func didReceiveInput(viewModel: AmountInputViewModelProtocol) {
         amountInputViewModel?.observable.remove(observer: self)
 
@@ -107,37 +204,14 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         ethereumAddressViewModel = viewModel
         ethereumAddressViewModel?.inputHandler.addObserver(self)
 
-        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.text = viewModel.inputHandler.value
+        rootView.ethereumAddressForRewardView.ethereumAddressView.animatedInputField.text = viewModel.inputHandler.value
 
         updateActionButton()
     }
 
-    func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel) {
-        title = viewModel.title
-        rootView.bind(crowdloanViewModel: viewModel)
-
-        if let learnMoreView = rootView.learnMoreView {
-            learnMoreView.addTarget(self, action: #selector(actionLearMore), for: .touchUpInside)
-        }
-    }
-
-    func didReceiveEstimatedReward(viewModel: String?) {
-        rootView.bind(estimatedReward: viewModel)
-    }
-
-    func didReceiveBonus(viewModel: String?) {
-        rootView.bind(bonus: viewModel)
-
-        if let bonusView = rootView.bonusView {
-            bonusView.addTarget(self, action: #selector(actionBonuses), for: .touchUpInside)
-        }
-    }
-
-    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
-        rootView.bind(customFlow: viewModel)
-        if case .moonbeam = viewModel {
-            rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.delegate = self
-        }
+    func didReceiveState(state: CrowdloanContributionSetupViewState) {
+        self.state = state
+        applyState()
     }
 }
 

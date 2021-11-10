@@ -95,17 +95,18 @@ final class AcalaBonusService: CrowdloanBonusServiceProtocol {
 extension AcalaBonusService: AcalaSpecificBonusServiceProtocol {
     func save(referralCode: String, completion closure: @escaping (Result<Void, Error>) -> Void) {
         let requestFactory = BlockNetworkRequestFactory {
-            var request = try self.requestBuilder.buildRequest(with: AcalaReferralRequest(referralCode: referralCode))
+            let requestConfig = AcalaReferralRequest(referralCode: referralCode)
+            var request = try self.requestBuilder.buildRequest(with: requestConfig)
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<Bool> { data in
+        let resultFactory = AnyNetworkResultFactory<AcalaReferralData> { data in
             let resultData = try JSONDecoder().decode(
                 AcalaReferralData.self,
                 from: data
             )
 
-            return resultData.result
+            return resultData
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
@@ -115,7 +116,8 @@ extension AcalaBonusService: AcalaSpecificBonusServiceProtocol {
                 do {
                     let result = try operation.extractNoCancellableResultData()
 
-                    if result {
+                    print("result:", result)
+                    if result.result {
                         self?.referralCode = referralCode
                         closure(.success(()))
                     } else {

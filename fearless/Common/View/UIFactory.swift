@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import BetterSegmentedControl
 
 struct UIConstants {
     static let minimalOffset: CGFloat = 4.0
@@ -85,6 +86,8 @@ protocol UIFactoryProtocol {
     func createWalletReferralBonusButton() -> GradientButton
 
     func createSwitchView() -> SwitchView
+
+    func createFearlessSegmentedControl() -> BetterSegmentedControl
 }
 
 extension UIFactoryProtocol {
@@ -529,5 +532,11 @@ final class UIFactory: UIFactoryProtocol {
         button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2
 
         return button
+    }
+
+    func createFearlessSegmentedControl() -> BetterSegmentedControl {
+        let segmentedControl = BetterSegmentedControl()
+
+        return segmentedControl
     }
 }

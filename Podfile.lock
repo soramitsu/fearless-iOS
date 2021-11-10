@@ -1,4 +1,5 @@
 PODS:
+  - BetterSegmentedControl (2.0.1)
   - BigInt (5.2.0)
   - Charts (3.6.0):
     - Charts/Core (= 3.6.0)
@@ -119,6 +120,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
+  - BetterSegmentedControl
   - Charts
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `6fe19f304870a4406d1c267b1dc959d6cdf953ba`)
   - Cuckoo
@@ -141,6 +143,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - BetterSegmentedControl
     - BigInt
     - Charts
     - CocoaLumberjack
@@ -199,6 +202,7 @@ CHECKOUT OPTIONS:
     :tag: 3.0.0
 
 SPEC CHECKSUMS:
+  BetterSegmentedControl: 09607b27861d49cbce48b7673b74f9150a3d371a
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
@@ -227,6 +231,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 56da9fc855d239cd452f6a696a29f863d8c1bbcf
+PODFILE CHECKSUM: fc869887f101b3e8b61cc78de94c4209c779f29e
 
 COCOAPODS: 1.11.2

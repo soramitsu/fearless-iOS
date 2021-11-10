@@ -4,14 +4,7 @@ import BigInt
 import SoraFoundation
 
 protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)
-    func didReceiveFee(viewModel: BalanceViewModelProtocol?)
-    func didReceiveInput(viewModel: AmountInputViewModelProtocol)
-    func didReceiveEthereumAddress(viewModel: InputViewModelProtocol)
-    func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel)
-    func didReceiveEstimatedReward(viewModel: String?)
-    func didReceiveBonus(viewModel: String?)
-    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?)
+    func didReceiveState(state: CrowdloanContributionSetupViewState)
 }
 
 protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {

@@ -2,8 +2,9 @@ import Foundation
 import BigInt
 import SoraFoundation
 import SoraUI
+import CommonWallet
 
-final class CrowdloanContributionSetupPresenter {
+class CrowdloanContributionSetupPresenter {
     weak var view: CrowdloanContributionSetupViewProtocol?
     let wireframe: CrowdloanContributionSetupWireframeProtocol
     let interactor: CrowdloanContributionSetupInteractorInputProtocol
@@ -28,7 +29,6 @@ final class CrowdloanContributionSetupPresenter {
 
     private var bonusService: CrowdloanBonusServiceProtocol?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
-    private var hasValidEthereumAddress: Bool = false
 
     private var crowdloanMetadata: CrowdloanMetadata? {
         if
@@ -46,6 +46,7 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private var inputResult: AmountInputResult?
+    private var hasValidEthereumAddress: Bool = false
     private var ethereumAddress: String?
 
     init(
@@ -70,13 +71,9 @@ final class CrowdloanContributionSetupPresenter {
         self.localizationManager = localizationManager
     }
 
-    private func provideCustomFlowViewModel() {
-        view?.didReceiveCustomCrowdloanFlow(viewModel: customFlow)
-    }
-
-    private func provideAssetVewModel() {
+    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
         guard minimumBalance != nil, minimumContribution != nil else {
-            return
+            return nil
         }
 
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
@@ -87,23 +84,24 @@ final class CrowdloanContributionSetupPresenter {
             priceData: priceData
         ).value(for: selectedLocale)
 
-        view?.didReceiveAsset(viewModel: assetViewModel)
+        return assetViewModel
     }
 
-    private func provideFeeViewModel() {
+    private func provideFeeViewModel() -> BalanceViewModelProtocol? {
         let feeViewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
             .value(for: selectedLocale)
 
-        view?.didReceiveFee(viewModel: feeViewModel)
+        return feeViewModel
     }
 
-    private func provideInputViewModel() {
+    private func provideInputViewModel() -> AmountInputViewModelProtocol {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
 
         let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
-        view?.didReceiveInput(viewModel: inputViewModel)
+
+        return inputViewModel
     }
 
     private func provideInputViewModelIfRate() {
@@ -111,40 +109,26 @@ final class CrowdloanContributionSetupPresenter {
             return
         }
 
-        provideInputViewModel()
+        _ = provideInputViewModel()
     }
 
-    private func provideEthereumAddressViewModel() {
-        guard case .moonbeam = customFlow else { return }
-
-        let predicate = NSPredicate.ethereumAddress
-        let inputHandling = InputHandler(value: ethereumAddress ?? "", predicate: predicate)
-        let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: "")
-        view?.didReceiveEthereumAddress(viewModel: viewModel)
-
-        if inputHandling.completed != hasValidEthereumAddress {
-            refreshFee()
-        }
-
-        hasValidEthereumAddress = inputHandling.completed
-    }
-
-    private func provideCrowdloanContributionViewModel() {
-        guard let crowdloan = crowdloan, let metadata = crowdloanMetadata else {
-            return
-        }
-
+    private func provideCrowdloanContributionViewModel() -> CrowdloanContributionSetupViewModel {
         let viewModel = contributionViewModelFactory.createContributionSetupViewModel(
             from: crowdloan,
             displayInfo: displayInfo,
-            metadata: metadata,
-            locale: selectedLocale
+            metadata: crowdloanMetadata,
+            locale: selectedLocale,
+            assetBalance: provideAssetVewModel(),
+            fee: provideFeeViewModel(),
+            estimatedReward: provideEstimatedRewardViewModel(),
+            bonus: provideBonusViewModel(),
+            amountInput: provideInputViewModel()
         )
 
-        view?.didReceiveCrowdloan(viewModel: viewModel)
+        return viewModel
     }
 
-    private func provideEstimatedRewardViewModel() {
+    private func provideEstimatedRewardViewModel() -> String? {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel = displayInfo.map {
             contributionViewModelFactory.createEstimatedRewardViewModel(
@@ -154,10 +138,10 @@ final class CrowdloanContributionSetupPresenter {
             )
         } ?? nil
 
-        view?.didReceiveEstimatedReward(viewModel: viewModel)
+        return viewModel
     }
 
-    private func provideBonusViewModel() {
+    private func provideBonusViewModel() -> String? {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel: String? = {
             if let displayInfo = displayInfo,
@@ -174,18 +158,28 @@ final class CrowdloanContributionSetupPresenter {
             }
         }()
 
-        view?.didReceiveBonus(viewModel: viewModel)
+        return viewModel
     }
 
     private func provideViewModels() {
-        provideAssetVewModel()
-        provideFeeViewModel()
-        provideInputViewModel()
-        provideEthereumAddressViewModel()
-        provideCrowdloanContributionViewModel()
-        provideEstimatedRewardViewModel()
-        provideBonusViewModel()
-        provideCustomFlowViewModel()
+        let viewModel = provideCrowdloanContributionViewModel()
+        view?.didReceiveState(state: .loadedDefaultFlow(viewModel))
+    }
+
+    private func provideEthereumAddressViewModel() -> InputViewModelProtocol? {
+        guard case .moonbeam = customFlow else { return nil }
+
+        let predicate = NSPredicate.ethereumAddress
+        let inputHandling = InputHandler(value: ethereumAddress ?? "", predicate: predicate)
+        let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: "")
+
+        if inputHandling.completed != hasValidEthereumAddress {
+            refreshFee()
+        }
+
+        hasValidEthereumAddress = inputHandling.completed
+
+        return viewModel
     }
 
     private func refreshFee() {
@@ -197,14 +191,22 @@ final class CrowdloanContributionSetupPresenter {
         interactor.estimateFee(
             for: amount,
             bonusService: bonusService,
-            memo: ethereumAddress
+            memo: nil
         )
     }
 }
 
 extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresenterProtocol {
+    func updateEthereumAddress(_ newValue: String) {
+        ethereumAddress = newValue
+        _ = provideEthereumAddressViewModel()
+    }
+
     func setup() {
-        provideViewModels()
+        let viewModel = provideCrowdloanContributionViewModel()
+        view?.didReceiveState(state: .loading(viewModel))
+
+//        provideViewModels()
 
         interactor.setup()
 
@@ -214,26 +216,16 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
 
-        provideInputViewModel()
+        provideViewModels()
 
         refreshFee()
-        provideAssetVewModel()
-        provideEstimatedRewardViewModel()
-        provideBonusViewModel()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
 
         refreshFee()
-        provideAssetVewModel()
-        provideEstimatedRewardViewModel()
-        provideBonusViewModel()
-    }
-
-    func updateEthereumAddress(_ newValue: String) {
-        ethereumAddress = newValue
-        provideEthereumAddressViewModel()
+        provideViewModels()
     }
 
     func proceed() {
@@ -336,9 +328,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(displayInfo):
             self.displayInfo = displayInfo
 
-            provideCrowdloanContributionViewModel()
-            provideEstimatedRewardViewModel()
-            provideBonusViewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive display info error: \(error)")
         }
@@ -353,8 +343,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
                 Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
             } ?? 0.0
 
-            provideAssetVewModel()
-            provideCrowdloanContributionViewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
         }
@@ -365,7 +354,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(blockNumber):
             self.blockNumber = blockNumber
 
-            provideCrowdloanContributionViewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive block number error: \(error)")
         }
@@ -376,7 +365,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(blockDuration):
             self.blockDuration = blockDuration
 
-            provideCrowdloanContributionViewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive block duration error: \(error)")
         }
@@ -387,7 +376,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(leasingPeriod):
             self.leasingPeriod = leasingPeriod
 
-            provideCrowdloanContributionViewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive leasing period error: \(error)")
         }
@@ -398,8 +387,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(priceData):
             self.priceData = priceData
 
-            provideAssetVewModel()
-            provideFeeViewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive price error: \(error)")
         }
@@ -412,8 +400,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
                 Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision)
             } ?? nil
 
-            provideFeeViewModel()
-            provideInputViewModelIfRate()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }
@@ -424,7 +411,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
 
-            provideAssetVewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
         }
@@ -435,7 +422,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(minimumContribution):
             self.minimumContribution = minimumContribution
 
-            provideAssetVewModel()
+            provideViewModels()
         case let .failure(error):
             logger?.error("Did receive minimum contribution error: \(error)")
         }
@@ -450,7 +437,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
 extension CrowdloanContributionSetupPresenter: CustomCrowdloanDelegate {
     func didReceive(bonusService: CrowdloanBonusServiceProtocol) {
         self.bonusService = bonusService
-        provideBonusViewModel()
+        provideViewModels()
         refreshFee()
     }
 }

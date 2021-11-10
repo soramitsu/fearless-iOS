@@ -4,11 +4,17 @@ import CommonWallet
 import FearlessUtils
 
 protocol CrowdloanContributionViewModelFactoryProtocol {
+    // swiftlint:disable function_parameter_count
     func createContributionSetupViewModel(
-        from crowdloan: Crowdloan,
+        from crowdloan: Crowdloan?,
         displayInfo: CrowdloanDisplayInfo?,
-        metadata: CrowdloanMetadata,
-        locale: Locale
+        metadata: CrowdloanMetadata?,
+        locale: Locale,
+        assetBalance: AssetBalanceViewModelProtocol?,
+        fee: BalanceViewModelProtocol?,
+        estimatedReward: String?,
+        bonus: String?,
+        amountInput: AmountInputViewModelProtocol
     ) -> CrowdloanContributionSetupViewModel
 
     func createContributionConfirmViewModel(
@@ -183,11 +189,35 @@ final class CrowdloanContributionViewModelFactory {
 
 extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol {
     func createContributionSetupViewModel(
-        from crowdloan: Crowdloan,
+        from crowdloan: Crowdloan?,
         displayInfo: CrowdloanDisplayInfo?,
-        metadata: CrowdloanMetadata,
-        locale: Locale
+        metadata: CrowdloanMetadata?,
+        locale: Locale,
+        assetBalance: AssetBalanceViewModelProtocol?,
+        fee: BalanceViewModelProtocol?,
+        estimatedReward: String?,
+        bonus: String?,
+        amountInput: AmountInputViewModelProtocol
     ) -> CrowdloanContributionSetupViewModel {
+        let learnMoreViewModel = displayInfo.map { createLearnMore(from: $0, locale: locale) }
+
+        guard let crowdloan = crowdloan, let metadata = metadata else {
+            return CrowdloanContributionSetupViewModel(
+                title: "",
+                leasingPeriod: "",
+                leasingCompletionDate: "",
+                raisedProgress: "",
+                raisedPercentage: "",
+                remainedTime: "",
+                learnMore: learnMoreViewModel,
+                assetBalance: assetBalance,
+                fee: fee,
+                estimatedReward: estimatedReward,
+                bonus: bonus,
+                amountInput: amountInput
+            )
+        }
+
         let displayLeasingPeriod = createDisplayLeasingPeriod(
             from: crowdloan,
             metadata: metadata,
@@ -200,8 +230,6 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
 
         let title = createTitle(from: crowdloan, displayInfo: displayInfo, locale: locale)
 
-        let learnMoreViewModel = displayInfo.map { createLearnMore(from: $0, locale: locale) }
-
         return CrowdloanContributionSetupViewModel(
             title: title,
             leasingPeriod: displayLeasingPeriod.leasingPeriod,
@@ -209,7 +237,12 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
             raisedProgress: displayProgress.absoluteProgress,
             raisedPercentage: displayProgress.percentageProgress,
             remainedTime: remainedTime,
-            learnMore: learnMoreViewModel
+            learnMore: learnMoreViewModel,
+            assetBalance: assetBalance,
+            fee: fee,
+            estimatedReward: estimatedReward,
+            bonus: bonus,
+            amountInput: amountInput
         )
     }
 
