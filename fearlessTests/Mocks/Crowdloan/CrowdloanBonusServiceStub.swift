@@ -24,7 +24,7 @@ final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {
     }
 
     func applyOnchainBonusForContribution(
-        amount: BigUInt,
+        amount: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         return builder

@@ -45,6 +45,4 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
     }
-
-    func test() {}
 }

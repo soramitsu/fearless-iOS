@@ -168,9 +168,6 @@ final class CrowdloanContributionConfirmPresenter {
     }
 
     private func refreshFee() {
-//        guard let amount = inputAmount?.toSubstrateAmount(precision: chain.addressType.precision) else {
-//            return
-//        }
         let amount = getInputAmount()?.toSubstrateAmount(precision: chain.addressType.precision)
 
         interactor.estimateFee(for: amount)
