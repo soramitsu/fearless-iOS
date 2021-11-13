@@ -88,7 +88,7 @@ extension BifrostBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOnchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         guard let memo = referralCode?.data(using: .utf8), memo.count <= 32 else {

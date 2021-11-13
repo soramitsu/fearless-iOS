@@ -530,3 +530,6 @@ This is the hash of your transaction:";
 "common.error.network" = "Error occured while communicating with remote server";
 "common.error.internal" = "Internal error occured";
 "moonbeam.address.hint" = "Rewards will be paid out to this address. You can use an existing Ethereum address. PLEASE ENSURE YOU HAVE THE PRIVATE KEYS FOR THIS ADDRESS.";
+"crowdloan.attention" = "ATTENTION REQUIRED! Please tap to open and add your Moonbeam Ethereum address.";
+"tabbar.crowdloan.attention" = "Please check the Crowdloans tab\nAttention required";
+"moonbeam.add.address" = "Add Moonbeam address";

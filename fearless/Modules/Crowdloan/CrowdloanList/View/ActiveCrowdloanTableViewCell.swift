@@ -16,6 +16,8 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
         return imageView
     }()
 
+    let attentionView = AttentionView()
+
     private var viewModel: ActiveCrowdloanViewModel?
 
     override func prepareForReuse() {
@@ -51,6 +53,8 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
     func bind(viewModel: ActiveCrowdloanViewModel) {
         self.viewModel = viewModel
 
+        attentionView.isHidden = viewModel.failedMemo == nil
+
         titleLabel.text = viewModel.title
 
         switch viewModel.description {
@@ -85,6 +89,9 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
 
         titleStackView.addArrangedSubview(timeLabel)
         titleStackView.addArrangedSubview(navigationImageView)
+
+        mainStackView.setCustomSpacing(UIConstants.defaultOffset, after: progressLabel)
+        mainStackView.addArrangedSubview(attentionView)
 
         navigationImageView.snp.makeConstraints { make in
             make.size.equalTo(24)

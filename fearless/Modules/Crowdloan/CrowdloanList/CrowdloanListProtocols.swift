@@ -1,7 +1,12 @@
 import SoraFoundation
 
+protocol CrowdloanListModuleOutput: AnyObject {
+    func didReceiveFailedMemos()
+}
+
 protocol CrowdloanListViewProtocol: ControllerBackedProtocol {
     func didReceive(state: CrowdloanListState)
+    func didReceive(tabBarNotifications: Bool)
 }
 
 protocol CrowdloanListPresenterProtocol: AnyObject {
@@ -17,6 +22,7 @@ protocol CrowdloanListInteractorInputProtocol: AnyObject {
     func refresh()
     func becomeOnline()
     func putOffline()
+    func requestMemoHistory()
 }
 
 protocol CrowdloanListInteractorOutputProtocol: AnyObject {
@@ -27,6 +33,7 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)
     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)
     func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)
+    func didReceiveFailedMemos(result: Result<[ParaId: String], Error>)
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {

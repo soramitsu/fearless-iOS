@@ -164,10 +164,12 @@ extension CrowdloanListViewController: UITableViewDataSource {
                 return UITableViewCell()
             }
         } else if indexPath.section == 1, let active = viewModel.active {
-            return createActiveTableViewCell(
+            let cell = createActiveTableViewCell(
                 tableView,
                 viewModel: active.crowdloans[indexPath.row].content
             )
+            cell.attentionView.titleLabel.text = R.string.localizable.crowdloanAttention(preferredLanguages: selectedLocale.rLanguages)
+            return cell
         }
 
         if let completed = viewModel.completed {
@@ -183,7 +185,7 @@ extension CrowdloanListViewController: UITableViewDataSource {
     private func createActiveTableViewCell(
         _ tableView: UITableView,
         viewModel: ActiveCrowdloanViewModel
-    ) -> UITableViewCell {
+    ) -> ActiveCrowdloanTableViewCell {
         let cell = tableView.dequeueReusableCellWithType(ActiveCrowdloanTableViewCell.self)!
         cell.bind(viewModel: viewModel)
         return cell
@@ -238,6 +240,10 @@ extension CrowdloanListViewController: CrowdloanListViewProtocol {
         self.state = state
 
         applyState()
+    }
+
+    func didReceive(tabBarNotifications: Bool) {
+        navigationController?.tabBarItem.badgeValue = tabBarNotifications ? "!" : nil
     }
 }
 

@@ -62,6 +62,10 @@ final class CrowdloanContributionConfirmVC: UIViewController, ViewHolder {
 }
 
 extension CrowdloanContributionConfirmVC: CrowdloanContributionConfirmViewProtocol {
+    func didReceiveCustomFlow(viewModel: CustomCrowdloanFlow?) {
+        rootView.bind(customFlow: viewModel)
+    }
+
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol) {
         rootView.bind(assetViewModel: viewModel)
     }
