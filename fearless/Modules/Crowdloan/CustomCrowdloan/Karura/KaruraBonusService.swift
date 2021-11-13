@@ -197,7 +197,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOnchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         builder

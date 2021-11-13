@@ -90,7 +90,7 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         rootView.bind(feeViewModel: viewModel)
     }
 
-    func didReceiveInput(viewModel: AmountInputViewModelProtocol) {
+    func didReceiveInput(viewModel: AmountInputViewModelProtocol?) {
         amountInputViewModel?.observable.remove(observer: self)
 
         amountInputViewModel = viewModel
@@ -135,8 +135,10 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
     func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
         rootView.bind(customFlow: viewModel)
-        if case .moonbeam = viewModel {
+        switch viewModel {
+        case .moonbeamMemoFix, .moonbeam:
             rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.delegate = self
+        default: break
         }
     }
 }

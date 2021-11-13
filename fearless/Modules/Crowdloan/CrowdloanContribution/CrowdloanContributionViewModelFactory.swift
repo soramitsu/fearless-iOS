@@ -8,14 +8,16 @@ protocol CrowdloanContributionViewModelFactoryProtocol {
         from crowdloan: Crowdloan,
         displayInfo: CrowdloanDisplayInfo?,
         metadata: CrowdloanMetadata,
-        locale: Locale
+        locale: Locale,
+        previousContribution: CrowdloanContribution?
     ) -> CrowdloanContributionSetupViewModel
 
     func createContributionConfirmViewModel(
         from crowdloan: Crowdloan,
         metadata: CrowdloanMetadata,
         confirmationData: CrowdloanContributionConfirmData,
-        locale: Locale
+        locale: Locale,
+        previousContribution: CrowdloanContribution?
     ) throws -> CrowdloanContributeConfirmViewModel
 
     func createEstimatedRewardViewModel(
@@ -186,7 +188,8 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         from crowdloan: Crowdloan,
         displayInfo: CrowdloanDisplayInfo?,
         metadata: CrowdloanMetadata,
-        locale: Locale
+        locale: Locale,
+        previousContribution: CrowdloanContribution?
     ) -> CrowdloanContributionSetupViewModel {
         let displayLeasingPeriod = createDisplayLeasingPeriod(
             from: crowdloan,
@@ -202,6 +205,20 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
 
         let learnMoreViewModel = displayInfo.map { createLearnMore(from: $0, locale: locale) }
 
+        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+
+        let contributionString: String? = {
+            if
+                let contributionInPlank = previousContribution?.balance,
+                let contributionDecimal = Decimal.fromSubstrateAmount(contributionInPlank, precision: asset.precision) {
+                return tokenFormatter.stringFromDecimal(contributionDecimal).map { value in
+                    R.string.localizable.crowdloanContributionFormat(value, preferredLanguages: locale.rLanguages)
+                }
+            } else {
+                return nil
+            }
+        }()
+
         return CrowdloanContributionSetupViewModel(
             title: title,
             leasingPeriod: displayLeasingPeriod.leasingPeriod,
@@ -209,7 +226,8 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
             raisedProgress: displayProgress.absoluteProgress,
             raisedPercentage: displayProgress.percentageProgress,
             remainedTime: remainedTime,
-            learnMore: learnMoreViewModel
+            learnMore: learnMoreViewModel,
+            previousContribution: contributionString
         )
     }
 
@@ -217,7 +235,8 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         from crowdloan: Crowdloan,
         metadata: CrowdloanMetadata,
         confirmationData: CrowdloanContributionConfirmData,
-        locale: Locale
+        locale: Locale,
+        previousContribution: CrowdloanContribution?
     ) throws -> CrowdloanContributeConfirmViewModel {
         let displayLeasingPeriod = createDisplayLeasingPeriod(
             from: crowdloan,
@@ -230,14 +249,33 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
             confirmationData.displayAddress.username : confirmationData.displayAddress.address
 
         let formatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
-        let inputAmount = formatter.stringFromDecimal(confirmationData.contribution) ?? ""
+
+        var inputAmountString: String?
+        if let contribution = confirmationData.contribution {
+            inputAmountString = formatter.stringFromDecimal(contribution)
+        }
+
+        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+
+        let contributionString: String? = {
+            if
+                let contributionInPlank = previousContribution?.balance,
+                let contributionDecimal = Decimal.fromSubstrateAmount(contributionInPlank, precision: asset.precision) {
+                return tokenFormatter.stringFromDecimal(contributionDecimal).map { value in
+                    R.string.localizable.crowdloanContributionFormat(value, preferredLanguages: locale.rLanguages)
+                }
+            } else {
+                return nil
+            }
+        }()
 
         return CrowdloanContributeConfirmViewModel(
             senderIcon: senderIcon,
             senderName: senderName,
-            inputAmount: inputAmount,
+            inputAmount: inputAmountString,
             leasingPeriod: displayLeasingPeriod.leasingPeriod,
-            leasingCompletionDate: displayLeasingPeriod.leasingEndDate
+            leasingCompletionDate: displayLeasingPeriod.leasingEndDate,
+            previousContribution: contributionString
         )
     }
 

@@ -1,4 +1,5 @@
 import UIKit
+import CommonWallet
 
 final class CrowdloanContributionSetupViewLayout: UIView {
     let contentView: ScrollableContainerView = {
@@ -18,6 +19,13 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     let amountInputView = UIFactory.default.createAmountInputView(filled: false)
 
     let hintView = UIFactory.default.createHintView()
+
+    let contributedView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.titleLabel.textColor = R.color.colorAccent()
+        view.isHidden = true
+        return view
+    }()
 
     let networkFeeView = NetworkFeeView()
 
@@ -105,6 +113,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         timeLeftVew.valueLabel.text = crowdloanViewModel.remainedTime
 
+        contributedView.titleLabel.text = crowdloanViewModel.previousContribution
+
         if let learnMore = crowdloanViewModel.learnMore {
             createLearnMoreViewIfNeeded()
             learnMoreView?.bind(viewModel: learnMore)
@@ -132,19 +142,36 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     func bind(customFlow: CustomCrowdloanFlow?) {
-        if let customFlow = customFlow, customFlow.hasEthereumReferral {
+        guard let customFlow = customFlow else {
+            return
+        }
+
+        if case CustomCrowdloanFlow.moonbeamMemoFix = customFlow {
+            amountInputView.isHidden = true
+            raisedView.isHidden = true
+            timeLeftVew.isHidden = true
+            hintView.isHidden = true
+            contributedView.isHidden = false
+        }
+
+        if customFlow.hasEthereumReferral {
             createEthereumAddressViewIfNeeded()
             applyLocalization()
         } else {
             removeEthereumAddressViewIfNeeded()
         }
+
+        switch customFlow {
+        case .moonbeamMemoFix:
+            contributionTitleLabel.text = R.string.localizable.moonbeamAddAddress(
+                preferredLanguages: locale.rLanguages)
+        default:
+            contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
+                preferredLanguages: locale.rLanguages)
+        }
     }
 
     private func applyLocalization() {
-        contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
-            preferredLanguages: locale.rLanguages
-        )
-
         networkFeeView.locale = locale
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
             preferredLanguages: locale.rLanguages
@@ -177,7 +204,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     private func setupLayout() {
-        // TODO: move magic numbers to constants
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
@@ -198,6 +224,13 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
+
+        contentView.stackView.addArrangedSubview(contributedView)
+        contributedView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+        }
+
+        contentView.stackView.setCustomSpacing(16.0, after: contributedView)
 
         contentView.stackView.addArrangedSubview(hintView)
         hintView.snp.makeConstraints { make in

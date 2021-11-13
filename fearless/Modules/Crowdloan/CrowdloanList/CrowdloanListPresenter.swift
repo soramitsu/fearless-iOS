@@ -8,6 +8,7 @@ final class CrowdloanListPresenter {
     let interactor: CrowdloanListInteractorInputProtocol
     let viewModelFactory: CrowdloansViewModelFactoryProtocol
     let logger: LoggerProtocol?
+    private weak var moduleOutput: CrowdloanListModuleOutput?
 
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
@@ -16,19 +17,22 @@ final class CrowdloanListPresenter {
     private var leasingPeriodResult: Result<LeasingPeriod, Error>?
     private var contributionsResult: Result<CrowdloanContributionDict, Error>?
     private var leaseInfoResult: Result<ParachainLeaseInfoDict, Error>?
+    private var failedMemosResult: Result<[ParaId: String], Error>?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
         wireframe: CrowdloanListWireframeProtocol,
         viewModelFactory: CrowdloansViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        moduleOutput: CrowdloanListModuleOutput?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.localizationManager = localizationManager
+        self.moduleOutput = moduleOutput
     }
 
     private func provideViewErrorState() {
@@ -38,9 +42,22 @@ final class CrowdloanListPresenter {
     }
 
     private func updateView() {
+        guard let displayInfoResult = displayInfoResult,
+              let failedMemosResult = failedMemosResult else {
+            return
+        }
+
+        let displayInfo = try? displayInfoResult.get()
+        let supportedParaIds = displayInfo?.filter { dict in
+            if let flow = dict.value.flow, case .moonbeam = flow { return true }
+            return false
+        }.map(\.key)
+        let failedMemos = try? failedMemosResult.get().filter { supportedParaIds?.contains($0.key) == true }
+
+        view?.didReceive(tabBarNotifications: failedMemos?.isEmpty == false)
+
         guard
             let crowdloansResult = crowdloansResult,
-            let displayInfoResult = displayInfoResult,
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber,
@@ -69,8 +86,6 @@ final class CrowdloanListPresenter {
             return
         }
 
-        let displayInfo = try? displayInfoResult.get()
-
         let metadata = CrowdloanMetadata(
             blockNumber: blockNumber,
             blockDuration: blockDuration,
@@ -83,7 +98,8 @@ final class CrowdloanListPresenter {
             leaseInfo: leaseInfo,
             displayInfo: displayInfo,
             metadata: metadata,
-            locale: selectedLocale
+            locale: selectedLocale,
+            failedMemos: failedMemos
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
@@ -113,7 +129,11 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
             .first(where: { key, _ in key == viewModel.paraId })?
             .value
 
-        let customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flowIfSupported
+        var customFlow: CustomCrowdloanFlow? = crowdloanDisplayInfo?.flowIfSupported
+
+        if let failedMemo = viewModel.content.failedMemo {
+            customFlow = .moonbeamMemoFix(failedMemo)
+        }
 
         if let customFlow = customFlow {
             switch customFlow {
@@ -149,6 +169,17 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
 }
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
+    func didReceiveFailedMemos(result: Result<[ParaId: String], Error>) {
+        if case let .success(failedMemos) = result, !failedMemos.isEmpty {
+            moduleOutput?.didReceiveFailedMemos()
+        }
+
+        logger?.info("Did receive failed memos: \(result)")
+
+        failedMemosResult = result
+        updateView()
+    }
+
     func didReceiveDisplayInfo(result: Result<CrowdloanDisplayInfoDict, Error>) {
         logger?.info("Did receive display info: \(result)")
 

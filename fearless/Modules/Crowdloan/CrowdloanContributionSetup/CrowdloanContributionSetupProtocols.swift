@@ -6,7 +6,7 @@ import SoraFoundation
 protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)
     func didReceiveFee(viewModel: BalanceViewModelProtocol?)
-    func didReceiveInput(viewModel: AmountInputViewModelProtocol)
+    func didReceiveInput(viewModel: AmountInputViewModelProtocol?)
     func didReceiveEthereumAddress(viewModel: InputViewModelProtocol)
     func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel)
     func didReceiveEstimatedReward(viewModel: String?)
@@ -33,7 +33,7 @@ protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPre
     func showConfirmation(
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
-        inputAmount: Decimal,
+        inputAmount: Decimal?,
         bonusService: CrowdloanBonusServiceProtocol?,
         customFlow: CustomCrowdloanFlow?,
         ethereumAddress: String?

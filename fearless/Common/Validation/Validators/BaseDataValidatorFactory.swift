@@ -110,8 +110,11 @@ extension BaseDataValidatingFactoryProtocol {
             )
 
         }, preservesCondition: {
+            guard let spendingAmount = spendingAmount else {
+                return true
+            }
+
             if
-                let spendingAmount = spendingAmount,
                 let totalAmount = totalAmount,
                 let minimumBalance = minimumBalance {
                 return totalAmount - spendingAmount >= minimumBalance
