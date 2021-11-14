@@ -53,7 +53,7 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
     func bind(viewModel: ActiveCrowdloanViewModel) {
         self.viewModel = viewModel
 
-        attentionView.isHidden = viewModel.failedMemo == nil
+        attentionView.isHidden = viewModel.failedMemo == nil || viewModel.contribution == nil
 
         titleLabel.text = viewModel.title
 

@@ -259,9 +259,16 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
 
     func proceed() {
         let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
-        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
-        let spendingValue = (controbutionValue == nil) ? nil : (controbutionValue ?? 0) +
+        let contributionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
+        let spendingValue = (contributionValue == nil) ? nil : (contributionValue ?? 0) +
             (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
+
+        let needsMinContributionValidation = customFlow.map {
+            switch $0 {
+            case .moonbeamMemoFix: return false
+            default: return true
+            }
+        } ?? true
 
         DataValidationRunner(validators: [
             //            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
@@ -277,14 +284,14 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 locale: selectedLocale
             ),
 
-            dataValidatingFactory.contributesAtLeastMinContribution(
-                contribution: controbutionValue,
+            needsMinContributionValidation ? dataValidatingFactory.contributesAtLeastMinContribution(
+                contribution: contributionValue,
                 minimumBalance: minimumContribution,
                 locale: selectedLocale
-            ),
+            ) : nil,
 
             dataValidatingFactory.capNotExceeding(
-                contribution: controbutionValue,
+                contribution: contributionValue,
                 raised: crowdloan?.fundInfo.raised,
                 cap: crowdloan?.fundInfo.cap,
                 locale: selectedLocale
@@ -303,7 +310,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 locale: selectedLocale
             )
 
-        ]).runValidation { [weak self] in
+        ].compactMap { $0 }).runValidation { [weak self] in
             guard let strongSelf = self,
                   let paraId = strongSelf.crowdloan?.paraId else { return }
             strongSelf.wireframe.showConfirmation(
