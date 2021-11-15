@@ -114,7 +114,7 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor,
         )
     }
 
-    func estimateFee(for contribution: BigUInt) {
+    func estimateFee(for contribution: BigUInt?) {
         estimateFee(
             for: contribution,
             bonusService: bonusService,

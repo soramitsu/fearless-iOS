@@ -532,3 +532,6 @@ This is the hash of your transaction:";
 "moonbeam.address.hint" = "Rewards will be paid out to this address. You can use an existing Ethereum address. PLEASE ENSURE YOU HAVE THE PRIVATE KEYS FOR THIS ADDRESS.";
 "email.text.field.placeholder" = "email address";
 "acala.receive.email.agreement" = "I agree to receive email from Acala";
+"crowdloan.attention" = "ATTENTION REQUIRED! Please tap to open and add your Moonbeam Ethereum address.";
+"tabbar.crowdloan.attention" = "Please check the Crowdloans tab\nAttention required";
+"moonbeam.add.address" = "Add Moonbeam address";

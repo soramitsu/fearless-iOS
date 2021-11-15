@@ -7,7 +7,7 @@ import FearlessUtils
 struct CrowdloanContributionConfirmViewFactory {
     static func createView(
         with paraId: ParaId,
-        inputAmount: Decimal,
+        inputAmount: Decimal?,
         bonusService: CrowdloanBonusServiceProtocol?,
         customFlow: CustomCrowdloanFlow?,
         ethereumAddress: String?

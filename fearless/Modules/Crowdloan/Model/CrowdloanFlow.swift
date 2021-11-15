@@ -12,6 +12,7 @@ enum CustomCrowdloanFlow {
     case moonbeam(MoonbeamFlowData)
     case acala(AcalaFlowData)
     case astar(AstarFlowData)
+    case moonbeamMemoFix(String)
 
     var name: String {
         switch self {
@@ -20,6 +21,8 @@ enum CustomCrowdloanFlow {
         case .moonbeam: return "moonbeam"
         case .astar: return "astar"
         case .acala: return "acala"
+        case .moonbeamMemoFix: return ""
+
         case let .unsupported(name): return name
         }
     }
@@ -33,8 +36,15 @@ enum CustomCrowdloanFlow {
 
     var hasEthereumReferral: Bool {
         switch self {
-        case .moonbeam: return true
+        case .moonbeam, .moonbeamMemoFix: return true
         default: return false
+        }
+    }
+
+    var needsContribute: Bool {
+        switch self {
+        case .moonbeamMemoFix: return false
+        default: return true
         }
     }
 }
@@ -72,9 +82,11 @@ extension CustomCrowdloanFlow: Codable {
     func encode(to encoder: Encoder) throws {
         switch self {
         case let .unsupported(name): try NoDataFlow(name: name).encode(to: encoder)
-        case .acala: try NoDataFlow(name: "acala").encode(to: encoder)
+
+        case .moonbeamMemoFix: try NoDataFlow(name: name).encode(to: encoder)
         case .karura: try NoDataFlow(name: "karura").encode(to: encoder)
         case .bifrost: try NoDataFlow(name: "bifrost").encode(to: encoder)
+        case let .acala(data): try FlowWithData(name: "acala", data: data).encode(to: encoder)
         case let .moonbeam(data): try FlowWithData(name: "moonbeam", data: data).encode(to: encoder)
         case let .astar(data): try FlowWithData(name: "astar", data: data).encode(to: encoder)
         }
@@ -84,6 +96,8 @@ extension CustomCrowdloanFlow: Codable {
 extension CustomCrowdloanFlow: Equatable {
     static func == (lhs: CustomCrowdloanFlow, rhs: CustomCrowdloanFlow) -> Bool {
         switch (lhs, rhs) {
+        case (.moonbeamMemoFix, .moonbeamMemoFix):
+            return true
         case let (.astar(lhsData), .astar(rhsData)):
             return lhsData == rhsData
         case let (.acala(lhsData), .acala(rhsData)):
