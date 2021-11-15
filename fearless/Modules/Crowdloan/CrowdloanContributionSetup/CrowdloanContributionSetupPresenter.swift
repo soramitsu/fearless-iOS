@@ -258,6 +258,15 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
     }
 
     func proceed() {
+        var customFlow = customFlow
+        switch customFlow {
+        case .moonbeamMemoFix:
+            if let ethereumAddress = ethereumAddress {
+                customFlow = .moonbeamMemoFix(ethereumAddress)
+            }
+        default: break
+        }
+
         let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
         let contributionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
         let spendingValue = (contributionValue == nil) ? nil : (contributionValue ?? 0) +
@@ -318,7 +327,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 paraId: paraId,
                 inputAmount: contributionDecimal,
                 bonusService: strongSelf.bonusService,
-                customFlow: strongSelf.customFlow,
+                customFlow: customFlow,
                 ethereumAddress: strongSelf.ethereumAddress
             )
         }
