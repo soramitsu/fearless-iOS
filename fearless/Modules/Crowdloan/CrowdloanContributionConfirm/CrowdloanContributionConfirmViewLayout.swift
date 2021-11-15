@@ -13,6 +13,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     let amountInputView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
         view.isUserInteractionEnabled = false
+        view.isHidden = true
         return view
     }()
 

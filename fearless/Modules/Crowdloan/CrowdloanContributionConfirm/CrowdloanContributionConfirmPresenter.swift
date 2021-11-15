@@ -198,6 +198,13 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
         let spendingValue = (contributionValue ?? 0) +
             (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
 
+        let needsMinContributionValidation = customFlow.map {
+            switch $0 {
+            case .moonbeamMemoFix: return false
+            default: return true
+            }
+        } ?? true
+
         DataValidationRunner(validators: [
             //            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
 
@@ -212,11 +219,12 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
                 locale: selectedLocale
             ),
 
-            dataValidatingFactory.contributesAtLeastMinContribution(
-                contribution: contributionValue,
-                minimumBalance: minimumBalance,
-                locale: selectedLocale
-            ),
+            needsMinContributionValidation ?
+                dataValidatingFactory.contributesAtLeastMinContribution(
+                    contribution: contributionValue,
+                    minimumBalance: minimumBalance,
+                    locale: selectedLocale
+                ) : nil,
 
             dataValidatingFactory.capNotExceeding(
                 contribution: contributionValue,
@@ -238,7 +246,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
                 locale: selectedLocale
             )
 
-        ]).runValidation { [weak self] in
+        ].compactMap { $0 }).runValidation { [weak self] in
             guard
                 let strongSelf = self,
                 let contribution = contributionValue else { return }
