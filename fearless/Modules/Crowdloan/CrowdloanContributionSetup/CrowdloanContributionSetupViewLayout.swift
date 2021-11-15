@@ -1,5 +1,6 @@
 import UIKit
 import BetterSegmentedControl
+import CommonWallet
 
 final class CrowdloanContributionSetupViewLayout: UIView {
     enum View {
@@ -94,6 +95,13 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
         contentView.stackView.setCustomSpacing(16.0, after: hintView)
     }
+
+    let contributedView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.titleLabel.textColor = R.color.colorAccent()
+        view.isHidden = true
+        return view
+    }()
 
     let networkFeeView = NetworkFeeView()
 
@@ -378,6 +386,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         timeLeftVew.valueLabel.text = crowdloanViewModel.remainedTime
 
+        contributedView.titleLabel.text = crowdloanViewModel.previousContribution
+
         if let learnMore = crowdloanViewModel.learnMore {
             learnMoreView.bind(viewModel: learnMore)
         }
@@ -399,6 +409,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         bonusView.rowContentView.detailsLabel.text = bonus
     }
 
+    // TODO: handle custom flows
     func bind(to defaultViewModel: CrowdloanContributionSetupViewModel) {
         bind(feeViewModel: defaultViewModel.fee)
         bind(bonus: defaultViewModel.bonus)
@@ -414,6 +425,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         timeLeftVew.valueLabel.text = defaultViewModel.remainedTime
     }
 
+    // TODO: handle custom flows
     func bind(to acalaViewModel: AcalaCrowdloanContributionSetupViewModel) {
         bind(feeViewModel: acalaViewModel.fee)
         bind(bonus: acalaViewModel.bonus)
@@ -429,11 +441,33 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         timeLeftVew.valueLabel.text = acalaViewModel.remainedTime
     }
 
-    private func applyLocalization() {
-        contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
-            preferredLanguages: locale.rLanguages
-        )
+    // TODO: handle custom flows
+    func bind(customFlow: CustomCrowdloanFlow?) {
+        guard let customFlow = customFlow else {
+            return
+        }
 
+        if case CustomCrowdloanFlow.moonbeamMemoFix = customFlow {
+            amountInputView.isHidden = true
+            raisedView.isHidden = true
+            timeLeftVew.isHidden = true
+            hintView.isHidden = true
+            contributedView.isHidden = false
+        }
+
+        ethereumAddressForRewardView.isHidden = !customFlow.hasEthereumReferral
+
+        switch customFlow {
+        case .moonbeamMemoFix:
+            contributionTitleLabel.text = R.string.localizable.moonbeamAddAddress(
+                preferredLanguages: locale.rLanguages)
+        default:
+            contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
+                preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    private func applyLocalization() {
         networkFeeView.locale = locale
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
             preferredLanguages: locale.rLanguages

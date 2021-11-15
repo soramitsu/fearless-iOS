@@ -14,7 +14,7 @@ protocol CrowdloanBonusServiceProtocol: AnyObject {
     )
 
     func applyOnchainBonusForContribution(
-        amount: BigUInt,
+        amount: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol
 }

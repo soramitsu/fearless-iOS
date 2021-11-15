@@ -98,6 +98,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
 
         let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
             var nextBuilder = builder
+            nextBuilder = try nextBuilder.adding(call: call)
 
             if let ethereumAccountAddress = self?.ethereumAccountAddress,
                let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {
@@ -105,8 +106,6 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
 
                 self?.saveEthereumAdressAsMoonbeamDefault()
             }
-
-            nextBuilder = try nextBuilder.adding(call: call)
 
             return nextBuilder
         }

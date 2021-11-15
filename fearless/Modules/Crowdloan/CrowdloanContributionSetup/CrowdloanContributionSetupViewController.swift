@@ -155,6 +155,9 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
             rootView.update(with: orderedVisibleViews)
 
             bind(moonbeamViewModel: moonbeamViewModel)
+
+            // TODO: + moonbeam memo fix
+            rootView.ethereumAddressForRewardView.ethereumAddressView.animatedInputField.delegate = self
         }
     }
 
@@ -186,7 +189,6 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         rootView.bind(feeViewModel: viewModel)
     }
 
-    //TODO: return back inputviewmodel logic
     func didReceiveInput(viewModel: AmountInputViewModelProtocol) {
         amountInputViewModel?.observable.remove(observer: self)
 
@@ -212,6 +214,22 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
     func didReceiveState(state: CrowdloanContributionSetupViewState) {
         self.state = state
         applyState()
+    }
+
+    func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel) {
+        title = viewModel.title
+
+        rootView.bind(crowdloanViewModel: viewModel)
+        rootView.learnMoreView.addTarget(self, action: #selector(actionLearMore), for: .touchUpInside)
+    }
+
+    func didReceiveEstimatedReward(viewModel: String?) {
+        rootView.bind(estimatedReward: viewModel)
+    }
+
+    func didReceiveBonus(viewModel: String?) {
+        rootView.bind(bonus: viewModel)
+        rootView.bonusView.addTarget(self, action: #selector(actionBonuses), for: .touchUpInside)
     }
 }
 

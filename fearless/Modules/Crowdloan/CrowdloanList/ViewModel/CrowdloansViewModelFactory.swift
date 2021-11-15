@@ -11,7 +11,8 @@ protocol CrowdloansViewModelFactoryProtocol {
         leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
-        locale: Locale
+        locale: Locale,
+        failedMemos: [ParaId: String]?
     ) -> CrowdloansViewModel
 }
 
@@ -129,7 +130,8 @@ final class CrowdloansViewModelFactory {
         displayInfo: CrowdloanDisplayInfo?,
         metadata: CrowdloanMetadata,
         formatters: Formatters,
-        locale: Locale
+        locale: Locale,
+        failedMemo: String?
     ) -> ActiveCrowdloanViewModel? {
         guard let commonContent = createCommonContent(
             from: model,
@@ -167,7 +169,8 @@ final class CrowdloansViewModelFactory {
             description: commonContent.details,
             progress: commonContent.progress,
             iconViewModel: commonContent.imageViewModel,
-            contribution: commonContent.contribution
+            contribution: commonContent.contribution,
+            failedMemo: failedMemo
         )
     }
 
@@ -204,7 +207,8 @@ final class CrowdloansViewModelFactory {
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         formatters: Formatters,
-        locale: Locale
+        locale: Locale,
+        failedMemos: [ParaId: String]?
     ) -> ([CrowdloanActiveSection], [CrowdloanCompletedSection]) {
         let initial = (
             [CrowdloanActiveSection](),
@@ -237,7 +241,8 @@ final class CrowdloansViewModelFactory {
                     displayInfo: displayInfo?[crowdloan.paraId],
                     metadata: metadata,
                     formatters: formatters,
-                    locale: locale
+                    locale: locale,
+                    failedMemo: failedMemos?[crowdloan.paraId]
                 ) {
                     let sectionItem = CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
                     result.0.append(sectionItem)
@@ -254,7 +259,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
         leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
-        locale: Locale
+        locale: Locale,
+        failedMemos: [ParaId: String]?
     ) -> CrowdloansViewModel {
         let timeFormatter = TotalTimeFormatter()
         let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
@@ -275,7 +281,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             displayInfo: displayInfo,
             metadata: metadata,
             formatters: formatters,
-            locale: locale
+            locale: locale,
+            failedMemos: failedMemos
         )
 
         let activeSection: CrowdloansSectionViewModel<ActiveCrowdloanViewModel>? = {

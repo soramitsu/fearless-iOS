@@ -14,4 +14,5 @@ protocol CrowdloanContributionSetupViewModelProtocol {
     var estimatedReward: String? { get set }
     var bonus: String? { get set }
     var amountInput: AmountInputViewModelProtocol { get set }
+    var previousContribution: String? { get set }
 }

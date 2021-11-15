@@ -26,7 +26,7 @@ protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPre
     func showConfirmation(
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
-        inputAmount: Decimal,
+        inputAmount: Decimal?,
         bonusService: CrowdloanBonusServiceProtocol?,
         customFlow: CustomCrowdloanFlow?,
         ethereumAddress: String?

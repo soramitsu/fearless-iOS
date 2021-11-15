@@ -4,7 +4,7 @@ import FearlessUtils
 import SoraKeystore
 
 struct CrowdloanListViewFactory {
-    static func createView() -> CrowdloanListViewProtocol? {
+    static func createView(moduleOutput: CrowdloanListModuleOutput?) -> CrowdloanListViewProtocol? {
         guard let interactor = createInteractor() else {
             return nil
         }
@@ -29,7 +29,8 @@ struct CrowdloanListViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            moduleOutput: moduleOutput
         )
 
         let view = CrowdloanListViewController(
@@ -69,6 +70,11 @@ struct CrowdloanListViewFactory {
             operationManager: operationManager
         )
 
+        let addressType = settings.selectedConnection.type
+        let primitiveFactory = WalletPrimitiveFactory(settings: SettingsManager.shared)
+        let asset = primitiveFactory.createAssetForAddressType(addressType)
+        let assetId = WalletAssetId(rawValue: asset.identifier)
+
         return CrowdloanListInteractor(
             selectedAddress: selectedAddress,
             runtimeService: runtimeService,
@@ -77,7 +83,9 @@ struct CrowdloanListViewFactory {
             singleValueProviderFactory: providerFactory,
             chain: chain,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            subscanOperationFactory: SubscanOperationFactory(),
+            walletAssetId: assetId
         )
     }
 }

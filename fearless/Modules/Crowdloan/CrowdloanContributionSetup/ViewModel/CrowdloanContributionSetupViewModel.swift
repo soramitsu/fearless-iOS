@@ -14,6 +14,7 @@ class CrowdloanContributionSetupViewModel: CrowdloanContributionSetupViewModelPr
     var estimatedReward: String?
     var bonus: String?
     var amountInput: AmountInputViewModelProtocol
+    var previousContribution: String?
 
     init(
         title: String,
@@ -27,7 +28,8 @@ class CrowdloanContributionSetupViewModel: CrowdloanContributionSetupViewModelPr
         fee: BalanceViewModelProtocol?,
         estimatedReward: String?,
         bonus: String?,
-        amountInput: AmountInputViewModelProtocol
+        amountInput: AmountInputViewModelProtocol,
+        previousContribution: String?
     ) {
         self.title = title
         self.leasingPeriod = leasingPeriod
@@ -41,6 +43,7 @@ class CrowdloanContributionSetupViewModel: CrowdloanContributionSetupViewModelPr
         self.estimatedReward = estimatedReward
         self.bonus = bonus
         self.amountInput = amountInput
+        self.previousContribution = previousContribution
     }
 }
 
@@ -86,7 +89,8 @@ class AcalaCrowdloanContributionSetupViewModel: CrowdloanContributionSetupViewMo
             fee: fee,
             estimatedReward: estimatedReward,
             bonus: bonus,
-            amountInput: amountInput
+            amountInput: amountInput,
+            previousContribution: nil
         )
     }
 }
