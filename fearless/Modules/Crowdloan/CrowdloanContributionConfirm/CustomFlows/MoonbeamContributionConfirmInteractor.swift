@@ -5,7 +5,7 @@ import FearlessUtils
 import SoraKeystore
 
 class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInteractor {
-    private let moonbeamService: CrowdloanAgreementServiceProtocol
+    private let moonbeamService: CrowdloanAgreementServiceProtocol?
     private let ethereumAccountAddress: String?
     private let selectedAccount: AccountItem
 
@@ -23,7 +23,7 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
         operationManager: OperationManagerProtocol,
-        moonbeamService: CrowdloanAgreementServiceProtocol,
+        moonbeamService: CrowdloanAgreementServiceProtocol?,
         logger: LoggerProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
         connection: JSONRPCEngine,
@@ -66,10 +66,15 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
         return callFactory.addMemo(to: paraId, memo: memoData)
     }
 
-    override func submit(contribution: BigUInt) {
+    override func submit(contribution: BigUInt?) {
+        guard let contribution = contribution else {
+            sendReferral()
+            return
+        }
+
         let prevContribution = crowdloanContribution?.balance ?? 0
 
-        moonbeamService.makeSignature(
+        moonbeamService?.makeSignature(
             previousTotalContribution: String(prevContribution),
             contribution: String(contribution)
         ) { [weak self] result in
@@ -100,6 +105,23 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             var nextBuilder = builder
 
             nextBuilder = try nextBuilder.adding(call: call)
+
+            if let ethereumAccountAddress = self?.ethereumAccountAddress,
+               let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {
+                nextBuilder = try nextBuilder.adding(call: memoCall)
+
+                self?.saveEthereumAdressAsMoonbeamDefault()
+            }
+
+            return nextBuilder
+        }
+
+        super.submitContribution(builderClosure: builderClosure)
+    }
+
+    private func sendReferral() {
+        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+            var nextBuilder = builder
 
             if let ethereumAccountAddress = self?.ethereumAccountAddress,
                let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {

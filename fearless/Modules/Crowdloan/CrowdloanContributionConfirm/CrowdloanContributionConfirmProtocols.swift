@@ -18,7 +18,7 @@ protocol CrowdloanContributionConfirmPresenterProtocol: AnyObject {
 
 protocol CrowdloanContributionConfirmInteractorInputProtocol: CrowdloanContributionInteractorInputProtocol {
     func estimateFee(for contribution: BigUInt?)
-    func submit(contribution: BigUInt)
+    func submit(contribution: BigUInt?)
 }
 
 protocol CrowdloanContributionConfirmInteractorOutputProtocol: CrowdloanContributionInteractorOutputProtocol {

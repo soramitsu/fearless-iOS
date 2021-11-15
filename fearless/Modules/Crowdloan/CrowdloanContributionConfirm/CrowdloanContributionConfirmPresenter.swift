@@ -248,10 +248,9 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
 
         ].compactMap { $0 }).runValidation { [weak self] in
             guard
-                let strongSelf = self,
-                let contribution = contributionValue else { return }
+                let strongSelf = self else { return }
             strongSelf.view?.didStartLoading()
-            strongSelf.interactor.submit(contribution: contribution)
+            strongSelf.interactor.submit(contribution: contributionValue)
         }
     }
 
