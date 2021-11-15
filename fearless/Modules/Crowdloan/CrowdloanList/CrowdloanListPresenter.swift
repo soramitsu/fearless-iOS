@@ -43,32 +43,57 @@ final class CrowdloanListPresenter {
 
     private func updateView() {
         guard let displayInfoResult = displayInfoResult,
+              let crowdloansResult = crowdloansResult,
+              let contributionsResult = contributionsResult,
               let failedMemosResult = failedMemosResult else {
             return
         }
+
+        guard
+            case let .success(crowdloans) = crowdloansResult,
+            case let .success(contributions) = contributionsResult else {
+            provideViewErrorState()
+            return
+        }
+
+        let contributionsByParaIds = contributions.compactMap { trieIndex, contribution in
+            guard let crowdloan = crowdloans.first(where: { currentCrowdloan in
+                currentCrowdloan.fundInfo.trieIndex == trieIndex
+            }) else {
+                return nil
+            }
+
+            return [crowdloan.paraId: contribution]
+        }
+        .reduce(into: [:]) { result, next in
+            result.merge(next) { _, rhs in rhs }
+        } as? [ParaId: CrowdloanContribution]
 
         let displayInfo = try? displayInfoResult.get()
         let supportedParaIds = displayInfo?.filter { dict in
             if let flow = dict.value.flow, case .moonbeam = flow { return true }
             return false
         }.map(\.key)
-        let failedMemos = try? failedMemosResult.get().filter { supportedParaIds?.contains($0.key) == true }
+
+        let failedMemos = try? failedMemosResult.get()
+            .filter { supportedParaIds?.contains($0.key) == true }
+            .filter { contributionsByParaIds?[$0.key]?.balance ?? 0 > 0 }
 
         view?.didReceive(tabBarNotifications: failedMemos?.isEmpty == false)
 
+        if failedMemos?.isEmpty == false {
+            moduleOutput?.didReceiveFailedMemos()
+        }
+
         guard
-            let crowdloansResult = crowdloansResult,
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber,
-            let contributionsResult = contributionsResult,
             let leaseInfoResult = leaseInfoResult else {
             return
         }
 
         guard
-            case let .success(crowdloans) = crowdloansResult,
-            case let .success(contributions) = contributionsResult,
             case let .success(leaseInfo) = leaseInfoResult else {
             provideViewErrorState()
             return
@@ -170,10 +195,6 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
     func didReceiveFailedMemos(result: Result<[ParaId: String], Error>) {
-        if case let .success(failedMemos) = result, !failedMemos.isEmpty {
-            moduleOutput?.didReceiveFailedMemos()
-        }
-
         logger?.info("Did receive failed memos: \(result)")
 
         failedMemosResult = result
