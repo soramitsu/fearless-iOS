@@ -9,9 +9,25 @@ final class MainTabBarViewController: UITabBarController {
         return view
     }()
 
-    var presenter: MainTabBarPresenterProtocol!
+    var presenter: MainTabBarPresenterProtocol
 
     private var viewAppeared: Bool = false
+
+    init(
+        presenter: MainTabBarPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.presenter = presenter
+
+        super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

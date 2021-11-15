@@ -50,7 +50,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        let view = MainTabBarViewController()
+        let view = MainTabBarViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
         view.viewControllers = [
             walletController,
             crowdloanController,
