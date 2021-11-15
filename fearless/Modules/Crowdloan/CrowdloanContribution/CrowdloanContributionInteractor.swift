@@ -239,7 +239,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         }
     }
 
-    private func makeContributeCall(amount: BigUInt?) -> RuntimeCall<CrowdloanContributeCall>? {
+    func makeContributeCall(amount: BigUInt?) -> RuntimeCall<CrowdloanContributeCall>? {
         guard let amount = amount else {
             return nil
         }

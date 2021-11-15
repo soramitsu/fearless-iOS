@@ -8311,7 +8311,7 @@ import SoraFoundation
     
     
     
-     func submit(contribution: BigUInt)  {
+     func submit(contribution: BigUInt?)  {
         
     return cuckoo_manager.call("submit(contribution: BigUInt)",
             parameters: (contribution),

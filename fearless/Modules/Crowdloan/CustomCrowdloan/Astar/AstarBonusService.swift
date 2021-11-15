@@ -31,7 +31,7 @@ extension AstarBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOffchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         with closure: @escaping (Result<Void, Error>) -> Void
     ) {
         closure(.success(()))
