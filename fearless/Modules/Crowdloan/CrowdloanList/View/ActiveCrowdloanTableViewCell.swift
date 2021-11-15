@@ -93,6 +93,8 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
         mainStackView.setCustomSpacing(UIConstants.defaultOffset, after: progressLabel)
         mainStackView.addArrangedSubview(attentionView)
 
+        mainStackView.setCustomSpacing(UIConstants.defaultOffset, after: attentionView)
+
         navigationImageView.snp.makeConstraints { make in
             make.size.equalTo(24)
         }

@@ -47,11 +47,11 @@ final class MainTabBarViewController: UITabBarController {
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
             appearance.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
             appearance.backgroundEffect = nil
-
             tabBar.standardAppearance = appearance
 
-            let itemAppearance = UITabBarItem.appearance()
-            itemAppearance.badgeColor = R.color.colorAccent()
+            if #available(iOS 15.0, *) {
+                tabBar.scrollEdgeAppearance = appearance
+            }
         } else {
             tabBar.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
             tabBar.shadowImage = UIImage()
