@@ -1476,6 +1476,8 @@
 		FA54F53F2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F53E2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift */; };
 		FA54F5422733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F5412733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift */; };
 		FA54F5452735B6E000CA7550 /* AstarBonusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F5442735B6DF00CA7550 /* AstarBonusService.swift */; };
+		FA690D9B2743715600A65208 /* FearlessSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA690D9A2743715600A65208 /* FearlessSegmentedControl.swift */; };
+		FA690D9D274373C500A65208 /* FearlessSegmentedControlUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA690D9C274373C500A65208 /* FearlessSegmentedControlUnit.swift */; };
 		FA85B6212739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B6202739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */; };
 		FA85B63E273A3BB300B9EEFE /* MoonbeamContributionSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B63D273A3BB300B9EEFE /* MoonbeamContributionSetupInteractor.swift */; };
 		FA85B66F273CCE5300B9EEFE /* SubscanMemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85B66E273CCE5300B9EEFE /* SubscanMemoData.swift */; };
@@ -3006,6 +3008,8 @@
 		FA54F5412733D7C100CA7550 /* AstarReferralCrowdloanPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstarReferralCrowdloanPresenter.swift; sourceTree = "<group>"; };
 		FA54F5442735B6DF00CA7550 /* AstarBonusService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AstarBonusService.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
+		FA690D9A2743715600A65208 /* FearlessSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FearlessSegmentedControl.swift; sourceTree = "<group>"; };
+		FA690D9C274373C500A65208 /* FearlessSegmentedControlUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FearlessSegmentedControlUnit.swift; sourceTree = "<group>"; };
 		FA85B6202739174000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewModelProtocol.swift; sourceTree = "<group>"; };
 		FA85B62F27399F2000B9EEFE /* ReferralCrowdloanViewModelProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewModelProtocol.swift; sourceTree = "<group>"; };
 		FA85B63027399F2000B9EEFE /* AstarReferralCrowdloanViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AstarReferralCrowdloanViewModel.swift; sourceTree = "<group>"; };
@@ -5344,6 +5348,8 @@
 				C437401E272E89AB00DE5469 /* EtheriumAddressForRewardView.swift */,
 				FA85B674273D2F5E00B9EEFE /* AttentionView.swift */,
 				FA85B685273F907000B9EEFE /* TextSectionView.swift */,
+				FA690D9A2743715600A65208 /* FearlessSegmentedControl.swift */,
+				FA690D9C274373C500A65208 /* FearlessSegmentedControlUnit.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -8567,6 +8573,7 @@
 				F4113B3F260C77FF00DF4DBA /* StakingRewardPayoutsViewLayout.swift in Sources */,
 				AEA0C8A8267B6B3200F9666F /* SelectedValidatorListPresenter.swift in Sources */,
 				840D8918262429C900AB231B /* LocalStorageRequestFactory.swift in Sources */,
+				FA690D9B2743715600A65208 /* FearlessSegmentedControl.swift in Sources */,
 				8475AE1F258B7F4A00B058F3 /* TransferMetadataContext.swift in Sources */,
 				8463A71F25E39E07003B8160 /* StorageProviderSource.swift in Sources */,
 				8463A6FE25E2F8F8003B8160 /* SingleValueProviderFactory.swift in Sources */,
@@ -8592,6 +8599,7 @@
 				AEAC68F526E9F93B00346599 /* CoingeckoDefinitions.swift in Sources */,
 				8409C2602521EDCD0049B5C8 /* TransferConfirmBinder.swift in Sources */,
 				AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */,
+				FA690D9D274373C500A65208 /* FearlessSegmentedControlUnit.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
 				84DB9E902640A48E00F23DD3 /* StakingRedeemViewModel.swift in Sources */,
 				84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */,

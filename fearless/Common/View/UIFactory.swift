@@ -27,6 +27,7 @@ struct UIConstants {
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
     static let networkFeeViewDefaultHeight: CGFloat = 132
     static let referralBonusButtonHeight: CGFloat = 30
+    static let segmentedControlHeight: CGFloat = 24
 }
 
 enum AccountViewMode {

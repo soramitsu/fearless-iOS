@@ -533,3 +533,4 @@ This is the hash of your transaction:";
 "crowdloan.attention" = "ATTENTION REQUIRED! Please tap to open and add your Moonbeam Ethereum address.";
 "tabbar.crowdloan.attention" = "Please check the Crowdloans tab\nAttention required";
 "moonbeam.add.address" = "Add Moonbeam address";
+"crowdloan.action" = "Action";

@@ -38,8 +38,14 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
         setupBalanceAccessoryView()
         setupAmountInputView()
         setupLocalization()
+        setupActions()
 
         presenter.setup()
+    }
+
+    private func setupActions() {
+        rootView.contributeControl.addTarget(self, action: #selector(contributeTypeButtonClicked), for: .touchUpInside)
+        rootView.addressControl.addTarget(self, action: #selector(changeAddressTypeButtonClicked), for: .touchUpInside)
     }
 
     private func setupLocalization() {
@@ -78,6 +84,14 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     @objc func actionBonuses() {
         presenter.presentAdditionalBonuses()
+    }
+
+    @objc func contributeTypeButtonClicked() {
+        presenter.switchToContributeState()
+    }
+
+    @objc func changeAddressTypeButtonClicked() {
+        presenter.switchToAddressChangeState()
     }
 }
 

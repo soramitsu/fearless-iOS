@@ -16,6 +16,24 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         return label
     }()
 
+    let typeSelectionControl: FearlessSegmentedControl = {
+        let segmentedControl = FearlessSegmentedControl()
+        segmentedControl.isHidden = true
+        return segmentedControl
+    }()
+
+    let contributeControl: FearlessSegmentedControlUnit = {
+        let segmentedControlUnit = FearlessSegmentedControlUnit()
+        segmentedControlUnit.setTitle("Contribute more", for: .normal)
+        return segmentedControlUnit
+    }()
+
+    let addressControl: FearlessSegmentedControlUnit = {
+        let segmentedControlUnit = FearlessSegmentedControlUnit()
+        segmentedControlUnit.setTitle("Change rewards address", for: .normal)
+        return segmentedControlUnit
+    }()
+
     let amountInputView = UIFactory.default.createAmountInputView(filled: false)
 
     let hintView = UIFactory.default.createHintView()
@@ -146,13 +164,11 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             return
         }
 
-        if case CustomCrowdloanFlow.moonbeamMemoFix = customFlow {
-            amountInputView.isHidden = true
-            raisedView.isHidden = true
-            timeLeftVew.isHidden = true
-            hintView.isHidden = true
-            contributedView.isHidden = false
-        }
+        amountInputView.isHidden = !customFlow.needsContribute
+        raisedView.isHidden = !customFlow.needsContribute
+        timeLeftVew.isHidden = !customFlow.needsContribute
+        hintView.isHidden = !customFlow.needsContribute
+        contributedView.isHidden = !customFlow.needsContribute
 
         if customFlow.hasEthereumReferral {
             createEthereumAddressViewIfNeeded()
@@ -165,6 +181,9 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         case .moonbeamMemoFix:
             contributionTitleLabel.text = R.string.localizable.moonbeamAddAddress(
                 preferredLanguages: locale.rLanguages)
+
+        case .moonbeam:
+            typeSelectionControl.isHidden = false
         default:
             contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
                 preferredLanguages: locale.rLanguages)
@@ -201,6 +220,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         ethereumAddressForRewardView?.ethereumHintView.titleLabel.text = R.string.localizable
             .moonbeamAddressHint(preferredLanguages: locale.rLanguages)
+
+        typeSelectionControl.titleLabel.text = R.string.localizable.crowdloanAction(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -209,6 +230,17 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.top.equalTo(safeAreaLayoutGuide)
             make.bottom.leading.trailing.equalToSuperview()
         }
+
+        contentView.stackView.addArrangedSubview(typeSelectionControl)
+        typeSelectionControl.setSegments([contributeControl, addressControl])
+
+        typeSelectionControl.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.height.equalTo(UIConstants.segmentedControlHeight)
+        }
+
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: typeSelectionControl)
 
         contentView.stackView.addArrangedSubview(contributionTitleLabel)
         contributionTitleLabel.snp.makeConstraints { make in

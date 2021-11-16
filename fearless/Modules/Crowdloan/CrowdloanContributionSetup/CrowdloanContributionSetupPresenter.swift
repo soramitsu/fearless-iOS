@@ -12,7 +12,8 @@ final class CrowdloanContributionSetupPresenter {
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
-    let customFlow: CustomCrowdloanFlow?
+    var customFlow: CustomCrowdloanFlow?
+    private var initialCustomFlow: CustomCrowdloanFlow?
 
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -69,6 +70,7 @@ final class CrowdloanContributionSetupPresenter {
         self.logger = logger
         self.customFlow = customFlow
         self.localizationManager = localizationManager
+        initialCustomFlow = customFlow
     }
 
     private func provideCustomFlowViewModel() {
@@ -353,6 +355,18 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             delegate: self,
             existingService: bonusService
         )
+    }
+
+    func switchToContributeState() {
+        customFlow = initialCustomFlow
+
+        setup()
+    }
+
+    func switchToAddressChangeState() {
+        customFlow = .moonbeamMemoFix("")
+
+        setup()
     }
 }
 

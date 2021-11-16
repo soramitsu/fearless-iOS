@@ -22,6 +22,9 @@ protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func proceed()
     func presentLearnMore()
     func presentAdditionalBonuses()
+
+    func switchToContributeState()
+    func switchToAddressChangeState()
 }
 
 protocol CrowdloanContributionSetupInteractorInputProtocol: CrowdloanContributionInteractorInputProtocol {}
