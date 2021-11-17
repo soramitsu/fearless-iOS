@@ -223,7 +223,7 @@ final class CrowdloansViewModelFactory {
             }
         }.reduce(into: initial) { result, crowdloan in
             let hasWonAuction = leaseInfo[crowdloan.paraId]?.leasedAmount != nil
-            if hasWonAuction || crowdloan.isCompleted(for: metadata) {
+            if hasWonAuction || crowdloan.isCompleted(for: metadata, displayInfo: displayInfo?[crowdloan.paraId]) {
                 if let viewModel = createCompletedCrowdloanViewModel(
                     from: crowdloan,
                     contributions: contributions,

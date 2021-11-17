@@ -236,6 +236,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
             dataValidatingFactory.crowdloanIsNotCompleted(
                 crowdloan: crowdloan,
                 metadata: crowdloanMetadata,
+                displayInfo: displayInfo,
                 locale: selectedLocale
             ),
 
