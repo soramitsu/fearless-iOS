@@ -18,13 +18,12 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier),
-              let rewardsUrl = assetId.subqueryHistoryUrl else {
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
             return nil
         }
 
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
-            url: rewardsUrl,
+            assetId: assetId,
             addressFactory: addressFactory
         )
 

@@ -67,7 +67,15 @@ final class SingleValueProviderFactory {
     let logger: LoggerProtocol
     let stremableProviderFactory: SubstrateDataProviderFactoryProtocol
 
-    init(facade: StorageFacadeProtocol, operationManager: OperationManagerProtocol, logger: LoggerProtocol) {
+    lazy var chainRepository: ChainLocalRepository? = {
+        ChainLocalRepository(logger: self.logger)
+    }()
+
+    init(
+        facade: StorageFacadeProtocol,
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol
+    ) {
         self.facade = facade
         self.operationManager = operationManager
         self.logger = logger
@@ -221,7 +229,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         clearIfNeeded()
 
-        guard let url = assetId.subqueryHistoryUrl else {
+        guard let url = chainRepository?.getSubqueryHistoryUrl(assetId: assetId) else {
             throw DataProviderError.unexpectedSourceResult
         }
 

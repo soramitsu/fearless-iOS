@@ -4,11 +4,13 @@ import FearlessUtils
 import IrohaCrypto
 
 final class PayoutValidatorsForNominatorFactory {
-    let url: URL
+    let assetId: WalletAssetId
     let addressFactory: SS58AddressFactoryProtocol
 
-    init(url: URL, addressFactory: SS58AddressFactoryProtocol) {
-        self.url = url
+    private let chainRepository = ChainLocalRepository(logger: Logger.shared)
+
+    init(assetId: WalletAssetId, addressFactory: SS58AddressFactoryProtocol) {
+        self.assetId = assetId
         self.addressFactory = addressFactory
     }
 
@@ -16,8 +18,13 @@ final class PayoutValidatorsForNominatorFactory {
         address: AccountAddress,
         historyRange: @escaping () -> EraRange?
     ) -> NetworkRequestFactoryProtocol {
-        BlockNetworkRequestFactory {
-            var request = URLRequest(url: self.url)
+        BlockNetworkRequestFactory { [weak self] in
+            guard let self = self,
+                  let url = self.chainRepository?.getSubqueryHistoryUrl(assetId: self.assetId) else {
+                throw CommonError.internal
+            }
+
+            var request = URLRequest(url: url)
 
             let eraRange = historyRange()
             let params = self.requestParams(accountAddress: address, eraRange: eraRange)
