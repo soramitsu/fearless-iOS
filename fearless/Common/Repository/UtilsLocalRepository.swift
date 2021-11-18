@@ -5,7 +5,6 @@ final class UtilsLocalRepository<T: Codable & Equatable> {
     private let url: URL
     private let logger: LoggerProtocol?
     private var cache: T?
-    private let fileRepository: FileRepositoryProtocol
 
     private var filename: String? {
         guard let filename = url.absoluteString.sha256String() else {
@@ -15,20 +14,16 @@ final class UtilsLocalRepository<T: Codable & Equatable> {
         return URL.documentsDirectoryUrl().appendingPathComponent(filename).path
     }
 
-    init(url: URL, logger: LoggerProtocol?) {
+    init(url: URL, logger: LoggerProtocol?, repository: AnyDataProviderRepository<T>) {
         self.url = url
         self.logger = logger
 
-        fileRepository = FileRepository()
-
-        cache = readFromFile()
+        cache = readFromRepository()
 
         load { [weak self] result in
             switch result {
             case let .success(resultData):
                 self?.cache = resultData
-
-                self?.saveToFile(data: resultData)
             case let .failure(error):
                 logger?.error(error.localizedDescription)
             }
@@ -39,36 +34,22 @@ final class UtilsLocalRepository<T: Codable & Equatable> {
         cache
     }
 
-    private func readFromFile() -> T? {
-        guard let filename = filename else {
-            return nil
-        }
-
-        let readOperation = fileRepository.readOperation(at: filename)
+    private func readFromRepository() -> T? {
+        let databaseRepository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
+            SubstrateDataStorageFacade.shared.createRepository()
+        let repository = AnyDataProviderRepository(databaseRepository)
+        let fetchOperaion = repository.fetchOperation(by: url.absoluteString,
+                                                      options: RepositoryFetchOptions.onlyProperties)
 
         let queue = OperationQueue()
 
-        queue.addOperations([readOperation], waitUntilFinished: true)
+        queue.addOperations([fetchOperaion], waitUntilFinished: true)
 
-        guard let data = try? readOperation.extractNoCancellableResultData() else {
+        guard let data = try? fetchOperaion.extractNoCancellableResultData()?.payload else {
             return nil
         }
 
         return try? JSONDecoder().decode(T.self, from: data)
-    }
-
-    private func saveToFile(data: T) {
-        guard let filename = filename else {
-            return
-        }
-
-        let queue = OperationQueue()
-
-        let writeOperation = fileRepository.writeOperation(dataClosure: {
-            try JSONEncoder().encode(data)
-        }, at: filename)
-
-        queue.addOperation(writeOperation)
     }
 
     private func load(completion: @escaping (Result<T, Error>) -> Void) {
