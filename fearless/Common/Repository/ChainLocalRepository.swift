@@ -11,7 +11,7 @@ extension ChainModelList: Identifiable {
 
 final class ChainLocalRepository {
     enum Constants {
-        static let githubChainListUrl: String = "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/externalapi/chains/chains.json"
+        static let githubChainListUrl: String = "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/chains/chains.json"
     }
 
     private let utilsLocalRepository: UtilsLocalRepository<ChainModelList>
