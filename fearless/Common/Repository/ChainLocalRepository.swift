@@ -1,20 +1,31 @@
 import Foundation
+import RobinHood
+
+typealias ChainModelList = [ChainModel]
+
+extension ChainModelList: Identifiable {
+    public var identifier: String {
+        "ChainModelList"
+    }
+}
 
 final class ChainLocalRepository {
     enum Constants {
         static let githubChainListUrl: String = "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/externalapi/chains/chains.json"
     }
 
-    private let utilsLocalRepository: UtilsLocalRepository<[ChainModel]>
+    private let utilsLocalRepository: UtilsLocalRepository<ChainModelList>
 
     init?(logger: LoggerProtocol?) {
         guard let url = URL(string: Constants.githubChainListUrl) else {
             return nil
         }
-
+        let databaseRepository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
+            SubstrateDataStorageFacade.shared.createRepository()
         utilsLocalRepository = UtilsLocalRepository(
             url: url,
-            logger: logger
+            logger: logger,
+            repository: AnyDataProviderRepository(databaseRepository)
         )
     }
 

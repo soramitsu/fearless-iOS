@@ -1,9 +1,10 @@
 import Foundation
 import RobinHood
 
-final class UtilsLocalRepository<T: Codable & Equatable> {
+final class UtilsLocalRepository<T: Codable & Equatable & Identifiable> {
     private let url: URL
     private let logger: LoggerProtocol?
+    private let repository: AnyDataProviderRepository<SingleValueProviderObject>
     private var cache: T?
 
     private var filename: String? {
@@ -14,9 +15,10 @@ final class UtilsLocalRepository<T: Codable & Equatable> {
         return URL.documentsDirectoryUrl().appendingPathComponent(filename).path
     }
 
-    init(url: URL, logger: LoggerProtocol?, repository: AnyDataProviderRepository<T>) {
+    init(url: URL, logger: LoggerProtocol?, repository: AnyDataProviderRepository<SingleValueProviderObject>) {
         self.url = url
         self.logger = logger
+        self.repository = repository
 
         cache = readFromRepository()
 
@@ -35,21 +37,20 @@ final class UtilsLocalRepository<T: Codable & Equatable> {
     }
 
     private func readFromRepository() -> T? {
-        let databaseRepository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-            SubstrateDataStorageFacade.shared.createRepository()
-        let repository = AnyDataProviderRepository(databaseRepository)
-        let fetchOperaion = repository.fetchOperation(by: url.absoluteString,
-                                                      options: RepositoryFetchOptions.onlyProperties)
+        let fetchOperaion = repository.fetchOperation(
+            by: url.absoluteString,
+            options: RepositoryFetchOptions.onlyProperties
+        )
 
         let queue = OperationQueue()
 
         queue.addOperations([fetchOperaion], waitUntilFinished: true)
 
-        guard let data = try? fetchOperaion.extractNoCancellableResultData()?.payload else {
+        guard let value = try? fetchOperaion.extractNoCancellableResultData()?.payload else {
             return nil
         }
 
-        return try? JSONDecoder().decode(T.self, from: data)
+        return try? JSONDecoder().decode(T.self, from: value)
     }
 
     private func load(completion: @escaping (Result<T, Error>) -> Void) {

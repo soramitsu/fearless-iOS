@@ -14,6 +14,10 @@ final class MainTabBarInteractor {
     private var currentAccount: AccountItem?
     private var currentConnection: ConnectionItem?
 
+    lazy var chainRepo: ChainLocalRepository? = {
+        ChainLocalRepository(logger: Logger.shared)
+    }()
+
     deinit {
         stopServices()
     }
@@ -56,6 +60,8 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
         if keystoreImportService.definition != nil {
             presenter?.didRequestImportAccount()
         }
+
+        print("Chain repo url is", chainRepo?.getSubqueryHistoryUrl(assetId: .dot))
     }
 }
 

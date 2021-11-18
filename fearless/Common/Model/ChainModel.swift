@@ -1,11 +1,13 @@
 import Foundation
+import RobinHood
 
 struct ChainModel: Codable, Equatable {
+    var chainId: String
     var name: String
     var externalApi: ChainExternalApi?
 
     static func == (lhs: ChainModel, rhs: ChainModel) -> Bool {
-        lhs.name == rhs.name && lhs.externalApi == rhs.externalApi
+        lhs.chainId == rhs.chainId && lhs.externalApi == rhs.externalApi
     }
 }
 
@@ -18,7 +20,7 @@ struct ChainExternalApi: Codable, Equatable {
     }
 }
 
-struct ChainExternalApiObject: Codable, Equatable {
+struct ChainExternalApiObject: Codable {
     var type: String
     var url: String
 
