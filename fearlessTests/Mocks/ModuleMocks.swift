@@ -8313,7 +8313,7 @@ import SoraFoundation
     
      func submit(contribution: BigUInt?)  {
         
-    return cuckoo_manager.call("submit(contribution: BigUInt)",
+    return cuckoo_manager.call("submit(contribution: BigUInt?)",
             parameters: (contribution),
             escapingParameters: (contribution),
             superclassCall:
@@ -8368,9 +8368,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmInteractorInputProtocol.self, method: "estimateFee(for: BigUInt?)", parameterMatchers: matchers))
 	    }
 	    
-	    func submit<M1: Cuckoo.Matchable>(contribution: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(BigUInt)> where M1.MatchedType == BigUInt {
-	        let matchers: [Cuckoo.ParameterMatcher<(BigUInt)>] = [wrap(matchable: contribution) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmInteractorInputProtocol.self, method: "submit(contribution: BigUInt)", parameterMatchers: matchers))
+	    func submit<M1: Cuckoo.OptionalMatchable>(contribution: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(BigUInt?)> where M1.OptionalMatchedType == BigUInt {
+	        let matchers: [Cuckoo.ParameterMatcher<(BigUInt?)>] = [wrap(matchable: contribution) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmInteractorInputProtocol.self, method: "submit(contribution: BigUInt?)", parameterMatchers: matchers))
 	    }
 	    
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -8406,9 +8406,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func submit<M1: Cuckoo.Matchable>(contribution: M1) -> Cuckoo.__DoNotUse<(BigUInt), Void> where M1.MatchedType == BigUInt {
-	        let matchers: [Cuckoo.ParameterMatcher<(BigUInt)>] = [wrap(matchable: contribution) { $0 }]
-	        return cuckoo_manager.verify("submit(contribution: BigUInt)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func submit<M1: Cuckoo.OptionalMatchable>(contribution: M1) -> Cuckoo.__DoNotUse<(BigUInt?), Void> where M1.OptionalMatchedType == BigUInt {
+	        let matchers: [Cuckoo.ParameterMatcher<(BigUInt?)>] = [wrap(matchable: contribution) { $0 }]
+	        return cuckoo_manager.verify("submit(contribution: BigUInt?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -8436,7 +8436,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func submit(contribution: BigUInt)   {
+     func submit(contribution: BigUInt?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

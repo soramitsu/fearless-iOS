@@ -1471,6 +1471,7 @@
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 		F7EB8F835CFA7FC949EF4C22 /* YourValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 906C55FC079AF6112AF0745B /* YourValidatorListWireframe.swift */; };
 		F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101339CC1292531CC4DB0AC /* StakingUnbondSetupInteractor.swift */; };
+		FA2568A62747B98200875A53 /* ViewController+Wrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2568A52747B98200875A53 /* ViewController+Wrapper.swift */; };
 		FA54F512273243E300CA7550 /* MultiSignature+CryptoType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F511273243E300CA7550 /* MultiSignature+CryptoType.swift */; };
 		FA54F53D2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F53C2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift */; };
 		FA54F53F2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54F53E2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift */; };
@@ -3000,6 +3001,7 @@
 		F61D8973ADEB461DE2AD3E13 /* RecommendedValidatorListViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewController.swift; sourceTree = "<group>"; };
 		F829E7F8B39EE7D977001510 /* ControllerAccountProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountProtocols.swift; sourceTree = "<group>"; };
 		F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
+		FA2568A52747B98200875A53 /* ViewController+Wrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Wrapper.swift"; sourceTree = "<group>"; };
 		FA54F511273243E300CA7550 /* MultiSignature+CryptoType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MultiSignature+CryptoType.swift"; sourceTree = "<group>"; };
 		FA54F53C2732AA9A00CA7550 /* AstarReferralCrowdloanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstarReferralCrowdloanViewModel.swift; sourceTree = "<group>"; };
 		FA54F53E2733CFBD00CA7550 /* ReferralCrowdloanViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewState.swift; sourceTree = "<group>"; };
@@ -5023,6 +5025,7 @@
 				849013DA24A927E2008F705E /* SettingsExtension.swift */,
 				84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */,
 				84F6B64F2619E1ED0038F10D /* Int+Operations.swift */,
+				FA2568A52747B98200875A53 /* ViewController+Wrapper.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -8665,6 +8668,7 @@
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				AE6F7FE42685E812002BBC3E /* ValidatorListFilterViewFactory.swift in Sources */,
 				842876AA24AE049B00D91AD8 /* SelectionTitleTableViewCell.swift in Sources */,
+				FA2568A62747B98200875A53 /* ViewController+Wrapper.swift in Sources */,
 				84DF21AD25363D28005454AE /* WalletAssetId+Chain.swift in Sources */,
 				848EAEB82659859600676CEA /* CrowdloansViewModelFactory.swift in Sources */,
 				84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */,

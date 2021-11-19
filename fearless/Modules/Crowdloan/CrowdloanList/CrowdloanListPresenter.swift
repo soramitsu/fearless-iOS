@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SwiftUI
+import SoraKeystore
 
 final class CrowdloanListPresenter {
     weak var view: CrowdloanListViewProtocol?
@@ -9,6 +10,7 @@ final class CrowdloanListPresenter {
     let viewModelFactory: CrowdloansViewModelFactoryProtocol
     let logger: LoggerProtocol?
     private weak var moduleOutput: CrowdloanListModuleOutput?
+    private var settings: SettingsManagerProtocol
 
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
@@ -25,12 +27,14 @@ final class CrowdloanListPresenter {
         viewModelFactory: CrowdloansViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        moduleOutput: CrowdloanListModuleOutput?
+        moduleOutput: CrowdloanListModuleOutput?,
+        settings: SettingsManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
+        self.settings = settings
         self.localizationManager = localizationManager
         self.moduleOutput = moduleOutput
     }
@@ -82,6 +86,8 @@ final class CrowdloanListPresenter {
         view?.didReceive(tabBarNotifications: failedMemos?.isEmpty == false)
 
         if failedMemos?.isEmpty == false {
+            settings.saveReferralEthereumAddressForSelectedAccount(nil)
+
             moduleOutput?.didReceiveFailedMemos()
         }
 

@@ -109,14 +109,27 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             if let ethereumAccountAddress = self?.ethereumAccountAddress,
                let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {
                 nextBuilder = try nextBuilder.adding(call: memoCall)
-
-                self?.saveEthereumAdressAsMoonbeamDefault()
             }
 
             return nextBuilder
         }
 
-        super.submitContribution(builderClosure: builderClosure)
+        submitContribution(builderClosure: builderClosure)
+    }
+
+    override func submitContribution(builderClosure: @escaping ExtrinsicBuilderClosure) {
+        extrinsicService.submit(
+            builderClosure,
+            signer: signingWrapper,
+            runningIn: .main,
+            completion: { [weak self] result in
+                self?.confirmPresenter?.didSubmitContribution(result: result)
+
+                if case .success = result {
+                    self?.saveEthereumAdressAsMoonbeamDefault()
+                }
+            }
+        )
     }
 
     private func sendReferral() {
@@ -126,19 +139,17 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             if let ethereumAccountAddress = self?.ethereumAccountAddress,
                let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {
                 nextBuilder = try nextBuilder.adding(call: memoCall)
-
-                self?.saveEthereumAdressAsMoonbeamDefault()
             }
 
             return nextBuilder
         }
 
-        super.submitContribution(builderClosure: builderClosure)
+        submitContribution(builderClosure: builderClosure)
     }
 
     private func saveEthereumAdressAsMoonbeamDefault() {
         guard let ethereumAccountAddress = ethereumAccountAddress else { return }
 
-        settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: ethereumAccountAddress)
+        settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress)
     }
 }
