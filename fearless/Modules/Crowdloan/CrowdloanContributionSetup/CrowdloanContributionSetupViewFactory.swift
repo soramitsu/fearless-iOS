@@ -58,7 +58,8 @@ struct CrowdloanContributionSetupViewFactory {
             chain: addressType.chain,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            customFlow: customFlow
+            customFlow: customFlow,
+            settings: SettingsManager.shared
         )
 
         let view = CrowdloanContributionSetupViewController(

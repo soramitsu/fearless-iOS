@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import SoraFoundation
 import SoraUI
+import SoraKeystore
 
 final class CrowdloanContributionSetupPresenter {
     weak var view: CrowdloanContributionSetupViewProtocol?
@@ -13,6 +14,8 @@ final class CrowdloanContributionSetupPresenter {
     let chain: Chain
     let logger: LoggerProtocol?
     let customFlow: CustomCrowdloanFlow?
+
+    private var settings: SettingsManagerProtocol
 
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -58,7 +61,8 @@ final class CrowdloanContributionSetupPresenter {
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        customFlow: CustomCrowdloanFlow?
+        customFlow: CustomCrowdloanFlow?,
+        settings: SettingsManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -68,6 +72,7 @@ final class CrowdloanContributionSetupPresenter {
         self.chain = chain
         self.logger = logger
         self.customFlow = customFlow
+        self.settings = settings
         self.localizationManager = localizationManager
     }
 
@@ -279,8 +284,20 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             }
         } ?? true
 
+        let needsMemoRepeatingValidation = customFlow.map {
+            switch $0 {
+            case .moonbeamMemoFix: return true
+            default: return false
+            }
+        } ?? false
+
         DataValidationRunner(validators: [
             //            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
+            needsMemoRepeatingValidation ? dataValidatingFactory.memoNotRepeating(
+                memo: ethereumAddress,
+                previousMemo: settings.referralEthereumAddressForSelectedAccount(),
+                locale: selectedLocale
+            ) : nil,
 
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee()

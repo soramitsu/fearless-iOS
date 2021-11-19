@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SwiftUI
 
 protocol BaseDataValidatingFactoryProtocol: AnyObject {
     var view: (ControllerBackedProtocol & Localizable)? { get }
@@ -27,6 +28,12 @@ protocol BaseDataValidatingFactoryProtocol: AnyObject {
         minimumBalance: BigUInt?,
         locale: Locale
     ) -> DataValidating
+
+    func memoNotRepeating(
+        memo: String?,
+        previousMemo: String?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 extension BaseDataValidatingFactoryProtocol {
@@ -44,9 +51,7 @@ extension BaseDataValidatingFactoryProtocol {
             self?.basePresentable.presentAmountTooHigh(from: view, locale: locale)
 
         }, preservesCondition: {
-            guard let amount = spendingAmount else {
-                return true
-            }
+            let amount = spendingAmount ?? 0
 
             if let balance = balance,
                let fee = fee {
@@ -124,6 +129,26 @@ extension BaseDataValidatingFactoryProtocol {
             } else {
                 return false
             }
+        })
+    }
+
+    func memoNotRepeating(
+        memo: String?,
+        previousMemo: String?,
+        locale: Locale
+    ) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] _ in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentMemoRepeating(from: view, locale: locale)
+        }, preservesCondition: {
+            guard let memo = memo, let previousMemo = previousMemo else {
+                return true
+            }
+
+            return memo != previousMemo
         })
     }
 }
