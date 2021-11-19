@@ -125,10 +125,8 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             completion: { [weak self] result in
                 self?.confirmPresenter?.didSubmitContribution(result: result)
 
-                switch result {
-                case .success:
+                if case .success = result {
                     self?.saveEthereumAdressAsMoonbeamDefault()
-                default: break
                 }
             }
         )
