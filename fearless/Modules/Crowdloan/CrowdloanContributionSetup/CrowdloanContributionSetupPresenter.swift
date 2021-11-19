@@ -2,7 +2,6 @@ import Foundation
 import BigInt
 import SoraFoundation
 import SoraUI
-import SoraKeystore
 
 final class CrowdloanContributionSetupPresenter {
     weak var view: CrowdloanContributionSetupViewProtocol?
