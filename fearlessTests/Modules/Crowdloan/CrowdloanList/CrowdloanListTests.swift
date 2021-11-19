@@ -181,7 +181,8 @@ class CrowdloanListTests: XCTestCase {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: localizationManager,
-            moduleOutput: nil
+            moduleOutput: nil,
+            settings: SettingsManager.shared
         )
 
         presenter.view = view
