@@ -5,7 +5,6 @@ protocol BaseErrorPresentable {
     func presentFeeNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
-    func presentMemoRepeating(from view: ControllerBackedProtocol, locale: Locale?)
 
     func presentExistentialDepositWarning(
         from view: ControllerBackedProtocol,
@@ -66,19 +65,6 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
             view: view,
             locale: locale
         )
-    }
-
-    func presentMemoRepeating(
-        from view: ControllerBackedProtocol,
-        locale: Locale?
-    ) {
-        let title = R.string.localizable
-            .commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-        let message = R.string.localizable
-            .crowdloanMemoRepeating(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
     func presentWarning(
