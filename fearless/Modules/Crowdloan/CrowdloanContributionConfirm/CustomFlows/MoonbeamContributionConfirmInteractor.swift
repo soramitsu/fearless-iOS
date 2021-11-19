@@ -141,14 +141,12 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
             if let ethereumAccountAddress = self?.ethereumAccountAddress,
                let memoCall = self?.makeMemoCall(memo: ethereumAccountAddress) {
                 nextBuilder = try nextBuilder.adding(call: memoCall)
-
-                self?.saveEthereumAdressAsMoonbeamDefault()
             }
 
             return nextBuilder
         }
 
-        super.submitContribution(builderClosure: builderClosure)
+        submitContribution(builderClosure: builderClosure)
     }
 
     private func saveEthereumAdressAsMoonbeamDefault() {
