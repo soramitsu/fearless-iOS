@@ -124,7 +124,8 @@ extension BaseDataValidatingFactoryProtocol {
 
             if
                 let totalAmount = totalAmount,
-                let minimumBalance = minimumBalance {
+                let minimumBalance = minimumBalance,
+                totalAmount > spendingAmount {
                 return totalAmount - spendingAmount >= minimumBalance
             } else {
                 return false
