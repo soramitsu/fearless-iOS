@@ -101,7 +101,7 @@ final class MainTabBarViewController: UITabBarController {
     }
 
     private func wrappedSelectedViewController() -> UIViewController? {
-        selectedViewController?.wrappedFromNavigationController()
+        selectedViewController?.navigationRootViewController()
     }
 }
 
@@ -110,7 +110,7 @@ extension MainTabBarViewController: UITabBarControllerDelegate {
         _: UITabBarController,
         shouldSelect viewController: UIViewController
     ) -> Bool {
-        if let wrappedSelectedViewController = viewController.wrappedFromNavigationController(),
+        if let wrappedSelectedViewController = viewController.navigationRootViewController(),
            wrappedSelectedViewController.isKind(of: CrowdloanListViewController.self) {
             failedMemoView.removeFromSuperview()
         }
