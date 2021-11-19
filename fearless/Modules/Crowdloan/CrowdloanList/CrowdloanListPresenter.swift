@@ -86,7 +86,7 @@ final class CrowdloanListPresenter {
         view?.didReceive(tabBarNotifications: failedMemos?.isEmpty == false)
 
         if failedMemos?.isEmpty == false {
-            settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: nil)
+            settings.saveReferralEthereumAddressForSelectedAccount(nil)
 
             moduleOutput?.didReceiveFailedMemos()
         }

@@ -150,6 +150,6 @@ class MoonbeamContributionConfirmInteractor: CrowdloanContributionConfirmInterac
     private func saveEthereumAdressAsMoonbeamDefault() {
         guard let ethereumAccountAddress = ethereumAccountAddress else { return }
 
-        settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: ethereumAccountAddress)
+        settings.saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress)
     }
 }
