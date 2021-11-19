@@ -1,7 +1,6 @@
 import Foundation
 import SoraFoundation
 import BigInt
-import SwiftUI
 
 protocol BaseDataValidatingFactoryProtocol: AnyObject {
     var view: (ControllerBackedProtocol & Localizable)? { get }
