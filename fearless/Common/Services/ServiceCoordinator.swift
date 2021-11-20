@@ -5,6 +5,7 @@ import SoraFoundation
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
     func updateOnNetworkChange()
+    func updateOnNetworkDown()
 }
 
 final class ServiceCoordinator {
@@ -29,6 +30,12 @@ final class ServiceCoordinator {
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
         self.rewardCalculatorService = rewardCalculatorService
         self.settings = settings
+
+        webSocketService.addStateListener(self)
+    }
+
+    deinit {
+        webSocketService.removeStateListener(self)
     }
 
     private func updateWebSocketSettings() {
@@ -62,6 +69,17 @@ final class ServiceCoordinator {
 }
 
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
+    func updateOnNetworkDown() {
+        let selectedConnectionItem = settings.selectedConnection
+        guard let connectionItem = ConnectionItem.supportedConnections.first(where: { $0.type == selectedConnectionItem.type && $0.url != selectedConnectionItem.url }) else {
+            return
+        }
+
+        settings.selectedConnection = connectionItem
+
+        updateOnNetworkChange()
+    }
+
     func updateOnAccountChange() {
         updateWebSocketSettings()
         updateRuntimeService()
@@ -118,5 +136,11 @@ extension ServiceCoordinator {
             rewardCalculatorService: rewardCalculatorService,
             settings: SettingsManager.shared
         )
+    }
+}
+
+extension ServiceCoordinator: WebSocketServiceStateListener {
+    func websocketNetworkDown() {
+        updateOnNetworkDown()
     }
 }
