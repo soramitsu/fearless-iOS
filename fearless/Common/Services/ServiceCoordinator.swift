@@ -15,6 +15,7 @@ final class ServiceCoordinator {
     let gitHubPhishingAPIService: ApplicationServiceProtocol
     let rewardCalculatorService: RewardCalculatorServiceProtocol
     let settings: SettingsManagerProtocol
+    let eventCenter: EventCenterProtocol
 
     init(
         webSocketService: WebSocketServiceProtocol,
@@ -22,7 +23,8 @@ final class ServiceCoordinator {
         validatorService: EraValidatorServiceProtocol,
         gitHubPhishingAPIService: ApplicationServiceProtocol,
         rewardCalculatorService: RewardCalculatorServiceProtocol,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.webSocketService = webSocketService
         self.runtimeService = runtimeService
@@ -30,6 +32,7 @@ final class ServiceCoordinator {
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
         self.rewardCalculatorService = rewardCalculatorService
         self.settings = settings
+        self.eventCenter = eventCenter
 
         webSocketService.addStateListener(self)
     }
@@ -71,13 +74,16 @@ final class ServiceCoordinator {
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func updateOnNetworkDown() {
         let selectedConnectionItem = settings.selectedConnection
-        guard let connectionItem = ConnectionItem.supportedConnections.first(where: { $0.type == selectedConnectionItem.type && $0.url != selectedConnectionItem.url }) else {
+
+        guard let connectionItem = ConnectionItem.supportedConnections.filter { $0.type == selectedConnectionItem.type && $0.url != selectedConnectionItem.url }.randomElement() else {
             return
         }
 
         settings.selectedConnection = connectionItem
 
         updateOnNetworkChange()
+
+        eventCenter.notify(with: SelectedConnectionChanged())
     }
 
     func updateOnAccountChange() {
@@ -134,7 +140,8 @@ extension ServiceCoordinator {
             validatorService: validatorService,
             gitHubPhishingAPIService: gitHubPhishingAPIService,
             rewardCalculatorService: rewardCalculatorService,
-            settings: SettingsManager.shared
+            settings: SettingsManager.shared,
+            eventCenter: EventCenter.shared
         )
     }
 }
