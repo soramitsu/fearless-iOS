@@ -1,19 +1,13 @@
-### Fearless Wallet iOS
-[![Apple Store](https://img.shields.io/badge/Apple%20Store-iOS-Silver?logo=apple)](https://apps.apple.com/us/app/fearless-wallet/id1537251089)
+### Nova Wallet iOS - Next get mobile app for Polkadot & Kusama ecosystem
 
-![logo](/docs/fearlesswallet_promo.png)
+[![](https://img.shields.io/twitter/follow/NovaWalletApp?label=Follow&style=social)](https://twitter.com/NovaWalletApp)
+
+![logo](/docs/Nova_GitHub.png)
 
 ## About
-Fearless Wallet is a mobile wallet designed for the decentralized future on the Kusama network, with support on iOS and Android platforms. The best user experience, fast performance, and secure storage for your accounts. Development of Fearless Wallet is supported by Kusama Treasury grant.
-
-[![](https://img.shields.io/twitter/follow/FearlessWallet?label=Follow&style=social)](https://twitter.com/FearlessWallet)
-
-## Roadmap
-Fearless Wallet roadmap is available for everyone: [roadmap link](https://soramitsucoltd.aha.io/shared/97bc3006ee3c1baa0598863615cf8d14)
-
-## Dev Status
-Track features development: [board link](https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2)
+Next gen application for Polkadot & Kusama ecosystem, transparent & community-oriented, focused on convenient UX/UI, fast performance & security.
+Nova Wallet aims to provide as many Polkadot ecosystem features as possible in a form of mobile app, unbiased to any network & without any restrictions/limits to the users.
+Developed by former Fearless Wallet team & based on open source work under Apache 2.0 license.
 
 ## License
-
-Fearless Wallet iOS is available under the Apache 2.0 license. See the LICENSE file for more info.
+Nova Wallet iOS is available under the Apache 2.0 license. See the LICENSE file for more info.
