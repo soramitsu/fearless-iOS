@@ -40,16 +40,6 @@
       </CodeCoverageTargets>
       <Testables>
          <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "849013BD24A80986008F705E"
-               BuildableName = "fearlessTests.xctest"
-               BlueprintName = "fearlessTests"
-               ReferencedContainer = "container:fearless.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
             skipped = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
