@@ -139,10 +139,10 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOffchainBonusForContribution(
-        amount: BigUInt,
+        amount: BigUInt?,
         with closure: @escaping (Result<Void, Error>) -> Void
     ) {
-        guard let referralCode = referralCode else {
+        guard let referralCode = referralCode, let amount = amount else {
             DispatchQueue.main.async {
                 closure(.failure(CrowdloanBonusServiceError.veficationFailed))
             }
@@ -197,7 +197,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOnchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         builder

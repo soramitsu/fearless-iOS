@@ -89,6 +89,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
                 bonusReceived.fulfill()
             }
 
+            when(stub).didReceiveCustomFlow(viewModel: any()).thenDoNothing()
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
 

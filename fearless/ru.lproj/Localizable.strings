@@ -525,3 +525,6 @@
 "about.support" = "Обратиться за поддержкой";
 "crowdloan.location.unsupported.error" = "К сожалению, Вы не можете принимать участие в краудлоне %@ из-за локации, в которой Вы находитесь.";
 "crowdloan.terms.with.name" = "Условия использования %@";
+"crowdloan.attention" = "ТРЕБУЕТСЯ ДЕЙСТВИЕ! Пожалуйста, нажмите здесь, чтобы добавить адрес Ethereum кошелька.";
+"tabbar.crowdloan.attention" = "Проверьте вкладку с краудлонами\nТребуется действие";
+"moonbeam.add.address" = "Добавление адреса Moonbeam";

@@ -178,7 +178,11 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
                     let contributionResponse = try contributionOperation.targetOperation
                         .extractNoCancellableResultData()
                     self?.crowdloanContribution = contributionResponse.contribution
+
+                    self?.presenter.didReceiveContribution(result: .success(contributionResponse.contribution))
                 } catch {
+                    self?.presenter.didReceiveContribution(result: .failure(error))
+
                     self?.logger.error("Cannot receive contributions for crowdloan: \(crowdloan)")
                 }
             }
@@ -205,7 +209,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         provideConstants()
     }
 
-    func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
+    func estimateFee(for amount: BigUInt?, bonusService: CrowdloanBonusServiceProtocol?, memo: String?) {
         let contributeCall: RuntimeCall<CrowdloanContributeCall>? = makeContributeCall(amount: amount)
         let memoCall: RuntimeCall<CrowdloanAddMemo>? = makeMemoCall(memo: memo)
 
@@ -235,8 +239,12 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         }
     }
 
-    private func makeContributeCall(amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>? {
-        callFactory.contribute(to: paraId, amount: amount)
+    func makeContributeCall(amount: BigUInt?) -> RuntimeCall<CrowdloanContributeCall>? {
+        guard let amount = amount else {
+            return nil
+        }
+
+        return callFactory.contribute(to: paraId, amount: amount)
     }
 
     func makeMemoCall(memo: String?) -> RuntimeCall<CrowdloanAddMemo>? {

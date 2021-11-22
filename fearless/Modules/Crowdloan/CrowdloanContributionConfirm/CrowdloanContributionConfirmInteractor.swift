@@ -85,15 +85,16 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor,
         }
     }
 
-    private func prepareAndContribute(with amount: BigUInt) {
-        let call = callFactory.contribute(
-            to: paraId,
-            amount: amount,
-            multiSignature: nil
-        )
+    private func prepareAndContribute(with amount: BigUInt?) {
+        let call = makeContributeCall(amount: amount)
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
-            let nextBuilder = try builder.adding(call: call)
+            var nextBuilder = builder
+
+            if let call = call {
+                nextBuilder = try builder.adding(call: call)
+            }
+
             return try self.bonusService?.applyOnchainBonusForContribution(
                 amount: amount,
                 using: nextBuilder
@@ -114,7 +115,7 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor,
         )
     }
 
-    func estimateFee(for contribution: BigUInt) {
+    func estimateFee(for contribution: BigUInt?) {
         estimateFee(
             for: contribution,
             bonusService: bonusService,
@@ -122,7 +123,7 @@ class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor,
         )
     }
 
-    func submit(contribution: BigUInt) {
+    func submit(contribution: BigUInt?) {
         if let bonusService = bonusService {
             bonusService.applyOffchainBonusForContribution(amount: contribution) { [weak self] result in
                 DispatchQueue.main.async {

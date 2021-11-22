@@ -14,6 +14,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
+    let subscanOperationFactory: SubscanOperationFactoryProtocol
+    let walletAssetId: WalletAssetId?
+    private var failedAddMemoExtrinsics: [ParaId: [CrowdloanAddMemoParam]] = [:]
+    private var failedMemoRequestsAttemptsCount: Int = 0
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
@@ -26,7 +30,9 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         chain: Chain,
         operationManager: OperationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        walletAssetId: WalletAssetId?
     ) {
         self.selectedAddress = selectedAddress
         self.runtimeService = runtimeService
@@ -41,6 +47,126 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.chain = chain
         self.logger = logger
+        self.subscanOperationFactory = subscanOperationFactory
+        self.walletAssetId = walletAssetId
+    }
+
+    private func handleFinalizedMemos(_ finalized: [SubscanMemoItemData]) {
+        let memos: [(Bool, [CrowdloanAddMemoParam])] = finalized.compactMap {
+            guard let success = $0.success, let paramsData = $0.params.data(using: .utf8) else {
+                presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                return nil
+            }
+
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                let params = try decoder.decode([CrowdloanAddMemoParam].self, from: paramsData)
+                return (success, params)
+            } catch {
+                presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                assertionFailure(error.localizedDescription)
+                return nil
+            }
+        }
+
+        var memoByParaIds: [ParaId: [(success: Bool, memo: String)]] = [:]
+
+        for (success, params) in memos {
+            var paraId: ParaId?
+            var memoValue: String?
+            for param in params {
+                switch param {
+                case let .index(index): paraId = index.value
+                case let .memo(memo): memoValue = memo.value
+                }
+            }
+
+            if let paraId = paraId, let memo = memoValue {
+                if memoByParaIds[paraId] == nil {
+                    memoByParaIds[paraId] = []
+                }
+
+                memoByParaIds[paraId]?.append((success, memo))
+            }
+        }
+
+        var failedMemos: [ParaId: String] = [:]
+
+        for (paraId, memos) in memoByParaIds {
+            let successful = memos.first { $0.success } != nil
+
+            if successful {
+                continue
+            }
+
+            guard let failed = memos.last(where: { !$0.success })?.memo else {
+                continue
+            }
+
+            do {
+                failedMemos[paraId] = try Data(hexString: failed).toHex(includePrefix: true)
+            } catch {
+                presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                assertionFailure(error.localizedDescription)
+            }
+        }
+
+        presenter.didReceiveFailedMemos(result: .success(failedMemos))
+    }
+
+    func requestMemoHistory() {
+        failedMemoRequestsAttemptsCount += 1
+        let call = CallCodingPath.addMemo
+
+        guard let subscanUrl = walletAssetId?.subscanUrl else {
+            presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+            logger?.error("Failed to load call history: \(call)")
+            return
+        }
+
+        let extrinsicsURL = subscanUrl.appendingPathComponent(SubscanApi.extrinsics)
+
+        let historyInfo = HistoryInfo(
+            address: selectedAddress,
+            row: 100,
+            page: 0
+        )
+
+        let fetchOperation = subscanOperationFactory.fetchAllExtrinsicForCall(
+            extrinsicsURL,
+            call: call,
+            historyInfo: historyInfo,
+            of: SubscanMemoData.self
+        )
+
+        fetchOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                guard let self = `self` else {
+                    return
+                }
+
+                do {
+                    let response = try fetchOperation.extractNoCancellableResultData()
+
+                    guard let finalized = response.extrinsics?.filter { $0.finalized == true }, !finalized.isEmpty else {
+                        self.presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                        return
+                    }
+
+                    self.handleFinalizedMemos(finalized)
+                } catch {
+                    self.presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                    self.logger?.error("Failed to load call history: \(call)")
+
+                    if self.failedMemoRequestsAttemptsCount <= 3 {
+                        self.requestMemoHistory()
+                    }
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 
     private func provideContributions(for crowdloans: [Crowdloan]) {
@@ -203,6 +329,8 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {
+        requestMemoHistory()
+
         provideCrowdloans()
 
         subscribeToDisplayInfo()
@@ -211,6 +339,8 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     }
 
     func refresh() {
+        requestMemoHistory()
+
         displayInfoProvider.refresh()
 
         provideCrowdloans()

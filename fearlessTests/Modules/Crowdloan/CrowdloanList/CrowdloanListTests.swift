@@ -93,6 +93,7 @@ class CrowdloanListTests: XCTestCase {
         var actualViewModel: CrowdloansViewModel?
 
         let completionExpectation = XCTestExpectation()
+        let tabBarNotificationsExpectation = XCTestExpectation()
 
         stub(view) { stub in
             stub.isSetup.get.thenReturn(false, true)
@@ -103,6 +104,10 @@ class CrowdloanListTests: XCTestCase {
 
                     completionExpectation.fulfill()
                 }
+            }
+            
+            stub.didReceive(tabBarNotifications: any()).then { _ in
+                tabBarNotificationsExpectation.fulfill()
             }
         }
 
@@ -118,7 +123,7 @@ class CrowdloanListTests: XCTestCase {
 
         // then
 
-        wait(for: [completionExpectation], timeout: 10)
+        wait(for: [completionExpectation, tabBarNotificationsExpectation], timeout: 10)
 
         let actualActiveParaIds = actualViewModel?.active?.crowdloans
             .reduce(into: Set<ParaId>()) { (result, crowdloan) in
@@ -175,7 +180,9 @@ class CrowdloanListTests: XCTestCase {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            moduleOutput: nil,
+            settings: SettingsManager.shared
         )
 
         presenter.view = view
@@ -216,7 +223,9 @@ class CrowdloanListTests: XCTestCase {
             singleValueProviderFactory: providerFactory,
             chain: chain,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            subscanOperationFactory: SubscanOperationFactory(),
+            walletAssetId: nil
         )
     }
 }

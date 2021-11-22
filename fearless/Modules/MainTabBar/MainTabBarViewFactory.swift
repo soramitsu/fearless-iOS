@@ -26,6 +26,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             keystoreImportService: keystoreImportService
         )
 
+        let presenter = MainTabBarPresenter()
+
         guard
             let walletContext = try? WalletContextFactory().createContext(),
             let walletController = createWalletController(
@@ -40,7 +42,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
+        guard let crowdloanController = createCrowdloanController(for: localizationManager, moduleOutput: presenter) else {
             return nil
         }
 
@@ -48,15 +50,16 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        let view = MainTabBarViewController()
+        let view = MainTabBarViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
         view.viewControllers = [
             walletController,
             crowdloanController,
             stakingController,
             settingsController
         ]
-
-        let presenter = MainTabBarPresenter()
 
         let wireframe = MainTabBarWireframe(walletContext: walletContext)
 
@@ -89,13 +92,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         view.didReplaceView(for: walletController, for: Self.walletIndex)
     }
 
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) {
+    static func reloadCrowdloanView(on view: MainTabBarViewProtocol, moduleOutput: CrowdloanListModuleOutput?) -> UIViewController? {
         let localizationManager = LocalizationManager.shared
-        guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
-            return
+        guard let crowdloanController = createCrowdloanController(
+            for: localizationManager,
+            moduleOutput: moduleOutput
+        ) else {
+            return nil
         }
 
         view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
+
+        return crowdloanController
     }
 
     static func createWalletController(
@@ -201,9 +209,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createCrowdloanController(
-        for localizationManager: LocalizationManagerProtocol
+        for localizationManager: LocalizationManagerProtocol,
+        moduleOutput: CrowdloanListModuleOutput?
     ) -> UIViewController? {
-        guard let crowloanView = CrowdloanListViewFactory.createView() else {
+        guard let crowloanView = CrowdloanListViewFactory.createView(moduleOutput: moduleOutput) else {
             return nil
         }
 
