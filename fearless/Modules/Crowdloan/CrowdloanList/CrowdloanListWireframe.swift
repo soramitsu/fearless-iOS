@@ -1,11 +1,6 @@
 import Foundation
 
 final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
-    func presentMoonbeamMemo(
-        from _: CrowdloanListViewProtocol?,
-        paraId _: ParaId
-    ) {}
-
     func presentAgreement(
         from view: CrowdloanListViewProtocol?,
         paraId: ParaId,

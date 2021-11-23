@@ -63,6 +63,19 @@ extension Chain {
         }
     }
 
+    func subscanBlockURL(_ block: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkadot.subscan.io/block/\(block)")
+        case .kusama:
+            return URL(string: "https://kusama.subscan.io/block/\(block)")
+        case .westend:
+            return URL(string: "https://westend.subscan.io/block/\(block)")
+        default:
+            return nil
+        }
+    }
+
     func subscanAddressURL(_ address: String) -> URL? {
         switch self {
         case .polkadot:
@@ -71,6 +84,19 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/account/\(address)")
         case .westend:
             return URL(string: "https://westend.subscan.io/account/\(address)")
+        default:
+            return nil
+        }
+    }
+
+    var analyticsURL: URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet")
+        case .kusama:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-ksm")
+        case .westend:
+            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend")
         default:
             return nil
         }

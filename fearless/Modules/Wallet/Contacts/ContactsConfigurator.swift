@@ -81,7 +81,7 @@ final class ContactsConfigurator {
 
         let searchPlaceholder = LocalizableResource { locale in
             R.string.localizable
-                .walletContactsSearchPlaceholder(preferredLanguages: locale.rLanguages)
+                .walletContactsSearchPlaceholder_v110(preferredLanguages: locale.rLanguages)
         }
 
         builder

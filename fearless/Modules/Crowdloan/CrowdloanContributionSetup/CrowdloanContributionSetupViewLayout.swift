@@ -204,6 +204,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     private func setupLayout() {
+        // TODO: move magic numbers to constants
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)

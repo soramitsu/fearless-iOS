@@ -60,8 +60,13 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                 localStorageIdFactory: localStorageIdFactory
             )
 
+        let balanceLockSubscription = try createBalanceLockSubscription(
+            accountId: accountId,
+            localStorageIdFactory: localStorageIdFactory
+        )
+
         let accountSubscriptions: [StorageChildSubscribing] = [
-            accountSubscription
+            accountSubscription, balanceLockSubscription
         ]
 
         let globalSubscriptions = try createGlobalSubscriptions(childSubscriptionFactory)
@@ -152,6 +157,28 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return AccountInfoSubscription(
             transactionSubscription: transactionSubscription,
             remoteStorageKey: accountStorageKey,
+            localStorageKey: localStorageKey,
+            storage: AnyDataProviderRepository(storage),
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared,
+            eventCenter: EventCenter.shared
+        )
+    }
+
+    private func createBalanceLockSubscription(
+        accountId: Data,
+        localStorageIdFactory: ChainStorageIdFactoryProtocol
+    )
+        throws -> BalanceLockSubscription {
+        let balanceLockStorageKey = try storageKeyFactory.locksForId(accountId)
+
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: balanceLockStorageKey)
+
+        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            storageFacade.createRepository()
+
+        return BalanceLockSubscription(
+            remoteStorageKey: balanceLockStorageKey,
             localStorageKey: localStorageKey,
             storage: AnyDataProviderRepository(storage),
             operationManager: OperationManagerFacade.sharedManager,

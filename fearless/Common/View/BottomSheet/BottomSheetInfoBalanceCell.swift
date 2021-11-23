@@ -1,6 +1,6 @@
 import UIKit
 
-final class ValidatorInfoStakingAmountCell: ValidatorInfoBaseTableCell, ModalPickerCellProtocol {
+final class BottomSheetInfoBalanceCell: BottomSheetInfoTableCell, ModalPickerCellProtocol {
     enum Constants {
         static let verticalInset: CGFloat = 10.0
     }

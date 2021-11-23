@@ -182,8 +182,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
                     self?.presenter.didReceiveContribution(result: .success(contributionResponse.contribution))
                 } catch {
                     self?.presenter.didReceiveContribution(result: .failure(error))
-
-                    self?.logger.error("Cannot receive contributions for crowdloan: \(crowdloan)")
                 }
             }
         }

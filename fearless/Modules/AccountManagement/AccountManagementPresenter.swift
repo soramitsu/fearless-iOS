@@ -226,11 +226,7 @@ extension AccountManagementPresenter: AccountManagementInteractorOutputProtocol 
 
 extension AccountManagementPresenter: Localizable {
     func applyLocalization() {
-        guard let view = view else {
-            return
-        }
-
-        if view.isSetup {
+        if view?.isSetup == true {
             updateViewModels()
         }
     }
