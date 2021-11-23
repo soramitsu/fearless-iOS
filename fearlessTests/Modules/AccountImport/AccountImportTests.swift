@@ -13,19 +13,30 @@ class AccountImportTests: XCTestCase {
         let view = MockAccountImportViewProtocol()
         let wireframe = MockAccountImportWireframeProtocol()
 
-        let settings = InMemorySettingsManager()
+        let settings = SelectedWalletSettings(
+            storageFacade: UserDataStorageTestFacade(),
+            operationQueue: OperationQueue()
+        )
+
+        let repository = AccountRepositoryFactory(
+            storageFacade: UserDataStorageTestFacade())
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+
+        let eventCenter = MockEventCenterProtocol()
+
         let keychain = InMemoryKeychain()
-        let operationFactory = AccountOperationFactory(keystore: keychain)
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
 
         let keystoreImportService = KeystoreImportService(logger: Logger.shared)
 
-        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
-
-        let interactor = AccountImportInteractor(accountOperationFactory: operationFactory,
-                                                 accountRepository: AnyDataProviderRepository(accountRepository),
-                                                 operationManager: OperationManager(),
-                                                 settings: settings,
-                                                 keystoreImportService: keystoreImportService)
+        let interactor = AccountImportInteractor(
+            accountOperationFactory: operationFactory,
+            accountRepository: AnyDataProviderRepository(repository),
+            operationManager: OperationManager(),
+            settings: settings,
+            keystoreImportService: keystoreImportService,
+            eventCenter: eventCenter
+        )
 
         let expectedUsername = "myname"
         let expetedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
@@ -75,6 +86,16 @@ class AccountImportTests: XCTestCase {
             }
         }
 
+        let completeExpectation = XCTestExpectation()
+
+        stub(eventCenter) { stub in
+            stub.notify(with: any()).then { event in
+                if event is SelectedAccountChanged {
+                    completeExpectation.fulfill()
+                }
+            }
+        }
+
         // when
 
         presenter.setup()
@@ -91,17 +112,26 @@ class AccountImportTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [expectation, completeExpectation], timeout: Constants.defaultExpectationDuration)
 
-        guard let selectedAccount = settings.selectedAccount else {
+        guard let selectedAccount = settings.value else {
             XCTFail("Unexpected empty account")
             return
         }
 
-        XCTAssertEqual(selectedAccount.username, expectedUsername)
+        XCTAssertEqual(selectedAccount.name, expectedUsername)
 
-        XCTAssertTrue(try keychain.checkSecretKeyForAddress(selectedAccount.address))
-        XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
-        XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
+        let metaId = selectedAccount.metaId
+
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.entropyTagForMetaId(metaId)))
+
+        XCTAssertFalse(try keychain.checkKey(for: KeystoreTagV2.substrateDerivationTagForMetaId(metaId)))
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)))
+
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId)))
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)))
+
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
     }
 }

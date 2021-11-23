@@ -4,6 +4,7 @@ import IrohaCrypto
 import RobinHood
 import SoraKeystore
 
+@available(*, deprecated, message: "Use MetaAccountOperationFactoryProtocol instead")
 protocol AccountOperationFactoryProtocol {
     func newAccountOperation(
         request: AccountCreationRequest,

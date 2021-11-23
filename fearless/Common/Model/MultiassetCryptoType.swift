@@ -1,7 +1,7 @@
 import Foundation
 import FearlessUtils
 
-enum MultiassetCryptoType: UInt8 {
+enum MultiassetCryptoType: UInt8, CaseIterable {
     case sr25519
     case ed25519
     case substrateEcdsa

@@ -23,21 +23,21 @@ protocol AccountCreateInteractorInputProtocol: AnyObject {
 }
 
 protocol AccountCreateInteractorOutputProtocol: AnyObject {
-    func didReceive(metadata: AccountCreationMetadata)
+    func didReceive(metadata: MetaAccountCreationMetadata)
     func didReceiveMnemonicGeneration(error: Error)
 }
 
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func confirm(
         from view: AccountCreateViewProtocol?,
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        request: MetaAccountCreationRequest,
+        metadata: MetaAccountCreationMetadata
     )
 
     func presentCryptoTypeSelection(
         from view: AccountCreateViewProtocol?,
-        availableTypes: [CryptoType],
-        selectedType: CryptoType,
+        availableTypes: [MultiassetCryptoType],
+        selectedType: MultiassetCryptoType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
@@ -46,11 +46,5 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 protocol AccountCreateViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
     static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
-
-    static func createViewForConnection(
-        item: ConnectionItem,
-        model: UsernameSetupModel
-    ) -> AccountCreateViewProtocol?
-
     static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol?
 }

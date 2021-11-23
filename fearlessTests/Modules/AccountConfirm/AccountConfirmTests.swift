@@ -13,28 +13,36 @@ class AccountConfirmTests: XCTestCase {
         let view = MockAccountConfirmViewProtocol()
         let wireframe = MockAccountConfirmWireframeProtocol()
 
-        let settings = InMemorySettingsManager()
+        let settings = SelectedWalletSettings(
+            storageFacade: UserDataStorageTestFacade(),
+            operationQueue: OperationQueue()
+        )
         let keychain = InMemoryKeychain()
 
         let mnemonicWords = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
-        let newAccountRequest = AccountCreationRequest(username: "myusername",
-                                                       type: .kusama,
-                                                       derivationPath: "",
-                                                       cryptoType: .sr25519)
+        let newAccountRequest = MetaAccountCreationRequest(
+            username: "myusername",
+            derivationPath: "",
+            cryptoType: .sr25519
+        )
 
         let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
 
-        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
 
-        let repository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
+        let repository = AccountRepositoryFactory(storageFacade: UserDataStorageTestFacade())
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+
+        let eventCenter = MockEventCenterProtocol()
 
         let interactor = AccountConfirmInteractor(request: newAccountRequest,
                                                   mnemonic: mnemonic,
                                                   accountOperationFactory: accountOperationFactory,
                                                   accountRepository: AnyDataProviderRepository(repository),
                                                   settings: settings,
-                                                  operationManager: OperationManager())
+                                                  operationManager: OperationManager(),
+                                                  eventCenter: eventCenter)
 
         let presenter = AccountConfirmPresenter()
         presenter.view = view
@@ -58,6 +66,16 @@ class AccountConfirmTests: XCTestCase {
             }
         }
 
+        let completeExpectation = XCTestExpectation()
+
+        stub(eventCenter) { stub in
+            stub.notify(with: any()).then { event in
+                if event is SelectedAccountChanged {
+                    completeExpectation.fulfill()
+                }
+            }
+        }
+
         // when
 
         presenter.setup()
@@ -68,17 +86,26 @@ class AccountConfirmTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [expectation, completeExpectation], timeout: Constants.defaultExpectationDuration)
 
-        guard let selectedAccount = settings.selectedAccount else {
+        guard let selectedAccount = settings.value else {
             XCTFail("Unexpected empty account")
             return
         }
 
-        XCTAssertEqual(selectedAccount.username, newAccountRequest.username)
+        XCTAssertEqual(selectedAccount.name, newAccountRequest.username)
 
-        XCTAssertTrue(try keychain.checkSecretKeyForAddress(selectedAccount.address))
-        XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
-        XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
+        let metaId = selectedAccount.metaId
+
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.entropyTagForMetaId(metaId)))
+
+        XCTAssertFalse(try keychain.checkKey(for: KeystoreTagV2.substrateDerivationTagForMetaId(metaId)))
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)))
+
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId)))
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)))
+
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
+        XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
     }
 }

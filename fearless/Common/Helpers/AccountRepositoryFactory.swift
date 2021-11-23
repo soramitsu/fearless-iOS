@@ -4,6 +4,7 @@ import RobinHood
 
 protocol AccountRepositoryFactoryProtocol {
     // TODO: remove
+    @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
     func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem>
     func createRepository() -> AnyDataProviderRepository<AccountItem>
 

@@ -1338,6 +1338,8 @@ import RobinHood
     
     
     
+    @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
+    
      func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem> {
         
     return cuckoo_manager.call("createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem>",

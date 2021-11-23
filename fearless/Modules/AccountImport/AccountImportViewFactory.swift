@@ -24,36 +24,6 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    static func createViewForConnection(item: ConnectionItem) -> AccountImportViewProtocol? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService()
-        else {
-            Logger.shared.error("Missing required keystore import service")
-            return nil
-        }
-
-        let keystore = Keychain()
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
-
-        let accountRepository = AccountRepositoryFactory.createRepository()
-
-        let operationManager = OperationManagerFacade.sharedManager
-        let interactor = SelectConnection
-            .AccountImportInteractor(
-                connectionItem: item,
-                accountOperationFactory: accountOperationFactory,
-                accountRepository: accountRepository,
-                operationManager: operationManager,
-                settings: SettingsManager.shared,
-                keystoreImportService: keystoreImportService,
-                eventCenter: EventCenter.shared
-            )
-
-        let wireframe = SelectConnection.AccountImportWireframe(connection: item)
-
-        return createView(for: interactor, wireframe: wireframe)
-    }
-
     static func createViewForSwitch() -> AccountImportViewProtocol? {
         guard let interactor = createAddAccountImportInteractor() else {
             return nil
@@ -92,17 +62,21 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         }
 
         let keystore = Keychain()
-        let settings = SettingsManager.shared
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+        let settings = SelectedWalletSettings.shared
 
-        let accountRepository = AccountRepositoryFactory.createRepository()
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keystore)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+
+        let eventCenter = EventCenter.shared
 
         let interactor = AccountImportInteractor(
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,
             operationManager: OperationManagerFacade.sharedManager,
             settings: settings,
-            keystoreImportService: keystoreImportService
+            keystoreImportService: keystoreImportService,
+            eventCenter: eventCenter
         )
 
         return interactor
@@ -117,18 +91,20 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         }
 
         let keystore = Keychain()
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keystore)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
-        let accountRepository = AccountRepositoryFactory.createRepository()
+        let eventCenter = EventCenter.shared
 
         let interactor = AddAccount
             .AccountImportInteractor(
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,
-                settings: SettingsManager.shared,
+                settings: SelectedWalletSettings.shared,
                 keystoreImportService: keystoreImportService,
-                eventCenter: EventCenter.shared
+                eventCenter: eventCenter
             )
 
         return interactor
