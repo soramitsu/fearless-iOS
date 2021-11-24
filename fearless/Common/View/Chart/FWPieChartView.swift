@@ -27,6 +27,7 @@ final class FWPieChartView: PieChartView {
         usePercentValuesEnabled = false
         legend.enabled = false
         noDataText = ""
+        centerTextRadiusPercent = 0.85
     }
 
     @available(*, unavailable)

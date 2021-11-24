@@ -95,6 +95,7 @@ class CrowdloanListTests: XCTestCase {
 
         let chainCompletionExpectation = XCTestExpectation()
         let listCompletionExpectation = XCTestExpectation()
+        let tabBarNotificationsExpectation = XCTestExpectation()
 
         stub(view) { stub in
             stub.isSetup.get.thenReturn(false, true)
@@ -109,6 +110,9 @@ class CrowdloanListTests: XCTestCase {
 
             stub.didReceive(chainInfo: any()).then { state in
                 chainCompletionExpectation.fulfill()
+            
+            stub.didReceive(tabBarNotifications: any()).then { _ in
+                tabBarNotificationsExpectation.fulfill()
             }
         }
 
@@ -124,7 +128,7 @@ class CrowdloanListTests: XCTestCase {
 
         // then
 
-        wait(for: [listCompletionExpectation, chainCompletionExpectation], timeout: 10)
+        wait(for: [listCompletionExpectation, chainCompletionExpectation, tabBarNotificationsExpectation], timeout: 10)
 
         let actualActiveParaIds = actualViewModel?.active?.crowdloans
             .reduce(into: Set<ParaId>()) { (result, crowdloan) in
@@ -174,7 +178,9 @@ class CrowdloanListTests: XCTestCase {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            moduleOutput: nil,
+            settings: SettingsManager.shared
         )
 
         presenter.view = view
@@ -233,6 +239,12 @@ class CrowdloanListTests: XCTestCase {
             walletLocalSubscriptionFactory: walletLocalSubscriptionService,
             jsonDataProviderFactory: jsonProviderFactory,
             operationManager: OperationManagerFacade.sharedManager
+            connection: connection,
+            singleValueProviderFactory: providerFactory,
+            chain: chain,
+            logger: Logger.shared,
+            subscanOperationFactory: SubscanOperationFactory(),
+            walletAssetId: nil
         )
     }
 }

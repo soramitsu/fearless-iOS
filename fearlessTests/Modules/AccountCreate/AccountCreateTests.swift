@@ -40,7 +40,7 @@ class AccountCreateTests: XCTestCase {
 
         let expectation = XCTestExpectation()
 
-        var receivedRequest: AccountCreationRequest?
+        var receivedRequest: MetaAccountCreationRequest?
 
         stub(wireframe) { stub in
             when(stub).confirm(from: any(), request: any(), metadata: any()).then { (_, request, _) in
@@ -62,6 +62,5 @@ class AccountCreateTests: XCTestCase {
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(receivedRequest?.username, usernameSetup.username)
-        XCTAssertEqual(receivedRequest?.type, usernameSetup.selectedNetwork)
     }
 }

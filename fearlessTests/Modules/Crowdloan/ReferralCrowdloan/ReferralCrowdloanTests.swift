@@ -14,7 +14,7 @@ class ReferralCrowdloanTests: XCTestCase {
         website: "http://google.com",
         icon: "http://google.com/icon.svg",
         rewardRate: 12.0,
-        customFlow: .karura
+        flow: .karura
     )
 
     func testReferralInputSuccess() throws {
@@ -58,7 +58,7 @@ class ReferralCrowdloanTests: XCTestCase {
 
         let inputViewModelReceived = XCTestExpectation()
         let learnMoreReceived = XCTestExpectation()
-        let referralReceived = XCTestExpectation()
+        let stateReceived = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didStartLoading().thenDoNothing()
@@ -72,15 +72,15 @@ class ReferralCrowdloanTests: XCTestCase {
             when(stub).didReceiveLearnMore(viewModel: any()).then { _ in
                 learnMoreReceived.fulfill()
             }
-
-            when(stub).didReceiveReferral(viewModel: any()).then { _ in
-                referralReceived.fulfill()
+            
+            when(stub).didReceiveState(state: any()).then { _ in
+                stateReceived.fulfill()
             }
         }
 
         presenter.setup()
 
-        wait(for: [inputViewModelReceived, learnMoreReceived, referralReceived], timeout: 10.0)
+        wait(for: [inputViewModelReceived, learnMoreReceived, stateReceived], timeout: 10.0)
 
         // when
 

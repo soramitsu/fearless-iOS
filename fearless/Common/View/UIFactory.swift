@@ -2,10 +2,15 @@ import UIKit
 import SoraUI
 
 struct UIConstants {
+    static let minimalOffset: CGFloat = 4.0
+    static let defaultOffset: CGFloat = 8.0
+    static let bigOffset: CGFloat = 16.0
+    static let hugeOffset: CGFloat = 24.0
     static let actionBottomInset: CGFloat = 16.0
     static let actionHeight: CGFloat = 52.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
+    static let verticalInset: CGFloat = 16.0
     static let triangularedViewHeight: CGFloat = 52.0
     static let expandableViewHeight: CGFloat = 50.0
     static let formSeparatorWidth: CGFloat = 0.5
@@ -21,6 +26,8 @@ struct UIConstants {
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
     static let amountInputIconSize = CGSize(width: 24.0, height: 24.0)
+    static let networkFeeViewDefaultHeight: CGFloat = 132
+    static let referralBonusButtonHeight: CGFloat = 30
 }
 
 enum AccountViewMode {
@@ -77,6 +84,8 @@ protocol UIFactoryProtocol {
     func createInfoIndicatingView() -> ImageWithTitleView
 
     func createChainAssetSelectionView() -> DetailsTriangularedView
+
+    func createWalletReferralBonusButton() -> GradientButton
 }
 
 extension UIFactoryProtocol {
@@ -238,8 +247,9 @@ final class UIFactory: UIFactoryProtocol {
         let toolBar = AmountInputAccessoryView(frame: frame)
         toolBar.actionDelegate = delegate
 
+        let maxTitle = R.string.localizable.commonMax(preferredLanguages: locale.rLanguages)
         let actions: [ViewSelectorAction] = [
-            ViewSelectorAction(title: "100%", selector: #selector(toolBar.actionSelect100)),
+            ViewSelectorAction(title: maxTitle.uppercased(), selector: #selector(toolBar.actionSelect100)),
             ViewSelectorAction(title: "75%", selector: #selector(toolBar.actionSelect75)),
             ViewSelectorAction(title: "50%", selector: #selector(toolBar.actionSelect50)),
             ViewSelectorAction(title: "25%", selector: #selector(toolBar.actionSelect25))
@@ -446,7 +456,12 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView()
+        NetworkFeeConfirmView(
+            frame: CGRect(
+                x: 0.0, y: 0.0,
+                width: 0.0, height: UIConstants.networkFeeViewDefaultHeight
+            )
+        )
     }
 
     func createTitleValueView() -> TitleValueView {
@@ -523,5 +538,14 @@ final class UIFactory: UIFactoryProtocol {
         view.contentInsets = UIEdgeInsets(top: 7.0, left: 16.0, bottom: 8.0, right: 16.0)
         view.iconRadius = 16.0
         return view
+    }
+
+    func createWalletReferralBonusButton() -> GradientButton {
+        let button = GradientButton()
+        button.applyDefaultStyle()
+        button.applyDisabledStyle()
+        button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2
+
+        return button
     }
 }

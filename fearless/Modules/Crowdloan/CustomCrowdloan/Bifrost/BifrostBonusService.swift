@@ -10,8 +10,8 @@ final class BifrostBonusService {
 
     var bonusRate: Decimal { 0.05 }
 
-    var termsURL: URL {
-        URL(string: "https://docs.google.com/document/d/1PDpgHnIcAmaa7dEFusmLYgjlvAbk2VKtMd755bdEsf4/edit?usp=sharing")!
+    var termsURL: URL? {
+        URL(string: "https://docs.google.com/document/d/1PDpgHnIcAmaa7dEFusmLYgjlvAbk2VKtMd755bdEsf4/edit?usp=sharing")
     }
 
     private(set) var referralCode: String?
@@ -81,14 +81,14 @@ extension BifrostBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOffchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         with closure: @escaping (Result<Void, Error>) -> Void
     ) {
         closure(.success(()))
     }
 
     func applyOnchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         guard let memo = referralCode?.data(using: .utf8), memo.count <= 32 else {

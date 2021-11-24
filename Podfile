@@ -8,8 +8,8 @@ abstract_target 'fearlessAll' do
   pod 'R.swift', :inhibit_warnings => true
   pod 'SoraKeystore', '~> 1.0.0'
   pod 'SoraUI', '~> 1.10.3'
-  pod 'RobinHood', '~> 2.6.0'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '4133ff9b81cda094dd8e2b7f32129172224b0227'
+  pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :commit => '11aba7168859849b2a49a72d507ef0edba9965c0'
+  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '6fe19f304870a4406d1c267b1dc959d6cdf953ba'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
@@ -31,8 +31,8 @@ abstract_target 'fearlessAll' do
     pod 'R.swift', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', '~> 1.0.0'
-    pod 'RobinHood', '~> 2.6.0'
-    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '4133ff9b81cda094dd8e2b7f32129172224b0227'
+    pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :commit => '11aba7168859849b2a49a72d507ef0edba9965c0'
+    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '6fe19f304870a4406d1c267b1dc959d6cdf953ba'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'
 

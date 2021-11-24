@@ -18,7 +18,7 @@ final class KaruraBonusService {
     static let apiVerify = "/verify"
 
     var bonusRate: Decimal { 0.05 }
-    var termsURL: URL { URL(string: "https://acala.network/karura/terms")! }
+    var termsURL: URL? { URL(string: "https://acala.network/karura/terms") }
     private(set) var referralCode: String?
 
     let signingWrapper: SigningWrapperProtocol
@@ -123,7 +123,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     }
 
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                    if let responseError = error as? NetworkResponseError, case .invalidParameters = responseError {
                         closure(.failure(CrowdloanBonusServiceError.invalidReferral))
                     } else {
                         closure(.failure(CrowdloanBonusServiceError.internalError))
@@ -136,10 +136,10 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOffchainBonusForContribution(
-        amount: BigUInt,
+        amount: BigUInt?,
         with closure: @escaping (Result<Void, Error>) -> Void
     ) {
-        guard let referralCode = referralCode else {
+        guard let referralCode = referralCode, let amount = amount else {
             DispatchQueue.main.async {
                 closure(.failure(CrowdloanBonusServiceError.veficationFailed))
             }
@@ -176,7 +176,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     _ = try verifyOperation.extractNoCancellableResultData()
                     closure(.success(()))
                 } catch {
-                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                    if let responseError = error as? NetworkResponseError, case .invalidParameters = responseError {
                         closure(.failure(CrowdloanBonusServiceError.veficationFailed))
                     } else {
                         closure(.failure(error))
@@ -189,7 +189,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
     }
 
     func applyOnchainBonusForContribution(
-        amount _: BigUInt,
+        amount _: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         builder

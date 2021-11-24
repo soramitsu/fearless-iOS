@@ -6,34 +6,38 @@ import IrohaCrypto
 class AccountItemMapperTests: XCTestCase {
     func testSaveAndFetchItem() throws {
         // given
-
-        let operationQueue = OperationQueue()
-
-        let repository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
+        let settings = SelectedWalletSettings(
+            storageFacade: UserDataStorageTestFacade(),
+            operationQueue: OperationQueue()
+        )
 
         // when
-
         let keypair = try SECKeyFactory().createRandomKeypair()
         let address = try SS58AddressFactory().address(fromPublicKey: keypair.publicKey(),
-                                                   type: .kusamaMain)
+                                                       type: .kusamaMain)
+        let accountId = try keypair.publicKey().rawData().publicKeyToAccountId()
 
-        let accountItem = AccountItem(address: address,
-                                      cryptoType: .ecdsa,
-                                      username: "myname",
-                                      publicKeyData: keypair.publicKey().rawData())
+        let metaAccountItem = MetaAccountModel(
+            metaId: UUID().uuidString,
+            name: "metaAccount",
+            substrateAccountId: accountId,
+            substrateCryptoType: MultiassetCryptoType.substrateEcdsa.rawValue,
+            substratePublicKey: keypair.publicKey().rawData(),
+            ethereumAddress: address.asSecretData(),
+            ethereumPublicKey: keypair.publicKey().rawData(),
+            chainAccounts: []
+        )
 
-        let saveOperation = repository.saveOperation({ [accountItem] }, { [] })
-        operationQueue.addOperations([saveOperation], waitUntilFinished: true)
-
-        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
-        operationQueue.addOperations([fetchOperation], waitUntilFinished: true)
+        settings.save(value: metaAccountItem)
 
         // then
 
-        XCTAssertNoThrow(try saveOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled))
+        XCTAssertTrue(settings.hasValue)
 
-        let receivedAccountItem = try fetchOperation.extractResultData()
+        // when
+        let receivedMetaAccountItem = settings.value
 
-        XCTAssertEqual([accountItem], receivedAccountItem)
+        // then
+        XCTAssertEqual(metaAccountItem, receivedMetaAccountItem)
     }
 }

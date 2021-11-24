@@ -41,6 +41,7 @@ final class WebSocketService: WebSocketServiceProtocol {
     private(set) var isActive: Bool = true
 
     var networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol?
+    private var stateListeners: [WeakWrapper] = []
 
     init(
         settings: WebSocketServiceSettings,
@@ -87,6 +88,14 @@ final class WebSocketService: WebSocketServiceProtocol {
         }
     }
 
+    func addStateListener(_ listener: WebSocketServiceStateListener) {
+        stateListeners.append(WeakWrapper(target: listener))
+    }
+
+    func removeStateListener(_ listener: WebSocketServiceStateListener) {
+        stateListeners = stateListeners.filter { $0 !== listener }
+    }
+
     private func clearConnection() {
         engine?.delegate = nil
         engine?.disconnectIfNeeded()
@@ -125,6 +134,10 @@ extension WebSocketService: WebSocketEngineDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 scheduleNetworkUnreachable()
+
+                stateListeners.forEach { listenerWeakWrapper in
+                    (listenerWeakWrapper.target as? WebSocketServiceStateListener)?.websocketNetworkDown()
+                }
             }
         case .connected:
             scheduleNetworkReachable()

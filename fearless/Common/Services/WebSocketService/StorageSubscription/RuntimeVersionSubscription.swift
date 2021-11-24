@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import SoraKeystore
+import Rswift
 
 enum RuntimeVersionSubscriptionError: Error {
     case skipUnchangedVersion
@@ -13,6 +15,8 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol
+
+    private let dataOperationFactory = DataOperationFactory()
 
     private var subscriptionId: UInt16?
 
@@ -69,6 +73,12 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
     }
 
     private func handle(runtimeVersion: RuntimeVersion) {
+        let breakingUpgradeState = chain.metadataBreakingUpgradeState(for: runtimeVersion.specVersion)
+        var forceOverridesOperation: BaseOperation<Data>?
+        if case let .forceResponse(_, url) = breakingUpgradeState, let url = url {
+            forceOverridesOperation = dataOperationFactory.fetchData(from: url)
+        }
+
         let fetchCurrentOperation = storage.fetchOperation(
             by: chain.genesisHash,
             options: RepositoryFetchOptions()
@@ -82,8 +92,13 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
 
         let saveOperation = createSaveOperation(
             dependingOn: metaOperation,
+            runtimeOverrides: forceOverridesOperation,
             runtimeVersion: runtimeVersion
         )
+
+        if let forceOverridesOperation = forceOverridesOperation {
+            saveOperation.addDependency(forceOverridesOperation)
+        }
         saveOperation.addDependency(metaOperation)
 
         saveOperation.completionBlock = {
@@ -93,6 +108,15 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                 self.logger.debug("Did save runtime metadata:")
                 self.logger.debug("spec version: \(runtimeVersion.specVersion)")
                 self.logger.debug("transaction version: \(runtimeVersion.transactionVersion)")
+
+                switch breakingUpgradeState {
+                case let .applyTemporarySolution(_, breakingUpgrade):
+                    breakingUpgrade.temporarySolutionApplied(for: self.chain, value: true)
+                case let .overrideTemporarySolution(breakingUpgrade):
+                    breakingUpgrade.temporarySolutionApplied(for: self.chain, value: false)
+                default:
+                    break
+                }
             } catch {
                 if let internalError = error as? RuntimeVersionSubscriptionError,
                    internalError == RuntimeVersionSubscriptionError.skipUnchangedVersion {
@@ -104,28 +128,51 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             }
         }
 
-        operationManager.enqueue(
-            operations: [fetchCurrentOperation, metaOperation, saveOperation],
-            in: .transient
-        )
+        let operations = [forceOverridesOperation, fetchCurrentOperation, metaOperation, saveOperation].compactMap { $0 }
+        operationManager.enqueue(operations: operations, in: .transient)
     }
 
     private func createMetadataOperation(
         dependingOn localFetch: BaseOperation<RuntimeMetadataItem?>,
         runtimeVersion: RuntimeVersion
     ) -> BaseOperation<String> {
+        let breakingUpgradeState = chain.metadataBreakingUpgradeState(for: runtimeVersion.specVersion)
+
+        let parameters: [String]?
+        switch breakingUpgradeState {
+        case let .applyTemporarySolution(array, _):
+            parameters = array
+        default:
+            parameters = nil
+        }
+
         let method = RPCMethod.getRuntimeMetadata
         let metaOperation = JSONRPCOperation<[String], String>(
             engine: engine,
-            method: method
+            method: method,
+            parameters: parameters
         )
 
         metaOperation.configurationBlock = {
             do {
+                switch breakingUpgradeState {
+                case let .forceResponse(response, _):
+                    metaOperation.result = .success(response)
+                default:
+                    break
+                }
+
                 let currentItem = try localFetch
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
                 if let item = currentItem, item.version == runtimeVersion.specVersion {
-                    metaOperation.result = .failure(RuntimeVersionSubscriptionError.skipUnchangedVersion)
+                    switch breakingUpgradeState {
+                    case .notAffected:
+                        metaOperation.result = .failure(RuntimeVersionSubscriptionError.skipUnchangedVersion)
+                    default:
+                        // Do not skip, proceed with update
+                        break
+                    }
                 }
             } catch {
                 metaOperation.result = .failure(error)
@@ -137,14 +184,67 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
 
     private func createSaveOperation(
         dependingOn meta: BaseOperation<String>,
+        runtimeOverrides: BaseOperation<Data>?,
         runtimeVersion: RuntimeVersion
     ) -> BaseOperation<Void> {
         storage.saveOperation({
             let metadataHex = try meta
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let rawMetadata = try Data(hexString: metadataHex)
+            var rawMetadata = try Data(hexString: metadataHex)
             let decoder = try ScaleDecoder(data: rawMetadata)
-            _ = try RuntimeMetadata(scaleDecoder: decoder)
+            let metadata = try RuntimeMetadata(scaleDecoder: decoder)
+
+            if let data = try? runtimeOverrides?.extractResultData(),
+               let overrides = try? JSONDecoder().decode(RuntimeOverrides.self, from: data),
+               !overrides.modules.isEmpty {
+                var modules: [ModuleMetadata] = []
+                for module in metadata.modules {
+                    guard let override = overrides.modules.first(where: { $0.name == module.name }) else {
+                        modules.append(module)
+                        continue
+                    }
+
+                    var constants: [ModuleConstantMetadata] = []
+                    if let constantOverrides = override.constants {
+                        for constant in module.constants {
+                            guard let override = constantOverrides.first(where: { $0.name == constant.name }) else {
+                                constants.append(constant)
+                                continue
+                            }
+
+                            constants.append(ModuleConstantMetadata(
+                                name: constant.name,
+                                type: constant.type,
+                                value: (try? Data(hexString: override.value)) ?? constant.value,
+                                documentation: constant.documentation
+                            ))
+                        }
+                    } else {
+                        constants.append(contentsOf: module.constants)
+                    }
+
+                    modules.append(ModuleMetadata(
+                        name: module.name,
+                        storage: module.storage,
+                        calls: module.calls,
+                        events: module.events,
+                        constants: constants,
+                        errors: module.errors,
+                        index: override.index ?? module.index
+                    ))
+                }
+
+                let newMetadata = RuntimeMetadata(
+                    metaReserved: metadata.metaReserved,
+                    runtimeMetadataVersion: metadata.runtimeMetadataVersion,
+                    modules: modules,
+                    extrinsic: metadata.extrinsic
+                )
+
+                let encoder = ScaleEncoder()
+                try newMetadata.encode(scaleEncoder: encoder)
+                rawMetadata = encoder.encode()
+            }
 
             let item = RuntimeMetadataItem(
                 chain: self.chain.genesisHash,
@@ -156,5 +256,157 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             return [item]
 
         }, { [] })
+    }
+}
+
+// MARK: - RuntimeMetadataBreakingUpgrade
+
+private protocol RuntimeMetadataBreakingUpgrade {
+    var versionIssueIntroduced: UInt32 { get }
+    var isFixed: Bool { get }
+    func blockHashForBackwardCompatibility(for chain: Chain) -> String?
+    func forcedResponse(for chain: Chain) -> String?
+    func overridesUrl(for chain: Chain) -> URL?
+}
+
+private extension RuntimeMetadataBreakingUpgrade {
+    /// Provides settings key only if block hash known
+    private func settingsKey(for chain: Chain) -> String? {
+        blockHashForBackwardCompatibility(for: chain).map {
+            "runtime.metadata.breaking.update.\(chain.rawValue).\($0)"
+        }
+    }
+
+    func isTemporarySolutionApplied(for chain: Chain) -> Bool {
+        settingsKey(for: chain).map {
+            SettingsManager.shared.bool(for: $0) ?? false
+        } ?? false
+    }
+
+    func temporarySolutionApplied(for chain: Chain, value: Bool) {
+        if let key = settingsKey(for: chain) {
+            SettingsManager.shared.set(value: value, for: key)
+        }
+    }
+}
+
+// MARK: - RuntimeOverrides
+
+private struct RuntimeOverrides: Decodable {
+    struct ModuleOverride: Decodable {
+        struct ConstantOverride: Decodable {
+            let name: String
+            let value: String
+        }
+
+        var name: String
+        let index: UInt8?
+        let constants: [ConstantOverride]?
+    }
+
+    let modules: [ModuleOverride]
+}
+
+// MARK: - Known RuntimeMetadataBreakingUpgrades
+
+private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade {
+    let versionIssueIntroduced: UInt32 = 9110
+    let isFixed = false
+
+    func blockHashForBackwardCompatibility(for chain: Chain) -> String? {
+        switch chain {
+        case .kusama: // block #9 624 000
+            return "0x331cd3019b10cb639b6855e10f411bce33e65c2d129381907ac69f62bc054df9"
+        case .polkadot: // block #7 227 700
+            return "0xe8af816df50b4cabb3f396b61d4574925b2aa6fae556626804aab22fea276234"
+        case .westend: // block #7 500 000
+            return "0xa300b367c112c55e137a6fbba806975910695057ed0f7a3e37ac2fcbe19d70c1"
+        default:
+            return nil
+        }
+    }
+
+    func forcedResponse(for chain: Chain) -> String? {
+        func asString(_ resource: FileResource) -> String? {
+            resource.path().map {
+                try? String(contentsOfFile: $0)
+            } ?? nil
+        }
+
+        switch chain {
+        case .polkadot:
+            return asString(R.file.polkadotV14Runtime)
+        default:
+            return nil
+        }
+    }
+
+    func overridesUrl(for chain: Chain) -> URL? {
+        switch chain {
+        case .polkadot:
+            return URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/crowdloands/moonbeam/scalecodec/type_registry/polkadot-overrides.json")
+        default:
+            return nil
+        }
+    }
+}
+
+// Should be pre-sorted in ascending order
+// Should be left for history purposes, never clear these
+private let knownRuntimeMetadataBreakingUpgrades: [RuntimeMetadataBreakingUpgrade] = [
+    RuntimeMetadataV14BreakingUpdate()
+]
+
+// MARK: - RuntimeMetadataBreakingUpgradeState
+
+private enum RuntimeMetadataBreakingUpgradeState {
+    case applyTemporarySolution([String], RuntimeMetadataBreakingUpgrade)
+    case overrideTemporarySolution(RuntimeMetadataBreakingUpgrade)
+    case forceResponse(String, URL?)
+    case notAffected
+}
+
+// MARK: - Chain based breaking update fixes
+
+private extension Chain {
+    private var temporarySolutionApplied: RuntimeMetadataBreakingUpgrade? {
+        knownRuntimeMetadataBreakingUpgrades.first(where: { $0.isTemporarySolutionApplied(for: self) })
+    }
+
+    private func recentBreakingUpgrade(for version: UInt32) -> RuntimeMetadataBreakingUpgrade? {
+        knownRuntimeMetadataBreakingUpgrades
+            .filter { $0.versionIssueIntroduced <= version }
+            .last
+    }
+
+    func metadataBreakingUpgradeState(for version: UInt32) -> RuntimeMetadataBreakingUpgradeState {
+        guard let recent = recentBreakingUpgrade(for: version) else {
+            // No breaking changes known so far
+            return .notAffected
+        }
+
+        if let response = recent.forcedResponse(for: self) {
+            return .forceResponse(response, recent.overridesUrl(for: self))
+        }
+
+        if let applied = temporarySolutionApplied {
+            if applied.versionIssueIntroduced == recent.versionIssueIntroduced {
+                if applied.isFixed {
+                    // Previously applied temporary solution no longer needed, as runtime parsing fixed
+                    return .overrideTemporarySolution(applied)
+                } // else issue not fixed, stick with applied solution
+            } else { // recent > applied, provide solution for recent version
+                // also reset applied state, so it no more recognized as applied
+                applied.temporarySolutionApplied(for: self, value: false)
+            }
+        }
+
+        guard !recent.isFixed, let blockHash = recent.blockHashForBackwardCompatibility(for: self) else {
+            // Recent breaking update already supported or no temporary solution known, do nothing
+            return .notAffected
+        }
+
+        // Apply fix from recent breaking upgrade
+        return .applyTemporarySolution([blockHash], recent)
     }
 }

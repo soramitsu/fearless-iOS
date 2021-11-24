@@ -73,8 +73,11 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
             )
 
         }, preservesCondition: {
-            if let contribution = contribution,
-               let minimumBalance = minimumBalance {
+            guard let contribution = contribution else {
+                return true
+            }
+
+            if let minimumBalance = minimumBalance {
                 return contribution >= minimumBalance
             } else {
                 return false
@@ -114,8 +117,11 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
             }
 
         }, preservesCondition: {
-            if let contribution = contribution,
-               let raised = raised,
+            guard let contribution = contribution else {
+                return true
+            }
+
+            if let raised = raised,
                let cap = cap {
                 return raised + contribution <= cap
             } else {

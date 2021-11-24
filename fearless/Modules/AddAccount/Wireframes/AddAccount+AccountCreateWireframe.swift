@@ -5,8 +5,8 @@ extension AddAccount {
     final class AccountCreateWireframe: AccountCreateWireframeProtocol {
         func confirm(
             from view: AccountCreateViewProtocol?,
-            request: AccountCreationRequest,
-            metadata: AccountCreationMetadata
+            request: MetaAccountCreationRequest,
+            metadata: MetaAccountCreationMetadata
         ) {
             guard let accountConfirmation = AccountConfirmViewFactory
                 .createViewForAdding(request: request, metadata: metadata)?.controller
@@ -21,8 +21,8 @@ extension AddAccount {
 
         func presentCryptoTypeSelection(
             from view: AccountCreateViewProtocol?,
-            availableTypes: [CryptoType],
-            selectedType: CryptoType,
+            availableTypes: [MultiassetCryptoType],
+            selectedType: MultiassetCryptoType,
             delegate: ModalPickerViewControllerDelegate?,
             context: AnyObject?
         ) {

@@ -10,6 +10,7 @@ enum SettingsKey: String {
     case crowdloadChainId
     case stakingAsset
     case stakingNetworkExpansion
+    case referralEthereumAccount
 }
 
 extension SettingsManagerProtocol {
@@ -95,5 +96,25 @@ extension SettingsManagerProtocol {
         set {
             set(value: newValue, for: SettingsKey.stakingNetworkExpansion.rawValue)
         }
+    }
+
+    func saveReferralEthereumAddressForSelectedAccount(_ ethereumAccountAddress: String?) {
+        guard let selectedAccount = selectedAccount else { return }
+
+        let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
+
+        guard let ethereumAccountAddress = ethereumAccountAddress else {
+            removeValue(for: key)
+            return
+        }
+
+        set(value: ethereumAccountAddress, for: key)
+    }
+
+    func referralEthereumAddressForSelectedAccount() -> String? {
+        guard let selectedAccount = selectedAccount else { return nil }
+
+        let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
+        return string(for: key)
     }
 }

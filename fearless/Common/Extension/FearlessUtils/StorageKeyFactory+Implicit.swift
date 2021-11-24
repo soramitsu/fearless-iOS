@@ -29,6 +29,15 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
+    func locksForId(_ identifier: Data) throws -> Data {
+        try createStorageKey(
+            moduleName: "Balances",
+            storageName: "Locks",
+            key: identifier,
+            hasher: .blake128Concat
+        )
+    }
+
     func activeEra() throws -> Data {
         try createStorageKey(
             moduleName: "Staking",

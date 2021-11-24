@@ -37,6 +37,21 @@ final class ServiceCoordinator {
 }
 
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
+    func updateOnNetworkDown() {
+        // TODO: Replace with multiassets code
+//        let selectedConnectionItem = settings.selectedConnection
+//
+//        guard let connectionItem = ConnectionItem.supportedConnections.filter { $0.type == selectedConnectionItem.type && $0.url != selectedConnectionItem.url }.randomElement() else {
+//            return
+//        }
+//
+//        settings.selectedConnection = connectionItem
+//
+//        updateOnNetworkChange()
+//
+//        eventCenter.notify(with: SelectedConnectionChanged())
+    }
+
     func updateOnAccountChange() {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
@@ -85,5 +100,11 @@ extension ServiceCoordinator {
             accountInfoService: accountInfoService,
             githubPhishingService: githubPhishingAPIService
         )
+    }
+}
+
+extension ServiceCoordinator: WebSocketServiceStateListener {
+    func websocketNetworkDown() {
+        updateOnNetworkDown()
     }
 }

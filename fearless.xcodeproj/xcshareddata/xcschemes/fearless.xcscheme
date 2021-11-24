@@ -40,16 +40,6 @@
       </CodeCoverageTargets>
       <Testables>
          <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "849013BD24A80986008F705E"
-               BuildableName = "fearlessTests.xctest"
-               BlueprintName = "fearlessTests"
-               ReferencedContainer = "container:fearless.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
             skipped = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
@@ -58,6 +48,192 @@
                BlueprintName = "fearlessIntegrationTests"
                ReferencedContainer = "container:fearless.xcodeproj">
             </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "849013BD24A80986008F705E"
+               BuildableName = "fearlessTests.xctest"
+               BlueprintName = "fearlessTests"
+               ReferencedContainer = "container:fearless.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "AccountExportPasswordTests">
+               </Test>
+               <Test
+                  Identifier = "AccountImportTests">
+               </Test>
+               <Test
+                  Identifier = "AccountInfoExportTests">
+               </Test>
+               <Test
+                  Identifier = "AccountInfoTests">
+               </Test>
+               <Test
+                  Identifier = "AddConnectionTests">
+               </Test>
+               <Test
+                  Identifier = "BondMoreConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "ExportMnemonicTests">
+               </Test>
+               <Test
+                  Identifier = "KeystoreExportWrapperTests">
+               </Test>
+               <Test
+                  Identifier = "NetworkInfoTests">
+               </Test>
+               <Test
+                  Identifier = "NetworkItemMapperTests">
+               </Test>
+               <Test
+                  Identifier = "NetworkManagementTests">
+               </Test>
+               <Test
+                  Identifier = "OnboardingMainTests">
+               </Test>
+               <Test
+                  Identifier = "PincodeSetupTests">
+               </Test>
+               <Test
+                  Identifier = "PredicateTests">
+               </Test>
+               <Test
+                  Identifier = "ProfileTests">
+               </Test>
+               <Test
+                  Identifier = "RTests">
+               </Test>
+               <Test
+                  Identifier = "RecommendationsComposerTests">
+               </Test>
+               <Test
+                  Identifier = "RecommendedValidatorListTests">
+               </Test>
+               <Test
+                  Identifier = "ReferralCrowdloanTests">
+               </Test>
+               <Test
+                  Identifier = "RewardDataSourceTests">
+               </Test>
+               <Test
+                  Identifier = "RootTests">
+               </Test>
+               <Test
+                  Identifier = "RuntimePoolTests">
+               </Test>
+               <Test
+                  Identifier = "RuntimeProviderTests">
+               </Test>
+               <Test
+                  Identifier = "RuntimeSyncServiceTests">
+               </Test>
+               <Test
+                  Identifier = "SchedulerTests">
+               </Test>
+               <Test
+                  Identifier = "SelectValidatorsConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "SelectValidatorsStartTests">
+               </Test>
+               <Test
+                  Identifier = "SelectedAccountSettingsTests">
+               </Test>
+               <Test
+                  Identifier = "SelectedValidatorListTests">
+               </Test>
+               <Test
+                  Identifier = "SharedArrayTests">
+               </Test>
+               <Test
+                  Identifier = "SigningWrapperTests">
+               </Test>
+               <Test
+                  Identifier = "SingleToMultiassetUserMigrationTests">
+               </Test>
+               <Test
+                  Identifier = "SpecVersionSubscriptionTests">
+               </Test>
+               <Test
+                  Identifier = "StakingBalanceTests">
+               </Test>
+               <Test
+                  Identifier = "StakingBondMoreTests">
+               </Test>
+               <Test
+                  Identifier = "StakingDurationOperationFactoryTests">
+               </Test>
+               <Test
+                  Identifier = "StakingMainTests">
+               </Test>
+               <Test
+                  Identifier = "StakingPayoutsConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRebondConfirmationTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRebondSetupTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRedeemTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRewardDestConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRewardDestinationSetupTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRewardDetailsTests">
+               </Test>
+               <Test
+                  Identifier = "StakingRewardPayoutsTests">
+               </Test>
+               <Test
+                  Identifier = "StakingSettingsTests">
+               </Test>
+               <Test
+                  Identifier = "StakingUnbondConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "StakingUnbondSetupTests">
+               </Test>
+               <Test
+                  Identifier = "StoriesTests">
+               </Test>
+               <Test
+                  Identifier = "TransferValidatorTests">
+               </Test>
+               <Test
+                  Identifier = "UsernameSetupTests">
+               </Test>
+               <Test
+                  Identifier = "ValidatorInfoTests">
+               </Test>
+               <Test
+                  Identifier = "ValidatorListFilterTests">
+               </Test>
+               <Test
+                  Identifier = "ValidatorSearchTests">
+               </Test>
+               <Test
+                  Identifier = "WalletHistoryFilterTests">
+               </Test>
+               <Test
+                  Identifier = "WalletPurchaseProvidersTests">
+               </Test>
+               <Test
+                  Identifier = "WalletSelectAccountCommandTests">
+               </Test>
+               <Test
+                  Identifier = "YourValidatorListTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

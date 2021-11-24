@@ -1,11 +1,14 @@
 import UIKit
 import SoraUI
 import CommonWallet
+import SoraFoundation
 
 final class WalletDisplayAmountView: WalletBaseAmountView {
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: 84.0)
+        CGSize(width: UIView.noIntrinsicMetric, height: 72.0)
     }
+
+    var viewModel: RichAmountDisplayViewModelProtocol?
 }
 
 extension WalletDisplayAmountView: WalletFormBordering {
@@ -18,11 +21,19 @@ extension WalletDisplayAmountView: WalletFormBordering {
         }
     }
 
-    func bind(viewModel: WalletFormSpentAmountModel) {
-        animatedTextField.title = viewModel.title
-        animatedTextField.text = viewModel.amount
-        animatedTextField.isUserInteractionEnabled = false
+    func bind(viewModel: RichAmountDisplayViewModel) {
+        self.viewModel = viewModel
 
-        fieldBackgroundView.applyDisabledStyle()
+        amountInputView.title = viewModel.title
+        amountInputView.textField.text = viewModel.amount
+        amountInputView.isUserInteractionEnabled = false
+
+        amountInputView.triangularedBackgroundView?.applyDisabledStyle()
+
+        amountInputView.assetIcon = viewModel.icon
+        amountInputView.symbol = viewModel.symbol
+
+        amountInputView.priceText = viewModel.price
+        amountInputView.balanceText = viewModel.balance
     }
 }
