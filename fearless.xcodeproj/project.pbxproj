@@ -361,7 +361,6 @@
 		8436EDE725895846004D9E97 /* PurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436EDE625895846004D9E97 /* PurchaseProvider.swift */; };
 		8436EDEF25896722004D9E97 /* PurchaseAggregator+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436EDEE25896722004D9E97 /* PurchaseAggregator+Default.swift */; };
 		84378768264D14B600E6AFD2 /* UsernameSetupMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84378767264D14B600E6AFD2 /* UsernameSetupMetadata.swift */; };
-		84378770264D1D2700E6AFD2 /* UsernameSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8437876F264D1D2700E6AFD2 /* UsernameSetupInteractor.swift */; };
 		84378775264D2C6600E6AFD2 /* UsernameSetupModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84378774264D2C6600E6AFD2 /* UsernameSetupModel.swift */; };
 		8437877A264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84378779264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift */; };
 		8438C45B2655AC2600047E3F /* runtime-rococo.json in Resources */ = {isa = PBXBuildFile; fileRef = 8438C45A2655AC2600047E3F /* runtime-rococo.json */; };
@@ -2036,7 +2035,6 @@
 		8436EDE625895846004D9E97 /* PurchaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseProvider.swift; sourceTree = "<group>"; };
 		8436EDEE25896722004D9E97 /* PurchaseAggregator+Default.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PurchaseAggregator+Default.swift"; sourceTree = "<group>"; };
 		84378767264D14B600E6AFD2 /* UsernameSetupMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupMetadata.swift; sourceTree = "<group>"; };
-		8437876F264D1D2700E6AFD2 /* UsernameSetupInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupInteractor.swift; sourceTree = "<group>"; };
 		84378774264D2C6600E6AFD2 /* UsernameSetupModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupModel.swift; sourceTree = "<group>"; };
 		84378779264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkTypeSelectionPresentable.swift; sourceTree = "<group>"; };
 		8438C45A2655AC2600047E3F /* runtime-rococo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "runtime-rococo.json"; sourceTree = "<group>"; };
@@ -7604,7 +7602,6 @@
 				5E0E9B2B39FD46F97573BDCA /* UsernameSetupViewController.swift */,
 				EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */,
 				C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */,
-				8437876F264D1D2700E6AFD2 /* UsernameSetupInteractor.swift */,
 			);
 			path = UsernameSetup;
 			sourceTree = "<group>";
@@ -10091,7 +10088,6 @@
 				D3B48F82A875E301D749AC0B /* StakingUnbondConfirmViewController.swift in Sources */,
 				8472C5AE265CF9C500E2481B /* StakingRewardDestConfirmViewModel.swift in Sources */,
 				FA256A2D274CE7D600875A53 /* MoonbeamMakeSignatureRequest.swift in Sources */,
-				84378770264D1D2700E6AFD2 /* UsernameSetupInteractor.swift in Sources */,
 				3E1462D9E1C0D490E81FD288 /* StakingUnbondConfirmViewFactory.swift in Sources */,
 				9B4BE26140C63E07C256CC97 /* StakingRedeemProtocols.swift in Sources */,
 				AEE5FB1C264A610C002B8FDC /* StakingRewardDestSetupLayout.swift in Sources */,
