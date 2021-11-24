@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import SoraKeystore
 import CommonWallet
+import FearlessUtils
 import RobinHood
 import SoraFoundation
 import Cuckoo
@@ -22,7 +23,8 @@ class CrowdloanContributionSetupTests: XCTestCase {
             lastContribution: .never,
             firstPeriod: 100,
             lastPeriod: 101,
-            trieIndex: 1)
+            trieIndex: 1
+        )
     )
 
     func testContributionSetupAndContinue() throws {
@@ -39,6 +41,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
         let asset = chain.assets.first!
 
         let chainRegistry = MockChainRegistryProtocol().applyDefault(for: [chain])
+        try AccountCreationHelper.createAccountFromMnemonic(
+            cryptoType: .sr25519,
+            networkType: chain,
+            keychain: keychain,
+            settings: settings
+        )
 
         let view = MockCrowdloanContributionSetupViewProtocol()
         let wireframe = MockCrowdloanContributionSetupWireframeProtocol()
@@ -63,6 +71,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
         let estimatedRewardReceived = XCTestExpectation()
         let crowdloanReceived = XCTestExpectation()
         let bonusReceived = XCTestExpectation()
+        let customCrowdloanFlowReceived = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceiveInput(viewModel: any()).then { viewModel in
@@ -92,6 +101,10 @@ class CrowdloanContributionSetupTests: XCTestCase {
             when(stub).didReceiveBonus(viewModel: any()).then { _ in
                 bonusReceived.fulfill()
             }
+            
+            when(stub).didReceiveCustomCrowdloanFlow(viewModel: any()).then { _ in
+                customCrowdloanFlowReceived.fulfill()
+            }
 
             when(stub).isSetup.get.thenReturn(false, true)
         }
@@ -105,7 +118,8 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 feeReceived,
                 estimatedRewardReceived,
                 crowdloanReceived,
-                bonusReceived
+                bonusReceived,
+                customCrowdloanFlowReceived
             ],
             timeout: 10
         )
@@ -121,8 +135,10 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 from: any(),
                 paraId: any(),
                 inputAmount: any(),
-                bonusService: any()
-            ).then { (_, _, amount, _) in
+                bonusService: any(),
+                customFlow: any(),
+                ethereumAddress: any()
+            ).then { (_, _, amount, _, _, _) in
                 XCTAssertEqual(expectedAmount, amount)
                 completionExpectation.fulfill()
             }
@@ -172,7 +188,9 @@ class CrowdloanContributionSetupTests: XCTestCase {
             contributionViewModelFactory: crowdloanViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             assetInfo: assetInfo,
-            localizationManager: LocalizationManager.shared
+            chain: addressType.chain,
+            localizationManager: LocalizationManager.shared,
+            customFlow: nil
         )
 
         interactor.presenter = presenter
@@ -197,6 +215,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
         }
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
+        let operationManager = OperationManagerFacade.sharedManager
+        
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
 
         let crowdloanSubscriptionFactory = CrowdloanLocalSubscriptionFactoryStub(
             blockNumber: Self.currentBlockNumber,
@@ -215,6 +239,11 @@ class CrowdloanContributionSetupTests: XCTestCase {
             sources: [crowdloanInfoUrl: CrowdloanDisplayInfoList()]
         )
 
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
+        
         return CrowdloanContributionSetupInteractor(
             paraId: crowdloan.paraId,
             selectedMetaAccount: selectedMetaAccount,
@@ -228,6 +257,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
             priceLocalSubscriptionFactory: priceProviderFactory,
             jsonLocalSubscriptionFactory: jsonProviderFactory,
             operationManager: OperationManager()
+            crowdloanFundsProvider: providerFactory.crowdloanFunds,
+            singleValueProviderFactory: providerFactory,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: nil,
+            settings: settings
         )
     }
 }

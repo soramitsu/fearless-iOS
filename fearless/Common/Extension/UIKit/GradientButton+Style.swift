@@ -2,6 +2,10 @@ import Foundation
 import SoraUI
 
 extension GradientButton {
+    func setEnabled(_ enabled: Bool) {
+        enabled ? applyEnabledStyle() : applyDisabledStyle()
+    }
+
     func applyDefaultStyle() {
         imageWithTitleView?.titleFont = .h6Title
         applyEnabledStyle()

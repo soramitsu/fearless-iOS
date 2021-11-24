@@ -1,6 +1,6 @@
 import UIKit
 
-class ValidatorInfoBaseTableCell: UITableViewCell {
+class BottomSheetInfoTableCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph

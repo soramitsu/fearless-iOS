@@ -4,6 +4,7 @@ import SoraKeystore
 import CommonWallet
 import RobinHood
 import SoraFoundation
+import FearlessUtils
 import Cuckoo
 import BigInt
 
@@ -91,6 +92,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
                 bonusReceived.fulfill()
             }
 
+            when(stub).didReceiveCustomFlow(viewModel: any()).thenDoNothing()
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
 
@@ -166,7 +168,9 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             inputAmount: inputAmount,
             bonusRate: nil,
             assetInfo: assetInfo,
-            localizationManager: LocalizationManager.shared
+            chain: addressType.chain,
+            localizationManager: LocalizationManager.shared,
+            customFlow: nil
         )
 
         interactor.presenter = presenter
@@ -212,6 +216,20 @@ class CrowdloanContributionConfirmTests: XCTestCase {
         guard let signingWrapper = try? DummySigner(cryptoType: MultiassetCryptoType.sr25519) else {
             return nil
         }
+        
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageTestFacade().createRepository()
+        
+        let operationManager = OperationManagerFacade.sharedManager
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
 
         return CrowdloanContributionConfirmInteractor(
             paraId: crowdloan.paraId,
@@ -227,8 +245,12 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             jsonLocalSubscriptionFactory: jsonProviderFactory,
             signingWrapper: signingWrapper,
             bonusService: nil,
-            operationManager: OperationManager()
+            operationManager: operationManager,
+            logger: Logger.shared,
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            connection: nil,
+            settings: settings,
+            memo: nil
         )
     }
-
 }

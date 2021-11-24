@@ -3,8 +3,8 @@ import Foundation
 import BigInt
 import FearlessUtils
 
-final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {
-    var termsURL: URL { URL(string: "https://google.com")! }
+final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {    
+    var termsURL: URL? { URL(string: "https://google.com") }
 
     var bonusRate: Decimal { 0.05 }
 
@@ -17,14 +17,14 @@ final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {
     }
 
     func applyOffchainBonusForContribution(
-        amount: BigUInt,
+        amount: BigUInt?,
         with closure: @escaping (Result<Void, Error>) -> Void
     ) {
         closure(.success(()))
     }
 
     func applyOnchainBonusForContribution(
-        amount: BigUInt,
+        amount: BigUInt?,
         using builder: ExtrinsicBuilderProtocol
     ) throws -> ExtrinsicBuilderProtocol {
         return builder

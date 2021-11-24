@@ -8,12 +8,12 @@ extension TriangularedButton {
     }
 
     func applyAccessoryStyle() {
-        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.shadowOpacity = 0
         triangularedView?.fillColor = .clear
         triangularedView?.highlightedFillColor = .clear
         triangularedView?.strokeColor = R.color.colorDarkGray()!
         triangularedView?.highlightedStrokeColor = R.color.colorDarkGray()!
-        triangularedView?.strokeWidth = 2.0
+        triangularedView?.strokeWidth = 2
 
         imageWithTitleView?.titleColor = R.color.colorWhite()!
         imageWithTitleView?.titleFont = UIFont.h5Title
@@ -22,7 +22,7 @@ extension TriangularedButton {
     }
 
     func applyEnabledStyle() {
-        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.shadowOpacity = 0
         triangularedView?.fillColor = R.color.colorAccent()!
         triangularedView?.highlightedFillColor = R.color.colorAccent()!
         triangularedView?.strokeColor = .clear
@@ -34,7 +34,7 @@ extension TriangularedButton {
     }
 
     func applyDisabledStyle() {
-        triangularedView?.shadowOpacity = 0.0
+        triangularedView?.shadowOpacity = 0
         triangularedView?.fillColor = R.color.colorDarkGray()!
         triangularedView?.highlightedFillColor = R.color.colorDarkGray()!
         triangularedView?.strokeColor = .clear
@@ -42,6 +42,18 @@ extension TriangularedButton {
 
         imageWithTitleView?.titleColor = R.color.colorStrokeGray()
 
-        contentOpacityWhenDisabled = 1.0
+        contentOpacityWhenDisabled = 1
+    }
+
+    func applyLoadingStyle() {
+        triangularedView?.shadowOpacity = 0
+        triangularedView?.fillColor = R.color.colorDarkGray()!
+        triangularedView?.highlightedFillColor = R.color.colorDarkGray()!
+        triangularedView?.strokeColor = .clear
+        triangularedView?.highlightedStrokeColor = .clear
+
+        imageWithTitleView?.titleColor = .clear
+
+        contentOpacityWhenDisabled = 1
     }
 }

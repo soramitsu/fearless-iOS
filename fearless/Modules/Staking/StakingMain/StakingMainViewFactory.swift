@@ -34,9 +34,15 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let analyticsVMFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balanceViewModelFactory in
-            AnalyticsRewardsViewModelFactory(
+            let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+            let networkType = settings.selectedConnection.type
+            let asset = primitiveFactory.createAssetForAddressType(networkType)
+
+            return AnalyticsRewardsViewModelFactory(
                 chain: chain,
                 balanceViewModelFactory: balanceViewModelFactory,
+                amountFormatterFactory: AmountFormatterFactory(),
+                asset: asset,
                 calendar: Calendar(identifier: .gregorian)
             )
         }

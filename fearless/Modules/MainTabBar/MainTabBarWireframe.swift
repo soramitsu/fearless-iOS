@@ -14,10 +14,14 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
     }
 
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?) {
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
         if let view = view {
-            MainTabBarViewFactory.reloadCrowdloanView(on: view)
+            return MainTabBarViewFactory.reloadCrowdloanView(
+                on: view
+            )
         }
+
+        return nil
     }
 
     func reloadWalletContent() {

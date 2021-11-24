@@ -53,6 +53,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
+        default: break
         }
     }
 

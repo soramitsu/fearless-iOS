@@ -133,4 +133,8 @@ extension StorageCodingPath {
     static var genesisSlot: StorageCodingPath {
         StorageCodingPath(moduleName: "Babe", itemName: "GenesisSlot")
     }
+
+    static var balanceLocks: StorageCodingPath {
+        StorageCodingPath(moduleName: "Balances", itemName: "Locks")
+    }
 }
