@@ -41,7 +41,7 @@ struct CrowdloanListViewFactory {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
+        interactor.output = presenter
 
         return view
     }

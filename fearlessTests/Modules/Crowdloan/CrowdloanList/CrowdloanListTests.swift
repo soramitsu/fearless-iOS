@@ -186,7 +186,7 @@ class CrowdloanListTests: XCTestCase {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
+        interactor.output = presenter
 
         return presenter
     }
