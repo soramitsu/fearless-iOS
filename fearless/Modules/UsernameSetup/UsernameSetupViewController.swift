@@ -3,6 +3,10 @@ import SoraFoundation
 import SoraUI
 
 final class UsernameSetupViewController: UIViewController {
+    private enum Constants {
+        static let nextButtonBottom: CGFloat = 24
+    }
+
     var presenter: UsernameSetupPresenterProtocol!
 
     @IBOutlet private var networkView: BorderedSubtitleActionView!
@@ -139,9 +143,9 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
         if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + 24
+            return -view.safeAreaInsets.bottom + Constants.nextButtonBottom
         } else {
-            return 24
+            return Constants.nextButtonBottom
         }
     }
 }

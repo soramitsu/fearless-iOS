@@ -42,12 +42,19 @@ final class AccountCreatePresenter {
         let predicate: NSPredicate
         let placeholder: String
 
-        if cryptoType == .sr25519 {
+        switch cryptoType {
+        case .sr25519:
             predicate = NSPredicate.deriviationPathHardSoftPassword
             placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
-        } else {
+        case .ed25519:
             predicate = NSPredicate.deriviationPathHardPassword
             placeholder = DerivationPathConstants.hardPasswordPlaceholder
+        case .substrateEcdsa:
+            predicate = NSPredicate.deriviationPathHardPassword
+            placeholder = DerivationPathConstants.hardPasswordPlaceholder
+        case .ethereumEcdsa:
+            predicate = NSPredicate.ethereumAddress
+            placeholder = DerivationPathConstants.defaultEthereum
         }
 
         let inputHandling = InputHandler(predicate: predicate)
