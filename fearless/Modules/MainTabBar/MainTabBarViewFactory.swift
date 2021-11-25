@@ -118,11 +118,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createWalletController(
-        walletContext: CommonWalletContextProtocol,
+        walletContext _: CommonWalletContextProtocol,
         localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
         do {
-            let viewController = try walletContext.createRootController()
+            guard let viewController = ChainAccountBalanceViewFactory.createView()?.controller else {
+                return nil
+            }
 
             let localizableTitle = LocalizableResource { locale in
                 R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
