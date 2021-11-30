@@ -2,6 +2,14 @@ import UIKit
 import Kingfisher
 
 class ChainAccountBalanceTableCell: UITableViewCell {
+    enum LayoutConstants {
+        static let cellHeight: CGFloat = 80
+        static let assetImageTopOffset: CGFloat = 11
+        static let stackViewVerticalOffset: CGFloat = 6
+    }
+
+    private var backgroundTriangularedView = TriangularedBlurView()
+
     private var assetIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -11,6 +19,7 @@ class ChainAccountBalanceTableCell: UITableViewCell {
     private var contentStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
+        stackView.distribution = .equalSpacing
         return stackView
     }()
 
@@ -61,24 +70,35 @@ class ChainAccountBalanceTableCell: UITableViewCell {
             bottom: 0.0,
             right: UIConstants.horizontalInset
         )
+
+        selectionStyle = .none
     }
 
     func setupLayout() {
-        contentView.addSubview(assetIconImageView)
+        contentView.addSubview(backgroundTriangularedView)
+        backgroundTriangularedView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview()
+            make.height.equalTo(LayoutConstants.cellHeight)
+        }
+
+        backgroundTriangularedView.addSubview(assetIconImageView)
 
         assetIconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
             make.size.equalTo(CrowdloanViewConstants.iconSize)
-            make.top.equalToSuperview().inset(11)
+            make.centerY.equalToSuperview()
         }
 
-        contentView.addSubview(contentStackView)
+        backgroundTriangularedView.addSubview(contentStackView)
 
         contentStackView.snp.makeConstraints { make in
             make.leading.equalTo(assetIconImageView.snp.trailing).offset(UIConstants.horizontalInset)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().inset(6.0)
-            make.bottom.equalToSuperview().inset(12.0)
+            make.top.equalToSuperview().inset(LayoutConstants.stackViewVerticalOffset)
+            make.bottom.equalToSuperview().inset(LayoutConstants.stackViewVerticalOffset)
         }
 
         contentStackView.addArrangedSubview(chainNameLabel)
@@ -87,12 +107,19 @@ class ChainAccountBalanceTableCell: UITableViewCell {
     }
 
     func bind(to viewModel: ChainAccountBalanceCellViewModel) {
+        viewModel.imageViewModel?.cancel(on: assetIconImageView)
+
         chainNameLabel.text = viewModel.chainName
         balanceView.keyLabel.text = viewModel.assetInfo?.symbol
         balanceView.valueLabel.text = viewModel.balanceString
         priceView.keyLabel.attributedText = viewModel.priceAttributedString
         priceView.valueLabel.text = viewModel.totalAmountString
 
-        assetIconImageView.kf.setImage(with: viewModel.assetInfo?.icon)
+        let iconSize = assetIconImageView.frame.size.height
+        viewModel.imageViewModel?.loadImage(
+            on: assetIconImageView,
+            targetSize: CGSize(width: iconSize, height: iconSize),
+            animated: true
+        )
     }
 }

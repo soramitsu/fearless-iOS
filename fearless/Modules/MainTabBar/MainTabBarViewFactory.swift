@@ -122,7 +122,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
         do {
-            guard let viewController = ChainAccountBalanceViewFactory.createView()?.controller else {
+            guard let viewController = ChainAccountBalanceListViewFactory.createView()?.controller else {
                 return nil
             }
 
@@ -147,7 +147,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
                 viewController?.tabBarItem.title = currentTitle
             }
 
-            return viewController
+            let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+            return navigationController
         } catch {
             Logger.shared.error("Can't create wallet: \(error)")
 

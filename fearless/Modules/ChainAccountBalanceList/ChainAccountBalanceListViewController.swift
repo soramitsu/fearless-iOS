@@ -1,6 +1,7 @@
 import UIKit
+import SoraFoundation
 
-final class ChainAccountBalanceListViewController: UIViewController {
+final class ChainAccountBalanceListViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChainAccountBalanceListViewLayout
 
     let presenter: ChainAccountBalanceListPresenterProtocol
@@ -24,14 +25,49 @@ final class ChainAccountBalanceListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configure()
+
         presenter.setup()
     }
 
-    private func applyState(_: ChainAccountBalanceListViewState) {}
+    func configure() {
+        rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
+
+        rootView.tableView.tableFooterView = UIView()
+
+        rootView.tableView.dataSource = self
+        rootView.tableView.delegate = self
+
+        if let refreshControl = rootView.tableView.refreshControl {
+            refreshControl.addTarget(
+                self,
+                action: #selector(pullToRefreshOnAssetsTableHandler),
+                for: .valueChanged
+            )
+        }
+    }
+
+    @objc private func pullToRefreshOnAssetsTableHandler() {
+        presenter.didPullToRefreshOnAssetsTable()
+    }
+
+    private func applyState(_ state: ChainAccountBalanceListViewState) {
+        switch state {
+        case .loading:
+            rootView.tableView.isHidden = true
+        case let .loaded(viewModel):
+            rootView.tableView.isHidden = false
+            rootView.tableView.reloadData()
+
+            rootView.bind(to: viewModel)
+        }
+    }
 }
 
 extension ChainAccountBalanceListViewController: ChainAccountBalanceListViewProtocol {
     func didReceive(state: ChainAccountBalanceListViewState) {
+        rootView.tableView.refreshControl?.endRefreshing()
+
         self.state = state
 
         applyState(state)
@@ -40,29 +76,18 @@ extension ChainAccountBalanceListViewController: ChainAccountBalanceListViewProt
 
 extension ChainAccountBalanceListViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        guard chainInfo != nil else {
+        guard case .loaded = state else {
             return 0
         }
 
-        switch state {
-        case let .loaded(viewModel):
-            if viewModel.active != nil, viewModel.completed != nil {
-                return 3
-            } else if viewModel.active != nil || viewModel.completed != nil {
-                return 2
-            } else {
-                return 1
-            }
-        case .loading, .empty, .error:
-            return 1
-        }
+        return 1
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         guard case let .loaded(viewModel) = state else {
             return 0
         }
-        
+
         return viewModel.accountViewModels.count
     }
 
@@ -71,72 +96,49 @@ extension ChainAccountBalanceListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        if indexPath.section == 1, let active = viewModel.active {
-            return createActiveTableViewCell(
-                tableView,
-                viewModel: active.crowdloans[indexPath.row].content
-            )
-        }
-
-        if let completed = viewModel.completed {
-            return createCompletedTableViewCell(
-                tableView,
-                viewModel: completed.crowdloans[indexPath.row].content
-            )
-        }
-
-        return UITableViewCell()
-    }
-
-    private func createActiveTableViewCell(
-        _ tableView: UITableView,
-        viewModel: ActiveCrowdloanViewModel
-    ) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithType(ActiveCrowdloanTableViewCell.self)!
-        cell.bind(viewModel: viewModel)
-        return cell
-    }
-
-    private func createCompletedTableViewCell(
-        _ tableView: UITableView,
-        viewModel: CompletedCrowdloanViewModel
-    ) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithType(CompletedCrowdloanTableViewCell.self)!
-        cell.bind(viewModel: viewModel)
+        let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self)!
+        cell.bind(to: viewModel.accountViewModels[indexPath.row])
         return cell
     }
 }
 
 extension ChainAccountBalanceListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         guard case let .loaded(viewModel) = state else {
             return
         }
 
-        if indexPath.section == 1, let active = viewModel.active {
-            presenter.selectViewModel(active.crowdloans[indexPath.row])
+        if  let cellModel = viewModel.accountViewModels[indexPath.row] {
+            presenter.didSelectViewModel(cellModel)
         }
     }
 
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard section > 0, case let .loaded(viewModel) = state else {
-            return nil
-        }
+//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+//        guard section > 0, case let .loaded(viewModel) = state else {
+//            return nil
+//        }
+//
+//        let headerView: CrowdloanStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+//
+//        if section == 1, let active = viewModel.active {
+//            headerView.bind(title: active.title, status: .active)
+//        } else if let completed = viewModel.completed {
+//            headerView.bind(title: completed.title, status: .completed)
+//        }
+//
+//        return headerView
+//    }
 
-        let headerView: CrowdloanStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+//    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//        section > 0 ? 40.0 : 0.0
+//    }
 
-        if section == 1, let active = viewModel.active {
-            headerView.bind(title: active.title, status: .active)
-        } else if let completed = viewModel.completed {
-            headerView.bind(title: completed.title, status: .completed)
-        }
-
-        return headerView
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        80
     }
+}
 
-    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        section > 0 ? 40.0 : 0.0
-    }
+extension ChainAccountBalanceListViewController: Localizable {
+    func applyLocalization() {}
 }

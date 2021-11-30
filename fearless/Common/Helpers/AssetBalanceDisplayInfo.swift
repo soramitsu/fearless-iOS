@@ -22,6 +22,17 @@ extension AssetBalanceDisplayInfo {
         )
     }
 
+    static func percent() -> AssetBalanceDisplayInfo {
+        AssetBalanceDisplayInfo(
+            displayPrecision: 2,
+            assetPrecision: 2,
+            symbol: "%",
+            symbolValueSeparator: "",
+            symbolPosition: .suffix,
+            icon: nil
+        )
+    }
+
     static func fromCrowdloan(info: CrowdloanDisplayInfo) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
