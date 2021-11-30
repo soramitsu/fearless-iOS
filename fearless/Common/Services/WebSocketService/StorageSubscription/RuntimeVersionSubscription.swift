@@ -198,7 +198,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                 guard let data = try? runtimeOverrides?.extractResultData(),
                       let overrides = try? JSONDecoder().decode(RuntimeOverrides.self, from: data),
                       !overrides.modules.isEmpty,
-                      metadata.version == 1
+                      metadata.version < 14
                 else {
                     return nil
                 }
@@ -220,7 +220,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
 
                     guard let override = overrides.modules.first(where: { $0.name == module.name }) else {
                         modules.append(module)
-                        return nil
+                        continue
                     }
 
                     var constants: [ModuleConstantMetadata] = []
@@ -254,11 +254,12 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                         }
                     }
 
-                    guard let moduleStorage = module.storage as? StorageMetadata,
-                          let moduleCalls = module.calls as? [FunctionMetadata]?,
-                          let moduleEvents = module.events as? [EventMetadata]?,
+                    guard let moduleStorage = module.storage as? StorageMetadata?,
+                          let moduleCalls = try? module.calls(using: metadata.schemaResolver) as? [FunctionMetadata]?,
+                          let moduleEvents = try? module.events(using: metadata.schemaResolver) as? [EventMetadata]?,
                           let moduleErrors = try? module.errors(using: metadata.schemaResolver) as? [ErrorMetadata]
                     else {
+                        assertionFailure()
                         return nil
                     }
 
@@ -426,7 +427,7 @@ private extension Chain {
             return .notAffected
         }
 
-        if let response = recent.forcedResponse(for: self) {
+        if !recent.isFixed, let response = recent.forcedResponse(for: self) {
             return .forceResponse(response, recent.overridesUrl(for: self))
         }
 
