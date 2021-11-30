@@ -58,7 +58,7 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
                 hasher = doubleMapEntry.hasher
             case let .nMap(nMapEntry):
                 guard
-                    let firstKey = nMapEntry.keyVec.first,
+                    let firstKey = try nMapEntry.keys(using: factory.metadata.schemaResolver).first,
                     let firstHasher = nMapEntry.hashers.first else {
                     throw StorageKeyEncodingOperationError.missingRequiredParams
                 }
