@@ -27,7 +27,7 @@ final class ChainAccountBalanceListPresenter {
         self.localizationManager = localizationManager
     }
 
-    private func extractBalance(for chain: ChainModel) -> String? {
+    private func getBalance(for chain: ChainModel) -> String? {
         guard
             let asset = chain.utilityAssets().first,
             let accountInfoResult = accountInfoResults[chain.chainId],
@@ -55,65 +55,99 @@ final class ChainAccountBalanceListPresenter {
         return balance.stringWithPointSeparator
     }
 
+    private func getPriceAttributedString(for asset: AssetModel) -> NSAttributedString? {
+        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
+        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
+        let usdTokenFormatterValue = usdTokenFormatter.value(for: selectedLocale)
+
+        guard let priceId = asset.priceId, let priceData = try? priceResults[priceId]?.get(),
+              let priceDecimal = Decimal(string: priceData.price) else {
+            return nil
+        }
+
+        let changeString: String = priceData.usdDayChange.map {
+            let percentValue = $0 / 100
+            return percentValue.percentString() ?? ""
+        } ?? ""
+
+        let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
+
+        let priceWithChangeString = [priceString, changeString].joined(separator: " ")
+
+        let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
+
+        let color = (priceData.usdDayChange ?? 0) > 0 ? R.color.colorGreen() : R.color.colorRed()
+
+        if let color = color {
+            priceWithChangeAttributed.addAttributes(
+                [NSAttributedString.Key.foregroundColor: color],
+                range: NSRange(
+                    location: priceString.count + 1,
+                    length: changeString.count
+                )
+            )
+        }
+
+        return priceWithChangeAttributed
+    }
+
+    private func getUsdBalanceString(
+        for asset: AssetModel,
+        chain: ChainModel
+    ) -> String? {
+        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
+        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
+        let usdTokenFormatterValue = usdTokenFormatter.value(for: selectedLocale)
+
+        let balance = getBalance(for: chain) ?? ""
+
+        guard let priceId = asset.priceId,
+              let priceData = try? priceResults[priceId]?.get(),
+              let priceDecimal = Decimal(string: priceData.price),
+              let balanceDecimal = Decimal(string: balance) else {
+            return nil
+        }
+
+        let totalBalanceDecimal = priceDecimal * balanceDecimal
+
+        return usdTokenFormatterValue.stringFromDecimal(totalBalanceDecimal)
+    }
+
     private func provideViewModel() {
         let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: selectedLocale)
 
-        var totalWalletBalance: Decimal = 0
+        var totalWalletBalance: Decimal = chainModels.compactMap { chainModel in
+
+            chainModel.assets.compactMap {
+                let balance = getBalance(for: chainModel) ?? ""
+
+                guard let priceId = $0.priceId,
+                      let priceData = try? priceResults[priceId]?.get(),
+                      let priceDecimal = Decimal(string: priceData.price),
+                      let balanceDecimal = Decimal(string: balance) else {
+                    return nil
+                }
+
+                return priceDecimal * balanceDecimal
+            }.reduce(0, +)
+        }.reduce(0, +)
 
         viewModels = chainModels.map { chainModel in
 
             chainModel.assets.compactMap {
                 let icon = RemoteImageViewModel(url: chainModel.icon)
                 let title = chainModel.name
-                let balance = extractBalance(for: chainModel) ?? ""
-
-                guard let priceId = $0.priceId,
-                      let priceData = try? priceResults[priceId]?.get(),
-                      let priceDecimal = Decimal(string: priceData.price),
-                      let balanceDecimal = Decimal(string: balance) else {
-                    /* No price, returns without price info */
-                    return ChainAccountBalanceCellViewModel(
-                        chainName: title,
-                        assetInfo: $0.displayInfo(with: chainModel.icon),
-                        imageViewModel: icon,
-                        balanceString: balance,
-                        priceAttributedString: nil,
-                        totalAmountString: nil
-                    )
-                }
-
-                let totalBalanceDecimal = priceDecimal * balanceDecimal
-
-                totalWalletBalance += totalBalanceDecimal
-
-                let changeString: String = priceData.usdDayChange.map {
-                    let percentValue = $0 / 100
-                    return percentValue.percentString() ?? ""
-                } ?? ""
-
-                let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
-
-                print("\(title): \(changeString))")
-
-                let priceWithChangeString = [priceString, changeString].joined(separator: " ")
-
-                let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
-
-                let color = (priceData.usdDayChange ?? 0) > 0 ? R.color.colorGreen() : R.color.colorRed()
-                priceWithChangeAttributed.addAttributes(
-                    [NSAttributedString.Key.foregroundColor: color],
-                    range: NSMakeRange(priceString.count + 1, changeString.count)
-                )
+                let balance = getBalance(for: chainModel) ?? ""
 
                 return ChainAccountBalanceCellViewModel(
                     chainName: title,
                     assetInfo: $0.displayInfo(with: chainModel.icon),
                     imageViewModel: icon,
                     balanceString: balance,
-                    priceAttributedString: priceWithChangeAttributed,
-                    totalAmountString: usdTokenFormatterValue.stringFromDecimal(totalBalanceDecimal)
+                    priceAttributedString: getPriceAttributedString(for: $0),
+                    totalAmountString: getUsdBalanceString(for: $0, chain: chainModel)
                 )
             }
 
@@ -137,10 +171,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     func didPullToRefreshOnAssetsTable() {
         interactor.refresh()
     }
-    
-    func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        
-    }
+
+    func didSelectViewModel(_: ChainAccountBalanceCellViewModel) {}
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOutputProtocol {

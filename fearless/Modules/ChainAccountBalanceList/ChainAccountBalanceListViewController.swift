@@ -104,35 +104,12 @@ extension ChainAccountBalanceListViewController: UITableViewDataSource {
 
 extension ChainAccountBalanceListViewController: UITableViewDelegate {
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         guard case let .loaded(viewModel) = state else {
             return
         }
 
-        if  let cellModel = viewModel.accountViewModels[indexPath.row] {
-            presenter.didSelectViewModel(cellModel)
-        }
+        presenter.didSelectViewModel(viewModel.accountViewModels[indexPath.row])
     }
-
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        guard section > 0, case let .loaded(viewModel) = state else {
-//            return nil
-//        }
-//
-//        let headerView: CrowdloanStatusSectionView = tableView.dequeueReusableHeaderFooterView()
-//
-//        if section == 1, let active = viewModel.active {
-//            headerView.bind(title: active.title, status: .active)
-//        } else if let completed = viewModel.completed {
-//            headerView.bind(title: completed.title, status: .completed)
-//        }
-//
-//        return headerView
-//    }
-
-//    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-//        section > 0 ? 40.0 : 0.0
-//    }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         80
