@@ -16,10 +16,17 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         return imageView
     }()
 
+    private var separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.color.colorBlurSeparator()
+        return view
+    }()
+
     private var contentStackView: UIStackView = {
         let stackView = UIStackView()
+        stackView.spacing = 0
         stackView.axis = .vertical
-        stackView.distribution = .equalSpacing
+        stackView.distribution = .fillEqually
         return stackView
     }()
 
@@ -92,18 +99,29 @@ class ChainAccountBalanceTableCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
 
+        backgroundTriangularedView.addSubview(separatorView)
+        separatorView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.width.equalTo(UIConstants.separatorHeight)
+            make.leading.equalTo(assetIconImageView.snp.trailing).offset(UIConstants.accessoryItemsSpacing)
+        }
+
         backgroundTriangularedView.addSubview(contentStackView)
 
         contentStackView.snp.makeConstraints { make in
-            make.leading.equalTo(assetIconImageView.snp.trailing).offset(UIConstants.horizontalInset)
+            make.leading.equalTo(separatorView.snp.trailing).offset(UIConstants.horizontalInset)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().inset(LayoutConstants.stackViewVerticalOffset)
-            make.bottom.equalToSuperview().inset(LayoutConstants.stackViewVerticalOffset)
+            make.top.equalTo(separatorView.snp.top)
+            make.bottom.equalTo(separatorView.snp.bottom)
         }
 
         contentStackView.addArrangedSubview(chainNameLabel)
+        chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
         contentStackView.addArrangedSubview(balanceView)
+        balanceView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         contentStackView.addArrangedSubview(priceView)
+        priceView.setContentHuggingPriority(.defaultLow, for: .vertical)
     }
 
     func bind(to viewModel: ChainAccountBalanceCellViewModel) {

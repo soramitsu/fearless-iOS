@@ -110,12 +110,10 @@ extension ChainAccountBalanceListViewController: UITableViewDelegate {
 
         presenter.didSelectViewModel(viewModel.accountViewModels[indexPath.row])
     }
-
-    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        80
-    }
 }
 
 extension ChainAccountBalanceListViewController: Localizable {
     func applyLocalization() {}
 }
+
+extension ChainAccountBalanceListViewController: HiddableBarWhenPushed {}

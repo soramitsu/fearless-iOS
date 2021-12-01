@@ -1,6 +1,10 @@
 import UIKit
 
 final class ChainAccountBalanceListViewLayout: UIView {
+    enum LayoutConstants {
+        static let accountButtonSize: CGFloat = 40
+    }
+
     let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -20,6 +24,12 @@ final class ChainAccountBalanceListViewLayout: UIView {
         label.font = .h1Title
         label.textColor = .white
         return label
+    }()
+
+    let accountButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(R.image.iconFearlessRounded(), for: .normal)
+        return button
     }()
 
     let tableView: UITableView = {
@@ -60,6 +70,13 @@ final class ChainAccountBalanceListViewLayout: UIView {
         totalBalanceLabel.snp.makeConstraints { make in
             make.leading.equalTo(accountNameLabel.snp.leading)
             make.top.equalTo(accountNameLabel.snp.bottom).offset(UIConstants.defaultOffset)
+        }
+
+        addSubview(accountButton)
+        accountButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.centerY.equalTo(totalBalanceLabel.snp.centerY)
+            make.size.equalTo(LayoutConstants.accountButtonSize)
         }
 
         addSubview(tableView)
