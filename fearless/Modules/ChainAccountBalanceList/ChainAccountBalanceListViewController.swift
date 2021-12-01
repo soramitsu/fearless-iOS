@@ -58,7 +58,6 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
         case let .loaded(viewModel):
             rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
-
             rootView.bind(to: viewModel)
         case .error:
             rootView.tableView.isHidden = true
@@ -98,7 +97,11 @@ extension ChainAccountBalanceListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self)!
+        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else
+        {
+          return UITableViewCell()
+        }
+      
         cell.bind(to: viewModel.accountViewModels[indexPath.row])
         return cell
     }

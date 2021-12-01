@@ -118,7 +118,7 @@ final class ChainAccountBalanceListPresenter {
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: selectedLocale)
 
-        var totalWalletBalance: Decimal = chainModels.compactMap { chainModel in
+        let totalWalletBalance: Decimal = chainModels.compactMap { chainModel in
 
             chainModel.assets.compactMap {
                 let balance = getBalance(for: chainModel) ?? ""
