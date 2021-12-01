@@ -60,6 +60,8 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
             rootView.tableView.reloadData()
 
             rootView.bind(to: viewModel)
+        case .error:
+            rootView.tableView.isHidden = true
         }
     }
 }
