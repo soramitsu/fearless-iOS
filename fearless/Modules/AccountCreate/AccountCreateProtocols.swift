@@ -3,18 +3,22 @@ import SoraFoundation
 
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
-    func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func setDerivationPath(viewModel: InputViewModelProtocol)
+    func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel)
+    func setEthereumCrypto(model: TitleWithSubtitleViewModel)
+    func setSubstrateDerivationPath(viewModel: InputViewModelProtocol)
+    func setEthereumDerivationPath(viewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()
-    func didValidateDerivationPath(_ status: FieldStatus)
+    func didValidateSubstrateDerivationPath(_ status: FieldStatus)
+    func didValidateEthereumDerivationPath(_ status: FieldStatus)
 }
 
 protocol AccountCreatePresenterProtocol: AnyObject {
     func setup()
-    func selectCryptoType()
+    func selectSubstrateCryptoType()
     func activateInfo()
-    func validate()
+    func validateSubstrate()
+    func validateEthereum()
     func proceed()
 }
 
@@ -23,7 +27,7 @@ protocol AccountCreateInteractorInputProtocol: AnyObject {
 }
 
 protocol AccountCreateInteractorOutputProtocol: AnyObject {
-    func didReceive(metadata: MetaAccountCreationMetadata)
+    func didReceive(mnemonic: [String])
     func didReceiveMnemonicGeneration(error: Error)
 }
 
@@ -31,7 +35,7 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func confirm(
         from view: AccountCreateViewProtocol?,
         request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     )
 
     func presentCryptoTypeSelection(

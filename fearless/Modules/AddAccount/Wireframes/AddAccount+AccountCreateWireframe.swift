@@ -6,10 +6,10 @@ extension AddAccount {
         func confirm(
             from view: AccountCreateViewProtocol?,
             request: MetaAccountCreationRequest,
-            metadata: MetaAccountCreationMetadata
+            mnemonic: [String]
         ) {
             guard let accountConfirmation = AccountConfirmViewFactory
-                .createViewForAdding(request: request, metadata: metadata)?.controller
+                .createViewForAdding(request: request, mnemonic: mnemonic)?.controller
             else {
                 return
             }

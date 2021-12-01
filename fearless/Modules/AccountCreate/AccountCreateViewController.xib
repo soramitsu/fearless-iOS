@@ -170,7 +170,7 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
-                                                        <action selector="actionTextFieldEditingChanged" destination="-1" eventType="editingChanged" id="bQ0-ap-t4S"/>
+                                                        <action selector="substrateTextFieldEditingChanged" destination="-1" eventType="editingDidEnd" id="saR-wY-JST"/>
                                                         <outlet property="delegate" destination="-1" id="u3t-fF-59j"/>
                                                     </connections>
                                                 </textField>
@@ -222,7 +222,7 @@
                                             <color key="textColor" name="colorLightGray"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WjL-Hp-ytC" userLabel="Ethereum Bordered Subtitle Action View" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WjL-Hp-ytC" userLabel="Ethereum two label view" customClass="TriangularedTwoLabelView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="1" y="148" width="341" height="52"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
@@ -242,14 +242,11 @@
                                                     <real key="value" value="1"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
-                                                    <real key="value" value="0.0"/>
+                                                    <integer key="value" value="0"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Encription type"/>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
                                                     <color key="value" name="colorLightGray"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_layoutType">
-                                                    <integer key="value" value="1"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
@@ -263,7 +260,6 @@
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="39l-sb-TY4" userLabel="Ethereum Triangulared View" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
@@ -276,7 +272,7 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
-                                                        <action selector="actionTextFieldEditingChanged" destination="-1" eventType="editingChanged" id="5Ua-EP-X3k"/>
+                                                        <action selector="ethereumTextFieldEditingChanged:" destination="-1" eventType="editingChanged" id="3kl-js-kd1"/>
                                                         <outlet property="delegate" destination="-1" id="Jsz-hB-bWC"/>
                                                     </connections>
                                                 </textField>

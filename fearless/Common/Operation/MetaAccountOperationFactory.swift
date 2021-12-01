@@ -196,7 +196,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let junctionResult = try getJunctionResult(
-                from: request.derivationPath,
+                from: request.substrateDerivationPath,
                 ethereumBased: false
             )
 
@@ -212,16 +212,16 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             let substrateKeypair = try generateKeypair(
                 from: seedResult.seed.miniSeed,
                 chaincodes: chaincodes,
-                cryptoType: request.cryptoType
+                cryptoType: request.substrateCryptoType
             )
 
             let metaAccount = try prepopulateMetaAccount(
                 name: request.username,
                 publicKey: substrateKeypair.publicKey,
-                cryptoType: request.cryptoType
+                cryptoType: request.substrateCryptoType
             )
 
-            let ethereumDerivationPath = DerivationPathConstants.defaultEthereum
+            let ethereumDerivationPath = request.ethereumDerivationPath
 
             let ethereumJunctionResult = try getJunctionResult(
                 from: ethereumDerivationPath,
@@ -250,7 +250,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             let metaId = metaAccount.metaId
 
             try saveSecretKey(substrateKeypair.secretKey, metaId: metaId, ethereumBased: false)
-            try saveDerivationPath(request.derivationPath, metaId: metaId, ethereumBased: false)
+            try saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
             try saveSeed(seedResult.seed.miniSeed, metaId: metaId, ethereumBased: false)
 
             try saveSecretKey(ethereumSecretKey, metaId: metaId, ethereumBased: true)
