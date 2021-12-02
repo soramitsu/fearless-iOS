@@ -26,7 +26,9 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
         crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
     }
 
-    func didUpdateWalletInfo() {}
+    func didUpdateWalletInfo() {
+        //TODO: Reload wallet tab via moduleInput protocol
+    }
 
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)

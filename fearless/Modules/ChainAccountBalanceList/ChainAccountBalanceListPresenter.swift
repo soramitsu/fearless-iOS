@@ -37,14 +37,14 @@ final class ChainAccountBalanceListPresenter {
 
         let assetInfo = asset.displayInfo
 
-        let balance = accountInfo.map {
+        let balance: Decimal = accountInfo.map {
             Decimal.fromSubstrateAmount(
                 $0.data.available,
                 precision: assetInfo.assetPrecision
             ) ?? 0
-        }
+        } ?? 0
 
-        return balance?.stringWithPointSeparator
+        return balance.stringWithPointSeparator
     }
 
     private func getPriceAttributedString(for asset: AssetModel) -> NSAttributedString? {
