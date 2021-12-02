@@ -2,6 +2,16 @@ import Foundation
 import SoraFoundation
 
 struct AssetBalanceDisplayInfo {
+    enum Constants {
+        static let usdDisplayPrecision: UInt16 = 2
+        static let usdAssetPrecision: Int16 = 2
+        static let percentDisplayPrecision: UInt16 = 2
+        static let percentAssetPrecision: Int16 = 2
+        static let crowdloanDisplayPrecision: UInt16 = 5
+        static let crowdloanAssetPrecision: Int16 = 5
+        static let assetDisplayPrecision: UInt16 = 5
+    }
+
     let displayPrecision: UInt16
     let assetPrecision: Int16
     let symbol: String
@@ -13,8 +23,8 @@ struct AssetBalanceDisplayInfo {
 extension AssetBalanceDisplayInfo {
     static func usd() -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            displayPrecision: 2,
-            assetPrecision: 2,
+            displayPrecision: Constants.usdDisplayPrecision,
+            assetPrecision: Constants.usdAssetPrecision,
             symbol: "$",
             symbolValueSeparator: "",
             symbolPosition: .prefix,
@@ -24,8 +34,8 @@ extension AssetBalanceDisplayInfo {
 
     static func percent() -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            displayPrecision: 2,
-            assetPrecision: 2,
+            displayPrecision: Constants.percentDisplayPrecision,
+            assetPrecision: Constants.percentAssetPrecision,
             symbol: "%",
             symbolValueSeparator: "",
             symbolPosition: .suffix,
@@ -35,8 +45,8 @@ extension AssetBalanceDisplayInfo {
 
     static func fromCrowdloan(info: CrowdloanDisplayInfo) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            displayPrecision: 5,
-            assetPrecision: 5,
+            displayPrecision: Constants.crowdloanDisplayPrecision,
+            assetPrecision: Constants.crowdloanAssetPrecision,
             symbol: info.token,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
@@ -48,7 +58,7 @@ extension AssetBalanceDisplayInfo {
 extension AssetModel {
     var displayInfo: AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            displayPrecision: 5,
+            displayPrecision: AssetBalanceDisplayInfo.Constants.assetDisplayPrecision,
             assetPrecision: Int16(bitPattern: precision),
             symbol: symbol,
             symbolValueSeparator: " ",
@@ -59,7 +69,7 @@ extension AssetModel {
 
     func displayInfo(with chainIcon: URL) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
-            displayPrecision: 5,
+            displayPrecision: AssetBalanceDisplayInfo.Constants.assetDisplayPrecision,
             assetPrecision: Int16(bitPattern: precision),
             symbol: symbol,
             symbolValueSeparator: " ",

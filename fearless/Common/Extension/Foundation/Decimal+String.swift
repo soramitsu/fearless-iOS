@@ -8,10 +8,10 @@ extension Decimal {
         return NSDecimalString(&value, separator)
     }
 
-    func toString(digits _: Int) -> String? {
+    func toString(digits: Int = 2) -> String? {
         let formatter = NumberFormatter()
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = digits
+        formatter.maximumFractionDigits = digits
         return formatter.string(from: self as NSDecimalNumber)
     }
 

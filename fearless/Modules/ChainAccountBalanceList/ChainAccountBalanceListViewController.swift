@@ -38,13 +38,11 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
-        if let refreshControl = rootView.tableView.refreshControl {
-            refreshControl.addTarget(
-                self,
-                action: #selector(pullToRefreshOnAssetsTableHandler),
-                for: .valueChanged
-            )
-        }
+        rootView.tableView.refreshControl?.addTarget(
+            self,
+            action: #selector(pullToRefreshOnAssetsTableHandler),
+            for: .valueChanged
+        )
     }
 
     @objc private func pullToRefreshOnAssetsTableHandler() {
@@ -97,11 +95,11 @@ extension ChainAccountBalanceListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else
-        {
-          return UITableViewCell()
+        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self)
+        else {
+            return UITableViewCell()
         }
-      
+
         cell.bind(to: viewModel.accountViewModels[indexPath.row])
         return cell
     }

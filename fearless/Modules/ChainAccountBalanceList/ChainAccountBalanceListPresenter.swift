@@ -37,22 +37,14 @@ final class ChainAccountBalanceListPresenter {
 
         let assetInfo = asset.displayInfo
 
-        let maybeBalance: Decimal?
-
-        if let accountInfo = accountInfo {
-            maybeBalance = Decimal.fromSubstrateAmount(
-                accountInfo.data.available,
+        let balance = accountInfo.map {
+            Decimal.fromSubstrateAmount(
+                $0.data.available,
                 precision: assetInfo.assetPrecision
-            )
-        } else {
-            maybeBalance = 0.0
+            ) ?? 0
         }
 
-        guard let balance = maybeBalance else {
-            return nil
-        }
-
-        return balance.stringWithPointSeparator
+        return balance?.stringWithPointSeparator
     }
 
     private func getPriceAttributedString(for asset: AssetModel) -> NSAttributedString? {
@@ -65,28 +57,35 @@ final class ChainAccountBalanceListPresenter {
             return nil
         }
 
-        let changeString: String = priceData.usdDayChange.map {
-            let percentValue = $0 / 100
+        let changeString = priceData.usdDayChange.map { usdRateChangedPercentValue in
+            let percentValue = usdRateChangedPercentValue / 100
             return percentValue.percentString() ?? ""
         } ?? ""
 
-        let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
+        let priceString = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
 
         let priceWithChangeString = [priceString, changeString].joined(separator: " ")
 
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
 
-        let color = (priceData.usdDayChange ?? 0) > 0 ? R.color.colorGreen() : R.color.colorRed()
+        let defaultColor = R.color.colorGray() ?? .gray
+        let color = priceData.usdDayChange.map { usdRateChangedPercentValue -> UIColor in
+            if usdRateChangedPercentValue > 0 {
+                return R.color.colorGreen() ?? .green
+            } else if usdRateChangedPercentValue < 0 {
+                return R.color.colorRed() ?? .red
+            }
 
-        if let color = color {
-            priceWithChangeAttributed.addAttributes(
-                [NSAttributedString.Key.foregroundColor: color],
-                range: NSRange(
-                    location: priceString.count + 1,
-                    length: changeString.count
-                )
+            return R.color.colorGray() ?? .gray
+        } ?? defaultColor
+
+        priceWithChangeAttributed.addAttributes(
+            [NSAttributedString.Key.foregroundColor: color],
+            range: NSRange(
+                location: priceString.count + 1,
+                length: changeString.count
             )
-        }
+        )
 
         return priceWithChangeAttributed
     }
@@ -99,9 +98,8 @@ final class ChainAccountBalanceListPresenter {
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: selectedLocale)
 
-        let balance = getBalance(for: chain) ?? ""
-
-        guard let priceId = asset.priceId,
+        guard let balance = getBalance(for: chain),
+              let priceId = asset.priceId,
               let priceData = try? priceResults[priceId]?.get(),
               let priceDecimal = Decimal(string: priceData.price),
               let balanceDecimal = Decimal(string: balance) else {
@@ -121,9 +119,8 @@ final class ChainAccountBalanceListPresenter {
         let totalWalletBalance: Decimal = chainModels.compactMap { chainModel in
 
             chainModel.assets.compactMap {
-                let balance = getBalance(for: chainModel) ?? ""
-
-                guard let priceId = $0.priceId,
+                guard let balance = getBalance(for: chainModel),
+                      let priceId = $0.priceId,
                       let priceData = try? priceResults[priceId]?.get(),
                       let priceDecimal = Decimal(string: priceData.price),
                       let balanceDecimal = Decimal(string: balance) else {
