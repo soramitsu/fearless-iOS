@@ -7,24 +7,24 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
     func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
-    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
-    func setDerivationPath(viewModel: InputViewModelProtocol)
+    func setSubstrateDerivationPath(viewModel: InputViewModelProtocol)
+    func setEthereumDerivationPath(viewModel: InputViewModelProtocol)
     func setUploadWarning(message: String)
 
     func didCompleteSourceTypeSelection()
     func didCompleteCryptoTypeSelection()
-    func didCompleteAddressTypeSelection()
 
-    func didValidateDerivationPath(_ status: FieldStatus)
+    func didValidateSubstrateDerivationPath(_ status: FieldStatus)
+    func didValidateEthereumDerivationPath(_ status: FieldStatus)
 }
 
 protocol AccountImportPresenterProtocol: AnyObject {
     func setup()
     func selectSourceType()
     func selectCryptoType()
-    func selectNetworkType()
     func activateUpload()
-    func validateDerivationPath()
+    func validateSubstrateDerivationPath()
+    func validateEthereumDerivationPath()
     func proceed()
 }
 

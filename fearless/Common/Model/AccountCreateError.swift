@@ -11,7 +11,7 @@ enum AccountCreateError: Error {
 
 extension AccountCreateError: ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent {
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        var title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let message: String
 
         switch self {
@@ -19,18 +19,26 @@ extension AccountCreateError: ErrorContentConvertible {
             message = R.string.localizable
                 .accessRestoreWordsErrorMessage(preferredLanguages: locale?.rLanguages)
         case .invalidMnemonicFormat:
+            title = R.string.localizable
+                .accessRestorePhraseErrorTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .accessRestorePhraseErrorMessage(preferredLanguages: locale?.rLanguages)
         case .invalidSeed:
+            title = R.string.localizable
+                .accountImportInvalidSeedTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountImportInvalidSeed(preferredLanguages: locale?.rLanguages)
+                .accountImportInvalidSeedMessage(preferredLanguages: locale?.rLanguages)
         case .invalidKeystore:
+            title = R.string.localizable
+                .accountImportInvalidKeystoreTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountImportInvalidKeystore(preferredLanguages: locale?.rLanguages)
+                .accountImportInvalidKeystoreMessage(preferredLanguages: locale?.rLanguages)
         case .unsupportedNetwork:
             message = R.string.localizable
                 .commonUnsupportedNetworkMessage(preferredLanguages: locale?.rLanguages)
         case .duplicated:
+            title = R.string.localizable
+                .accountAddAlreadyExistsTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .accountAddAlreadyExistsMessage(preferredLanguages: locale?.rLanguages)
         }

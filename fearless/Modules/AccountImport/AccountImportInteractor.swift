@@ -56,7 +56,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             }
         }
 
-        saveOperation.addDependency(saveOperation)
+        saveOperation.addDependency(importOperation)
 
         operationManager.enqueue(
             operations: [importOperation, saveOperation],

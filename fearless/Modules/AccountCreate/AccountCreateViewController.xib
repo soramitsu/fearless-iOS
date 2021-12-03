@@ -272,6 +272,7 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
+                                                        <action selector="ethereumTextFieldEditingChanged" destination="-1" eventType="editingDidEnd" id="lLQ-d3-gpk"/>
                                                         <action selector="ethereumTextFieldEditingChanged:" destination="-1" eventType="editingChanged" id="3kl-js-kd1"/>
                                                         <outlet property="delegate" destination="-1" id="Jsz-hB-bWC"/>
                                                     </connections>
