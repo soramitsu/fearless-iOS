@@ -1,6 +1,8 @@
 import UIKit
 
 final class CompletedCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
+    let attentionView = AttentionView()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -23,6 +25,14 @@ final class CompletedCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
 
     private var viewModel: CompletedCrowdloanViewModel?
 
+    override func setupLayout() {
+        super.setupLayout()
+
+        mainStackView.setCustomSpacing(UIConstants.bigOffset, after: progressLabel)
+        mainStackView.addArrangedSubview(attentionView)
+        mainStackView.setCustomSpacing(UIConstants.bigOffset, after: attentionView)
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
 
@@ -34,6 +44,8 @@ final class CompletedCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
 
     func bind(viewModel: CompletedCrowdloanViewModel) {
         self.viewModel = viewModel
+
+        attentionView.isHidden = viewModel.failedMemo == nil || viewModel.contribution == nil
 
         titleLabel.text = viewModel.title
 

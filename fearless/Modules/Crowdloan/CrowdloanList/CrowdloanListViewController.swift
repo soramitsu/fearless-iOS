@@ -173,10 +173,13 @@ extension CrowdloanListViewController: UITableViewDataSource {
         }
 
         if let completed = viewModel.completed {
-            return createCompletedTableViewCell(
+            let cell = createCompletedTableViewCell(
                 tableView,
                 viewModel: completed.crowdloans[indexPath.row].content
             )
+            cell.attentionView.titleLabel.text = R.string.localizable.crowdloanAttention(preferredLanguages: selectedLocale.rLanguages)
+
+            return cell
         }
 
         return UITableViewCell()
@@ -194,7 +197,7 @@ extension CrowdloanListViewController: UITableViewDataSource {
     private func createCompletedTableViewCell(
         _ tableView: UITableView,
         viewModel: CompletedCrowdloanViewModel
-    ) -> UITableViewCell {
+    ) -> CompletedCrowdloanTableViewCell {
         let cell = tableView.dequeueReusableCellWithType(CompletedCrowdloanTableViewCell.self)!
         cell.bind(viewModel: viewModel)
         return cell
@@ -209,8 +212,16 @@ extension CrowdloanListViewController: UITableViewDelegate {
             return
         }
 
+        let completedSection = viewModel.active.map {
+            $0.crowdloans.isEmpty ? 1 : 2
+        } ?? 1
+
         if indexPath.section == 1, let active = viewModel.active {
             presenter.selectViewModel(active.crowdloans[indexPath.row])
+        }
+
+        if indexPath.section == completedSection, let completed = viewModel.completed {
+            presenter.selectCompleted(completed.crowdloans[indexPath.row])
         }
     }
 

@@ -154,6 +154,16 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
         interactor.refresh()
     }
 
+    func selectCompleted(_ viewModel: CrowdloanSectionItem<CompletedCrowdloanViewModel>) {
+        if let failedMemo = viewModel.content.failedMemo {
+            wireframe.presentContributionSetup(
+                from: view,
+                paraId: viewModel.paraId,
+                customFlow: .moonbeamMemoFix(failedMemo)
+            )
+        }
+    }
+
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
         let crowdloanDisplayInfo: CrowdloanDisplayInfo? = try? displayInfoResult?
             .get()

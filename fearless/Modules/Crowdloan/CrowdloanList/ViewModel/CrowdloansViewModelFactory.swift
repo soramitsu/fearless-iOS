@@ -179,7 +179,8 @@ final class CrowdloansViewModelFactory {
         contributions: CrowdloanContributionDict?,
         displayInfo: CrowdloanDisplayInfo?,
         formatters: Formatters,
-        locale: Locale
+        locale: Locale,
+        failedMemo: String?
     ) -> CompletedCrowdloanViewModel? {
         guard let commonContent = createCommonContent(
             from: model,
@@ -196,7 +197,8 @@ final class CrowdloansViewModelFactory {
             description: commonContent.details,
             progress: commonContent.progress,
             iconViewModel: commonContent.imageViewModel,
-            contribution: commonContent.contribution
+            contribution: commonContent.contribution,
+            failedMemo: failedMemo
         )
     }
 
@@ -229,7 +231,8 @@ final class CrowdloansViewModelFactory {
                     contributions: contributions,
                     displayInfo: displayInfo?[crowdloan.paraId],
                     formatters: formatters,
-                    locale: locale
+                    locale: locale,
+                    failedMemo: failedMemos?[crowdloan.paraId]
                 ) {
                     let sectionItem = CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
                     result.1.append(sectionItem)
