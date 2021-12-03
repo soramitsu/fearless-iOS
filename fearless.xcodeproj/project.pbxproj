@@ -1686,6 +1686,13 @@
 		FA256A51274CEB9800875A53 /* FeePriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A4E274CEB9600875A53 /* FeePriceViewModel.swift */; };
 		FA256A52274CEB9800875A53 /* RichAmountDisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A4F274CEB9700875A53 /* RichAmountDisplayViewModel.swift */; };
 		FA256A53274CEB9800875A53 /* RichAmountInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A50274CEB9700875A53 /* RichAmountInputViewModel.swift */; };
+		FA38C9672758764B005C5577 /* VerticalContentButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9662758764B005C5577 /* VerticalContentButton.swift */; };
+		FA38C9692758881B005C5577 /* AccountBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9682758881B005C5577 /* AccountBalanceView.swift */; };
+		FA38C96C275893F8005C5577 /* AccountBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C96B275893F8005C5577 /* AccountBalanceViewModel.swift */; };
+		FA38C96E275897E0005C5577 /* AssetAmountValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C96D275897E0005C5577 /* AssetAmountValues.swift */; };
+		FA38C97127589D8F005C5577 /* ChainAccountViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C97027589D8F005C5577 /* ChainAccountViewModelFactory.swift */; };
+		FA38C9732758CBEC005C5577 /* ChainAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9722758CBEC005C5577 /* ChainAccountViewModel.swift */; };
+		FA38C9752758CD5D005C5577 /* ChainAccountViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9742758CD5D005C5577 /* ChainAccountViewState.swift */; };
 		FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */; };
 		FA6DB7C42757C9B000233FBA /* ChainAccountViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */; };
 		FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BE2757C9AF00233FBA /* ChainAccountViewController.swift */; };
@@ -3425,6 +3432,13 @@
 		FA256A4E274CEB9600875A53 /* FeePriceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeePriceViewModel.swift; sourceTree = "<group>"; };
 		FA256A4F274CEB9700875A53 /* RichAmountDisplayViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RichAmountDisplayViewModel.swift; sourceTree = "<group>"; };
 		FA256A50274CEB9700875A53 /* RichAmountInputViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RichAmountInputViewModel.swift; sourceTree = "<group>"; };
+		FA38C9662758764B005C5577 /* VerticalContentButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalContentButton.swift; sourceTree = "<group>"; };
+		FA38C9682758881B005C5577 /* AccountBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBalanceView.swift; sourceTree = "<group>"; };
+		FA38C96B275893F8005C5577 /* AccountBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBalanceViewModel.swift; sourceTree = "<group>"; };
+		FA38C96D275897E0005C5577 /* AssetAmountValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetAmountValues.swift; sourceTree = "<group>"; };
+		FA38C97027589D8F005C5577 /* ChainAccountViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewModelFactory.swift; sourceTree = "<group>"; };
+		FA38C9722758CBEC005C5577 /* ChainAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewModel.swift; sourceTree = "<group>"; };
+		FA38C9742758CD5D005C5577 /* ChainAccountViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewState.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
 		FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewLayout.swift; sourceTree = "<group>"; };
 		FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewFactory.swift; sourceTree = "<group>"; };
@@ -5639,6 +5653,7 @@
 				8419C39526EA8F7300A3179C /* PriceData.swift */,
 				84F13F0926F14122006725FF /* ChainAsset.swift */,
 				841AAC2826F6A59C00F0A25E /* MultiassetCryptoType.swift */,
+				FA38C96D275897E0005C5577 /* AssetAmountValues.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -5927,6 +5942,7 @@
 				F40966E326B29919008CD244 /* Stacks.swift */,
 				F43A596926D520E0005E973D /* EmptyStateViewCell.swift */,
 				FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */,
+				FA38C9662758764B005C5577 /* VerticalContentButton.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -8476,9 +8492,30 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		FA38C96A275891CD005C5577 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FA38C96B275893F8005C5577 /* AccountBalanceViewModel.swift */,
+				FA38C97027589D8F005C5577 /* ChainAccountViewModelFactory.swift */,
+				FA38C9722758CBEC005C5577 /* ChainAccountViewModel.swift */,
+				FA38C9742758CD5D005C5577 /* ChainAccountViewState.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		FA38C96F27589D79005C5577 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FA38C9682758881B005C5577 /* AccountBalanceView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		FA6DB7BB2757C9AF00233FBA /* ChainAccount */ = {
 			isa = PBXGroup;
 			children = (
+				FA38C96F27589D79005C5577 /* Views */,
+				FA38C96A275891CD005C5577 /* ViewModels */,
 				FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */,
 				FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */,
 				FA6DB7BE2757C9AF00233FBA /* ChainAccountViewController.swift */,
@@ -9035,6 +9072,7 @@
 				AE8B8835267349C200AB0AA9 /* CustomVlidatorListFilter.swift in Sources */,
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
 				F484FF5F264BA2720015320F /* ControllerAccountConfirmationLayout.swift in Sources */,
+				FA38C9752758CD5D005C5577 /* ChainAccountViewState.swift in Sources */,
 				841494402604E71C000D8D1A /* TotalRewardItem.swift in Sources */,
 				84DA3B1224C6D29100B5E27F /* RuntimeVersion.swift in Sources */,
 				843C49DB24DF373000B71DDA /* AccountImportRequest.swift in Sources */,
@@ -9192,6 +9230,7 @@
 				F4C086B826D10E3400716AEC /* UIRefreshControl+ProgramaticallyBeginRefresh.swift in Sources */,
 				843461CD26E2596E00DCE0CD /* WalletRemoteHistoryFiltering.swift in Sources */,
 				AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */,
+				FA38C9692758881B005C5577 /* AccountBalanceView.swift in Sources */,
 				F471897626C297AA006487AD /* AnalyticsValidatorsPage.swift in Sources */,
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,
 				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
@@ -9248,6 +9287,7 @@
 				84D97EC1251FEE1E00F07405 /* WalletAssetId+Display.swift in Sources */,
 				849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */,
 				84CFF1E826526FBC00DB7CF7 /* StakingBondMoreViewFactory.swift in Sources */,
+				FA38C9672758764B005C5577 /* VerticalContentButton.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
@@ -9507,6 +9547,7 @@
 				8468B86A24F63CBA00B76BC6 /* AddAccount+AccountImportInteractor.swift in Sources */,
 				84B66A0B26FDB70F0038B963 /* CrowdloansListInteractor+Protocols.swift in Sources */,
 				F40966BE26B297D6008CD244 /* AnalyticsRewardsItemView.swift in Sources */,
+				FA38C9732758CBEC005C5577 /* ChainAccountViewModel.swift in Sources */,
 				84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */,
 				AEBE16E6262EA7C100DF257C /* StakingErrors.swift in Sources */,
 				FA256A36274CE7D600875A53 /* CrowdloanBonusServiceProtocol.swift in Sources */,
@@ -9976,6 +10017,7 @@
 				841185E7263F3B6D00E8A8B6 /* HintView.swift in Sources */,
 				8494D87C252537E500614D8F /* SubscanError.swift in Sources */,
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
+				FA38C96C275893F8005C5577 /* AccountBalanceViewModel.swift in Sources */,
 				F4E117B9264BAA81006F03B0 /* ControllerAccountConfirmationVM.swift in Sources */,
 				AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */,
 				8468B87024F63D2000B76BC6 /* AddAccount+UsernameSetupWireframe.swift in Sources */,
@@ -10062,6 +10104,7 @@
 				9B930BBA2856C998279AA38E /* NetworkManagementViewController.swift in Sources */,
 				846AF83E2525B85100868F37 /* WalletNetworkFacade.swift in Sources */,
 				929AF73A86C9878C987E429A /* NetworkManagementViewFactory.swift in Sources */,
+				FA38C96E275897E0005C5577 /* AssetAmountValues.swift in Sources */,
 				8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */,
 				845B822926F0BB6700D25C72 /* CrowdloanChainSettings.swift in Sources */,
 				AEE5FB072641669B002B8FDC /* StakingRebondSetupLayout.swift in Sources */,
@@ -10401,6 +10444,7 @@
 				436D8B9651C88360A6D72E90 /* ChainSelectionWireframe.swift in Sources */,
 				3DF50E6F78F1B1052625BA7D /* ChainSelectionPresenter.swift in Sources */,
 				59745D3C9602745E1417D2F6 /* ChainSelectionInteractor.swift in Sources */,
+				FA38C97127589D8F005C5577 /* ChainAccountViewModelFactory.swift in Sources */,
 				47995121910705DAE2967AF2 /* ChainSelectionViewController.swift in Sources */,
 				9659B32D4622C8D9679298DF /* ChainSelectionViewFactory.swift in Sources */,
 				B58B2D9494687F357821D53D /* AnalyticsValidatorsProtocols.swift in Sources */,

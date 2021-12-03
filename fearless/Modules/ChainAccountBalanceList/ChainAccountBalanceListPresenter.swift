@@ -142,6 +142,7 @@ final class ChainAccountBalanceListPresenter {
                 let balance = getBalance(for: chainModel) ?? ""
 
                 return ChainAccountBalanceCellViewModel(
+                    asset: $0,
                     chainName: title,
                     assetInfo: $0.displayInfo(with: chainModel.icon),
                     imageViewModel: icon,
@@ -172,7 +173,13 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
         interactor.refresh()
     }
 
-    func didSelectViewModel(_: ChainAccountBalanceCellViewModel) {}
+    func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
+        guard let chain = chainModels.first(where: { $0.assets.contains(viewModel.asset) }) else {
+            return
+        }
+
+        wireframe.showChainAccount(from: view, chain: chain, asset: viewModel.asset)
+    }
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOutputProtocol {

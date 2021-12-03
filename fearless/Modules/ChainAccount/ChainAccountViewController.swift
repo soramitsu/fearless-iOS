@@ -1,9 +1,11 @@
 import UIKit
 
-final class ChainAccountViewController: UIViewController {
+final class ChainAccountViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChainAccountViewLayout
 
     let presenter: ChainAccountPresenterProtocol
+
+    private var state: ChainAccountViewState = .loading
 
     init(presenter: ChainAccountPresenterProtocol) {
         self.presenter = presenter
@@ -24,6 +26,22 @@ final class ChainAccountViewController: UIViewController {
 
         presenter.setup()
     }
+
+    private func applyState() {
+        switch state {
+        case .loading:
+            break
+        case let .loaded(viewModel):
+            rootView.balanceView.bind(to: viewModel.accountBalanceViewModel)
+        case .error:
+            break
+        }
+    }
 }
 
-extension ChainAccountViewController: ChainAccountViewProtocol {}
+extension ChainAccountViewController: ChainAccountViewProtocol {
+    func didReceiveState(_ state: ChainAccountViewState) {
+        self.state = state
+        applyState()
+    }
+}

@@ -2,6 +2,7 @@ import Foundation
 import Kingfisher
 
 struct ChainAccountBalanceCellViewModel {
+    let asset: AssetModel
     let chainName: String?
     let assetInfo: AssetBalanceDisplayInfo?
     let imageViewModel: RemoteImageViewModel?

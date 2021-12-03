@@ -21,4 +21,10 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
 }
 
-protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable {}
+protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable {
+    func showChainAccount(
+        from view: ChainAccountBalanceListViewProtocol?,
+        chain: ChainModel,
+        asset: AssetModel
+    )
+}

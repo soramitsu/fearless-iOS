@@ -97,11 +97,11 @@ extension ChainAccountBalanceListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else
-        {
-          return UITableViewCell()
+        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self)
+        else {
+            return UITableViewCell()
         }
-      
+
         cell.bind(to: viewModel.accountViewModels[indexPath.row])
         return cell
     }
