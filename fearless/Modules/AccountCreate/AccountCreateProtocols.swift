@@ -5,8 +5,8 @@ protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
     func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel)
     func setEthereumCrypto(model: TitleWithSubtitleViewModel)
-    func setSubstrateDerivationPath(viewModel: InputViewModelProtocol)
-    func setEthereumDerivationPath(viewModel: InputViewModelProtocol)
+    func bind(substrateViewModel: InputViewModelProtocol)
+    func bind(ethereumViewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()
     func didValidateSubstrateDerivationPath(_ status: FieldStatus)

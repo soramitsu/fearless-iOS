@@ -26,7 +26,7 @@
                 <outlet property="ethereumDerivationPathLabel" destination="Zw0-Yv-jkd" id="bcp-6R-RiN"/>
                 <outlet property="expadableControl" destination="oE5-fi-Ix8" id="EF1-2d-paz"/>
                 <outlet property="nextButton" destination="YBP-AM-Ejm" id="cq0-W4-PL2"/>
-                <outlet property="nextButtonBottom" destination="jkh-Po-wz2" id="DJW-34-8cO"/>
+                <outlet property="nextButtonBottom" destination="jkh-Po-wz2" id="Ajr-cQ-bXz"/>
                 <outlet property="scrollView" destination="j2J-jw-4dD" id="CyB-r4-B75"/>
                 <outlet property="stackView" destination="nt2-2c-HuT" id="Cn2-eT-eLd"/>
                 <outlet property="substrateCryptoTypeView" destination="Mz8-da-wtW" id="h48-z2-hhv"/>
@@ -170,7 +170,6 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
-                                                        <action selector="substrateTextFieldEditingChanged" destination="-1" eventType="editingDidEnd" id="saR-wY-JST"/>
                                                         <outlet property="delegate" destination="-1" id="u3t-fF-59j"/>
                                                     </connections>
                                                 </textField>
@@ -272,7 +271,6 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
-                                                        <action selector="ethereumTextFieldEditingChanged:" destination="-1" eventType="editingChanged" id="3kl-js-kd1"/>
                                                         <outlet property="delegate" destination="-1" id="Jsz-hB-bWC"/>
                                                     </connections>
                                                 </textField>

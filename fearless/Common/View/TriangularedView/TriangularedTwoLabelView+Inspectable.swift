@@ -12,43 +12,43 @@ extension TriangularedTwoLabelView {
     @IBInspectable
     private var _title: String? {
         get {
-            twoLabelView.titleLabel.text
+            twoVerticalLabelView.titleLabel.text
         }
 
         set {
-            twoLabelView.titleLabel.text = newValue
+            twoVerticalLabelView.titleLabel.text = newValue
         }
     }
 
     @IBInspectable
     private var _titleColor: UIColor? {
         get {
-            twoLabelView.titleLabel.textColor
+            twoVerticalLabelView.titleLabel.textColor
         }
 
         set {
-            twoLabelView.titleLabel.textColor = newValue
+            twoVerticalLabelView.titleLabel.textColor = newValue
         }
     }
 
     @IBInspectable
     private var _titleFontName: String? {
         get {
-            twoLabelView.titleLabel.font.fontName
+            twoVerticalLabelView.titleLabel.font.fontName
         }
 
         set(newValue) {
             guard let fontName = newValue else {
-                twoLabelView.titleLabel.font = nil
+                twoVerticalLabelView.titleLabel.font = nil
                 return
             }
 
-            guard let pointSize = twoLabelView.titleLabel.font?.pointSize else {
-                twoLabelView.titleLabel.font = UIFont(name: fontName, size: UIFont.buttonFontSize)
+            guard let pointSize = twoVerticalLabelView.titleLabel.font?.pointSize else {
+                twoVerticalLabelView.titleLabel.font = UIFont(name: fontName, size: UIFont.buttonFontSize)
                 return
             }
 
-            twoLabelView.titleLabel.font = UIFont(name: fontName, size: pointSize)
+            twoVerticalLabelView.titleLabel.font = UIFont(name: fontName, size: pointSize)
 
             invalidateLayout()
         }
@@ -57,7 +57,7 @@ extension TriangularedTwoLabelView {
     @IBInspectable
     private var _titleFontSize: CGFloat {
         get {
-            if let pointSize = twoLabelView.titleLabel.font?.pointSize {
+            if let pointSize = twoVerticalLabelView.titleLabel.font?.pointSize {
                 return pointSize
             } else {
                 return 0.0
@@ -65,12 +65,12 @@ extension TriangularedTwoLabelView {
         }
 
         set(newValue) {
-            guard let fontName = twoLabelView.titleLabel.font?.fontName else {
-                twoLabelView.titleLabel.font = UIFont.systemFont(ofSize: newValue)
+            guard let fontName = twoVerticalLabelView.titleLabel.font?.fontName else {
+                twoVerticalLabelView.titleLabel.font = UIFont.systemFont(ofSize: newValue)
                 return
             }
 
-            twoLabelView.titleLabel.font = UIFont(name: fontName, size: newValue)
+            twoVerticalLabelView.titleLabel.font = UIFont(name: fontName, size: newValue)
 
             invalidateLayout()
         }
@@ -79,46 +79,46 @@ extension TriangularedTwoLabelView {
     @IBInspectable
     private var _subtitle: String? {
         get {
-            twoLabelView.subtitleLabelView.text
+            twoVerticalLabelView.subtitleLabelView.text
         }
 
         set {
-            twoLabelView.subtitleLabelView.text = newValue
+            twoVerticalLabelView.subtitleLabelView.text = newValue
         }
     }
 
     @IBInspectable
     private var _subtitleColor: UIColor? {
         get {
-            twoLabelView.subtitleLabelView.textColor
+            twoVerticalLabelView.subtitleLabelView.textColor
         }
 
         set {
-            twoLabelView.subtitleLabelView.textColor = newValue
+            twoVerticalLabelView.subtitleLabelView.textColor = newValue
         }
     }
 
     @IBInspectable
     private var _subtitleFontName: String? {
         get {
-            twoLabelView.subtitleLabelView.font?.fontName
+            twoVerticalLabelView.subtitleLabelView.font?.fontName
         }
 
         set(newValue) {
             guard let fontName = newValue else {
-                twoLabelView.subtitleLabelView.font = nil
+                twoVerticalLabelView.subtitleLabelView.font = nil
                 return
             }
 
-            guard let pointSize = twoLabelView.subtitleLabelView.font?.pointSize else {
-                twoLabelView.subtitleLabelView.font = UIFont(
+            guard let pointSize = twoVerticalLabelView.subtitleLabelView.font?.pointSize else {
+                twoVerticalLabelView.subtitleLabelView.font = UIFont(
                     name: fontName,
                     size: UIFont.buttonFontSize
                 )
                 return
             }
 
-            twoLabelView.subtitleLabelView.font = UIFont(name: fontName, size: pointSize)
+            twoVerticalLabelView.subtitleLabelView.font = UIFont(name: fontName, size: pointSize)
 
             invalidateLayout()
         }
@@ -127,7 +127,7 @@ extension TriangularedTwoLabelView {
     @IBInspectable
     private var _subtitleFontSize: CGFloat {
         get {
-            if let pointSize = twoLabelView.subtitleLabelView.font?.pointSize {
+            if let pointSize = twoVerticalLabelView.subtitleLabelView.font?.pointSize {
                 return pointSize
             } else {
                 return 0.0
@@ -135,12 +135,12 @@ extension TriangularedTwoLabelView {
         }
 
         set(newValue) {
-            guard let fontName = twoLabelView.subtitleLabelView.font?.fontName else {
-                twoLabelView.subtitleLabelView.font = UIFont.systemFont(ofSize: newValue)
+            guard let fontName = twoVerticalLabelView.subtitleLabelView.font?.fontName else {
+                twoVerticalLabelView.subtitleLabelView.font = UIFont.systemFont(ofSize: newValue)
                 return
             }
 
-            twoLabelView.subtitleLabelView.font = UIFont(name: fontName, size: newValue)
+            twoVerticalLabelView.subtitleLabelView.font = UIFont(name: fontName, size: newValue)
 
             invalidateLayout()
         }

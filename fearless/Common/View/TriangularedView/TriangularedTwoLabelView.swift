@@ -10,7 +10,7 @@ import UIKit
 
 @IBDesignable
 final class TriangularedTwoLabelView: TriangularedView {
-    let twoLabelView = TwoLabelView()
+    let twoVerticalLabelView = TwoVerticalLabelView()
     var contentInsets = UIEdgeInsets(top: 8.0, left: 16, bottom: 8.0, right: 16) {
         didSet {
             invalidateLayout()
@@ -20,8 +20,8 @@ final class TriangularedTwoLabelView: TriangularedView {
     override func configure() {
         super.configure()
 
-        if twoLabelView.superview == nil {
-            addSubview(twoLabelView)
+        if twoVerticalLabelView.superview == nil {
+            addSubview(twoVerticalLabelView)
         }
     }
 
@@ -31,7 +31,7 @@ final class TriangularedTwoLabelView: TriangularedView {
     }
 
     override var intrinsicContentSize: CGSize {
-        let contentSize = twoLabelView.intrinsicContentSize
+        let contentSize = twoVerticalLabelView.intrinsicContentSize
 
         return CGSize(
             width: contentSize.width + contentInsets.left + contentInsets.right,
@@ -41,12 +41,11 @@ final class TriangularedTwoLabelView: TriangularedView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-
-        twoLabelView.frame = CGRect(
-            x: contentInsets.left,
-            y: contentInsets.top,
-            width: bounds.size.width - contentInsets.left - contentInsets.right,
-            height: bounds.size.height - contentInsets.top - contentInsets.bottom
-        )
+        twoVerticalLabelView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(contentInsets.left)
+            make.trailing.equalToSuperview().inset(contentInsets.right)
+            make.top.equalToSuperview().inset(contentInsets.top)
+            make.bottom.equalToSuperview().inset(contentInsets.bottom)
+        }
     }
 }
