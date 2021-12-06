@@ -36,6 +36,8 @@ enum AccountViewMode {
 }
 
 protocol UIFactoryProtocol {
+    func createVerticalStackView(spacing: CGFloat) -> UIStackView
+    func createHorizontalStackView(spacing: CGFloat) -> UIStackView
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
     func createDetailsView(
@@ -102,6 +104,20 @@ extension UIFactoryProtocol {
 
 final class UIFactory: UIFactoryProtocol {
     static let `default` = UIFactory()
+
+    func createVerticalStackView(spacing: CGFloat = 0) -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = spacing
+        return stackView
+    }
+
+    func createHorizontalStackView(spacing: CGFloat = 0) -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = spacing
+        return stackView
+    }
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
