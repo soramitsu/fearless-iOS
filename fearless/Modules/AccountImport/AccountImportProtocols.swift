@@ -7,8 +7,8 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
     func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
-    func setSubstrateDerivationPath(viewModel: InputViewModelProtocol)
-    func setEthereumDerivationPath(viewModel: InputViewModelProtocol)
+    func bind(substrateViewModel: InputViewModelProtocol)
+    func bind(ethereumViewModel: InputViewModelProtocol)
     func setUploadWarning(message: String)
 
     func didCompleteSourceTypeSelection()

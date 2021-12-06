@@ -25,6 +25,7 @@
                 <outlet property="ethereumDerivationPathImageView" destination="0zN-Fl-rSl" id="EGL-Av-SUF"/>
                 <outlet property="ethereumDerivationPathLabel" destination="c8B-ar-8H6" id="sz4-1Q-XMx"/>
                 <outlet property="nextButton" destination="1zX-7F-5Jj" id="tDn-Eb-zVt"/>
+                <outlet property="nextButtonBottom" destination="WgO-4n-XcD" id="XwW-2B-v1H"/>
                 <outlet property="passwordTextField" destination="wwH-SE-Zsz" id="WT2-Wc-L31"/>
                 <outlet property="passwordView" destination="GW5-f0-uHW" id="HDG-gq-Zdp"/>
                 <outlet property="scrollView" destination="H0p-yD-Jul" id="NuO-CC-dE8"/>
@@ -554,7 +555,7 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
-                                                        <action selector="substrateTextFieldEditingChanged" destination="-1" eventType="editingDidEnd" id="fol-iM-63E"/>
+                                                        <outlet property="delegate" destination="-1" id="cuG-zz-VLN"/>
                                                     </connections>
                                                 </textField>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="xAo-z4-2AF">
@@ -655,7 +656,7 @@
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                                     <connections>
-                                                        <action selector="ethereumTextFieldEditingChanged" destination="-1" eventType="editingDidEnd" id="Cgl-Au-7uV"/>
+                                                        <outlet property="delegate" destination="-1" id="1VU-py-AI7"/>
                                                     </connections>
                                                 </textField>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0zN-Fl-rSl">

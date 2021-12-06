@@ -8,6 +8,7 @@ final class AccountImportViewController: UIViewController {
         static let advancedFullHeight: CGFloat = 321.0
         static let advancedTruncHeight: CGFloat = 84.0
         static let verticalSpacing: CGFloat = 16.0
+        static let nextButtonBottomInset: CGFloat = 16
     }
 
     var presenter: AccountImportPresenterProtocol!
@@ -30,6 +31,7 @@ final class AccountImportViewController: UIViewController {
 
     @IBOutlet private var warningView: UIView!
     @IBOutlet private var warningLabel: UILabel!
+    @IBOutlet private var nextButtonBottom: NSLayoutConstraint!
 
     @IBOutlet var substrateCryptoTypeView: BorderedSubtitleActionView!
 
@@ -53,12 +55,11 @@ final class AccountImportViewController: UIViewController {
     private var usernameViewModel: InputViewModelProtocol?
     private var passwordViewModel: InputViewModelProtocol?
     private var sourceViewModel: InputViewModelProtocol?
+    private var isFirstLayoutCompleted: Bool = false
 
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
     }()
-
-    var keyboardHandler: KeyboardHandler?
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
@@ -96,6 +97,11 @@ final class AccountImportViewController: UIViewController {
         super.viewDidDisappear(animated)
 
         clearKeyboardHandler()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        isFirstLayoutCompleted = true
     }
 
     private func configure() {
@@ -159,7 +165,7 @@ final class AccountImportViewController: UIViewController {
         substrateCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .substrateCryptoType(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoLabelView.titleLabel.text = R.string.localizable
+        ethereumCryptoTypeView.twoVerticalLabelView.titleLabel.text = R.string.localizable
             .ethereumCryptoType(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
 
@@ -348,7 +354,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
         substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoLabelView.invalidateLayout()
+        ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
     }
 
     func setSource(viewModel: InputViewModelProtocol) {
@@ -399,14 +405,14 @@ extension AccountImportViewController: AccountImportViewProtocol {
         substrateCryptoTypeView.actionControl.invalidateLayout()
     }
 
-    func setSubstrateDerivationPath(viewModel: InputViewModelProtocol) {
-        substrateDerivationPathModel = viewModel
+    func bind(substrateViewModel: InputViewModelProtocol) {
+        substrateDerivationPathModel = substrateViewModel
 
-        substrateDerivationPathField.text = viewModel.inputHandler.value
+        substrateDerivationPathField.text = substrateViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.example(
-                viewModel.placeholder,
+                substrateViewModel.placeholder,
                 preferredLanguages: locale.rLanguages
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
@@ -414,14 +420,14 @@ extension AccountImportViewController: AccountImportViewProtocol {
         substrateDerivationPathField.attributedPlaceholder = attributedPlaceholder
     }
 
-    func setEthereumDerivationPath(viewModel: InputViewModelProtocol) {
-        ethereumDerivationPathModel = viewModel
+    func bind(ethereumViewModel: InputViewModelProtocol) {
+        ethereumDerivationPathModel = ethereumViewModel
 
-        ethereumDerivationPathField.text = viewModel.inputHandler.value
+        ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.example(
-                viewModel.placeholder,
+                ethereumViewModel.placeholder,
                 preferredLanguages: locale.rLanguages
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
@@ -549,41 +555,16 @@ extension AccountImportViewController: UITextViewDelegate {
     }
 }
 
-extension AccountImportViewController: KeyboardAdoptable {
-    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
-        let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
-        let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
+extension AccountImportViewController: KeyboardViewAdoptable {
+    var targetBottomConstraint: NSLayoutConstraint? { nextButtonBottom }
 
-        var contentInsets = scrollView.contentInset
-        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
-        scrollView.contentInset = contentInsets
+    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
-        if contentInsets.bottom > 0.0 {
-            let targetView: UIView?
-
-            if textView.isFirstResponder {
-                targetView = textView
-            } else if usernameTextField.isFirstResponder {
-                targetView = usernameView
-            } else if passwordTextField.isFirstResponder {
-                targetView = passwordView
-            } else if substrateDerivationPathField.isFirstResponder {
-                targetView = substrateDerivationPathField
-            } else if ethereumDerivationPathField.isFirstResponder {
-                targetView = ethereumDerivationPathField
-            } else {
-                targetView = nil
-            }
-
-            if let firstResponderView = targetView {
-                let fieldFrame = scrollView.convert(
-                    firstResponderView.frame,
-                    from: firstResponderView.superview
-                )
-
-                scrollView.scrollRectToVisible(fieldFrame, animated: true)
-            }
+    func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
+        if bottomInset > 0.0 {
+            return -view.safeAreaInsets.bottom + Constants.nextButtonBottomInset
+        } else {
+            return Constants.nextButtonBottomInset
         }
     }
 }

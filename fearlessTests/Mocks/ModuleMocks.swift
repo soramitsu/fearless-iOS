@@ -2166,16 +2166,16 @@ import SoraFoundation
     
     
     
-     func setSubstrateDerivationPath(viewModel: InputViewModelProtocol)  {
+     func bind(substrateViewModel: InputViewModelProtocol)  {
         
     return cuckoo_manager.call("setDerivationPath(viewModel: InputViewModelProtocol)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
+            parameters: (substrateViewModel),
+            escapingParameters: (substrateViewModel),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.setSubstrateDerivationPath(viewModel: viewModel))
+            defaultCall: __defaultImplStub!.bind(substrateViewModel: substrateViewModel))
         
     }
     

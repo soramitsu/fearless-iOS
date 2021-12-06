@@ -225,7 +225,7 @@ final class AccountImportPresenter {
 
         substrateDerivationPathViewModel = viewModel
 
-        view?.setSubstrateDerivationPath(viewModel: viewModel)
+        view?.bind(substrateViewModel: viewModel)
         view?.didValidateSubstrateDerivationPath(.none)
     }
 
@@ -236,9 +236,9 @@ final class AccountImportPresenter {
 
         let viewModel = createViewModel(for: .ethereumEcdsa, sourceType: sourceType)
 
-        substrateDerivationPathViewModel = viewModel
+        ethereumDerivationPathViewModel = viewModel
 
-        view?.setEthereumDerivationPath(viewModel: viewModel)
+        view?.bind(ethereumViewModel: viewModel)
         view?.didValidateEthereumDerivationPath(.none)
     }
 
@@ -408,7 +408,6 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
     func validateEthereumDerivationPath() {
         guard let viewModel = ethereumDerivationPathViewModel,
-              let cryptoType = selectedCryptoType,
               let sourceType = selectedSourceType
         else {
             return
@@ -418,7 +417,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             view?.didValidateEthereumDerivationPath(.valid)
         } else {
             view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(sourceType: sourceType, cryptoType: cryptoType)
+            presentDerivationPathError(sourceType: sourceType, cryptoType: .ethereumEcdsa)
         }
     }
 
