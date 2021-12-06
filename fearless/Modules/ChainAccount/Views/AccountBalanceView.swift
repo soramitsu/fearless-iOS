@@ -16,7 +16,7 @@ class AccountBalanceView: TriangularedBlurView {
 
     let totalView = TitleMultiValueView()
     let transferableView = TitleMultiValueView()
-    let lockedView = TitleMultiValueView()
+    let lockedView = LockedBalanceMultiValueView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,9 +36,10 @@ class AccountBalanceView: TriangularedBlurView {
         }
         addSubview(balanceContentStackView)
         balanceContentStackView.snp.makeConstraints { make in
-            make.width.equalToSuperview().offset(UIConstants.bigOffset * 2)
+            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+            make.centerX.equalToSuperview()
             make.top.equalTo(balanceViewTitleLabel.snp.bottom).offset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview()
         }
 
         balanceContentStackView.addArrangedSubview(totalView)

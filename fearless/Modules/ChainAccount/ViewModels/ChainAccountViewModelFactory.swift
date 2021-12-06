@@ -3,7 +3,7 @@ import Foundation
 protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(accountBalanceViewModel: AccountBalanceViewModel) -> ChainAccountViewModel
     func buildAccountBalanceViewModel(
-        accountInfo: AccountInfo,
+        accountInfo: AccountInfo?,
         priceData: PriceData?,
         asset: AssetModel,
         locale: Locale
@@ -22,26 +22,26 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     }
 
     func buildAccountBalanceViewModel(
-        accountInfo: AccountInfo,
+        accountInfo: AccountInfo?,
         priceData: PriceData?,
         asset: AssetModel,
         locale: Locale
     ) -> AccountBalanceViewModel {
         let totalAssetValues = AssetAmountValues(
             asset: asset,
-            amount: accountInfo.data.total,
+            amount: accountInfo?.data.total ?? 0,
             priceData: priceData
         )
 
         let transferableAssetValues = AssetAmountValues(
             asset: asset,
-            amount: accountInfo.data.available,
+            amount: accountInfo?.data.available ?? 0,
             priceData: priceData
         )
 
         let lockedAssetValues = AssetAmountValues(
             asset: asset,
-            amount: accountInfo.data.locked,
+            amount: accountInfo?.data.locked ?? 0,
             priceData: priceData
         )
 

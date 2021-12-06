@@ -1,12 +1,16 @@
 import UIKit
 
 class VerticalContentButton: UIButton {
+    enum LayoutConstants {
+        static let verticalOffset: CGFloat = 12
+    }
+
     override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
         let rect = super.titleRect(forContentRect: contentRect)
 
         return CGRect(
             x: 0,
-            y: contentRect.height - rect.height + 5,
+            y: (contentRect.height / 2) + (rect.height / 2) + LayoutConstants.verticalOffset / 2,
             width: contentRect.width,
             height: rect.height
         )
@@ -14,11 +18,10 @@ class VerticalContentButton: UIButton {
 
     override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
         let rect = super.imageRect(forContentRect: contentRect)
-        let titleRect = self.titleRect(forContentRect: contentRect)
 
         return CGRect(
-            x: contentRect.width / 2.0 - rect.width / 2.0,
-            y: (contentRect.height - titleRect.height) / 2.0 - rect.height / 2.0,
+            x: contentRect.width / 2 - rect.width / 2,
+            y: (contentRect.height / 2) - (rect.height / 2) - LayoutConstants.verticalOffset / 2,
             width: rect.width,
             height: rect.height
         )
@@ -28,13 +31,16 @@ class VerticalContentButton: UIButton {
         let size = super.intrinsicContentSize
 
         if let image = imageView?.image {
-            var labelHeight: CGFloat = 0.0
+            var labelHeight: CGFloat = 0
 
-            if let size = titleLabel?.sizeThatFits(CGSize(width: self.contentRect(forBounds: self.bounds).width, height: CGFloat.greatestFiniteMagnitude)) {
+            if let size = titleLabel?
+                .sizeThatFits(CGSize(width: self.contentRect(forBounds: self.bounds).width,
+                                     height: CGFloat.greatestFiniteMagnitude)) {
                 labelHeight = size.height
             }
 
-            return CGSize(width: size.width, height: image.size.height + labelHeight + 5)
+            return CGSize(width: size.width,
+                          height: image.size.height + labelHeight + 5)
         }
 
         return size

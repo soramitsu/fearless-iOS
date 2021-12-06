@@ -27,10 +27,6 @@ final class ChainAccountPresenter {
     }
 
     func provideViewModel() {
-        guard let accountInfo = accountInfo else {
-            return
-        }
-
         let accountBalanceViewModel = viewModelFactory.buildAccountBalanceViewModel(
             accountInfo: accountInfo,
             priceData: priceData,

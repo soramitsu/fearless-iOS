@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChainAccountViewLayout
@@ -43,5 +44,11 @@ extension ChainAccountViewController: ChainAccountViewProtocol {
     func didReceiveState(_ state: ChainAccountViewState) {
         self.state = state
         applyState()
+    }
+}
+
+extension ChainAccountViewController: Localizable {
+    func applyLocalization() {
+        rootView.locale = selectedLocale
     }
 }

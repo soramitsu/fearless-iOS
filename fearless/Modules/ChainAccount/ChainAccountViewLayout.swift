@@ -1,10 +1,18 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class ChainAccountViewLayout: UIView {
     enum LayoutConstants {
         static let actionsViewHeight: CGFloat = 80
     }
+
+    let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.image = R.image.backgroundImage()
+        return imageView
+    }()
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
@@ -16,19 +24,31 @@ final class ChainAccountViewLayout: UIView {
     let sendButton: VerticalContentButton = {
         let button = VerticalContentButton()
         button.setImage(R.image.iconSend(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         return button
     }()
 
     let receiveButton: VerticalContentButton = {
         let button = VerticalContentButton()
         button.setImage(R.image.iconReceive(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         return button
     }()
 
     let buyButton: VerticalContentButton = {
         let button = VerticalContentButton()
         button.setImage(R.image.iconBuy(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         return button
+    }()
+
+    let receiveContainer: BorderedContainerView = {
+        let container = BorderedContainerView()
+        container.borderType = [.left, .right]
+        container.backgroundColor = .clear
+        container.strokeWidth = 1.0
+        container.strokeColor = R.color.colorDarkGray()!
+        return container
     }()
 
     let actionsView = TriangularedBlurView()
@@ -42,9 +62,18 @@ final class ChainAccountViewLayout: UIView {
 
     let balanceView = AccountBalanceView()
 
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -53,26 +82,54 @@ final class ChainAccountViewLayout: UIView {
     }
 
     func setupLayout() {
+        addSubview(backgroundImageView)
+        backgroundImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
         contentView.stackView.addArrangedSubview(balanceView)
+        balanceView.snp.makeConstraints { make in
+            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: balanceView)
+
         contentView.stackView.addArrangedSubview(actionsView)
+        actionsView.snp.makeConstraints { make in
+            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(LayoutConstants.actionsViewHeight)
+        }
 
         actionsView.addSubview(actionsContentStackView)
+        actionsContentStackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
 
         actionsContentStackView.addArrangedSubview(sendButton)
-        actionsContentStackView.addArrangedSubview(receiveButton)
+        actionsContentStackView.addArrangedSubview(receiveContainer)
         actionsContentStackView.addArrangedSubview(buyButton)
-    }
-}
 
-extension ChainAccountViewLayout: Localizable {
+        receiveContainer.addSubview(receiveButton)
+        receiveButton.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
     func applyLocalization() {
-        sendButton.setTitle(R.string.localizable.walletSendTitle(preferredLanguages: selectedLocale.rLanguages), for: .normal)
-        receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: selectedLocale.rLanguages), for: .normal)
-        buyButton.setTitle(R.string.localizable.walletAssetBuyWith(preferredLanguages: selectedLocale.rLanguages), for: .normal)
+        sendButton.setTitle(R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages), for: .normal)
+        receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages), for: .normal)
+        buyButton.setTitle(R.string.localizable.walletAssetBuyWith(preferredLanguages: locale.rLanguages), for: .normal)
+
+        balanceView.totalView.titleLabel.text = R.string.localizable.assetdetailsBalanceTotal(preferredLanguages: locale.rLanguages)
+        balanceView.transferableView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)
+        balanceView.lockedView.titleLabel.text = R.string.localizable.assetdetailsBalanceLocked(preferredLanguages: locale.rLanguages)
+        balanceView.balanceViewTitleLabel.text = R.string.localizable.assetdetailsBalanceTitle(preferredLanguages: locale.rLanguages)
     }
 }

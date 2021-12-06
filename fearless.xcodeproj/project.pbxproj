@@ -1693,6 +1693,7 @@
 		FA38C97127589D8F005C5577 /* ChainAccountViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C97027589D8F005C5577 /* ChainAccountViewModelFactory.swift */; };
 		FA38C9732758CBEC005C5577 /* ChainAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9722758CBEC005C5577 /* ChainAccountViewModel.swift */; };
 		FA38C9752758CD5D005C5577 /* ChainAccountViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9742758CD5D005C5577 /* ChainAccountViewState.swift */; };
+		FA38C97F275DC19C005C5577 /* LockedBalanceMultiValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C97E275DC19C005C5577 /* LockedBalanceMultiValueView.swift */; };
 		FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */; };
 		FA6DB7C42757C9B000233FBA /* ChainAccountViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */; };
 		FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BE2757C9AF00233FBA /* ChainAccountViewController.swift */; };
@@ -3439,6 +3440,7 @@
 		FA38C97027589D8F005C5577 /* ChainAccountViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewModelFactory.swift; sourceTree = "<group>"; };
 		FA38C9722758CBEC005C5577 /* ChainAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewModel.swift; sourceTree = "<group>"; };
 		FA38C9742758CD5D005C5577 /* ChainAccountViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewState.swift; sourceTree = "<group>"; };
+		FA38C97E275DC19C005C5577 /* LockedBalanceMultiValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedBalanceMultiValueView.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
 		FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewLayout.swift; sourceTree = "<group>"; };
 		FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewFactory.swift; sourceTree = "<group>"; };
@@ -8507,6 +8509,7 @@
 			isa = PBXGroup;
 			children = (
 				FA38C9682758881B005C5577 /* AccountBalanceView.swift */,
+				FA38C97E275DC19C005C5577 /* LockedBalanceMultiValueView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -10440,6 +10443,7 @@
 				9F4A48B1BE3A1110A0CF9F36 /* ReferralCrowdloanViewController.swift in Sources */,
 				CE2792E78B14CE02394D8CF4 /* ReferralCrowdloanViewLayout.swift in Sources */,
 				2B0FC94B4AE9AFE9532F493F /* ReferralCrowdloanViewFactory.swift in Sources */,
+				FA38C97F275DC19C005C5577 /* LockedBalanceMultiValueView.swift in Sources */,
 				33D23A4A92AF90C385568462 /* ChainSelectionProtocols.swift in Sources */,
 				436D8B9651C88360A6D72E90 /* ChainSelectionWireframe.swift in Sources */,
 				3DF50E6F78F1B1052625BA7D /* ChainSelectionPresenter.swift in Sources */,
