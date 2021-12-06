@@ -3,6 +3,10 @@ import SoraFoundation
 import SoraUI
 
 final class UsernameSetupViewController: UIViewController {
+    private enum Constants {
+        static let nextButtonBottomInset: CGFloat = 16
+    }
+
     var presenter: UsernameSetupPresenterProtocol!
 
     @IBOutlet private var inputField: AnimatedTextField!
@@ -125,7 +129,7 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
         if bottomInset > 0.0 {
             return 0
         } else {
-            return 16
+            return Constants.nextButtonBottomInset
         }
     }
 }

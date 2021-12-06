@@ -84,10 +84,12 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
             return
         }
 
+        //  TODO: switch to real ethereum path
         let creationRequest = MetaAccountCreationRequest(
             username: request.username,
-            derivationPath: request.derivationPath,
-            cryptoType: request.cryptoType
+            substrateDerivationPath: request.derivationPath,
+            substrateCryptoType: request.cryptoType,
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum
         )
 
         let accountOperation = accountOperationFactory.newMetaAccountOperation(

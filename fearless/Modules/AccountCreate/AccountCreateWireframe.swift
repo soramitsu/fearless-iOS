@@ -5,10 +5,10 @@ final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     func confirm(
         from view: AccountCreateViewProtocol?,
         request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     ) {
         guard let accountConfirmation = AccountConfirmViewFactory
-            .createViewForOnboarding(request: request, metadata: metadata)?.controller
+            .createViewForOnboarding(request: request, mnemonic: mnemonic)?.controller
         else {
             return
         }
