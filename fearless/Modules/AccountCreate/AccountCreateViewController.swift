@@ -4,7 +4,7 @@ import SoraUI
 
 final class AccountCreateViewController: UIViewController {
     private enum Constants {
-        static let nextButtonBottom: CGFloat = 16
+        static let nextButtonBottomInset: CGFloat = 16
     }
 
     var presenter: AccountCreatePresenterProtocol!
@@ -15,6 +15,7 @@ final class AccountCreateViewController: UIViewController {
     @IBOutlet private var detailsLabel: UILabel!
 
     @IBOutlet var substrateCryptoTypeView: BorderedSubtitleActionView!
+//    TODO: check replacing to MultilineTriangularedView when switch outlets to layout
     @IBOutlet var ethereumCryptoTypeView: TriangularedTwoLabelView!
 
     @IBOutlet var substrateDerivationPathLabel: UILabel!
@@ -81,17 +82,8 @@ final class AccountCreateViewController: UIViewController {
     }
 
     override func viewDidLayoutSubviews() {
-        guard !isFirstLayoutCompleted else {
-            return
-        }
-
-        isFirstLayoutCompleted = true
-
-        if currentKeyboardFrame != nil {
-            applyCurrentKeyboardFrame()
-        }
-
         super.viewDidLayoutSubviews()
+        isFirstLayoutCompleted = true
     }
 
     private func configure() {
@@ -152,7 +144,7 @@ final class AccountCreateViewController: UIViewController {
         substrateCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .substrateCryptoType(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoLabelView.titleLabel.text = R.string.localizable
+        ethereumCryptoTypeView.twoVerticalLabelView.titleLabel.text = R.string.localizable
             .ethereumCryptoType(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
 
@@ -193,18 +185,6 @@ final class AccountCreateViewController: UIViewController {
         presenter.proceed()
     }
 
-    @IBAction private func substrateTextFieldEditingChanged() {
-        if substrateDerivationPathModel?.inputHandler.value != substrateDerivationPathField.text {
-            substrateDerivationPathField.text = substrateDerivationPathModel?.inputHandler.value
-        }
-    }
-
-    @IBAction func ethereumTextFieldEditingChanged() {
-        if ethereumDerivationPathModel?.inputHandler.value != ethereumDerivationPathField.text {
-            ethereumDerivationPathField.text = ethereumDerivationPathModel?.inputHandler.value
-        }
-    }
-
     @objc private func actionOpenCryptoType() {
         if substrateCryptoTypeView.actionControl.isActivated {
             presenter.selectSubstrateCryptoType()
@@ -235,20 +215,20 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     func setEthereumCrypto(model: TitleWithSubtitleViewModel) {
         let title = "\(model.title) | \(model.subtitle)"
 
-        ethereumCryptoTypeView.twoLabelView.subtitleLabelView.text = title
+        ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text = title
 
-        ethereumCryptoTypeView.twoLabelView.invalidateLayout()
+        ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
         ethereumCryptoTypeView.invalidateLayout()
     }
 
-    func setSubstrateDerivationPath(viewModel: InputViewModelProtocol) {
-        substrateDerivationPathModel = viewModel
+    func bind(substrateViewModel: InputViewModelProtocol) {
+        substrateDerivationPathModel = substrateViewModel
 
-        substrateDerivationPathField.text = viewModel.inputHandler.value
+        substrateDerivationPathField.text = substrateViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.example(
-                viewModel.placeholder,
+                substrateViewModel.placeholder,
                 preferredLanguages: locale.rLanguages
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
@@ -256,14 +236,14 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         substrateDerivationPathField.attributedPlaceholder = attributedPlaceholder
     }
 
-    func setEthereumDerivationPath(viewModel: InputViewModelProtocol) {
-        ethereumDerivationPathModel = viewModel
+    func bind(ethereumViewModel: InputViewModelProtocol) {
+        ethereumDerivationPathModel = ethereumViewModel
 
-        ethereumDerivationPathField.text = viewModel.inputHandler.value
+        ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.example(
-                viewModel.placeholder,
+                ethereumViewModel.placeholder,
                 preferredLanguages: locale.rLanguages
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
@@ -331,9 +311,9 @@ extension AccountCreateViewController: KeyboardViewAdoptable {
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
         if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + Constants.nextButtonBottom
+            return -view.safeAreaInsets.bottom + Constants.nextButtonBottomInset
         } else {
-            return Constants.nextButtonBottom
+            return Constants.nextButtonBottomInset
         }
     }
 }

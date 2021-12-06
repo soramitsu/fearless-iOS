@@ -4,7 +4,7 @@ import SoraUI
 
 final class UsernameSetupViewController: UIViewController {
     private enum Constants {
-        static let nextButtonBottom: CGFloat = 16
+        static let nextButtonBottomInset: CGFloat = 16
     }
 
     var presenter: UsernameSetupPresenterProtocol!
@@ -129,7 +129,7 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
         if bottomInset > 0.0 {
             return 0
         } else {
-            return Constants.nextButtonBottom
+            return Constants.nextButtonBottomInset
         }
     }
 }

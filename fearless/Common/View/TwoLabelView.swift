@@ -1,14 +1,6 @@
-//
-//  TriangularedTwoLabelView.swift
-//  fearless
-//
-//  Created by Денис Лебедько on 29.11.2021.
-//  Copyright © 2021 Soramitsu. All rights reserved.
-//
-
 import UIKit
 
-class TwoLabelView: UIView {
+class TwoVerticalLabelView: UIView {
     let titleLabel = UILabel()
     let subtitleLabelView = UILabel()
 
@@ -66,18 +58,17 @@ class TwoLabelView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        titleLabel.frame = CGRect(
-            x: bounds.minX,
-            y: bounds.minY,
-            width: min(titleLabel.intrinsicContentSize.width, bounds.width),
-            height: titleLabel.intrinsicContentSize.height
-        )
+        titleLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview()
+            make.top.equalToSuperview()
+        }
 
-        subtitleLabelView.frame = CGRect(
-            x: bounds.minX,
-            y: titleLabel.frame.maxY + verticalSpacing,
-            width: bounds.size.width,
-            height: subtitleLabelView.intrinsicContentSize.height
-        )
+        subtitleLabelView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview()
+            make.top.equalTo(titleLabel.snp.bottom).offset(verticalSpacing)
+            make.bottom.equalToSuperview()
+        }
     }
 }

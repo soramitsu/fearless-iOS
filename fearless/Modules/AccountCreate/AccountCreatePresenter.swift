@@ -42,7 +42,7 @@ final class AccountCreatePresenter {
         let viewModel = createViewModel(for: selectedCryptoType)
         substrateDerivationPathViewModel = viewModel
 
-        view?.setSubstrateDerivationPath(viewModel: viewModel)
+        view?.bind(substrateViewModel: viewModel)
         view?.didValidateSubstrateDerivationPath(.none)
     }
 
@@ -50,7 +50,7 @@ final class AccountCreatePresenter {
         let viewModel = createViewModel(for: .ethereumEcdsa)
         ethereumDerivationPathViewModel = viewModel
 
-        view?.setEthereumDerivationPath(viewModel: viewModel)
+        view?.bind(ethereumViewModel: viewModel)
         view?.didValidateEthereumDerivationPath(.none)
     }
 
