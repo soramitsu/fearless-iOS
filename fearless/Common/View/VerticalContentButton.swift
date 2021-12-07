@@ -2,7 +2,7 @@ import UIKit
 
 class VerticalContentButton: UIButton {
     enum LayoutConstants {
-        static let verticalOffset: CGFloat = 12
+        static let verticalOffset: CGFloat = 10
     }
 
     override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
@@ -34,13 +34,17 @@ class VerticalContentButton: UIButton {
             var labelHeight: CGFloat = 0
 
             if let size = titleLabel?
-                .sizeThatFits(CGSize(width: self.contentRect(forBounds: self.bounds).width,
-                                     height: CGFloat.greatestFiniteMagnitude)) {
+                .sizeThatFits(CGSize(
+                    width: self.contentRect(forBounds: self.bounds).width,
+                    height: CGFloat.greatestFiniteMagnitude
+                )) {
                 labelHeight = size.height
             }
 
-            return CGSize(width: size.width,
-                          height: image.size.height + labelHeight + 5)
+            return CGSize(
+                width: size.width,
+                height: image.size.height + labelHeight + 5
+            )
         }
 
         return size

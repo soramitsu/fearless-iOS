@@ -1,24 +1,41 @@
 import Foundation
 
 protocol ChainAccountViewModelFactoryProtocol {
-    func buildChainAccountViewModel(accountBalanceViewModel: AccountBalanceViewModel) -> ChainAccountViewModel
+    func buildChainAccountViewModel(
+        accountBalanceViewModel: AccountBalanceViewModel,
+        assetInfoViewModel: AssetInfoViewModel
+    ) -> ChainAccountViewModel
+
     func buildAccountBalanceViewModel(
         accountInfo: AccountInfo?,
         priceData: PriceData?,
         asset: AssetModel,
         locale: Locale
     ) -> AccountBalanceViewModel
+
+    func buildAssetInfoViewModel(
+        chain: ChainModel,
+        assetModel: AssetModel,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> AssetInfoViewModel
 }
 
 class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
-    let assetBalanceFormatterFactory: AssetBalanceFormatterFactory
+    let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
-    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactory) {
+    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
     }
 
-    func buildChainAccountViewModel(accountBalanceViewModel: AccountBalanceViewModel) -> ChainAccountViewModel {
-        ChainAccountViewModel(accountBalanceViewModel: accountBalanceViewModel)
+    func buildChainAccountViewModel(
+        accountBalanceViewModel: AccountBalanceViewModel,
+        assetInfoViewModel: AssetInfoViewModel
+    ) -> ChainAccountViewModel {
+        ChainAccountViewModel(
+            accountBalanceViewModel: accountBalanceViewModel,
+            assetInfoViewModel: assetInfoViewModel
+        )
     }
 
     func buildAccountBalanceViewModel(
@@ -45,7 +62,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             priceData: priceData
         )
 
-        let fiatFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: AssetBalanceDisplayInfo.usd()).value(for: locale)
+        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
+        let fiatFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo).value(for: locale)
         let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: asset.displayInfo).value(for: locale)
 
         return AccountBalanceViewModel(
@@ -57,4 +75,24 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             lockedAmountFiatString: fiatFormatter.stringFromDecimal(lockedAssetValues.fiatAmount)
         )
     }
+
+    func buildAssetInfoViewModel(
+        chain: ChainModel,
+        assetModel: AssetModel,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> AssetInfoViewModel {
+        AssetInfoViewModel(
+            assetInfo: assetModel.displayInfo,
+            imageViewModel: buildRemoteImageViewModel(chain: chain),
+            priceAttributedString: buildPriceViewModel(
+                for: assetModel,
+                priceData: priceData,
+                locale: locale
+            )
+        )
+    }
 }
+
+extension ChainAccountViewModelFactory: RemoteImageViewModelFactoryProtocol {}
+extension ChainAccountViewModelFactory: AssetPriceViewModelFactoryProtocol {}

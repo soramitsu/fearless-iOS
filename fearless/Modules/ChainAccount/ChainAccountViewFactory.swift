@@ -16,14 +16,16 @@ struct ChainAccountViewFactory {
         )
         let wireframe = ChainAccountWireframe()
 
-        let viewModelFactory = ChainAccountViewModelFactory(assetBalanceFormatterFactory: AssetBalanceFormatterFactory())
+        let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+        let viewModelFactory = ChainAccountViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
 
         let presenter = ChainAccountPresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             logger: Logger.shared,
-            asset: asset
+            asset: asset,
+            chain: chain
         )
 
         let view = ChainAccountViewController(presenter: presenter)

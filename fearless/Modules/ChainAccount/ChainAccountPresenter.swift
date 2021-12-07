@@ -8,6 +8,7 @@ final class ChainAccountPresenter {
     let viewModelFactory: ChainAccountViewModelFactoryProtocol
     let logger: LoggerProtocol
     let asset: AssetModel
+    let chain: ChainModel
 
     private var accountInfo: AccountInfo?
     private var priceData: PriceData?
@@ -17,13 +18,15 @@ final class ChainAccountPresenter {
         wireframe: ChainAccountWireframeProtocol,
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
-        asset: AssetModel
+        asset: AssetModel,
+        chain: ChainModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.asset = asset
+        self.chain = chain
     }
 
     func provideViewModel() {
@@ -34,7 +37,17 @@ final class ChainAccountPresenter {
             locale: selectedLocale
         )
 
-        let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(accountBalanceViewModel: accountBalanceViewModel)
+        let assetInfoViewModel = viewModelFactory.buildAssetInfoViewModel(
+            chain: chain,
+            assetModel: asset,
+            priceData: priceData,
+            locale: selectedLocale
+        )
+
+        let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
+            accountBalanceViewModel: accountBalanceViewModel,
+            assetInfoViewModel: assetInfoViewModel
+        )
 
         view?.didReceiveState(.loaded(chainAccountViewModel))
     }
@@ -43,6 +56,10 @@ final class ChainAccountPresenter {
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func setup() {
         interactor.setup()
+    }
+
+    func didTapBackButton() {
+        wireframe.close(view: view)
     }
 }
 
@@ -60,8 +77,10 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId) {
         switch result {
         case let .success(priceData):
-            self.priceData = priceData
-            provideViewModel()
+            if priceData != nil {
+                self.priceData = priceData
+                provideViewModel()
+            }
         case let .failure(error):
             logger.error("ChainAccountPresenter:didReceivePriceData:error:\(error)")
         }
@@ -70,8 +89,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
 extension ChainAccountPresenter: Localizable {
     func applyLocalization() {
-        if let view = view {
-            provideViewModel()
-        }
+        provideViewModel()
     }
 }

@@ -26,6 +26,12 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         presenter.setup()
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func applyState() {
@@ -34,9 +40,14 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
             break
         case let .loaded(viewModel):
             rootView.balanceView.bind(to: viewModel.accountBalanceViewModel)
+            rootView.assetInfoView.bind(to: viewModel.assetInfoViewModel)
         case .error:
             break
         }
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 }
 
@@ -52,3 +63,5 @@ extension ChainAccountViewController: Localizable {
         rootView.locale = selectedLocale
     }
 }
+
+extension ChainAccountViewController: HiddableBarWhenPushed {}

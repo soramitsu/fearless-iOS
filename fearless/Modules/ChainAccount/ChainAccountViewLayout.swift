@@ -21,6 +21,8 @@ final class ChainAccountViewLayout: UIView {
         return view
     }()
 
+    let navigationBar = BaseNavigationBar()
+
     let sendButton: VerticalContentButton = {
         let button = VerticalContentButton()
         button.setImage(R.image.iconSend(), for: .normal)
@@ -52,6 +54,8 @@ final class ChainAccountViewLayout: UIView {
     }()
 
     let actionsView = TriangularedBlurView()
+
+    let assetInfoView = AssetInfoView()
 
     private let actionsContentStackView: UIStackView = {
         let stackView = UIStackView()
@@ -87,9 +91,17 @@ final class ChainAccountViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
+        addSubview(navigationBar)
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
+        navigationBar.setCenterViews([assetInfoView])
+
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
         }
 
         contentView.stackView.addArrangedSubview(balanceView)

@@ -4,6 +4,7 @@ protocol ChainAccountViewProtocol: ControllerBackedProtocol {
 
 protocol ChainAccountPresenterProtocol: AnyObject {
     func setup()
+    func didTapBackButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
@@ -15,4 +16,6 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
 }
 
-protocol ChainAccountWireframeProtocol: AnyObject {}
+protocol ChainAccountWireframeProtocol: AnyObject {
+    func close(view: ControllerBackedProtocol?)
+}
