@@ -1715,6 +1715,12 @@
 		FA38C9A1275FD6B9005C5577 /* BundleImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9A0275FD6B9005C5577 /* BundleImageViewModel.swift */; };
 		FA38C9A62760701F005C5577 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9A52760701F005C5577 /* SearchService.swift */; };
 		FA38C9A827607213005C5577 /* BaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9A727607213005C5577 /* BaseService.swift */; };
+		FA38C9AE2760BA08005C5577 /* SearchPeopleViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9AD2760BA08005C5577 /* SearchPeopleViewState.swift */; };
+		FA38C9B02760BF7A005C5577 /* SearchPeopleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9AF2760BF7A005C5577 /* SearchPeopleViewModel.swift */; };
+		FA38C9B62760BFDF005C5577 /* SearchPeopleTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9B52760BFDF005C5577 /* SearchPeopleTableCell.swift */; };
+		FA38C9B82760C33F005C5577 /* SearchPeopleTableCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9B72760C33F005C5577 /* SearchPeopleTableCellViewModel.swift */; };
+		FA38C9BA2760C810005C5577 /* SearchPeopleViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9B92760C810005C5577 /* SearchPeopleViewModelFactory.swift */; };
+		FA38C9BC2760D93B005C5577 /* SearchPeopleTableSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9BB2760D93B005C5577 /* SearchPeopleTableSectionHeaderView.swift */; };
 		FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */; };
 		FA6DB7C42757C9B000233FBA /* ChainAccountViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */; };
 		FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BE2757C9AF00233FBA /* ChainAccountViewController.swift */; };
@@ -3483,6 +3489,12 @@
 		FA38C9A0275FD6B9005C5577 /* BundleImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleImageViewModel.swift; sourceTree = "<group>"; };
 		FA38C9A52760701F005C5577 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		FA38C9A727607213005C5577 /* BaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseService.swift; sourceTree = "<group>"; };
+		FA38C9AD2760BA08005C5577 /* SearchPeopleViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPeopleViewState.swift; sourceTree = "<group>"; };
+		FA38C9AF2760BF7A005C5577 /* SearchPeopleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPeopleViewModel.swift; sourceTree = "<group>"; };
+		FA38C9B52760BFDF005C5577 /* SearchPeopleTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPeopleTableCell.swift; sourceTree = "<group>"; };
+		FA38C9B72760C33F005C5577 /* SearchPeopleTableCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPeopleTableCellViewModel.swift; sourceTree = "<group>"; };
+		FA38C9B92760C810005C5577 /* SearchPeopleViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPeopleViewModelFactory.swift; sourceTree = "<group>"; };
+		FA38C9BB2760D93B005C5577 /* SearchPeopleTableSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPeopleTableSectionHeaderView.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
 		FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewLayout.swift; sourceTree = "<group>"; };
 		FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewFactory.swift; sourceTree = "<group>"; };
@@ -7266,6 +7278,8 @@
 		8E2682047903335C2B726006 /* SearchPeople */ = {
 			isa = PBXGroup;
 			children = (
+				FA38C9B42760BFCC005C5577 /* Views */,
+				FA38C9AC2760B9F0005C5577 /* ViewModels */,
 				C55CCAEABFF77B655B53287D /* SearchPeopleProtocols.swift */,
 				703C6E43DB79D67C702DE138 /* SearchPeopleWireframe.swift */,
 				BB751A555C4123377B2E5E0B /* SearchPeoplePresenter.swift */,
@@ -8641,6 +8655,26 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		FA38C9AC2760B9F0005C5577 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FA38C9AD2760BA08005C5577 /* SearchPeopleViewState.swift */,
+				FA38C9AF2760BF7A005C5577 /* SearchPeopleViewModel.swift */,
+				FA38C9B72760C33F005C5577 /* SearchPeopleTableCellViewModel.swift */,
+				FA38C9B92760C810005C5577 /* SearchPeopleViewModelFactory.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		FA38C9B42760BFCC005C5577 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FA38C9B52760BFDF005C5577 /* SearchPeopleTableCell.swift */,
+				FA38C9BB2760D93B005C5577 /* SearchPeopleTableSectionHeaderView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		FA6DB7BB2757C9AF00233FBA /* ChainAccount */ = {
 			isa = PBXGroup;
 			children = (
@@ -9173,6 +9207,7 @@
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
 				84DBEA47265E98C300FDF73C /* AmountInputResult.swift in Sources */,
+				FA38C9BC2760D93B005C5577 /* SearchPeopleTableSectionHeaderView.swift in Sources */,
 				8437877A264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift in Sources */,
 				846CD25B265709A800A2E4B6 /* StorageKeySuffixMapper.swift in Sources */,
 				8423B0E0251A759000B8687C /* Chain.swift in Sources */,
@@ -9527,6 +9562,7 @@
 				84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */,
 				84CFF1ED26526FBC00DB7CF7 /* StakingBondMoreConfirmationWireframe.swift in Sources */,
 				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
+				FA38C9B02760BF7A005C5577 /* SearchPeopleViewModel.swift in Sources */,
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				AEF507BA262486F80098574D /* MoonpayProviderFactory.swift in Sources */,
 				84100F3826A6085C00A5054E /* YourValidatorListDescSectionView.swift in Sources */,
@@ -9647,6 +9683,7 @@
 				8436EDE225895804004D9E97 /* RampProvider.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
 				84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */,
+				FA38C9B62760BFDF005C5577 /* SearchPeopleTableCell.swift in Sources */,
 				8467FD4924ED64A5005D486C /* ProfileDetailsTableViewCell.swift in Sources */,
 				8494D87A2525350000614D8F /* SubscanStatusData.swift in Sources */,
 				842876A724AE049B00D91AD8 /* SelectionListProtocols.swift in Sources */,
@@ -10098,6 +10135,7 @@
 				84A2C90424E07F400020D3B7 /* AccountOperationFactoryError.swift in Sources */,
 				FA38C98E275DFB8E005C5577 /* BaseTopBar.swift in Sources */,
 				AE6DE7322627EA930018D5B5 /* PayoutCall.swift in Sources */,
+				FA38C9BA2760C810005C5577 /* SearchPeopleViewModelFactory.swift in Sources */,
 				84DD5F26263D72C400425ACF /* ExtrinsicFeeProxy.swift in Sources */,
 				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
 				847C96492553614F002D288F /* ExportRestoreJsonPresenter.swift in Sources */,
@@ -10188,6 +10226,7 @@
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
 				84452F4E25D5BB1C00F47EC5 /* RuntimeCoderFactory.swift in Sources */,
 				84452A6025D037AE00F47EC5 /* ChainStorage+Decodable.swift in Sources */,
+				FA38C9AE2760BA08005C5577 /* SearchPeopleViewState.swift in Sources */,
 				F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
 				F40966D026B297D7008CD244 /* AnalyticsStakeInteractor.swift in Sources */,
@@ -10293,6 +10332,7 @@
 				84EA0B2A25E579DF00AFB0DC /* AssetBalanceViewModel.swift in Sources */,
 				FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */,
+				FA38C9B82760C33F005C5577 /* SearchPeopleTableCellViewModel.swift in Sources */,
 				84452F9825D6728B00F47EC5 /* RuntimeVersionSubscription.swift in Sources */,
 				84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */,
 				840DCBF625E0059D00D45C6A /* AmountInputView+Inspectable.swift in Sources */,

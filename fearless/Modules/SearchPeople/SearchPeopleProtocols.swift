@@ -1,8 +1,11 @@
 import CommonWallet
-protocol SearchPeopleViewProtocol: AnyObject {}
+protocol SearchPeopleViewProtocol: ControllerBackedProtocol {
+    func didReceive(state: SearchPeopleViewState)
+}
 
 protocol SearchPeoplePresenterProtocol: AnyObject {
     func setup()
+    func searchTextDidChanged(_ text: String)
 }
 
 protocol SearchPeopleInteractorInputProtocol: AnyObject {

@@ -31,11 +31,13 @@ final class SearchService: BaseService, SearchServiceProtocol {
         let operation = searchOperation(query, chain: chain)
 
         operation.targetOperation.completionBlock = {
-            do {
-                let result = try operation.targetOperation.extractNoCancellableResultData()
-                completion(.success(result))
-            } catch {
-                completion(.failure(error))
+            DispatchQueue.main.async {
+                do {
+                    let result = try operation.targetOperation.extractNoCancellableResultData()
+                    completion(.success(result))
+                } catch {
+                    completion(.failure(error))
+                }
             }
         }
 

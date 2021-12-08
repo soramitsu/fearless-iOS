@@ -9,6 +9,7 @@ final class ChainAccountPresenter {
     let logger: LoggerProtocol
     let asset: AssetModel
     let chain: ChainModel
+    let selectedMetaAccount: MetaAccountModel
 
     private var accountInfo: AccountInfo?
     private var priceData: PriceData?
@@ -19,7 +20,8 @@ final class ChainAccountPresenter {
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -27,6 +29,7 @@ final class ChainAccountPresenter {
         self.logger = logger
         self.asset = asset
         self.chain = chain
+        self.selectedMetaAccount = selectedMetaAccount
     }
 
     func provideViewModel() {
@@ -61,6 +64,19 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didTapBackButton() {
         wireframe.close(view: view)
     }
+
+    func didTapSendButton() {
+        wireframe.presentSendFlow(
+            from: view,
+            asset: asset,
+            chain: chain,
+            selectedMetaAccount: selectedMetaAccount
+        )
+    }
+
+    func didTapReceiveButton() {}
+
+    func didTapBuyButton() {}
 }
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {

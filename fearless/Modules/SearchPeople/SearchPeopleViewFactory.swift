@@ -1,9 +1,14 @@
 import Foundation
 import CommonWallet
 import RobinHood
+import FearlessUtils
 
 struct SearchPeopleViewFactory {
-    static func createView(chain: ChainModel, asset: AssetModel, selectedMetaAccount: MetaAccountModel) -> SearchPeopleViewProtocol? {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedMetaAccount: MetaAccountModel
+    ) -> SearchPeopleViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
             UserDataStorageFacade.shared
                 .createRepository(
@@ -31,7 +36,13 @@ struct SearchPeopleViewFactory {
         )
         let wireframe = SearchPeopleWireframe()
 
-        let presenter = SearchPeoplePresenter(interactor: interactor, wireframe: wireframe)
+        let viewModelFactory = SearchPeopleViewModelFactory(iconGenerator: PolkadotIconGenerator())
+
+        let presenter = SearchPeoplePresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory
+        )
 
         let view = SearchPeopleViewController(presenter: presenter)
 
