@@ -129,6 +129,7 @@ operations will appear here";
 "connection.add.unsupported.error" = "Unfortunately, the network is unsupported. Please, try one of the following: %@.";
 "connection.add.already.exists.error" = "The node has already been added previously. Please, try another node.";
 "wallet.receive.qr.description" = "Show this QR code to sender";
+"wallet.receive.navigation.title" = "Receive %@";
 "wallet.send.title" = "Send";
 "wallet.send.asset.title" = "Asset";
 "wallet.send.receiver.title" = "To";

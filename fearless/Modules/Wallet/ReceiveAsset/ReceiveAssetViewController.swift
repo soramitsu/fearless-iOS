@@ -42,6 +42,21 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
     }
 }
 
+extension ReceiveAssetViewController: ReceiveAssetViewProtocol {
+    func bind(viewModel: ReceiveAssetViewModel) {
+        rootView.navigationLabel.text =
+        R.string.localizable.walletReceiveNavigationTitle(viewModel.selectedAsset,
+                                                          preferredLanguages: selectedLocale.rLanguages)
+        rootView.accountView.titleLabel.text = viewModel.accountName
+        rootView.accountView.subtitleLabel?.text = viewModel.publicKey
+        rootView.accountView.iconImage = viewModel.chainIcon
+    }
+
+    func didReceive(image: UIImage) {
+        rootView.imageView.image = image
+    }
+}
+
 extension ReceiveAssetViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
