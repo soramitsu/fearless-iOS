@@ -1,8 +1,13 @@
 import CommonWallet
 import SoraFoundation
 import IrohaCrypto
+import CoreGraphics
 
 final class ReceiveAssetPresenter {
+    enum Constants {
+        static let qrSize = CGSize(width: 280, height: 280)
+    }
+
     weak var view: ReceiveAssetViewProtocol?
 
     private let wireframe: ReceiveAssetWireframeProtocol
@@ -74,11 +79,16 @@ extension ReceiveAssetPresenter: Localizable {
 private extension ReceiveAssetPresenter {
     private func generateQR() {
         cancelQRGeneration()
-
+        let receiveInfo = ReceiveInfo(
+            accountId: account.identifier,
+            assetId: asset.name,
+            amount: nil,
+            details: nil
+        )
         do {
             qrOperation = try qrService.generate(
                 from: receiveInfo,
-                qrSize: size,
+                qrSize: Constants.qrSize,
                 runIn: .main
             ) { [weak self] operationResult in
                 if let result = operationResult {
@@ -101,15 +111,16 @@ private extension ReceiveAssetPresenter {
         case let .success(image):
             view?.didReceive(image: image)
         case let .failure(error):
-            view?.showError(error)
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
     }
 
     private func provideViewModel() {
         view?.bind(viewModel: ReceiveAssetViewModel(
-            selectedAsset: asset.symbol,
+            asset: asset.symbol,
             accountName: account.name,
-            address: address(for: chain)
+            address: address(for: chain),
+            iconGenerator:
         ))
     }
 

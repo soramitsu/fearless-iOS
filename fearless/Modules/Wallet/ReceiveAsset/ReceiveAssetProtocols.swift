@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import CommonWallet
 
 protocol ReceiveAssetPresenterProtocol: AnyObject {
     func setup()
@@ -12,7 +13,7 @@ protocol ReceiveAssetViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(image: UIImage)
 }
 
-protocol ReceiveAssetWireframeProtocol {
+protocol ReceiveAssetWireframeProtocol: ErrorPresentable {
     func close(_ view: ReceiveAssetViewProtocol)
     func share(sources: [Any], from view: ControllerBackedProtocol?)
 }
