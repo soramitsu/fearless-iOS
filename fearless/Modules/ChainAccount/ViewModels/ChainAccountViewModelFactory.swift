@@ -96,3 +96,4 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
 
 extension ChainAccountViewModelFactory: RemoteImageViewModelFactoryProtocol {}
 extension ChainAccountViewModelFactory: AssetPriceViewModelFactoryProtocol {}
+extension ChainAccountViewModelFactory: ChainOptionsViewModelFactoryProtocol {}
