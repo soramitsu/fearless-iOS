@@ -23,13 +23,14 @@ struct ChainAccountBalanceListViewFactory {
         let wireframe = ChainAccountBalanceListWireframe()
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+        let viewModelFactory = ChainAccountBalanceListViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
 
         let localizationManager = LocalizationManager.shared
 
         let presenter = ChainAccountBalanceListPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+            viewModelFactory: viewModelFactory,
             localizationManager: localizationManager
         )
 
