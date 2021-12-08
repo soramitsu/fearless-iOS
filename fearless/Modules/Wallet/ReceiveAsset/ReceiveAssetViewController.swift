@@ -38,18 +38,19 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
     }
 
     @objc private func shareButtonClicked() {
-        presenter.didTapShareButton()
+        if let image = rootView.imageView.image {
+            presenter.share(qrImage: image)
+        }
     }
 }
 
 extension ReceiveAssetViewController: ReceiveAssetViewProtocol {
     func bind(viewModel: ReceiveAssetViewModel) {
         rootView.navigationLabel.text =
-        R.string.localizable.walletReceiveNavigationTitle(viewModel.selectedAsset,
-                                                          preferredLanguages: selectedLocale.rLanguages)
+            R.string.localizable.walletReceiveNavigationTitle(viewModel.asset, preferredLanguages: selectedLocale.rLanguages)
         rootView.accountView.titleLabel.text = viewModel.accountName
-        rootView.accountView.subtitleLabel?.text = viewModel.publicKey
-        rootView.accountView.iconImage = viewModel.chainIcon
+        rootView.accountView.subtitleLabel?.text = viewModel.address
+        rootView.accountView.iconImage = viewModel.accountIcon
     }
 
     func didReceive(image: UIImage) {

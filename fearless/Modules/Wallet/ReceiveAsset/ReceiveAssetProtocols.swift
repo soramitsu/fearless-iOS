@@ -3,8 +3,8 @@ import SoraFoundation
 
 protocol ReceiveAssetPresenterProtocol: AnyObject {
     func setup()
+    func share(qrImage: UIImage)
     func didTapCloseButton()
-    func didTapShareButton()
 }
 
 protocol ReceiveAssetViewProtocol: ControllerBackedProtocol, Localizable {
@@ -14,4 +14,5 @@ protocol ReceiveAssetViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol ReceiveAssetWireframeProtocol {
     func close(_ view: ReceiveAssetViewProtocol)
+    func share(sources: [Any], from view: ControllerBackedProtocol?)
 }
