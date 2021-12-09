@@ -11,6 +11,11 @@ struct ReceiveAssetViewModel {
         self.asset = asset
         self.accountName = accountName
         self.address = address
-        accountIcon = try iconGenerator.generateFromAddress(address)
+        accountIcon = try? iconGenerator.generateFromAddress(address)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: CGSize(width: 32.0, height: 32.0),
+                contentScale: UIScreen.main.scale
+            )
     }
 }
