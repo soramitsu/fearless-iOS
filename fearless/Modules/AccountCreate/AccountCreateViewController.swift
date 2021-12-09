@@ -265,15 +265,12 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
 }
 
 extension AccountCreateViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+    func textFieldDidEndEditing(_ textField: UITextField) {
         if textField == substrateDerivationPathField {
             presenter.validateSubstrate()
         } else if textField == ethereumDerivationPathField {
             presenter.validateEthereum()
         }
-
-        return false
     }
 
     func textField(
