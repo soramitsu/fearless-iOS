@@ -13,7 +13,6 @@ protocol ReceiveAssetViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(image: UIImage)
 }
 
-protocol ReceiveAssetWireframeProtocol: ErrorPresentable {
+protocol ReceiveAssetWireframeProtocol: AlertPresentable, ErrorPresentable, SharingPresentable {
     func close(_ view: ReceiveAssetViewProtocol)
-    func share(sources: [Any], from view: ControllerBackedProtocol?)
 }

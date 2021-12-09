@@ -2,6 +2,7 @@ import CommonWallet
 import SoraFoundation
 import IrohaCrypto
 import CoreGraphics
+import FearlessUtils
 
 final class ReceiveAssetPresenter {
     enum Constants {
@@ -12,8 +13,8 @@ final class ReceiveAssetPresenter {
 
     private let wireframe: ReceiveAssetWireframeProtocol
     private let qrService: WalletQRServiceProtocol
+    private let addressFactory = SS58AddressFactory()
     private let sharingFactory: AccountShareFactoryProtocol
-    private let addressFactory: SS58AddressFactoryProtocol
 
     private let account: MetaAccountModel
     private let chain: ChainModel
@@ -49,16 +50,17 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
     }
 
     func share(qrImage: UIImage) {
-        let receiveInfo = ReceiveInfo(accountId: account.identifier, assetId: nil, amount: nil, details: nil)
+        guard let locale = localizationManager?.selectedLocale, let address = address else {
+            return
+        }
         let sources = sharingFactory.createSources(
-            for: receiveInfo,
-            qrImage: qrImage
+            accountAddress: address,
+            qrImage: qrImage,
+            assetSymbol: asset.symbol,
+            chainName: chain.name,
+            locale: locale
         )
-
-        wireframe.share(
-            sources: sources,
-            from: view
-        )
+        wireframe.share(sources: sources, from: view, with: nil)
     }
 
     func didTapCloseButton() {
@@ -69,6 +71,13 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
 }
 
 extension ReceiveAssetPresenter: Localizable {
+    private var address: String? {
+        try? addressFactory.addressFromAccountId(
+            data: account.substrateAccountId,
+            addressPrefix: chain.addressPrefix
+        )
+    }
+
     func applyLocalization() {
         if let view = view, view.isSetup {
             provideViewModel()
@@ -116,15 +125,14 @@ private extension ReceiveAssetPresenter {
     }
 
     private func provideViewModel() {
+        guard let address = address else {
+            return
+        }
         view?.bind(viewModel: ReceiveAssetViewModel(
             asset: asset.symbol,
             accountName: account.name,
-            address: address(for: chain),
-            iconGenerator:
+            address: address,
+            iconGenerator: PolkadotIconGenerator()
         ))
-    }
-
-    private func address(for chain: ChainModel) -> String {
-        addressFactory.addressFromAccountId(data: account.identifier, addressPrefix: chain.addressPrefix)
     }
 }
