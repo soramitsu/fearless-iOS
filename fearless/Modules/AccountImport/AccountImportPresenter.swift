@@ -213,11 +213,7 @@ final class AccountImportPresenter {
     }
 
     private func applySubstrateDerivationPathViewModel() {
-        guard let cryptoType = selectedCryptoType else {
-            return
-        }
-
-        guard let sourceType = selectedSourceType else {
+        guard let cryptoType = selectedCryptoType, let sourceType = selectedSourceType else {
             return
         }
 

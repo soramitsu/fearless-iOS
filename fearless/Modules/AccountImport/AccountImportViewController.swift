@@ -465,6 +465,16 @@ extension AccountImportViewController: UITextFieldDelegate {
             presenter.validateEthereumDerivationPath()
         }
     }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        resignFirstResponder()
+        if textField == substrateDerivationPathField {
+            presenter.validateSubstrateDerivationPath()
+        } else if textField == ethereumDerivationPathField {
+            presenter.validateEthereumDerivationPath()
+        }
+        return false
+    }
 
     func textField(
         _ textField: UITextField,
