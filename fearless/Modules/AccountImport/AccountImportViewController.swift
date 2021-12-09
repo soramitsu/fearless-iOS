@@ -458,15 +458,12 @@ extension AccountImportViewController: AccountImportViewProtocol {
 }
 
 extension AccountImportViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+    func textFieldDidEndEditing(_ textField: UITextField) {
         if textField == substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
         } else if textField == ethereumDerivationPathField {
             presenter.validateEthereumDerivationPath()
         }
-
-        return false
     }
 
     func textField(
