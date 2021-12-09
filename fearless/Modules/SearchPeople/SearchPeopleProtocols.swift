@@ -8,6 +8,7 @@ protocol SearchPeoplePresenterProtocol: AnyObject {
     func setup()
     func searchTextDidChanged(_ text: String)
     func didTapBackButton()
+    func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel)
 }
 
 protocol SearchPeopleInteractorInputProtocol: AnyObject {

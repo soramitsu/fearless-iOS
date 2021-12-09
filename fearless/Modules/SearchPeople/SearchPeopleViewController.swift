@@ -105,6 +105,14 @@ extension SearchPeopleViewController: UITableViewDelegate, UITableViewDataSource
         cell.bind(to: viewModel.results[indexPath.row])
         return cell
     }
+
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard case let .loaded(viewModel) = state else {
+            return
+        }
+
+        presenter.didSelectViewModel(viewModel: viewModel.results[indexPath.row])
+    }
 }
 
 extension SearchPeopleViewController: UITextFieldDelegate {

@@ -51,7 +51,14 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
     }
 
     func setup() {
-        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(asset.symbol, preferredLanguages: selectedLocale.rLanguages))
+        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
+            asset.symbol,
+            preferredLanguages: selectedLocale.rLanguages
+        ))
+    }
+    
+    func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel) {
+        
     }
 }
 
