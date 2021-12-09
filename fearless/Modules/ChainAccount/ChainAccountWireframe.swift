@@ -22,8 +22,8 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             return
         }
 
-//        let navigationController = UINavigationController(rootViewController: controller)
+        let navigationController = UINavigationController(rootViewController: controller)
 
-        view?.controller.present(controller, animated: true)
+        view?.controller.present(navigationController, animated: true)
     }
 }

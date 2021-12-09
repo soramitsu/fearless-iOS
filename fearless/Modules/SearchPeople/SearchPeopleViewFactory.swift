@@ -42,7 +42,9 @@ struct SearchPeopleViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            asset: asset
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedMetaAccount
         )
 
         let view = SearchPeopleViewController(presenter: presenter)

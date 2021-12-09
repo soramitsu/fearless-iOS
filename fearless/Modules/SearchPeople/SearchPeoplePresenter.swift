@@ -8,6 +8,8 @@ final class SearchPeoplePresenter {
     let interactor: SearchPeopleInteractorInputProtocol
     let viewModelFactory: SearchPeopleViewModelFactoryProtocol
     let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
 
     private var searchResult: Result<[SearchData]?, Error>?
 
@@ -15,12 +17,16 @@ final class SearchPeoplePresenter {
         interactor: SearchPeopleInteractorInputProtocol,
         wireframe: SearchPeopleWireframeProtocol,
         viewModelFactory: SearchPeopleViewModelFactoryProtocol,
-        asset: AssetModel
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.asset = asset
+        self.chain = chain
+        self.selectedAccount = selectedAccount
     }
 
     private func provideViewModel() {
@@ -56,9 +62,14 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
             preferredLanguages: selectedLocale.rLanguages
         ))
     }
-    
+
     func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel) {
-        
+        wireframe.presentSend(
+            from: view,
+            to: viewModel.address,
+            asset: asset,
+            chain: chain
+        )
     }
 }
 

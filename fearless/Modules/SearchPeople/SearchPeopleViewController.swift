@@ -32,6 +32,8 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
         presenter.setup()
 
         configure()
+
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     func configure() {
@@ -150,3 +152,5 @@ extension SearchPeopleViewController: UITextFieldDelegate {
         return false
     }
 }
+
+extension SearchPeopleViewController: HiddableBarWhenPushed {}

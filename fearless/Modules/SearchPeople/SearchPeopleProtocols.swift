@@ -21,4 +21,10 @@ protocol SearchPeopleInteractorOutputProtocol: AnyObject {
 
 protocol SearchPeopleWireframeProtocol: AnyObject {
     func close(_ view: ControllerBackedProtocol?)
+    func presentSend(
+        from view: ControllerBackedProtocol?,
+        to address: String,
+        asset: AssetModel,
+        chain: ChainModel
+    )
 }
