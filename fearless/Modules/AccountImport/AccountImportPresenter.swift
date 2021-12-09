@@ -1,10 +1,10 @@
 import Foundation
 import SoraFoundation
+import Rswift
 
 enum AccountImportContext: String {
     case sourceType
     case cryptoType
-    case addressType
 }
 
 // TODO: 1. Create MetaAccountImport scene
@@ -25,12 +25,12 @@ final class AccountImportPresenter {
 
     private(set) var selectedSourceType: AccountImportSource?
     private(set) var selectedCryptoType: MultiassetCryptoType?
-    private(set) var selectedNetworkType: Chain?
 
     private(set) var sourceViewModel: InputViewModelProtocol?
     private(set) var usernameViewModel: InputViewModelProtocol?
     private(set) var passwordViewModel: InputViewModelProtocol?
-    private(set) var derivationPathViewModel: InputViewModelProtocol?
+    private(set) var substrateDerivationPathViewModel: InputViewModelProtocol?
+    private(set) var ethereumDerivationPathViewModel: InputViewModelProtocol?
 
     private lazy var jsonDeserializer = JSONSerialization()
 
@@ -41,17 +41,8 @@ final class AccountImportPresenter {
 
         if let preferredInfo = preferredInfo {
             selectedCryptoType = preferredInfo.cryptoType
-
-            if let preferredNetwork = preferredInfo.networkType,
-               metadata.availableNetworks.contains(preferredNetwork) {
-                selectedNetworkType = preferredInfo.networkType
-            } else {
-                selectedNetworkType = metadata.defaultNetwork
-            }
-
         } else {
             selectedCryptoType = selectedCryptoType ?? metadata.defaultCryptoType
-            selectedNetworkType = selectedNetworkType ?? metadata.defaultNetwork
         }
 
         view?.setSource(type: selectedSourceType)
@@ -186,12 +177,12 @@ final class AccountImportPresenter {
         switch selectedSourceType {
         case .mnemonic, .seed:
             applyCryptoTypeViewModel(preferredInfo)
-            applyDerivationPathViewModel()
-            applyNetworkTypeViewModel(preferredInfo)
+            applySubstrateDerivationPathViewModel()
+            applyEthereumDerivationPathViewModel()
         case .keystore:
             applyCryptoTypeViewModel(preferredInfo)
-            derivationPathViewModel = nil
-            applyNetworkTypeViewModel(preferredInfo)
+            substrateDerivationPathViewModel = nil
+            ethereumDerivationPathViewModel = nil
         }
     }
 
@@ -221,75 +212,62 @@ final class AccountImportPresenter {
         ))
     }
 
-    private func applyNetworkTypeViewModel(_ preferredInfo: MetaAccountImportPreferredInfo?) {
-        guard let networkType = selectedNetworkType else {
+    private func applySubstrateDerivationPathViewModel() {
+        guard let cryptoType = selectedCryptoType, let sourceType = selectedSourceType else {
             return
         }
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let viewModel = createViewModel(for: cryptoType, sourceType: sourceType)
 
-        let contentViewModel = IconWithTitleViewModel(
-            icon: networkType.icon,
-            title: networkType.titleForLocale(locale)
-        )
+        substrateDerivationPathViewModel = viewModel
 
-        let selectable: Bool
-
-        if let preferredInfo = preferredInfo, preferredInfo.networkType != nil {
-            selectable = !preferredInfo.networkTypeConfirmed
-        } else {
-            selectable = (metadata?.availableNetworks.count ?? 0) > 1
-        }
-
-        let selectedViewModel = SelectableViewModel(
-            underlyingViewModel: contentViewModel,
-            selectable: selectable
-        )
-
-        view?.setSelectedNetwork(model: selectedViewModel)
+        view?.bind(substrateViewModel: viewModel)
+        view?.didValidateSubstrateDerivationPath(.none)
     }
 
-    private func applyDerivationPathViewModel() {
-        guard let cryptoType = selectedCryptoType else {
-            return
-        }
-
+    private func applyEthereumDerivationPathViewModel() {
         guard let sourceType = selectedSourceType else {
             return
         }
 
+        let viewModel = createViewModel(for: .ethereumEcdsa, sourceType: sourceType)
+
+        ethereumDerivationPathViewModel = viewModel
+
+        view?.bind(ethereumViewModel: viewModel)
+        view?.didValidateEthereumDerivationPath(.none)
+    }
+
+    private func createViewModel(
+        for cryptoType: MultiassetCryptoType,
+        sourceType: AccountImportSource
+    ) -> InputViewModel {
         let predicate: NSPredicate
         let placeholder: String
 
-        if cryptoType == .sr25519 {
-            if sourceType == .mnemonic {
-                predicate = NSPredicate.deriviationPathHardSoftPassword
-                placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
-            } else {
-                predicate = NSPredicate.deriviationPathHardSoft
-                placeholder = DerivationPathConstants.hardSoftPlaceholder
-            }
-        } else {
-            if sourceType == .mnemonic {
-                predicate = NSPredicate.deriviationPathHardPassword
-                placeholder = DerivationPathConstants.hardPasswordPlaceholder
-            } else {
-                predicate = NSPredicate.deriviationPathHard
-                placeholder = DerivationPathConstants.hardPlaceholder
-            }
+        switch (cryptoType, sourceType) {
+        case (.sr25519, .mnemonic):
+            predicate = NSPredicate.deriviationPathHardSoftPassword
+            placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
+        case (.sr25519, _):
+            predicate = NSPredicate.deriviationPathHardSoft
+            placeholder = DerivationPathConstants.hardSoftPlaceholder
+        case (.ethereumEcdsa, .mnemonic):
+            predicate = NSPredicate.deriviationPathHardPassword
+            placeholder = DerivationPathConstants.defaultEthereum
+        case (.ethereumEcdsa, _):
+            predicate = NSPredicate.deriviationPathHard
+            placeholder = DerivationPathConstants.defaultEthereum
+        case (_, .mnemonic):
+            predicate = NSPredicate.deriviationPathHardPassword
+            placeholder = DerivationPathConstants.hardPasswordPlaceholder
+        case (_, _):
+            predicate = NSPredicate.deriviationPathHard
+            placeholder = DerivationPathConstants.hardPasswordPlaceholder
         }
 
         let inputHandling = InputHandler(required: false, predicate: predicate)
-
-        let viewModel = InputViewModel(
-            inputHandler: inputHandling,
-            placeholder: placeholder
-        )
-
-        derivationPathViewModel = viewModel
-
-        view?.setDerivationPath(viewModel: viewModel)
-        view?.didValidateDerivationPath(.none)
+        return InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
     }
 
     private func presentDerivationPathError(
@@ -385,20 +363,6 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
     }
 
-    func selectNetworkType() {
-        if let metadata = metadata {
-            let context = AccountImportContext.addressType.rawValue as NSString
-            let selectedType = selectedNetworkType ?? metadata.defaultNetwork
-            wireframe.presentNetworkTypeSelection(
-                from: view,
-                availableTypes: metadata.availableNetworks,
-                selectedType: selectedType,
-                delegate: self,
-                context: context
-            )
-        }
-    }
-
     func activateUpload() {
         let locale = localizationManager?.selectedLocale
 
@@ -422,8 +386,8 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
 
-    func validateDerivationPath() {
-        guard let viewModel = derivationPathViewModel,
+    func validateSubstrateDerivationPath() {
+        guard let viewModel = substrateDerivationPathViewModel,
               let cryptoType = selectedCryptoType,
               let sourceType = selectedSourceType
         else {
@@ -431,10 +395,25 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
 
         if viewModel.inputHandler.completed {
-            view?.didValidateDerivationPath(.valid)
+            view?.didValidateSubstrateDerivationPath(.valid)
         } else {
-            view?.didValidateDerivationPath(.invalid)
+            view?.didValidateSubstrateDerivationPath(.invalid)
             presentDerivationPathError(sourceType: sourceType, cryptoType: cryptoType)
+        }
+    }
+
+    func validateEthereumDerivationPath() {
+        guard let viewModel = ethereumDerivationPathViewModel,
+              let sourceType = selectedSourceType
+        else {
+            return
+        }
+
+        if viewModel.inputHandler.completed {
+            view?.didValidateEthereumDerivationPath(.valid)
+        } else {
+            view?.didValidateEthereumDerivationPath(.invalid)
+            presentDerivationPathError(sourceType: sourceType, cryptoType: .ethereumEcdsa)
         }
     }
 
@@ -457,45 +436,51 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             return
         }
 
-        guard let selectedNetworkType = selectedNetworkType else {
-            return
-        }
-
         if
-            let derivationPathViewModel = derivationPathViewModel,
-            !derivationPathViewModel.inputHandler.completed {
-            view?.didValidateDerivationPath(.invalid)
+            let substrateDerivationPathViewModel = substrateDerivationPathViewModel,
+            !substrateDerivationPathViewModel.inputHandler.completed {
+            view?.didValidateSubstrateDerivationPath(.invalid)
             presentDerivationPathError(sourceType: selectedSourceType, cryptoType: selectedCryptoType)
             return
         }
 
+        if
+            let ethereumDerivationPathViewModel = ethereumDerivationPathViewModel,
+            !ethereumDerivationPathViewModel.inputHandler.completed {
+            view?.didValidateEthereumDerivationPath(.invalid)
+            presentDerivationPathError(sourceType: selectedSourceType, cryptoType: selectedCryptoType)
+            return
+        }
+
+        let username = usernameViewModel.inputHandler.value
+        let password = passwordViewModel?.inputHandler.value ?? ""
+        let substrateDerivationPath = substrateDerivationPathViewModel?.inputHandler.value ?? ""
+        let ethereumDerivationPath = ethereumDerivationPathViewModel?.inputHandler.value ?? ""
+
         switch selectedSourceType {
         case .mnemonic:
             let mnemonic = sourceViewModel.inputHandler.normalizedValue
-            let username = usernameViewModel.inputHandler.value
-            let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
+
             let request = MetaAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
                 username: username,
-                derivationPath: derivationPath,
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: ethereumDerivationPath,
                 cryptoType: selectedCryptoType
             )
             interactor.importAccountWithMnemonic(request: request)
         case .seed:
             let seed = sourceViewModel.inputHandler.value
-            let username = usernameViewModel.inputHandler.value
-            let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
             let request = MetaAccountImportSeedRequest(
                 seed: seed,
                 username: username,
-                derivationPath: derivationPath,
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: ethereumDerivationPath,
                 cryptoType: selectedCryptoType
             )
             interactor.importAccountWithSeed(request: request)
         case .keystore:
             let keystore = sourceViewModel.inputHandler.value
-            let password = passwordViewModel?.inputHandler.value ?? ""
-            let username = usernameViewModel.inputHandler.value
             let request = MetaAccountImportKeystoreRequest(
                 keystore: keystore,
                 password: password,
@@ -514,7 +499,6 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
 
         selectedSourceType = metadata.defaultSource
         selectedCryptoType = metadata.defaultCryptoType
-        selectedNetworkType = metadata.defaultNetwork
 
         applySourceType()
     }
@@ -553,7 +537,6 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
             case .sourceType:
                 selectedSourceType = metadata?.availableSources[index]
 
-                selectedNetworkType = metadata?.defaultNetwork
                 selectedCryptoType = metadata?.defaultCryptoType
 
                 applySourceType()
@@ -563,14 +546,9 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
                 selectedCryptoType = metadata?.availableCryptoTypes[index]
 
                 applyCryptoTypeViewModel(nil)
-                applyDerivationPathViewModel()
+                applySubstrateDerivationPathViewModel()
 
                 view?.didCompleteCryptoTypeSelection()
-            case .addressType:
-                selectedNetworkType = metadata?.availableNetworks[index]
-
-                applyNetworkTypeViewModel(nil)
-                view?.didCompleteAddressTypeSelection()
             }
         }
     }
@@ -584,8 +562,6 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
                 view?.didCompleteSourceTypeSelection()
             case .cryptoType:
                 view?.didCompleteCryptoTypeSelection()
-            case .addressType:
-                view?.didCompleteAddressTypeSelection()
             }
         }
     }

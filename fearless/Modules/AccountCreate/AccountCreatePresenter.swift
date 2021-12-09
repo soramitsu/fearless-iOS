@@ -62,10 +62,7 @@ final class AccountCreatePresenter {
         case .sr25519:
             predicate = NSPredicate.deriviationPathHardSoftPassword
             placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
-        case .ed25519:
-            predicate = NSPredicate.deriviationPathHardPassword
-            placeholder = DerivationPathConstants.hardPasswordPlaceholder
-        case .substrateEcdsa:
+        case .ed25519, .substrateEcdsa:
             predicate = NSPredicate.deriviationPathHardPassword
             placeholder = DerivationPathConstants.hardPasswordPlaceholder
         case .ethereumEcdsa:

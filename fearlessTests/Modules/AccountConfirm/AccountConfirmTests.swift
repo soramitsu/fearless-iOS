@@ -21,11 +21,10 @@ class AccountConfirmTests: XCTestCase {
 
         let mnemonicWords = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
-        let newAccountRequest = MetaAccountCreationRequest(
-            username: "myusername",
-            derivationPath: "",
-            cryptoType: .sr25519
-        )
+        let newAccountRequest = MetaAccountCreationRequest(username: "myusername",
+                                                           substrateDerivationPath: "",
+                                                           substrateCryptoType: .sr25519,
+                                                           ethereumDerivationPath: "")
 
         let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
 

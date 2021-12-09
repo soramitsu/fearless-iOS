@@ -2151,7 +2151,7 @@ import SoraFoundation
     
     
     
-     func setSelectedCrypto(model: TitleWithSubtitleViewModel)  {
+     func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel)  {
         
     return cuckoo_manager.call("setSelectedCrypto(model: TitleWithSubtitleViewModel)",
             parameters: (model),
@@ -2160,22 +2160,22 @@ import SoraFoundation
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.setSelectedCrypto(model: model))
+            defaultCall: __defaultImplStub!.setSelectedSubstrateCrypto(model: model))
         
     }
     
     
     
-     func setDerivationPath(viewModel: InputViewModelProtocol)  {
+     func bind(substrateViewModel: InputViewModelProtocol)  {
         
     return cuckoo_manager.call("setDerivationPath(viewModel: InputViewModelProtocol)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
+            parameters: (substrateViewModel),
+            escapingParameters: (substrateViewModel),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.setDerivationPath(viewModel: viewModel))
+            defaultCall: __defaultImplStub!.bind(substrateViewModel: substrateViewModel))
         
     }
     
@@ -2196,7 +2196,7 @@ import SoraFoundation
     
     
     
-     func didValidateDerivationPath(_ status: FieldStatus)  {
+     func didValidateSubstrateDerivationPath(_ status: FieldStatus)  {
         
     return cuckoo_manager.call("didValidateDerivationPath(_: FieldStatus)",
             parameters: (status),
@@ -2205,7 +2205,7 @@ import SoraFoundation
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didValidateDerivationPath(status))
+            defaultCall: __defaultImplStub!.didValidateSubstrateDerivationPath(status))
         
     }
     

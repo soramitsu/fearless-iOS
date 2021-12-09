@@ -153,7 +153,10 @@ final class AccountCreationHelper {
             mnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
         }
 
-        let request = MetaAccountCreationRequest(username: name, derivationPath: derivationPath, cryptoType: cryptoType)
+        let request = MetaAccountCreationRequest(username: name,
+                                                 substrateDerivationPath: derivationPath,
+                                                 substrateCryptoType: cryptoType,
+                                                 ethereumDerivationPath: "")
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
             .newMetaAccountOperation(request: request, mnemonic: mnemonic)
@@ -174,12 +177,11 @@ final class AccountCreationHelper {
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings
     ) throws {
-        let request = MetaAccountImportSeedRequest(
-            seed: seed,
-            username: name,
-            derivationPath: derivationPath,
-            cryptoType: cryptoType
-        )
+        let request = MetaAccountImportSeedRequest(seed: seed,
+                                                   username: name,
+                                                   substrateDerivationPath: derivationPath,
+                                                   ethereumDerivationPath: "",
+                                                   cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
             .newMetaAccountOperation(request: request)

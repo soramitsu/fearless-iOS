@@ -23,7 +23,8 @@
 "ask.faceid.message" = "Хотите ли Вы использовать Face ID для входа в приложение?";
 "ask.biometry.reason" = "Авторизуйтесь для доступа к аккаунту";
 "access.restore.words.error.message" = "Мнемоника должна содержать не более 24 слов";
-"access.restore.phrase.error.message" = "Ваша мнемоника недействительна. Пожалуйста, попробуйте другую";
+"access.restore.phrase.error.title" = "Ваша мнемоника недействительна.";
+"access.restore.phrase.error.message" = "Пожалуйста, попробуйте другую";
 "tabbar.wallet.title" = "Кошелёк";
 "tabbar.staking.title" = "Стейкинг";
 "tabbar.settings.title" = "Настройки";
@@ -80,8 +81,10 @@
 "account.import.recovery.json.placeholder" = "Вставьте json";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
 "import.mnemonic" = "Мнемоническая фраза";
-"account.import.invalid.seed" = "Seed неверный. Пожалуйста, убедитесь, что введенные данные содержат 64 hex символа.";
-"account.import.invalid.keystore" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
+"account.import.invalid.seed.title" = "Seed неверный.";
+"account.import.invalid.seed.message" = "Пожалуйста, убедитесь, что введенные данные содержат 64 hex символа.";
+"account.import.invalid.keystore.title" = "Неверный формат данных восстановления.";
+"account.import.invalid.keystore.message" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
 "account.import.keystore.decryption.error.message" = "Пожалуйста, проверьте корректность пароля и попробуйте снова.";
 "account.import.keystore.decryption.error.title" = "Ошибка дешифрования";
 "account.confirmation.title" = "Подтверждение";
@@ -97,7 +100,8 @@
 "common.edit" = "Редактировать";
 "common.done" = "Готово";
 "accounts.add.account" = "Добавить аккаунт";
-"account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";
+"account.add.already.exists.title" = "Аккаунт уже существует.";
+"account.add.already.exists.message" = "Пожалуйста, попробуйте другой.";
 "about.website" = "Официальный сайт";
 "about.github" = "Исходный код на Github";
 "about.telegram" = "Присоединяйтесь к группе Telegram";
