@@ -8,7 +8,16 @@ final class SearchPeopleViewLayout: UIView {
     }
 
     let navigationBar: BaseNavigationBar = {
-        BaseNavigationBar()
+        let view = BaseNavigationBar()
+        view.backButton.setImage(R.image.iconClose(), for: .normal)
+        return view
+    }()
+
+    let navigationTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textColor = .white
+        return label
     }()
 
     let tableView: UITableView = {
@@ -64,6 +73,8 @@ final class SearchPeopleViewLayout: UIView {
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
         }
+
+        navigationBar.setCenterViews([navigationTitleLabel])
 
         addSubview(searchBorderView)
         searchBorderView.snp.makeConstraints { make in

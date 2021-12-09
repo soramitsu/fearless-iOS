@@ -41,7 +41,8 @@ struct SearchPeopleViewFactory {
         let presenter = SearchPeoplePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            asset: asset
         )
 
         let view = SearchPeopleViewController(presenter: presenter)

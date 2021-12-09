@@ -1,11 +1,13 @@
 import CommonWallet
 protocol SearchPeopleViewProtocol: ControllerBackedProtocol {
     func didReceive(state: SearchPeopleViewState)
+    func didReceive(title: String?)
 }
 
 protocol SearchPeoplePresenterProtocol: AnyObject {
     func setup()
     func searchTextDidChanged(_ text: String)
+    func didTapBackButton()
 }
 
 protocol SearchPeopleInteractorInputProtocol: AnyObject {
@@ -16,4 +18,6 @@ protocol SearchPeopleInteractorOutputProtocol: AnyObject {
     func didReceive(searchResult: Result<[SearchData]?, Error>)
 }
 
-protocol SearchPeopleWireframeProtocol: AnyObject {}
+protocol SearchPeopleWireframeProtocol: AnyObject {
+    func close(_ view: ControllerBackedProtocol?)
+}

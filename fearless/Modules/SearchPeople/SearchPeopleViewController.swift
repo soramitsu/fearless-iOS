@@ -43,21 +43,32 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+
+        rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
     }
 
     private func applyState(_ state: SearchPeopleViewState) {
         switch state {
         case .empty:
-            break
+            rootView.tableView.isHidden = true
         case .loaded:
+            rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
         case .error:
             break
         }
     }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
+    }
 }
 
 extension SearchPeopleViewController: SearchPeopleViewProtocol {
+    func didReceive(title: String?) {
+        rootView.navigationTitleLabel.text = title
+    }
+
     func didReceive(state: SearchPeopleViewState) {
         self.state = state
         applyState(state)

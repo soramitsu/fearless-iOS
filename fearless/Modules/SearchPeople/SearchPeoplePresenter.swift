@@ -1,22 +1,26 @@
 import Foundation
 import CommonWallet
+import SoraFoundation
 
 final class SearchPeoplePresenter {
     weak var view: SearchPeopleViewProtocol?
     let wireframe: SearchPeopleWireframeProtocol
     let interactor: SearchPeopleInteractorInputProtocol
     let viewModelFactory: SearchPeopleViewModelFactoryProtocol
+    let asset: AssetModel
 
     private var searchResult: Result<[SearchData]?, Error>?
 
     init(
         interactor: SearchPeopleInteractorInputProtocol,
         wireframe: SearchPeopleWireframeProtocol,
-        viewModelFactory: SearchPeopleViewModelFactoryProtocol
+        viewModelFactory: SearchPeopleViewModelFactoryProtocol,
+        asset: AssetModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.asset = asset
     }
 
     private func provideViewModel() {
@@ -38,11 +42,17 @@ final class SearchPeoplePresenter {
 }
 
 extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
+    func didTapBackButton() {
+        wireframe.close(view)
+    }
+
     func searchTextDidChanged(_ text: String) {
         interactor.performSearch(query: text)
     }
 
-    func setup() {}
+    func setup() {
+        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(asset.symbol, preferredLanguages: selectedLocale.rLanguages))
+    }
 }
 
 extension SearchPeoplePresenter: SearchPeopleInteractorOutputProtocol {
@@ -50,4 +60,8 @@ extension SearchPeoplePresenter: SearchPeopleInteractorOutputProtocol {
         self.searchResult = searchResult
         provideViewModel()
     }
+}
+
+extension SearchPeoplePresenter: Localizable {
+    func applyLocalization() {}
 }
