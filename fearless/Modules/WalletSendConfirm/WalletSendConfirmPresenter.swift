@@ -1,19 +1,23 @@
 import Foundation
 import BigInt
 import SoraFoundation
-import CommonWallet
+import IrohaCrypto
+import SwiftUI
 
-final class WalletSendPresenter {
-    weak var view: WalletSendViewProtocol?
-    let wireframe: WalletSendWireframeProtocol
-    let interactor: WalletSendInteractorInputProtocol
+final class WalletSendConfirmPresenter {
+    weak var view: WalletSendConfirmViewProtocol?
+    let wireframe: WalletSendConfirmWireframeProtocol
+    let interactor: WalletSendConfirmInteractorInputProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let accountViewModelFactory: AccountViewModelFactoryProtocol
     let dataValidatingFactory: BaseDataValidatingFactoryProtocol
     let logger: LoggerProtocol?
     let asset: AssetModel
-    let chain: ChainModel
     let receiverAddress: String
+    let amount: Decimal
+    let selectedAccount: MetaAccountModel
+    let chain: ChainModel
+    let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
 
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
@@ -21,45 +25,50 @@ final class WalletSendPresenter {
     private var fee: Decimal?
     private var blockDuration: BlockTime?
     private var minimumBalance: BigUInt?
-    private var inputResult: AmountInputResult?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
 
     init(
-        interactor: WalletSendInteractorInputProtocol,
-        wireframe: WalletSendWireframeProtocol,
-        accountViewModelFactory: AccountViewModelFactoryProtocol,
+        interactor: WalletSendConfirmInteractorInputProtocol,
+        wireframe: WalletSendConfirmWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        accountViewModelFactory: AccountViewModelFactoryProtocol,
         dataValidatingFactory: BaseDataValidatingFactoryProtocol,
-        localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil,
+        walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol,
+        logger: LoggerProtocol?,
         asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        chain: ChainModel,
         receiverAddress: String,
-        chain: ChainModel
+        amount: Decimal
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
-        self.accountViewModelFactory = accountViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.accountViewModelFactory = accountViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
+        self.walletSendConfirmViewModelFactory = walletSendConfirmViewModelFactory
         self.logger = logger
         self.asset = asset
         self.receiverAddress = receiverAddress
+        self.amount = amount
+        self.selectedAccount = selectedAccount
         self.chain = chain
-        self.localizationManager = localizationManager
     }
 
     private func provideViewModel() {
-        let viewModel = WalletSendViewModel(
-            accountViewModel: provideAccountViewModel(),
+        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+            amount: amount,
+            senderAccountViewModel: provideSenderAccountViewModel(),
+            receiverAccountViewModel: provideReceiverAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
             feeViewModel: provideFeeViewModel(),
-            amountInputViewModel: provideInputViewModel()
+            locale: selectedLocale
         )
 
         view?.didReceive(state: .loaded(viewModel))
     }
 
-    private func provideAccountViewModel() -> AccountViewModel? {
+    private func provideReceiverAccountViewModel() -> AccountViewModel? {
         let title = R.string.localizable
             .walletSendReceiverTitle(preferredLanguages: selectedLocale.rLanguages)
 
@@ -70,11 +79,27 @@ final class WalletSendPresenter {
         )
     }
 
-    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+    private func provideSenderAccountViewModel() -> AccountViewModel? {
+        let addressFactory = SS58AddressFactory()
 
-        return balanceViewModelFactory.createAssetBalanceViewModel(
-            inputAmount,
+        guard let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId,
+              let senderAddress = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) else {
+            return nil
+        }
+
+        let title = R.string.localizable
+            .transactionDetailsFrom(preferredLanguages: selectedLocale.rLanguages)
+
+        return accountViewModelFactory.buildViewModel(
+            title: title,
+            address: senderAddress,
+            locale: selectedLocale
+        )
+    }
+
+    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
+        balanceViewModelFactory.createAssetBalanceViewModel(
+            amount,
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
@@ -86,24 +111,8 @@ final class WalletSendPresenter {
             .value(for: selectedLocale)
     }
 
-    private func provideInputViewModel() -> AmountInputViewModelProtocol? {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
-
-        return balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
-            .value(for: selectedLocale)
-    }
-
-    private func provideInputViewModelIfRate() {
-        guard case .rate = inputResult else {
-            return
-        }
-
-        provideInputViewModel()
-    }
-
     private func refreshFee() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
-        guard let amount = inputAmount.toSubstrateAmount(precision: Int16(asset.precision)) else {
+        guard let amount = amount.toSubstrateAmount(precision: Int16(asset.precision)) else {
             return
         }
 
@@ -111,7 +120,7 @@ final class WalletSendPresenter {
     }
 }
 
-extension WalletSendPresenter: WalletSendPresenterProtocol {
+extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     func setup() {
         interactor.setup()
 
@@ -123,63 +132,63 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         ))
     }
 
-    func selectAmountPercentage(_ percentage: Float) {
-        inputResult = .rate(Decimal(Double(percentage)))
-
-        refreshFee()
-        provideViewModel()
-    }
-
-    func updateAmount(_ newValue: Decimal) {
-        inputResult = .absolute(newValue)
-
-        refreshFee()
-        provideViewModel()
-    }
-
     func didTapBackButton() {
         wireframe.close(view: view)
     }
 
-    func didTapContinueButton() {
-        let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
-        let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(asset.precision))
+    func didTapConfirmButton() {
+        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(asset.precision))
         let spendingValue = (sendAmountValue ?? 0) +
             (fee?.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0)
 
         DataValidationRunner(validators: [
-            //            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-//                self?.refreshFee()
-//            }),
-//
-//            dataValidatingFactory.canPayFeeAndAmount(
-//                balance: balance,
-//                fee: fee,
-//                spendingAmount: sendAmountDecimal,
-//                locale: selectedLocale
-//            ),
-//
-//            dataValidatingFactory.exsitentialDepositIsNotViolated(
-//                spendingAmount: spendingValue,
-//                totalAmount: totalBalanceValue,
-//                minimumBalance: minimumBalance,
-//                locale: selectedLocale
-//            )
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                self?.refreshFee()
+            }),
+
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: spendingValue,
+                totalAmount: totalBalanceValue,
+                minimumBalance: minimumBalance,
+                locale: selectedLocale
+            )
 
         ]).runValidation { [weak self] in
-            guard let strongSelf = self, let amount = sendAmountDecimal else { return }
-            strongSelf.wireframe.presentConfirm(
-                from: strongSelf.view,
-                chain: strongSelf.chain,
-                asset: strongSelf.asset,
-                receiverAddress: strongSelf.receiverAddress,
-                amount: amount
-            )
+            guard let strongSelf = self else { return }
+            strongSelf.view?.didStartLoading()
+            strongSelf.interactor.submitExtrinsic(for: spendingValue, receiverAddress: strongSelf.receiverAddress)
         }
     }
 }
 
-extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
+extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol {
+    func didTransfer(result: Result<String, Error>) {
+        view?.didStopLoading()
+
+        switch result {
+        case .success:
+            let title = R.string.localizable
+                .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
+
+            wireframe.complete(on: view, title: title)
+        case let .failure(error):
+            guard let view = view else {
+                return
+            }
+
+            if !wireframe.present(error: error, from: view, locale: selectedLocale) {
+                wireframe.presentExtrinsicFailed(from: view, locale: selectedLocale)
+            }
+        }
+    }
+
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
@@ -242,6 +251,6 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
     }
 }
 
-extension WalletSendPresenter: Localizable {
+extension WalletSendConfirmPresenter: Localizable {
     func applyLocalization() {}
 }

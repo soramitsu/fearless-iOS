@@ -5,7 +5,12 @@ import IrohaCrypto
 typealias SearchServiceSearchPeopleResultBlock = (Result<[SearchData]?, Error>) -> Void
 
 protocol SearchServiceProtocol {
-    func searchPeople(query: String, chain: ChainModel, completion: @escaping SearchServiceSearchPeopleResultBlock)
+    func searchPeople(
+        query: String,
+        chain: ChainModel,
+        filterResults: ((SearchData) -> Bool)?,
+        completion: @escaping SearchServiceSearchPeopleResultBlock
+    )
 }
 
 final class SearchService: BaseService, SearchServiceProtocol {
@@ -25,10 +30,15 @@ final class SearchService: BaseService, SearchServiceProtocol {
         super.init(operationManager: operationManager)
     }
 
-    func searchPeople(query: String, chain: ChainModel, completion: @escaping SearchServiceSearchPeopleResultBlock) {
+    func searchPeople(
+        query: String,
+        chain: ChainModel,
+        filterResults: ((SearchData) -> Bool)? = nil,
+        completion: @escaping SearchServiceSearchPeopleResultBlock
+    ) {
         searchOperation?.cancel()
 
-        let operation = searchOperation(query, chain: chain)
+        let operation = searchOperation(query, chain: chain, filterResults: filterResults)
 
         operation.targetOperation.completionBlock = {
             DispatchQueue.main.async {
@@ -48,8 +58,12 @@ final class SearchService: BaseService, SearchServiceProtocol {
 }
 
 extension SearchService {
-    func searchOperation(_ searchString: String, chain: ChainModel) -> CompoundOperationWrapper<[SearchData]?> {
-        let fetchOperation = contactsOperation(chain: chain)
+    func searchOperation(
+        _ searchString: String,
+        chain: ChainModel,
+        filterResults: ((SearchData) -> Bool)? = nil
+    ) -> CompoundOperationWrapper<[SearchData]?> {
+        let fetchOperation = contactsOperation(chain: chain, filterResults: filterResults)
 
         let normalizedSearch = searchString.lowercased()
 
@@ -72,7 +86,10 @@ extension SearchService {
         )
     }
 
-    func contactsOperation(chain: ChainModel) -> CompoundOperationWrapper<[SearchData]?> {
+    func contactsOperation(
+        chain: ChainModel,
+        filterResults: ((SearchData) -> Bool)? = nil
+    ) -> CompoundOperationWrapper<[SearchData]?> {
         let accountsOperation = accountsRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let contactsOperation = contactsOperationFactory.fetchContactsOperation()
 
@@ -81,7 +98,15 @@ extension SearchService {
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             let addressFactory = SS58AddressFactory()
-            let existingAddresses = accounts.compactMap { Array($0.chainAccounts) }.reduce([], +).compactMap { try? addressFactory.address(fromAccountId: $0.accountId, type: chain.addressPrefix) }
+            var existingAddresses = accounts
+                .compactMap { Array($0.chainAccounts) }.reduce([], +)
+                .compactMap { try? addressFactory.address(fromAccountId: $0.accountId, type: chain.addressPrefix) }
+
+            if let selectedAccount = SelectedWalletSettings.shared.value,
+               let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId,
+               let address = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) {
+                existingAddresses.append(address)
+            }
 
             let accountsResult = try accounts.compactMap {
                 try SearchData.createFromChainAccount(
@@ -103,7 +128,13 @@ extension SearchService {
                 )
             }
 
-            return accountsResult + contactsResult
+            let mergedResults = accountsResult + contactsResult
+
+            guard let filterResults = filterResults else {
+                return mergedResults
+            }
+
+            return mergedResults.filter(filterResults)
         }
 
         mapOperation.addDependency(contactsOperation.targetOperation)

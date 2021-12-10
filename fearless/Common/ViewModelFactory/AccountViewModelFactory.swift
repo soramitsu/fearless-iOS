@@ -3,6 +3,7 @@ import FearlessUtils
 
 protocol AccountViewModelFactoryProtocol {
     func buildViewModel(
+        title: String,
         address: String,
         locale: Locale
     ) -> AccountViewModel
@@ -16,13 +17,11 @@ class AccountViewModelFactory: AccountViewModelFactoryProtocol {
     }
 
     func buildViewModel(
+        title: String,
         address: String,
-        locale: Locale
+        locale _: Locale
     ) -> AccountViewModel {
-        let title = R.string.localizable
-            .walletSendReceiverTitle(preferredLanguages: locale.rLanguages)
-
-        return AccountViewModel(
+        AccountViewModel(
             title: title,
             name: address,
             icon: try? iconGenerator.generateFromAddress(address)

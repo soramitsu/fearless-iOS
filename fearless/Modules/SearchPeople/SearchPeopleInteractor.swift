@@ -44,7 +44,13 @@ extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
             }
         }
 
-        searchService.searchPeople(query: query, chain: chain) { [weak self] result in
+        searchService.searchPeople(
+            query: query,
+            chain: chain,
+            filterResults: { searchData in
+                searchData.accountId != currentAccountId?.toHex()
+            }
+        ) { [weak self] result in
             self?.presenter?.didReceive(searchResult: result)
         }
     }

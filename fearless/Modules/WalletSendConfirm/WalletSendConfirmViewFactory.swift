@@ -1,14 +1,26 @@
 import Foundation
+import BigInt
 import FearlessUtils
 import SoraFoundation
+import SoraKeystore
 
-struct WalletSendViewFactory {
-    static func createView(receiverAddress: String, asset: AssetModel, chain: ChainModel) -> WalletSendViewProtocol? {
-        guard let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress) else {
+struct WalletSendConfirmViewFactory {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        receiverAddress: String,
+        amount: Decimal
+    ) -> WalletSendConfirmViewProtocol? {
+        guard let interactor = createInteractor(
+            chain: chain,
+            asset: asset,
+            receiverAddress: receiverAddress
+        ),
+            let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
 
-        let wireframe = WalletSendWireframe()
+        let wireframe = WalletSendConfirmWireframe()
 
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
@@ -16,20 +28,27 @@ struct WalletSendViewFactory {
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
 
-        let presenter = WalletSendPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            accountViewModelFactory: accountViewModelFactory,
-            balanceViewModelFactory: balanceViewModelFactory,
-            dataValidatingFactory: dataValidatingFactory,
-            localizationManager: LocalizationManager.shared,
-            logger: Logger.shared,
-            asset: asset,
-            receiverAddress: receiverAddress,
-            chain: chain
+        let viewModelFactory = WalletSendConfirmViewModelFactory(
+            amountFormatterFactory: AssetBalanceFormatterFactory(),
+            assetInfo: assetInfo
         )
 
-        let view = WalletSendViewController(
+        let presenter = WalletSendConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            balanceViewModelFactory: balanceViewModelFactory,
+            accountViewModelFactory: accountViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
+            walletSendConfirmViewModelFactory: viewModelFactory,
+            logger: Logger.shared,
+            asset: asset,
+            selectedAccount: selectedMetaAccount,
+            chain: chain,
+            receiverAddress: receiverAddress,
+            amount: amount
+        )
+
+        let view = WalletSendConfirmViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
@@ -44,7 +63,7 @@ struct WalletSendViewFactory {
         chain: ChainModel,
         asset: AssetModel,
         receiverAddress: String
-    ) -> WalletSendInteractor? {
+    ) -> WalletSendConfirmInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
@@ -84,11 +103,18 @@ struct WalletSendViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
+        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+            return nil
+        }
+
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedMetaAccount.metaId,
+            accountResponse: accountResponse
         )
 
-        return WalletSendInteractor(
+        return WalletSendConfirmInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chain: chain,
             asset: asset,
@@ -98,7 +124,8 @@ struct WalletSendViewFactory {
             extrinsicService: extrinsicService,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            signingWrapper: signingWrapper
         )
     }
 }

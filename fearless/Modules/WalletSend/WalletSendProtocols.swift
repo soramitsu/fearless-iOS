@@ -29,4 +29,11 @@ protocol WalletSendInteractorOutputProtocol: AnyObject {
 
 protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseErrorPresentable {
     func close(view: ControllerBackedProtocol?)
+    func presentConfirm(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        receiverAddress: String,
+        amount: Decimal
+    )
 }
