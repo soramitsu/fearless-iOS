@@ -38,7 +38,7 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
 
         let accountId = try addressFactory.accountId(from: sourceAddress)
 
-        metaAccount.setValue(accountId, forKey: "substrateAccountId")
+        metaAccount.setValue(accountId.toHex(), forKey: "substrateAccountId")
 
         if !isSelected {
             isSelected = true
@@ -60,7 +60,7 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
             metaAccount.setValue(rawPublicKey, forKey: "ethereumPublicKey")
 
             let ethereumAddress = try rawPublicKey.ethereumAddressFromPublicKey()
-            metaAccount.setValue(ethereumAddress, forKey: "ethereumAddress")
+            metaAccount.setValue(ethereumAddress.toHex(), forKey: "ethereumAddress")
         }
     }
 

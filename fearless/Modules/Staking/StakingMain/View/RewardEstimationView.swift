@@ -30,7 +30,7 @@ final class RewardEstimationView: LocalizableView {
 
     private var skeletonView: SkrullableView?
 
-    var amountFormatterFactory: NumberFormatterFactoryProtocol?
+    var amountFormatterFactory: AssetBalanceFormatterFactoryProtocol?
 
     var actionTitle: LocalizableResource<String> = LocalizableResource { locale in
         R.string.localizable.stakingStartTitle(preferredLanguages: locale.rLanguages)
@@ -73,6 +73,10 @@ final class RewardEstimationView: LocalizableView {
     }
 
     func bind(viewModel: StakingEstimationViewModel) {
+        widgetViewModel?.assetBalance.value(for: locale).iconViewModel?.cancel(
+            on: amountInputView.iconView
+        )
+
         widgetViewModel = viewModel
 
         if inputViewModel == nil || (inputViewModel?.decimalAmount != widgetViewModel?.amount) {
@@ -91,7 +95,10 @@ final class RewardEstimationView: LocalizableView {
                 )
             amountInputView.priceText = viewModel.price
 
-            amountInputView.assetIcon = viewModel.icon
+            amountInputView.assetIcon = nil
+
+            viewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
+
             amountInputView.symbol = viewModel.symbol
         }
 
@@ -125,12 +132,11 @@ final class RewardEstimationView: LocalizableView {
             return
         }
 
-        let asset = widgetViewModel.asset
+        let assetInfo = widgetViewModel.assetInfo
 
-        let formatter = amountFormatterFactory
-            .createInputFormatter(for: widgetViewModel.asset).value(for: locale)
+        let formatter = amountFormatterFactory.createInputFormatter(for: assetInfo).value(for: locale)
         let newInputViewModel = AmountInputViewModel(
-            symbol: asset.symbol,
+            symbol: assetInfo.symbol,
             amount: widgetViewModel.amount,
             limit: widgetViewModel.inputLimit,
             formatter: formatter,

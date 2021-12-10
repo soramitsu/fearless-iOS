@@ -103,12 +103,12 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/chains/chains_dev.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/assetnames/chains/chains.json")!
     }
 
     var commonTypesURL: URL {
         // swiftlint:disable:next line_length
-        URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")!
+        URL(string: "https://raw.githubusercontent.com/valentunn/py-scale-codec/fearless_stable/scalecodec/type_registry/default.json")!
     }
 
     var learnPayoutURL: URL {

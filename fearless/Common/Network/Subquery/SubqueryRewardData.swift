@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct SubqueryRewardItemData {
+struct SubqueryRewardItemData: Equatable, Codable {
     let eventId: String
     let timestamp: Int64
     let validatorAddress: AccountAddress

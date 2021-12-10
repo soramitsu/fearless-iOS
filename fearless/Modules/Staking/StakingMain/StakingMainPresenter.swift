@@ -16,8 +16,8 @@ final class StakingMainPresenter {
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
 
-    var chain: Chain? {
-        stateMachine.viewState { (state: BaseStakingState) in state.commonData.chain }
+    var chainAsset: ChainAsset? {
+        stateMachine.viewState { (state: BaseStakingState) in state.commonData.chainAsset }
     }
 
     var amount: Decimal? {
@@ -61,11 +61,11 @@ final class StakingMainPresenter {
     private func provideStakingInfo() {
         let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
 
-        if let chain = commonData?.chain, let networkStakingInfo = networkStakingInfo {
+        if let chainAsset = commonData?.chainAsset, let networkStakingInfo = networkStakingInfo {
             let networkStakingInfoViewModel = networkInfoViewModelFactory
                 .createNetworkStakingInfoViewModel(
                     with: networkStakingInfo,
-                    chain: chain,
+                    chainAsset: chainAsset,
                     minNominatorBond: commonData?.minNominatorBond,
                     priceData: commonData?.price
                 )
@@ -80,16 +80,20 @@ final class StakingMainPresenter {
         view?.didReceiveStakingState(viewModel: state)
     }
 
-    private func provideChain() {
+    private func provideMainViewModel() {
         let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
 
-        guard let chain = commonData?.chain else {
+        guard let address = commonData?.address, let chainAsset = commonData?.chainAsset else {
             return
         }
 
-        let chainModel = networkInfoViewModelFactory.createChainViewModel(for: chain)
+        let viewModel = networkInfoViewModelFactory.createMainViewModel(
+            from: address,
+            chainAsset: chainAsset,
+            balance: balance ?? 0.0
+        )
 
-        view?.didReceiveChainName(chainName: chainModel)
+        view?.didReceive(viewModel: viewModel)
     }
 
     func setupValidators(for bondedState: BondedState) {
@@ -103,16 +107,16 @@ final class StakingMainPresenter {
             )
         ]).runValidation { [weak self] in
             guard
-                let chain = bondedState.commonData.chain,
+                let chainAsset = bondedState.commonData.chainAsset,
                 let amount = Decimal.fromSubstrateAmount(
                     bondedState.ledgerInfo.active,
-                    precision: chain.addressType.precision
+                    precision: Int16(chainAsset.asset.precision)
                 ),
                 let payee = bondedState.payee,
                 let rewardDestination = try? RewardDestination(
                     payee: payee,
                     stashItem: bondedState.stashItem,
-                    chain: chain
+                    chainFormat: chainAsset.chain.chainFormat
                 ),
                 let controllerAccount = self?.controllerAccount,
                 controllerAccount.address == bondedState.stashItem.controller
@@ -138,10 +142,18 @@ final class StakingMainPresenter {
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
         provideState()
-        provideChain()
+        provideMainViewModel()
         provideStakingInfo()
 
         interactor.setup()
+    }
+
+    func performAssetSelection() {
+        wireframe.showChainAssetSelection(
+            from: view,
+            selectedChainAssetId: chainAsset?.chainAssetId,
+            delegate: self
+        )
     }
 
     func performMainAction() {
@@ -367,16 +379,18 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(accountInfo: AccountInfo?) {
-        if let availableValue = accountInfo?.data.available, let chain = chain {
+        if let availableValue = accountInfo?.data.available, let chainAsset = chainAsset {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
-                precision: chain.addressType.precision
+                precision: Int16(chainAsset.asset.precision)
             )
         } else {
             balance = 0.0
         }
 
         stateMachine.state.process(accountInfo: accountInfo)
+
+        provideMainViewModel()
     }
 
     func didReceive(balanceError: Error) {
@@ -386,8 +400,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(selectedAddress: String) {
         stateMachine.state.process(address: selectedAddress)
 
-        let viewModel = StakingMainViewModel(address: selectedAddress)
-        view?.didReceive(viewModel: viewModel)
+        provideMainViewModel()
     }
 
     func didReceive(calculator: RewardCalculatorEngineProtocol) {
@@ -466,12 +479,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: eraStakersInfoError)
     }
 
-    func didReceive(newChain: Chain) {
+    func didReceive(newChainAsset: ChainAsset) {
         networkStakingInfo = nil
 
-        stateMachine.state.process(chain: newChain)
+        stateMachine.state.process(chainAsset: newChainAsset)
 
-        provideChain()
+        provideMainViewModel()
         provideStakingInfo()
     }
 
@@ -619,5 +632,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showYourValidatorInfo(stashAddress, from: view)
             }
         }
+    }
+}
+
+extension StakingMainPresenter: AssetSelectionDelegate {
+    func assetSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
+        interactor.save(chainAsset: chainAsset)
     }
 }

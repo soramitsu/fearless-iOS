@@ -7,14 +7,19 @@ final class ChainSelectionViewController: SelectionListViewController<SelectionI
         ReuseIdentifier(identifier: SelectionIconDetailsTableViewCell.reuseIdentifier)
     }
 
+    let localizedTitle: LocalizableResource<String>
+
     let presenter: ChainSelectionPresenterProtocol
 
     init(
         nibName: String,
+        localizedTitle: LocalizableResource<String>,
         presenter: ChainSelectionPresenterProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.presenter = presenter
+        self.localizedTitle = localizedTitle
+
         super.init(nibName: nibName, bundle: nil)
 
         listPresenter = presenter
@@ -39,8 +44,6 @@ extension ChainSelectionViewController: ChainSelectionViewProtocol {}
 
 extension ChainSelectionViewController: Localizable {
     func applyLocalization() {
-        title = R.string.localizable.connectionManagementTitle(
-            preferredLanguages: selectedLocale.rLanguages
-        )
+        title = localizedTitle.value(for: selectedLocale)
     }
 }

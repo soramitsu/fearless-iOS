@@ -22,10 +22,7 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
-    var walletContext: CommonWalletContextProtocol { get set }
-
     func showNewWalletView(on view: MainTabBarViewProtocol?)
-    func reloadWalletContent()
 
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
 

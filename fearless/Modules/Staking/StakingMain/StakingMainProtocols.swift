@@ -4,17 +4,15 @@ import CommonWallet
 import BigInt
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: StakingMainViewModelProtocol)
-    func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
+    func didReceive(viewModel: StakingMainViewModel)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
-    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?)
-
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
+    func performAssetSelection()
     func performMainAction()
     func performAccountAction()
     func performManageStakingAction()
@@ -35,6 +33,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
+    func save(chainAsset: ChainAsset)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
@@ -61,7 +60,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(networkStakingInfoError: Error)
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
-    func didReceive(newChain: Chain)
+    func didReceive(newChainAsset: ChainAsset)
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod)
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
@@ -109,6 +108,12 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)
 
     func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)
+
+    func showChainAssetSelection(
+        from view: StakingMainViewProtocol?,
+        selectedChainAssetId: ChainAssetId?,
+        delegate: AssetSelectionDelegate
+    )
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {

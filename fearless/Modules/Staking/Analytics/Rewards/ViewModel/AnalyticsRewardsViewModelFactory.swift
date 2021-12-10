@@ -22,7 +22,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         let rewards = historyItems.filter { $0.isReward }
         let amounts = rewards.map(\.amountInChart)
         let totalReceived = amounts
-            .compactMap { Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision) }
+            .compactMap { Decimal.fromSubstrateAmount($0, precision: assetInfo.assetPrecision) }
             .reduce(0.0, +)
 
         let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
@@ -110,7 +110,7 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
         }
 
         let yValue = rewardsByDate.1
-            .compactMap { Decimal.fromSubstrateAmount($0.amount, precision: chain.addressType.precision) }
+            .compactMap { Decimal.fromSubstrateAmount($0.amount, precision: assetInfo.assetPrecision) }
             .reduce(0.0, +)
 
         return AnalyticsSelectedChartData(

@@ -36,6 +36,8 @@ enum AccountViewMode {
 }
 
 protocol UIFactoryProtocol {
+    func createVerticalStackView(spacing: CGFloat) -> UIStackView
+    func createHorizontalStackView(spacing: CGFloat) -> UIStackView
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
     func createDetailsView(
@@ -83,6 +85,8 @@ protocol UIFactoryProtocol {
 
     func createInfoIndicatingView() -> ImageWithTitleView
 
+    func createChainAssetSelectionView() -> DetailsTriangularedView
+
     func createWalletReferralBonusButton() -> GradientButton
 }
 
@@ -100,6 +104,20 @@ extension UIFactoryProtocol {
 
 final class UIFactory: UIFactoryProtocol {
     static let `default` = UIFactory()
+
+    func createVerticalStackView(spacing: CGFloat = 0) -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = spacing
+        return stackView
+    }
+
+    func createHorizontalStackView(spacing: CGFloat = 0) -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = spacing
+        return stackView
+    }
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
@@ -520,6 +538,21 @@ final class UIFactory: UIFactoryProtocol {
         view.layoutType = .horizontalLabelFirst
         view.spacingBetweenLabelAndIcon = 5.0
         view.iconImage = R.image.iconInfoFilled()
+        return view
+    }
+
+    func createChainAssetSelectionView() -> DetailsTriangularedView {
+        let view = DetailsTriangularedView()
+        view.layout = .largeIconTitleSubtitle
+        view.fillColor = .clear
+        view.highlightedFillColor = R.color.colorCellSelection()!
+        view.titleLabel.textColor = R.color.colorWhite()
+        view.titleLabel.font = .p1Paragraph
+        view.subtitleLabel?.textColor = R.color.colorLightGray()
+        view.subtitleLabel?.font = .p2Paragraph
+        view.actionImage = R.image.iconHorMore()
+        view.contentInsets = UIEdgeInsets(top: 7.0, left: 16.0, bottom: 8.0, right: 16.0)
+        view.iconRadius = 16.0
         return view
     }
 

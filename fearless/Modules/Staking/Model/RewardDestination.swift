@@ -7,7 +7,7 @@ enum RewardDestination<A> {
 }
 
 extension RewardDestination: Equatable where A == AccountAddress {
-    init(payee: RewardDestinationArg, stashItem: StashItem, chain: Chain) throws {
+    init(payee: RewardDestinationArg, stashItem: StashItem, chainFormat: ChainFormat) throws {
         switch payee {
         case .staked:
             self = .restake
@@ -16,10 +16,22 @@ extension RewardDestination: Equatable where A == AccountAddress {
         case .controller:
             self = .payout(account: stashItem.controller)
         case let .account(accountId):
-            let address = try SS58AddressFactory().addressFromAccountId(
-                data: accountId,
-                type: chain.addressType
-            )
+            let address = try accountId.toAddress(using: chainFormat)
+            self = .payout(account: address)
+        }
+    }
+
+    @available(*, deprecated, message: "Use init(payee:stashItem:chainFormat:) instead")
+    init(payee: RewardDestinationArg, stashItem: StashItem, chain _: Chain) throws {
+        switch payee {
+        case .staked:
+            self = .restake
+        case .stash:
+            self = .payout(account: stashItem.stash)
+        case .controller:
+            self = .payout(account: stashItem.controller)
+        case let .account(accountId):
+            let address = try accountId.toAddress(using: ChainFormat.substrate(42))
             self = .payout(account: address)
         }
     }

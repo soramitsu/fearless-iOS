@@ -2,15 +2,10 @@ import UIKit
 
 final class CrowdloanChainTableViewCell: UITableViewCell {
     let chainSelectionView: DetailsTriangularedView = {
-        let view = UIFactory.default.createDetailsView(with: .largeIconTitleSubtitle, filled: false)
-        view.titleLabel.textColor = R.color.colorWhite()
-        view.titleLabel.font = .p1Paragraph
-        view.subtitleLabel?.textColor = R.color.colorLightGray()
-        view.subtitleLabel?.font = .p2Paragraph
-        view.highlightedFillColor = R.color.colorCellSelection()!
-        view.actionImage = R.image.iconHorMore()
-        view.contentInsets = UIEdgeInsets(top: 7.0, left: 16.0, bottom: 8.0, right: 16.0)
-        view.iconRadius = 16.0
+        let view = UIFactory.default.createChainAssetSelectionView()
+        view.strokeColor = R.color.colorStrokeGray()!
+        view.highlightedStrokeColor = R.color.colorStrokeGray()!
+        view.borderWidth = 1.0
         return view
     }()
 

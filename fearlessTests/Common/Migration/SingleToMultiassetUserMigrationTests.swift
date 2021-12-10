@@ -22,10 +22,10 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
         let metaId: String
         let name: String
         let isSelected: Bool
-        let substrateAccountId: Data
+        let substrateAccountId: String
         let substratePublicKey: Data
         let substrateCryptoType: UInt8
-        let ethereumAddress: Data?
+        let ethereumAddress: String?
         let ethereumPublicKey: Data?
         let order: Int32
     }
@@ -150,7 +150,7 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
             XCTAssertEqual(account.cryptoType, newEntity.substrateCryptoType)
 
             let oldAccountId = try addressFactory.accountId(from: account.address)
-            XCTAssertEqual(oldAccountId, newEntity.substrateAccountId)
+            XCTAssertEqual(oldAccountId.toHex(), newEntity.substrateAccountId)
 
             let entropyExistence = try keystore.checkKey(for: KeystoreTagV2.entropyTagForMetaId(newEntity.metaId))
             let substrateSeedExistence = try keystore.checkKey(
@@ -267,10 +267,10 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
                 let metaId = entity.value(forKey: "metaId") as? String
                 let name = entity.value(forKey: "name") as? String
                 let isSelected = entity.value(forKey: "isSelected") as? Bool
-                let substrateAccountId = entity.value(forKey: "substrateAccountId") as? Data
+                let substrateAccountId = entity.value(forKey: "substrateAccountId") as? String
                 let substratePublicKey = entity.value(forKey: "substratePublicKey") as? Data
                 let substrateCryptoType = entity.value(forKey: "substrateCryptoType") as? UInt8
-                let ethereumAddress = entity.value(forKey: "ethereumAddress") as? Data
+                let ethereumAddress = entity.value(forKey: "ethereumAddress") as? String
                 let ethereumPublicKey = entity.value(forKey: "ethereumPublicKey") as? Data
                 let order = entity.value(forKey: "order") as? Int32
 

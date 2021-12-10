@@ -35,8 +35,15 @@ struct ChainSelectionViewFactory {
             localizationManager: localizationManager
         )
 
+        let title = LocalizableResource { locale in
+            R.string.localizable.commonSelectNetwork(
+                preferredLanguages: locale.rLanguages
+            )
+        }
+
         let view = ChainSelectionViewController(
             nibName: R.nib.selectionListViewController.name,
+            localizedTitle: title,
             presenter: presenter,
             localizationManager: localizationManager
         )

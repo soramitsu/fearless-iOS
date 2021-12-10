@@ -3,7 +3,7 @@ import BigInt
 
 struct StakingStateCommonData {
     let address: String?
-    let chain: Chain?
+    let chainAsset: ChainAsset?
     let accountInfo: AccountInfo?
     let price: PriceData?
     let calculatorEngine: RewardCalculatorEngineProtocol?
@@ -21,7 +21,7 @@ extension StakingStateCommonData {
     static var empty: StakingStateCommonData {
         StakingStateCommonData(
             address: nil,
-            chain: nil,
+            chainAsset: nil,
             accountInfo: nil,
             price: nil,
             calculatorEngine: nil,
@@ -39,7 +39,7 @@ extension StakingStateCommonData {
     func byReplacing(address: String?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -54,10 +54,10 @@ extension StakingStateCommonData {
         )
     }
 
-    func byReplacing(chain: Chain?) -> StakingStateCommonData {
+    func byReplacing(chainAsset: ChainAsset?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -75,7 +75,7 @@ extension StakingStateCommonData {
     func byReplacing(accountInfo: AccountInfo?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -93,7 +93,7 @@ extension StakingStateCommonData {
     func byReplacing(price: PriceData?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -111,7 +111,7 @@ extension StakingStateCommonData {
     func byReplacing(calculatorEngine: RewardCalculatorEngineProtocol?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -129,7 +129,7 @@ extension StakingStateCommonData {
     func byReplacing(eraStakersInfo: EraStakersInfo?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -147,7 +147,7 @@ extension StakingStateCommonData {
     func byReplacing(minStake: BigUInt?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -165,7 +165,7 @@ extension StakingStateCommonData {
     func byReplacing(maxNominatorsPerValidator: UInt32?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -183,7 +183,7 @@ extension StakingStateCommonData {
     func byReplacing(minNominatorBond: BigUInt?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -201,7 +201,7 @@ extension StakingStateCommonData {
     func byReplacing(counterForNominators: UInt32?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -219,7 +219,7 @@ extension StakingStateCommonData {
     func byReplacing(maxNominatorsCount: UInt32?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -237,7 +237,7 @@ extension StakingStateCommonData {
     func byReplacing(eraCountdown: EraCountdown?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
@@ -255,7 +255,7 @@ extension StakingStateCommonData {
     func byReplacing(subqueryRewards: [SubqueryRewardItemData]?, period: AnalyticsPeriod) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
-            chain: chain,
+            chainAsset: chainAsset,
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,

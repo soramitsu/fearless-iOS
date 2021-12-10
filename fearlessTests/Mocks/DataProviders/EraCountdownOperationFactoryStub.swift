@@ -1,12 +1,15 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import FearlessUtils
 
 struct EraCountdownOperationFactoryStub: EraCountdownOperationFactoryProtocol {
-
     let eraCountdown: EraCountdown
 
-    func fetchCountdownOperationWrapper() -> CompoundOperationWrapper<EraCountdown> {
+    func fetchCountdownOperationWrapper(
+        for connection: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<EraCountdown> {
         CompoundOperationWrapper.createWithResult(eraCountdown)
     }
 }

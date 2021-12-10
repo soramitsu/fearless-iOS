@@ -16,14 +16,16 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let logger: LoggerProtocol?
 
     private var blockNumberSubscriptionId: UUID?
-    private var accountInfoSubscriptionId: UUID?
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
     deinit {
-        clear()
+        if let subscriptionId = blockNumberSubscriptionId, let chain = settings.value {
+            blockNumberSubscriptionId = nil
+            crowdloanRemoteSubscriptionService.detach(for: subscriptionId, chainId: chain.chainId)
+        }
     }
 
     init(

@@ -3,66 +3,125 @@ import SoraFoundation
 import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
+    func saveNetworkInfoViewExpansion(isExpanded: Bool) {
+        commonSettings.stakingNetworkExpansion = isExpanded
+    }
+
     func setup() {
-        currentAccount = settings.selectedAccount
-        currentConnection = settings.selectedConnection
+        setupSelectedAccountAndChainAsset()
+        setupChainRemoteSubscription()
+        setupAccountRemoteSubscription()
+
+        sharedState.eraValidatorService.setup()
+        sharedState.rewardCalculationService.setup()
 
         provideNewChain()
         provideSelectedAccount()
-        provideMaxNominatorsPerValidator()
 
-        subscribeToPriceChanges()
-        subscribeToAccountChanges()
-        subscribeToStashControllerProvider()
-        subscribeToNominatorsLimit()
-        provideRewardCalculator()
-        provideEraStakersInfo()
+        guard
+            let chainId = selectedChainAsset?.chain.chainId,
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            return
+        }
+
+        provideMaxNominatorsPerValidator(from: runtimeService)
+
+        performPriceSubscription()
+        performAccountInfoSubscription()
+        performStashControllerSubscription()
+        performNominatorLimitsSubscripion()
+
+        provideRewardCalculator(from: sharedState.rewardCalculationService)
+        provideEraStakersInfo(from: sharedState.eraValidatorService)
+
         provideNetworkStakingInfo()
 
         eventCenter.add(observer: self, dispatchIn: .main)
 
         applicationHandler.delegate = self
 
-        let infoViewIsExpanded = settings.bool(for: Self.networkInfoViewExpansionKey) ?? true
-        presenter.networkInfoViewExpansion(isExpanded: infoViewIsExpanded)
+        presenter.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
     }
 
-    func saveNetworkInfoViewExpansion(isExpanded: Bool) {
-        settings.set(value: isExpanded, for: Self.networkInfoViewExpansionKey)
+    func save(chainAsset: ChainAsset) {
+        guard selectedChainAsset?.chainAssetId != chainAsset.chainAssetId else {
+            return
+        }
+
+        stakingSettings.save(value: chainAsset, runningCompletionIn: .main) { [weak self] _ in
+            self?.updateAfterChainAssetSave()
+            self?.updateAfterSelectedAccountChange()
+        }
     }
 
-    fileprivate static var networkInfoViewExpansionKey: String {
-        "networkInfoViewExpansionKey"
+    private func updateAfterChainAssetSave() {
+        guard let newSelectedChainAsset = stakingSettings.value else {
+            return
+        }
+
+        selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
+
+        selectedChainAsset = newSelectedChainAsset
+
+        setupChainRemoteSubscription()
+
+        updateSharedState()
+
+        provideNewChain()
+
+        clear(singleValueProvider: &priceProvider)
+        performPriceSubscription()
+
+        clearNominatorsLimitProviders()
+        performNominatorLimitsSubscripion()
+
+        clearStashControllerSubscription()
+        performStashControllerSubscription()
+
+        guard
+            let chainId = selectedChainAsset?.chain.chainId,
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            return
+        }
+
+        provideEraStakersInfo(from: sharedState.eraValidatorService)
+        provideNetworkStakingInfo()
+        provideRewardCalculator(from: sharedState.rewardCalculationService)
+        provideMaxNominatorsPerValidator(from: runtimeService)
+    }
+
+    private func updateAfterSelectedAccountChange() {
+        clearAccountRemoteSubscription()
+        clear(dataProvider: &balanceProvider)
+        clearStashControllerSubscription()
+
+        guard let selectedChain = selectedChainAsset?.chain,
+              let selectedMetaAccount = selectedWalletSettings.value,
+              let newSelectedAccount = selectedMetaAccount.fetch(for: selectedChain.accountRequest()) else {
+            return
+        }
+
+        selectedAccount = newSelectedAccount
+
+        setupAccountRemoteSubscription()
+
+        performAccountInfoSubscription()
+
+        provideSelectedAccount()
+
+        performStashControllerSubscription()
     }
 }
 
 extension StakingMainInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        if updateAccountAndChainIfNeeded() {
-            clearStashControllerProvider()
-            subscribeToStashControllerProvider()
-        }
-    }
-
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        if updateAccountAndChainIfNeeded() {
-            clearNominatorsLimitProviders()
-            subscribeToNominatorsLimit()
-
-            clearStashControllerProvider()
-            subscribeToStashControllerProvider()
-
-            provideEraStakersInfo()
-            provideNetworkStakingInfo()
-            provideRewardCalculator()
-            provideMaxNominatorsPerValidator()
-        }
+        updateAfterSelectedAccountChange()
     }
 
     func processEraStakersInfoChanged(event _: EraStakersInfoChanged) {
-        provideEraStakersInfo()
         provideNetworkStakingInfo()
-        provideRewardCalculator()
+        provideEraStakersInfo(from: sharedState.eraValidatorService)
+        provideRewardCalculator(from: sharedState.rewardCalculationService)
     }
 }
 
@@ -70,5 +129,6 @@ extension StakingMainInteractor: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
         priceProvider?.refresh()
         totalRewardProvider?.refresh()
+        rewardAnalyticsProvider?.refresh()
     }
 }

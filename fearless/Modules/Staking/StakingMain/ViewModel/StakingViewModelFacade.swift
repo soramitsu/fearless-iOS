@@ -2,29 +2,16 @@ import Foundation
 import SoraKeystore
 
 protocol StakingViewModelFacadeProtocol {
-    func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol
-    func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol
+    func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol
+    func createRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol
 }
 
 final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
-    let primitiveFactory: WalletPrimitiveFactoryProtocol
-
-    init(primitiveFactory: WalletPrimitiveFactoryProtocol) {
-        self.primitiveFactory = primitiveFactory
+    func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
+        BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
     }
 
-    func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
-        BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
-            limit: StakingConstants.maxAmount
-        )
-    }
-
-    func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol {
-        RewardViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType
-        )
+    func createRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
+        RewardViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
     }
 }

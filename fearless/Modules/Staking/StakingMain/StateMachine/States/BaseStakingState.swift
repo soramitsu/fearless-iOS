@@ -16,9 +16,9 @@ class BaseStakingState: StakingStateProtocol {
 
     func accept(visitor _: StakingStateVisitorProtocol) {}
 
-    func process(chain: Chain?) {
-        if commonData.chain != chain {
-            commonData = StakingStateCommonData.empty.byReplacing(chain: chain)
+    func process(chainAsset: ChainAsset?) {
+        if commonData.chainAsset != chainAsset {
+            commonData = StakingStateCommonData.empty.byReplacing(chainAsset: chainAsset)
 
             guard let stateMachine = stateMachine else {
                 return
