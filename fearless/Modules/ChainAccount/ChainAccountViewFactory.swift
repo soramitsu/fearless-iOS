@@ -25,7 +25,8 @@ struct ChainAccountViewFactory {
             viewModelFactory: viewModelFactory,
             logger: Logger.shared,
             asset: asset,
-            chain: chain
+            chain: chain,
+            selectedMetaAccount: SelectedWalletSettings.shared.value
         )
 
         let view = ChainAccountViewController(presenter: presenter)

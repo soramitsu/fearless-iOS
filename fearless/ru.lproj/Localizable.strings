@@ -540,3 +540,8 @@
 "crowdloan.attention" = "ТРЕБУЕТСЯ ДЕЙСТВИЕ! Пожалуйста, нажмите здесь, чтобы добавить адрес Ethereum кошелька.";
 "tabbar.crowdloan.attention" = "Проверьте вкладку с краудлонами\nТребуется действие";
 "moonbeam.add.address" = "Добавление адреса Moonbeam";
+"assetdetails.balance.total" = "Всего";
+"assetdetails.balance.transferable" = "Доступно";
+"assetdetails.balance.locked" = "Заблокировано";
+"assetdetails.balance.title" = "Баланс";
+"wallet.send.navigation.title" = "Отправить %@";

@@ -32,6 +32,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
+        rootView.receiveButton.addTarget(self, action: #selector(receiveButtonClicked), for: .touchUpInside)
+        rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
     }
 
     private func applyState() {
@@ -48,6 +52,18 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     @objc private func backButtonClicked() {
         presenter.didTapBackButton()
+    }
+
+    @objc private func sendButtonClicked() {
+        presenter.didTapSendButton()
+    }
+
+    @objc private func receiveButtonClicked() {
+        presenter.didTapReceiveButton()
+    }
+
+    @objc private func buyButtonClicked() {
+        presenter.didTapBuyButton()
     }
 }
 

@@ -28,6 +28,7 @@ struct UIConstants {
     static let amountInputIconSize = CGSize(width: 24.0, height: 24.0)
     static let networkFeeViewDefaultHeight: CGFloat = 132
     static let referralBonusButtonHeight: CGFloat = 30
+    static let amountViewHeight: CGFloat = 72
 }
 
 enum AccountViewMode {

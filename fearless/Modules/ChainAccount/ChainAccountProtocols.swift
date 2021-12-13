@@ -5,6 +5,10 @@ protocol ChainAccountViewProtocol: ControllerBackedProtocol {
 protocol ChainAccountPresenterProtocol: AnyObject {
     func setup()
     func didTapBackButton()
+
+    func didTapSendButton()
+    func didTapReceiveButton()
+    func didTapBuyButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
@@ -18,4 +22,11 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
 
 protocol ChainAccountWireframeProtocol: AnyObject {
     func close(view: ControllerBackedProtocol?)
+
+    func presentSendFlow(
+        from view: ControllerBackedProtocol?,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedMetaAccount: MetaAccountModel
+    )
 }
