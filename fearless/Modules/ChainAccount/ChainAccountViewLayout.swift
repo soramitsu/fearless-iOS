@@ -137,7 +137,7 @@ final class ChainAccountViewLayout: UIView {
     func applyLocalization() {
         sendButton.setTitle(R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages), for: .normal)
         receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages), for: .normal)
-        buyButton.setTitle(R.string.localizable.walletAssetBuyWith(preferredLanguages: locale.rLanguages), for: .normal)
+        buyButton.setTitle(R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages), for: .normal)
 
         balanceView.totalView.titleLabel.text = R.string.localizable.assetdetailsBalanceTotal(preferredLanguages: locale.rLanguages)
         balanceView.transferableView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)

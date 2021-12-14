@@ -20,27 +20,27 @@ extension AccountCreateError: ErrorContentConvertible {
                 .accessRestoreWordsErrorMessage(preferredLanguages: locale?.rLanguages)
         case .invalidMnemonicFormat:
             title = R.string.localizable
-                .accessRestorePhraseErrorTitle(preferredLanguages: locale?.rLanguages)
+                .importMnemonicInvalidTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accessRestorePhraseErrorMessage(preferredLanguages: locale?.rLanguages)
+                .mnemonicErrorTryAnotherOne(preferredLanguages: locale?.rLanguages)
         case .invalidSeed:
             title = R.string.localizable
-                .accountImportInvalidSeedTitle(preferredLanguages: locale?.rLanguages)
+                .importSeedInvalidTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountImportInvalidSeedMessage(preferredLanguages: locale?.rLanguages)
+                .importSeedInvalidMessage(preferredLanguages: locale?.rLanguages)
         case .invalidKeystore:
             title = R.string.localizable
-                .accountImportInvalidKeystoreTitle(preferredLanguages: locale?.rLanguages)
+                .importJsonInvalidFormatTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountImportInvalidKeystoreMessage(preferredLanguages: locale?.rLanguages)
+                .importJsonInvalidFormatMessage(preferredLanguages: locale?.rLanguages)
         case .unsupportedNetwork:
             message = R.string.localizable
                 .commonUnsupportedNetworkMessage(preferredLanguages: locale?.rLanguages)
         case .duplicated:
             title = R.string.localizable
-                .accountAddAlreadyExistsTitle(preferredLanguages: locale?.rLanguages)
+                .importAccountExistsTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountAddAlreadyExistsMessage(preferredLanguages: locale?.rLanguages)
+                .accountErrorTryAnotherOne(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)

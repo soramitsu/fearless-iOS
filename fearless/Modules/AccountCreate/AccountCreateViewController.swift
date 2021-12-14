@@ -272,7 +272,7 @@ extension AccountCreateViewController: UITextFieldDelegate {
             presenter.validateEthereum()
         }
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         resignFirstResponder()
         if textField == substrateDerivationPathField {
