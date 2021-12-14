@@ -14,4 +14,8 @@ struct AssetModel: Equatable, Codable, Hashable {
     let staking: String?
 
     var isUtility: Bool { assetId == 0 }
+
+    var identifier: String {
+        priceId ?? symbol
+    }
 }

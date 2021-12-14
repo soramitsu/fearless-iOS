@@ -1,4 +1,4 @@
-protocol ChainAccountViewProtocol: ControllerBackedProtocol {
+protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)
 }
 
