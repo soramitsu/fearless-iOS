@@ -74,7 +74,14 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
-    func didTapReceiveButton() {}
+    func didTapReceiveButton() {
+        wireframe.presentReceiveFlow(
+            from: view,
+            asset: asset,
+            chain: chain,
+            selectedMetaAccount: selectedMetaAccount
+        )
+    }
 
     func didTapBuyButton() {}
 }

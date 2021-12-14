@@ -29,4 +29,11 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         chain: ChainModel,
         selectedMetaAccount: MetaAccountModel
     )
+
+    func presentReceiveFlow(
+        from view: ControllerBackedProtocol?,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedMetaAccount: MetaAccountModel
+    )
 }

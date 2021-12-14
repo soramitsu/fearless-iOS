@@ -26,4 +26,25 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
         view?.controller.present(navigationController, animated: true)
     }
+
+    func presentReceiveFlow(
+        from view: ControllerBackedProtocol?,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedMetaAccount: MetaAccountModel
+    ) {
+        let receiveView = ReceiveAssetViewFactory.createView(
+            account: selectedMetaAccount,
+            chain: chain,
+            asset: asset
+        )
+
+        guard let controller = receiveView?.controller else {
+            return
+        }
+
+        let navigationController = UINavigationController(rootViewController: controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
 }

@@ -37,11 +37,13 @@ class HistoryService: HistoryServiceProtocol {
         completionBlock: @escaping TransactionHistoryBlock
     )
         -> CancellableCall {
-        let operationWrapper = operationFactory.fetchTransactionHistoryOperation(asset: asset,
-                                                                                 chain: chain,
-                                                                                 address: address,
-                                                                                 request: filter,
-                                                                                 pagination: pagination)
+        let operationWrapper = operationFactory.fetchTransactionHistoryOperation(
+            asset: asset,
+            chain: chain,
+            address: address,
+            request: filter,
+            pagination: pagination
+        )
 
         operationWrapper.targetOperation.completionBlock = {
             queue.async {

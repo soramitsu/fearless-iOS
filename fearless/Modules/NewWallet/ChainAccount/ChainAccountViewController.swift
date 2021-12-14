@@ -14,7 +14,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     var contentInsets: UIEdgeInsets = .zero
 
-    lazy var preferredContentHeight: CGFloat = 400
+    lazy var preferredContentHeight: CGFloat = 420
 
     init(presenter: ChainAccountPresenterProtocol) {
         self.presenter = presenter

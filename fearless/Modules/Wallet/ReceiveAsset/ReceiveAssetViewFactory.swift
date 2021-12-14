@@ -1,4 +1,5 @@
 import CommonWallet
+import SoraFoundation
 
 struct ReceiveAssetViewFactory {
     static func createView(
@@ -20,7 +21,8 @@ struct ReceiveAssetViewFactory {
             sharingFactory: sharingFactory,
             account: account,
             chain: chain,
-            asset: asset
+            asset: asset,
+            localizationManager: LocalizationManager.shared
         )
 
         let view = ReceiveAssetViewController(presenter: presenter)

@@ -32,7 +32,8 @@ final class ReceiveAssetPresenter {
         sharingFactory: AccountShareFactoryProtocol,
         account: MetaAccountModel,
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
         self.qrService = qrService
@@ -40,6 +41,11 @@ final class ReceiveAssetPresenter {
         self.account = account
         self.chain = chain
         self.asset = asset
+        self.localizationManager = localizationManager
+    }
+    
+    private var address: String? {
+        account.fetch(for: chain.accountRequest())?.toAddress()
     }
 }
 
@@ -50,7 +56,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
     }
 
     func share(qrImage: UIImage) {
-        guard let locale = localizationManager?.selectedLocale, let address = address else {
+        guard let address = address else {
             return
         }
         let sources = sharingFactory.createSources(
@@ -58,7 +64,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
             qrImage: qrImage,
             assetSymbol: asset.symbol,
             chainName: chain.name,
-            locale: locale
+            locale: selectedLocale
         )
         wireframe.share(sources: sources, from: view, with: nil)
     }
@@ -71,13 +77,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
 }
 
 extension ReceiveAssetPresenter: Localizable {
-    private var address: String? {
-        try? addressFactory.addressFromAccountId(
-            data: account.substrateAccountId,
-            addressPrefix: chain.addressPrefix
-        )
-    }
-
+    
     func applyLocalization() {
         if let view = view, view.isSetup {
             provideViewModel()

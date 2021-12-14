@@ -36,6 +36,8 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
             action: #selector(shareButtonClicked),
             for: .touchUpInside
         )
+
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     @objc private func closeButtonClicked() {

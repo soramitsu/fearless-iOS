@@ -21,11 +21,13 @@ final class ReceiveAssetViewLayout: UIView {
     let shareButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconShare()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = R.color.colorWhite()
         return button
     }()
 
     let accountView: DetailsTriangularedView = {
-        let detailsView = UIFactory().createAccountView()
+        let detailsView = UIFactory().createDetailsView(with: .largeIconTitleSubtitle, filled: false)
+        detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
         return detailsView
     }()
 
@@ -33,6 +35,7 @@ final class ReceiveAssetViewLayout: UIView {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
+        label.textAlignment = .center
         return label
     }()
 
@@ -54,6 +57,9 @@ final class ReceiveAssetViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        backgroundColor = R.color.colorBlack()
+
         setupLayout()
         applyLocalization()
     }
@@ -74,14 +80,16 @@ final class ReceiveAssetViewLayout: UIView {
 
         addSubview(accountView)
         accountView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().offset(Constants.horizontalOffset)
-            make.top.equalTo(navigationBar).offset(Constants.navigationVerticalOffset)
+            make.leading.equalToSuperview().offset(Constants.horizontalOffset)
+            make.trailing.equalToSuperview().inset(Constants.horizontalOffset)
+            make.top.equalTo(navigationBar.snp.bottom).offset(Constants.navigationVerticalOffset)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         addSubview(qrLabel)
         qrLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().offset(Constants.horizontalOffset)
-            make.top.equalTo(accountView).offset(Constants.accountToQrLabelSpacing)
+            make.top.equalTo(accountView.snp.bottom).offset(Constants.accountToQrLabelSpacing)
         }
 
         addSubview(imageView)
