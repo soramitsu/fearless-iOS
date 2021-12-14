@@ -1,5 +1,4 @@
 import UIKit
-import SoraFoundation
 import SoraUI
 
 final class ChainAccountViewLayout: UIView {
