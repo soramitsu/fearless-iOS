@@ -6,7 +6,7 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
         chain: ChainModel,
         asset: AssetModel
     ) {
-        guard let chainAccountView = ChainAccountViewFactory.createView(
+        guard let chainAccountView = WalletChainAccountDashboardViewFactory.createView(
             chain: chain,
             asset: asset
         ) else {

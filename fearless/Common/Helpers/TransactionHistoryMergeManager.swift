@@ -59,8 +59,8 @@ enum TransactionHistoryMergeItem {
 
     func buildTransactionData(
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         switch self {
@@ -68,14 +68,14 @@ enum TransactionHistoryMergeItem {
             return AssetTransactionData.createTransaction(
                 from: item,
                 address: address,
-                networkType: networkType,
+                chain: chain,
                 asset: asset,
                 addressFactory: addressFactory
             )
         case let .remote(item):
             return item.createTransactionForAddress(
                 address,
-                networkType: networkType,
+                chain: chain,
                 asset: asset,
                 addressFactory: addressFactory
             )
@@ -98,18 +98,18 @@ enum TransactionHistoryMergeItem {
 
 final class TransactionHistoryMergeManager {
     let address: String
-    let networkType: SNAddressType
-    let asset: WalletAsset
+    let chain: ChainModel
+    let asset: AssetModel
     let addressFactory: SS58AddressFactoryProtocol
 
     init(
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) {
         self.address = address
-        self.networkType = networkType
+        self.chain = chain
         self.asset = asset
         self.addressFactory = addressFactory
     }
@@ -155,7 +155,7 @@ final class TransactionHistoryMergeManager {
             .map { item in
                 item.buildTransactionData(
                     address: address,
-                    networkType: networkType,
+                    chain: chain,
                     asset: asset,
                     addressFactory: addressFactory
                 )

@@ -17,7 +17,7 @@ final class ChainAccountViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: 8.0, left: 0.0, bottom: 0.0, right: 0.0)
         return view
     }()
 
@@ -109,7 +109,7 @@ final class ChainAccountViewLayout: UIView {
             make.width.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: balanceView)
+        contentView.stackView.setCustomSpacing(UIConstants.defaultOffset, after: balanceView)
 
         contentView.stackView.addArrangedSubview(actionsView)
         actionsView.snp.makeConstraints { make in

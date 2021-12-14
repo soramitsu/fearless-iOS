@@ -8,6 +8,14 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     private var state: ChainAccountViewState = .loading
 
+    var observable = ViewModelObserverContainer<ContainableObserver>()
+
+    weak var reloadableDelegate: ReloadableDelegate?
+
+    var contentInsets: UIEdgeInsets = .zero
+
+    lazy var preferredContentHeight: CGFloat = 400
+
     init(presenter: ChainAccountPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -81,3 +89,14 @@ extension ChainAccountViewController: Localizable {
 }
 
 extension ChainAccountViewController: HiddableBarWhenPushed {}
+
+extension ChainAccountViewController: Containable {
+    var contentView: UIView {
+        view
+    }
+
+    func setContentInsets(_: UIEdgeInsets, animated _: Bool) {
+//        self.contentInsets = contentInsets
+//        updateCollectionViewInsets(animated: true)
+    }
+}
