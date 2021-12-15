@@ -47,4 +47,24 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
         view?.controller.present(navigationController, animated: true)
     }
+
+    func presentBuyFlow(
+        from view: ControllerBackedProtocol?,
+        items: [PurchaseAction],
+        delegate: ModalPickerViewControllerDelegate,
+        context: AnyObject?
+    ) {
+        let buyView = ModalPickerFactory.createPickerForList(
+            items,
+            delegate: delegate,
+            context: context
+        )
+
+        guard let buyView = buyView else {
+            return
+        }
+
+        let navigationController = UINavigationController(rootViewController: buyView)
+        view?.controller.present(navigationController, animated: true)
+    }
 }

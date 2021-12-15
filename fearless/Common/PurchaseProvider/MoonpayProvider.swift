@@ -26,22 +26,11 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseActions(
-        for chain: Chain,
-        assetId _: WalletAssetId?,
-        address: String
-    ) -> [PurchaseAction] {
-        let optionUrl: URL?
-
-        guard chain == .polkadot else { return [] }
-        optionUrl = buildURLForToken("DOT", address: address)
-
-        if let url = optionUrl {
-            let action = PurchaseAction(title: "MoonPay", url: url, icon: R.image.iconMoonPay()!)
-            return [action]
-        } else {
-            return []
+    func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
+        if let url = buildURLForToken(asset.symbol, address: address) {
+            return [PurchaseAction(title: "Ramp", url: url, icon: R.image.iconRamp()!)]
         }
+        return []
     }
 
     private func calculateHmac(for query: String) throws -> String {

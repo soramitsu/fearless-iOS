@@ -23,28 +23,11 @@ final class RampProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseActions(
-        for chain: Chain,
-        assetId _: WalletAssetId?,
-        address: String
-    ) -> [PurchaseAction] {
-        let optionUrl: URL?
-
-        switch chain {
-        case .polkadot:
-            optionUrl = buildURLForToken("DOT", address: address)
-        case .kusama:
-            optionUrl = buildURLForToken("KSM", address: address)
-        default:
-            optionUrl = nil
+    func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
+        if let url = buildURLForToken(asset.symbol, address: address) {
+            return [PurchaseAction(title: "Ramp", url: url, icon: R.image.iconRamp()!)]
         }
-
-        if let url = optionUrl {
-            let action = PurchaseAction(title: "Ramp", url: url, icon: R.image.iconRamp()!)
-            return [action]
-        } else {
-            return []
-        }
+        return []
     }
 
     private func buildURLForToken(_ token: String, address: String) -> URL? {
