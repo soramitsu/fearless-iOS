@@ -51,13 +51,12 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     func presentBuyFlow(
         from view: ControllerBackedProtocol?,
         items: [PurchaseAction],
-        delegate: ModalPickerViewControllerDelegate,
-        context: AnyObject?
+        delegate: ModalPickerViewControllerDelegate
     ) {
         let buyView = ModalPickerFactory.createPickerForList(
             items,
             delegate: delegate,
-            context: context
+            context: nil
         )
 
         guard let buyView = buyView else {
@@ -66,5 +65,17 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
         let navigationController = UINavigationController(rootViewController: buyView)
         view?.controller.present(navigationController, animated: true)
+    }
+
+    func presentPurchaseWebView(
+        from view: ControllerBackedProtocol?,
+        action: PurchaseAction
+    ) {
+        let webView = PurchaseViewFactory.createView(
+            for: action
+        )
+        if let webViewController = webView?.controller {
+            view?.controller.present(webViewController, animated: true, completion: nil)
+        }
     }
 }

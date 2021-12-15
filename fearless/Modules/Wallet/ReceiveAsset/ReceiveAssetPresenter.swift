@@ -43,7 +43,7 @@ final class ReceiveAssetPresenter {
         self.asset = asset
         self.localizationManager = localizationManager
     }
-    
+
     private var address: String? {
         account.fetch(for: chain.accountRequest())?.toAddress()
     }
@@ -77,7 +77,6 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
 }
 
 extension ReceiveAssetPresenter: Localizable {
-    
     func applyLocalization() {
         if let view = view, view.isSetup {
             provideViewModel()
