@@ -40,7 +40,7 @@ final class RuntimeRegistryService {
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol?
 
-    private var runtimeMetadata: RuntimeMetadataItem?
+    private var runtimeMetadataItem: RuntimeMetadataItem?
     private var snapshot: Snapshot?
     private var syncQueue = DispatchQueue(
         label: "\(queueLabelPrefix).\(UUID().uuidString)",
@@ -48,6 +48,7 @@ final class RuntimeRegistryService {
     )
     private var pendingRequests: [PendingRequest] = []
     private var dataHasher: StorageHasher = .twox256
+    private var runtimeMetadataDecodingWrapper: CompoundOperationWrapper<RuntimeMetadata>?
     private var snapshotLoadingWrapper: CompoundOperationWrapper<Snapshot>?
     private var syncTypesWrapper: CompoundOperationWrapper<Bool>?
 
@@ -117,11 +118,11 @@ final class RuntimeRegistryService {
             self?.logger?.debug("Did receive changes \(changes.count)")
             for change in changes {
                 if let item = change.item {
-                    self?.runtimeMetadata = item
+                    self?.runtimeMetadataItem = item
                     self?.updateTypeRegistryCatalog(shouldSyncFiles: true)
                     self?.logger?.debug("Did receive runtime metadata at version: \(item.version)")
                 } else {
-                    self?.runtimeMetadata = nil
+                    self?.runtimeMetadataItem = nil
                     self?.logger?.warning("Did delete runtime metadata")
                 }
             }
@@ -150,35 +151,81 @@ final class RuntimeRegistryService {
     }
 
     private func loadTypeRegistryCatalog(hasher: StorageHasher, shouldSyncFiles: Bool) {
-        guard let runtimeMetadata = runtimeMetadata else {
+        guard let runtimeMetadata = runtimeMetadataItem else { return }
+
+        cancelDecodingRuntimeMetadataIfNeeded()
+
+        let decoderOperation: ScaleDecoderOperation<RuntimeMetadata> = ScaleDecoderOperation()
+        decoderOperation.data = runtimeMetadata.metadata
+
+        let combiningOperation = ClosureOperation<RuntimeMetadata> {
+            guard let metadata = try decoderOperation.extractNoCancellableResultData() else {
+                throw RuntimeRegistryServiceError.brokenMetadata
+            }
+
+            return metadata
+        }
+
+        combiningOperation.addDependency(decoderOperation)
+
+        runtimeMetadataDecodingWrapper = CompoundOperationWrapper(
+            targetOperation: combiningOperation,
+            dependencies: [decoderOperation]
+        )
+
+        combiningOperation.completionBlock = {
+            self.syncQueue.async {
+                self.handleRuntimeMetadata(
+                    result: decoderOperation.result,
+                    hasher: hasher,
+                    shouldSyncFiles: shouldSyncFiles
+                )
+            }
+        }
+
+        operationManager.enqueue(operations: [decoderOperation, combiningOperation], in: .transient)
+
+        logger?.debug("Did start decoding runtime metadata")
+    }
+
+    private func handleRuntimeMetadata(
+        result: Result<RuntimeMetadata?, Error>?,
+        hasher: StorageHasher,
+        shouldSyncFiles: Bool
+    ) {
+        guard let runtimeMetadataItem = runtimeMetadataItem else { return }
+        guard let result = result else { return }
+
+        runtimeMetadataDecodingWrapper = nil
+
+        let runtimeMetadata: RuntimeMetadata?
+        do {
+            runtimeMetadata = try result.get()
+        } catch {
+            logger?.error("Decoding runtime metadata failed: \(error)")
             return
         }
 
         cancelSnapshotLoadingIfNeeded()
 
-        let baseTypesOperation = filesOperationFacade.fetchDefaultOperation(for: chain)
-        let networkTypesOperation = filesOperationFacade.fetchNetworkOperation(for: chain)
-
-        let decoderOperation: ScaleDecoderOperation<RuntimeMetadata> = ScaleDecoderOperation()
-        decoderOperation.data = runtimeMetadata.metadata
+        let baseTypesOperation = filesOperationFacade
+            .fetchDefaultOperation(for: chain, runtimeMetadata: runtimeMetadata)
+        let networkTypesOperation = filesOperationFacade
+            .fetchNetworkOperation(for: chain, runtimeMetadata: runtimeMetadata)
 
         let combiningOperation = ClosureOperation<Snapshot> {
-            guard
-                let baseData = try baseTypesOperation.targetOperation
-                .extractNoCancellableResultData()
+            guard let metadata = runtimeMetadata else {
+                throw RuntimeRegistryServiceError.brokenMetadata
+            }
+
+            guard let baseData = try baseTypesOperation.targetOperation.extractNoCancellableResultData()
             else {
                 throw RuntimeRegistryServiceError.missingBaseTypes
             }
 
-            guard
-                let networkData = try networkTypesOperation.targetOperation
-                .extractNoCancellableResultData()
+            guard let networkData = try networkTypesOperation.targetOperation.extractNoCancellableResultData()
             else {
                 throw RuntimeRegistryServiceError.missingNetworkTypes
-            }
-
-            guard let metadata = try decoderOperation.extractNoCancellableResultData() else {
-                throw RuntimeRegistryServiceError.brokenMetadata
             }
 
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
@@ -194,13 +241,13 @@ final class RuntimeRegistryService {
                 localBaseHash: localBaseHash,
                 localNetworkHash: localNetworkHash,
                 typeRegistryCatalog: catalog,
-                specVersion: runtimeMetadata.version,
-                txVersion: runtimeMetadata.txVersion,
+                specVersion: runtimeMetadataItem.version,
+                txVersion: runtimeMetadataItem.txVersion,
                 metadata: metadata
             )
         }
 
-        let dependencies = baseTypesOperation.allOperations + networkTypesOperation.allOperations + [decoderOperation]
+        let dependencies = baseTypesOperation.allOperations + networkTypesOperation.allOperations
 
         dependencies.forEach { combiningOperation.addDependency($0) }
 
@@ -232,9 +279,7 @@ final class RuntimeRegistryService {
         result: Result<Snapshot, Error>?,
         shouldSyncFiles: Bool
     ) {
-        guard let result = result else {
-            return
-        }
+        guard let result = result else { return }
 
         snapshotLoadingWrapper = nil
 
@@ -263,6 +308,14 @@ final class RuntimeRegistryService {
         }
     }
 
+    private func cancelDecodingRuntimeMetadataIfNeeded() {
+        if runtimeMetadataDecodingWrapper != nil {
+            runtimeMetadataDecodingWrapper?.allOperations.forEach { $0.cancel() }
+            runtimeMetadataDecodingWrapper = nil
+            logger?.debug("Decoding runtime metadata cancelled")
+        }
+    }
+
     private func cancelSnapshotLoadingIfNeeded() {
         if snapshotLoadingWrapper != nil {
             snapshotLoadingWrapper?.allOperations.forEach { $0.cancel() }
@@ -272,18 +325,19 @@ final class RuntimeRegistryService {
     }
 
     private func clear() {
+        cancelDecodingRuntimeMetadataIfNeeded()
         cancelSnapshotLoadingIfNeeded()
         cancelSyncTypesIfNeeded()
         snapshot = nil
-        runtimeMetadata = nil
+        runtimeMetadataItem = nil
     }
 }
 
 extension RuntimeRegistryService {
     private func syncTypeFiles() {
         guard
-            let baseRemoteUrl = chain.typeDefDefaultFileURL(),
-            let networkRemoteUrl = chain.typeDefNetworkFileURL()
+            let baseRemoteUrl = chain.typeDefDefaultFileURL(runtimeMetadata: snapshot?.metadata),
+            let networkRemoteUrl = chain.typeDefNetworkFileURL(runtimeMetadata: snapshot?.metadata)
         else {
             return
         }
@@ -359,7 +413,7 @@ extension RuntimeRegistryService {
         networkRemote: BaseOperation<Data>,
         hasher: StorageHasher
     ) -> CompoundOperationWrapper<Void> {
-        filesOperationFacade.saveDefaultOperation(for: chain) {
+        filesOperationFacade.saveDefaultOperation(for: chain, runtimeMetadata: snapshot?.metadata) {
             let data = try baseRemote.extractNoCancellableResultData()
             _ = try networkRemote.extractNoCancellableResultData()
 
@@ -379,7 +433,7 @@ extension RuntimeRegistryService {
         networkRemote: BaseOperation<Data>,
         hasher: StorageHasher
     ) -> CompoundOperationWrapper<Void> {
-        filesOperationFacade.saveNetworkOperation(for: chain) {
+        filesOperationFacade.saveNetworkOperation(for: chain, runtimeMetadata: snapshot?.metadata) {
             _ = try baseRemote.extractNoCancellableResultData()
             let data = try networkRemote.extractNoCancellableResultData()
 
@@ -469,6 +523,10 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
+    var runtimeMetadata: RuntimeMetadata? {
+        snapshot?.metadata
+    }
+
     func fetchCoderFactoryOperation(
         with timeout: TimeInterval,
         closure: RuntimeMetadataClosure?

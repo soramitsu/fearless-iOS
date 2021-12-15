@@ -353,7 +353,7 @@ private struct RuntimeOverrides: Decodable {
 
 private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade {
     let versionIssueIntroduced: UInt32 = 9110
-    let isFixed = false
+    let isFixed = true
 
     func blockHashForBackwardCompatibility(for chain: Chain) -> String? {
         switch chain {

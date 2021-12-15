@@ -46,7 +46,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
         let codingKeyFactory = StorageKeyFactory()
 
         let mapper = StorageKeySuffixMapper<StringScaleMapper<UInt32>>(
-            type: SubstrateConstants.paraIdType,
+            type: SubstrateConstants.paraIdType(runtimeMetadata: runtimeService.runtimeMetadata),
             suffixLength: SubstrateConstants.paraIdLength,
             coderFactoryClosure: { try coderFactoryOperation.extractNoCancellableResultData() }
         )
