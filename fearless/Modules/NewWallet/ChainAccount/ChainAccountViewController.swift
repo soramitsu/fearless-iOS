@@ -2,6 +2,10 @@ import UIKit
 import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
+    enum Constants {
+        static let defaultContentHeight: CGFloat = 410
+    }
+
     typealias RootViewType = ChainAccountViewLayout
 
     let presenter: ChainAccountPresenterProtocol
@@ -14,7 +18,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     var contentInsets: UIEdgeInsets = .zero
 
-    lazy var preferredContentHeight: CGFloat = 420
+    lazy var preferredContentHeight: CGFloat = Constants.defaultContentHeight
 
     init(presenter: ChainAccountPresenterProtocol) {
         self.presenter = presenter
@@ -95,8 +99,5 @@ extension ChainAccountViewController: Containable {
         view
     }
 
-    func setContentInsets(_: UIEdgeInsets, animated _: Bool) {
-//        self.contentInsets = contentInsets
-//        updateCollectionViewInsets(animated: true)
-    }
+    func setContentInsets(_: UIEdgeInsets, animated _: Bool) {}
 }
