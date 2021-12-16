@@ -11,7 +11,8 @@ final class StakingUnbondSetupPresenter {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     let logger: LoggerProtocol?
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
 
     private var bonded: Decimal?
     private var balance: Decimal?
@@ -20,7 +21,7 @@ final class StakingUnbondSetupPresenter {
     private var minimalBalance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var controller: AccountItem?
+//    private var controller: AccountItem?
     private var stashItem: StashItem?
 
     init(
@@ -28,7 +29,8 @@ final class StakingUnbondSetupPresenter {
         wireframe: StakingUnbondSetupWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset _: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -118,11 +120,11 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
 
-            dataValidatingFactory.has(
-                controller: controller,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            ),
+//            dataValidatingFactory.has(
+//                controller: controller,
+//                for: stashItem?.controller ?? "",
+//                locale: locale
+//            ),
 
             dataValidatingFactory.stashIsNotKilledAfterUnbonding(
                 amount: inputAmount,
@@ -151,7 +153,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -167,7 +169,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             if let stakingLedger = stakingLedger {
                 bonded = Decimal.fromSubstrateAmount(
                     stakingLedger.active,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 bonded = nil
@@ -194,7 +196,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
 
             provideFeeViewModel()
@@ -218,22 +220,23 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         case let .success(minimalBalance):
             self.minimalBalance = Decimal.fromSubstrateAmount(
                 minimalBalance,
-                precision: chain.addressType.precision
+                precision: Int16(asset.precision)
             )
         case let .failure(error):
             logger?.error("Minimal balance fetching error: \(error)")
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
-        switch result {
-        case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
-        case let .failure(error):
-            logger?.error("Did receive controller account error: \(error)")
-        }
+    func didReceiveController(result _: Result<AccountItem?, Error>) {
+        // TODO: Restore logic if needed
+//        switch result {
+//        case let .success(accountItem):
+//            if let accountItem = accountItem {
+//                controller = accountItem
+//            }
+//        case let .failure(error):
+//            logger?.error("Did receive controller account error: \(error)")
+//        }
     }
 
     func didReceiveStashItem(result: Result<StashItem?, Error>) {

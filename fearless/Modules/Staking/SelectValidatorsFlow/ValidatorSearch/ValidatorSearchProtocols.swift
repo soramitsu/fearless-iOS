@@ -38,6 +38,8 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
+        asset: AssetModel,
+        chain: ChainModel,
         with fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?

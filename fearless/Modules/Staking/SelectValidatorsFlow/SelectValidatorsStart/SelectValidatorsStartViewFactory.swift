@@ -5,17 +5,29 @@ import SoraFoundation
 
 final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryProtocol {
     static func createInitiatedBondingView(
+        asset: AssetModel,
+        chain: ChainModel,
         with state: InitiatedBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = InitBondingSelectValidatorsStartWireframe(state: state)
-        return createView(with: wireframe, existingStashAddress: nil, selectedValidators: nil)
+        return createView(
+            chain: chain,
+            asset: asset,
+            with: wireframe,
+            existingStashAddress: nil,
+            selectedValidators: nil
+        )
     }
 
     static func createChangeTargetsView(
+        asset: AssetModel,
+        chain: ChainModel,
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
         return createView(
+            chain: chain,
+            asset: asset,
             with: wireframe,
             existingStashAddress: state.stashAddress,
             selectedValidators: state.selectedTargets
@@ -23,10 +35,14 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     }
 
     static func createChangeYourValidatorsView(
+        asset: AssetModel,
+        chain: ChainModel,
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
         return createView(
+            chain: chain,
+            asset: asset,
             with: wireframe,
             existingStashAddress: state.stashAddress,
             selectedValidators: state.selectedTargets
@@ -34,6 +50,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     }
 
     private static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
         with wireframe: SelectValidatorsStartWireframeProtocol,
         existingStashAddress: AccountAddress?,
         selectedValidators: [SelectedValidatorInfo]?
@@ -51,10 +69,9 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let chain = SettingsManager.shared.selectedConnection.type.chain
-
         let rewardService = RewardCalculatorFacade.sharedService
         let operationFactory = ValidatorOperationFactory(
+            asset: asset,
             chain: chain,
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,

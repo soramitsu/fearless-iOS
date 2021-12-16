@@ -4,34 +4,23 @@ import SoraKeystore
 
 enum CustomValidatorListViewFactory {
     private static func createView(
+        asset: AssetModel,
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
         with wireframe: CustomValidatorListWireframeProtocol
     ) -> CustomValidatorListViewProtocol? {
-        let settings = SettingsManager.shared
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
-        let asset = primitiveFactory.createAssetForAddressType(
-            chain.addressType
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
         )
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
 
         let interactor = CustomValidatorListInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            assetId: assetId
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            asset: asset
         )
 
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
-            limit: StakingConstants.maxAmount
-        )
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: asset.displayInfo)
 
         let viewModelFactory = CustomValidatorListViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory
@@ -64,6 +53,7 @@ enum CustomValidatorListViewFactory {
 
 extension CustomValidatorListViewFactory {
     static func createInitiatedBondingView(
+        asset: AssetModel,
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
@@ -72,6 +62,7 @@ extension CustomValidatorListViewFactory {
     ) -> CustomValidatorListViewProtocol? {
         let wireframe = InitBondingCustomValidatorListWireframe(state: state)
         return createView(
+            asset: asset,
             for: validatorList,
             with: recommendedValidatorList,
             selectedValidatorList: selectedValidatorList,
@@ -81,6 +72,7 @@ extension CustomValidatorListViewFactory {
     }
 
     static func createChangeTargetsView(
+        asset: AssetModel,
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
@@ -89,6 +81,7 @@ extension CustomValidatorListViewFactory {
     ) -> CustomValidatorListViewProtocol? {
         let wireframe = ChangeTargetsCustomValidatorListWireframe(state: state)
         return createView(
+            asset: asset,
             for: validatorList,
             with: recommendedValidatorList,
             selectedValidatorList: selectedValidatorList,
@@ -98,6 +91,7 @@ extension CustomValidatorListViewFactory {
     }
 
     static func createChangeYourValidatorsView(
+        asset: AssetModel,
         for validatorList: [SelectedValidatorInfo],
         with recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
@@ -106,6 +100,7 @@ extension CustomValidatorListViewFactory {
     ) -> CustomValidatorListViewProtocol? {
         let wireframe = YourValidatorList.CustomListWireframe(state: state)
         return createView(
+            asset: asset,
             for: validatorList,
             with: recommendedValidatorList,
             selectedValidatorList: selectedValidatorList,

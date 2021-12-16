@@ -2,32 +2,37 @@ import RobinHood
 import IrohaCrypto
 
 final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
-    private let accountAddress: AccountAddress
+    private let chain: ChainModel
+    private let selectedAccount: MetaAccountModel
     private let validatorOperationFactory: ValidatorOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
 
     private lazy var addressFactory = SS58AddressFactory()
 
     init(
-        accountAddress: AccountAddress,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        walletAssetId: WalletAssetId,
+        selectedAccount: MetaAccountModel,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
-        self.accountAddress = accountAddress
+        self.chain = chain
+        self.selectedAccount = selectedAccount
         self.validatorOperationFactory = validatorOperationFactory
         self.operationManager = operationManager
 
         super.init(
-            singleValueProviderFactory: singleValueProviderFactory,
-            walletAssetId: walletAssetId
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            asset: asset
         )
     }
 
     private func fetchValidatorInfo() {
         do {
-            let accountId = try addressFactory.accountId(from: accountAddress)
+            guard let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId else {
+                throw (ChainAccountFetchingError.accountNotExists)
+            }
 
             presenter.didStartLoadingValidatorInfo()
 
@@ -40,7 +45,7 @@ final class YourValidatorInfoInteractor: ValidatorInfoInteractorBase {
                             try operation.targetOperation.extractNoCancellableResultData().first {
                             self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
                         } else {
-                            let validatorInfo = SelectedValidatorInfo(address: self?.accountAddress ?? "")
+                            let validatorInfo = SelectedValidatorInfo(address: self?.selectedAccount.fetch(for: self?.chain.accountRequest())?.toAddress() ?? "")
                             self?.presenter.didReceiveValidatorInfo(result: .success(validatorInfo))
                         }
                     } catch {

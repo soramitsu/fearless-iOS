@@ -5,20 +5,21 @@ import SoraKeystore
 import FearlessUtils
 
 struct YourValidatorListViewFactory {
-    static func createView() -> YourValidatorListViewProtocol? {
-        guard let interactor = createInteractor(settings: SettingsManager.shared) else {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> YourValidatorListViewProtocol? {
+        guard let interactor = createInteractor(chain: chain,
+                                                asset: asset,
+                                                selectedAccount: selectedAccount) else {
             return nil
         }
 
         let wireframe = YourValidatorListWireframe()
 
-        let settings = SettingsManager.shared
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -31,6 +32,7 @@ struct YourValidatorListViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             chain: chain,
+            asset: asset,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared
         )
@@ -47,9 +49,15 @@ struct YourValidatorListViewFactory {
     }
 
     private static func createInteractor(
-        settings: SettingsManagerProtocol
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) -> YourValidatorListInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
@@ -58,35 +66,39 @@ struct YourValidatorListViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let repository = AccountRepositoryFactory.createRepository()
-
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let chain = settings.selectedConnection.type.chain
-
         let validatorOperationFactory = ValidatorOperationFactory(
+            asset: asset,
             chain: chain,
             eraValidatorService: EraValidatorFacade.sharedService,
             rewardService: RewardCalculatorFacade.sharedService,
             storageRequestFactory: storageRequestFactory,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
+            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+        )
+
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
         )
 
         return YourValidatorListInteractor(
             chain: chain,
-            providerFactory: SingleValueProviderFactory.shared,
+            asset: asset,
+            selectedAccount: selectedAccount,
             substrateProviderFactory: substrateProviderFactory,
-            settings: settings,
-            accountRepository: repository,
-            runtimeService: RuntimeRegistryFacade.sharedService,
+            runtimeService: runtimeService,
             eraValidatorService: EraValidatorFacade.sharedService,
             validatorOperationFactory: validatorOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
         )
     }
 }

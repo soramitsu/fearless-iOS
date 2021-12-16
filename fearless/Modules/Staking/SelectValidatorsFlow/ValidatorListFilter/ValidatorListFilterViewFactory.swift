@@ -3,17 +3,13 @@ import SoraKeystore
 
 struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {
     static func createView(
+        asset: AssetModel,
         with filter: CustomValidatorListFilter,
         delegate: ValidatorListFilterDelegate?
     ) -> ValidatorListFilterViewProtocol? {
         let wireframe = ValidatorListFilterWireframe()
 
         let viewModelFactory = ValidatorListFilterViewModelFactory()
-
-        let settings = SettingsManager.shared
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
 
         let presenter = ValidatorListFilterPresenter(
             wireframe: wireframe,

@@ -39,12 +39,24 @@ protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresenta
 }
 
 protocol SelectValidatorsStartViewFactoryProtocol: AnyObject {
-    static func createInitiatedBondingView(with state: InitiatedBonding)
+    static func createInitiatedBondingView(
+        asset: AssetModel,
+        chain: ChainModel,
+        with state: InitiatedBonding
+    )
         -> SelectValidatorsStartViewProtocol?
 
-    static func createChangeTargetsView(with state: ExistingBonding)
+    static func createChangeTargetsView(
+        asset: AssetModel,
+        chain: ChainModel,
+        with state: ExistingBonding
+    )
         -> SelectValidatorsStartViewProtocol?
 
-    static func createChangeYourValidatorsView(with state: ExistingBonding)
+    static func createChangeYourValidatorsView(
+        asset: AssetModel,
+        chain: ChainModel,
+        with state: ExistingBonding
+    )
         -> SelectValidatorsStartViewProtocol?
 }

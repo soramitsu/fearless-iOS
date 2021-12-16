@@ -72,3 +72,13 @@ enum ChainOptions: String, Codable {
     case testnet
     case crowdloans
 }
+
+extension ChainModel {
+    func polkascanAddressURL(_ address: String) -> URL? {
+        URL(string: "https://polkascan.io/\(name)/account/\(address)")
+    }
+
+    func subscanAddressURL(_ address: String) -> URL? {
+        URL(string: "https://\(name).subscan.io/account/\(address)")
+    }
+}
