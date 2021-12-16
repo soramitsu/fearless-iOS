@@ -3,18 +3,16 @@ import Foundation
 import RobinHood
 
 protocol RuntimeFilesOperationFacadeProtocol {
-    func fetchDefaultOperation(for chain: Chain, runtimeMetadata: RuntimeMetadata?) -> CompoundOperationWrapper<Data?>
-    func fetchNetworkOperation(for chain: Chain, runtimeMetadata: RuntimeMetadata?) -> CompoundOperationWrapper<Data?>
+    func fetchDefaultOperation(for chain: Chain) -> CompoundOperationWrapper<Data?>
+    func fetchNetworkOperation(for chain: Chain) -> CompoundOperationWrapper<Data?>
 
     func saveDefaultOperation(
         for chain: Chain,
-        runtimeMetadata: RuntimeMetadata?,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void>
 
     func saveNetworkOperation(
         for chain: Chain,
-        runtimeMetadata: RuntimeMetadata?,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void>
 }
@@ -96,8 +94,8 @@ final class RuntimeFilesOperationFacade {
 }
 
 extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
-    func fetchDefaultOperation(for chain: Chain, runtimeMetadata: RuntimeMetadata?) -> CompoundOperationWrapper<Data?> {
-        guard let localFilePath = chain.preparedDefaultTypeDefPath(runtimeMetadata: runtimeMetadata) else {
+    func fetchDefaultOperation(for chain: Chain) -> CompoundOperationWrapper<Data?> {
+        guard let localFilePath = chain.preparedDefaultTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
         }
@@ -105,8 +103,8 @@ extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
         return fetchFileOperation(for: localFilePath)
     }
 
-    func fetchNetworkOperation(for chain: Chain, runtimeMetadata: RuntimeMetadata?) -> CompoundOperationWrapper<Data?> {
-        guard let localFilePath = chain.preparedNetworkTypeDefPath(runtimeMetadata: runtimeMetadata) else {
+    func fetchNetworkOperation(for chain: Chain) -> CompoundOperationWrapper<Data?> {
+        guard let localFilePath = chain.preparedNetworkTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
         }
@@ -116,10 +114,9 @@ extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
 
     func saveDefaultOperation(
         for chain: Chain,
-        runtimeMetadata: RuntimeMetadata?,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
-        guard let localFilePath = chain.preparedDefaultTypeDefPath(runtimeMetadata: runtimeMetadata) else {
+        guard let localFilePath = chain.preparedDefaultTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
         }
@@ -129,10 +126,9 @@ extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
 
     func saveNetworkOperation(
         for chain: Chain,
-        runtimeMetadata: RuntimeMetadata?,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
-        guard let localFilePath = chain.preparedNetworkTypeDefPath(runtimeMetadata: runtimeMetadata) else {
+        guard let localFilePath = chain.preparedNetworkTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
         }

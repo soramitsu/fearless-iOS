@@ -77,53 +77,27 @@ extension Chain {
         }
     }
 
-    func preparedDefaultTypeDefPath(runtimeMetadata: RuntimeMetadata?) -> String? {
-        guard !v14Compatible(runtimeMetadata: runtimeMetadata) else {
-            // Runtime compound operation throws error if nothing provided
-            return R.file.runtimeEmptyJson.path()
-        }
+    // MARK: - Local types
 
-        return R.file.runtimeDefaultJson.path()
+    func preparedDefaultTypeDefPath() -> String? {
+        R.file.runtimeEmptyJson.path()
     }
 
-    func preparedNetworkTypeDefPath(runtimeMetadata: RuntimeMetadata?) -> String? {
-        guard !v14Compatible(runtimeMetadata: runtimeMetadata) else {
-            // Runtime compound operation throws error if nothing provided
-            return R.file.runtimeEmptyJson.path()
-        }
-
-        switch self {
-        case .polkadot: return R.file.runtimePolkadotJson.path()
-        case .kusama: return R.file.runtimeKusamaJson.path()
-        case .westend: return R.file.runtimeWestendJson.path()
-        case .rococo: return R.file.runtimeRococoJson.path()
-        }
+    func preparedNetworkTypeDefPath() -> String? {
+        R.file.runtimeEmptyJson.path()
     }
 
-    private func v14Compatible(runtimeMetadata: RuntimeMetadata?) -> Bool {
-        guard let runtimeMetadata = runtimeMetadata else { return false }
-
-        let v14SupportedChains: [Self] = [.polkadot, .kusama, .rococo]
-        return runtimeMetadata.version >= 14 && v14SupportedChains.contains(self)
-    }
+    // MARK: - Remote types
 
     // swiftlint:disable line_length
-    func typeDefDefaultFileURL(runtimeMetadata: RuntimeMetadata?) -> URL? {
-        let typeDefSuffix = typeDefSuffix(runtimeMetadata: runtimeMetadata)
+    func typeDefDefaultFileURL() -> URL? {
+        let typeDefSuffix = "_v14" // always apply
         return URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/scalecodec/type_registry/default\(typeDefSuffix).json")
     }
 
-    private func typeDefSuffix(runtimeMetadata: RuntimeMetadata?) -> String {
-        if v14Compatible(runtimeMetadata: runtimeMetadata) {
-            return "_v14"
-        } else {
-            return ""
-        }
-    }
-
-    func typeDefNetworkFileURL(runtimeMetadata: RuntimeMetadata?) -> URL? {
+    func typeDefNetworkFileURL() -> URL? {
         let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/scalecodec/type_registry")
-        let typeDefSuffix = typeDefSuffix(runtimeMetadata: runtimeMetadata)
+        let typeDefSuffix = "_v14" // always apply for 1.x
 
         switch self {
         case .westend: return base?.appendingPathComponent("westend\(typeDefSuffix).json")
