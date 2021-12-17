@@ -89,23 +89,34 @@ extension Chain {
 
     // MARK: - Remote types
 
+    private var remoteRegistryBranch: String {
+        "v14-metadata-ios-support"
+//        "master"
+    }
+
     // swiftlint:disable line_length
+    private func remoteRegistryUrl(for file: String) -> URL? {
+        let urlString = "https://raw.githubusercontent.com/soramitsu/fearless-utils/\(remoteRegistryBranch)/scalecodec/type_registry"
+        let url = URL(string: urlString)
+        return url?.appendingPathComponent(file)
+    }
+
     func typeDefDefaultFileURL() -> URL? {
-        let typeDefSuffix = "_v14" // always apply
-        return URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/scalecodec/type_registry/default\(typeDefSuffix).json")
+        remoteRegistryUrl(for: "default_v14.json")
     }
 
     func typeDefNetworkFileURL() -> URL? {
-        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/scalecodec/type_registry")
-        let typeDefSuffix = "_v14" // always apply for 1.x
+        let suffix = "_v14" // always apply for 1.x
 
         switch self {
-        case .westend: return base?.appendingPathComponent("westend\(typeDefSuffix).json")
-        case .kusama: return base?.appendingPathComponent("kusama\(typeDefSuffix).json")
-        case .polkadot: return base?.appendingPathComponent("polkadot\(typeDefSuffix).json")
-        case .rococo: return base?.appendingPathComponent("rococo\(typeDefSuffix).json")
+        case .westend: return remoteRegistryUrl(for: "westend\(suffix).json")
+        case .kusama: return remoteRegistryUrl(for: "kusama\(suffix).json")
+        case .polkadot: return remoteRegistryUrl(for: "polkadot\(suffix).json")
+        case .rococo: return remoteRegistryUrl(for: "rococo\(suffix).json")
         }
     }
+    
+    // MARK: - Crowdloans
 
     func crowdloanDisplayInfoURL() -> URL {
         let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
