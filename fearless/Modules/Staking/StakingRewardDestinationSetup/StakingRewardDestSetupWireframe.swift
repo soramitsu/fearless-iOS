@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 final class StakingRewardDestSetupWireframe: StakingRewardDestSetupWireframeProtocol {
-    func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<AccountItem>) {
+    func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>) {
         guard let confirmationView = StakingRewardDestConfirmViewFactory.createView(for: rewardDestination) else {
             return
         }

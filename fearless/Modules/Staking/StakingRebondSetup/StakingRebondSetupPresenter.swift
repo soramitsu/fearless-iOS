@@ -8,7 +8,8 @@ final class StakingRebondSetupPresenter {
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
     let logger: LoggerProtocol?
 
     private var inputAmount: Decimal?
@@ -16,7 +17,7 @@ final class StakingRebondSetupPresenter {
     private var fee: Decimal?
     private var priceData: PriceData?
     private var stashItem: StashItem?
-    private var controller: AccountItem?
+    private var controller: ChainAccountResponse?
     private var stakingLedger: StakingLedger?
     private var activeEraInfo: ActiveEraInfo?
 
@@ -24,7 +25,7 @@ final class StakingRebondSetupPresenter {
         if
             let activeEra = activeEraInfo?.index,
             let value = stakingLedger?.unbonding(inEra: activeEra) {
-            return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
+            return Decimal.fromSubstrateAmount(value, precision: Int16(asset.precision))
         } else {
             return nil
         }
@@ -35,7 +36,8 @@ final class StakingRebondSetupPresenter {
         interactor: StakingRebondSetupInteractorInputProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.wireframe = wireframe
@@ -43,6 +45,7 @@ final class StakingRebondSetupPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
         self.logger = logger
     }
 
@@ -132,7 +135,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             } else {
                 fee = nil
             }
@@ -174,7 +177,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             controller = accountItem
@@ -198,7 +201,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil

@@ -23,7 +23,11 @@ protocol StakingRewardDetailsWireframeProtocol: AnyObject, AddressOptionsPresent
 }
 
 protocol StakingRewardDetailsViewFactoryProtocol: AnyObject {
-    static func createView(input: StakingRewardDetailsInput) -> StakingRewardDetailsViewProtocol?
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        input: StakingRewardDetailsInput
+    ) -> StakingRewardDetailsViewProtocol?
 }
 
 struct StakingRewardDetailsInput {

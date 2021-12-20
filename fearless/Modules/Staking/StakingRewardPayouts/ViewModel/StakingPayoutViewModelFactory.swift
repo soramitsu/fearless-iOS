@@ -4,12 +4,12 @@ import IrohaCrypto
 
 final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
-    private let chain: Chain
+    private let chain: ChainModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let timeFormatter: TimeFormatterProtocol
 
     init(
-        chain: Chain,
+        chain: ChainModel,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         timeFormatter: TimeFormatterProtocol
     ) {
@@ -51,7 +51,8 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     func timeLeftString(
         at index: Int,
         payoutsInfo: PayoutsInfo,
-        eraCountdown: EraCountdown?
+        eraCountdown: EraCountdown?,
+        erasPerDay: UInt32
     ) -> LocalizableResource<NSAttributedString> {
         LocalizableResource { locale in
             let payout = payoutsInfo.payouts[index]
@@ -59,7 +60,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
                 eraCountdown: eraCountdown,
-                locale: locale
+                locale: locale, erasPerDay: erasPerDay
             )
         }
     }
@@ -68,14 +69,16 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         for payoutsInfo: PayoutsInfo,
         priceData: PriceData?,
         eraCountdown: EraCountdown?,
-        locale: Locale
+        locale: Locale,
+        erasPerDay: UInt32
     ) -> [StakingRewardHistoryCellViewModel] {
         payoutsInfo.payouts.map { payout in
             let daysLeftText = timeLeftAttributedString(
                 payoutEra: payout.era,
                 historyDepth: payoutsInfo.historyDepth,
                 eraCountdown: eraCountdown,
-                locale: locale
+                locale: locale,
+                erasPerDay: erasPerDay
             )
 
             return StakingRewardHistoryCellViewModel(
@@ -93,7 +96,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         }
 
         if let address = try? addressFactory
-            .addressFromAccountId(data: payout.validator, type: chain.addressType) {
+            .addressFromAccountId(data: payout.validator, addressPrefix: chain.addressPrefix) {
             return address
         }
 
@@ -118,7 +121,8 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         payoutEra: EraIndex,
         historyDepth: UInt32,
         eraCountdown: EraCountdown?,
-        locale: Locale
+        locale: Locale,
+        erasPerDay: UInt32
     ) -> NSAttributedString {
         guard let eraCountdown = eraCountdown else { return .init(string: "") }
 
@@ -141,7 +145,7 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
             }
         }()
 
-        let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
+        let historyDepthDays = (historyDepth / 2) / erasPerDay
         let textColor: UIColor = daysLeft < historyDepthDays ?
             R.color.colorRed()! : R.color.colorLightGray()!
 

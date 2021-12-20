@@ -5,11 +5,10 @@ final class StakingBalancePresenter {
     let wireframe: StakingBalanceWireframeProtocol
     let viewModelFactory: StakingBalanceViewModelFactoryProtocol
     weak var view: StakingBalanceViewProtocol?
-    let accountAddress: AccountAddress
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
-    var controllerAccount: AccountItem?
-    var stashAccount: AccountItem?
+    var controllerAccount: ChainAccountResponse?
+    var stashAccount: ChainAccountResponse?
     var stakingLedger: StakingLedger?
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
@@ -22,14 +21,12 @@ final class StakingBalancePresenter {
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        accountAddress: AccountAddress,
         countdownTimer: CountdownTimerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.accountAddress = accountAddress
         self.countdownTimer = countdownTimer
         self.countdownTimer.delegate = self
     }
@@ -201,7 +198,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(controllerResult: Result<AccountItem?, Error>) {
+    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>) {
         switch controllerResult {
         case let .success(controller):
             controllerAccount = controller
@@ -210,7 +207,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(stashResult: Result<AccountItem?, Error>) {
+    func didReceive(stashResult: Result<ChainAccountResponse?, Error>) {
         switch stashResult {
         case let .success(stash):
             stashAccount = stash

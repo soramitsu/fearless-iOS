@@ -12,14 +12,15 @@ final class StakingRewardDestSetupPresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
     let logger: LoggerProtocol?
 
-    private var rewardDestination: RewardDestination<AccountItem>?
+    private var rewardDestination: RewardDestination<ChainAccountResponse>?
     private var calculator: RewardCalculatorEngineProtocol?
     private var originalDestination: RewardDestination<AccountAddress>?
-    private var stashAccount: AccountItem?
-    private var controllerAccount: AccountItem?
+    private var stashAccount: ChainAccountResponse?
+    private var controllerAccount: ChainAccountResponse?
     private var priceData: PriceData?
     private var stashItem: StashItem?
     private var bonded: Decimal?
@@ -34,7 +35,8 @@ final class StakingRewardDestSetupPresenter {
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -44,6 +46,7 @@ final class StakingRewardDestSetupPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.applicationConfig = applicationConfig
         self.chain = chain
+        self.asset = asset
         self.logger = logger
     }
 
@@ -128,11 +131,12 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(
-                controller: controllerAccount,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            ),
+            // TODO: Restore logic if needed
+//            dataValidatingFactory.has(
+//                controller: controllerAccount,
+//                for: stashItem?.controller ?? "",
+//                locale: locale
+//            ),
 
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()
@@ -152,17 +156,18 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
 }
 
 extension StakingRewardDestSetupPresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
-        guard
-            let accounts =
-            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
-        else {
-            return
-        }
-
-        rewardDestination = .payout(account: accounts[index])
-
-        provideRewardDestination()
+    func modalPickerDidSelectModelAtIndex(_: Int, context _: AnyObject?) {
+        // TODO: Restore logic if needed
+//        guard
+//            let accounts =
+//            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
+//        else {
+//            return
+//        }
+//
+//        rewardDestination = .payout(account: accounts[index])
+//
+//        provideRewardDestination()
     }
 }
 
@@ -182,7 +187,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
 
             provideFeeViewModel()
@@ -200,7 +205,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(account):
             controllerAccount = account
@@ -209,7 +214,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveStash(result: Result<AccountItem?, Error>) {
+    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(account):
             stashAccount = account
@@ -222,7 +227,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         switch result {
         case let .success(stakingLedger):
             bonded = stakingLedger.map {
-                Decimal.fromSubstrateAmount($0.active, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.active, precision: Int16(asset.precision))
             } ?? nil
 
             provideRewardDestination()
@@ -231,7 +236,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveRewardDestinationAccount(result: Result<RewardDestination<AccountItem>?, Error>) {
+    func didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>) {
         switch result {
         case let .success(rewardDestination):
             if self.rewardDestination == nil {
@@ -268,7 +273,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveAccounts(result: Result<[AccountItem], Error>) {
+    func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>) {
         switch result {
         case let .success(accounts):
             let context = PrimitiveContextWrapper(value: accounts)
@@ -278,14 +283,15 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
                     .stakingRewardPayoutAccount(preferredLanguages: locale.rLanguages)
             }
 
-            wireframe.presentAccountSelection(
-                accounts,
-                selectedAccountItem: rewardDestination?.payoutAccount,
-                title: title,
-                delegate: self,
-                from: view,
-                context: context
-            )
+            // TODO: Restore logic if needed
+//            wireframe.presentAccountSelection(
+//                accounts,
+//                selectedAccountItem: rewardDestination?.payoutAccount,
+//                title: title,
+//                delegate: self,
+//                from: view,
+//                context: context
+//            )
 
         case let .failure(error):
             logger?.error("Did receive accounts retrieval error: \(error)")
@@ -307,7 +313,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         switch result {
         case let .success(accountInfo):
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(asset.precision))
             } ?? nil
         case let .failure(error):
             logger?.error("Account info error: \(error)")

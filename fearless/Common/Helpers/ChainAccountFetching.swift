@@ -46,6 +46,10 @@ extension ChainAccountResponse {
         let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
         return try? accountId.toAddress(using: chainFormat)
     }
+
+    func chainFormat() -> ChainFormat {
+        isEthereumBased ? .ethereum : .substrate(addressPrefix)
+    }
 }
 
 extension MetaAccountModel {

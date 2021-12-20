@@ -2,6 +2,7 @@ import SoraKeystore
 import RobinHood
 import BigInt
 import FearlessUtils
+import IrohaCrypto
 
 final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingUnbondSetupInteractorOutputProtocol!
@@ -17,9 +18,10 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let operationManager: OperationManagerProtocol
     let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
-    let selectedMetaAccount: MetaAccountModel
+    let selectedAccount: MetaAccountModel
     let chain: ChainModel
     let asset: AssetModel
+    let connection: JSONRPCEngine
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -34,36 +36,47 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         asset: AssetModel,
         chain: ChainModel,
         selectedMetaAccount: MetaAccountModel,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        connection: JSONRPCEngine
     ) {
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
-        self.selectedMetaAccount = selectedMetaAccount
-        self.settings = settings
+        self.selectedAccount = selectedMetaAccount
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.asset = asset
         self.chain = chain
+        self.connection = connection
     }
 }
 
 extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtocol {
+    
+    private func handleController(accountItem: ChainAccountResponse) {
+        extrinsicService = ExtrinsicService(
+            accountId: accountItem.accountId,
+            chainFormat: accountItem.chainFormat(),
+            cryptoType: accountItem.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        estimateFee()
+    }
+    
+    
     func setup() {
-        if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
@@ -130,28 +143,19 @@ extension StakingUnbondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
 
             presenter.didReceiveStashItem(result: result)
 
-            if let stashItem = maybeStashItem {
-                if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-                    ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
-                }
+            let addressFactory = SS58AddressFactory()
 
-                if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-                    accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
-                }
+            if let stashItem = maybeStashItem,
+               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
+                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
 
-                // TODO: Restore logic if needed
-//                fetchAccount(
-//                    for: stashItem.controller,
-//                    from: accountRepository,
-//                    operationManager: operationManager
-//                ) { [weak self] result in
-//                    if case let .success(maybeController) = result, let controller = maybeController {
-//                        self?.handleController(accountItem: controller)
-//                    }
-//
+                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+
+                // TODO: Check this logic
+                if let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) {
+                    handleController(accountItem: accountResponse)
 //                    self?.presenter.didReceiveController(result: result)
-//                }
-
+                }
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
                 presenter.didReceiveAccountInfo(result: .success(nil))

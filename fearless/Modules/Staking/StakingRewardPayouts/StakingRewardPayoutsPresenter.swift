@@ -10,11 +10,11 @@ final class StakingRewardPayoutsPresenter {
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
     private var eraCountdown: EraCountdown?
-    private let chain: Chain
+    private let chain: ChainModel
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
     init(
-        chain: Chain,
+        chain: ChainModel,
         viewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) {
         self.chain = chain

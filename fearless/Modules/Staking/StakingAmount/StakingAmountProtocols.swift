@@ -27,19 +27,19 @@ protocol StakingAmountInteractorInputProtocol: AnyObject {
     func estimateFee(
         for address: String,
         amount: BigUInt,
-        rewardDestination: RewardDestination<AccountItem>
+        rewardDestination: RewardDestination<ChainAccountResponse>
     )
     func fetchAccounts()
 }
 
 protocol StakingAmountInteractorOutputProtocol: AnyObject {
-    func didReceive(accounts: [AccountItem])
+    func didReceive(accounts: [ChainAccountResponse])
     func didReceive(price: PriceData?)
     func didReceive(balance: AccountData?)
     func didReceive(
         paymentInfo: RuntimeDispatchInfo,
         for amount: BigUInt,
-        rewardDestination: RewardDestination<AccountItem>
+        rewardDestination: RewardDestination<AccountAddress>
     )
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)

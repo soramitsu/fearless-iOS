@@ -4,20 +4,11 @@ import RobinHood
 import FearlessUtils
 
 struct StakingBalanceViewFactory {
-    static func createView() -> StakingBalanceViewProtocol? {
-        let settings = SettingsManager.shared
-        let networkType = settings.selectedConnection.type
-        let chain = networkType.chain
-
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-        guard
-            let assetId = WalletAssetId(rawValue: asset.identifier),
-            let accountAddress = settings.selectedAccount?.address
-        else {
-            return nil
-        }
-
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount _: MetaAccountModel
+    ) -> StakingBalanceViewProtocol? {
         guard let interactor = createInteractor(
             accountAddress: accountAddress,
             assetId: assetId,
@@ -26,12 +17,12 @@ struct StakingBalanceViewFactory {
 
         let wireframe = StakingBalanceWireframe()
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: networkType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
+
         let viewModelFactory = StakingBalanceViewModelFactory(
-            chain: chain,
+            asset: asset,
             balanceViewModelFactory: balanceViewModelFactory,
             timeFormatter: TotalTimeFormatter()
         )
@@ -46,7 +37,6 @@ struct StakingBalanceViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            accountAddress: accountAddress,
             countdownTimer: CountdownTimer()
         )
 
@@ -64,31 +54,40 @@ struct StakingBalanceViewFactory {
     }
 
     private static func createInteractor(
-        accountAddress: String,
-        assetId: WalletAssetId,
-        chain: Chain
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) -> StakingBalanceInteractor? {
-        guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain) else { return nil }
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            return nil
+        }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let localStorageRequestFactory = LocalStorageRequestFactory(
-            remoteKeyFactory: StorageKeyFactory(),
-            localKeyFactory: localStorageIdFactory
+
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            substrateStorageFacade.createRepository()
+        let logger = Logger.shared
 
-        let providerFactory = SingleValueProviderFactory.shared
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-        let substrateProviderFactory =
-            SubstrateDataProviderFactory(
-                facade: SubstrateDataStorageFacade.shared,
-                operationManager: operationManager
-            )
-
-        let repository = AccountRepositoryFactory.createRepository()
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
 
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -100,19 +99,16 @@ struct StakingBalanceViewFactory {
             storageRequestFactory: storageRequestFactory
         )
 
-        let interactor = StakingBalanceInteractor(
+        return StakingBalanceInteractor(
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chain: chain,
-            accountAddress: accountAddress,
-            accountRepository: repository,
-            runtimeCodingService: RuntimeRegistryFacade.sharedService,
-            chainStorage: AnyDataProviderRepository(chainStorage),
-            localStorageRequestFactory: localStorageRequestFactory,
-            priceProvider: priceProvider,
-            providerFactory: SingleValueProviderFactory.shared,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            runtimeCodingService: runtimeService,
             eraCountdownOperationFactory: eraCountdownOperationFactory,
-            substrateProviderFactory: substrateProviderFactory,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: operationManager,
+            connection: connection
         )
-        return interactor
     }
 }

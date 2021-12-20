@@ -9,7 +9,8 @@ final class StakingRedeemPresenter {
     let confirmViewModelFactory: StakingRedeemViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
     let logger: LoggerProtocol?
 
     private var stakingLedger: StakingLedger?
@@ -18,7 +19,7 @@ final class StakingRedeemPresenter {
     private var minimalBalance: BigUInt?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var controller: AccountItem?
+    private var controller: ChainAccountResponse?
     private var stashItem: StashItem?
 
     private func provideFeeViewModel() {
@@ -56,7 +57,7 @@ final class StakingRedeemPresenter {
               let redeemable = stakingLedger?.redeemable(inEra: era),
               let redeemableDecimal = Decimal.fromSubstrateAmount(
                   redeemable,
-                  precision: chain.addressType.precision
+                  precision: Int16(asset.precision)
               ) else {
             return
         }
@@ -92,7 +93,8 @@ final class StakingRedeemPresenter {
         confirmViewModelFactory: StakingRedeemViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -101,6 +103,7 @@ final class StakingRedeemPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
         self.logger = logger
     }
 }
@@ -160,7 +163,7 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -200,7 +203,7 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
 
             provideFeeViewModel()
@@ -221,7 +224,7 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             if let accountItem = accountItem {

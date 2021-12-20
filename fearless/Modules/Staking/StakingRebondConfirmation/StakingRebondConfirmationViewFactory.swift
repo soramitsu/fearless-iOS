@@ -5,7 +5,12 @@ import RobinHood
 import FearlessUtils
 
 struct StakingRebondConfirmationViewFactory {
-    static func createView(for variant: SelectedRebondVariant)
+    static func createView(
+        chain _: ChainModel,
+        asset _: AssetModel,
+        selectedAccount _: MetaAccountModel,
+        variant: SelectedRebondVariant
+    )
         -> StakingRebondConfirmationViewProtocol? {
         guard let interactor = createInteractor() else {
             return nil
@@ -35,20 +40,15 @@ struct StakingRebondConfirmationViewFactory {
     }
 
     private static func createPresenter(
-        for variant: SelectedRebondVariant,
+        chain: ChainModel,
+        asset: AssetModel,
+        variant: SelectedRebondVariant,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) -> StakingRebondConfirmationPresenter {
-        let settings = SettingsManager.shared
-
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -62,51 +62,76 @@ struct StakingRebondConfirmationViewFactory {
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
+            asset: asset,
             logger: Logger.shared
         )
     }
 
-    private static func createInteractor() -> StakingRebondConfirmationInteractor? {
-        let settings = SettingsManager.shared
+    private static func createInteractor(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingRebondConfirmationInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard let engine = WebSocketService.shared.connection else {
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
         )
 
-        let chain = settings.selectedConnection.type.chain
-        let networkType = chain.addressType
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
 
-        let asset = WalletPrimitiveFactory(settings: settings)
-            .createAssetForAddressType(networkType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
-
-        let extrinsicServiceFactory = ExtrinsicServiceFactory(
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
-            engine: engine,
-            operationManager: OperationManagerFacade.sharedManager
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
         )
 
-        let accountRepository = AccountRepositoryFactory.createRepository()
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedAccount.metaId,
+            accountResponse: accountResponse
+        )
+
+        let feeProxy = ExtrinsicFeeProxy()
 
         return StakingRebondConfirmationInteractor(
-            assetId: assetId,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            asset: asset,
             chain: chain,
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
-            extrinsicServiceFactory: extrinsicServiceFactory,
-            feeProxy: ExtrinsicFeeProxy(),
-            accountRepository: accountRepository,
-            settings: settings,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager
+            selectedAccount: selectedAccount,
+            extrinsicService: extrinsicService,
+            feeProxy: feeProxy,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            keystore: keystore,
+            connection: connection
         )
     }
 }

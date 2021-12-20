@@ -6,79 +6,78 @@ import SoraKeystore
 final class StakingRewardDestConfirmInteractor: AccountFetching {
     weak var presenter: StakingRewardDestConfirmInteractorOutputProtocol!
 
-    let settings: SettingsManagerProtocol
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+
+    let extrinsicService: ExtrinsicServiceProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
     let feeProxy: ExtrinsicFeeProxyProtocol
-    let assetId: WalletAssetId
-    let chain: Chain
+    let asset: AssetModel
+    let chain: ChainModel
+    let signingWrapper: SigningWrapperProtocol
+    let selectedAccount: MetaAccountModel
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
-    private var extrinsicService: ExtrinsicServiceProtocol?
-    private var signingWrapper: SigningWrapperProtocol?
-
     private lazy var callFactory = SubstrateCallFactory()
     private lazy var addressFactory = SS58AddressFactory()
 
     init(
-        settings: SettingsManagerProtocol,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        extrinsicService: ExtrinsicServiceProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        assetId: WalletAssetId,
-        chain: Chain
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel,
+        signingWrapper: SigningWrapperProtocol
     ) {
-        self.settings = settings
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.extrinsicServiceFactory = extrinsicServiceFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.extrinsicService = extrinsicService
         self.substrateProviderFactory = substrateProviderFactory
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.accountRepository = accountRepository
         self.feeProxy = feeProxy
-        self.assetId = assetId
+        self.asset = asset
         self.chain = chain
+        self.selectedAccount = selectedAccount
+        self.signingWrapper = signingWrapper
     }
 
-    private func setupExtrinsicService(_ accountItem: AccountItem) {
-        extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
-        signingWrapper = extrinsicServiceFactory.createSigningWrapper(
-            accountItem: accountItem,
-            connectionItem: settings.selectedConnection
-        )
+    private func setupExtrinsicService(_: AccountItem) {
+//        extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
+//        signingWrapper = extrinsicServiceFactory.createSigningWrapper(
+//            accountItem: accountItem,
+//            connectionItem: settings.selectedConnection
+//        )
     }
 }
 
 extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractorInputProtocol {
     func setup() {
-        guard let selectedAccountAddress = settings.selectedAccount?.address else {
-            return
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
-
-        priceProvider = subscribeToPriceProvider(for: assetId)
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
 
         feeProxy.delegate = self
     }
 
     func estimateFee(for rewardDestination: RewardDestination<AccountAddress>, stashItem: StashItem) {
-        guard let extrinsicService = extrinsicService else {
-            presenter.didReceiveFee(result: .failure(CommonError.undefined))
-            return
-        }
-
         do {
             let setPayeeCall = try callFactory.setRewardDestination(rewardDestination, stashItem: stashItem)
 
@@ -94,11 +93,6 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
     }
 
     func submit(rewardDestination: RewardDestination<AccountAddress>, for stashItem: StashItem) {
-        guard let extrinsicService = extrinsicService, let signingWrapper = signingWrapper else {
-            presenter.didSubmitRewardDest(result: .failure(CommonError.undefined))
-            return
-        }
-
         do {
             let setPayeeCall = try callFactory.setRewardDestination(rewardDestination, stashItem: stashItem)
 
@@ -117,33 +111,45 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
     }
 }
 
-extension StakingRewardDestConfirmInteractor: SubstrateProviderSubscriber,
-    SubstrateProviderSubscriptionHandler, SingleValueProviderSubscriber,
-    SingleValueSubscriptionHandler, AnyProviderAutoCleaning {
-    func handleStashItem(result: Result<StashItem?, Error>) {
+extension StakingRewardDestConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        presenter.didReceivePriceData(result: result)
+    }
+}
+
+extension StakingRewardDestConfirmInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        presenter.didReceiveAccountInfo(result: result)
+    }
+}
+
+extension StakingRewardDestConfirmInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let stashItem = try result.get()
 
             clear(dataProvider: &accountInfoProvider)
 
             if let stashItem = stashItem {
+                let accountId = try addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix)
                 accountInfoProvider = subscribeToAccountInfoProvider(
-                    for: stashItem.controller,
-                    runtimeService: runtimeService
+                    for: accountId,
+                    chainId: chain.chainId
                 )
 
-                fetchAccount(
-                    for: stashItem.controller,
-                    from: accountRepository,
-                    operationManager: operationManager
-                ) { [weak self] result in
-                    if case let .success(maybeController) = result, let controller = maybeController {
-                        self?.setupExtrinsicService(controller)
-                    }
-
-                    self?.presenter.didReceiveStashItem(result: .success(stashItem))
-                    self?.presenter.didReceiveController(result: result)
-                }
+                // TODO: Restore logic if needed
+//                fetchAccount(
+//                    for: stashItem.controller,
+//                    from: accountRepository,
+//                    operationManager: operationManager
+//                ) { [weak self] result in
+//                    if case let .success(maybeController) = result, let controller = maybeController {
+//                        self?.setupExtrinsicService(controller)
+//                    }
+//
+                presenter.didReceiveStashItem(result: .success(stashItem))
+//                    self?.presenter.didReceiveController(result: result)
+//                }
 
             } else {
                 presenter.didReceiveStashItem(result: .success(nil))
@@ -157,15 +163,9 @@ extension StakingRewardDestConfirmInteractor: SubstrateProviderSubscriber,
             presenter.didReceiveAccountInfo(result: .failure(error))
         }
     }
-
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
-        presenter.didReceivePriceData(result: result)
-    }
-
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
-        presenter.didReceiveAccountInfo(result: result)
-    }
 }
+
+extension StakingRewardDestConfirmInteractor: AnyProviderAutoCleaning {}
 
 extension StakingRewardDestConfirmInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {

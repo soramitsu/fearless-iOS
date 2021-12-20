@@ -10,9 +10,11 @@ struct YourValidatorListViewFactory {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) -> YourValidatorListViewProtocol? {
-        guard let interactor = createInteractor(chain: chain,
-                                                asset: asset,
-                                                selectedAccount: selectedAccount) else {
+        guard let interactor = createInteractor(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return nil
         }
 

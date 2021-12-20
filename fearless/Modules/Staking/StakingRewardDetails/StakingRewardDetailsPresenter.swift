@@ -10,11 +10,14 @@ final class StakingRewardDetailsPresenter {
     private let input: StakingRewardDetailsInput
     private let viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
     private var priceData: PriceData?
+    private var chain: ChainModel
 
     init(
+        chain: ChainModel,
         input: StakingRewardDetailsInput,
         viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
     ) {
+        self.chain = chain
         self.input = input
         self.viewModelFactory = viewModelFactory
     }
@@ -46,7 +49,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
         wireframe.presentAccountOptions(
             from: view,
             address: address,
-            chain: input.chain,
+            chain: chain,
             locale: locale
         )
     }

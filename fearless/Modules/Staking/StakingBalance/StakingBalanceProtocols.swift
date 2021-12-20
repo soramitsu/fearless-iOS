@@ -23,8 +23,8 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(activeEraResult: Result<EraIndex?, Error>)
     func didReceive(priceResult: Result<PriceData?, Error>)
     func didReceive(stashItemResult: Result<StashItem?, Error>)
-    func didReceive(controllerResult: Result<AccountItem?, Error>)
-    func didReceive(stashResult: Result<AccountItem?, Error>)
+    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>)
+    func didReceive(stashResult: Result<ChainAccountResponse?, Error>)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
 }
 

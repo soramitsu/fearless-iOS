@@ -5,19 +5,21 @@ import FearlessUtils
 import CommonWallet
 
 struct StakingBondMoreViewFactory {
-    static func createView() -> StakingBondMoreViewProtocol? {
-        let settings = SettingsManager.shared
-        let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-
-        guard let interactor = createInteractor(asset: asset) else { return nil }
+    static func createView(
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingBondMoreViewProtocol? {
+        guard let interactor = createInteractor(
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
+        ) else { return nil }
 
         let wireframe = StakingBondMoreWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: networkType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -41,26 +43,31 @@ struct StakingBondMoreViewFactory {
         return viewController
     }
 
-    private static func createInteractor(asset: WalletAsset) -> StakingBondMoreInteractor? {
-        let settings = SettingsManager.shared
-
-        let operationManager = OperationManagerFacade.sharedManager
-        let runtimeService = RuntimeRegistryFacade.sharedService
+    private static func createInteractor(
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingBondMoreInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let assetId = WalletAssetId(rawValue: asset.identifier),
-            let connection = WebSocketService.shared.connection else {
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
-        let providerFactory = SingleValueProviderFactory.shared
+        let operationManager = OperationManagerFacade.sharedManager
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
             operationManager: operationManager
         )
 
-        let extrinsicServiceFactory = ExtrinsicServiceFactory(
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
@@ -68,19 +75,35 @@ struct StakingBondMoreViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let accountRepository = AccountRepositoryFactory.createRepository()
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
 
         let interactor = StakingBondMoreInteractor(
-            settings: settings,
-            singleValueProviderFactory: providerFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             substrateProviderFactory: substrateProviderFactory,
-            accountRepository: accountRepository,
-            extrinsicServiceFactory: extrinsicServiceFactory,
+            extrinsicService: extrinsicService,
             feeProxy: feeProxy,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            chain: settings.selectedConnection.type.chain,
-            assetId: assetId
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
 
         return interactor

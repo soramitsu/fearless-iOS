@@ -11,7 +11,7 @@ final class StakingBondMorePresenter {
     let logger: LoggerProtocol?
 
     var amount: Decimal = 0
-    private let asset: WalletAsset
+    private let asset: AssetModel
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
@@ -23,7 +23,7 @@ final class StakingBondMorePresenter {
         wireframe: StakingBondMoreWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        asset: WalletAsset,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -132,7 +132,7 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: asset.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -160,7 +160,7 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
         switch result {
         case let .success(dispatchInfo):
             if let feeValue = BigUInt(dispatchInfo.fee) {
-                fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision)
+                fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision))
             } else {
                 fee = nil
             }

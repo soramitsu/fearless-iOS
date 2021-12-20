@@ -49,20 +49,32 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
-    static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
-    static func createViewForValidator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
+    static func createViewForNominator(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        stashAddress: AccountAddress
+    ) -> StakingRewardPayoutsViewProtocol?
+    static func createViewForValidator(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        stashAddress: AccountAddress
+    ) -> StakingRewardPayoutsViewProtocol?
 }
 
 protocol StakingPayoutViewModelFactoryProtocol {
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
         priceData: PriceData?,
-        eraCountdown: EraCountdown?
+        eraCountdown: EraCountdown?,
+        erasPerDay: UInt32
     ) -> LocalizableResource<StakingPayoutViewModel>
 
     func timeLeftString(
         at index: Int,
         payoutsInfo: PayoutsInfo,
-        eraCountdown: EraCountdown?
+        eraCountdown: EraCountdown?,
+        erasPerDay: UInt32
     ) -> LocalizableResource<NSAttributedString>
 }
