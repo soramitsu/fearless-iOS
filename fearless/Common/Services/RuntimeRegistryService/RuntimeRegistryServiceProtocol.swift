@@ -23,6 +23,6 @@ extension RuntimeCodingServiceProtocol {
     }
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        fetchCoderFactoryOperation(with: 2000, closure: nil)
+        fetchCoderFactoryOperation(with: 20, closure: nil)
     }
 }
