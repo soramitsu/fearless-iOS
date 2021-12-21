@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct ChainModel: Equatable, Codable, Hashable {
+class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
 
@@ -30,13 +30,37 @@ struct ChainModel: Equatable, Codable, Hashable {
     let chainId: Id
     let parentId: Id?
     let name: String
-    let assets: Set<AssetModel>
+    var assets: Set<ChainAssetModel>
     let nodes: Set<ChainNodeModel>
     let addressPrefix: UInt16
     let types: TypesSettings?
     let icon: URL
     let options: [ChainOptions]?
     let externalApi: ExternalApiSet?
+
+    init(
+        chainId: Id,
+        parentId: Id? = nil,
+        name: String,
+        assets: Set<ChainAssetModel> = [],
+        nodes: Set<ChainNodeModel>,
+        addressPrefix: UInt16,
+        types: TypesSettings? = nil,
+        icon: URL,
+        options: [ChainOptions]? = nil,
+        externalApi: ExternalApiSet? = nil
+    ) {
+        self.chainId = chainId
+        self.parentId = parentId
+        self.name = name
+        self.assets = assets
+        self.nodes = nodes
+        self.addressPrefix = addressPrefix
+        self.types = types
+        self.icon = icon
+        self.options = options
+        self.externalApi = externalApi
+    }
 
     var isEthereumBased: Bool {
         options?.contains(.ethereumBased) ?? false
@@ -50,8 +74,8 @@ struct ChainModel: Equatable, Codable, Hashable {
         options?.contains(.crowdloans) ?? false
     }
 
-    func utilityAssets() -> Set<AssetModel> {
-        assets.filter { $0.isUtility }
+    func utilityAssets() -> Set<ChainAssetModel> {
+        assets.filter { $0.asset.isUtility }
     }
 
     var typesUsage: TypesUsage {
@@ -60,6 +84,16 @@ struct ChainModel: Equatable, Codable, Hashable {
         } else {
             return .onlyCommon
         }
+    }
+}
+
+extension ChainModel: Hashable {
+    static func == (lhs: ChainModel, rhs: ChainModel) -> Bool {
+        lhs.chainId == rhs.chainId
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(chainId)
     }
 }
 

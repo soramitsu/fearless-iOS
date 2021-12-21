@@ -29,11 +29,11 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
                 let balance = getBalance(
                     for: chainModel,
-                    asset: asset,
+                    asset: asset.asset,
                     accountInfo: accountInfo
                 ) ?? ""
 
-                guard let priceId = asset.priceId,
+                guard let priceId = asset.asset.priceId,
                       let priceData = prices?[priceId],
                       let priceDecimal = Decimal(string: priceData.price),
                       let balanceDecimal = Decimal(string: balance)
@@ -50,13 +50,13 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             chain.assets.compactMap { asset in
                 var priceData: PriceData?
 
-                if let prices = prices, let priceId = asset.priceId {
+                if let prices = prices, let priceId = asset.asset.priceId {
                     priceData = prices[priceId]
                 }
 
                 return buildChainAccountBalanceCellViewModel(
                     chain: chain,
-                    asset: asset,
+                    asset: asset.asset,
                     priceData: priceData,
                     accountInfo: accountInfos?[chain.chainId],
                     locale: locale
@@ -104,7 +104,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
         return ChainAccountBalanceCellViewModel(
             asset: asset,
-            assetName: asset.name ?? chain.name,
+            assetName: chain.name,
             assetInfo: asset.displayInfo(with: chain.icon),
             imageViewModel: icon,
             balanceString: balance,

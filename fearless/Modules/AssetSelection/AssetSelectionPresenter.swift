@@ -71,8 +71,8 @@ final class AssetSelectionPresenter {
             let asset = assetPair.1
 
             let icon = RemoteImageViewModel(url: asset.icon ?? chain.icon)
-            let title = asset.name ?? chain.name
-            let isSelected = selectedChainAssetId?.assetId == asset.assetId &&
+            let title = chain.name
+            let isSelected = selectedChainAssetId?.assetId == asset.id &&
                 selectedChainAssetId?.chainId == chain.chainId
             let balance = extractBalance(for: chain, asset: asset) ?? ""
 
@@ -124,7 +124,7 @@ extension AssetSelectionPresenter: ChainSelectionInteractorOutputProtocol {
             assets = chains.reduce(into: []) { result, item in
                 let assets: [(ChainModel.Id, AssetModel)] = item.assets.compactMap { asset in
                     if assetFilter(item, asset) {
-                        return (item.chainId, asset)
+                        return (item.chainId, asset.asset)
                     } else {
                         return nil
                     }

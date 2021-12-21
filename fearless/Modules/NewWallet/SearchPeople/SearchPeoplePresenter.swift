@@ -58,7 +58,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
 
     func setup() {
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.symbol,
+            asset.id,
             preferredLanguages: selectedLocale.rLanguages
         ))
     }

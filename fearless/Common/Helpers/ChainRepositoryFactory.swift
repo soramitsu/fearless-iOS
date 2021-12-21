@@ -11,14 +11,12 @@ final class ChainRepositoryFactory {
     func createRepository(
         for filter: NSPredicate? = nil,
         sortDescriptors: [NSSortDescriptor] = []
-    ) -> AnyDataProviderRepository<ChainModel> {
+    ) -> CoreDataRepository<ChainModel, CDChain> {
         let mapper = ChainModelMapper()
-        let repository = storageFacade.createRepository(
+        return storageFacade.createRepository(
             filter: filter,
             sortDescriptors: sortDescriptors,
             mapper: AnyCoreDataMapper(mapper)
         )
-
-        return AnyDataProviderRepository(repository)
     }
 }

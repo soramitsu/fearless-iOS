@@ -16,7 +16,7 @@ struct CrowdloanContributionConfirmViewFactory {
             let interactor = createInteractor(
                 for: paraId,
                 chain: chain,
-                asset: asset,
+                asset: asset.asset,
                 bonusService: bonusService,
                 state: state
             ) else {
@@ -25,7 +25,7 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let wireframe = CrowdloanContributionConfirmWireframe()
 
-        let assetInfo = asset.displayInfo(with: chain.icon)
+        let assetInfo = asset.asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
 
         let localizationManager = LocalizationManager.shared

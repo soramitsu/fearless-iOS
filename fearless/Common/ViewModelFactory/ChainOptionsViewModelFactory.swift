@@ -5,12 +5,12 @@ protocol ChainOptionsViewModelFactoryProtocol {
 }
 
 extension ChainOptionsViewModelFactoryProtocol {
-    func buildChainOptionsViewModel(chain: ChainModel, asset: AssetModel) -> [ChainOptionsViewModel]? {
+    func buildChainOptionsViewModel(chain: ChainModel, asset _: AssetModel) -> [ChainOptionsViewModel]? {
         let presentableOptions = [ChainOptions.testnet]
 
         var viewModels: [ChainOptionsViewModel] = []
 
-        if asset.name != nil {
+        if chain.name != nil {
             let chainNameOptionViewModel = ChainOptionsViewModel(
                 text: chain.name,
                 icon: RemoteImageViewModel(url: chain.icon)

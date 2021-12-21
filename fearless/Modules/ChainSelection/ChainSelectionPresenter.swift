@@ -36,7 +36,7 @@ final class ChainSelectionPresenter {
             return nil
         }
 
-        let assetInfo = asset.displayInfo
+        let assetInfo = asset.asset.displayInfo
 
         let maybeBalance: Decimal?
 

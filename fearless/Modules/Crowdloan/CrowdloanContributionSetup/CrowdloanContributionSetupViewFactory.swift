@@ -10,13 +10,19 @@ struct CrowdloanContributionSetupViewFactory {
         guard
             let chain = state.settings.value,
             let asset = chain.utilityAssets().first,
-            let interactor = createInteractor(for: paraId, chain: chain, asset: asset, state: state) else {
+            let interactor = createInteractor(
+                for: paraId,
+                chain: chain,
+                asset: asset.asset,
+                state: state
+            )
+        else {
             return nil
         }
 
         let wireframe = CrowdloanContributionSetupWireframe(state: state)
 
-        let assetInfo = asset.displayInfo(with: chain.icon)
+        let assetInfo = asset.asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
 
         let localizationManager = LocalizationManager.shared

@@ -67,14 +67,13 @@ final class ChainRegistryFactory {
 
         let connectionPool = ConnectionPool(connectionFactory: ConnectionFactory(logger: Logger.shared))
 
-        let mapper = ChainModelMapper()
-        let chainRepository: CoreDataRepository<ChainModel, CDChain> =
-            repositoryFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
-
+        let chainRepositoryFactory = ChainRepositoryFactory(storageFacade: repositoryFacade)
+        let chainRepository = chainRepositoryFactory.createRepository()
         let chainProvider = createChainProvider(from: repositoryFacade, chainRepository: chainRepository)
 
         let chainSyncService = ChainSyncService(
-            url: ApplicationConfig.shared.chainListURL,
+            chainsUrl: ApplicationConfig.shared.chainListURL,
+            assetsUrl: ApplicationConfig.shared.assetListURL,
             dataFetchFactory: dataFetchOperationFactory,
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,

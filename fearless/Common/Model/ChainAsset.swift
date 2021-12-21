@@ -12,7 +12,7 @@ struct ChainAssetId: Equatable, Codable {
 
 extension ChainAsset {
     var chainAssetId: ChainAssetId {
-        ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
+        ChainAssetId(chainId: chain.chainId, assetId: asset.id)
     }
 
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
