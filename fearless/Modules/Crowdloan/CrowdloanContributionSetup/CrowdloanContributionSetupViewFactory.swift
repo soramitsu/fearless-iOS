@@ -12,8 +12,7 @@ struct CrowdloanContributionSetupViewFactory {
             let asset = chain.utilityAssets().first,
             let interactor = createInteractor(
                 for: paraId,
-                chain: chain,
-                asset: asset.asset,
+                chainAsset: ChainAsset(chain: chain, asset: asset.asset),
                 state: state
             )
         else {
@@ -62,8 +61,7 @@ struct CrowdloanContributionSetupViewFactory {
 
     private static func createInteractor(
         for paraId: ParaId,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         state: CrowdloanSharedState
     ) -> CrowdloanContributionSetupInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
@@ -74,18 +72,18 @@ struct CrowdloanContributionSetupViewFactory {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -112,8 +110,7 @@ struct CrowdloanContributionSetupViewFactory {
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,

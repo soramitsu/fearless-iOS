@@ -1,24 +1,24 @@
 import Foundation
 
 protocol ChainOptionsViewModelFactoryProtocol {
-    func buildChainOptionsViewModel(chain: ChainModel, asset: AssetModel) -> [ChainOptionsViewModel]?
+    func buildChainOptionsViewModel(chainAsset: ChainAsset) -> [ChainOptionsViewModel]?
 }
 
 extension ChainOptionsViewModelFactoryProtocol {
-    func buildChainOptionsViewModel(chain: ChainModel, asset _: AssetModel) -> [ChainOptionsViewModel]? {
+    func buildChainOptionsViewModel(chainAsset: ChainAsset) -> [ChainOptionsViewModel]? {
         let presentableOptions = [ChainOptions.testnet]
 
         var viewModels: [ChainOptionsViewModel] = []
 
-        if chain.name != nil {
+        if chainAsset.chain.name != nil {
             let chainNameOptionViewModel = ChainOptionsViewModel(
-                text: chain.name,
-                icon: RemoteImageViewModel(url: chain.icon)
+                text: chainAsset.chain.name,
+                icon: RemoteImageViewModel(url: chainAsset.chain.icon)
             )
             viewModels.append(chainNameOptionViewModel)
         }
 
-        if let options = chain.options {
+        if let options = chainAsset.chain.options {
             let chainOptionsViewModels = options
                 .filter { presentableOptions.contains($0) }
                 .compactMap { option -> ChainOptionsViewModel in

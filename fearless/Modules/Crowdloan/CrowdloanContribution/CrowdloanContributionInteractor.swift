@@ -7,8 +7,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
 
     let paraId: ParaId
     let selectedMetaAccount: MetaAccountModel
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let runtimeService: RuntimeCodingServiceProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
@@ -29,8 +28,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     init(
         paraId: ParaId,
         selectedMetaAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -42,8 +40,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     ) {
         self.paraId = paraId
         self.selectedMetaAccount = selectedMetaAccount
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
@@ -90,10 +87,10 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func subscribeToDisplayInfo() {
-        if let displayInfoUrl = chain.externalApi?.crowdloans?.url {
+        if let displayInfoUrl = chainAsset.chain.externalApi?.crowdloans?.url {
             displayInfoProvider = subscribeToCrowdloanDisplayInfo(
                 for: displayInfoUrl,
-                chainId: chain.chainId
+                chainId: chainAsset.chain.chainId
             )
         } else {
             presenter.didReceiveDisplayInfo(result: .success(nil))
@@ -101,20 +98,20 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func subscribeToCrowdloanFunds() {
-        crowdloanProvider = subscribeToCrowdloanFunds(for: paraId, chainId: chain.chainId)
+        crowdloanProvider = subscribeToCrowdloanFunds(for: paraId, chainId: chainAsset.chain.chainId)
     }
 
     private func subscribeToAccountInfo() {
-        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             presenter.didReceiveAccountInfo(result: .failure(ChainAccountFetchingError.accountNotExists))
             return
         }
 
-        balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+        balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chainAsset.chain.chainId)
     }
 
     private func subscribeToPrice() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         } else {
             presenter.didReceivePriceData(result: .success(nil))
@@ -124,7 +121,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     func setup() {
         feeProxy.delegate = self
 
-        blockNumberProvider = subscribeToBlockNumber(for: chain.chainId)
+        blockNumberProvider = subscribeToBlockNumber(for: chainAsset.chain.chainId)
 
         subscribeToPrice()
         subscribeToAccountInfo()

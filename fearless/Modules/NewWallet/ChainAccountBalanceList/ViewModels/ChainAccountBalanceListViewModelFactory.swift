@@ -55,8 +55,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 }
 
                 return buildChainAccountBalanceCellViewModel(
-                    chain: chain,
-                    asset: asset.asset,
+                    chainAsset: ChainAsset(chain: chain, asset: asset.asset),
                     priceData: priceData,
                     accountInfo: accountInfos?[chain.chainId],
                     locale: locale
@@ -79,33 +78,32 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
     }
 
     func buildChainAccountBalanceCellViewModel(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         priceData: PriceData?,
         accountInfo: AccountInfo?,
         locale: Locale
     ) -> ChainAccountBalanceCellViewModel {
-        let icon = buildRemoteImageViewModel(chain: chain)
-        let title = chain.name
+        let icon = buildRemoteImageViewModel(chain: chainAsset.chain)
+        let title = chainAsset.chain.name
         let balance = getBalance(
-            for: chain,
-            asset: asset,
+            for: chainAsset.chain,
+            asset: chainAsset.asset,
             accountInfo: accountInfo
         )
         let totalAmountString = getUsdBalanceString(
-            for: asset,
-            chain: chain,
+            for: chainAsset.asset,
+            chain: chainAsset.chain,
             accountInfo: accountInfo,
             priceData: priceData,
             locale: locale
         )
-        let priceAttributedString = getPriceAttributedString(for: asset, priceData: priceData, locale: locale)
-        let options = buildChainOptionsViewModel(chain: chain, asset: asset)
+        let priceAttributedString = getPriceAttributedString(for: chainAsset.asset, priceData: priceData, locale: locale)
+        let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         return ChainAccountBalanceCellViewModel(
-            asset: asset,
-            assetName: chain.name,
-            assetInfo: asset.displayInfo(with: chain.icon),
+            asset: chainAsset.asset,
+            assetName: title,
+            assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: icon,
             balanceString: balance,
             priceAttributedString: priceAttributedString,

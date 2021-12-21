@@ -123,7 +123,7 @@ extension AssetSelectionPresenter: ChainSelectionInteractorOutputProtocol {
 
             assets = chains.reduce(into: []) { result, item in
                 let assets: [(ChainModel.Id, AssetModel)] = item.assets.compactMap { asset in
-                    if assetFilter(item, asset) {
+                    if assetFilter(asset) {
                         return (item.chainId, asset.asset)
                     } else {
                         return nil
