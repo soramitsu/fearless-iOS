@@ -89,6 +89,12 @@ extension Chain {
 
     // MARK: - Remote types
 
+    private func utilsUrl(adding pathComponent: String) -> URL? {
+        let urlString = "https://raw.githubusercontent.com/soramitsu/fearless-utils/"
+        let url = URL(string: urlString)
+        return url?.appendingPathComponent(pathComponent)
+    }
+
     private var remoteRegistryBranch: String {
         "v14-metadata-ios-support"
 //        "master"
@@ -96,9 +102,7 @@ extension Chain {
 
     // swiftlint:disable line_length
     private func remoteRegistryUrl(for file: String) -> URL? {
-        let urlString = "https://raw.githubusercontent.com/soramitsu/fearless-utils/\(remoteRegistryBranch)/scalecodec/type_registry"
-        let url = URL(string: urlString)
-        return url?.appendingPathComponent(file)
+        utilsUrl(adding: "\(remoteRegistryBranch)/scalecodec/type_registry")?.appendingPathComponent(file)
     }
 
     func typeDefDefaultFileURL() -> URL? {
@@ -115,11 +119,11 @@ extension Chain {
         case .rococo: return remoteRegistryUrl(for: "rococo\(suffix).json")
         }
     }
-    
+
     // MARK: - Crowdloans
 
     func crowdloanDisplayInfoURL() -> URL {
-        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
+        let base = utilsUrl(adding: "master/crowdloan")!
 
         switch self {
         case .westend: return base.appendingPathComponent("westend.json")
