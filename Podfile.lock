@@ -139,7 +139,7 @@ DEPENDENCIES:
   - Kingfisher
   - R.swift
   - ReachabilitySwift
-  - RobinHood (from `https://github.com/soramitsu/robinhood-ios.git`, commit `11aba7168859849b2a49a72d507ef0edba9965c0`)
+  - RobinHood
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore
@@ -162,6 +162,7 @@ SPEC REPOS:
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
+    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
@@ -185,9 +186,6 @@ EXTERNAL SOURCES:
   IrohaCrypto:
     :commit: aff6415db3677878b9c7d2e5c6e951c75c766259
     :git: https://github.com/soramitsu/ios-crypto.git
-  RobinHood:
-    :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
-    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -205,9 +203,6 @@ CHECKOUT OPTIONS:
   IrohaCrypto:
     :commit: aff6415db3677878b9c7d2e5c6e951c75c766259
     :git: https://github.com/soramitsu/ios-crypto.git
-  RobinHood:
-    :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
-    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -244,6 +239,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 72b6c2ca2dd847db09e1f73936b1a8aff522f172
+PODFILE CHECKSUM: 376a23bf4acf7739d205f2bf45f6bea77bf90274
 
 COCOAPODS: 1.11.2
