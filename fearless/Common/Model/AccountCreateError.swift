@@ -11,7 +11,7 @@ enum AccountCreateError: Error {
 
 extension AccountCreateError: ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent {
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        var title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let message: String
 
         switch self {
@@ -19,20 +19,28 @@ extension AccountCreateError: ErrorContentConvertible {
             message = R.string.localizable
                 .accessRestoreWordsErrorMessage(preferredLanguages: locale?.rLanguages)
         case .invalidMnemonicFormat:
+            title = R.string.localizable
+                .importMnemonicInvalidTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accessRestorePhraseErrorMessage(preferredLanguages: locale?.rLanguages)
+                .mnemonicErrorTryAnotherOne(preferredLanguages: locale?.rLanguages)
         case .invalidSeed:
+            title = R.string.localizable
+                .importSeedInvalidTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountImportInvalidSeed(preferredLanguages: locale?.rLanguages)
+                .importSeedInvalidMessage(preferredLanguages: locale?.rLanguages)
         case .invalidKeystore:
+            title = R.string.localizable
+                .importJsonInvalidFormatTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountImportInvalidKeystore(preferredLanguages: locale?.rLanguages)
+                .importJsonInvalidFormatMessage(preferredLanguages: locale?.rLanguages)
         case .unsupportedNetwork:
             message = R.string.localizable
                 .commonUnsupportedNetworkMessage(preferredLanguages: locale?.rLanguages)
         case .duplicated:
+            title = R.string.localizable
+                .importAccountExistsTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .accountAddAlreadyExistsMessage(preferredLanguages: locale?.rLanguages)
+                .accountErrorTryAnotherOne(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)

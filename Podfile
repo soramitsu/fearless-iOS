@@ -3,13 +3,13 @@ platform :ios, '11.0'
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => '66ea67f4dd3c25b28ebbf18913346b20b92b25d2'
+  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'd606c294193da480bf34300b2db5b3132fd956df'
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
   pod 'SoraKeystore', '~> 1.0.0'
   pod 'SoraUI', '~> 1.10.3'
   pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :commit => '11aba7168859849b2a49a72d507ef0edba9965c0'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '6fe19f304870a4406d1c267b1dc959d6cdf953ba'
+  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'd606c294193da480bf34300b2db5b3132fd956df'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
@@ -32,7 +32,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', '~> 1.0.0'
     pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :commit => '11aba7168859849b2a49a72d507ef0edba9965c0'
-    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '6fe19f304870a4406d1c267b1dc959d6cdf953ba'
+    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'
 

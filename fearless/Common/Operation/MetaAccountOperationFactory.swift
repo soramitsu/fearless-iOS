@@ -30,15 +30,29 @@ protocol MetaAccountOperationFactoryProtocol {
 }
 
 final class MetaAccountOperationFactory {
+    private struct AccountQuery {
+        let publicKey: Data
+        let privateKey: Data
+        let address: Data
+        let seed: Data
+    }
+
+    private enum SeedSource {
+        case mnemonic(IRMnemonicProtocol)
+        case seed(Data)
+    }
+
     private let keystore: KeystoreProtocol
 
     init(keystore: KeystoreProtocol) {
         self.keystore = keystore
     }
+}
 
+private extension MetaAccountOperationFactory {
     // MARK: - Factory functions
 
-    private func createKeypairFactory(_ cryptoType: MultiassetCryptoType) -> KeypairFactoryProtocol {
+    func createKeypairFactory(_ cryptoType: MultiassetCryptoType) -> KeypairFactoryProtocol {
         switch cryptoType {
         case .sr25519:
             return SR25519KeypairFactory()
@@ -53,7 +67,7 @@ final class MetaAccountOperationFactory {
 
     // MARK: - Derivation functions
 
-    private func getJunctionResult(
+    func getJunctionResult(
         from derivationPath: String,
         ethereumBased: Bool
     ) throws -> JunctionResult? {
@@ -65,7 +79,7 @@ final class MetaAccountOperationFactory {
         return try junctionFactory.parse(path: derivationPath)
     }
 
-    private func deriveSeed(
+    func deriveSeed(
         from mnemonic: String,
         password: String,
         ethereumBased: Bool
@@ -78,7 +92,7 @@ final class MetaAccountOperationFactory {
 
     // MARK: - Save functions
 
-    private func saveSecretKey(
+    func saveSecretKey(
         _ secretKey: Data,
         metaId: String,
         accountId: AccountId? = nil,
@@ -91,7 +105,7 @@ final class MetaAccountOperationFactory {
         try keystore.saveKey(secretKey, with: tag)
     }
 
-    private func saveEntropy(
+    func saveEntropy(
         _ entropy: Data,
         metaId: String,
         accountId: AccountId? = nil
@@ -100,7 +114,7 @@ final class MetaAccountOperationFactory {
         try keystore.saveKey(entropy, with: tag)
     }
 
-    private func saveDerivationPath(
+    func saveDerivationPath(
         _ derivationPath: String,
         metaId: String,
         accountId: AccountId? = nil,
@@ -117,7 +131,7 @@ final class MetaAccountOperationFactory {
         try keystore.saveKey(derivationPathData, with: tag)
     }
 
-    private func saveSeed(
+    func saveSeed(
         _ seed: Data,
         metaId: String,
         accountId: AccountId? = nil,
@@ -132,7 +146,7 @@ final class MetaAccountOperationFactory {
 
     // MARK: - Meta account generation function
 
-    private func generateKeypair(
+    func generateKeypair(
         from seed: Data,
         chaincodes: [Chaincode],
         cryptoType: MultiassetCryptoType
@@ -163,25 +177,67 @@ final class MetaAccountOperationFactory {
         }
     }
 
-    private func prepopulateMetaAccount(
-        name: String,
-        publicKey: Data,
-        cryptoType: MultiassetCryptoType
-    ) throws -> MetaAccountModel {
-        guard cryptoType != .ethereumEcdsa else {
-            throw AccountCreationError.unsupportedNetwork
+    private func getQuery(
+        seedSource: SeedSource,
+        derivationPath: String,
+        cryptoType: MultiassetCryptoType,
+        ethereumBased: Bool
+    ) throws -> AccountQuery {
+        let junctionResult = try getJunctionResult(
+            from: derivationPath,
+            ethereumBased: ethereumBased
+        )
+
+        let password = junctionResult?.password ?? ""
+        let chaincodes = junctionResult?.chaincodes ?? []
+
+        var seed: Data
+        switch seedSource {
+        case let .mnemonic(mnemonic):
+            let seedResult = try deriveSeed(
+                from: mnemonic.toString(),
+                password: password,
+                ethereumBased: false
+            )
+
+            seed = ethereumBased ? seedResult.seed : seedResult.seed.miniSeed
+        case let .seed(data):
+            seed = data
         }
 
-        let accountId = try publicKey.publicKeyToAccountId()
+        let keypair = try generateKeypair(
+            from: seed,
+            chaincodes: chaincodes,
+            cryptoType: cryptoType
+        )
+
+        let address = ethereumBased ? try keypair.publicKey.ethereumAddressFromPublicKey() : try keypair.publicKey.publicKeyToAccountId()
+
+        return AccountQuery(
+            publicKey: keypair.publicKey,
+            privateKey: keypair.secretKey,
+            address: address,
+            seed: seed
+        )
+    }
+
+    func createMetaAccount(
+        name: String,
+        substratePublicKey: Data,
+        substrateCryptoType: MultiassetCryptoType,
+        ethereumPublicKey: Data
+    ) throws -> MetaAccountModel {
+        let substrateAccountId = try substratePublicKey.publicKeyToAccountId()
+        let ethereumAddress = try ethereumPublicKey.ethereumAddressFromPublicKey()
 
         return MetaAccountModel(
             metaId: UUID().uuidString,
             name: name,
-            substrateAccountId: accountId,
-            substrateCryptoType: cryptoType.rawValue,
-            substratePublicKey: publicKey,
-            ethereumAddress: nil,
-            ethereumPublicKey: nil,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType.rawValue,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
             chainAccounts: []
         )
     }
@@ -195,108 +251,83 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         mnemonic: IRMnemonicProtocol
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let junctionResult = try getJunctionResult(
-                from: request.derivationPath,
+            let substrateQuery = try getQuery(
+                seedSource: .mnemonic(mnemonic),
+                derivationPath: request.substrateDerivationPath,
+                cryptoType: request.substrateCryptoType,
                 ethereumBased: false
             )
 
-            let password = junctionResult?.password ?? ""
-            let chaincodes = junctionResult?.chaincodes ?? []
-
-            let seedResult = try self.deriveSeed(
-                from: mnemonic.toString(),
-                password: password,
-                ethereumBased: false
-            )
-
-            let substrateKeypair = try generateKeypair(
-                from: seedResult.seed.miniSeed,
-                chaincodes: chaincodes,
-                cryptoType: request.cryptoType
-            )
-
-            let metaAccount = try prepopulateMetaAccount(
-                name: request.username,
-                publicKey: substrateKeypair.publicKey,
-                cryptoType: request.cryptoType
-            )
-
-            let ethereumDerivationPath = DerivationPathConstants.defaultEthereum
-
-            let ethereumJunctionResult = try getJunctionResult(
-                from: ethereumDerivationPath,
+            let ethereumQuery = try getQuery(
+                seedSource: .mnemonic(mnemonic),
+                derivationPath: request.ethereumDerivationPath,
+                cryptoType: .ethereumEcdsa,
                 ethereumBased: true
             )
 
-            let ethereumChaincodes = ethereumJunctionResult?.chaincodes ?? []
-
-            let ethereumSeedFactory = BIP32SeedFactory()
-            let ethereumSeedResult = try ethereumSeedFactory.deriveSeed(
-                from: mnemonic.toString(),
-                password: password
+            let metaAccount = try createMetaAccount(
+                name: request.username,
+                substratePublicKey: substrateQuery.publicKey,
+                substrateCryptoType: request.substrateCryptoType,
+                ethereumPublicKey: ethereumQuery.publicKey
             )
-
-            let keypairFactory = createKeypairFactory(.ethereumEcdsa)
-
-            let ethereumKeypair = try keypairFactory.createKeypairFromSeed(
-                ethereumSeedResult.seed,
-                chaincodeList: ethereumChaincodes
-            )
-
-            let ethereumSecretKey = ethereumKeypair.privateKey().rawData()
-            let ethereumPublicKey = ethereumKeypair.publicKey().rawData()
-            let ethereumAddress = try ethereumPublicKey.ethereumAddressFromPublicKey()
 
             let metaId = metaAccount.metaId
 
-            try saveSecretKey(substrateKeypair.secretKey, metaId: metaId, ethereumBased: false)
-            try saveDerivationPath(request.derivationPath, metaId: metaId, ethereumBased: false)
-            try saveSeed(seedResult.seed.miniSeed, metaId: metaId, ethereumBased: false)
+            try saveSecretKey(substrateQuery.privateKey, metaId: metaId, ethereumBased: false)
+            try saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
+            try saveSeed(substrateQuery.seed, metaId: metaId, ethereumBased: false)
 
-            try saveSecretKey(ethereumSecretKey, metaId: metaId, ethereumBased: true)
-            try saveDerivationPath(ethereumDerivationPath, metaId: metaId, ethereumBased: true)
-            try saveSeed(ethereumSeedResult.seed, metaId: metaId, ethereumBased: true)
+            try saveSecretKey(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
+            try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
+            try saveSeed(ethereumQuery.seed, metaId: metaId, ethereumBased: true)
 
             try saveEntropy(mnemonic.entropy(), metaId: metaId)
 
             return metaAccount
-                .replacingEthereumPublicKey(ethereumPublicKey)
-                .replacingEthereumAddress(ethereumAddress)
         }
     }
 
+    //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
     func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let junctionResult = try getJunctionResult(
-                from: request.derivationPath,
+            let seed = try Data(hexString: request.seed)
+            let substrateQuery = try getQuery(
+                seedSource: .seed(seed),
+                derivationPath: request.substrateDerivationPath,
+                cryptoType: request.cryptoType,
                 ethereumBased: false
             )
 
-            let chaincodes = junctionResult?.chaincodes ?? []
-            let seed = try Data(hexString: request.seed)
-
-            let keypair = try generateKeypair(
-                from: seed,
-                chaincodes: chaincodes,
-                cryptoType: request.cryptoType
+            let ethereumQuery = try getQuery(
+                seedSource: .seed(seed),
+                derivationPath: request.ethereumDerivationPath,
+                cryptoType: .ethereumEcdsa,
+                ethereumBased: true
             )
 
-            let metaAccount = try prepopulateMetaAccount(
+            let metaAccount = try createMetaAccount(
                 name: request.username,
-                publicKey: keypair.publicKey,
-                cryptoType: request.cryptoType
+                substratePublicKey: substrateQuery.publicKey,
+                substrateCryptoType: request.cryptoType,
+                ethereumPublicKey: ethereumQuery.publicKey
             )
 
             let metaId = metaAccount.metaId
 
-            try saveSecretKey(keypair.secretKey, metaId: metaId, ethereumBased: false)
-            try saveDerivationPath(request.derivationPath, metaId: metaId, ethereumBased: false)
-            try saveSeed(seed, metaId: metaId, ethereumBased: false)
+            try saveSecretKey(substrateQuery.privateKey, metaId: metaId, ethereumBased: false)
+            try saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
+            try saveSeed(substrateQuery.seed, metaId: metaId, ethereumBased: false)
+
+            try saveSecretKey(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
+            try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
+            try saveSeed(ethereumQuery.seed, metaId: metaId, ethereumBased: true)
 
             return metaAccount
         }
     }
 
+    //  TODO: Support ethereum json
     func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()

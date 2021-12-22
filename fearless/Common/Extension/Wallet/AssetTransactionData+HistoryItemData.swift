@@ -8,8 +8,8 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubscanTransferItemData,
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus
@@ -26,14 +26,14 @@ extension AssetTransactionData {
 
         let accountId = try? addressFactory.accountId(
             fromAddress: peerAddress,
-            type: networkType
+            type: chain.addressPrefix
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
 
         let amount = AmountDecimal(string: item.amount) ?? AmountDecimal(value: 0)
         let feeValue = BigUInt(item.fee) ?? BigUInt(0)
-        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) ?? .zero
+        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
             identifier: asset.identifier,
@@ -66,8 +66,8 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubscanRewardItemData,
         address: String,
-        networkType _: SNAddressType,
-        asset: WalletAsset
+        chain _: ChainModel,
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus
 
@@ -75,7 +75,7 @@ extension AssetTransactionData {
 
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(item.amount) ?? 0,
-            precision: asset.precision
+            precision: Int16(asset.precision)
         ) ?? .zero
 
         let type = TransactionType(rawValue: item.eventId.uppercased())
@@ -101,18 +101,18 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubscanConcreteExtrinsicsItemData,
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(item.fee) ?? 0,
-            precision: asset.precision
+            precision: Int16(asset.precision)
         ) ?? .zero
 
         let accountId = try? addressFactory.accountId(
             fromAddress: address,
-            type: networkType
+            type: chain.addressPrefix
         )
         let peerId = accountId?.toHex() ?? address
 
@@ -145,15 +145,15 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: TransactionHistoryItem,
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         if item.callPath.isTransfer {
             return createLocalTransfer(
                 from: item,
                 address: address,
-                networkType: networkType,
+                chain: chain,
                 asset: asset,
                 addressFactory: addressFactory
             )
@@ -161,7 +161,7 @@ extension AssetTransactionData {
             return createLocalExtrinsic(
                 from: item,
                 address: address,
-                networkType: networkType,
+                chain: chain,
                 asset: asset,
                 addressFactory: addressFactory
             )
@@ -171,22 +171,22 @@ extension AssetTransactionData {
     private static func createLocalTransfer(
         from item: TransactionHistoryItem,
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let peerAddress = (item.sender == address ? item.receiver : item.sender) ?? item.sender
 
         let accountId = try? addressFactory.accountId(
             fromAddress: peerAddress,
-            type: networkType
+            type: chain.addressPrefix
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
 
         let feeDecimal = Decimal.fromSubstrateAmount(
             BigUInt(item.fee) ?? 0,
-            precision: asset.precision
+            precision: Int16(asset.precision)
         ) ?? .zero
 
         let fee = AssetTransactionFee(
@@ -200,7 +200,7 @@ extension AssetTransactionData {
             if let encodedCall = item.call,
                let call = try? JSONDecoder.scaleCompatible()
                .decode(RuntimeCall<TransferCall>.self, from: encodedCall) {
-                return Decimal.fromSubstrateAmount(call.args.value, precision: networkType.precision) ?? .zero
+                return Decimal.fromSubstrateAmount(call.args.value, precision: Int16(asset.precision)) ?? .zero
             } else {
                 return .zero
             }
@@ -230,18 +230,18 @@ extension AssetTransactionData {
     private static func createLocalExtrinsic(
         from item: TransactionHistoryItem,
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(item.fee) ?? 0,
-            precision: asset.precision
+            precision: Int16(asset.precision)
         ) ?? .zero
 
         let accountId = try? addressFactory.accountId(
             fromAddress: item.sender,
-            type: networkType
+            type: chain.addressPrefix
         )
 
         let peerId = accountId?.toHex() ?? address

@@ -455,36 +455,6 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
         
     }
     
-    
-    
-    public func generateRequestId() -> UInt16 {
-        
-    return cuckoo_manager.call("generateRequestId() -> UInt16",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.generateRequestId())
-        
-    }
-    
-    
-    
-    public func addSubscription(_ subscription: JSONRPCSubscribing)  {
-        
-    return cuckoo_manager.call("addSubscription(_: JSONRPCSubscribing)",
-            parameters: (subscription),
-            escapingParameters: (subscription),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.addSubscription(subscription))
-        
-    }
-    
 
 	public struct __StubbingProxy_JSONRPCEngine: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -507,16 +477,6 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
 	    func cancelForIdentifier<M1: Cuckoo.Matchable>(_ identifier: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UInt16)> where M1.MatchedType == UInt16 {
 	        let matchers: [Cuckoo.ParameterMatcher<(UInt16)>] = [wrap(matchable: identifier) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method: "cancelForIdentifier(_: UInt16)", parameterMatchers: matchers))
-	    }
-	    
-	    func generateRequestId() -> Cuckoo.ProtocolStubFunction<(), UInt16> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method: "generateRequestId() -> UInt16", parameterMatchers: matchers))
-	    }
-	    
-	    func addSubscription<M1: Cuckoo.Matchable>(_ subscription: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(JSONRPCSubscribing)> where M1.MatchedType == JSONRPCSubscribing {
-	        let matchers: [Cuckoo.ParameterMatcher<(JSONRPCSubscribing)>] = [wrap(matchable: subscription) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method: "addSubscription(_: JSONRPCSubscribing)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -553,18 +513,6 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
 	        return cuckoo_manager.verify("cancelForIdentifier(_: UInt16)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
-	    @discardableResult
-	    func generateRequestId() -> Cuckoo.__DoNotUse<(), UInt16> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("generateRequestId() -> UInt16", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func addSubscription<M1: Cuckoo.Matchable>(_ subscription: M1) -> Cuckoo.__DoNotUse<(JSONRPCSubscribing), Void> where M1.MatchedType == JSONRPCSubscribing {
-	        let matchers: [Cuckoo.ParameterMatcher<(JSONRPCSubscribing)>] = [wrap(matchable: subscription) { $0 }]
-	        return cuckoo_manager.verify("addSubscription(_: JSONRPCSubscribing)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
 	}
 }
 
@@ -583,14 +531,6 @@ public class JSONRPCEngineStub: JSONRPCEngine {
     }
     
     public func cancelForIdentifier(_ identifier: UInt16)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    public func generateRequestId() -> UInt16  {
-        return DefaultValueRegistry.defaultValue(for: (UInt16).self)
-    }
-    
-    public func addSubscription(_ subscription: JSONRPCSubscribing)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

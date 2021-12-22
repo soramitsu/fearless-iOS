@@ -356,7 +356,7 @@ enum ModalPickerFactory {
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.walletAssetBuyWith(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages)
         }
 
         viewController.cellNib = UINib(resource: R.nib.purchaseProviderPickerTableViewCell)

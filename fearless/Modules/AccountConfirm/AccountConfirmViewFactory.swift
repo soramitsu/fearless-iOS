@@ -7,11 +7,11 @@ import RobinHood
 final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     static func createViewForOnboarding(
         request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAccountConfirmInteractor(
             for: request,
-            metadata: metadata
+            mnemonic: mnemonic
         ) else {
             return nil
         }
@@ -23,11 +23,11 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
     static func createViewForAdding(
         request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
             for: request,
-            metadata: metadata
+            mnemonic: mnemonic
         ) else {
             return nil
         }
@@ -39,11 +39,11 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
     static func createViewForSwitch(
         request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
             for: request,
-            metadata: metadata
+            mnemonic: mnemonic
         ) else {
             return nil
         }
@@ -78,10 +78,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
     private static func createAccountConfirmInteractor(
         for request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
+            .mnemonic(fromList: mnemonic.joined(separator: " "))
         else {
             return nil
         }
@@ -108,10 +108,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
     private static func createAddAccountConfirmInteractor(
         for request: MetaAccountCreationRequest,
-        metadata: MetaAccountCreationMetadata
+        mnemonic: [String]
     ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
+            .mnemonic(fromList: mnemonic.joined(separator: " "))
         else {
             return nil
         }

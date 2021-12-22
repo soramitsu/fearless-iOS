@@ -19,4 +19,7 @@ extension MultiassetCryptoType {
             return .ecdsa
         }
     }
+
+    static let substrateTypes: [Self] = [.sr25519, .ed25519, .substrateEcdsa]
+    static let ethereumType: Self = .ethereumEcdsa
 }

@@ -30,14 +30,16 @@ struct AccountImportKeystoreRequest {
 struct MetaAccountImportMnemonicRequest {
     let mnemonic: String
     let username: String
-    let derivationPath: String
+    let substrateDerivationPath: String
+    let ethereumDerivationPath: String
     let cryptoType: MultiassetCryptoType
 }
 
 struct MetaAccountImportSeedRequest {
     let seed: String
     let username: String
-    let derivationPath: String
+    let substrateDerivationPath: String
+    let ethereumDerivationPath: String
     let cryptoType: MultiassetCryptoType
 }
 

@@ -28,9 +28,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let presenter = MainTabBarPresenter()
 
         guard
-            let walletContext = try? WalletContextFactory().createContext(),
             let walletController = createWalletController(
-                walletContext: walletContext,
                 localizationManager: localizationManager
             )
         else {
@@ -67,7 +65,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             settingsController
         ]
 
-        let wireframe = MainTabBarWireframe(walletContext: walletContext)
+        let wireframe = MainTabBarWireframe()
 
         view.presenter = presenter
         presenter.view = view
@@ -80,21 +78,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func reloadWalletView(
         on view: MainTabBarViewProtocol,
-        wireframe: MainTabBarWireframeProtocol
+        wireframe _: MainTabBarWireframeProtocol
     ) {
         let localizationManager = LocalizationManager.shared
 
         guard
-            let walletContext = try? WalletContextFactory().createContext(),
             let walletController = createWalletController(
-                walletContext: walletContext,
                 localizationManager: localizationManager
             )
         else {
             return
         }
 
-        wireframe.walletContext = walletContext
         view.didReplaceView(for: walletController, for: Self.walletIndex)
     }
 
@@ -118,11 +113,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createWalletController(
-        walletContext: CommonWalletContextProtocol,
         localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
         do {
-            let viewController = try walletContext.createRootController()
+            guard let viewController = ChainAccountBalanceListViewFactory.createView()?.controller else {
+                return nil
+            }
 
             let localizableTitle = LocalizableResource { locale in
                 R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
@@ -145,7 +141,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
                 viewController?.tabBarItem.title = currentTitle
             }
 
-            return viewController
+            let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+            return navigationController
         } catch {
             Logger.shared.error("Can't create wallet: \(error)")
 

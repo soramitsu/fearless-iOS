@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-final class TitleMultiValueView: UIView {
+class TitleMultiValueView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -43,7 +43,7 @@ final class TitleMultiValueView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupLayout() {
+    func setupLayout() {
         addSubview(borderView)
         borderView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

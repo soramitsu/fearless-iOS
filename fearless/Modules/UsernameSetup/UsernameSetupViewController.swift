@@ -3,9 +3,12 @@ import SoraFoundation
 import SoraUI
 
 final class UsernameSetupViewController: UIViewController {
+    private enum Constants {
+        static let nextButtonBottomInset: CGFloat = 16
+    }
+
     var presenter: UsernameSetupPresenterProtocol!
 
-    @IBOutlet private var networkView: BorderedSubtitleActionView!
     @IBOutlet private var inputField: AnimatedTextField!
     @IBOutlet private var hintLabel: UILabel!
     @IBOutlet private var nextButton: TriangularedButton!
@@ -19,7 +22,6 @@ final class UsernameSetupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureNetworkView()
         configureTextField()
         setupLocalization()
 
@@ -56,14 +58,6 @@ final class UsernameSetupViewController: UIViewController {
         super.viewDidLayoutSubviews()
     }
 
-    private func configureNetworkView() {
-        networkView.actionControl.addTarget(
-            self,
-            action: #selector(actionOpenNetworkType),
-            for: .valueChanged
-        )
-    }
-
     private func configureTextField() {
         inputField.textField.returnKeyType = .done
         inputField.textField.textContentType = .nickname
@@ -97,12 +91,6 @@ final class UsernameSetupViewController: UIViewController {
         inputField.resignFirstResponder()
 
         presenter.proceed()
-    }
-
-    @objc private func actionOpenNetworkType() {
-        if networkView.actionControl.isActivated {
-            presenter.selectNetworkType()
-        }
     }
 }
 
@@ -139,9 +127,9 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
         if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + 24
+            return 0
         } else {
-            return 24
+            return Constants.nextButtonBottomInset
         }
     }
 }
@@ -152,23 +140,6 @@ extension UsernameSetupViewController: UsernameSetupViewProtocol {
 
         updateActionButton()
     }
-
-    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>) {
-        networkView.actionControl.contentView.subtitleImageView.image = model.underlyingViewModel.icon
-        networkView.actionControl.contentView.subtitleLabelView.text = model.underlyingViewModel.title
-
-        networkView.actionControl.showsImageIndicator = model.selectable
-        networkView.isUserInteractionEnabled = model.selectable
-        networkView.fillColor = model.selectable ? .clear : R.color.colorDarkGray()!
-        networkView.strokeColor = model.selectable ? R.color.colorGray()! : .clear
-
-        networkView.actionControl.contentView.invalidateLayout()
-        networkView.actionControl.invalidateLayout()
-    }
-
-    func didCompleteNetworkSelection() {
-        networkView.actionControl.deactivate(animated: true)
-    }
 }
 
 extension UsernameSetupViewController: Localizable {
@@ -178,7 +149,7 @@ extension UsernameSetupViewController: Localizable {
         title = R.string.localizable.usernameSetupTitle(preferredLanguages: languages)
 
         nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: languages)
+            .commonContinue(preferredLanguages: languages)
         nextButton.invalidateLayout()
 
         hintLabel.text = R.string.localizable.usernameSetupHint(preferredLanguages: languages)

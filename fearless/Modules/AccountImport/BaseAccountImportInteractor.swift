@@ -86,8 +86,9 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
 
         let creationRequest = MetaAccountCreationRequest(
             username: request.username,
-            derivationPath: request.derivationPath,
-            cryptoType: request.cryptoType
+            substrateDerivationPath: request.substrateDerivationPath,
+            substrateCryptoType: request.cryptoType,
+            ethereumDerivationPath: request.ethereumDerivationPath
         )
 
         let accountOperation = accountOperationFactory.newMetaAccountOperation(
