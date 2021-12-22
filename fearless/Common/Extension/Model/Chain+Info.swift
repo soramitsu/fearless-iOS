@@ -100,23 +100,23 @@ extension Chain {
 //        "master"
     }
 
-    // swiftlint:disable line_length
-    private func remoteRegistryUrl(for file: String) -> URL? {
-        utilsUrl(adding: "\(remoteRegistryBranch)/scalecodec/type_registry")?.appendingPathComponent(file)
+    private func remoteTypeRegistryUrl(for file: String) -> URL? {
+        utilsUrl(adding: "\(remoteRegistryBranch)/type_registry")?.appendingPathComponent(file)
     }
 
     func typeDefDefaultFileURL() -> URL? {
-        remoteRegistryUrl(for: "default_v14.json")
+        switch self {
+        case .rococo: return remoteTypeRegistryUrl(for: "default.json")
+        default: return remoteTypeRegistryUrl(for: "empty.json")
+        }
     }
 
     func typeDefNetworkFileURL() -> URL? {
-        let suffix = "_v14" // always apply for 1.x
-
         switch self {
-        case .westend: return remoteRegistryUrl(for: "westend\(suffix).json")
-        case .kusama: return remoteRegistryUrl(for: "kusama\(suffix).json")
-        case .polkadot: return remoteRegistryUrl(for: "polkadot\(suffix).json")
-        case .rococo: return remoteRegistryUrl(for: "rococo\(suffix).json")
+        case .westend: return remoteTypeRegistryUrl(for: "westend.json")
+        case .kusama: return remoteTypeRegistryUrl(for: "kusama.json")
+        case .polkadot: return remoteTypeRegistryUrl(for: "polkadot.json")
+        case .rococo: return remoteTypeRegistryUrl(for: "rococo.json")
         }
     }
 
@@ -132,5 +132,4 @@ extension Chain {
         case .rococo: return base.appendingPathComponent("rococo.json")
         }
     }
-    // swiftlint:enable line_length
 }

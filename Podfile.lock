@@ -133,7 +133,7 @@ DEPENDENCIES:
   - Charts
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `f75b450881412f0ad82ce4db7c02f7e9f08c22b0`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `be2d169573d64b9c2a763a4d7b9ee0d64a17d59f`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `308eda9f250fe6aa30a678aaa88e0dcdd3a71d32`)
   - FireMock
   - IrohaCrypto (from `https://github.com/soramitsu/ios-crypto.git`, commit `aff6415db3677878b9c7d2e5c6e951c75c766259`)
   - Kingfisher
@@ -180,7 +180,7 @@ EXTERNAL SOURCES:
     :commit: f75b450881412f0ad82ce4db7c02f7e9f08c22b0
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: be2d169573d64b9c2a763a4d7b9ee0d64a17d59f
+    :commit: 308eda9f250fe6aa30a678aaa88e0dcdd3a71d32
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   IrohaCrypto:
     :commit: aff6415db3677878b9c7d2e5c6e951c75c766259
@@ -200,7 +200,7 @@ CHECKOUT OPTIONS:
     :commit: f75b450881412f0ad82ce4db7c02f7e9f08c22b0
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: be2d169573d64b9c2a763a4d7b9ee0d64a17d59f
+    :commit: 308eda9f250fe6aa30a678aaa88e0dcdd3a71d32
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   IrohaCrypto:
     :commit: aff6415db3677878b9c7d2e5c6e951c75c766259
@@ -244,6 +244,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: f84a668b47cbfe4e27c4f171e88b7de8d4d9fb86
+PODFILE CHECKSUM: 72b6c2ca2dd847db09e1f73936b1a8aff522f172
 
 COCOAPODS: 1.11.2

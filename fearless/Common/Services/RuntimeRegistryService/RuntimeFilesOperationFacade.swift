@@ -21,6 +21,15 @@ enum RuntimeFilesOperationFacadeError: Error {
     case missingBundleFile
 }
 
+private enum RuntimeFileType: String {
+    case `default`
+    case network
+
+    func fileName(for chain: Chain) -> String {
+        "\(chain.rawValue)-\(rawValue).json"
+    }
+}
+
 final class RuntimeFilesOperationFacade {
     let repository: FileRepositoryProtocol
     let directoryPath: String
@@ -30,7 +39,7 @@ final class RuntimeFilesOperationFacade {
         self.directoryPath = directoryPath
     }
 
-    private func fetchFileOperation(for localPath: String, fileName: String) -> CompoundOperationWrapper<Data?> {
+    private func fetchFileOperation(fileName: String, fallback: String) -> CompoundOperationWrapper<Data?> {
         let createDirOperation = repository.createDirectoryIfNeededOperation(at: directoryPath)
 
         let filePath = (directoryPath as NSString).appendingPathComponent(fileName)
@@ -38,7 +47,7 @@ final class RuntimeFilesOperationFacade {
         let fileExistsOperation = repository.fileExistsOperation(at: filePath)
         fileExistsOperation.addDependency(createDirOperation)
 
-        let copyOperation = repository.copyOperation(from: localPath, to: filePath)
+        let copyOperation = repository.copyOperation(from: fallback, to: filePath)
         copyOperation.configurationBlock = {
             do {
                 let exists = try fileExistsOperation
@@ -74,7 +83,6 @@ final class RuntimeFilesOperationFacade {
     }
 
     private func saveFileOperation(
-        for _: String,
         fileName: String,
         data: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
@@ -93,49 +101,52 @@ final class RuntimeFilesOperationFacade {
 }
 
 extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
-    private func fileName(for chain: Chain) -> String {
-        "\(chain.rawValue).json"
+    private func fileName(for chain: Chain, type: RuntimeFileType) -> String {
+        type.fileName(for: chain)
+    }
+
+    private func fetchLocalFile(
+        _ file: String?,
+        for chain: Chain,
+        type: RuntimeFileType
+    ) -> CompoundOperationWrapper<Data?> {
+        guard let localFilePath = file else {
+            return CompoundOperationWrapper.createWithError(
+                RuntimeRegistryServiceError.unexpectedCoderFetchingFailure
+            )
+        }
+
+        return fetchFileOperation(
+            fileName: fileName(for: chain, type: type),
+            fallback: localFilePath
+        )
     }
 
     func fetchDefaultOperation(for chain: Chain) -> CompoundOperationWrapper<Data?> {
-        guard let localFilePath = chain.preparedDefaultTypeDefPath() else {
-            return CompoundOperationWrapper
-                .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
-        }
-
-        return fetchFileOperation(for: localFilePath, fileName: fileName(for: chain))
+        fetchLocalFile(chain.preparedDefaultTypeDefPath(), for: chain, type: .default)
     }
 
     func fetchNetworkOperation(for chain: Chain) -> CompoundOperationWrapper<Data?> {
-        guard let localFilePath = chain.preparedNetworkTypeDefPath() else {
-            return CompoundOperationWrapper
-                .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
-        }
-
-        return fetchFileOperation(for: localFilePath, fileName: fileName(for: chain))
+        fetchLocalFile(chain.preparedNetworkTypeDefPath(), for: chain, type: .network)
     }
 
     func saveDefaultOperation(
         for chain: Chain,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
-        guard let localFilePath = chain.preparedDefaultTypeDefPath() else {
-            return CompoundOperationWrapper
-                .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
-        }
-
-        return saveFileOperation(for: localFilePath, fileName: fileName(for: chain), data: closure)
+        saveFileOperation(
+            fileName: fileName(for: chain, type: .default),
+            data: closure
+        )
     }
 
     func saveNetworkOperation(
         for chain: Chain,
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
-        guard let localFilePath = chain.preparedNetworkTypeDefPath() else {
-            return CompoundOperationWrapper
-                .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
-        }
-
-        return saveFileOperation(for: localFilePath, fileName: fileName(for: chain), data: closure)
+        saveFileOperation(
+            fileName: fileName(for: chain, type: .network),
+            data: closure
+        )
     }
 }
