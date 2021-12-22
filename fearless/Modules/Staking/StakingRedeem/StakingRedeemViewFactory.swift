@@ -19,7 +19,9 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let presenter = createPresenter(
-            from: interactor,
+            chain: chain,
+            asset: asset,
+            interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory
         )
@@ -43,15 +45,8 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         wireframe: StakingRedeemWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) -> StakingRedeemPresenter {
-        let settings = SettingsManager.shared
-
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 

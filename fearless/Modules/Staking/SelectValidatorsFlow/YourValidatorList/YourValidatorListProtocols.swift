@@ -27,11 +27,16 @@ protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
         from view: YourValidatorListViewProtocol?
     )
 
     func proceedToSelectValidatorsStart(
         from view: YourValidatorListViewProtocol?,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel,
         existingBonding: ExistingBonding
     )
 }

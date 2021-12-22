@@ -5,6 +5,7 @@ import FearlessUtils
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
     static func createView(
+        selectedAccount: MetaAccountModel,
         chain: ChainModel,
         asset: AssetModel,
         input: StakingRewardDetailsInput
@@ -18,7 +19,10 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             balanceViewModelFactory: balanceViewModelFactory,
             iconGenerator: PolkadotIconGenerator()
         )
+
         let presenter = StakingRewardDetailsPresenter(
+            asset: asset,
+            selectedAccount: selectedAccount,
             chain: chain,
             input: input,
             viewModelFactory: viewModelFactory

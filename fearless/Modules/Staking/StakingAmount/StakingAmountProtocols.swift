@@ -53,18 +53,29 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
 protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,
     StakingErrorPresentable {
     func presentAccountSelection(
-        _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
+        _ accounts: [ChainAccountResponse],
+        selectedAccountItem: ChainAccountResponse,
         delegate: ModalPickerViewControllerDelegate,
         from view: StakingAmountViewProtocol?,
         context: AnyObject?
     )
 
-    func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding)
+    func proceed(
+        from view: StakingAmountViewProtocol?,
+        state: InitiatedBonding,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    )
 
     func close(view: StakingAmountViewProtocol?)
 }
 
 protocol StakingAmountViewFactoryProtocol: AnyObject {
-    static func createView(with amount: Decimal?) -> StakingAmountViewProtocol?
+    static func createView(
+        with amount: Decimal?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingAmountViewProtocol?
 }

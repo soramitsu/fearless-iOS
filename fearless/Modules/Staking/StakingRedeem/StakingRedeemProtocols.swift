@@ -39,5 +39,9 @@ protocol StakingRedeemWireframeProtocol: AlertPresentable, ErrorPresentable,
 }
 
 protocol StakingRedeemViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingRedeemViewProtocol?
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingRedeemViewProtocol?
 }

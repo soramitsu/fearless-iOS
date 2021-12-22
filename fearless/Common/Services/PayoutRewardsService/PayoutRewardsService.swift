@@ -14,8 +14,10 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let identityOperationFactory: IdentityOperationFactoryProtocol
     let payoutInfoFactory: PayoutInfoFactoryProtocol
     let logger: LoggerProtocol?
+    let chain: ChainModel
 
     init(
+        chain: ChainModel,
         selectedAccountAddress: String,
         validatorsResolutionFactory: PayoutValidatorsFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
@@ -26,6 +28,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         payoutInfoFactory: PayoutInfoFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
+        self.chain = chain
         self.selectedAccountAddress = selectedAccountAddress
         self.validatorsResolutionFactory = validatorsResolutionFactory
         self.runtimeCodingService = runtimeCodingService

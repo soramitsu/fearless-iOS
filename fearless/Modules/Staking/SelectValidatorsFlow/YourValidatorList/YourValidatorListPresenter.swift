@@ -9,6 +9,7 @@ final class YourValidatorListPresenter {
     let viewModelFactory: YourValidatorListViewModelFactoryProtocol
     let chain: ChainModel
     let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
     private var validatorsModel: YourValidatorsModel?
@@ -23,6 +24,7 @@ final class YourValidatorListPresenter {
         viewModelFactory: YourValidatorListViewModelFactoryProtocol,
         chain: ChainModel,
         asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -31,6 +33,7 @@ final class YourValidatorListPresenter {
         self.viewModelFactory = viewModelFactory
         self.chain = chain
         self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
 
         self.localizationManager = localizationManager
@@ -94,7 +97,12 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
     func didSelectValidator(viewModel: YourValidatorViewModel) {
         if let validatorInfo = validatorsModel?.allValidators
             .first(where: { $0.address == viewModel.address }) {
-            wireframe.present(validatorInfo, from: view)
+            wireframe.present(
+                validatorInfo,
+                asset: asset,
+                chain: chain,
+                from: view
+            )
         }
     }
 
@@ -131,7 +139,13 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
                 selectedTargets: selectedTargets
             )
 
-            wireframe.proceedToSelectValidatorsStart(from: view, existingBonding: existingBonding)
+            wireframe.proceedToSelectValidatorsStart(
+                from: view,
+                asset: asset,
+                chain: chain,
+                selectedAccount: selectedAccount,
+                existingBonding: existingBonding
+            )
         }
     }
 }

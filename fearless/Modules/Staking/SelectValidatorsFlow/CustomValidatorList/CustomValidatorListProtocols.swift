@@ -41,28 +41,36 @@ protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
 
 protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
+        validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
     )
 
     func presentFilters(
         from view: ControllerBackedProtocol?,
         filter: CustomValidatorListFilter,
-        delegate: ValidatorListFilterDelegate?
+        delegate: ValidatorListFilterDelegate?,
+        asset: AssetModel
     )
 
     func presentSearch(
         from view: ControllerBackedProtocol?,
         fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?
+        delegate: ValidatorSearchDelegate?,
+        chain: ChainModel,
+        asset: AssetModel
     )
 
     func proceed(
         from view: ControllerBackedProtocol?,
         validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
-        delegate: SelectedValidatorListDelegate
+        delegate: SelectedValidatorListDelegate,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     )
 }
 

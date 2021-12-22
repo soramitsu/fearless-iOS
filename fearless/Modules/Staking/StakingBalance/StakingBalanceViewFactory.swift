@@ -7,12 +7,12 @@ struct StakingBalanceViewFactory {
     static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount _: MetaAccountModel
+        selectedAccount: MetaAccountModel
     ) -> StakingBalanceViewProtocol? {
         guard let interactor = createInteractor(
-            accountAddress: accountAddress,
-            assetId: assetId,
-            chain: chain
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
         ) else { return nil }
 
         let wireframe = StakingBalanceWireframe()
@@ -37,7 +37,10 @@ struct StakingBalanceViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            countdownTimer: CountdownTimer()
+            countdownTimer: CountdownTimer(),
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
 
         interactor.presenter = presenter
@@ -69,17 +72,7 @@ struct StakingBalanceViewFactory {
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(

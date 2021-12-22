@@ -38,5 +38,11 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
 
 protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AccountSelectionPresentable {
-    func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>)
+    func proceed(
+        view: StakingRewardDestSetupViewProtocol?,
+        rewardDestination: RewardDestination<ChainAccountResponse>,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    )
 }

@@ -63,7 +63,7 @@ final class StakingRebondConfirmationPresenter {
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: ChainModel,
-        asset _: AssetModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.variant = variant
@@ -73,6 +73,7 @@ final class StakingRebondConfirmationPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
         self.logger = logger
     }
 

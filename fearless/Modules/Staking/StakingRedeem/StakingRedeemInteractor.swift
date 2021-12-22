@@ -13,7 +13,6 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
-    let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let slashesOperationFactory: SlashesOperationFactoryProtocol
     let engine: JSONRPCEngine

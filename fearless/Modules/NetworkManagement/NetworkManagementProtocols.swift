@@ -32,7 +32,7 @@ protocol NetworkManagementPresenterProtocol: AnyObject {
 protocol NetworkManagementInteractorInputProtocol: AnyObject {
     func setup()
     func select(connection: ConnectionItem)
-    func select(connection: ConnectionItem, account: AccountItem)
+    func select(connection: ConnectionItem, account: ChainAccountResponse)
     func save(items: [ManagedConnectionItem])
     func remove(item: ManagedConnectionItem)
 }
@@ -43,14 +43,14 @@ protocol NetworkManagementInteractorOutputProtocol: AnyObject {
     func didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])
     func didReceiveCustomConnection(error: Error)
 
-    func didFindMultiple(accounts: [AccountItem], for connection: ConnectionItem)
+    func didFindMultiple(accounts: [ChainAccountResponse], for connection: ConnectionItem)
     func didFindNoAccounts(for connection: ConnectionItem)
     func didReceiveConnection(selectionError: Error)
 }
 
 protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable {
     func presentAccountSelection(
-        _ accounts: [AccountItem],
+        _ accounts: [ChainAccountResponse],
         addressType: SNAddressType,
         delegate: ModalPickerViewControllerDelegate,
         from view: NetworkManagementViewProtocol?,

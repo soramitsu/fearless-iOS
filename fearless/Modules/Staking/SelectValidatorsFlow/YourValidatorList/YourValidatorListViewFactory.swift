@@ -35,6 +35,7 @@ struct YourValidatorListViewFactory {
             viewModelFactory: viewModelFactory,
             chain: chain,
             asset: asset,
+            selectedAccount: selectedAccount,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared
         )

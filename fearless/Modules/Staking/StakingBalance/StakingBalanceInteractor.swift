@@ -11,11 +11,8 @@ final class StakingBalanceInteractor: AccountFetching {
     let asset: AssetModel
     let selectedAccount: MetaAccountModel
     let runtimeCodingService: RuntimeCodingServiceProtocol
-    let chainStorage: AnyDataProviderRepository<ChainStorageItem>
     let operationManager: OperationManagerProtocol
-    let priceProvider: AnySingleValueProvider<PriceData>
-    let providerFactory: SingleValueProviderFactoryProtocol
-    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    var priceProvider: AnySingleValueProvider<PriceData>?
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -90,6 +87,10 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
             stashControllerProvider = subscribeStashItemProvider(for: address)
         }
 
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
+
         fetchEraCompletionTime()
     }
 }
@@ -121,8 +122,10 @@ extension StakingBalanceInteractor: StakingLocalStorageSubscriber, StakingLocalS
 
             if let stashItem = stashItem {
                 let addressFactory = SS58AddressFactory()
-                if let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller,
-                                                                 type: chain.addressPrefix) {
+                if let accountId = try? addressFactory.accountId(
+                    fromAddress: stashItem.controller,
+                    type: chain.addressPrefix
+                ) {
                     ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
                 }
 

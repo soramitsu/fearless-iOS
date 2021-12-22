@@ -7,8 +7,6 @@ import BigInt
 
 final class StakingPayoutConfirmationInteractor {
     typealias Batch = [PayoutInfo]
-    internal let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    internal let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
     private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
@@ -43,6 +41,7 @@ final class StakingPayoutConfirmationInteractor {
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         signer: SigningWrapperProtocol,
         operationManager: OperationManagerProtocol,
@@ -52,6 +51,7 @@ final class StakingPayoutConfirmationInteractor {
         chain: ChainModel,
         asset: AssetModel
     ) {
+        self.extrinsicOperationFactory = extrinsicOperationFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory

@@ -33,10 +33,20 @@ protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
 
 protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
-    func proceed(view _: StakingRebondSetupViewProtocol?, amount _: Decimal)
+    func proceed(
+        view: StakingRebondSetupViewProtocol?,
+        amount: Decimal,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
     func close(view: StakingRebondSetupViewProtocol?)
 }
 
 protocol StakingRebondSetupViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingRebondSetupViewProtocol?
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingRebondSetupViewProtocol?
 }

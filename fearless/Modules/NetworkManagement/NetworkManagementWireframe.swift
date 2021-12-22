@@ -3,7 +3,7 @@ import IrohaCrypto
 
 final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
     func presentAccountSelection(
-        _ accounts: [AccountItem],
+        _ accounts: [ChainAccountResponse],
         addressType: SNAddressType,
         delegate: ModalPickerViewControllerDelegate,
         from view: NetworkManagementViewProtocol?,

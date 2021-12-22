@@ -110,7 +110,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
-        let addressType = chain.addressType
+        let addressType = chain.addressPrefix
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
@@ -122,7 +122,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             let addressFactory = SS58AddressFactory()
 
             return try nomination.targets.enumerated().map { index, accountId in
-                let address = try addressFactory.addressFromAccountId(data: accountId, type: addressType)
+                let address = try addressFactory.addressFromAccountId(data: accountId, addressPrefix: addressType)
 
                 return SelectedValidatorInfo(
                     address: address,
@@ -172,7 +172,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             $0.addDependency(activeValidatorsStakeInfoWrapper.targetOperation)
         }
 
-        let addressType = chain.addressType
+        let addressType = chain.addressPrefix
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let validatorStakeInfo = try activeValidatorsStakeInfoWrapper.targetOperation
@@ -188,7 +188,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
                 let validatorAddress = try addressFactory.addressFromAccountId(
                     data: validatorAccountId,
-                    type: addressType
+                    addressPrefix: addressType
                 )
 
                 let nominatorInfo = validatorStakeInfo.nominators[nominatorIndex]
@@ -229,7 +229,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             chain: chain
         )
 
-        let addressType = chain.addressType
+        let addressType = chain.addressPrefix
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let validatorsStakeInfo = try validatorsStakeInfoWrapper.targetOperation
@@ -240,7 +240,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             return try validatorsStakeInfo.enumerated().map { index, validatorStakeInfo in
                 let validatorAddress = try addressFactory.addressFromAccountId(
                     data: accountIds[index],
-                    type: addressType
+                    addressPrefix: addressType
                 )
 
                 return SelectedValidatorInfo(
@@ -305,7 +305,8 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         stakeInfoWrapper.addDependency(operations: [eraValidatorsOperation])
 
-        let addressType = chain.addressType
+        let addressType = chain.addressPrefix
+        let precision = asset.precision
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let identityList = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
@@ -323,7 +324,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             return try accountIdList.enumerated().compactMap { index, accountId in
                 let validatorAddress = try addressFactory.addressFromAccountId(
                     data: accountId,
-                    type: addressType
+                    addressPrefix: addressType
                 )
 
                 guard let prefs = validatorPrefsList[validatorAddress] else { return nil }
@@ -332,7 +333,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
                 let commission = Decimal.fromSubstrateAmount(
                     prefs.commission,
-                    precision: addressType.precision
+                    precision: Int16(precision)
                 ) ?? 0.0
 
                 return SelectedValidatorInfo(

@@ -37,9 +37,19 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
 protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func close(view: StakingUnbondSetupViewProtocol?)
-    func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal)
+    func proceed(
+        view: StakingUnbondSetupViewProtocol?,
+        amount: Decimal,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 }
 
 protocol StakingUnbondSetupViewFactoryProtocol {
-    static func createView() -> StakingUnbondSetupViewProtocol?
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingUnbondSetupViewProtocol?
 }

@@ -8,7 +8,6 @@ final class StakingBondMoreInteractor: AccountFetching {
 
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
-    private let settings: SettingsManagerProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol

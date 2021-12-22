@@ -6,7 +6,7 @@ struct ChainAccountRequest {
     let isEthereumBased: Bool
 }
 
-struct ChainAccountResponse {
+struct ChainAccountResponse: Equatable {
     let chainId: ChainModel.Id
     let accountId: AccountId
     let publicKey: Data

@@ -2,11 +2,13 @@ import Foundation
 import IrohaCrypto
 
 final class NominatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
-    let addressType: SNAddressType
+    let addressPrefix: UInt16
+    let precision: Int16
     let addressFactory: SS58AddressFactoryProtocol
 
-    init(addressType: SNAddressType, addressFactory: SS58AddressFactoryProtocol) {
-        self.addressType = addressType
+    init(addressPrefix: UInt16, precision: Int16, addressFactory: SS58AddressFactoryProtocol) {
+        self.precision = precision
+        self.addressPrefix = addressPrefix
         self.addressFactory = addressFactory
     }
 
@@ -19,7 +21,7 @@ final class NominatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     ) throws -> PayoutInfo? {
         guard
             let totalRewardAmount = erasRewardDistribution.totalValidatorRewardByEra[era],
-            let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: addressType.precision),
+            let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: precision),
             let points = erasRewardDistribution.validatorPointsDistributionByEra[era] else {
             return nil
         }
@@ -28,12 +30,12 @@ final class NominatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
             let nominatorStakeAmount = validatorInfo.exposure.others
             .first(where: { $0.who == accountId })?.value,
             let nominatorStake = Decimal
-            .fromSubstrateAmount(nominatorStakeAmount, precision: addressType.precision),
+            .fromSubstrateAmount(nominatorStakeAmount, precision: precision),
             let comission = Decimal.fromSubstratePerbill(value: validatorInfo.prefs.commission),
             let validatorPoints = points.individual
             .first(where: { $0.accountId == validatorInfo.accountId })?.rewardPoint,
             let totalStake = Decimal
-            .fromSubstrateAmount(validatorInfo.exposure.total, precision: addressType.precision) else {
+            .fromSubstrateAmount(validatorInfo.exposure.total, precision: precision) else {
             return nil
         }
 
@@ -43,7 +45,7 @@ final class NominatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
             (nominatorStake / totalStake)
 
         let validatorAddress = try addressFactory
-            .addressFromAccountId(data: validatorInfo.accountId, type: addressType)
+            .addressFromAccountId(data: validatorInfo.accountId, addressPrefix: addressPrefix)
 
         return PayoutInfo(
             era: era,

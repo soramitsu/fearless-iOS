@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct MetaAccountModel: Equatable {
+struct MetaAccountModel: Equatable, Codable {
     let metaId: String
     let name: String
     let substrateAccountId: Data

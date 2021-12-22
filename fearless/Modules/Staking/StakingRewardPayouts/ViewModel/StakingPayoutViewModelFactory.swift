@@ -21,7 +21,8 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
         priceData: PriceData?,
-        eraCountdown: EraCountdown?
+        eraCountdown: EraCountdown?,
+        erasPerDay: UInt32
     ) -> LocalizableResource<StakingPayoutViewModel> {
         let timerCompletion: TimeInterval?
 
@@ -40,7 +41,8 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                     for: payoutsInfo,
                     priceData: priceData,
                     eraCountdown: eraCountdown,
-                    locale: locale
+                    locale: locale,
+                    erasPerDay: erasPerDay
                 ),
                 eraComletionTime: timerCompletion,
                 bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts, locale: locale)

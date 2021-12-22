@@ -50,7 +50,8 @@ struct CrowdloanContributionConfirmViewFactory {
             bonusRate: bonusService?.bonusRate,
             assetInfo: assetInfo,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            chain: chain
         )
 
         let view = CrowdloanContributionConfirmVC(

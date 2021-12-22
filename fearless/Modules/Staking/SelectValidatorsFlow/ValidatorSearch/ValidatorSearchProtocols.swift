@@ -3,6 +3,8 @@ import SoraFoundation
 protocol ValidatorSearchWireframeProtocol: AlertPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
         from view: ControllerBackedProtocol?
     )
 

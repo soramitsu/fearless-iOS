@@ -5,15 +5,16 @@ import FearlessUtils
 
 final class AnalyticsValidatorsInteractor {
     weak var presenter: AnalyticsValidatorsInteractorOutputProtocol!
-    let selectedAddress: AccountAddress
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let engine: JSONRPCEngine
     let runtimeService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
     private var stashItemProvider: StreamableProvider<StashItem>?
@@ -25,26 +26,28 @@ final class AnalyticsValidatorsInteractor {
     private var stashItem: StashItem?
 
     init(
-        selectedAddress: AccountAddress,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
-        self.selectedAddress = selectedAddress
         self.substrateProviderFactory = substrateProviderFactory
-        self.singleValueProviderFactory = singleValueProviderFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.identityOperationFactory = identityOperationFactory
         self.operationManager = operationManager
         self.engine = engine
         self.runtimeService = runtimeService
         self.storageRequestFactory = storageRequestFactory
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -70,7 +73,7 @@ final class AnalyticsValidatorsInteractor {
 
     private func fetchEraStakers() {
         guard
-            let analyticsURL = chain.analyticsURL,
+            let analyticsURL = chain.externalApi?.staking?.url,
             let stashAddress = stashItem?.stash,
             let nomination = nomination,
             let currentEra = currentEra
@@ -100,7 +103,7 @@ final class AnalyticsValidatorsInteractor {
 
     private func fetchRewards() {
         guard
-            let analyticsURL = chain.analyticsURL,
+            let analyticsURL = chain.externalApi?.staking?.url,
             let stashAddress = stashItem?.stash
         else { return }
 
@@ -123,8 +126,11 @@ final class AnalyticsValidatorsInteractor {
 
 extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
     func setup() {
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAddress)
-        currentEraProvider = subscribeToCurrentEraProvider(for: chain, runtimeService: runtimeService)
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            stashItemProvider = subscribeStashItemProvider(for: address)
+        }
+
+        currentEraProvider = subscribeCurrentEra(for: chain.chainId)
     }
 
     func reload() {
@@ -133,18 +139,20 @@ extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProto
     }
 }
 
-extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
-    func handleStashItem(result: Result<StashItem?, Error>) {
+extension AnalyticsValidatorsInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         switch result {
         case let .success(stashItem):
             self.stashItem = stashItem
 
             if let stashAddress = stashItem?.stash {
                 presenter.didReceive(stashAddressResult: .success(stashAddress))
-                nominationProvider = subscribeToNominationProvider(
-                    for: stashAddress,
-                    runtimeService: runtimeService
-                )
+
+                let addressFactory = SS58AddressFactory()
+                if let accountId = try? addressFactory.accountId(fromAddress: stashAddress, type: chain.addressPrefix) {
+                    nominationProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
+                }
+
                 fetchRewards()
             }
         case let .failure(error):
@@ -152,7 +160,7 @@ extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateP
         }
     }
 
-    func handleCurrentEra(result: Result<EraIndex?, Error>, chain _: Chain) {
+    func handleCurrentEra(result: Result<EraIndex?, Error>, chainId _: ChainModel.Id) {
         switch result {
         case let .success(currentEra):
             self.currentEra = currentEra
@@ -161,10 +169,8 @@ extension AnalyticsValidatorsInteractor: SubstrateProviderSubscriber, SubstrateP
             logger?.error("Gor error on currentEra subscription: \(error.localizedDescription)")
         }
     }
-}
 
-extension AnalyticsValidatorsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
-    func handleNomination(result: Result<Nomination?, Error>, address _: AccountAddress) {
+    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceive(nominationResult: result)
         switch result {
         case let .success(nomination):

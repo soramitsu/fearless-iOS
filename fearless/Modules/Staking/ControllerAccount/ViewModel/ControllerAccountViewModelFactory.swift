@@ -4,18 +4,18 @@ import FearlessUtils
 
 final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactoryProtocol {
     let iconGenerator: IconGenerating
-    let currentAccountItem: AccountItem
+    let currentAccountItem: ChainAccountResponse
     private lazy var addressFactory = SS58AddressFactory()
 
-    init(currentAccountItem: AccountItem, iconGenerator: IconGenerating) {
+    init(currentAccountItem: ChainAccountResponse, iconGenerator: IconGenerating) {
         self.currentAccountItem = currentAccountItem
         self.iconGenerator = iconGenerator
     }
 
     func createViewModel(
         stashItem: StashItem,
-        stashAccountItem: AccountItem?,
-        chosenAccountItem: AccountItem?
+        stashAccountItem: ChainAccountResponse?,
+        chosenAccountItem: ChainAccountResponse?
     ) -> ControllerAccountViewModel {
         let stashAddress = stashItem.stash
         let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
@@ -29,13 +29,13 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stackingStashAccount(preferredLanguages: locale.rLanguages),
                 address: stashAddress,
-                name: stashAccountItem?.username ?? stashAddress,
+                name: stashAccountItem?.name ?? stashAddress,
                 icon: stashIcon
             )
         }
 
         let controllerViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let selectedControllerAddress = chosenAccountItem?.address ?? stashItem.controller
+            let selectedControllerAddress = chosenAccountItem?.toAddress() ?? stashItem.controller
             let controllerIcon = try? self.iconGenerator
                 .generateFromAddress(selectedControllerAddress)
                 .imageWithFillColor(
@@ -46,23 +46,23 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
                 address: selectedControllerAddress,
-                name: chosenAccountItem?.username ?? selectedControllerAddress,
+                name: chosenAccountItem?.name ?? selectedControllerAddress,
                 icon: controllerIcon
             )
         }
 
         let currentAccountIsController =
             (stashItem.stash != stashItem.controller) &&
-            stashItem.controller == currentAccountItem.address
+            stashItem.controller == currentAccountItem.toAddress()
 
         let actionButtonIsEnabled: Bool = {
-            if stashAddress != self.currentAccountItem.address {
+            if stashAddress != self.currentAccountItem.toAddress() {
                 return false
             }
             guard let chosenAccountItem = chosenAccountItem else {
                 return false
             }
-            if chosenAccountItem.address == stashItem.controller {
+            if chosenAccountItem.toAddress() == stashItem.controller {
                 return false
             }
             return true

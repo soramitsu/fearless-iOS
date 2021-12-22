@@ -6,13 +6,13 @@ import FearlessUtils
 
 struct StakingRebondConfirmationViewFactory {
     static func createView(
-        chain _: ChainModel,
-        asset _: AssetModel,
-        selectedAccount _: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         variant: SelectedRebondVariant
     )
         -> StakingRebondConfirmationViewProtocol? {
-        guard let interactor = createInteractor() else {
+        guard let interactor = createInteractor(chain: chain, asset: asset, selectedAccount: selectedAccount) else {
             return nil
         }
 
@@ -21,7 +21,9 @@ struct StakingRebondConfirmationViewFactory {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let presenter = createPresenter(
-            for: variant,
+            chain: chain,
+            asset: asset,
+            variant: variant,
             interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory

@@ -41,7 +41,8 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
-            asset: asset
+            asset: asset,
+            selectedAccount: selectedAccount
         )
 
         // MARK: - View

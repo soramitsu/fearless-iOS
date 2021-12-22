@@ -4,19 +4,25 @@ import SoraKeystore
 import RobinHood
 
 struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
-    static func createView(chain: ChainModel,
-                           asset: AssetModel,
-                           selectedAccount: MetaAccountModel) -> StakingUnbondSetupViewProtocol? {
-        guard let interactor = createInteractor(chain: chain,
-                                                asset: asset,
-                                                selectedAccount: selectedAccount) else {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingUnbondSetupViewProtocol? {
+        guard let interactor = createInteractor(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return nil
         }
 
         let wireframe = StakingUnbondSetupWireframe()
 
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: asset.displayInfo,
-                                                              limit: StakingConstants.maxAmount)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            limit: StakingConstants.maxAmount
+        )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
@@ -27,6 +33,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
             asset: asset,
+            selectedAccount: selectedAccount,
             logger: Logger.shared
         )
 
@@ -86,8 +93,19 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-   
 
-        return StakingUnbondSetupInteractor(asset: asset, chain: chain, selectedMetaAccount: selectedAccount, extrinsicService: extrinsicService, feeProxy: feeProxy, runtimeService: runtimeService, operationManager: operationManager, priceLocalSubscriptionFactory: priceLocalSubscriptionFactory, stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory, walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, connection: connection)
+        return StakingUnbondSetupInteractor(
+            asset: asset,
+            chain: chain,
+            selectedMetaAccount: selectedAccount,
+            extrinsicService: extrinsicService,
+            feeProxy: feeProxy,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            connection: connection
+        )
     }
 }

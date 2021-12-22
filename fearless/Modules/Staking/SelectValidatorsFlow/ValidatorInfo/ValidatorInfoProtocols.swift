@@ -27,13 +27,13 @@ protocol ValidatorInfoProtocol {
 
 protocol ValidatorInfoViewFactoryProtocol: AnyObject {
     static func createView(
-        selectedAccount: MetaAccountModel,
         asset: AssetModel,
         chain: ChainModel,
-        with validatorInfo: ValidatorInfoProtocol
+        validatorInfo: ValidatorInfoProtocol
     ) -> ValidatorInfoViewProtocol?
 
     static func createView(
+        address: AccountAddress,
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel

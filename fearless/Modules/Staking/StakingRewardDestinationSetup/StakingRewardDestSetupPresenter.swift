@@ -14,6 +14,7 @@ final class StakingRewardDestSetupPresenter {
     let applicationConfig: ApplicationConfigProtocol
     let chain: ChainModel
     let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
     private var rewardDestination: RewardDestination<ChainAccountResponse>?
@@ -37,6 +38,7 @@ final class StakingRewardDestSetupPresenter {
         applicationConfig: ApplicationConfigProtocol,
         chain: ChainModel,
         asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -47,6 +49,7 @@ final class StakingRewardDestSetupPresenter {
         self.applicationConfig = applicationConfig
         self.chain = chain
         self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -145,11 +148,14 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
 
         ]).runValidation { [weak self] in
-            guard let rewardDestination = self?.rewardDestination else { return }
+            guard let self = self, let rewardDestination = self.rewardDestination else { return }
 
-            self?.wireframe.proceed(
-                view: self?.view,
-                rewardDestination: rewardDestination
+            self.wireframe.proceed(
+                view: self.view,
+                rewardDestination: rewardDestination,
+                asset: self.asset,
+                chain: self.chain,
+                selectedAccount: self.selectedAccount
             )
         }
     }

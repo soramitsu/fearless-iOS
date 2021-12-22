@@ -7,15 +7,17 @@ final class ControllerAccountPresenter {
     let interactor: ControllerAccountInteractorInputProtocol
     let viewModelFactory: ControllerAccountViewModelFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     weak var view: ControllerAccountViewProtocol?
 
     private let logger: LoggerProtocol?
-    private var stashAccountItem: AccountItem?
+    private var stashAccountItem: ChainAccountResponse?
     private var stashItem: StashItem?
-    private var chosenAccountItem: AccountItem?
-    private var accounts: [AccountItem]?
+    private var chosenAccountItem: ChainAccountResponse?
+    private var accounts: [ChainAccountResponse]?
     private var canChooseOtherController = false
     private var fee: Decimal?
     private var balance: Decimal?
@@ -27,7 +29,9 @@ final class ControllerAccountPresenter {
         interactor: ControllerAccountInteractorInputProtocol,
         viewModelFactory: ControllerAccountViewModelFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -36,6 +40,8 @@ final class ControllerAccountPresenter {
         self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
     }
@@ -64,7 +70,7 @@ final class ControllerAccountPresenter {
     }
 
     private func refreshControllerInfoIfNeeded() {
-        guard let chosenControllerAddress = chosenAccountItem?.address else {
+        guard let chosenControllerAddress = chosenAccountItem?.toAddress() else {
             return
         }
         if chosenControllerAddress != stashItem?.controller {
@@ -145,7 +151,6 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             dataValidatingFactory.controllerBalanceIsNotZero(controllerBalance, locale: locale),
             dataValidatingFactory.ledgerNotExist(
                 stakingLedger: stakingLedger,
-                addressType: chain.addressType,
                 locale: locale
             )
         ]).runValidation { [weak self] in
@@ -156,7 +161,10 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
 
             self.wireframe.showConfirmation(
                 from: self.view,
-                controllerAccountItem: controllerAccountItem
+                controllerAccountItem: controllerAccountItem,
+                asset: self.asset,
+                chain: self.chain,
+                selectedAccount: self.selectedAccount
             )
         }
     }
@@ -176,7 +184,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         }
     }
 
-    func didReceiveStashAccount(result: Result<AccountItem?, Error>) {
+    func didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             stashAccountItem = accountItem
@@ -186,7 +194,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         }
     }
 
-    func didReceiveControllerAccount(result: Result<AccountItem?, Error>) {
+    func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             chosenAccountItem = accountItem
@@ -196,7 +204,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         }
     }
 
-    func didReceiveAccounts(result: Result<[AccountItem], Error>) {
+    func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>) {
         switch result {
         case let .success(accounts):
             self.accounts = accounts
@@ -209,7 +217,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
@@ -222,17 +230,17 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
             if let accountInfo = accountInfo {
                 let amount = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
                 switch address {
-                case chosenAccountItem?.address:
+                case chosenAccountItem?.toAddress():
                     controllerBalance = amount
                 case stashItem?.stash:
                     balance = amount
                 default:
                     logger?.warning("Recieved \(String(describing: amount)) for unknown address \(address)")
                 }
-            } else if chosenAccountItem?.address == address {
+            } else if chosenAccountItem?.toAddress() == address {
                 controllerBalance = nil
             }
         case let .failure(error):
@@ -252,7 +260,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
 
 extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
-        guard let accounts = (context as? PrimitiveContextWrapper<[AccountItem]>)?.value else {
+        guard let accounts = (context as? PrimitiveContextWrapper<[ChainAccountResponse]>)?.value else {
             return
         }
 

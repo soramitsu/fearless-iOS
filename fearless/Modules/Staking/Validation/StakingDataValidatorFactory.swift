@@ -33,7 +33,6 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
 
     func ledgerNotExist(
         stakingLedger: StakingLedger?,
-        addressType: SNAddressType,
         locale: Locale
     ) -> DataValidating
 
@@ -218,7 +217,6 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
     func ledgerNotExist(
         stakingLedger: StakingLedger?,
-        addressType _: SNAddressType,
         locale: Locale
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in

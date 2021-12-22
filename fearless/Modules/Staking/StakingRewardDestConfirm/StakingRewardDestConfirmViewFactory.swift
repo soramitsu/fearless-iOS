@@ -8,7 +8,7 @@ struct StakingRewardDestConfirmViewFactory {
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
-        for rewardDestination: RewardDestination<AccountAddress>
+        for rewardDestination: RewardDestination<ChainAccountResponse>
     ) -> StakingRewardDestConfirmViewProtocol? {
         guard let interactor = createInteractor(
             asset: asset,

@@ -27,9 +27,9 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
     private lazy var callFactory = SubstrateCallFactory()
 
     init(
-        priceLocalSubscriptionFactory _: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory _: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory _: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -38,8 +38,11 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
-        signingWrapper _: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol
     ) {
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
@@ -48,6 +51,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
         self.chain = chain
         self.asset = asset
         self.selectedAccount = selectedAccount
+        self.signingWrapper = signingWrapper
     }
 }
 

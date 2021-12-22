@@ -7,7 +7,7 @@ final class ValidatorInfoViewFactory {
     private static func createView(
         asset: AssetModel,
         chain: ChainModel,
-        with interactor: ValidatorInfoInteractorBase
+        interactor: ValidatorInfoInteractorBase
     ) -> ValidatorInfoViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
@@ -42,24 +42,13 @@ final class ValidatorInfoViewFactory {
 
         return view
     }
-
-    private static func createAssetId() -> WalletAssetId? {
-        let settings = SettingsManager.shared
-        let networkType = settings.selectedConnection.type
-
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-
-        return WalletAssetId(rawValue: asset.identifier)
-    }
 }
 
 extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
     static func createView(
-        selectedAccount _: MetaAccountModel,
         asset: AssetModel,
         chain: ChainModel,
-        with validatorInfo: ValidatorInfoProtocol
+        validatorInfo: ValidatorInfoProtocol
     ) -> ValidatorInfoViewProtocol? {
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
 
@@ -69,10 +58,11 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
             asset: asset
         )
 
-        return createView(asset: asset, chain: chain, with: interactor)
+        return createView(asset: asset, chain: chain, interactor: interactor)
     }
 
     static func createView(
+        address: AccountAddress,
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel
@@ -104,6 +94,7 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
 
         let interactor = YourValidatorInfoInteractor(
+            accountAddress: address,
             selectedAccount: selectedAccount,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             asset: asset,
@@ -115,7 +106,7 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         return createView(
             asset: asset,
             chain: chain,
-            with: interactor
+            interactor: interactor
         )
     }
 }

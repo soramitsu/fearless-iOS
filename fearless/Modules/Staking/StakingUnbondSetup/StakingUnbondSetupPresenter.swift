@@ -13,6 +13,7 @@ final class StakingUnbondSetupPresenter {
     let logger: LoggerProtocol?
     let chain: ChainModel
     let asset: AssetModel
+    let selectedAccount: MetaAccountModel
 
     private var bonded: Decimal?
     private var balance: Decimal?
@@ -30,7 +31,8 @@ final class StakingUnbondSetupPresenter {
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: ChainModel,
-        asset _: AssetModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -38,6 +40,8 @@ final class StakingUnbondSetupPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -66,14 +70,14 @@ final class StakingUnbondSetupPresenter {
     }
 
     private func provideBondingDuration() {
-        let daysCount = bondingDuration.map { Int($0) / chain.erasPerDay }
+        let daysCount = bondingDuration.map { UInt32($0) / chain.erasPerDay }
         let bondingDuration: LocalizableResource<String> = LocalizableResource { locale in
             guard let daysCount = daysCount else {
                 return ""
             }
 
             return R.string.localizable.commonDaysFormat(
-                format: daysCount,
+                format: Int(daysCount),
                 preferredLanguages: locale.rLanguages
             )
         }
@@ -133,10 +137,20 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            if let amount = self?.inputAmount {
-                self?.wireframe.proceed(view: self?.view, amount: amount)
+            guard let self = self else {
+                return
+            }
+
+            if let amount = self.inputAmount {
+                self.wireframe.proceed(
+                    view: self.view,
+                    amount: amount,
+                    chain: self.chain,
+                    asset: self.asset,
+                    selectedAccount: self.selectedAccount
+                )
             } else {
-                self?.logger?.warning("Missing amount after validation")
+                self.logger?.warning("Missing amount after validation")
             }
         }
     }

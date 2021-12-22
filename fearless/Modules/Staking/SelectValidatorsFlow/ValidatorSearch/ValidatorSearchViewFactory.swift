@@ -59,7 +59,9 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
             fullValidatorList: validatorList,
             selectedValidatorList: selectedValidatorList,
             localizationManager: LocalizationManager.shared,
-            logger: Logger.shared
+            logger: Logger.shared,
+            asset: asset,
+            chain: chain
         )
 
         presenter.delegate = delegate

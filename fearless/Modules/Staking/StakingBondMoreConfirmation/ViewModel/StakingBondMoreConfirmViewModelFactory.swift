@@ -19,9 +19,10 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
 
     init(
         asset: AssetModel,
-        chain _: ChainModel
+        chain: ChainModel
     ) {
         self.asset = asset
+        self.chain = chain
     }
 
     func createViewModel(

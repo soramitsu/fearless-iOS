@@ -29,7 +29,9 @@ struct StakingBondMoreViewFactory {
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            asset: asset
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
         )
         let viewController = StakingBondMoreViewController(
             presenter: presenter,

@@ -108,7 +108,7 @@ extension StakingMainInteractor {
         let updateClosure = { [weak presenter] (changes: [DataProviderChange<MetaAccountModel>]) in
             if
                 let controller = changes.reduceToLastChange(),
-                let accountItem = try? controller.fetch(for: chain.accountRequest())?.toAccountItem() {
+                let accountItem = controller.fetch(for: chain.accountRequest()) {
                 presenter?.didReceiveControllerAccount(result: .success(accountItem))
             } else {
                 presenter?.didReceiveControllerAccount(result: .success(nil))

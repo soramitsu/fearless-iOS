@@ -37,7 +37,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        selectedAccount _: MetaAccountModel,
+        selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -56,6 +56,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         self.chain = chain
         self.keystore = keystore
         self.connection = connection
+        self.selectedAccount = selectedAccount
     }
 
     private func handleController(accountItem: ChainAccountResponse) {

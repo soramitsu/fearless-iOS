@@ -42,7 +42,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.runtimeService = runtimeCodingService
+        runtimeService = runtimeCodingService
         self.operationManager = operationManager
         self.feeProxy = feeProxy
         self.chain = chain

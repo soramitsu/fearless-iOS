@@ -69,12 +69,18 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 
-    func didReceiveControllerAccount(result: Result<AccountItem?, Error>)
+    func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
     func networkInfoViewExpansion(isExpanded: Bool)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
-    func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
+    func showSetupAmount(
+        from view: StakingMainViewProtocol?,
+        amount: Decimal?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 
     func showManageStaking(
         from view: StakingMainViewProtocol?,
@@ -85,7 +91,10 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func proceedToSelectValidatorsStart(
         from view: StakingMainViewProtocol?,
-        existingBonding: ExistingBonding
+        existingBonding: ExistingBonding,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     )
 
     func showStories(
@@ -95,19 +104,81 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)
 
-    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
-    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
-    func showStakingBalance(from view: ControllerBackedProtocol?)
-    func showNominatorValidators(from view: ControllerBackedProtocol?)
-    func showRewardDestination(from view: ControllerBackedProtocol?)
-    func showControllerAccount(from view: ControllerBackedProtocol?)
+    func showRewardPayoutsForNominator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRewardPayoutsForValidator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showStakingBalance(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showNominatorValidators(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRewardDestination(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showControllerAccount(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
-    func showBondMore(from view: ControllerBackedProtocol?)
-    func showRedeem(from view: ControllerBackedProtocol?)
-    func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)
 
-    func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)
+    func showBondMore(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRedeem(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showAnalytics(
+        from view: ControllerBackedProtocol?,
+        mode: AnalyticsContainerViewMode,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showYourValidatorInfo(
+        _ stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
 
     func showChainAssetSelection(
         from view: StakingMainViewProtocol?,

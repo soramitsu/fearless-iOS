@@ -240,17 +240,24 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             )
         ]).runValidation { [weak self] in
             guard
-                let amount = self?.amount,
-                let rewardDestination = self?.rewardDestination else {
+                let self = self,
+                let amount = self.amount
+            else {
                 return
             }
 
             let stakingState = InitiatedBonding(
                 amount: amount,
-                rewardDestination: rewardDestination
+                rewardDestination: self.rewardDestination
             )
 
-            self?.wireframe.proceed(from: self?.view, state: stakingState)
+            self.wireframe.proceed(
+                from: self.view,
+                state: stakingState,
+                asset: self.asset,
+                chain: self.chain,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 

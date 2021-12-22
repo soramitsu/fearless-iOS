@@ -43,8 +43,8 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
                 return .restake
             case let .payout(account):
                 let displayAddress = DisplayAddress(
-                    address: account.address,
-                    username: account.username
+                    address: account.toAddress() ?? "",
+                    username: account.name
                 )
                 return .payout(account: displayAddress)
             }

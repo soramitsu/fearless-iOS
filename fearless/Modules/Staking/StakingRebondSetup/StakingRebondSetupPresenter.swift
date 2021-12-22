@@ -10,6 +10,7 @@ final class StakingRebondSetupPresenter {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let chain: ChainModel
     let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
     private var inputAmount: Decimal?
@@ -38,6 +39,7 @@ final class StakingRebondSetupPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: ChainModel,
         asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.wireframe = wireframe
@@ -46,6 +48,7 @@ final class StakingRebondSetupPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -109,8 +112,14 @@ extension StakingRebondSetupPresenter: StakingRebondSetupPresenterProtocol {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            if let amount = self?.inputAmount {
-                self?.wireframe.proceed(view: self?.view, amount: amount)
+            if let self = self, let amount = self.inputAmount {
+                self.wireframe.proceed(
+                    view: self.view,
+                    amount: amount,
+                    chain: self.chain,
+                    asset: self.asset,
+                    selectedAccount: self.selectedAccount
+                )
             } else {
                 self?.logger?.warning("Missing amount after validation")
             }

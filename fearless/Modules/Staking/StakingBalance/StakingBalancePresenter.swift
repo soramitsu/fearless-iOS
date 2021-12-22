@@ -1,4 +1,5 @@
 import SoraFoundation
+import Darwin
 
 final class StakingBalancePresenter {
     let interactor: StakingBalanceInteractorInputProtocol
@@ -6,6 +7,9 @@ final class StakingBalancePresenter {
     let viewModelFactory: StakingBalanceViewModelFactoryProtocol
     weak var view: StakingBalanceViewProtocol?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
 
     var controllerAccount: ChainAccountResponse?
     var stashAccount: ChainAccountResponse?
@@ -21,13 +25,19 @@ final class StakingBalancePresenter {
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        countdownTimer: CountdownTimerProtocol
+        countdownTimer: CountdownTimerProtocol,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.countdownTimer = countdownTimer
+        self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.countdownTimer.delegate = self
     }
 
@@ -57,7 +67,15 @@ final class StakingBalancePresenter {
                 locale: locale ?? Locale.current
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showBondMore(from: view)
+            guard let self = self else {
+                return
+            }
+            self.wireframe.showBondMore(
+                from: view,
+                chain: self.chain,
+                asset: self.asset,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -76,7 +94,15 @@ final class StakingBalancePresenter {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showUnbond(from: view)
+            guard let self = self else {
+                return
+            }
+            self.wireframe.showUnbond(
+                from: view,
+                chain: self.chain,
+                asset: self.asset,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -88,7 +114,16 @@ final class StakingBalancePresenter {
                 locale: locale ?? Locale.current
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showRedeem(from: view)
+            guard let self = self else {
+                return
+            }
+
+            self.wireframe.showRedeem(
+                from: view,
+                chain: self.chain,
+                asset: self.asset,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -96,7 +131,17 @@ final class StakingBalancePresenter {
         let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
             let title = option.titleForLocale(locale)
             let action = AlertPresentableAction(title: title) { [weak self] in
-                self?.wireframe.showRebond(from: self?.view, option: option)
+                guard let self = self else {
+                    return
+                }
+
+                self.wireframe.showRebond(
+                    from: view,
+                    option: option,
+                    chain: self.chain,
+                    asset: self.asset,
+                    selectedAccount: self.selectedAccount
+                )
             }
             return action
         }

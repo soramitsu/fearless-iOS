@@ -6,9 +6,13 @@ struct StakingRewardDestSetupViewFactory {
     static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount _: MetaAccountModel
+        selectedAccount: MetaAccountModel
     ) -> StakingRewardDestSetupViewProtocol? {
-        guard let interactor = createInteractor(settings: settings) else {
+        guard let interactor = createInteractor(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return nil
         }
 
@@ -38,6 +42,7 @@ struct StakingRewardDestSetupViewFactory {
             applicationConfig: ApplicationConfig.shared,
             chain: chain,
             asset: asset,
+            selectedAccount: selectedAccount,
             logger: Logger.shared
         )
 
@@ -110,6 +115,9 @@ struct StakingRewardDestSetupViewFactory {
         )
 
         return StakingRewardDestSetupInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
             substrateProviderFactory: substrateProviderFactory,
             calculatorService: RewardCalculatorFacade.sharedService,

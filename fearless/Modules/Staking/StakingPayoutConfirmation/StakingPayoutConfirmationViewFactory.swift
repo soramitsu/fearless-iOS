@@ -45,7 +45,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         guard let interactor = createInteractor(
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount payouts: payouts
+            selectedAccount: selectedAccount,
+            payouts: payouts
         ) else {
             return nil
         }
@@ -85,6 +86,14 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             operationManager: operationManager
         )
 
+        let extrinsicOperationFactory = ExtrinsicOperationFactory(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection
+        )
+
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
@@ -114,6 +123,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
+            extrinsicOperationFactory: extrinsicOperationFactory,
             runtimeService: runtimeService,
             signer: signingWrapper,
             operationManager: operationManager,

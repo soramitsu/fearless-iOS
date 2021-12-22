@@ -11,18 +11,9 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         selectedAccount: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol? {
-        let settings = SettingsManager.shared
-        let connection = settings.selectedConnection
         let addressFactory = SS58AddressFactory()
 
-        let chain = connection.type.chain
-
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier),
-              let rewardsUrl = assetId.subqueryHistoryUrl else {
+        guard let rewardsUrl = chain.externalApi?.history?.url else {
             return nil
         }
 
@@ -32,7 +23,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
-            addressType: chain.addressType,
+            addressPrefix: chain.addressPrefix,
+            precision: Int16(asset.precision),
             addressFactory: addressFactory
         )
 
@@ -94,6 +86,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
 
         let payoutService = PayoutRewardsService(
+            chain: chain,
             selectedAccountAddress: stashAddress,
             validatorsResolutionFactory: validatorsResolutionFactory,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
@@ -116,7 +109,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     private static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount _: MetaAccountModel,
+        selectedAccount: MetaAccountModel,
         payoutService: PayoutRewardsServiceProtocol
     ) -> StakingRewardPayoutsViewProtocol? {
         let operationManager = OperationManagerFacade.sharedManager
@@ -133,6 +126,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let presenter = StakingRewardPayoutsPresenter(
             chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             viewModelFactory: payoutsViewModelFactory
         )
         let view = StakingRewardPayoutsViewController(

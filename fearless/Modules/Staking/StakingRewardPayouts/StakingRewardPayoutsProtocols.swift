@@ -39,11 +39,15 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
         historyDepth: UInt32,
-        chain: Chain
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     )
-
     func showPayoutConfirmation(
         for payouts: [PayoutInfo],
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 }

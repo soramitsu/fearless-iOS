@@ -11,13 +11,19 @@ final class StakingRewardPayoutsPresenter {
     private var priceData: PriceData?
     private var eraCountdown: EraCountdown?
     private let chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
     init(
         chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         viewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) {
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.viewModelFactory = viewModelFactory
     }
 
@@ -34,7 +40,8 @@ final class StakingRewardPayoutsPresenter {
         let viewModel = viewModelFactory.createPayoutsViewModel(
             payoutsInfo: payoutsInfo,
             priceData: priceData,
-            eraCountdown: eraCountdown
+            eraCountdown: eraCountdown,
+            erasPerDay: chain.erasPerDay
         )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
@@ -66,13 +73,21 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             payoutInfo: payoutInfo,
             activeEra: payoutsInfo.activeEra,
             historyDepth: payoutsInfo.historyDepth,
-            chain: chain
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
     }
 
     func handlePayoutAction() {
         guard let payouts = payoutsInfo?.payouts else { return }
-        wireframe.showPayoutConfirmation(for: payouts, from: view)
+        wireframe.showPayoutConfirmation(
+            for: payouts,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            from: view
+        )
     }
 
     func getTimeLeftString(
@@ -84,7 +99,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         return viewModelFactory.timeLeftString(
             at: index,
             payoutsInfo: payoutsInfo,
-            eraCountdown: eraCountdown
+            eraCountdown: eraCountdown,
+            erasPerDay: chain.erasPerDay
         )
     }
 }

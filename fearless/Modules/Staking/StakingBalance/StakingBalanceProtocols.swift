@@ -29,9 +29,34 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
 }
 
 protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
-    func showBondMore(from view: ControllerBackedProtocol?)
-    func showUnbond(from view: ControllerBackedProtocol?)
-    func showRedeem(from view: ControllerBackedProtocol?)
-    func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption)
+    func showBondMore(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showUnbond(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRedeem(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRebond(
+        from view: ControllerBackedProtocol?,
+        option: StakingRebondOption,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
     func cancel(from view: ControllerBackedProtocol?)
 }

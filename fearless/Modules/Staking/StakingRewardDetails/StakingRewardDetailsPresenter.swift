@@ -11,12 +11,18 @@ final class StakingRewardDetailsPresenter {
     private let viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
     private var priceData: PriceData?
     private var chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
 
     init(
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         chain: ChainModel,
         input: StakingRewardDetailsInput,
         viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
     ) {
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.chain = chain
         self.input = input
         self.viewModelFactory = viewModelFactory
@@ -35,7 +41,13 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     }
 
     func handlePayoutAction() {
-        wireframe.showPayoutConfirmation(from: view, payoutInfo: input.payoutInfo)
+        wireframe.showPayoutConfirmation(
+            from: view,
+            payoutInfo: input.payoutInfo,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        )
     }
 
     func handleValidatorAccountAction(locale: Locale) {
@@ -43,7 +55,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
             let view = view,
             let address = viewModelFactory.validatorAddress(
                 from: input.payoutInfo.validator,
-                addressType: input.chain.addressType
+                addressPrefix: input.chain.addressPrefix
             )
         else { return }
         wireframe.presentAccountOptions(

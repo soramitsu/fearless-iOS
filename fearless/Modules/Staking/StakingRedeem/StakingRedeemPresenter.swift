@@ -37,7 +37,7 @@ final class StakingRedeemPresenter {
             let redeemable = stakingLedger?.redeemable(inEra: era),
             let redeemableDecimal = Decimal.fromSubstrateAmount(
                 redeemable,
-                precision: chain.addressType.precision
+                precision: Int16(asset.precision)
             ) else {
             return
         }

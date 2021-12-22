@@ -11,12 +11,8 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let settings: SettingsManagerProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
-    let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let selectedAccount: MetaAccountModel
     let chain: ChainModel
@@ -50,17 +46,16 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
-        self.selectedAccount = selectedMetaAccount
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.asset = asset
         self.chain = chain
         self.connection = connection
+        selectedAccount = selectedMetaAccount
     }
 }
 
 extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtocol {
-    
     private func handleController(accountItem: ChainAccountResponse) {
         extrinsicService = ExtrinsicService(
             accountId: accountItem.accountId,
@@ -73,8 +68,7 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
 
         estimateFee()
     }
-    
-    
+
     func setup() {
         if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)

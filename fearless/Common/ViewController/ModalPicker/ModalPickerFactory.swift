@@ -208,8 +208,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         title: LocalizableResource<String>,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -224,8 +224,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         addressType: SNAddressType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -244,8 +244,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         headerType: AccountHeaderType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -277,10 +277,10 @@ enum ModalPickerFactory {
 
         viewController.viewModels = accounts.compactMap { account in
             let viewModel: AccountPickerViewModel
-            if let icon = try? iconGenerator.generateFromAddress(account.address) {
-                viewModel = AccountPickerViewModel(title: account.username, icon: icon)
+            if let icon = try? iconGenerator.generateFromAddress(account.toAddress() ?? "") {
+                viewModel = AccountPickerViewModel(title: account.name, icon: icon)
             } else {
-                viewModel = AccountPickerViewModel(title: account.username, icon: EmptyAccountIcon())
+                viewModel = AccountPickerViewModel(title: account.name, icon: EmptyAccountIcon())
             }
 
             return LocalizableResource { _ in viewModel }
