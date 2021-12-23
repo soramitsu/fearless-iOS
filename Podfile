@@ -8,12 +8,12 @@ abstract_target 'fearlessAll' do
   pod 'R.swift', :inhibit_warnings => true
   pod 'SoraKeystore'
   pod 'SoraUI', '~> 1.10.3'
-  pod 'IrohaCrypto', :git => 'https://github.com/soramitsu/ios-crypto.git', :commit => 'aff6415db3677878b9c7d2e5c6e951c75c766259'
+  pod 'IrohaCrypto'
   pod 'RobinHood'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'f75b450881412f0ad82ce4db7c02f7e9f08c22b0'
+  pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
-  pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
+  pod 'Starscream', :git => 'https://github.com/soramitsu/fearless-starscream.git', :branch => 'feature/without-origin'
   pod 'ReachabilitySwift'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
@@ -31,9 +31,9 @@ abstract_target 'fearlessAll' do
     pod 'R.swift', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore'
-    pod 'IrohaCrypto', :git => 'https://github.com/soramitsu/ios-crypto.git', :commit => 'aff6415db3677878b9c7d2e5c6e951c75c766259'
+    pod 'IrohaCrypto'
     pod 'RobinHood'
-    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'f75b450881412f0ad82ce4db7c02f7e9f08c22b0'
+    pod 'CommonWallet/Core'
     pod 'Sourcery', '~> 1.4'
 
   end

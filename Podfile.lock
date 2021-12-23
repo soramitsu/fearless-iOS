@@ -6,7 +6,7 @@ PODS:
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
-  - CommonWallet/Core (1.15.2):
+  - CommonWallet/Core (1.16.0):
     - RobinHood (~> 2.6.1)
     - SoraFoundation/DateProcessing (~> 1.0.0)
     - SoraFoundation/Localization (~> 1.0.0)
@@ -131,11 +131,11 @@ PODS:
 
 DEPENDENCIES:
   - Charts
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `f75b450881412f0ad82ce4db7c02f7e9f08c22b0`)
+  - CommonWallet/Core
   - Cuckoo
   - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `308eda9f250fe6aa30a678aaa88e0dcdd3a71d32`)
   - FireMock
-  - IrohaCrypto (from `https://github.com/soramitsu/ios-crypto.git`, commit `aff6415db3677878b9c7d2e5c6e951c75c766259`)
+  - IrohaCrypto
   - Kingfisher
   - R.swift
   - ReachabilitySwift
@@ -145,7 +145,7 @@ DEPENDENCIES:
   - SoraKeystore
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
+  - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
@@ -156,8 +156,10 @@ SPEC REPOS:
     - BigInt
     - Charts
     - CocoaLumberjack
+    - CommonWallet
     - Cuckoo
     - FireMock
+    - IrohaCrypto
     - Kingfisher
     - R.swift
     - R.swift.Library
@@ -177,35 +179,23 @@ SPEC REPOS:
     - xxHash-Swift
 
 EXTERNAL SOURCES:
-  CommonWallet:
-    :commit: f75b450881412f0ad82ce4db7c02f7e9f08c22b0
-    :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
     :commit: 308eda9f250fe6aa30a678aaa88e0dcdd3a71d32
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  IrohaCrypto:
-    :commit: aff6415db3677878b9c7d2e5c6e951c75c766259
-    :git: https://github.com/soramitsu/ios-crypto.git
   Starscream:
     :branch: feature/without-origin
-    :git: https://github.com/ERussel/Starscream.git
+    :git: https://github.com/soramitsu/fearless-starscream.git
   SVGKit:
     :git: https://github.com/SVGKit/SVGKit.git
     :tag: 3.0.0
 
 CHECKOUT OPTIONS:
-  CommonWallet:
-    :commit: f75b450881412f0ad82ce4db7c02f7e9f08c22b0
-    :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
     :commit: 308eda9f250fe6aa30a678aaa88e0dcdd3a71d32
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  IrohaCrypto:
-    :commit: aff6415db3677878b9c7d2e5c6e951c75c766259
-    :git: https://github.com/soramitsu/ios-crypto.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
-    :git: https://github.com/ERussel/Starscream.git
+    :git: https://github.com/soramitsu/fearless-starscream.git
   SVGKit:
     :git: https://github.com/SVGKit/SVGKit.git
     :tag: 3.0.0
@@ -214,7 +204,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
-  CommonWallet: 44b6dff5a655b8f8a3debe6ae81c8fbd7334e568
+  CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: df291c2d8462a39a16494a9db4ef112f5ca3bdc0
   FearlessUtils: f06f9395e67a651f81a84497400ac3aec2e56d6b
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
@@ -239,6 +229,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 376a23bf4acf7739d205f2bf45f6bea77bf90274
+PODFILE CHECKSUM: 2ca4a99a9721d4b7932f512ace2bd4ddbdb4db07
 
 COCOAPODS: 1.11.2
