@@ -96,8 +96,7 @@ extension Chain {
     }
 
     private var remoteRegistryBranch: String {
-        "v14-metadata-ios-support"
-//        "master"
+        "master"
     }
 
     private func remoteTypeRegistryUrl(for file: String) -> URL? {
