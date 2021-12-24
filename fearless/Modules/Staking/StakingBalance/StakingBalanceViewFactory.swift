@@ -92,6 +92,10 @@ struct StakingBalanceViewFactory {
             storageRequestFactory: storageRequestFactory
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return StakingBalanceInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -101,7 +105,8 @@ struct StakingBalanceViewFactory {
             runtimeCodingService: runtimeService,
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             operationManager: operationManager,
-            connection: connection
+            connection: connection,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

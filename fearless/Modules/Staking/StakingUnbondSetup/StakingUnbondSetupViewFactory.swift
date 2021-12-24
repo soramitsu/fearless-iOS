@@ -94,10 +94,14 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
 
         let feeProxy = ExtrinsicFeeProxy()
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return StakingUnbondSetupInteractor(
             asset: asset,
             chain: chain,
-            selectedMetaAccount: selectedAccount,
+            selectedAccount: selectedAccount,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,
             runtimeService: runtimeService,
@@ -105,7 +109,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-            connection: connection
+            connection: connection,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

@@ -15,6 +15,7 @@ final class YourValidatorListPresenter {
     private var validatorsModel: YourValidatorsModel?
     private var stashItem: StashItem?
     private var ledger: StakingLedger?
+    private var controllerAccount: ChainAccountResponse?
     private var rewardDestinationArg: RewardDestinationArg?
     private var lastError: Error?
 
@@ -118,6 +119,15 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
             return
         }
 
+        guard let controllerAccount = controllerAccount else {
+            wireframe.presentMissingController(
+                from: view,
+                address: stashItem.controller,
+                locale: selectedLocale
+            )
+            return
+        }
+
         if
             let amount = Decimal.fromSubstrateAmount(
                 bondedAmount,
@@ -134,6 +144,7 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
 
             let existingBonding = ExistingBonding(
                 stashAddress: stashItem.stash,
+                controllerAccount: controllerAccount,
                 amount: amount,
                 rewardDestination: rewardDestination,
                 selectedTargets: selectedTargets
@@ -151,6 +162,15 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
 }
 
 extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
+        switch result {
+        case let .success(item):
+            controllerAccount = item
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
         switch result {
         case let .success(item):

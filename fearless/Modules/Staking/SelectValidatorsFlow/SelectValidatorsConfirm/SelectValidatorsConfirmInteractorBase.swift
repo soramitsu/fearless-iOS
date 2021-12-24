@@ -6,6 +6,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     StakingDurationFetching {
     weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
+    let balanceAccountId: AccountId
     let runtimeService: RuntimeCodingServiceProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let durationOperationFactory: StakingDurationOperationFactoryProtocol
@@ -25,6 +26,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
     init(
+        balanceAccountId: AccountId,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -37,6 +39,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
+        self.balanceAccountId = balanceAccountId
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -57,9 +60,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
-            balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
-        }
+        balanceProvider = subscribeToAccountInfoProvider(for: balanceAccountId, chainId: chain.chainId)
 
         minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
 

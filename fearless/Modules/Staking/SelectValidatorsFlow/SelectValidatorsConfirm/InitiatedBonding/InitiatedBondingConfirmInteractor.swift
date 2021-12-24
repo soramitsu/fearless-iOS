@@ -6,6 +6,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
     let nomination: PreparedNomination<InitiatedBonding>
 
     init(
+        chainAccount: ChainAccountResponse,
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
@@ -22,6 +23,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
         self.nomination = nomination
 
         super.init(
+            balanceAccountId: chainAccount.accountId,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

@@ -5,7 +5,7 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 
-final class StakingPayoutConfirmationInteractor {
+final class StakingPayoutConfirmationInteractor: AccountFetching {
     typealias Batch = [PayoutInfo]
 
     private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
@@ -17,6 +17,7 @@ final class StakingPayoutConfirmationInteractor {
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol?
     private let payouts: [PayoutInfo]
@@ -49,7 +50,8 @@ final class StakingPayoutConfirmationInteractor {
         selectedAccount: MetaAccountModel,
         payouts: [PayoutInfo],
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.extrinsicOperationFactory = extrinsicOperationFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -64,6 +66,7 @@ final class StakingPayoutConfirmationInteractor {
         self.payouts = payouts
         self.chain = chain
         self.asset = asset
+        self.accountRepository = accountRepository
     }
 
     // MARK: - Private functions
@@ -124,26 +127,39 @@ final class StakingPayoutConfirmationInteractor {
             presenter.didReceiveRewardDestination(result: .failure(CommonError.undefined))
             return
         }
-
+        
         do {
             let rewardDestination = try RewardDestination(
                 payee: payee,
                 stashItem: stashItem,
                 chainFormat: chain.chainFormat
             )
-
+            
             switch rewardDestination {
             case .restake:
                 presenter.didReceiveRewardDestination(result: .success(.restake))
-
+                
             case let .payout(payoutAddress):
-                let displayAddress = DisplayAddress(
-                    address: payoutAddress,
-                    username: selectedAccount.name
-                )
-
-                let result: RewardDestination = .payout(account: displayAddress)
-                presenter.didReceiveRewardDestination(result: .success(result))
+                fetchChainAccount(chain: chain,
+                                  address: payoutAddress,
+                                  from: accountRepository,
+                                  operationManager: operationManager) { [weak self] result in
+                    switch result {
+                    case let .success(account):
+                        let displayAddress = DisplayAddress(
+                            address: payoutAddress,
+                            username: account?.name ?? ""
+                        )
+                        
+                        let destination: RewardDestination = .payout(account: displayAddress)
+                        self?.presenter.didReceiveRewardDestination(result: .success(destination))
+                        
+                    case let .failure(error):
+                        self?.presenter.didReceiveRewardDestination(result: .failure(error))
+                    }
+                    
+                    
+                }
             }
         } catch {
             logger?.error("Did receive reward destination error: \(error)")

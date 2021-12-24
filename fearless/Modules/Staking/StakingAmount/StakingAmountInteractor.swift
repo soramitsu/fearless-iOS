@@ -18,6 +18,7 @@ final class StakingAmountInteractor {
     let asset: AssetModel
     let chain: ChainModel
     let selectedAccount: MetaAccountModel
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -35,7 +36,8 @@ final class StakingAmountInteractor {
         operationManager: OperationManagerProtocol,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -47,6 +49,7 @@ final class StakingAmountInteractor {
         self.chain = chain
         self.asset = asset
         self.selectedAccount = selectedAccount
+        self.accountRepository = accountRepository
     }
 
     private func provideRewardCalculator() {
@@ -104,15 +107,18 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
     }
 
     func fetchAccounts() {
-        // TODO: Restore logic if needed
-//        fetchAllAccounts(from: repository, operationManager: operationManager) { [weak self] result in
-//            switch result {
-//            case let .success(accounts):
-//                self?.presenter.didReceive(accounts: accounts)
-//            case let .failure(error):
-//                self?.presenter.didReceive(error: error)
-//            }
-//        }
+        fetchChainAccounts(
+            chain: chain,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(accounts):
+                self?.presenter.didReceive(accounts: accounts)
+            case let .failure(error):
+                self?.presenter.didReceive(error: error)
+            }
+        }
     }
 
     func estimateFee(

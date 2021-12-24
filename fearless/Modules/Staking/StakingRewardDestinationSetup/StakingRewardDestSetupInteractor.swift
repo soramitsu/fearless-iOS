@@ -1,6 +1,7 @@
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
@@ -9,7 +10,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
 
-    let extrinsicService: ExtrinsicServiceProtocol
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    var extrinsicService: ExtrinsicServiceProtocol?
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let calculatorService: RewardCalculatorServiceProtocol
     let runtimeService: RuntimeCodingServiceProtocol
@@ -18,6 +20,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let asset: AssetModel
     let chain: ChainModel
     let selectedAccount: MetaAccountModel
+    let connection: JSONRPCEngine
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -32,10 +35,10 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private lazy var addressFactory = SS58AddressFactory()
 
     init(
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
-        extrinsicService: ExtrinsicServiceProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         calculatorService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -43,12 +46,12 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         feeProxy: ExtrinsicFeeProxyProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        connection: JSONRPCEngine
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
-        self.extrinsicService = extrinsicService
         self.substrateProviderFactory = substrateProviderFactory
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
@@ -57,6 +60,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         self.asset = asset
         self.chain = chain
         self.selectedAccount = selectedAccount
+        self.accountRepository = accountRepository
+        self.connection = connection
     }
 
     private func provideRewardCalculator() {
@@ -78,6 +83,23 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
             in: .transient
         )
     }
+
+    private func setupExtrinsicServiceIfNeeded(_ accountItem: ChainAccountResponse) {
+        guard extrinsicService == nil else {
+            return
+        }
+
+        extrinsicService = ExtrinsicService(
+            accountId: accountItem.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountItem.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        estimateFee()
+    }
 }
 
 extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInputProtocol {
@@ -96,7 +118,8 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
     }
 
     func estimateFee() {
-        guard let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
+        guard let extrinsicService = extrinsicService,
+              let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
             return
         }
         do {
@@ -116,10 +139,13 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
     }
 
     func fetchPayoutAccounts() {
-        // TODO: Restore logic if needed
-//        fetchAllAccounts(from: accountRepository, operationManager: operationManager) { [weak self] result in
-//            self?.presenter.didReceiveAccounts(result: result)
-//        }
+        fetchChainAccounts(
+            chain: chain,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveAccounts(result: result)
+        }
     }
 }
 
@@ -159,30 +185,31 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
 
                 estimateFee()
 
-                // TODO: Restore logic if needed
-//                fetchAccount(
-//                    for: stashItem.stash,
-//                    from: accountRepository,
-//                    operationManager: operationManager
-//                ) { [weak self] result in
-//                    if case let .success(maybeStash) = result, let stash = maybeStash {
-//                        self?.setupExtrinsicServiceIfNeeded(stash)
-//                    }
-//
-//                    self?.presenter.didReceiveStash(result: result)
-//                }
-//
-//                fetchAccount(
-//                    for: stashItem.controller,
-//                    from: accountRepository,
-//                    operationManager: operationManager
-//                ) { [weak self] result in
-//                    if case let .success(maybeController) = result, let controller = maybeController {
-//                        self?.setupExtrinsicServiceIfNeeded(controller)
-//                    }
-//
-//                    self?.presenter.didReceiveController(result: result)
-//                }
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.stash,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    if case let .success(stash) = result, let stash = stash {
+                        self?.setupExtrinsicServiceIfNeeded(stash)
+                    }
+
+                    self?.presenter.didReceiveStash(result: result)
+                }
+
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.controller,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    if case let .success(controller) = result, let controller = controller {
+                        self?.setupExtrinsicServiceIfNeeded(controller)
+                    }
+
+                    self?.presenter.didReceiveController(result: result)
+                }
 
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
@@ -224,27 +251,27 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
                 presenter.didReceiveRewardDestinationAccount(result: .success(.restake))
             case let .payout(account):
                 break
-                // TODO: Restore logic if needed
-//                fetchAccount(
-//                    for: account,
-//                    from: accountRepository,
-//                    operationManager: operationManager
-//                ) { [weak self] result in
-//                    switch result {
-//                    case let .success(accountItem):
-//                        if let accountItem = accountItem {
-//                            self?.presenter.didReceiveRewardDestinationAccount(
-//                                result: .success(.payout(account: accountItem))
-//                            )
-//                        } else {
-//                            self?.presenter.didReceiveRewardDestinationAddress(
-//                                result: .success(.payout(account: account))
-//                            )
-//                        }
-//                    case let .failure(error):
-//                        self?.presenter.didReceiveRewardDestinationAccount(result: .failure(error))
-//                    }
-//                }
+                fetchChainAccount(
+                    chain: chain,
+                    address: account,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    switch result {
+                    case let .success(accountItem):
+                        if let accountItem = accountItem {
+                            self?.presenter.didReceiveRewardDestinationAccount(
+                                result: .success(.payout(account: accountItem))
+                            )
+                        } else {
+                            self?.presenter.didReceiveRewardDestinationAddress(
+                                result: .success(.payout(account: account))
+                            )
+                        }
+                    case let .failure(error):
+                        self?.presenter.didReceiveRewardDestinationAccount(result: .failure(error))
+                    }
+                }
             }
         } catch {
             presenter.didReceiveRewardDestinationAccount(result: .failure(error))

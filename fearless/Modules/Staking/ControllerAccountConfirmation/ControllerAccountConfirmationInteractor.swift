@@ -123,15 +123,15 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
         }
     }
 
-    func fetchStashAccountItem(for _: AccountAddress) {
-        // TODO: Restore logic
-//        fetchAccount(
-//            for: address,
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            self?.presenter.didReceiveStashAccount(result: result)
-//        }
+    func fetchStashAccountItem(for address: AccountAddress) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveStashAccount(result: result)
+        }
     }
 
     func estimateFee() {
@@ -180,34 +180,40 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
     }
 
     private func handle(stashItem: StashItem) {
-        let addressFactory = SS58AddressFactory()
-        if let accountId = try? addressFactory.accountId(
-            fromAddress: stashItem.stash,
-            addressPrefix: chain.addressPrefix
-        ) {
-            accountInfoProvider = subscribeToAccountInfoProvider(
-                for: accountId,
-                chainId: chain.chainId
-            )
-        }
+        fetchChainAccount(
+            chain: chain,
+            address: stashItem.stash,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            guard let self = self else {
+                return
+            }
 
-        // TODO: Restore logic
-//        fetchAccount(
-//            for: stashItem.stash,
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            switch result {
-//            case let .success(accountItem):
-//                if let accountItem = accountItem {
-//                    self?.extrinsicService = self?.extrinsicServiceFactory.createService(accountItem: accountItem)
-//                    self?.estimateFee()
-//                }
-//                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
-//            case let .failure(error):
-//                self?.presenter.didReceiveStashAccount(result: .failure(error))
-//            }
-//        }
+            switch result {
+            case let .success(accountItem):
+                if let accountItem = accountItem {
+                    self.accountInfoProvider = self.subscribeToAccountInfoProvider(
+                        for: accountItem.accountId,
+                        chainId: self.chain.chainId
+                    )
+
+                    self.extrinsicService = ExtrinsicService(
+                        accountId: accountItem.accountId,
+                        chainFormat: self.chain.chainFormat,
+                        cryptoType: accountItem.cryptoType,
+                        runtimeRegistry: self.runtimeService,
+                        engine: self.engine,
+                        operationManager: self.operationManager
+                    )
+
+                    self.estimateFee()
+                }
+                self.presenter.didReceiveStashAccount(result: .success(accountItem))
+            case let .failure(error):
+                self.presenter.didReceiveStashAccount(result: .failure(error))
+            }
+        }
     }
 }
 

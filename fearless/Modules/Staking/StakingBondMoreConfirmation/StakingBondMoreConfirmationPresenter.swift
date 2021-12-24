@@ -14,6 +14,8 @@ final class StakingBondMoreConfirmationPresenter {
     let asset: AssetModel
     let logger: LoggerProtocol?
 
+    var stashAccount: ChainAccountResponse?
+
     private var balance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
@@ -107,12 +109,11 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPrese
                 spendingAmount: inputAmount,
                 locale: locale
             ),
-            // TODO: Restore logic if needed
-//            dataValidatingFactory.has(
-//                stash: stashAccount,
-//                for: stashItem?.stash ?? "",
-//                locale: locale
-//            )
+            dataValidatingFactory.has(
+                stash: stashAccount,
+                for: stashItem?.stash ?? "",
+                locale: locale
+            )
         ]).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
@@ -180,18 +181,17 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
         }
     }
 
-    func didReceiveStash(result _: Result<AccountItem?, Error>) {
-        // TODO: Restore logic if needed
-//        switch result {
-//        case let .success(stashAccount):
-//            self.stashAccount = stashAccount
-//
-//            provideConfirmationViewModel()
-//
-//            refreshFeeIfNeeded()
-//        case let .failure(error):
-//            logger?.error("Did receive stash account error: \(error)")
-//        }
+    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
+        switch result {
+        case let .success(stashAccount):
+            self.stashAccount = stashAccount
+
+            provideConfirmationViewModel()
+
+            refreshFeeIfNeeded()
+        case let .failure(error):
+            logger?.error("Did receive stash account error: \(error)")
+        }
     }
 
     func didReceiveStashItem(result: Result<StashItem?, Error>) {

@@ -92,6 +92,10 @@ struct YourValidatorListViewFactory {
             logger: Logger.shared
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return YourValidatorListInteractor(
             chain: chain,
             asset: asset,
@@ -101,7 +105,8 @@ struct YourValidatorListViewFactory {
             eraValidatorService: EraValidatorFacade.sharedService,
             validatorOperationFactory: validatorOperationFactory,
             operationManager: OperationManagerFacade.sharedManager,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

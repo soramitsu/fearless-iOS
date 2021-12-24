@@ -22,6 +22,7 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
         self.nomination = nomination
 
         super.init(
+            balanceAccountId: nomination.bonding.controllerAccount.accountId,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -67,11 +68,12 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
         let currentNomination = nomination
 
         let mapOperation: BaseOperation<SelectValidatorsConfirmationModel> = ClosureOperation {
+            let controller = currentNomination.bonding.controllerAccount
             let rewardDestination = try rewardDestWrapper.targetOperation.extractNoCancellableResultData()
 
             let controllerDisplayAddress = DisplayAddress(
-                address: self.selectedAccount.fetch(for: self.chain.accountRequest())?.toAddress() ?? "",
-                username: self.selectedAccount.name
+                address: controller.toAddress() ?? "",
+                username: controller.name
             )
 
             return SelectValidatorsConfirmationModel(

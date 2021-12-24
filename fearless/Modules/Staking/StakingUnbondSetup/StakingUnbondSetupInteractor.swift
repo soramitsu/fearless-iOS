@@ -18,12 +18,12 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let chain: ChainModel
     let asset: AssetModel
     let connection: JSONRPCEngine
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
-
     private var extrinsicService: ExtrinsicServiceProtocol?
 
     private lazy var callFactory = SubstrateCallFactory()
@@ -31,7 +31,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     init(
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel,
+        selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -39,7 +39,8 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -51,7 +52,8 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.asset = asset
         self.chain = chain
         self.connection = connection
-        selectedAccount = selectedMetaAccount
+        self.accountRepository = accountRepository
+        self.selectedAccount = selectedAccount
     }
 }
 
@@ -137,19 +139,33 @@ extension StakingUnbondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
 
             presenter.didReceiveStashItem(result: result)
 
-            let addressFactory = SS58AddressFactory()
+            if let stashItem = maybeStashItem {
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.controller,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    guard let self = self else {
+                        return
+                    }
+                    if case let .success(account) = result, let account = account {
+                        self.ledgerProvider = self.subscribeLedgerInfo(
+                            for: account.accountId,
+                            chainId: self.chain.chainId
+                        )
 
-            if let stashItem = maybeStashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
-                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
+                        self.accountInfoProvider = self.subscribeToAccountInfoProvider(
+                            for: account.accountId,
+                            chainId: self.chain.chainId
+                        )
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                        self.handleController(accountItem: account)
+                    }
 
-                // TODO: Check this logic
-                if let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) {
-                    handleController(accountItem: accountResponse)
-//                    self?.presenter.didReceiveController(result: result)
+                    self.presenter.didReceiveController(result: result)
                 }
+
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
                 presenter.didReceiveAccountInfo(result: .success(nil))

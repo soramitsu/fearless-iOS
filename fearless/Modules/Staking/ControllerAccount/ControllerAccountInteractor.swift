@@ -61,13 +61,14 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        // TODO: Restore logic if needed
-//        fetchAllAccounts(
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            self?.presenter.didReceiveAccounts(result: result)
-//        }
+        fetchChainAccounts(
+            chain: chain,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveAccounts(result: result)
+        }
+
         feeProxy.delegate = self
     }
 
@@ -191,35 +192,26 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
             accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
         }
 
-        // TODO: Restore logic if needed
-//        fetchAccount(
-//            for: stashItem.stash,
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            switch result {
-//            case let .success(accountItem):
-//                if let accountItem = accountItem {
-//                    self?.handleAccount(accountItem)
-//                }
-//                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
-//            case let .failure(error):
-//                self?.presenter.didReceiveStashAccount(result: .failure(error))
-//            }
-//        }
+        fetchChainAccount(chain: chain, address: stashItem.stash, from: accountRepository, operationManager: operationManager) { [weak self] result in
+            switch result {
+            case let .success(accountItem):
+                if let accountItem = accountItem {
+                    self?.handleAccount(accountItem)
+                }
 
-        // TODO: Restore logic if needed
-//        fetchAccount(
-//            for: stashItem.controller,
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            if case let .success(maybeController) = result, let controller = maybeController {
-//                self?.estimateFee(for: controller)
-//            }
-//
-//            self?.presenter.didReceiveControllerAccount(result: result)
-//        }
+                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
+            case let .failure(error):
+                self?.presenter.didReceiveStashAccount(result: .failure(error))
+            }
+        }
+
+        fetchChainAccount(chain: chain, address: stashItem.controller, from: accountRepository, operationManager: operationManager) { [weak self] result in
+            if case let .success(account) = result, let account = account {
+                self?.estimateFee(for: account)
+            }
+
+            self?.presenter.didReceiveControllerAccount(result: result)
+        }
     }
 
     private func handleAccount(_ account: ChainAccountResponse) {

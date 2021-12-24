@@ -78,7 +78,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            state,
+            nomination: state,
             keystore: keystore
         ) else {
             return nil
@@ -155,11 +155,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return nil
-        }
-
-        guard let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
@@ -197,6 +194,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let priceLocalSubcriptionFactory = PriceProviderFactory(storageFacade: storageFacade)
 
         return InitiatedBondingConfirmInteractor(
+            chainAccount: accountResponse,
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
@@ -216,7 +214,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
-        _ nomination: PreparedNomination<ExistingBonding>,
+        nomination: PreparedNomination<ExistingBonding>,
         keystore: KeystoreProtocol
     ) -> SelectValidatorsConfirmInteractorBase? {
         let operationManager = OperationManagerFacade.sharedManager
@@ -225,18 +223,17 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
-        guard let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
-            return nil
-        }
+        let existingSender = nomination.bonding.controllerAccount
 
         let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
+            accountId: existingSender.accountId,
             chainFormat: chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
+            cryptoType: existingSender.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager

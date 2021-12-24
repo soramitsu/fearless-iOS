@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import IrohaCrypto
 import SoraKeystore
+import FearlessUtils
 
 final class StakingRewardDestConfirmInteractor: AccountFetching {
     weak var presenter: StakingRewardDestConfirmInteractorOutputProtocol!
@@ -10,15 +11,18 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
 
-    let extrinsicService: ExtrinsicServiceProtocol
+    var extrinsicService: ExtrinsicServiceProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let asset: AssetModel
     let chain: ChainModel
-    let signingWrapper: SigningWrapperProtocol
+    var signingWrapper: SigningWrapperProtocol
     let selectedAccount: MetaAccountModel
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    let connection: JSONRPCEngine
+    let keystore: KeystoreProtocol
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -39,7 +43,10 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        connection: JSONRPCEngine,
+        keystore: KeystoreProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -53,14 +60,26 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         self.chain = chain
         self.selectedAccount = selectedAccount
         self.signingWrapper = signingWrapper
+        self.keystore = keystore
+        self.connection = connection
+        self.accountRepository = accountRepository
     }
 
-    private func setupExtrinsicService(_: AccountItem) {
-//        extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
-//        signingWrapper = extrinsicServiceFactory.createSigningWrapper(
-//            accountItem: accountItem,
-//            connectionItem: settings.selectedConnection
-//        )
+    private func setupExtrinsicService(_ account: ChainAccountResponse) {
+        extrinsicService = ExtrinsicService(
+            accountId: account.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: account.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedAccount.metaId,
+            accountResponse: account
+        )
     }
 }
 
@@ -137,19 +156,18 @@ extension StakingRewardDestConfirmInteractor: StakingLocalStorageSubscriber, Sta
                     chainId: chain.chainId
                 )
 
-                // TODO: Restore logic if needed
-//                fetchAccount(
-//                    for: stashItem.controller,
-//                    from: accountRepository,
-//                    operationManager: operationManager
-//                ) { [weak self] result in
-//                    if case let .success(maybeController) = result, let controller = maybeController {
-//                        self?.setupExtrinsicService(controller)
-//                    }
-//
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.controller,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    if case let .success(maybeController) = result, let controller = maybeController {
+                        self?.setupExtrinsicService(controller)
+                    }
+                }
+
                 presenter.didReceiveStashItem(result: .success(stashItem))
-//                    self?.presenter.didReceiveController(result: result)
-//                }
 
             } else {
                 presenter.didReceiveStashItem(result: .success(nil))

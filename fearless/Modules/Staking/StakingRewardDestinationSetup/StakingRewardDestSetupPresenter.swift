@@ -134,12 +134,11 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
-            // TODO: Restore logic if needed
-//            dataValidatingFactory.has(
-//                controller: controllerAccount,
-//                for: stashItem?.controller ?? "",
-//                locale: locale
-//            ),
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
 
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()
@@ -162,18 +161,17 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
 }
 
 extension StakingRewardDestSetupPresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_: Int, context _: AnyObject?) {
-        // TODO: Restore logic if needed
-//        guard
-//            let accounts =
-//            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
-//        else {
-//            return
-//        }
-//
-//        rewardDestination = .payout(account: accounts[index])
-//
-//        provideRewardDestination()
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let accounts =
+            (context as? PrimitiveContextWrapper<[ChainAccountResponse]>)?.value
+        else {
+            return
+        }
+
+        rewardDestination = .payout(account: accounts[index])
+
+        provideRewardDestination()
     }
 }
 
@@ -289,15 +287,14 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
                     .stakingRewardPayoutAccount(preferredLanguages: locale.rLanguages)
             }
 
-            // TODO: Restore logic if needed
-//            wireframe.presentAccountSelection(
-//                accounts,
-//                selectedAccountItem: rewardDestination?.payoutAccount,
-//                title: title,
-//                delegate: self,
-//                from: view,
-//                context: context
-//            )
+            wireframe.presentAccountSelection(
+                accounts,
+                selectedAccountItem: rewardDestination?.payoutAccount,
+                title: title,
+                delegate: self,
+                from: view,
+                context: context
+            )
 
         case let .failure(error):
             logger?.error("Did receive accounts retrieval error: \(error)")

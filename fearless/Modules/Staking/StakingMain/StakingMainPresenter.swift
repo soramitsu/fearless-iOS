@@ -127,6 +127,7 @@ final class StakingMainPresenter {
 
             let existingBonding = ExistingBonding(
                 stashAddress: bondedState.stashItem.stash,
+                controllerAccount: controllerAccount,
                 amount: amount,
                 rewardDestination: rewardDestination,
                 selectedTargets: nil

@@ -2,13 +2,16 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import SoraKeystore
+import FearlessUtils
 
 final class StakingBondMoreInteractor: AccountFetching {
     weak var presenter: StakingBondMoreInteractorOutputProtocol!
 
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
-    private let extrinsicService: ExtrinsicServiceProtocol
+    private let connection: JSONRPCEngine
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private var extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
@@ -36,7 +39,9 @@ final class StakingBondMoreInteractor: AccountFetching {
         operationManager: OperationManagerProtocol,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        connection: JSONRPCEngine
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -49,9 +54,22 @@ final class StakingBondMoreInteractor: AccountFetching {
         self.chain = chain
         self.asset = asset
         self.selectedAccount = selectedAccount
+        self.accountRepository = accountRepository
+        self.connection = connection
     }
 
-    func handleStashAccountItem(_: AccountItem) {}
+    func handleStashAccountItem(_ account: ChainAccountResponse) {
+        extrinsicService = ExtrinsicService(
+            accountId: account.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: account.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        estimateFee()
+    }
 }
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
@@ -106,13 +124,27 @@ extension StakingBondMoreInteractor: StakingLocalStorageSubscriber, StakingLocal
             presenter.didReceiveStashItem(result: result)
 
             if let stashItem = maybeStashItem {
-                let addressFactory = SS58AddressFactory()
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.stash,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    guard let self = self else {
+                        return
+                    }
 
-                if let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
-                    balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                    if case let .success(stash) = result, let stash = stash {
+                        self.balanceProvider = self.subscribeToAccountInfoProvider(
+                            for: stash.accountId,
+                            chainId: self.chain.chainId
+                        )
+
+                        self.handleStashAccountItem(stash)
+                    }
+
+                    self.presenter.didReceiveStash(result: result)
                 }
-
-                estimateFee()
             } else {
                 presenter.didReceiveAccountInfo(result: .success(nil))
             }

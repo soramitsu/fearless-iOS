@@ -94,6 +94,10 @@ struct StakingBondMoreViewFactory {
             logger: logger
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         let interactor = StakingBondMoreInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -105,7 +109,9 @@ struct StakingBondMoreViewFactory {
             operationManager: operationManager,
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            connection: connection
         )
 
         return interactor

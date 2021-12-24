@@ -30,7 +30,7 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveBondingDuration(result: Result<UInt32, Error>)
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveController(result: Result<AccountItem?, Error>)
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 

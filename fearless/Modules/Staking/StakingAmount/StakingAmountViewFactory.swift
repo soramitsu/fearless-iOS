@@ -132,6 +132,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             logger: logger
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return StakingAmountInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -142,7 +146,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: operationManager,
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

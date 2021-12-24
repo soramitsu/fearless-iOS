@@ -18,6 +18,7 @@ final class StakingBalanceInteractor: AccountFetching {
     var stashControllerProvider: StreamableProvider<StashItem>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     let connection: JSONRPCEngine
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     init(
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
@@ -28,7 +29,8 @@ final class StakingBalanceInteractor: AccountFetching {
         runtimeCodingService: RuntimeCodingServiceProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -39,25 +41,28 @@ final class StakingBalanceInteractor: AccountFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.operationManager = operationManager
         self.connection = connection
+        self.accountRepository = accountRepository
     }
 
-    func fetchAccounts(for _: StashItem) {
-        // TODO: Restore logic if needed
-//        fetchAccount(
-//            for: stashItem.controller,
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            self?.presenter.didReceive(controllerResult: result)
-//        }
-//
-//        fetchAccount(
-//            for: stashItem.stash,
-//            from: accountRepository,
-//            operationManager: operationManager
-//        ) { [weak self] result in
-//            self?.presenter.didReceive(stashResult: result)
-//        }
+    func fetchAccounts(for stashItem: StashItem) {
+        fetchChainAccount(
+            chain: chain,
+            address: stashItem.controller,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceive(controllerResult: result)
+        }
+
+        fetchChainAccount(
+            chain: chain,
+            address:
+            stashItem.stash,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceive(stashResult: result)
+        }
     }
 
     func fetchEraCompletionTime() {

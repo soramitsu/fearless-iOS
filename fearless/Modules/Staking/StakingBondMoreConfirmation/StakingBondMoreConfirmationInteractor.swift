@@ -2,6 +2,7 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import SoraKeystore
+import FearlessUtils
 
 final class StakingBondMoreConfirmationInteractor: AccountFetching {
     weak var presenter: StakingBondMoreConfirmationOutputProtocol!
@@ -11,18 +12,21 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
 
-    private let extrinsicService: ExtrinsicServiceProtocol
+    private var extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let chain: ChainModel
     private let asset: AssetModel
     private let selectedAccount: MetaAccountModel
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let connection: JSONRPCEngine
+    private let keystore: KeystoreProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private let signingWrapper: SigningWrapperProtocol
+    private var signingWrapper: SigningWrapperProtocol
 
     private lazy var callFactory = SubstrateCallFactory()
 
@@ -38,7 +42,10 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        connection: JSONRPCEngine,
+        keystore: KeystoreProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
@@ -52,6 +59,26 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
         self.asset = asset
         self.selectedAccount = selectedAccount
         self.signingWrapper = signingWrapper
+        self.accountRepository = accountRepository
+        self.connection = connection
+        self.keystore = keystore
+    }
+
+    func handleStashAccountItem(_ accountItem: ChainAccountResponse) {
+        extrinsicService = ExtrinsicService(
+            accountId: accountItem.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountItem.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedAccount.metaId,
+            accountResponse: accountItem
+        )
     }
 }
 
@@ -130,8 +157,24 @@ extension StakingBondMoreConfirmationInteractor: StakingLocalStorageSubscriber, 
             if let stashItem = maybeStashItem {
                 let addressFactory = SS58AddressFactory()
 
-                if let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
+                if let accountId = try? addressFactory.accountId(
+                    fromAddress: stashItem.stash,
+                    type: chain.addressPrefix
+                ) {
                     balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                }
+
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.stash,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    if case let .success(stash) = result, let stash = stash {
+                        self?.handleStashAccountItem(stash)
+                    }
+
+                    self?.presenter.didReceiveStash(result: result)
                 }
             } else {
                 presenter.didReceiveAccountInfo(result: .success(nil))

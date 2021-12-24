@@ -65,6 +65,10 @@ struct ChainModel: Equatable, Codable, Hashable {
     var erasPerDay: UInt32 {
         0
     }
+
+    var emptyURL: URL {
+        URL(string: "")!
+    }
 }
 
 extension ChainModel: Identifiable {

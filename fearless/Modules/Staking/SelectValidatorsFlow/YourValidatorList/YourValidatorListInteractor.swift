@@ -3,7 +3,7 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 
-final class YourValidatorListInteractor {
+final class YourValidatorListInteractor: AccountFetching {
     weak var presenter: YourValidatorListInteractorOutputProtocol!
 
     let chain: ChainModel
@@ -15,6 +15,7 @@ final class YourValidatorListInteractor {
     let validatorOperationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     var stashControllerProvider: StreamableProvider<StashItem>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
@@ -31,7 +32,8 @@ final class YourValidatorListInteractor {
         eraValidatorService: EraValidatorServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.chain = chain
         self.asset = asset
@@ -42,6 +44,18 @@ final class YourValidatorListInteractor {
         self.validatorOperationFactory = validatorOperationFactory
         self.operationManager = operationManager
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.accountRepository = accountRepository
+    }
+
+    func fetchController(for address: AccountAddress) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveController(result: result)
+        }
     }
 
     func handle(stashItem: StashItem?, at _: EraIndex) {
@@ -51,11 +65,16 @@ final class YourValidatorListInteractor {
 
         let addressFactory = SS58AddressFactory()
 
+        if let stashItem = stashItem {
+            fetchController(for: stashItem.controller)
+        }
+
         if let address = stashItem?.controller,
            let accountId = try? addressFactory.accountId(fromAddress: address, addressPrefix: chain.addressPrefix) {
             nominatorProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
             ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
             rewardDestinationProvider = subscribePayee(for: accountId, chainId: chain.chainId)
+
         } else {
             presenter.didReceiveValidators(result: .success(nil))
         }

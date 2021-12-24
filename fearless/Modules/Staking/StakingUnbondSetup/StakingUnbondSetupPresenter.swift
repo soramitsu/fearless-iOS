@@ -22,7 +22,7 @@ final class StakingUnbondSetupPresenter {
     private var minimalBalance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
-//    private var controller: AccountItem?
+    private var controller: ChainAccountResponse?
     private var stashItem: StashItem?
 
     init(
@@ -241,16 +241,15 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         }
     }
 
-    func didReceiveController(result _: Result<AccountItem?, Error>) {
-        // TODO: Restore logic if needed
-//        switch result {
-//        case let .success(accountItem):
-//            if let accountItem = accountItem {
-//                controller = accountItem
-//            }
-//        case let .failure(error):
-//            logger?.error("Did receive controller account error: \(error)")
-//        }
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            if let accountItem = accountItem {
+                controller = accountItem
+            }
+        case let .failure(error):
+            logger?.error("Did receive controller account error: \(error)")
+        }
     }
 
     func didReceiveStashItem(result: Result<StashItem?, Error>) {

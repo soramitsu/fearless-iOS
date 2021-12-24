@@ -127,6 +127,10 @@ struct StakingBondMoreConfirmViewFactory {
             accountResponse: accountResponse
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return StakingBondMoreConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -139,7 +143,10 @@ struct StakingBondMoreConfirmViewFactory {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            signingWrapper: signingWrapper
+            signingWrapper: signingWrapper,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            connection: connection,
+            keystore: keystore
         )
     }
 }

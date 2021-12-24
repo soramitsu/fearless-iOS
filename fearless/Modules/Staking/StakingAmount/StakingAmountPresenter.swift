@@ -274,18 +274,21 @@ extension StakingAmountPresenter: SchedulerDelegate {
 
 extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     func didReceive(accounts: [ChainAccountResponse]) {
+        guard let payoutAccount = payoutAccount else {
+            return
+        }
+
         loadingPayouts = false
 
         let context = PrimitiveContextWrapper(value: accounts)
 
-        // TODO: Restore logic if needed
-//        wireframe.presentAccountSelection(
-//            accounts,
-//            selectedAccountItem: payoutAccountAddress,
-//            delegate: self,
-//            from: view,
-//            context: context
-//        )
+        wireframe.presentAccountSelection(
+            accounts,
+            selectedAccountItem: payoutAccount,
+            delegate: self,
+            from: view,
+            context: context
+        )
     }
 
     func didReceive(price: PriceData?) {

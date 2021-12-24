@@ -96,12 +96,12 @@ struct ControllerAccountViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let facade = UserDataStorageFacade.shared
-
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
+
+        let facade = UserDataStorageFacade.shared
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
 

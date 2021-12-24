@@ -114,11 +114,15 @@ struct StakingRewardDestSetupViewFactory {
             accountResponse: accountResponse
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return StakingRewardDestSetupInteractor(
+            accountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-            extrinsicService: extrinsicService,
             substrateProviderFactory: substrateProviderFactory,
             calculatorService: RewardCalculatorFacade.sharedService,
             runtimeService: runtimeService,
@@ -126,7 +130,8 @@ struct StakingRewardDestSetupViewFactory {
             feeProxy: feeProxy,
             asset: asset,
             chain: chain,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            connection: connection
         )
     }
 }
