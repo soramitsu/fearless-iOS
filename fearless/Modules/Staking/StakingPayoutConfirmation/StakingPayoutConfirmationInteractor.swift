@@ -127,38 +127,38 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
             presenter.didReceiveRewardDestination(result: .failure(CommonError.undefined))
             return
         }
-        
+
         do {
             let rewardDestination = try RewardDestination(
                 payee: payee,
                 stashItem: stashItem,
                 chainFormat: chain.chainFormat
             )
-            
+
             switch rewardDestination {
             case .restake:
                 presenter.didReceiveRewardDestination(result: .success(.restake))
-                
+
             case let .payout(payoutAddress):
-                fetchChainAccount(chain: chain,
-                                  address: payoutAddress,
-                                  from: accountRepository,
-                                  operationManager: operationManager) { [weak self] result in
+                fetchChainAccount(
+                    chain: chain,
+                    address: payoutAddress,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
                     switch result {
                     case let .success(account):
                         let displayAddress = DisplayAddress(
                             address: payoutAddress,
                             username: account?.name ?? ""
                         )
-                        
+
                         let destination: RewardDestination = .payout(account: displayAddress)
                         self?.presenter.didReceiveRewardDestination(result: .success(destination))
-                        
+
                     case let .failure(error):
                         self?.presenter.didReceiveRewardDestination(result: .failure(error))
                     }
-                    
-                    
                 }
             }
         } catch {

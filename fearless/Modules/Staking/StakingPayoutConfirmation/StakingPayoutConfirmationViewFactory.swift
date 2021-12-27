@@ -118,6 +118,10 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             accountResponse: accountResponse
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return StakingPayoutConfirmationInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
@@ -131,7 +135,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             selectedAccount: selectedAccount,
             payouts: payouts,
             chain: chain,
-            asset: asset
+            asset: asset,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }
