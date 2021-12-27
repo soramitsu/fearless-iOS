@@ -61,7 +61,8 @@ final class ChainSelectionPresenter {
 
     private func updateView() {
         viewModels = chainModels.map { chainModel in
-            let icon = RemoteImageViewModel(url: chainModel.icon)
+            let icon: ImageViewModelProtocol? =
+                (chainModel.icon != nil) ? RemoteImageViewModel(url: chainModel.icon!) : nil
             let title = chainModel.name
             let isSelected = chainModel.identifier == selectedChainId
             let balance = extractBalance(for: chainModel) ?? ""

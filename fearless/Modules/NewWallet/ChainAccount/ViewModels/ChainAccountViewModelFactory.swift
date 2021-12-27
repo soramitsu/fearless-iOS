@@ -84,7 +84,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     ) -> AssetInfoViewModel {
         AssetInfoViewModel(
             assetInfo: assetModel.displayInfo,
-            imageViewModel: buildRemoteImageViewModel(chain: chain),
+            imageViewModel: chain.icon != nil ? buildRemoteImageViewModel(url: chain.icon!) : nil,
             priceAttributedString: buildPriceViewModel(
                 for: assetModel,
                 priceData: priceData,

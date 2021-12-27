@@ -57,7 +57,7 @@ extension AssetModel {
         )
     }
 
-    func displayInfo(with chainIcon: URL) -> AssetBalanceDisplayInfo {
+    func displayInfo(with chainIcon: URL?) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),

@@ -10,10 +10,14 @@ extension ChainOptionsViewModelFactoryProtocol {
 
         var viewModels: [ChainOptionsViewModel] = []
 
-        if chainAsset.chain.name != nil {
+        if chainAsset.chain.name.isEmpty == false {
+            var icon: ImageViewModelProtocol?
+            if let iconUrl = chainAsset.chain.icon {
+                icon = RemoteImageViewModel(url: iconUrl)
+            }
             let chainNameOptionViewModel = ChainOptionsViewModel(
                 text: chainAsset.chain.name,
-                icon: RemoteImageViewModel(url: chainAsset.chain.icon)
+                icon: icon
             )
             viewModels.append(chainNameOptionViewModel)
         }

@@ -83,7 +83,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         accountInfo: AccountInfo?,
         locale: Locale
     ) -> ChainAccountBalanceCellViewModel {
-        let icon = buildRemoteImageViewModel(chain: chainAsset.chain)
+        let icon = (chainAsset.chain.icon != nil) ? buildRemoteImageViewModel(url: chainAsset.chain.icon!) : nil
         let title = chainAsset.chain.name
         let balance = getBalance(
             for: chainAsset.chain,
@@ -97,7 +97,11 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             priceData: priceData,
             locale: locale
         )
-        let priceAttributedString = getPriceAttributedString(for: chainAsset.asset, priceData: priceData, locale: locale)
+        let priceAttributedString = getPriceAttributedString(
+            for: chainAsset.asset,
+            priceData: priceData,
+            locale: locale
+        )
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         return ChainAccountBalanceCellViewModel(

@@ -245,7 +245,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             nodes: Set(nodes),
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
-            icon: entity.icon!,
+            icon: entity.icon,
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet
         )

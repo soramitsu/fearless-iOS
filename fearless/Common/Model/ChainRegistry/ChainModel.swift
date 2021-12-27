@@ -34,7 +34,7 @@ class ChainModel: Codable {
     let nodes: Set<ChainNodeModel>
     let addressPrefix: UInt16
     let types: TypesSettings?
-    let icon: URL
+    let icon: URL?
     let options: [ChainOptions]?
     let externalApi: ExternalApiSet?
 
@@ -46,7 +46,7 @@ class ChainModel: Codable {
         nodes: Set<ChainNodeModel>,
         addressPrefix: UInt16,
         types: TypesSettings? = nil,
-        icon: URL,
+        icon: URL?,
         options: [ChainOptions]? = nil,
         externalApi: ExternalApiSet? = nil
     ) {
