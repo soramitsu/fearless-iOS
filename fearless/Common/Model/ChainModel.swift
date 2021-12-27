@@ -7,7 +7,7 @@ struct ChainModel: Codable, Equatable {
     var externalApi: ChainExternalApi?
 
     static func == (lhs: ChainModel, rhs: ChainModel) -> Bool {
-        lhs.chainId == rhs.chainId && lhs.externalApi == rhs.externalApi
+        lhs.chainId == rhs.chainId
     }
 }
 
@@ -22,7 +22,7 @@ struct ChainExternalApi: Codable, Equatable {
 
 struct ChainExternalApiObject: Codable {
     var type: String
-    var url: String
+    var url: URL
 
     static func == (lhs: ChainExternalApiObject, rhs: ChainExternalApiObject) -> Bool {
         lhs.type == rhs.type && lhs.url == rhs.url
