@@ -13,6 +13,7 @@ protocol CrowdloanListPresenterProtocol: AnyObject {
     func setup()
     func refresh(shouldReset: Bool)
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)
+    func selectCompleted(_ viewModel: CrowdloanSectionItem<CompletedCrowdloanViewModel>)
     func becomeOnline()
     func putOffline()
 }

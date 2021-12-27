@@ -49,4 +49,5 @@ struct CompletedCrowdloanViewModel {
     let progress: String
     let iconViewModel: ImageViewModelProtocol
     let contribution: String?
+    let failedMemo: String?
 }

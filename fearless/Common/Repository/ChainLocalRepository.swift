@@ -34,7 +34,7 @@ final class ChainLocalRepository {
         let chains = utilsLocalRepository.fetch()
 
         guard let url = chains?
-                .first(where: { assetId.titleForLocale(Locale.current) == $0.name })?.externalApi?.history.url else {
+            .first(where: { assetId.titleForLocale(Locale.current) == $0.name })?.externalApi?.history.url else {
             return assetId.subqueryHistoryUrl
         }
 

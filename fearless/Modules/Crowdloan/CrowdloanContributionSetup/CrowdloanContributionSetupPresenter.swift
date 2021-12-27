@@ -279,6 +279,20 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             }
         } ?? true
 
+        let needsCapNotExceedingValidation = customFlow.map {
+            switch $0 {
+            case .moonbeamMemoFix: return false
+            default: return true
+            }
+        } ?? true
+
+        let needsCrowdloanIsNotCompletedValidation = customFlow.map {
+            switch $0 {
+            case .moonbeamMemoFix: return false
+            default: return true
+            }
+        } ?? true
+
         DataValidationRunner(validators: [
             //            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
 
@@ -299,18 +313,19 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 locale: selectedLocale
             ) : nil,
 
-            dataValidatingFactory.capNotExceeding(
-                contribution: contributionValue,
-                raised: crowdloan?.fundInfo.raised,
-                cap: crowdloan?.fundInfo.cap,
-                locale: selectedLocale
-            ),
+            needsCapNotExceedingValidation ?
+                dataValidatingFactory.capNotExceeding(
+                    contribution: contributionValue,
+                    raised: crowdloan?.fundInfo.raised,
+                    cap: crowdloan?.fundInfo.cap,
+                    locale: selectedLocale
+                ) : nil,
 
-            dataValidatingFactory.crowdloanIsNotCompleted(
+            needsCrowdloanIsNotCompletedValidation ? dataValidatingFactory.crowdloanIsNotCompleted(
                 crowdloan: crowdloan,
                 metadata: crowdloanMetadata,
                 locale: selectedLocale
-            ),
+            ) : nil,
 
             dataValidatingFactory.exsitentialDepositIsNotViolated(
                 spendingAmount: spendingValue,

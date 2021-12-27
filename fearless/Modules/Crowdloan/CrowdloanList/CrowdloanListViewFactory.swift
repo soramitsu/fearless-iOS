@@ -30,7 +30,8 @@ struct CrowdloanListViewFactory {
             viewModelFactory: viewModelFactory,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            moduleOutput: moduleOutput
+            moduleOutput: moduleOutput,
+            settings: SettingsManager.shared
         )
 
         let view = CrowdloanListViewController(
@@ -40,7 +41,7 @@ struct CrowdloanListViewFactory {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
+        interactor.output = presenter
 
         return view
     }

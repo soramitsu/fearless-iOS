@@ -3,7 +3,7 @@ import FearlessUtils
 import RobinHood
 
 final class CrowdloanListInteractor: RuntimeConstantFetching {
-    weak var presenter: CrowdloanListInteractorOutputProtocol!
+    weak var output: CrowdloanListInteractorOutputProtocol?
 
     let selectedAddress: AccountAddress
     let runtimeService: RuntimeCodingServiceProtocol
@@ -54,7 +54,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     private func handleFinalizedMemos(_ finalized: [SubscanMemoItemData]) {
         let memos: [(Bool, [CrowdloanAddMemoParam])] = finalized.compactMap {
             guard let success = $0.success, let paramsData = $0.params.data(using: .utf8) else {
-                presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                output?.didReceiveFailedMemos(result: .failure(CommonError.internal))
                 return nil
             }
 
@@ -64,7 +64,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                 let params = try decoder.decode([CrowdloanAddMemoParam].self, from: paramsData)
                 return (success, params)
             } catch {
-                presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                output?.didReceiveFailedMemos(result: .failure(CommonError.internal))
                 assertionFailure(error.localizedDescription)
                 return nil
             }
@@ -107,20 +107,23 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             do {
                 failedMemos[paraId] = try Data(hexString: failed).toHex(includePrefix: true)
             } catch {
-                presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                output?.didReceiveFailedMemos(result: .failure(CommonError.internal))
                 assertionFailure(error.localizedDescription)
             }
         }
 
-        presenter.didReceiveFailedMemos(result: .success(failedMemos))
+        output?.didReceiveFailedMemos(result: .success(failedMemos))
     }
 
     func requestMemoHistory() {
-        failedMemoRequestsAttemptsCount += 1
+        output?.didReceiveFailedMemos(result: .success([:]))
+        return
+
+                failedMemoRequestsAttemptsCount += 1
         let call = CallCodingPath.addMemo
 
         guard let subscanUrl = walletAssetId?.subscanUrl else {
-            presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+            output?.didReceiveFailedMemos(result: .failure(CommonError.internal))
             logger?.error("Failed to load call history: \(call)")
             return
         }
@@ -150,13 +153,13 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                     let response = try fetchOperation.extractNoCancellableResultData()
 
                     guard let finalized = response.extrinsics?.filter { $0.finalized == true }, !finalized.isEmpty else {
-                        self.presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                        self.output?.didReceiveFailedMemos(result: .failure(CommonError.internal))
                         return
                     }
 
                     self.handleFinalizedMemos(finalized)
                 } catch {
-                    self.presenter.didReceiveFailedMemos(result: .failure(CommonError.internal))
+                    self.output?.didReceiveFailedMemos(result: .failure(CommonError.internal))
                     self.logger?.error("Failed to load call history: \(call)")
 
                     if self.failedMemoRequestsAttemptsCount <= 3 {
@@ -171,7 +174,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
     private func provideContributions(for crowdloans: [Crowdloan]) {
         guard !crowdloans.isEmpty else {
-            presenter.didReceiveContributions(result: .success([:]))
+            output?.didReceiveContributions(result: .success([:]))
             return
         }
 
@@ -195,14 +198,14 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async {
                 do {
                     let contributions = try contributionsOperation.extractNoCancellableResultData().toDict()
-                    self?.presenter.didReceiveContributions(result: .success(contributions))
+                    self?.output?.didReceiveContributions(result: .success(contributions))
                 } catch {
                     if
                         let encodingError = error as? StorageKeyEncodingOperationError,
                         encodingError == .invalidStoragePath {
-                        self?.presenter.didReceiveContributions(result: .success([:]))
+                        self?.output?.didReceiveContributions(result: .success([:]))
                     } else {
-                        self?.presenter.didReceiveContributions(result: .failure(error))
+                        self?.output?.didReceiveContributions(result: .failure(error))
                     }
                 }
             }
@@ -213,7 +216,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
     private func provideLeaseInfo(for crowdloans: [Crowdloan]) {
         guard !crowdloans.isEmpty else {
-            presenter.didReceiveLeaseInfo(result: .success([:]))
+            output?.didReceiveLeaseInfo(result: .success([:]))
             return
         }
 
@@ -229,14 +232,14 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async {
                 do {
                     let leaseInfo = try queryWrapper.targetOperation.extractNoCancellableResultData().toMap()
-                    self?.presenter.didReceiveLeaseInfo(result: .success(leaseInfo))
+                    self?.output?.didReceiveLeaseInfo(result: .success(leaseInfo))
                 } catch {
                     if
                         let encodingError = error as? StorageKeyEncodingOperationError,
                         encodingError == .invalidStoragePath {
-                        self?.presenter.didReceiveLeaseInfo(result: .success([:]))
+                        self?.output?.didReceiveLeaseInfo(result: .success([:]))
                     } else {
-                        self?.presenter.didReceiveLeaseInfo(result: .failure(error))
+                        self?.output?.didReceiveLeaseInfo(result: .failure(error))
                     }
                 }
             }
@@ -266,18 +269,18 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                     let crowdloans = try crowdloanWrapper.targetOperation.extractNoCancellableResultData()
                     self?.provideContributions(for: crowdloans)
                     self?.provideLeaseInfo(for: crowdloans)
-                    self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
+                    self?.output?.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
                     if
                         let encodingError = error as? StorageKeyEncodingOperationError,
                         encodingError == .invalidStoragePath {
-                        self?.presenter.didReceiveCrowdloans(result: .success([]))
-                        self?.presenter.didReceiveContributions(result: .success([:]))
-                        self?.presenter.didReceiveLeaseInfo(result: .success([:]))
+                        self?.output?.didReceiveCrowdloans(result: .success([]))
+                        self?.output?.didReceiveContributions(result: .success([:]))
+                        self?.output?.didReceiveLeaseInfo(result: .success([:]))
                     } else {
-                        self?.presenter.didReceiveCrowdloans(result: .failure(error))
-                        self?.presenter.didReceiveContributions(result: .failure(error))
-                        self?.presenter.didReceiveLeaseInfo(result: .failure(error))
+                        self?.output?.didReceiveCrowdloans(result: .failure(error))
+                        self?.output?.didReceiveContributions(result: .failure(error))
+                        self?.output?.didReceiveLeaseInfo(result: .failure(error))
                     }
                 }
             }
@@ -289,12 +292,12 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     private func subscribeToDisplayInfo() {
         let updateClosure: ([DataProviderChange<CrowdloanDisplayInfoList>]) -> Void = { [weak self] changes in
             if let result = changes.reduceToLastChange() {
-                self?.presenter.didReceiveDisplayInfo(result: .success(result.toMap()))
+                self?.output?.didReceiveDisplayInfo(result: .success(result.toMap()))
             }
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceiveDisplayInfo(result: .failure(error))
+            self?.output?.didReceiveDisplayInfo(result: .failure(error))
         }
 
         let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true, waitsInProgressSyncOnAdd: false)
@@ -314,7 +317,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] (result: Result<BlockTime, Error>) in
-            self?.presenter.didReceiveBlockDuration(result: result)
+            self?.output?.didReceiveBlockDuration(result: result)
         }
 
         fetchConstant(
@@ -322,7 +325,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] (result: Result<LeasingPeriod, Error>) in
-            self?.presenter.didReceiveLeasingPeriod(result: result)
+            self?.output?.didReceiveLeasingPeriod(result: result)
         }
     }
 }
@@ -365,6 +368,6 @@ extension CrowdloanListInteractor: SingleValueProviderSubscriber, SingleValueSub
     AnyProviderAutoCleaning {
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chain _: Chain) {
         provideCrowdloans()
-        presenter.didReceiveBlockNumber(result: result)
+        output?.didReceiveBlockNumber(result: result)
     }
 }

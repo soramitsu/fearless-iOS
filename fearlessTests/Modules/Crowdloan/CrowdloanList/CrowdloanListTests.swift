@@ -181,11 +181,12 @@ class CrowdloanListTests: XCTestCase {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: localizationManager,
-            moduleOutput: nil
+            moduleOutput: nil,
+            settings: SettingsManager.shared
         )
 
         presenter.view = view
-        interactor.presenter = presenter
+        interactor.output = presenter
 
         return presenter
     }
