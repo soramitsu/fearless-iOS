@@ -116,7 +116,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     }
 
     func requestMemoHistory() {
-        failedMemoRequestsAttemptsCount += 1
+        output?.didReceiveFailedMemos(result: .success([:]))
+        return
+
+                failedMemoRequestsAttemptsCount += 1
         let call = CallCodingPath.addMemo
 
         guard let subscanUrl = walletAssetId?.subscanUrl else {
