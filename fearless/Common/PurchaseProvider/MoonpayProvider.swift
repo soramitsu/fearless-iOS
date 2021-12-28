@@ -3,6 +3,11 @@ import FearlessUtils
 import IrohaCrypto
 
 final class MoonpayProvider: PurchaseProviderProtocol {
+    enum Constants {
+        static let title = "Moonpay"
+        static let icon = R.image.iconMoonPay()
+    }
+
     static let baseUrlString = "https://buy.moonpay.com/"
 
     private var colorCode: String?
@@ -28,7 +33,7 @@ final class MoonpayProvider: PurchaseProviderProtocol {
 
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
         if let url = buildURLForToken(asset.id, address: address) {
-            return [PurchaseAction(title: "Moonpay", url: url, icon: R.image.iconRamp()!)]
+            return [PurchaseAction(title: Constants.title, url: url, icon: Constants.icon!)]
         }
         return []
     }

@@ -69,17 +69,10 @@ final class ChainAccountPresenter {
 private extension ChainAccountPresenter {
     func getPurchaseActions() -> [PurchaseAction] {
         var actions: [PurchaseAction] = []
+
         if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() {
-            let rampActions = rampProvider.buildPurchaseActions(
-                asset: asset,
-                address: address
-            )
-            actions.append(contentsOf: rampActions)
-            let moonpayActions = moonpayProvider.buildPurchaseActions(
-                asset: asset,
-                address: address
-            )
-            actions.append(contentsOf: moonpayActions)
+            let providersAggregator = PurchaseAggregator(providers: [rampProvider, moonpayProvider])
+            actions = providersAggregator.buildPurchaseActions(asset: asset, address: address)
         }
         return actions
     }
