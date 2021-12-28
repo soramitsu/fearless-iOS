@@ -123,7 +123,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         return StakingMainViewModel(
             address: address,
             chainName: chainAsset.chain.name,
-            assetName: chainAsset.asset.name ?? chainAsset.chain.name,
+            assetName: chainAsset.chain.name,
             assetIcon: imageViewModel,
             balanceViewModel: balanceViewModel
         )

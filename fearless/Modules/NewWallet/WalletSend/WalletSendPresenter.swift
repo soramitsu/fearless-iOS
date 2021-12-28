@@ -118,7 +118,7 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         provideViewModel()
 
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.symbol,
+            asset.id,
             preferredLanguages: selectedLocale.rLanguages
         ))
     }

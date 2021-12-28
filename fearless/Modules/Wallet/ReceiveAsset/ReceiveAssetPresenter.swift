@@ -62,7 +62,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
         let sources = sharingFactory.createSources(
             accountAddress: address,
             qrImage: qrImage,
-            assetSymbol: asset.symbol,
+            assetSymbol: asset.id,
             chainName: chain.name,
             locale: selectedLocale
         )
@@ -89,7 +89,7 @@ private extension ReceiveAssetPresenter {
         cancelQRGeneration()
         let receiveInfo = ReceiveInfo(
             accountId: account.identifier,
-            assetId: asset.name,
+            assetId: asset.id,
             amount: nil,
             details: nil
         )
@@ -128,7 +128,7 @@ private extension ReceiveAssetPresenter {
             return
         }
         view?.bind(viewModel: ReceiveAssetViewModel(
-            asset: asset.symbol,
+            asset: asset.id,
             accountName: account.name,
             address: address,
             iconGenerator: PolkadotIconGenerator()

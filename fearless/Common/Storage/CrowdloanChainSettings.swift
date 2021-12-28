@@ -18,8 +18,6 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     }
 
     override func performSetup(completionClosure: @escaping (Result<ChainModel?, Error>) -> Void) {
-        let mapper = AnyCoreDataMapper(ChainModelMapper())
-
         let maybeChainId = settings.crowdloanChainId
 
         let filter: NSPredicate = {
@@ -34,9 +32,8 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
             }
         }()
 
-        let repository = AnyDataProviderRepository(
-            storageFacade.createRepository(filter: filter, sortDescriptors: [], mapper: mapper)
-        )
+        let factory = ChainRepositoryFactory(storageFacade: storageFacade)
+        let repository = AnyDataProviderRepository(factory.createRepository(for: filter))
 
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 

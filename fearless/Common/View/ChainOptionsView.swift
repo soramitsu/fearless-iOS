@@ -48,7 +48,7 @@ class ChainOptionsView: UIView {
 
     func bind(to viewModel: ChainOptionsViewModel) {
         label.text = viewModel.text.uppercased()
-        viewModel.icon.loadImage(
+        viewModel.icon?.loadImage(
             on: imageView,
             targetSize: imageView.frame.size,
             animated: true
