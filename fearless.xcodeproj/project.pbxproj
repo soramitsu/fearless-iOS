@@ -1765,6 +1765,8 @@
 		FA38C9CB276305A3005C5577 /* WalletSendConfirmViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9CA276305A3005C5577 /* WalletSendConfirmViewState.swift */; };
 		FA38C9CD276305B6005C5577 /* WalletSendConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9CC276305B6005C5577 /* WalletSendConfirmViewModel.swift */; };
 		FA38C9CF27634A18005C5577 /* WalletSendConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9CE27634A18005C5577 /* WalletSendConfirmViewModelFactory.swift */; };
+		FA66FE902779C9AE0037C989 /* runtime-empty.json in Resources */ = {isa = PBXBuildFile; fileRef = FA66FE8F2779C9AE0037C989 /* runtime-empty.json */; };
+		FA66FE922779C9C90037C989 /* RuntimeFilesOperationFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA66FE912779C9C90037C989 /* RuntimeFilesOperationFacade.swift */; };
 		FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */; };
 		FA6DB7C42757C9B000233FBA /* ChainAccountViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */; };
 		FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BE2757C9AF00233FBA /* ChainAccountViewController.swift */; };
@@ -3601,6 +3603,8 @@
 		FA38C9CC276305B6005C5577 /* WalletSendConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmViewModel.swift; sourceTree = "<group>"; };
 		FA38C9CE27634A18005C5577 /* WalletSendConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
+		FA66FE8F2779C9AE0037C989 /* runtime-empty.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-empty.json"; sourceTree = "<group>"; };
+		FA66FE912779C9C90037C989 /* RuntimeFilesOperationFacade.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeFilesOperationFacade.swift; sourceTree = "<group>"; };
 		FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewLayout.swift; sourceTree = "<group>"; };
 		FA6DB7BD2757C9AF00233FBA /* ChainAccountViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewFactory.swift; sourceTree = "<group>"; };
 		FA6DB7BE2757C9AF00233FBA /* ChainAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewController.swift; sourceTree = "<group>"; };
@@ -5039,6 +5043,7 @@
 		84452F2925D5B81800F47EC5 /* RuntimeRegistryService */ = {
 			isa = PBXGroup;
 			children = (
+				FA66FE912779C9C90037C989 /* RuntimeFilesOperationFacade.swift */,
 				84452F2A25D5B84200F47EC5 /* RuntimeRegistryServiceProtocol.swift */,
 				84452F4D25D5BB1C00F47EC5 /* RuntimeCoderFactory.swift */,
 				84452F5225D5BD2A00F47EC5 /* RuntimeRegistryService.swift */,
@@ -5050,6 +5055,7 @@
 		84452F6F25D5E2B300F47EC5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				FA66FE8F2779C9AE0037C989 /* runtime-empty.json */,
 				84452F7025D5E2B300F47EC5 /* runtime-westend.json */,
 				84452F7125D5E2B300F47EC5 /* runtime-polkadot.json */,
 				84452F7225D5E2B300F47EC5 /* runtime-default.json */,
@@ -9193,6 +9199,7 @@
 				84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */,
 				84D2F45A25EF0556008B914D /* RecommendedValidatorCell.xib in Resources */,
 				84452F7625D5E2B300F47EC5 /* runtime-default.json in Resources */,
+				FA66FE902779C9AE0037C989 /* runtime-empty.json in Resources */,
 				8409C2662522110F0049B5C8 /* WalletAmountView.xib in Resources */,
 				FA2569A5274CE6AD00875A53 /* polkadot-v14-runtime in Resources */,
 				84CD35792526554A0081BC0B /* WalletAssetCell.xib in Resources */,
@@ -10092,6 +10099,7 @@
 				848FFE8B25E69A6000652AA5 /* EraValidatorServiceProtocol.swift in Sources */,
 				AEA0C8C12681180900F9666F /* InitBondingCustomValidatorListWireframe.swift in Sources */,
 				842876A624AE049B00D91AD8 /* SelectableViewModelProtocol.swift in Sources */,
+				FA66FE922779C9C90037C989 /* RuntimeFilesOperationFacade.swift in Sources */,
 				84D1F2FB260F51770077DDFE /* SwitchAccount.swift in Sources */,
 				8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,

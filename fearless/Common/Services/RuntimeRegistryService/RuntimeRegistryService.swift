@@ -2,6 +2,15 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
+enum RuntimeRegistryServiceError: Error {
+    case missingBaseTypes
+    case missingNetworkTypes
+    case brokenMetadata
+    case noNeedToUpdateTypes
+    case unexpectedCoderFetchingFailure
+    case timedOut
+}
+
 final class RuntimeRegistryService {
     private(set) var chain: Chain
     private(set) var isActive: Bool = false
@@ -43,6 +52,14 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
+    func fetchCoderFactoryOperation(
+        with _: TimeInterval,
+        closure _: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        chainRegistry.getRuntimeProvider(for: chain.genesisHash)?.fetchCoderFactoryOperation() ??
+            BaseOperation.createWithError(RuntimeProviderError.providerUnavailable)
+    }
+
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         mutex.lock()
 

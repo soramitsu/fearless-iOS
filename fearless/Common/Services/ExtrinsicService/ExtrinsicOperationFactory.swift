@@ -189,6 +189,8 @@ final class ExtrinsicOperationFactory {
 
         eraBlockOperation.addDependency(eraWrapper.targetOperation)
 
+        let runtimeRegistry = runtimeRegistry
+
         let extrinsicsOperation = ClosureOperation<[Data]> {
             let nonce = try nonceOperation.extractNoCancellableResultData()
             let codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
@@ -210,7 +212,8 @@ final class ExtrinsicOperationFactory {
                     try ExtrinsicBuilder(
                         specVersion: codingFactory.specVersion,
                         transactionVersion: codingFactory.txVersion,
-                        genesisHash: genesisHash
+                        genesisHash: genesisHash /* ,
+                         runtimeMetadataProvider: runtimeRegistry */
                     )
                     .with(address: account)
                     .with(era: era, blockHash: eraBlockHash)
