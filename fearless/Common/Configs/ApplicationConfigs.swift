@@ -18,6 +18,7 @@ protocol ApplicationConfigProtocol {
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
     var chainListURL: URL { get }
+    var assetListURL: URL { get }
     var commonTypesURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
@@ -103,7 +104,12 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/assetnames/chains/chains.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/multi-assetes-refactoring-dev/chains/chains.json")!
+    }
+
+    var assetListURL: URL {
+        URL(string:
+            "https://raw.githubusercontent.com/soramitsu/fearless-utils/multi-assetes-refactoring-dev/chains/assets.json")!
     }
 
     var commonTypesURL: URL {

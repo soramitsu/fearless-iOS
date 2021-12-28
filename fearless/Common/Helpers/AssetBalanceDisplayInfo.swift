@@ -50,18 +50,18 @@ extension AssetModel {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
-            symbol: symbol,
+            symbol: id,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: icon
         )
     }
 
-    func displayInfo(with chainIcon: URL) -> AssetBalanceDisplayInfo {
+    func displayInfo(with chainIcon: URL?) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
-            symbol: symbol,
+            symbol: id,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: icon ?? chainIcon

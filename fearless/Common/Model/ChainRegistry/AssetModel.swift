@@ -1,21 +1,20 @@
 import Foundation
+import RobinHood
 
 struct AssetModel: Equatable, Codable, Hashable {
     // swiftlint:disable:next type_name
-    typealias Id = UInt32
+    typealias Id = String
     typealias PriceId = String
 
-    let assetId: Id
-    let icon: URL?
-    let name: String?
-    let symbol: String
+    let id: String
+    let chainId: String
     let precision: UInt16
+    let icon: URL?
     let priceId: PriceId?
-    let staking: String?
 
-    var isUtility: Bool { assetId == 0 }
+    var isUtility: Bool { id.isEmpty }
+}
 
-    var identifier: String {
-        priceId ?? symbol
-    }
+extension AssetModel: Identifiable {
+    var identifier: String { id }
 }

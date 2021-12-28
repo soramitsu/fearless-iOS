@@ -15,8 +15,7 @@ struct CrowdloanContributionConfirmViewFactory {
             let asset = chain.utilityAssets().first,
             let interactor = createInteractor(
                 for: paraId,
-                chain: chain,
-                asset: asset,
+                chainAsset: ChainAsset(chain: chain, asset: asset.asset),
                 bonusService: bonusService,
                 state: state
             ) else {
@@ -25,7 +24,7 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let wireframe = CrowdloanContributionConfirmWireframe()
 
-        let assetInfo = asset.displayInfo(with: chain.icon)
+        let assetInfo = asset.asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
 
         let localizationManager = LocalizationManager.shared
@@ -67,8 +66,7 @@ struct CrowdloanContributionConfirmViewFactory {
 
     private static func createInteractor(
         for paraId: ParaId,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         bonusService: CrowdloanBonusServiceProtocol?,
         state: CrowdloanSharedState
     ) -> CrowdloanContributionConfirmInteractor? {
@@ -80,18 +78,18 @@ struct CrowdloanContributionConfirmViewFactory {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -110,8 +108,7 @@ struct CrowdloanContributionConfirmViewFactory {
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,

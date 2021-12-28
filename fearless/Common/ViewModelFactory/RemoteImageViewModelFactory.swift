@@ -1,11 +1,11 @@
 import Foundation
 
 protocol RemoteImageViewModelFactoryProtocol {
-    func buildRemoteImageViewModel(chain: ChainModel) -> RemoteImageViewModel
+    func buildRemoteImageViewModel(url: URL) -> RemoteImageViewModel
 }
 
 extension RemoteImageViewModelFactoryProtocol {
-    func buildRemoteImageViewModel(chain: ChainModel) -> RemoteImageViewModel {
-        RemoteImageViewModel(url: chain.icon)
+    func buildRemoteImageViewModel(url: URL) -> RemoteImageViewModel {
+        RemoteImageViewModel(url: url)
     }
 }

@@ -18,26 +18,20 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     }
 
     override func performSetup(completionClosure: @escaping (Result<ChainAsset?, Error>) -> Void) {
-        let repository: AnyDataProviderRepository<ChainModel>
-        let mapper = AnyCoreDataMapper(ChainModelMapper())
-
+        let filter: NSPredicate
         let maybeChainAssetId = settings.stakingAsset
 
         if let chainAssetId = maybeChainAssetId {
-            let filter = NSCompoundPredicate(orPredicateWithSubpredicates: [
+            filter = NSCompoundPredicate(orPredicateWithSubpredicates: [
                 NSPredicate.chainBy(identifier: chainAssetId.chainId),
                 NSPredicate.relayChains()
             ])
-
-            repository = AnyDataProviderRepository(
-                storageFacade.createRepository(filter: filter, sortDescriptors: [], mapper: mapper)
-            )
         } else {
-            let filter = NSPredicate.relayChains()
-            repository = AnyDataProviderRepository(
-                storageFacade.createRepository(filter: filter, sortDescriptors: [], mapper: mapper)
-            )
+            filter = NSPredicate.relayChains()
         }
+
+        let factory = ChainRepositoryFactory(storageFacade: storageFacade)
+        let repository = AnyDataProviderRepository(factory.createRepository(for: filter))
 
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
@@ -47,7 +41,7 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
             if
                 let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
                 let selectedAsset = selectedChain.assets.first(where: { $0.assetId == maybeChainAssetId?.assetId }) {
-                return ChainAsset(chain: selectedChain, asset: selectedAsset)
+                return ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
             }
 
             let maybeChain = chains.first { chain in
@@ -58,7 +52,7 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
 
             if let chain = maybeChain, let asset = maybeAsset {
                 self.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
-                return ChainAsset(chain: chain, asset: asset)
+                return ChainAsset(chain: chain, asset: asset.asset)
             }
 
             return nil
@@ -84,7 +78,7 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     ) {
         settings.stakingAsset = ChainAssetId(
             chainId: value.chain.chainId,
-            assetId: value.asset.assetId
+            assetId: value.asset.id
         )
 
         completionClosure(.success(value))
