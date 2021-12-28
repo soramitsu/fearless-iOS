@@ -25,11 +25,11 @@ extension WalletAssetId {
     var subqueryHistoryUrl: URL? {
         switch self {
         case .dot:
-            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet")
+            return URL(string: "https://api.subquery.network/sq/soramitsu/fearless-wallet-dot")
         case .kusama:
-            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-ksm")
+            return URL(string: "https://api.subquery.network/sq/soramitsu/fearless-wallet-ksm")
         case .westend:
-            return URL(string: "https://api.subquery.network/sq/ef1rspb/fearless-wallet-westend")
+            return URL(string: "https://api.subquery.network/sq/soramitsu/fearless-wallet-westend")
         default:
             return nil
         }
