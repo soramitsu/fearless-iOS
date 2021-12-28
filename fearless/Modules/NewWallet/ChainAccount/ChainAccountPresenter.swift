@@ -14,6 +14,16 @@ final class ChainAccountPresenter {
     private var accountInfo: AccountInfo?
     private var priceData: PriceData?
 
+    private lazy var rampProvider = RampProvider()
+    private lazy var moonpayProvider: PurchaseProviderProtocol = {
+        let config: ApplicationConfigProtocol = ApplicationConfig.shared
+        let moonpaySecretKeyData = Data(MoonPayKeys.secretKey.utf8)
+        return MoonpayProviderFactory().createProvider(
+            with: moonpaySecretKeyData,
+            apiKey: config.moonPayApiKey
+        )
+    }()
+
     init(
         interactor: ChainAccountInteractorInputProtocol,
         wireframe: ChainAccountWireframeProtocol,
@@ -56,6 +66,18 @@ final class ChainAccountPresenter {
     }
 }
 
+private extension ChainAccountPresenter {
+    func getPurchaseActions() -> [PurchaseAction] {
+        var actions: [PurchaseAction] = []
+
+        if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            let providersAggregator = PurchaseAggregator(providers: [rampProvider, moonpayProvider])
+            actions = providersAggregator.buildPurchaseActions(asset: asset, address: address)
+        }
+        return actions
+    }
+}
+
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func setup() {
         interactor.setup()
@@ -83,7 +105,13 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
-    func didTapBuyButton() {}
+    func didTapBuyButton() {
+        wireframe.presentBuyFlow(
+            from: view,
+            items: getPurchaseActions(),
+            delegate: self
+        )
+    }
 }
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
@@ -113,5 +141,11 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 extension ChainAccountPresenter: Localizable {
     func applyLocalization() {
         provideViewModel()
+    }
+}
+
+extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
+        wireframe.presentPurchaseWebView(from: view, action: getPurchaseActions()[index])
     }
 }

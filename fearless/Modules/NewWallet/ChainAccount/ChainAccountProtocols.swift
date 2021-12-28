@@ -36,4 +36,15 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         chain: ChainModel,
         selectedMetaAccount: MetaAccountModel
     )
+
+    func presentBuyFlow(
+        from view: ControllerBackedProtocol?,
+        items: [PurchaseAction],
+        delegate: ModalPickerViewControllerDelegate
+    )
+
+    func presentPurchaseWebView(
+        from view: ControllerBackedProtocol?,
+        action: PurchaseAction
+    )
 }
