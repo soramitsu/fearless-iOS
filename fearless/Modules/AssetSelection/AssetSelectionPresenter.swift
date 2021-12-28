@@ -70,10 +70,7 @@ final class AssetSelectionPresenter {
 
             let asset = assetPair.1
 
-            var icon: ImageViewModelProtocol?
-            if let iconUrl = asset.icon ?? chain.icon {
-                icon = RemoteImageViewModel(url: iconUrl)
-            }
+            let icon = (asset.icon ?? chain.icon).map { RemoteImageViewModel(url: $0) }
             let title = chain.name
             let isSelected = selectedChainAssetId?.assetId == asset.id &&
                 selectedChainAssetId?.chainId == chain.chainId
