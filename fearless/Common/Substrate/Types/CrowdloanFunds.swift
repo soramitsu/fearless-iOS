@@ -3,7 +3,7 @@ import FearlessUtils
 import BigInt
 
 struct CrowdloanFunds: Codable, Equatable {
-    let depositor: Data
+    let depositor: AccountId
     var verifier: MultiSigner?
     @StringCodable var deposit: BigUInt
     @StringCodable var raised: BigUInt
