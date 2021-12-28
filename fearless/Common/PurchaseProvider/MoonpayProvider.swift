@@ -27,8 +27,8 @@ final class MoonpayProvider: PurchaseProviderProtocol {
     }
 
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
-        if let url = buildURLForToken(asset.symbol, address: address) {
-            return [PurchaseAction(title: "Ramp", url: url, icon: R.image.iconRamp()!)]
+        if let url = buildURLForToken(asset.id, address: address) {
+            return [PurchaseAction(title: "Moonpay", url: url, icon: R.image.iconRamp()!)]
         }
         return []
     }

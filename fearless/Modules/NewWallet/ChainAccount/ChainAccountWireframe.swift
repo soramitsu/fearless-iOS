@@ -44,7 +44,6 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         }
 
         let navigationController = UINavigationController(rootViewController: controller)
-
         view?.controller.present(navigationController, animated: true)
     }
 
@@ -63,8 +62,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             return
         }
 
-        let navigationController = UINavigationController(rootViewController: buyView)
-        view?.controller.present(navigationController, animated: true)
+        view?.controller.navigationController?.present(buyView, animated: true)
     }
 
     func presentPurchaseWebView(
@@ -74,8 +72,10 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         let webView = PurchaseViewFactory.createView(
             for: action
         )
-        if let webViewController = webView?.controller {
-            view?.controller.present(webViewController, animated: true, completion: nil)
-        }
+        view?.controller.dismiss(animated: true, completion: {
+            if let webViewController = webView?.controller {
+                view?.controller.present(webViewController, animated: true, completion: nil)
+            }
+        })
     }
 }

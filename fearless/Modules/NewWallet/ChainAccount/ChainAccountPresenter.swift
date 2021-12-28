@@ -81,7 +81,7 @@ private extension ChainAccountPresenter {
             )
             actions.append(contentsOf: moonpayActions)
         }
-        return []
+        return actions
     }
 }
 
