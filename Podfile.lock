@@ -6,8 +6,8 @@ PODS:
   - CocoaLumberjack (3.7.2):
     - CocoaLumberjack/Core (= 3.7.2)
   - CocoaLumberjack/Core (3.7.2)
-  - CommonWallet/Core (1.15.1):
-    - RobinHood (~> 2.6.0)
+  - CommonWallet/Core (1.16.0):
+    - RobinHood (~> 2.6.1)
     - SoraFoundation/DateProcessing (~> 1.0.0)
     - SoraFoundation/Localization (~> 1.0.0)
     - SoraFoundation/NotificationHandlers (~> 1.0.0)
@@ -29,6 +29,15 @@ PODS:
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
+  - IrohaCrypto (0.10.0):
+    - IrohaCrypto/BIP39 (= 0.10.0)
+    - IrohaCrypto/blake2 (= 0.10.0)
+    - IrohaCrypto/Common (= 0.10.0)
+    - IrohaCrypto/ed25519 (= 0.10.0)
+    - IrohaCrypto/Scrypt (= 0.10.0)
+    - IrohaCrypto/secp256k1 (= 0.10.0)
+    - IrohaCrypto/sr25519 (= 0.10.0)
+    - IrohaCrypto/ss58 (= 0.10.0)
   - IrohaCrypto/BIP39 (0.10.0):
     - IrohaCrypto/Common
   - IrohaCrypto/blake2 (0.10.0)
@@ -121,21 +130,22 @@ PODS:
 
 DEPENDENCIES:
   - Charts
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675`)
+  - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `ce5c18fe9b4e97a96ad115e4261e69c9228a3bf5`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `2bca4c001e80c470bb2aa762675488109e894068`)
   - FireMock
+  - IrohaCrypto
   - keccak.c
   - Kingfisher
   - R.swift
   - ReachabilitySwift
-  - RobinHood (from `https://github.com/soramitsu/robinhood-ios.git`, commit `11aba7168859849b2a49a72d507ef0edba9965c0`)
+  - RobinHood
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
-  - SoraKeystore (~> 1.0.0)
+  - SoraKeystore
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
+  - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, branch `feature/without-origin`)
   - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
@@ -146,6 +156,7 @@ SPEC REPOS:
     - BigInt
     - Charts
     - CocoaLumberjack
+    - CommonWallet
     - Cuckoo
     - FireMock
     - IrohaCrypto
@@ -154,6 +165,7 @@ SPEC REPOS:
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
+    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
@@ -168,35 +180,23 @@ SPEC REPOS:
     - xxHash-Swift
 
 EXTERNAL SOURCES:
-  CommonWallet:
-    :commit: c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675
-    :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: ce5c18fe9b4e97a96ad115e4261e69c9228a3bf5
+    :commit: 2bca4c001e80c470bb2aa762675488109e894068
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  RobinHood:
-    :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
-    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :branch: feature/without-origin
-    :git: https://github.com/ERussel/Starscream.git
+    :git: https://github.com/soramitsu/fearless-starscream.git
   SVGKit:
     :git: https://github.com/SVGKit/SVGKit.git
     :tag: 3.0.0
 
 CHECKOUT OPTIONS:
-  CommonWallet:
-    :commit: c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675
-    :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: ce5c18fe9b4e97a96ad115e4261e69c9228a3bf5
+    :commit: 2bca4c001e80c470bb2aa762675488109e894068
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  RobinHood:
-    :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
-    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
-    :git: https://github.com/ERussel/Starscream.git
+    :git: https://github.com/soramitsu/fearless-starscream.git
   SVGKit:
     :git: https://github.com/SVGKit/SVGKit.git
     :tag: 3.0.0
@@ -205,7 +205,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
-  CommonWallet: 4c3c9c7f543842f04a930ddca163a5e0ab60f04a
+  CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 29225af385d297526e802d5218fa111763ff10de
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
@@ -231,6 +231,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 2abacedc65d85a9e5e265fc4ce6edb17001a515d
+PODFILE CHECKSUM: 60866e4736eccf01c43cd71314b6c443face3b56
 
 COCOAPODS: 1.11.2
