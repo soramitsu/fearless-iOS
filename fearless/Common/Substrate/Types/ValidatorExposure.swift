@@ -9,6 +9,6 @@ struct ValidatorExposure: Codable {
 }
 
 struct IndividualExposure: Codable {
-    let who: Data
+    @BytesCodable var who: Data
     @StringCodable var value: BigUInt
 }

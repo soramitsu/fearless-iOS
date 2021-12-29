@@ -16,7 +16,7 @@ PODS:
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
   - Cuckoo/Swift (1.5.0)
-  - FearlessUtils (0.13.2):
+  - FearlessUtils (0.14.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -123,7 +123,7 @@ DEPENDENCIES:
   - Charts
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `308eda9f250fe6aa30a678aaa88e0dcdd3a71d32`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `ce5c18fe9b4e97a96ad115e4261e69c9228a3bf5`)
   - FireMock
   - keccak.c
   - Kingfisher
@@ -172,7 +172,7 @@ EXTERNAL SOURCES:
     :commit: c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: 308eda9f250fe6aa30a678aaa88e0dcdd3a71d32
+    :commit: ce5c18fe9b4e97a96ad115e4261e69c9228a3bf5
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   RobinHood:
     :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
@@ -189,7 +189,7 @@ CHECKOUT OPTIONS:
     :commit: c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: 308eda9f250fe6aa30a678aaa88e0dcdd3a71d32
+    :commit: ce5c18fe9b4e97a96ad115e4261e69c9228a3bf5
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   RobinHood:
     :commit: 11aba7168859849b2a49a72d507ef0edba9965c0
@@ -207,7 +207,7 @@ SPEC CHECKSUMS:
   CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
   CommonWallet: 4c3c9c7f543842f04a930ddca163a5e0ab60f04a
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
-  FearlessUtils: f06f9395e67a651f81a84497400ac3aec2e56d6b
+  FearlessUtils: 29225af385d297526e802d5218fa111763ff10de
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
@@ -231,6 +231,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: ba3b324e5264949eba71f9accd5d967bc805b8f6
+PODFILE CHECKSUM: 2abacedc65d85a9e5e265fc4ce6edb17001a515d
 
 COCOAPODS: 1.11.2
