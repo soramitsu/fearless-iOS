@@ -1,18 +1,20 @@
 import UIKit
 import RobinHood
+import FearlessUtils
 
 final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     private let payoutService: PayoutRewardsServiceProtocol
-    private let assetId: WalletAssetId
-    private let chain: Chain
+    private let asset: AssetModel
+    private let chain: ChainModel
     private let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let logger: LoggerProtocol?
+    let connection: JSONRPCEngine
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
@@ -25,30 +27,33 @@ final class StakingRewardPayoutsInteractor {
     }
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         payoutService: PayoutRewardsServiceProtocol,
-        assetId: WalletAssetId,
-        chain: Chain,
+        asset: AssetModel,
+        chain: ChainModel,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        connection: JSONRPCEngine
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.payoutService = payoutService
-        self.assetId = assetId
+        self.asset = asset
         self.chain = chain
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.operationManager = operationManager
         self.runtimeService = runtimeService
         self.logger = logger
+        self.connection = connection
     }
 
     private func fetchEraCompletionTime() {
-        // TODO: Fix when chain registry integrated
         let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
-            for: WebSocketService.shared.connection!,
-            runtimeService: RuntimeRegistryFacade.sharedService
+            for: connection,
+            runtimeService: runtimeService
         )
 
         operationWrapper.targetOperation.completionBlock = { [weak self] in
@@ -67,8 +72,12 @@ final class StakingRewardPayoutsInteractor {
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
-        activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
+
+        activeEraProvider = subscribeActiveEra(for: chain.chainId)
+
         fetchEraCompletionTime()
         reload()
     }
@@ -106,17 +115,14 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
     }
 }
 
-extension StakingRewardPayoutsInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
-        switch result {
-        case let .success(priceData):
-            presenter.didReceive(priceResult: .success(priceData))
-        case let .failure(error):
-            presenter.didReceive(priceResult: .failure(error))
-        }
+extension StakingRewardPayoutsInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        presenter.didReceive(priceResult: result)
     }
+}
 
-    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {
+extension StakingRewardPayoutsInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
         switch result {
         case .success:
             reload()

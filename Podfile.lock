@@ -3,9 +3,9 @@ PODS:
   - Charts (3.6.0):
     - Charts/Core (= 3.6.0)
   - Charts/Core (3.6.0)
-  - CocoaLumberjack (3.7.2):
-    - CocoaLumberjack/Core (= 3.7.2)
-  - CocoaLumberjack/Core (3.7.2)
+  - CocoaLumberjack (3.7.4):
+    - CocoaLumberjack/Core (= 3.7.4)
+  - CocoaLumberjack/Core (3.7.4)
   - CommonWallet/Core (1.15.1):
     - RobinHood (~> 2.6.0)
     - SoraFoundation/DateProcessing (~> 1.0.0)
@@ -49,7 +49,7 @@ PODS:
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
-  - Kingfisher (6.3.0)
+  - Kingfisher (6.3.1)
   - R.swift (5.4.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -114,8 +114,8 @@ PODS:
   - SVGKit (2.1.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.43.1)
-  - SwiftyBeaver (1.9.3)
+  - SwiftLint (0.45.1)
+  - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - xxHash-Swift (1.0.13)
 
@@ -204,14 +204,14 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
-  CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
+  CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 4c3c9c7f543842f04a930ddca163a5e0ab60f04a
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 0c5cd73cc768b8e66f1c5a726f87859247dc5e6c
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 2f3ced592d33186beeb8818c0cb7481ec1365819
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
-  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
+  Kingfisher: 016c8b653a35add51dd34a3aba36b580041acc74
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -226,8 +226,8 @@ SPEC CHECKSUMS:
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
-  SwiftyBeaver: 2e8acd6fc90c6d0a27055867a290794926d57c02
+  SwiftLint: 06ac37e4d38c7068e0935bb30cda95f093bec761
+  SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 

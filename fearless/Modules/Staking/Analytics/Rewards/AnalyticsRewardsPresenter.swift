@@ -14,6 +14,9 @@ final class AnalyticsRewardsPresenter {
     private var priceData: PriceData?
     private var stashItem: StashItem?
     private var selectedChartIndex: Int?
+    let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
 
     init(
         interactor: AnalyticsRewardsInteractorInputProtocol,
@@ -21,6 +24,9 @@ final class AnalyticsRewardsPresenter {
         viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol?,
         accountIsNominator: Bool,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -28,6 +34,9 @@ final class AnalyticsRewardsPresenter {
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.accountIsNominator = accountIsNominator
+        self.asset = asset
+        self.chain = chain
+        self.selectedAccount = selectedAccount
         self.localizationManager = localizationManager
     }
 
@@ -70,9 +79,21 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func handlePendingRewardsAction() {
         guard let stashItem = stashItem else { return }
         if accountIsNominator {
-            wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashItem.stash)
+            wireframe.showRewardPayoutsForNominator(
+                from: view,
+                stashAddress: stashItem.stash,
+                chain: chain,
+                asset: asset,
+                selectedAccount: selectedAccount
+            )
         } else {
-            wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashItem.stash)
+            wireframe.showRewardPayoutsForValidator(
+                from: view,
+                stashAddress: stashItem.stash,
+                chain: chain,
+                asset: asset,
+                selectedAccount: selectedAccount
+            )
         }
     }
 

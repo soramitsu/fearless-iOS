@@ -12,14 +12,16 @@ final class StakingRewardDestSetupPresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
-    private var rewardDestination: RewardDestination<AccountItem>?
+    private var rewardDestination: RewardDestination<ChainAccountResponse>?
     private var calculator: RewardCalculatorEngineProtocol?
     private var originalDestination: RewardDestination<AccountAddress>?
-    private var stashAccount: AccountItem?
-    private var controllerAccount: AccountItem?
+    private var stashAccount: ChainAccountResponse?
+    private var controllerAccount: ChainAccountResponse?
     private var priceData: PriceData?
     private var stashItem: StashItem?
     private var bonded: Decimal?
@@ -34,7 +36,9 @@ final class StakingRewardDestSetupPresenter {
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -44,6 +48,8 @@ final class StakingRewardDestSetupPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.applicationConfig = applicationConfig
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -141,11 +147,14 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
 
         ]).runValidation { [weak self] in
-            guard let rewardDestination = self?.rewardDestination else { return }
+            guard let self = self, let rewardDestination = self.rewardDestination else { return }
 
-            self?.wireframe.proceed(
-                view: self?.view,
-                rewardDestination: rewardDestination
+            self.wireframe.proceed(
+                view: self.view,
+                rewardDestination: rewardDestination,
+                asset: self.asset,
+                chain: self.chain,
+                selectedAccount: self.selectedAccount
             )
         }
     }
@@ -155,7 +164,7 @@ extension StakingRewardDestSetupPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
             let accounts =
-            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
+            (context as? PrimitiveContextWrapper<[ChainAccountResponse]>)?.value
         else {
             return
         }
@@ -182,7 +191,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
 
             provideFeeViewModel()
@@ -200,7 +209,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(account):
             controllerAccount = account
@@ -209,7 +218,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveStash(result: Result<AccountItem?, Error>) {
+    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(account):
             stashAccount = account
@@ -222,7 +231,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         switch result {
         case let .success(stakingLedger):
             bonded = stakingLedger.map {
-                Decimal.fromSubstrateAmount($0.active, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.active, precision: Int16(asset.precision))
             } ?? nil
 
             provideRewardDestination()
@@ -231,7 +240,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveRewardDestinationAccount(result: Result<RewardDestination<AccountItem>?, Error>) {
+    func didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>) {
         switch result {
         case let .success(rewardDestination):
             if self.rewardDestination == nil {
@@ -268,7 +277,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveAccounts(result: Result<[AccountItem], Error>) {
+    func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>) {
         switch result {
         case let .success(accounts):
             let context = PrimitiveContextWrapper(value: accounts)
@@ -307,7 +316,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         switch result {
         case let .success(accountInfo):
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(asset.precision))
             } ?? nil
         case let .failure(error):
             logger?.error("Account info error: \(error)")

@@ -3,51 +3,27 @@ import RobinHood
 
 final class StakingRewardDetailsInteractor {
     weak var presenter: StakingRewardDetailsInteractorOutputProtocol!
-    private let priceProvider: AnySingleValueProvider<PriceData>
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let asset: AssetModel
 
-    init(priceProvider: AnySingleValueProvider<PriceData>) {
-        self.priceProvider = priceProvider
-    }
+    private var priceProvider: AnySingleValueProvider<PriceData>?
 
-    private func subscribeToPriceChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(priceResult: .success(nil))
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didReceive(priceResult: .success(item))
-                    case .delete:
-                        self?.presenter.didReceive(priceResult: .success(nil))
-                    }
-                }
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            DispatchQueue.main.async {
-                self?.presenter.didReceive(priceResult: .failure(error))
-            }
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        priceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
+    init(asset: AssetModel, priceLocalSubscriptionFactory: PriceProviderFactoryProtocol) {
+        self.asset = asset
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
     }
 }
 
 extension StakingRewardDetailsInteractor: StakingRewardDetailsInteractorInputProtocol {
     func setup() {
-        subscribeToPriceChanges()
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
+    }
+}
+
+extension StakingRewardDetailsInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        presenter.didReceive(priceResult: result)
     }
 }

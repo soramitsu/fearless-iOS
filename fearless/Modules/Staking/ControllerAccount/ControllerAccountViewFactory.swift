@@ -5,14 +5,18 @@ import FearlessUtils
 import RobinHood
 
 struct ControllerAccountViewFactory {
-    static func createView() -> ControllerAccountViewProtocol? {
-        let settings = SettingsManager.shared
-        let chain = settings.selectedConnection.type.chain
-
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> ControllerAccountViewProtocol? {
         guard
-            let selectedAccount = settings.selectedAccount,
-            let connection = WebSocketService.shared.connection,
-            let interactor = createInteractor(connection: connection, chain: chain, settings: settings)
+            let account = selectedAccount.fetch(for: chain.accountRequest()),
+            let interactor = createInteractor(
+                chain: chain,
+                asset: asset,
+                selectedAccount: selectedAccount
+            )
         else {
             return nil
         }
@@ -20,19 +24,21 @@ struct ControllerAccountViewFactory {
         let wireframe = ControllerAccountWireframe()
 
         let viewModelFactory = ControllerAccountViewModelFactory(
-            currentAccountItem: selectedAccount,
+            currentAccountItem: account,
             iconGenerator: PolkadotIconGenerator()
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = ControllerAccountPresenter(
             wireframe: wireframe,
             interactor: interactor,
             viewModelFactory: viewModelFactory,
             applicationConfig: ApplicationConfig.shared,
             chain: chain,
-            dataValidatingFactory: dataValidatingFactory,
-            logger: Logger.shared
+            asset: asset,
+            selectedAccount: selectedAccount,
+            dataValidatingFactory: dataValidatingFactory
         )
 
         let view = ControllerAccountViewController(
@@ -47,53 +53,71 @@ struct ControllerAccountViewFactory {
     }
 
     private static func createInteractor(
-        connection: JSONRPCEngine,
-        chain: Chain,
-        settings: SettingsManagerProtocol
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) -> ControllerAccountInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            return nil
+        }
+
         let operationManager = OperationManagerFacade.sharedManager
-        let runtimeService = RuntimeRegistryFacade.sharedService
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
-        )
 
-        let networkType = settings.selectedConnection.type
-        let facade = UserDataStorageFacade.shared
-
-        // TODO: Fix logic
-        let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let accountRepository: CoreDataRepository<AccountItem, CDMetaAccount> =
-            facade.createRepository(
-                filter: filter,
-                sortDescriptors: [.accountsByOrder]
-            )
-
-        guard let selectedAccount = settings.selectedAccount else { return nil }
-
-        let extrinsicServiceFactory = ExtrinsicServiceFactory(
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
+
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
+
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let feeProxy = ExtrinsicFeeProxy()
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+
         return ControllerAccountInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             runtimeService: runtimeService,
-            selectedAccountAddress: selectedAccount.address,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
-            feeProxy: ExtrinsicFeeProxy(),
-            extrinsicServiceFactory: extrinsicServiceFactory,
+            feeProxy: feeProxy,
+            extrinsicService: extrinsicService,
             storageRequestFactory: storageRequestFactory,
             engine: connection,
-            chain: chain
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
     }
 }

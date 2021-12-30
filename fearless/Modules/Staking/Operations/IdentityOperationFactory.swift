@@ -8,7 +8,7 @@ protocol IdentityOperationFactoryProtocol {
         for accountIdClosure: @escaping () throws -> [AccountId],
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
-        chain: Chain
+        chain: ChainModel
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]>
 }
 
@@ -43,7 +43,7 @@ final class IdentityOperationFactory {
     private func createIdentityMergeOperation(
         dependingOn superOperation: SuperIdentityOperation,
         identityOperation: IdentityOperation,
-        chain: Chain
+        chain: ChainModel
     ) -> BaseOperation<[AccountAddress: AccountIdentity]> {
         ClosureOperation<[AccountAddress: AccountIdentity]> {
             let addressFactory = SS58AddressFactory()
@@ -55,7 +55,7 @@ final class IdentityOperationFactory {
                         let address = try addressFactory
                             .addressFromAccountId(
                                 data: item.key.getAccountIdFromKey(),
-                                type: chain.addressType
+                                addressPrefix: chain.addressPrefix
                             )
                         result[address] = value
                     }
@@ -65,14 +65,14 @@ final class IdentityOperationFactory {
                 let address = try addressFactory
                     .addressFromAccountId(
                         data: item.key.getAccountIdFromKey(),
-                        type: chain.addressType
+                        addressPrefix: chain.addressPrefix
                     )
 
                 if let value = item.value {
                     let parentAddress = try addressFactory
                         .addressFromAccountId(
                             data: value.parentAccountId,
-                            type: chain.addressType
+                            addressPrefix: chain.addressPrefix
                         )
 
                     if let parentIdentity = identities[parentAddress] {
@@ -102,7 +102,7 @@ final class IdentityOperationFactory {
         dependingOn superIdentityOperation: SuperIdentityOperation,
         runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         engine: JSONRPCEngine,
-        chain: Chain
+        chain: ChainModel
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
         let path = StorageCodingPath.identity
 
@@ -148,7 +148,7 @@ extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
         for accountIdClosure: @escaping () throws -> [AccountId],
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
-        chain: Chain
+        chain: ChainModel
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 

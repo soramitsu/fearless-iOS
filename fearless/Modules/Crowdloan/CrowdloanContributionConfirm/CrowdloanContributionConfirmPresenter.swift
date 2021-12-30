@@ -13,7 +13,7 @@ final class CrowdloanContributionConfirmPresenter {
     let bonusRate: Decimal?
     let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
-
+    let chain: ChainModel
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -63,7 +63,8 @@ final class CrowdloanContributionConfirmPresenter {
         bonusRate: Decimal?,
         assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        chain: ChainModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -74,6 +75,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.bonusRate = bonusRate
         self.assetInfo = assetInfo
         self.logger = logger
+        self.chain = chain
         self.localizationManager = localizationManager
     }
 
@@ -230,11 +232,10 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
             return
         }
 
-        // TODO: Fix when backend supports
         wireframe.presentAccountOptions(
             from: view,
             address: address,
-            chain: .westend,
+            chain: chain,
             locale: selectedLocale
         )
     }

@@ -5,22 +5,14 @@ import FearlessUtils
 import RobinHood
 
 final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewFactoryProtocol {
-    static func createView(payouts: [PayoutInfo]) -> StakingPayoutConfirmationViewProtocol? {
-        guard let connection = WebSocketService.shared.connection else {
-            return nil
-        }
-
-        let settings = SettingsManager.shared
-        let keystore = Keychain()
-
-        let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
-        let chain = settings.selectedConnection.type.chain
-
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        payouts: [PayoutInfo]
+    ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: networkType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -51,9 +43,9 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         )
 
         guard let interactor = createInteractor(
-            connection: connection,
-            settings: settings,
-            keystore: keystore,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             payouts: payouts
         ) else {
             return nil
@@ -69,69 +61,82 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
     }
 
     private static func createInteractor(
-        connection: JSONRPCEngine,
-        settings: SettingsManagerProtocol,
-        keystore: KeystoreProtocol,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         payouts: [PayoutInfo]
     ) -> StakingPayoutConfirmationInteractor? {
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        let runtimeService = RuntimeRegistryFacade.sharedService
-
-        let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
-
-        guard let selectedAccount = settings.selectedAccount,
-              let assetId = WalletAssetId(rawValue: asset.identifier),
-              let chain = assetId.chain
-        else {
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
 
         let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
 
         let extrinsicOperationFactory = ExtrinsicOperationFactory(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection
         )
 
-        let signer = SigningWrapper(
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
             keystore: keystore,
-            settings: settings
+            metaId: selectedAccount.metaId,
+            accountResponse: accountResponse
         )
 
-        let singleValueProviderFactory = SingleValueProviderFactory.shared
+        let facade = UserDataStorageFacade.shared
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let accountRepository = AccountRepositoryFactory.createRepository()
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
 
         return StakingPayoutConfirmationInteractor(
-            singleValueProviderFactory: singleValueProviderFactory,
-            substrateProviderFactory: substrateProviderFactory,
-            extrinsicOperationFactory: extrinsicOperationFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
+            extrinsicOperationFactory: extrinsicOperationFactory,
             runtimeService: runtimeService,
-            signer: signer,
-            accountRepository: accountRepository,
+            signer: signingWrapper,
             operationManager: operationManager,
-            logger: Logger.shared,
+            logger: logger,
             selectedAccount: selectedAccount,
             payouts: payouts,
             chain: chain,
-            assetId: assetId
+            asset: asset,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

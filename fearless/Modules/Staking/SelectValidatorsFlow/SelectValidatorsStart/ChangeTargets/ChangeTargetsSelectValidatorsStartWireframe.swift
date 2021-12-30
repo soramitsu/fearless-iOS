@@ -12,16 +12,22 @@ final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWi
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
-        maxTargets: Int
+        maxTargets: Int,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) {
-        guard let nextView = CustomValidatorListViewFactory
-            .createChangeTargetsView(
-                for: validatorList,
-                with: recommendedValidatorList,
-                selectedValidatorList: selectedValidatorList,
-                maxTargets: maxTargets,
-                with: state
-            ) else { return }
+        guard let nextView = CustomValidatorListViewFactory.createChangeTargetsView(
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount,
+            for: validatorList,
+            with: recommendedValidatorList,
+            selectedValidatorList: selectedValidatorList,
+            maxTargets: maxTargets,
+            with: state
+        )
+        else { return }
 
         view?.controller.navigationController?.pushViewController(
             nextView.controller,
@@ -32,11 +38,17 @@ final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWi
     override func proceedToRecommendedList(
         from view: SelectValidatorsStartViewProtocol?,
         validatorList: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        selectedAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel
     ) {
         guard let nextView = RecommendedValidatorListViewFactory.createChangeTargetsView(
             for: validatorList,
             maxTargets: maxTargets,
+            selectedAccount: selectedAccount,
+            asset: asset,
+            chain: chain,
             with: state
         ) else {
             return

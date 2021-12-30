@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import BigInt
+import SwiftUI
 
 final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
@@ -35,7 +36,7 @@ final class StakingMainPresenter {
 
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
-    private var controllerAccount: AccountItem?
+    private var controllerAccount: ChainAccountResponse?
     private var nomination: Nomination?
 
     init(
@@ -119,7 +120,7 @@ final class StakingMainPresenter {
                     chainFormat: chainAsset.chain.chainFormat
                 ),
                 let controllerAccount = self?.controllerAccount,
-                controllerAccount.address == bondedState.stashItem.controller
+                controllerAccount.toAddress() == bondedState.stashItem.controller
             else {
                 return
             }
@@ -132,7 +133,13 @@ final class StakingMainPresenter {
                 selectedTargets: nil
             )
 
-            self?.wireframe.proceedToSelectValidatorsStart(from: self?.view, existingBonding: existingBonding)
+            self?.wireframe.proceedToSelectValidatorsStart(
+                from: self?.view,
+                existingBonding: existingBonding,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: SelectedWalletSettings.shared.value
+            )
         }
     }
 }
@@ -157,8 +164,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        guard let commonData = stateMachine
-            .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
+        guard let chainAsset = chainAsset,
+              let commonData = stateMachine
+              .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
             return
         }
 
@@ -176,7 +184,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showSetupAmount(from: self?.view, amount: self?.amount)
+            self?.wireframe.showSetupAmount(
+                from: self?.view,
+                amount: self?.amount,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: SelectedWalletSettings.shared.value
+            )
         }
     }
 
@@ -289,7 +303,16 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performChangeValidatorsAction() {
-        wireframe.showNominatorValidators(from: view)
+        guard let chainAsset = chainAsset else {
+            return
+        }
+
+        wireframe.showNominatorValidators(
+            from: view,
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
+            selectedAccount: SelectedWalletSettings.shared.value
+        )
     }
 
     func performSetupValidatorsForBondedAction() {
@@ -301,11 +324,20 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performBondMoreAction() {
-        wireframe.showBondMore(from: view)
+        guard let chainAsset = chainAsset else {
+            return
+        }
+
+        wireframe.showBondMore(
+            from: view,
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
+            selectedAccount: SelectedWalletSettings.shared.value
+        )
     }
 
     func performRedeemAction() {
-        guard let view = view else { return }
+        guard let view = view, let chainAsset = chainAsset else { return }
         let selectedLocale = view.localizationManager?.selectedLocale
         guard controllerAccount != nil else {
             let baseState = stateMachine.viewState(using: { (state: BaseStashNextState) in state })
@@ -316,10 +348,19 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             )
             return
         }
-        wireframe.showRedeem(from: view)
+
+        wireframe.showRedeem(
+            from: view,
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
+            selectedAccount: SelectedWalletSettings.shared.value
+        )
     }
 
     func performAnalyticsAction() {
+        guard let chainAsset = chainAsset else {
+            return
+        }
         let isNominator: AnalyticsContainerViewMode = {
             if stateMachine.viewState(using: { (state: ValidatorState) in state }) != nil {
                 return .none
@@ -338,7 +379,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return nomination != nil ? .includeValidatorsTab : .none
         }()
 
-        wireframe.showAnalytics(from: view, mode: isNominator.union(includeValidators))
+        wireframe.showAnalytics(
+            from: view,
+            mode: isNominator.union(includeValidators),
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
+            selectedAccount: SelectedWalletSettings.shared.value
+        )
     }
 
     func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
@@ -509,7 +556,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: payeeError)
     }
 
-    func didReceiveControllerAccount(result: Result<AccountItem?, Error>) {
+    func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             controllerAccount = accountItem
@@ -595,7 +642,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
             let manageStakingItems = context as? [StakingManageOption],
-            index >= 0, index < manageStakingItems.count else {
+            index >= 0, index < manageStakingItems.count, let chainAsset = chainAsset else {
             return
         }
 
@@ -605,31 +652,69 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         case .pendingRewards:
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
                 let stashAddress = validatorState.stashItem.stash
-                wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashAddress)
+                wireframe.showRewardPayoutsForValidator(
+                    from: view,
+                    stashAddress: stashAddress,
+                    chain: chainAsset.chain,
+                    asset: chainAsset.asset,
+                    selectedAccount: SelectedWalletSettings.shared.value
+                )
                 return
             }
 
             if let stashState = stateMachine.viewState(using: { (state: BaseStashNextState) in state }) {
                 let stashAddress = stashState.stashItem.stash
-                wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashAddress)
+                wireframe.showRewardPayoutsForNominator(
+                    from: view,
+                    stashAddress: stashAddress,
+                    chain: chainAsset.chain,
+                    asset: chainAsset.asset,
+                    selectedAccount: SelectedWalletSettings.shared.value
+                )
                 return
             }
         case .rewardDestination:
-            wireframe.showRewardDestination(from: view)
+            wireframe.showRewardDestination(
+                from: view,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: SelectedWalletSettings.shared.value
+            )
         case .stakingBalance:
-            wireframe.showStakingBalance(from: view)
+            wireframe.showStakingBalance(
+                from: view,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: SelectedWalletSettings.shared.value
+            )
         case .changeValidators:
-            wireframe.showNominatorValidators(from: view)
+            wireframe.showNominatorValidators(
+                from: view,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: SelectedWalletSettings.shared.value
+            )
         case .setupValidators:
             if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
                 setupValidators(for: bondedState)
             }
         case .controllerAccount:
-            wireframe.showControllerAccount(from: view)
+            wireframe.showControllerAccount(
+                from: view,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: SelectedWalletSettings.shared.value
+            )
         case .yourValidator:
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
                 let stashAddress = validatorState.stashItem.stash
-                wireframe.showYourValidatorInfo(stashAddress, from: view)
+                wireframe.showYourValidatorInfo(
+                    stashAddress,
+                    chain: chainAsset.chain,
+                    asset: chainAsset.asset,
+                    selectedAccount: SelectedWalletSettings.shared.value,
+                    from: view
+                )
             }
         }
     }

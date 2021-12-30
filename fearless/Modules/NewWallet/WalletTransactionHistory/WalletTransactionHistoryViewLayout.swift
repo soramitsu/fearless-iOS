@@ -9,7 +9,9 @@ final class WalletTransactionHistoryViewLayout: UIView {
     let backgroundView = TriangularedBlurView()
 
     let tableView: UITableView = {
-        UITableView()
+        let tableView = UITableView()
+        tableView.backgroundColor = .clear
+        return tableView
     }()
 
     let contentView = UIView()

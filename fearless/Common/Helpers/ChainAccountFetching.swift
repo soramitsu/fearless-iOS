@@ -6,7 +6,7 @@ struct ChainAccountRequest {
     let isEthereumBased: Bool
 }
 
-struct ChainAccountResponse {
+struct ChainAccountResponse: Equatable {
     let chainId: ChainModel.Id
     let accountId: AccountId
     let publicKey: Data
@@ -45,6 +45,10 @@ extension ChainAccountResponse {
     func toAddress() -> AccountAddress? {
         let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
         return try? accountId.toAddress(using: chainFormat)
+    }
+
+    func chainFormat() -> ChainFormat {
+        isEthereumBased ? .ethereum : .substrate(addressPrefix)
     }
 }
 

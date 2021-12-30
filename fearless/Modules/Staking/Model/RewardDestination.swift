@@ -37,17 +37,17 @@ extension RewardDestination: Equatable where A == AccountAddress {
     }
 }
 
-extension RewardDestination where A == AccountItem {
+extension RewardDestination where A == ChainAccountResponse {
     var accountAddress: RewardDestination<AccountAddress> {
         switch self {
         case .restake:
             return .restake
         case let .payout(account):
-            return .payout(account: account.address)
+            return .payout(account: account.toAddress() ?? "")
         }
     }
 
-    var payoutAccount: AccountItem? {
+    var payoutAccount: ChainAccountResponse? {
         switch self {
         case .restake:
             return nil
