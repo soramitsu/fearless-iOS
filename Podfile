@@ -32,7 +32,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', '~> 1.0.0'
     pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :commit => '11aba7168859849b2a49a72d507ef0edba9965c0'
-    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'd606c294193da480bf34300b2db5b3132fd956df'
+    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'c83bd2d8f6bca4ed5f032d1488d2f6468ecf0675'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'
 

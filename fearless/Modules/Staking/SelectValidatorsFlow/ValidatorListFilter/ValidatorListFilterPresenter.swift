@@ -31,7 +31,7 @@ final class ValidatorListFilterPresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: currentFilter,
             initialFilter: initialFilter,
-            token: asset.symbol,
+            token: asset.id,
             locale: selectedLocale
         )
         view?.didUpdateViewModel(viewModel)

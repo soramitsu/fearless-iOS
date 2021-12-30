@@ -21,8 +21,8 @@ final class WalletScanQRViewLayout: UIView {
         return label
     }()
 
-    let uploadButton: RoundedButton = {
-        let button = RoundedButton()
+    let uploadButton: GradientButton = {
+        let button = UIFactory.default.createWalletReferralBonusButton()
         button.applyEnabledStyle()
         return button
     }()
@@ -63,7 +63,7 @@ final class WalletScanQRViewLayout: UIView {
         }
 
         messageLabel.snp.makeConstraints { make in
-            make.top.equalTo(uploadButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(uploadButton.snp.top).offset(-UIConstants.bigOffset)
             make.centerX.equalToSuperview()
         }
     }
