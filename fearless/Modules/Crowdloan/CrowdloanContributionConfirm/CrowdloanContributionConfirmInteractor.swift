@@ -13,8 +13,7 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
     init(
         paraId: ParaId,
         selectedMetaAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -32,8 +31,7 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         super.init(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
@@ -49,7 +47,7 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         super.setup()
 
         do {
-            if let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) {
+            if let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) {
                 let displayAddress = try accountResponse.toDisplayAddress()
                 confirmPresenter?.didReceiveDisplayAddress(result: .success(displayAddress))
             } else {

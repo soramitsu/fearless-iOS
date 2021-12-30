@@ -9,6 +9,7 @@ protocol SearchPeoplePresenterProtocol: AnyObject {
     func searchTextDidChanged(_ text: String)
     func didTapBackButton()
     func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel)
+    func didTapScanButton()
 }
 
 protocol SearchPeopleInteractorInputProtocol: AnyObject {
@@ -26,5 +27,13 @@ protocol SearchPeopleWireframeProtocol: AnyObject {
         to address: String,
         asset: AssetModel,
         chain: ChainModel
+    )
+
+    func presentScan(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        moduleOutput: WalletScanQRModuleOutput?
     )
 }

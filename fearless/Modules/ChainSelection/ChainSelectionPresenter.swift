@@ -36,7 +36,7 @@ final class ChainSelectionPresenter {
             return nil
         }
 
-        let assetInfo = asset.displayInfo
+        let assetInfo = asset.asset.displayInfo
 
         let maybeBalance: Decimal?
 
@@ -61,7 +61,7 @@ final class ChainSelectionPresenter {
 
     private func updateView() {
         viewModels = chainModels.map { chainModel in
-            let icon = RemoteImageViewModel(url: chainModel.icon)
+            let icon: ImageViewModelProtocol? = chainModel.icon.map { RemoteImageViewModel(url: $0) }
             let title = chainModel.name
             let isSelected = chainModel.identifier == selectedChainId
             let balance = extractBalance(for: chainModel) ?? ""

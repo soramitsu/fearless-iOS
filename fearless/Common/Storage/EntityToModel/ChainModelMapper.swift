@@ -8,15 +8,40 @@ final class ChainModelMapper {
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
 
+    // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
-        AssetModel(
-            assetId: UInt32(bitPattern: entity.assetId),
-            icon: entity.icon,
-            name: entity.name,
-            symbol: entity.symbol!,
+        guard let id = entity.id, let chainId = entity.chainId else {
+            preconditionFailure()
+        }
+        return AssetModel(
+            id: id,
+            chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
-            priceId: entity.priceId,
-            staking: entity.staking
+            icon: entity.icon,
+            priceId: entity.priceId
+        )
+    }
+
+    private func createChainAsset(from entity: CDChainAsset, parentChain: ChainModel) -> ChainAssetModel {
+        guard let assetId = entity.assetId,
+              let asset = entity.asset else {
+            preconditionFailure()
+        }
+        let staking: StakingType?
+        if let entityStaking = entity.staking {
+            staking = StakingType(rawValue: entityStaking)
+        } else {
+            staking = nil
+        }
+        let purchaseProviders: [PurchaseProvider] = entity.purchaseProviders?.compactMap {
+            PurchaseProvider(rawValue: $0)
+        } ?? []
+        return ChainAssetModel(
+            assetId: assetId,
+            staking: staking,
+            purchaseProviders: purchaseProviders,
+            asset: createAsset(from: asset),
+            chain: parentChain
         )
     }
 
@@ -36,46 +61,65 @@ final class ChainModelMapper {
         )
     }
 
-    private func updateEntityAssets(
+    private func updateEntityChainAssets(
         for entity: CDChain,
         from model: ChainModel,
         context: NSManagedObjectContext
     ) {
-        let assetEntities: [CDAsset] = model.assets.map { asset in
-            let assetEntity: CDAsset
-            let assetEntityId = Int32(bitPattern: asset.assetId)
+        let assetEntities: [CDChainAsset] = model.assets.map { asset in
+            let assetEntity: CDChainAsset
 
             let maybeExistingEntity = entity.assets?
-                .first { ($0 as? CDAsset)?.assetId == assetEntityId } as? CDAsset
+                .first { ($0 as? CDChainAsset)?.assetId == asset.assetId } as? CDChainAsset
 
             if let existingEntity = maybeExistingEntity {
                 assetEntity = existingEntity
             } else {
-                assetEntity = CDAsset(context: context)
+                assetEntity = CDChainAsset(context: context)
             }
 
-            assetEntity.assetId = assetEntityId
-            assetEntity.name = asset.name
-            assetEntity.precision = Int16(bitPattern: asset.precision)
-            assetEntity.icon = asset.icon
-            assetEntity.symbol = asset.symbol
-            assetEntity.priceId = asset.priceId
-            assetEntity.staking = asset.staking
+            let purchaseProviders: [String]? = asset.purchaseProviders?.map(\.rawValue)
+
+            assetEntity.assetId = asset.assetId
+            assetEntity.purchaseProviders = purchaseProviders
+            assetEntity.staking = asset.staking?.rawValue
+            updateEntityAsset(
+                for: assetEntity,
+                from: asset,
+                context: context
+            )
 
             return assetEntity
         }
 
         let existingAssetIds = Set(model.assets.map(\.assetId))
 
-        if let oldAssets = entity.assets as? Set<CDAsset> {
+        if let oldAssets = entity.assets as? Set<CDChainAsset> {
             for oldAsset in oldAssets {
-                if !existingAssetIds.contains(UInt32(bitPattern: oldAsset.assetId)) {
-                    context.delete(oldAsset)
+                if let oldAssetId = oldAsset.assetId {
+                    if !existingAssetIds.contains(oldAssetId) {
+                        context.delete(oldAsset)
+                    }
                 }
             }
         }
 
         entity.assets = Set(assetEntities) as NSSet
+    }
+
+    private func updateEntityAsset(
+        for entity: CDChainAsset,
+        from model: ChainAssetModel,
+        context: NSManagedObjectContext
+    ) {
+        let assetEntity = CDAsset(context: context)
+        assetEntity.id = model.asset.id
+        assetEntity.chainId = model.asset.chainId
+        assetEntity.icon = model.asset.icon
+        assetEntity.precision = Int16(bitPattern: model.asset.precision)
+        assetEntity.priceId = model.asset.priceId
+
+        entity.asset = assetEntity
     }
 
     private func updateEntityNodes(
@@ -162,14 +206,6 @@ final class ChainModelMapper {
 
 extension ChainModelMapper: CoreDataMapperProtocol {
     func transform(entity: CDChain) throws -> ChainModel {
-        let assets: [AssetModel] = entity.assets?.compactMap { anyAsset in
-            guard let asset = anyAsset as? CDAsset else {
-                return nil
-            }
-
-            return createAsset(from: asset)
-        } ?? []
-
         let nodes: [ChainNodeModel] = entity.nodes?.compactMap { anyNode in
             guard let node = anyNode as? CDChainNode else {
                 return nil
@@ -202,18 +238,30 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let externalApiSet = createExternalApi(from: entity)
 
-        return ChainModel(
+        let chainModel = ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
             name: entity.name!,
-            assets: Set(assets),
             nodes: Set(nodes),
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
-            icon: entity.icon!,
+            icon: entity.icon,
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet
         )
+
+        let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
+            guard let asset = anyAsset as? CDChainAsset else {
+                return nil
+            }
+
+            return createChainAsset(from: asset, parentChain: chainModel)
+        } ?? []
+        let chainAssets = Set(chainAssetsArray)
+
+        chainModel.assets = chainAssets
+
+        return chainModel
     }
 
     func populate(
@@ -233,7 +281,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
 
-        updateEntityAssets(for: entity, from: model, context: context)
+        updateEntityChainAssets(for: entity, from: model, context: context)
 
         updateEntityNodes(for: entity, from: model, context: context)
 

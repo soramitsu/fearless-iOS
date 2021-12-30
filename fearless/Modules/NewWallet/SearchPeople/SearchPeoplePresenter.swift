@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import IrohaCrypto
 
 final class SearchPeoplePresenter {
     weak var view: SearchPeopleViewProtocol?
@@ -52,13 +53,23 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
         wireframe.close(view)
     }
 
+    func didTapScanButton() {
+        wireframe.presentScan(
+            from: view,
+            chain: chain,
+            asset: asset,
+            selectedAccount: SelectedWalletSettings.shared.value,
+            moduleOutput: self
+        )
+    }
+
     func searchTextDidChanged(_ text: String) {
         interactor.performSearch(query: text)
     }
 
     func setup() {
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.symbol,
+            asset.id,
             preferredLanguages: selectedLocale.rLanguages
         ))
     }
@@ -82,4 +93,22 @@ extension SearchPeoplePresenter: SearchPeopleInteractorOutputProtocol {
 
 extension SearchPeoplePresenter: Localizable {
     func applyLocalization() {}
+}
+
+extension SearchPeoplePresenter: WalletScanQRModuleOutput {
+    func didFinishWith(payload: TransferPayload) {
+        let addressFactory = SS58AddressFactory()
+
+        guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
+              let address = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) else {
+            return
+        }
+
+        wireframe.presentSend(
+            from: view,
+            to: address,
+            asset: asset,
+            chain: chain
+        )
+    }
 }

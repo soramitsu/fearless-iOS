@@ -50,7 +50,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        guard let chain = chainModels.first(where: { $0.assets.contains(viewModel.asset) }) else {
+        guard let chain = chainModels.first(where: { $0.assets.map(\.asset).contains(viewModel.asset) }) else {
             return
         }
 

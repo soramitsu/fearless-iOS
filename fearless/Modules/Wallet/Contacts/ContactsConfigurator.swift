@@ -71,7 +71,7 @@ final class ContactsConfigurator {
     init(networkType: SNAddressType) {
         let viewModelFactory = ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared)
         localSearchEngine = ContactsLocalSearchEngine(
-            networkType: networkType,
+            addressPrefix: UInt16(networkType.rawValue),
             contactViewModelFactory: viewModelFactory
         )
     }

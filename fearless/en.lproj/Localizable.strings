@@ -126,8 +126,6 @@ operations will appear here";
 "connection.add.invalid.error" = "Can't establish connection with node. Please, try another one.";
 "connection.add.unsupported.error" = "Unfortunately, the network is unsupported. Please, try one of the following: %@.";
 "connection.add.already.exists.error" = "The node has already been added previously. Please, try another node.";
-"wallet.receive.qr.description" = "Show this QR code to sender";
-"wallet.receive.navigation.title" = "Receive %@";
 "wallet.send.title" = "Send";
 "wallet.send.asset.title" = "Asset";
 "wallet.send.receiver.title" = "To";
@@ -545,52 +543,31 @@ This is the hash of your transaction:";
 "common.invalid.hard.soft.numeric.password.message" = "Please, check that input is a mix of //'hard' and /'soft' where 'hard' and 'soft' can be any sequence of characters not including /. The path can end up with ///'password'. For example, //0/1//0///mypass.";
 "wallet.asset.receive.template" = "Receive %s";
 "username.setup.hint.2.0" = "Example: Savings, Investments, Crowdloans, Staking. This nickname will be displayed only for you and stored locally on your mobile device.";
-"username.setup.title.2.0" = "Create a new wallet\
-";
-"pincode.confirm.pin.code" = "Confirm pin code\
-";
-"username.setup.choose.title.2.0" = "Wallet nickname\
-";
-"substrate.crypto.type" = "Substrate keypair crypto type\
-";
-"ethereum.crypto.type" = "Ethereum keypair crypto type\
-";
+"username.setup.title.2.0" = "Create a new wallet";
+"pincode.confirm.pin.code" = "Confirm pin code";
+"username.setup.choose.title.2.0" = "Wallet nickname";
+"substrate.crypto.type" = "Substrate keypair crypto type";
+"ethereum.crypto.type" = "Ethereum keypair crypto type";
 "substrate.secret.derivation.path" = "Substrate secret derivation path\
 ";
 "ethereum.secret.derivation.path" = "Ethereum secret derivation path";
 "example" = "Example: %@";
-"pincode.setup.top.title" = "Setup pin code\
-";
+"pincode.setup.top.title" = "Setup pin code";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Invalid mnemonic passphrase, please check one more time the words order";
 "share.referral.code" = "Share referral code";
 "copy.referral.code" = "Copy referral code";
-"moonbeam.crowdloan.terms" = "Moonbeam Crowdloan Terms and Conditions";
-"moonbeam.registration" = "Moonbeam Crowdloan Registration";
-"moonbeam.registration.description" = "This transaction confirms that you agree to the Moonbeam Crowdloan Terms and Conditions.\
-A signed system.remark extrinsic transaction will be sent as proof of your agreement.\
-This information will be processed and stored on the Polkadot Relay Chain.\
-Please note that this signing transaction will be subject to transaction fees on the Polkadot network.";
-"transaction.successful" = "Transaction Successful!";
-"moonbeam.signed.successful" = "You have successfully signed the terms and conditions for the Moonbeam Crowdloan and a transaction has been sent.\
-\
-This is the hash of your transaction:";
-"moonbean.ethereum.address" = "Moonbeam Ethereum address";
-"about.twitter" = "Follow on Twitter";
-"about.youtube" = "Subscribe on YouTube";
-"about.medium" = "Read on Medium";
-"about.announcement" = "Receive Announcements";
-"about.support" = "Ask for Support";
+"scan.qr.title" = "Scan QR";
+"scan.qr.subtitle" = "Scan code from receiver";
+"scan.qr.upload.button.title" = "Upload from gallery";
+"wallet.receive.qr.description" = "Show this QR code to sender";
+"common.error.network" = "Error occurred while communicating with remote server";
+"common.error.internal" = "Internal error occurred";
 "moonbeam.location.unsupported.error" = "Unfortunately it appears that you might be ineligible to participate in the Moonbeam Crowdloan Campaign due to your detected location.";
-"crowdloan.terms.with.name" = "%@ Crowdloan Terms and Conditions";
-"common.error.network" = "Error occured while communicating with remote server";
-"common.error.internal" = "Internal error occured";
-"moonbeam.address.hint" = "Rewards will be paid out to this address. You can use an existing Ethereum address. PLEASE ENSURE YOU HAVE THE PRIVATE KEYS FOR THIS ADDRESS.";
-"crowdloan.attention" = "ATTENTION REQUIRED! Please tap to open and add your Moonbeam Ethereum address.";
 "tabbar.crowdloan.attention" = "Please check the Crowdloans tab\nAttention required";
-"moonbeam.add.address" = "Add Moonbeam address";
+"common.max" = "max";
+"wallet.receive.navigation.title" = "Receive %@";
 "assetdetails.balance.total" = "Total";
 "assetdetails.balance.transferable" = "Transferable";
 "assetdetails.balance.locked" = "Locked";
 "assetdetails.balance.title" = "Your balance";
 "wallet.send.navigation.title" = "Send %@";
-"common.max" = "max";

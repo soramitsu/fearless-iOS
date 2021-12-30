@@ -279,7 +279,7 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             amount = ""
         }
 
-        let imageViewModel = RemoteImageViewModel(url: chain.icon)
+        let imageViewModel = chain.icon.map { RemoteImageViewModel(url: $0) }
 
         let description = R.string.localizable.crowdloanListSectionFormat(
             preferredLanguages: locale.rLanguages

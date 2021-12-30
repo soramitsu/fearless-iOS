@@ -115,7 +115,7 @@ class ChainRegistryIntegrationTests: XCTestCase {
                     ) ?? 0.0
                 } ?? 0.0
 
-                let balanceString = available.stringWithPointSeparator + " \(utilityAsset.symbol)"
+                let balanceString = available.stringWithPointSeparator + " \(utilityAsset.id)"
                 Logger.shared.info("Balance: \(balanceString)")
             } catch {
                 Logger.shared.error("Couldn't fetch from chain \(chain.chainId): \(error)")

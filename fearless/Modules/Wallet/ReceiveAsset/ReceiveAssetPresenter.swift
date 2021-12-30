@@ -62,7 +62,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
         let sources = sharingFactory.createSources(
             accountAddress: address,
             qrImage: qrImage,
-            assetSymbol: asset.symbol,
+            assetSymbol: asset.id,
             chainName: chain.name,
             locale: selectedLocale
         )
@@ -87,9 +87,15 @@ extension ReceiveAssetPresenter: Localizable {
 private extension ReceiveAssetPresenter {
     private func generateQR() {
         cancelQRGeneration()
+
+        guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
+            processOperation(result: .failure(ChainAccountFetchingError.accountNotExists))
+            return
+        }
+
         let receiveInfo = ReceiveInfo(
-            accountId: account.identifier,
-            assetId: asset.name,
+            accountId: accountId.toHex(),
+            assetId: asset.id,
             amount: nil,
             details: nil
         )
@@ -128,7 +134,7 @@ private extension ReceiveAssetPresenter {
             return
         }
         view?.bind(viewModel: ReceiveAssetViewModel(
-            asset: asset.symbol,
+            asset: asset.id,
             accountName: account.name,
             address: address,
             iconGenerator: PolkadotIconGenerator()

@@ -10,7 +10,7 @@ protocol SearchServiceProtocol {
         chain: ChainModel,
         filterResults: ((SearchData) -> Bool)?,
         completion: @escaping SearchServiceSearchPeopleResultBlock
-    )
+    ) -> CancellableCall
 }
 
 final class SearchService: BaseService, SearchServiceProtocol {
@@ -35,7 +35,7 @@ final class SearchService: BaseService, SearchServiceProtocol {
         chain: ChainModel,
         filterResults: ((SearchData) -> Bool)? = nil,
         completion: @escaping SearchServiceSearchPeopleResultBlock
-    ) {
+    ) -> CancellableCall {
         searchOperation?.cancel()
 
         let operation = searchOperation(query, chain: chain, filterResults: filterResults)
@@ -54,6 +54,8 @@ final class SearchService: BaseService, SearchServiceProtocol {
         searchOperation = operation
 
         operationManager.enqueue(operations: operation.allOperations, in: .transient)
+
+        return operation
     }
 }
 

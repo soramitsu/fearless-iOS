@@ -7,9 +7,16 @@ struct ReceiveAssetViewFactory {
         chain: ChainModel,
         asset: AssetModel
     ) -> ReceiveAssetViewProtocol? {
+        guard let chainAccount = account.fetch(for: chain.accountRequest()) else {
+            return nil
+        }
         let wireframe = ReceiveAssetWireframe()
 
-        let qrEncoder = CommonWallet.WalletQREncoder()
+        let qrEncoder = WalletQREncoder(
+            addressPrefix: chain.addressPrefix,
+            publicKey: chainAccount.publicKey,
+            username: chainAccount.name
+        )
         let qrService = WalletQRService(
             operationFactory: WalletQROperationFactory(),
             encoder: qrEncoder

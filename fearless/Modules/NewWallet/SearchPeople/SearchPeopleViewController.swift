@@ -47,6 +47,7 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
+        rootView.scanButton.addTarget(self, action: #selector(scanButtonClicked), for: .touchUpInside)
     }
 
     private func applyState(_ state: SearchPeopleViewState) {
@@ -63,6 +64,10 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
 
     @objc private func backButtonClicked() {
         presenter.didTapBackButton()
+    }
+
+    @objc private func scanButtonClicked() {
+        presenter.didTapScanButton()
     }
 }
 

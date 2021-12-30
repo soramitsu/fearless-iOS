@@ -74,7 +74,7 @@ final class ChainAccountBalanceListInteractor {
         for chain in chains {
             for asset in chain.assets {
                 if
-                    let priceId = asset.priceId,
+                    let priceId = asset.asset.priceId,
                     let dataProvider = subscribeToPrice(for: priceId) {
                     providers.append(dataProvider)
                 }

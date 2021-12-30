@@ -12,7 +12,8 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
-    let url: URL
+    let chainsUrl: URL
+    let assetsUrl: URL
     let repository: AnyDataProviderRepository<ChainModel>
     let dataFetchFactory: DataOperationFactoryProtocol
     let eventCenter: EventCenterProtocol
@@ -30,7 +31,8 @@ final class ChainSyncService {
     }()
 
     init(
-        url: URL,
+        chainsUrl: URL,
+        assetsUrl: URL,
         dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
@@ -38,7 +40,8 @@ final class ChainSyncService {
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
         logger: LoggerProtocol? = nil
     ) {
-        self.url = url
+        self.chainsUrl = chainsUrl
+        self.assetsUrl = assetsUrl
         self.dataFetchFactory = dataFetchFactory
         self.repository = repository
         self.eventCenter = eventCenter
@@ -65,11 +68,28 @@ final class ChainSyncService {
     }
 
     private func executeSync() {
-        let remoteFetchOperation = dataFetchFactory.fetchData(from: url)
+        let remoteFetchAssetsOperation = dataFetchFactory.fetchData(from: assetsUrl)
+        let remoteFetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         let processingOperation: BaseOperation<SyncChanges> = ClosureOperation {
+            let assetsRemoteData = try remoteFetchAssetsOperation.extractNoCancellableResultData()
+            let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsRemoteData)
             let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
-            let remoteChains = try JSONDecoder().decode([ChainModel].self, from: remoteData)
+            let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: remoteData)
+            remoteChains.forEach { chain in
+                chain.assets.forEach { chainAsset in
+                    chainAsset.chain = chain
+                    if let asset = assetsList.first(where: { asset in
+                        chainAsset.assetId == asset.id
+                    }) {
+                        chainAsset.asset = asset
+                    }
+                }
+            }
+
+            remoteChains.forEach {
+                $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
+            }
 
             let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
                 mapping[item.chainId] = item
@@ -95,6 +115,7 @@ final class ChainSyncService {
             return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
         }
 
+        processingOperation.addDependency(remoteFetchAssetsOperation)
         processingOperation.addDependency(remoteFetchOperation)
         processingOperation.addDependency(localFetchOperation)
 
@@ -123,7 +144,7 @@ final class ChainSyncService {
         }
 
         operationQueue.addOperations([
-            remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation, mapOperation
+            remoteFetchAssetsOperation, remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation, mapOperation
         ], waitUntilFinished: false)
     }
 
