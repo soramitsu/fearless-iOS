@@ -20,6 +20,12 @@ final class SearchPeopleViewLayout: UIView {
         return label
     }()
 
+    let scanButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(R.image.iconScanQr(), for: .normal)
+        return button
+    }()
+
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .black
@@ -75,6 +81,7 @@ final class SearchPeopleViewLayout: UIView {
         }
 
         navigationBar.setCenterViews([navigationTitleLabel])
+        navigationBar.setRightViews([scanButton])
 
         addSubview(searchBorderView)
         searchBorderView.snp.makeConstraints { make in

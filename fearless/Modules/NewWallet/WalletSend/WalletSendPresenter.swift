@@ -148,23 +148,23 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
             (fee?.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0)
 
         DataValidationRunner(validators: [
-            //            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-//                self?.refreshFee()
-//            }),
-//
-//            dataValidatingFactory.canPayFeeAndAmount(
-//                balance: balance,
-//                fee: fee,
-//                spendingAmount: sendAmountDecimal,
-//                locale: selectedLocale
-//            ),
-//
-//            dataValidatingFactory.exsitentialDepositIsNotViolated(
-//                spendingAmount: spendingValue,
-//                totalAmount: totalBalanceValue,
-//                minimumBalance: minimumBalance,
-//                locale: selectedLocale
-//            )
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                self?.refreshFee()
+            }),
+
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: sendAmountDecimal,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: spendingValue,
+                totalAmount: totalBalanceValue,
+                minimumBalance: minimumBalance,
+                locale: selectedLocale
+            )
 
         ]).runValidation { [weak self] in
             guard let strongSelf = self, let amount = sendAmountDecimal else { return }

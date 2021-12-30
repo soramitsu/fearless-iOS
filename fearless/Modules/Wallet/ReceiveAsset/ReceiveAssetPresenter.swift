@@ -87,8 +87,14 @@ extension ReceiveAssetPresenter: Localizable {
 private extension ReceiveAssetPresenter {
     private func generateQR() {
         cancelQRGeneration()
+
+        guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
+            processOperation(result: .failure(ChainAccountFetchingError.accountNotExists))
+            return
+        }
+
         let receiveInfo = ReceiveInfo(
-            accountId: account.identifier,
+            accountId: accountId.toHex(),
             assetId: asset.id,
             amount: nil,
             details: nil
