@@ -34,6 +34,10 @@ final class RuntimeProvider {
     private(set) var currentWrapper: CompoundOperationWrapper<RuntimeSnapshot?>?
     private var mutex = NSLock()
 
+    private var commonTypesFetched: Bool = false
+    private var chainTypesFetched: Bool = false
+    private var chainMetadataFetched: Bool = false
+
     init(
         chainModel: ChainModel,
         snapshotOperationFactory: RuntimeSnapshotFactoryProtocol,
@@ -49,11 +53,16 @@ final class RuntimeProvider {
         self.operationQueue = operationQueue
         self.dataHasher = dataHasher
         self.logger = logger
+        commonTypesFetched = typesUsage == .onlyOwn
 
         eventCenter.add(observer: self, dispatchIn: DispatchQueue.global())
     }
 
     private func buildSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
+        guard commonTypesFetched, chainTypesFetched, chainMetadataFetched else {
+            return
+        }
+
         let wrapper = snapshotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher
@@ -263,6 +272,8 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         logger?.debug("Will start building snapshot after chain types update for \(chainId)")
 
+        chainTypesFetched = true
+
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
 
@@ -281,6 +292,8 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper = nil
 
         logger?.debug("Will start building snapshot after metadata update for \(chainId)")
+
+        chainMetadataFetched = true
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
@@ -304,6 +317,8 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper = nil
 
         logger?.debug("Will start building snapshot after common types update for \(chainId)")
+
+        commonTypesFetched = true
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }

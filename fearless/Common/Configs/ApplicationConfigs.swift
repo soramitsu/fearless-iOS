@@ -104,12 +104,12 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/multi-assetes-refactoring-dev/chains/chains.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/multiasset_twochains/chains/chains.json")!
     }
 
     var assetListURL: URL {
         URL(string:
-            "https://raw.githubusercontent.com/soramitsu/fearless-utils/multi-assetes-refactoring-dev/chains/assets.json")!
+            "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/multiasset_twochains/chains/assets.json")!
     }
 
     var commonTypesURL: URL {
