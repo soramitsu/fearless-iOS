@@ -239,6 +239,8 @@ final class RewardCalculatorService {
 
 extension RewardCalculatorService: RewardCalculatorServiceProtocol {
     func setup() {
+        eraValidatorsService.setup()
+
         syncQueue.async {
             guard !self.isActive else {
                 return

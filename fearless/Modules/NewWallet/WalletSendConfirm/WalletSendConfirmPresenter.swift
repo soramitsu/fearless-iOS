@@ -130,6 +130,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             asset.id,
             preferredLanguages: selectedLocale.rLanguages
         ))
+
+        refreshFee()
     }
 
     func didTapBackButton() {

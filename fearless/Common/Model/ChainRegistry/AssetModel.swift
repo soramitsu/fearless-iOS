@@ -13,6 +13,10 @@ struct AssetModel: Equatable, Codable, Hashable {
     let priceId: PriceId?
 
     var isUtility: Bool { id.isEmpty }
+
+    var name: String {
+        id.uppercased()
+    }
 }
 
 extension AssetModel: Identifiable {

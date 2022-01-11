@@ -47,6 +47,7 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         containerView.stackView.axis = .horizontal
         containerView.stackView.distribution = .fillProportionally
         containerView.stackView.alignment = .fill
+        containerView.stackView.spacing = UIConstants.defaultOffset
         return containerView
     }()
 
