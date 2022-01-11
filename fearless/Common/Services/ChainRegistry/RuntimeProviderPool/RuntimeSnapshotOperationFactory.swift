@@ -147,8 +147,11 @@ final class RuntimeSnapshotFactory {
                 return nil
             }
 
+            // TODO: think about it
+            let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                ownTypes,
+                try JSONEncoder().encode(json),
+                versioningData: ownTypes,
                 runtimeMetadata: runtimeMetadata
             )
 
