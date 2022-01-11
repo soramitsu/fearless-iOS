@@ -175,7 +175,7 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         viewModel.imageViewModel?.cancel(on: assetIconImageView)
 
         chainNameLabel.text = viewModel.assetName?.uppercased()
-        balanceView.keyLabel.text = viewModel.assetInfo?.symbol
+        balanceView.keyLabel.text = viewModel.assetInfo?.symbol.uppercased()
         balanceView.valueLabel.text = viewModel.balanceString
         priceView.keyLabel.attributedText = viewModel.priceAttributedString
         priceView.valueLabel.text = viewModel.totalAmountString
