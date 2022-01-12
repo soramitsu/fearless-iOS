@@ -11,8 +11,6 @@ struct AssetModel: Equatable, Codable, Hashable {
     let precision: UInt16
     let icon: URL?
     let priceId: PriceId?
-
-    var isUtility: Bool { id.isEmpty }
 }
 
 extension AssetModel: Identifiable {

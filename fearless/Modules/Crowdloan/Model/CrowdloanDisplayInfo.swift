@@ -8,12 +8,12 @@ struct CrowdloanDisplayInfo: Codable, Equatable {
     let website: String
     let icon: String
     let rewardRate: Decimal?
-    let customFlow: CustomCrowdloanFlow?
+    let flow: CustomCrowdloanFlow?
 }
 
 extension CrowdloanDisplayInfo {
     var flowIfSupported: CustomCrowdloanFlow? {
-        guard let flow = customFlow else { return nil }
+        guard let flow = flow else { return nil }
         switch flow {
         case .unsupported: return nil
         default: return flow
