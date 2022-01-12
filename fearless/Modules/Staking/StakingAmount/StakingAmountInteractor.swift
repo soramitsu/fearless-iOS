@@ -104,6 +104,8 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
                 self?.presenter.didReceive(error: error)
             }
         }
+
+        rewardService.setup()
     }
 
     func fetchAccounts() {

@@ -118,9 +118,11 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         provideViewModel()
 
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.id,
+            asset.name,
             preferredLanguages: selectedLocale.rLanguages
         ))
+
+        refreshFee()
     }
 
     func selectAmountPercentage(_ percentage: Float) {

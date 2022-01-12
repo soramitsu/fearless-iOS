@@ -11,6 +11,10 @@ struct AssetModel: Equatable, Codable, Hashable {
     let precision: UInt16
     let icon: URL?
     let priceId: PriceId?
+
+    var name: String {
+        id.uppercased()
+    }
 }
 
 extension AssetModel: Identifiable {
