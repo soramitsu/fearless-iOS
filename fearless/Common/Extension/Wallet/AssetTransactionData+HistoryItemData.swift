@@ -6,6 +6,122 @@ import FearlessUtils
 
 extension AssetTransactionData {
     static func createTransaction(
+        from item: SubqueryHistoryElement,
+        address: String,
+        chain: ChainModel,
+        asset: AssetModel,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        if let transfer = item.transfer {
+            return createTransaction(
+                from: item,
+                transfer: transfer,
+                address: address,
+                chain: chain,
+                asset: asset,
+                addressFactory: addressFactory
+            )
+        }
+
+        if let reward = item.reward {
+            return createTransaction(
+                from: item,
+                reward: reward,
+                address: address,
+                chain: chain,
+                asset: asset,
+                addressFactory: addressFactory
+            )
+        }
+
+        if let extrinsic = item.extrinsic {
+            return createTransaction(
+                from: item,
+                extrinsic: extrinsic,
+                address: address,
+                chain: chain,
+                asset: asset,
+                addressFactory: addressFactory
+            )
+        }
+
+        let timestamp = Int64(item.timestamp) ?? 0
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: .pending,
+            assetId: asset.identifier,
+            peerId: "",
+            peerFirstName: nil,
+            peerLastName: nil,
+            peerName: "",
+            details: "",
+            amount: AmountDecimal(value: 0),
+            fees: [],
+            timestamp: timestamp,
+            type: "UNKNOWN",
+            reason: nil,
+            context: nil
+        )
+    }
+
+    private static func createTransaction(
+        from item: SubqueryHistoryElement,
+        transfer: SubqueryTransfer,
+        address: String,
+        chain: ChainModel,
+        asset: AssetModel,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        let status: AssetTransactionStatus = transfer.success ? .commited : .rejected
+
+        let peerAddress = transfer.sender == address ? transfer.receiver : transfer.sender
+
+        let accountId = try? addressFactory.accountId(
+            fromAddress: peerAddress,
+            type: chain.addressPrefix
+        )
+
+        let peerId = accountId?.toHex() ?? peerAddress
+
+        let amount = Decimal.fromSubstrateAmount(
+            BigUInt(transfer.amount) ?? 0,
+            precision: Int16(asset.precision)
+        ) ?? .zero
+        let feeValue = BigUInt(transfer.fee) ?? BigUInt(0)
+        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
+
+        let fee = AssetTransactionFee(
+            identifier: asset.identifier,
+            assetId: asset.identifier,
+            amount: AmountDecimal(value: feeDecimal),
+            context: nil
+        )
+
+        let type = transfer.sender == address ? TransactionType.outgoing :
+            TransactionType.incoming
+
+        let timestamp = Int64(item.timestamp) ?? 0
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: status,
+            assetId: asset.identifier,
+            peerId: peerId,
+            peerFirstName: nil,
+            peerLastName: nil,
+            peerName: peerAddress,
+            details: "",
+            amount: AmountDecimal(value: amount),
+            fees: [fee],
+            timestamp: timestamp,
+            type: type.rawValue,
+            reason: nil,
+            context: nil
+        )
+    }
+
+    static func createTransaction(
         from item: SubscanTransferItemData,
         address: String,
         chain: ChainModel,
@@ -63,6 +179,49 @@ extension AssetTransactionData {
         )
     }
 
+    private static func createTransaction(
+        from item: SubqueryHistoryElement,
+        reward: SubqueryRewardOrSlash,
+        address: String,
+        chain: ChainModel,
+        asset: AssetModel,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        let status: AssetTransactionStatus = .commited
+
+        let amount = Decimal.fromSubstrateAmount(
+            BigUInt(reward.amount) ?? 0,
+            precision: Int16(asset.precision)
+        ) ?? .zero
+
+        let type = reward.isReward ? TransactionType.reward.rawValue : TransactionType.slash.rawValue
+
+        let timestamp = Int64(item.timestamp) ?? 0
+
+        let accountId = try? addressFactory.accountId(
+            fromAddress: address,
+            type: chain.addressPrefix
+        )
+        let peerId = accountId?.toHex() ?? address
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: status,
+            assetId: asset.identifier,
+            peerId: peerId,
+            peerFirstName: nil,
+            peerLastName: nil,
+            peerName: type,
+            details: "",
+            amount: AmountDecimal(value: amount),
+            fees: [],
+            timestamp: timestamp,
+            type: type,
+            reason: nil,
+            context: nil
+        )
+    }
+
     static func createTransaction(
         from item: SubscanRewardItemData,
         address: String,
@@ -93,6 +252,47 @@ extension AssetTransactionData {
             fees: [],
             timestamp: item.timestamp,
             type: type?.rawValue ?? "",
+            reason: nil,
+            context: nil
+        )
+    }
+
+    static func createTransaction(
+        from item: SubqueryHistoryElement,
+        extrinsic: SubqueryExtrinsic,
+        address: String,
+        chain: ChainModel,
+        asset: AssetModel,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        let amount = Decimal.fromSubstrateAmount(
+            BigUInt(extrinsic.fee) ?? 0,
+            precision: Int16(asset.precision)
+        ) ?? .zero
+
+        let accountId = try? addressFactory.accountId(
+            fromAddress: address,
+            type: chain.addressPrefix
+        )
+        let peerId = accountId?.toHex() ?? address
+
+        let status: AssetTransactionStatus = extrinsic.success ? .commited : .rejected
+
+        let timestamp = Int64(item.timestamp) ?? 0
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: status,
+            assetId: asset.identifier,
+            peerId: peerId,
+            peerFirstName: extrinsic.module,
+            peerLastName: extrinsic.call,
+            peerName: "\(extrinsic.module) \(extrinsic.call)",
+            details: "",
+            amount: AmountDecimal(value: amount),
+            fees: [],
+            timestamp: timestamp,
+            type: TransactionType.extrinsic.rawValue,
             reason: nil,
             context: nil
         )

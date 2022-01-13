@@ -46,7 +46,7 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
                 var filter = WalletHistoryRequest()
                 filter.assets = [asset.identifier]
                 let operation = self.operationFactory
-                    .fetchTransactionHistoryOperation(
+                    .fetchSubqueryHistoryOperation(
                         asset: asset,
                         chain: chain,
                         address: address,
@@ -58,7 +58,7 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
 
         let cache = createSingleValueCache()
 
-        let updateTrigger = DataProviderEventTrigger.onAddObserver
+        let updateTrigger = DataProviderEventTrigger.onAll
 
         return SingleValueProvider(
             targetIdentifier: targetIdentifier,

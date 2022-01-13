@@ -1,12 +1,15 @@
 import Foundation
 import FearlessUtils
 import UIKit
+import CommonWallet
 
 struct WalletTransactionHistoryCellViewModel {
     let address: String
-    let icon: DrawableIcon?
+    let icon: UIImage?
     let transactionType: String
     let amountString: String
     let timeString: String
     let statusIcon: UIImage?
+    let status: AssetTransactionStatus
+    let incoming: Bool
 }

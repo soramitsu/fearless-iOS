@@ -1,5 +1,7 @@
 import Foundation
 import FearlessUtils
+import CommonWallet
+import IrohaCrypto
 
 struct SubqueryPageInfo: Decodable {
     let startCursor: String?
@@ -22,7 +24,7 @@ struct SubqueryTransfer: Decodable {
     let receiver: String
     let sender: String
     let fee: String
-    let block: String
+    let block: String?
     let extrinsicId: String?
     let extrinsicHash: String?
     let success: Bool
@@ -76,4 +78,36 @@ struct SubqueryRewardOrSlashData: Decodable {
     }
 
     let historyElements: HistoryElements
+}
+
+extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
+    var itemBlockNumber: UInt64 { 0 }
+    var itemExtrinsicIndex: UInt16 { 0 }
+    var itemTimestamp: Int64 { Int64(timestamp) ?? 0 }
+    var label: WalletRemoteHistorySourceLabel {
+        if reward != nil {
+            return .rewards
+        }
+
+        if extrinsic != nil {
+            return .extrinsics
+        }
+
+        return .transfers
+    }
+
+    func createTransactionForAddress(
+        _ address: String,
+        chain: ChainModel,
+        asset: AssetModel,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        AssetTransactionData.createTransaction(
+            from: self,
+            address: address,
+            chain: chain,
+            asset: asset,
+            addressFactory: addressFactory
+        )
+    }
 }

@@ -3,9 +3,18 @@ import FearlessUtils
 import Kingfisher
 
 class WalletTransactionHistoryCell: UITableViewCell {
-    let accountIconImageView = PolkadotIconView()
+    private enum LayoutConstants {
+        static let accountImageSize: CGFloat = 32
+    }
+
+    let accountIconImageView: UIImageView = {
+        let iconView = UIImageView()
+        iconView.backgroundColor = .clear
+        return iconView
+    }()
+
     let verticalContentStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
-    let firstlineStackView = UIFactory.default.createHorizontalStackView()
+    let firstlineStackView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.bigOffset)
     let secondlineStackView = UIFactory.default.createHorizontalStackView()
 
     let addressLabel: UILabel = {
@@ -37,6 +46,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorAlmostWhite()
+        label.textAlignment = .right
         return label
     }()
 
@@ -76,8 +86,22 @@ class WalletTransactionHistoryCell: UITableViewCell {
         secondlineStackView.addArrangedSubview(transactionTypeLabel)
         secondlineStackView.addArrangedSubview(transactionTimeLabel)
 
-        addressLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        transactionAmountLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        transactionAmountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         transactionTypeLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        accountIconImageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.size.equalTo(LayoutConstants.accountImageSize)
+            make.centerY.equalToSuperview()
+        }
+
+        verticalContentStackView.snp.makeConstraints { make in
+            make.leading.equalTo(accountIconImageView.snp.trailing).offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
     }
 
     func bind(to viewModel: WalletTransactionHistoryCellViewModel) {
@@ -86,9 +110,15 @@ class WalletTransactionHistoryCell: UITableViewCell {
         transactionTypeLabel.text = viewModel.transactionType
         transactionTimeLabel.text = viewModel.timeString
         transactionStatusIconImageView.image = viewModel.statusIcon
+        transactionStatusIconImageView.isHidden = viewModel.statusIcon == nil
 
-        if let icon = viewModel.icon {
-            accountIconImageView.bind(icon: icon)
+        accountIconImageView.image = viewModel.icon
+
+        switch viewModel.status {
+        case .commited:
+            transactionAmountLabel.textColor = viewModel.incoming ? R.color.colorGreen() : R.color.colorWhite()
+        case .pending, .rejected:
+            transactionAmountLabel.textColor = R.color.colorWhiteTransparent()
         }
     }
 }

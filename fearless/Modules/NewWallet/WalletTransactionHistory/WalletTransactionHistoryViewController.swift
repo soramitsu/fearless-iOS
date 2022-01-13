@@ -13,7 +13,7 @@ private struct NavigationItemState {
 final class WalletTransactionHistoryViewController: UIViewController, ViewHolder {
     private enum Constants {
         static let headerHeight: CGFloat = 45.0
-        static let sectionHeight: CGFloat = 44.0
+        static let sectionHeight: CGFloat = 20.0
         static let compactTitleLeft: CGFloat = 20.0
         static let multiplierToActivateNextLoading: CGFloat = 1.5
         static let draggableProgressStart: Double = 0.0
@@ -44,9 +44,13 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 
     private var didSetupLayout: Bool = false
 
-    init(presenter: WalletTransactionHistoryPresenterProtocol) {
+    init(
+        presenter: WalletTransactionHistoryPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)
@@ -63,7 +67,19 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 
         presenter.setup()
 
+        setupLocalization()
+
         rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
+
+        rootView.tableView.delegate = self
+        rootView.tableView.dataSource = self
+        rootView.tableView.registerClassForCell(WalletTransactionHistoryCell.self)
+        rootView.tableView.separatorStyle = .none
+    }
+
+    private func setupLocalization() {
+        let languages = selectedLocale.rLanguages
+        rootView.titleLabel.text = R.string.localizable.walletHistoryTitle_v190(preferredLanguages: languages)
     }
 
     private func updateLoadingAndEmptyState(animated: Bool) {
@@ -76,7 +92,9 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 //        }
     }
 
-    func applyState(_ state: WalletTransactionHistoryViewState) {
+    func applyState(_: WalletTransactionHistoryViewState) {
+//        reloadContent()
+
         switch state {
         case .loading:
             rootView.tableView.isHidden = true
@@ -85,7 +103,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             rootView.tableView.isHidden = viewModel.sections.isEmpty
         }
 
-        reloadContent()
+        updateLoadingAndEmptyState(animated: true)
     }
 
     private func handle(changes: [WalletTransactionHistoryChange]) {
@@ -147,6 +165,8 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
             return 0
         }
 
+        print("[transaction_history] numberOfSections: \(viewModel.sections.count)")
+
         return viewModel.sections.count
     }
 
@@ -155,6 +175,7 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
             return 0
         }
 
+        print("[transaction_history] numberOfRowsInSection: \(viewModel.sections[section].items.count)")
         return viewModel.sections[section].items.count
     }
 
@@ -177,30 +198,19 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
 }
 
 extension WalletTransactionHistoryViewController: UITableViewDelegate {
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        let cellNib = UINib(nibName: Constants.sectionNibName, bundle: Bundle(for: type(of: self)))
-//
-//        guard let headerView = cellNib.instantiate(withOwner: self, options: nil).first as? SeparatedSectionView else {
-//            return nil
-//        }
-//
-//        headerView.frame = CGRect(x: 0.0, y: 0.0, width: tableView.frame.size.width, height: Constants.sectionHeight)
-//
-//        headerView.style = configuration?.headerStyle
-//
-//        headerView.bind(title: presenter.sectionModel(at: section).title)
-//
-//        return headerView
-//    }
+    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard case let .loaded(viewModel) = state else {
+            return nil
+        }
 
-//    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        let items = presenter.sectionModel(at: indexPath.section).items
-//        return items[indexPath.row].itemHeight
-//    }
-//
-//    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-//        Constants.sectionHeight
-//    }
+        let view = WalletTransactionHistoryTableSectionHeader()
+        view.bind(to: viewModel.sections[section])
+        return view
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
+        Constants.sectionHeight
+    }
 //
 //    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 //        tableView.deselectRow(at: indexPath, animated: true)
@@ -365,8 +375,10 @@ extension WalletTransactionHistoryViewController: Draggable {
         case .compact:
             rootView.tableView.setContentOffset(.zero, animated: animated)
             rootView.tableView.showsVerticalScrollIndicator = false
+            rootView.closeButton.isHidden = true
         case .full:
             rootView.tableView.isScrollEnabled = true
+            rootView.closeButton.isHidden = false
         }
     }
 
@@ -566,6 +578,8 @@ extension WalletTransactionHistoryViewController: Localizable {
             if draggableState == .full, let navigationItem = delegate?.presentationNavigationItem {
                 setupNavigationItemTitle(navigationItem)
             }
+
+            rootView.titleLabel.text = R.string.localizable.walletHistoryTitle_v190(preferredLanguages: selectedLocale.rLanguages)
 
             view.setNeedsLayout()
         }

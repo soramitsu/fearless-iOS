@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import CommonWallet
 import RobinHood
+import SoraFoundation
 
 struct WalletTransactionHistoryViewFactory {
     static func createView(asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel) -> WalletTransactionHistoryViewProtocol? {
@@ -40,7 +41,10 @@ struct WalletTransactionHistoryViewFactory {
             viewModelFactory: viewModelFactory
         )
 
-        let view = WalletTransactionHistoryViewController(presenter: presenter)
+        let view = WalletTransactionHistoryViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         interactor.presenter = presenter

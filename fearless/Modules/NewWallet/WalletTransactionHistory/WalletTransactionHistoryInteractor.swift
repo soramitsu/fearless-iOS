@@ -71,6 +71,8 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDataProvider() {
+        dataLoadingState = .loading(page: Pagination(count: 100), previousPage: nil)
+
         guard let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
             return
         }
@@ -79,7 +81,7 @@ final class WalletTransactionHistoryInteractor {
             for: address,
             asset: asset,
             chain: chain,
-            targetIdentifier: "test.wallet.transaction.history",
+            targetIdentifier: "wallet.transaction.history",
             using: .main
         )
 
@@ -115,20 +117,41 @@ final class WalletTransactionHistoryInteractor {
         case .waitingCached:
             let loadedTransactionData = transactionData ?? AssetTransactionPageData(transactions: [])
 
-            let newState = WalletTransactionHistoryDataState.loading(page: Pagination(count: transactionsPerPage), previousPage: nil)
-            dataProvider?.refresh()
+            let newState = WalletTransactionHistoryDataState.loading(
+                page: Pagination(count: transactionsPerPage),
+                previousPage: nil
+            )
+//            dataProvider?.refresh()
 
-            presenter?.didReceive(pageData: loadedTransactionData, andSwitch: newState, reload: true)
+            presenter?.didReceive(
+                pageData: loadedTransactionData,
+                andSwitch: newState,
+                reload: true
+            )
 
         case .loading, .loaded:
             if let transactionData = transactionData {
                 let loadedPage = Pagination(count: transactionData.transactions.count)
-                let newState = WalletTransactionHistoryDataState.loaded(page: loadedPage, nextContext: transactionData.context)
-                presenter?.didReceive(pageData: transactionData, andSwitch: newState, reload: true)
+                let newState = WalletTransactionHistoryDataState.loaded(
+                    page: loadedPage,
+                    nextContext: transactionData.context
+                )
+                presenter?.didReceive(
+                    pageData: transactionData,
+                    andSwitch: newState,
+                    reload: true
+                )
             } else if let firstPage = pages.first {
                 let loadedPage = Pagination(count: firstPage.transactions.count)
-                let newState = WalletTransactionHistoryDataState.loaded(page: loadedPage, nextContext: firstPage.context)
-                presenter?.didReceive(pageData: firstPage, andSwitch: newState, reload: true)
+                let newState = WalletTransactionHistoryDataState.loaded(
+                    page: loadedPage,
+                    nextContext: firstPage.context
+                )
+                presenter?.didReceive(
+                    pageData: firstPage,
+                    andSwitch: newState,
+                    reload: true
+                )
             } else {
                 logger?.error("Inconsistent data loading before cache")
             }

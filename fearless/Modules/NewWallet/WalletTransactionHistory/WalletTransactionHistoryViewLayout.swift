@@ -19,6 +19,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
     let closeButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconClose(), for: .normal)
+        button.isHidden = true
         return button
     }()
 
@@ -29,6 +30,13 @@ final class WalletTransactionHistoryViewLayout: UIView {
     }()
 
     let headerView = UIView()
+
+    let headerStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 8
+        return stackView
+    }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -55,9 +63,16 @@ final class WalletTransactionHistoryViewLayout: UIView {
         addSubview(contentView)
         addSubview(tableView)
 
-        headerView.addSubview(closeButton)
-        headerView.addSubview(titleLabel)
-        headerView.addSubview(filterButton)
+        headerView.addSubview(headerStackView)
+
+        headerStackView.addArrangedSubview(closeButton)
+        headerStackView.addArrangedSubview(titleLabel)
+        headerStackView.addArrangedSubview(filterButton)
+
+        headerStackView.snp.makeConstraints { make in
+            make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
 
         backgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -78,23 +93,11 @@ final class WalletTransactionHistoryViewLayout: UIView {
         }
 
         closeButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.centerY.equalToSuperview()
             make.size.equalTo(Constants.buttonSize)
-            make.bottom.top.greaterThanOrEqualToSuperview()
         }
 
         filterButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.centerY.equalToSuperview()
             make.size.equalTo(Constants.buttonSize)
-            make.bottom.top.greaterThanOrEqualToSuperview()
-        }
-
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(closeButton.snp.trailing).offset(UIConstants.bigOffset)
-            make.trailing.equalTo(filterButton.snp.leading).inset(UIConstants.bigOffset)
-            make.top.bottom.equalToSuperview()
         }
     }
 

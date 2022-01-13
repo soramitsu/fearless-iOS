@@ -36,11 +36,15 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         var viewModels = reload ? [] : self.viewModels
-        let viewChanges = viewModelFactory.merge(
+        let viewChanges = try? viewModelFactory.merge(
             newItems: pageData.transactions,
             into: &viewModels,
             locale: locale
         )
+
+        guard let viewChanges = viewChanges else {
+            return
+        }
 
         self.viewModels = viewModels
 
