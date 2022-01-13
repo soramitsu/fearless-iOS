@@ -12,13 +12,11 @@ enum ChainModelGenerator {
             let chainId = Data.random(of: 32)!.toHex()
 
             let asset = AssetModel(
-                assetId: UInt32(index),
-                icon: nil,
-                name: chainId,
-                symbol: chainId.prefix(3).uppercased(),
+                id: "",
+                chainId: chainId,
                 precision: 12,
-                priceId: nil,
-                staking: hasStaking ? "relaychain" : nil
+                icon: nil,
+                priceId: nil
             )
 
             let node = ChainNodeModel(
@@ -48,7 +46,7 @@ enum ChainModelGenerator {
                 chainId: chainId,
                 parentId: nil,
                 name: String(chainId.reversed()),
-                assets: [asset],
+                assets: [],
                 nodes: [node],
                 addressPrefix: UInt16(index),
                 types: types,
@@ -100,7 +98,7 @@ enum ChainModelGenerator {
             chainId: chainId,
             parentId: nil,
             name: UUID().uuidString,
-            assets: Set(assets),
+            assets: [],
             nodes: [node],
             addressPrefix: addressPrefix,
             types: nil,
@@ -116,13 +114,11 @@ enum ChainModelGenerator {
         hasStaking: Bool = false
     ) -> AssetModel {
         AssetModel(
-            assetId: identifier,
-            icon: Constants.dummyURL,
-            name: UUID().uuidString,
-            symbol: String(UUID().uuidString.prefix(3)),
-            precision: assetPresicion,
-            priceId: nil,
-            staking: hasStaking ? "relaychain" : nil
+            id: "",
+            chainId: "",
+            precision: 12,
+            icon: nil,
+            priceId: nil
         )
     }
 

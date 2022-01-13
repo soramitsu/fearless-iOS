@@ -12,8 +12,6 @@ struct AssetModel: Equatable, Codable, Hashable {
     let icon: URL?
     let priceId: PriceId?
 
-    var isUtility: Bool { id.isEmpty }
-
     var name: String {
         id.uppercased()
     }

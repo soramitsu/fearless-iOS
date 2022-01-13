@@ -9,6 +9,8 @@ class ChainAssetModel: Codable {
     var asset: AssetModel!
     var chain: ChainModel!
 
+    var isUtility: Bool { asset.chainId == chain.identifier }
+
     init(
         assetId: String,
         staking: StakingType? = nil,

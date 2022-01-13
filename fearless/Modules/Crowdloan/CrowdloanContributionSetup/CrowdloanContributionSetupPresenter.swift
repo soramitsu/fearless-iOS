@@ -136,7 +136,7 @@ final class CrowdloanContributionSetupPresenter {
     private func provideBonusViewModel() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel: String? = {
-            if let displayInfo = displayInfo, displayInfo.customFlow != nil {
+            if let displayInfo = displayInfo, displayInfo.flow != nil {
                 return contributionViewModelFactory.createAdditionalBonusViewModel(
                     inputAmount: inputAmount,
                     displayInfo: displayInfo,

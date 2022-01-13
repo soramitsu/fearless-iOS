@@ -75,7 +75,7 @@ class ChainModel: Codable {
     }
 
     func utilityAssets() -> Set<ChainAssetModel> {
-        assets.filter { $0.asset.isUtility }
+        assets.filter { $0.isUtility }
     }
 
     var typesUsage: TypesUsage {
