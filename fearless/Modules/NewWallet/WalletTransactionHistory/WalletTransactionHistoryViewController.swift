@@ -101,6 +101,10 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
         case let .loaded(viewModel):
             handle(changes: viewModel.lastChanges)
             rootView.tableView.isHidden = viewModel.sections.isEmpty
+        case let .reloaded(viewModel):
+            state = .loaded(viewModel: viewModel)
+            reloadContent()
+            rootView.tableView.isHidden = viewModel.sections.isEmpty
         }
 
         updateLoadingAndEmptyState(animated: true)
@@ -218,6 +222,36 @@ extension WalletTransactionHistoryViewController: UITableViewDelegate {
 //        let items = presenter.sectionModel(at: indexPath.section).items
 //        try? items[indexPath.row].command?.execute()
 //    }
+}
+
+extension WalletTransactionHistoryViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        handleDraggableOnScroll(scrollView: scrollView)
+        handleNextPageOnScroll(scrollView: scrollView)
+    }
+
+    private func handleDraggableOnScroll(scrollView: UIScrollView) {
+        if scrollView.isTracking, scrollView.contentOffset.y < Constants.bouncesThreshold {
+            scrollView.bounces = false
+            scrollView.showsVerticalScrollIndicator = false
+        } else {
+            scrollView.bounces = true
+            scrollView.showsVerticalScrollIndicator = true
+        }
+    }
+
+    private func handleNextPageOnScroll(scrollView: UIScrollView) {
+        var threshold = scrollView.contentSize.height
+        threshold -= scrollView.bounds.height * Constants.multiplierToActivateNextLoading
+
+        if scrollView.contentOffset.y > threshold {
+            if presenter.loadNext() {
+//                pageLoadingView.start()
+            } else {
+//                pageLoadingView.stop()
+            }
+        }
+    }
 }
 
 extension WalletTransactionHistoryViewController: Draggable {

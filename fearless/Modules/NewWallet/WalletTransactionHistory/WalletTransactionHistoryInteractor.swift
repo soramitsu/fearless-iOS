@@ -71,8 +71,6 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDataProvider() {
-        dataLoadingState = .loading(page: Pagination(count: 100), previousPage: nil)
-
         guard let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
             return
         }
@@ -117,41 +115,46 @@ final class WalletTransactionHistoryInteractor {
         case .waitingCached:
             let loadedTransactionData = transactionData ?? AssetTransactionPageData(transactions: [])
 
-            let newState = WalletTransactionHistoryDataState.loading(
+            dataLoadingState = WalletTransactionHistoryDataState.loading(
                 page: Pagination(count: transactionsPerPage),
                 previousPage: nil
             )
-//            dataProvider?.refresh()
 
             presenter?.didReceive(
                 pageData: loadedTransactionData,
-                andSwitch: newState,
                 reload: true
             )
+
+            pages = [loadedTransactionData]
+
+            dataProvider?.refresh()
 
         case .loading, .loaded:
             if let transactionData = transactionData {
                 let loadedPage = Pagination(count: transactionData.transactions.count)
-                let newState = WalletTransactionHistoryDataState.loaded(
+                dataLoadingState = WalletTransactionHistoryDataState.loaded(
                     page: loadedPage,
                     nextContext: transactionData.context
                 )
+
                 presenter?.didReceive(
                     pageData: transactionData,
-                    andSwitch: newState,
                     reload: true
                 )
+
+                pages = [transactionData]
+
             } else if let firstPage = pages.first {
                 let loadedPage = Pagination(count: firstPage.transactions.count)
-                let newState = WalletTransactionHistoryDataState.loaded(
+                dataLoadingState = WalletTransactionHistoryDataState.loaded(
                     page: loadedPage,
                     nextContext: firstPage.context
                 )
                 presenter?.didReceive(
                     pageData: firstPage,
-                    andSwitch: newState,
                     reload: true
                 )
+
             } else {
                 logger?.error("Inconsistent data loading before cache")
             }
@@ -167,9 +170,9 @@ final class WalletTransactionHistoryInteractor {
         case .loading:
             if let firstPage = pages.first {
                 let loadedPage = Pagination(count: firstPage.transactions.count, context: nil)
+                dataLoadingState = .loaded(page: loadedPage, nextContext: firstPage.context)
                 presenter?.didReceive(
                     pageData: firstPage,
-                    andSwitch: .loaded(page: loadedPage, nextContext: firstPage.context),
                     reload: true
                 )
             }
@@ -188,12 +191,16 @@ final class WalletTransactionHistoryInteractor {
         case let .loading(currentPagination, _):
             if currentPagination == pagination {
                 let loadedPage = Pagination(count: transactionData.transactions.count, context: pagination.context)
-                let newState = WalletTransactionHistoryDataState.loaded(page: loadedPage, nextContext: transactionData.context)
+                dataLoadingState = WalletTransactionHistoryDataState.loaded(
+                    page: loadedPage,
+                    nextContext: transactionData.context
+                )
                 presenter?.didReceive(
                     pageData: transactionData,
-                    andSwitch: newState,
                     reload: false
                 )
+
+                pages.append(transactionData)
 
             } else {
                 logger?.debug("Unexpected loaded page with context \(String(describing: pagination.context))")
@@ -206,13 +213,21 @@ final class WalletTransactionHistoryInteractor {
                     count: transactionData.transactions.count,
                     context: pagination.context
                 )
-                let newState = WalletTransactionHistoryDataState.filtered(page: loadedPage, nextContext: transactionData.context)
+                dataLoadingState = WalletTransactionHistoryDataState.filtered(
+                    page: loadedPage,
+                    nextContext: transactionData.context
+                )
 
                 presenter?.didReceive(
                     pageData: transactionData,
-                    andSwitch: newState,
                     reload: prevPagination == nil
                 )
+
+                if prevPagination == nil {
+                    pages = [transactionData]
+                } else {
+                    pages.append(transactionData)
+                }
 
             } else {
                 logger?.debug("Context loaded \(String(describing: pagination.context)) but not expected")
@@ -249,5 +264,36 @@ final class WalletTransactionHistoryInteractor {
 extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractorInputProtocol {
     func setup() {
         setupDataProvider()
+    }
+
+    func loadNext() -> Bool {
+        switch dataLoadingState {
+        case .waitingCached:
+            return false
+        case let .loading(_, previousPage):
+            return previousPage != nil
+        case let .loaded(currentPage, context):
+            if let currentPage = currentPage, context != nil {
+                let nextPage = Pagination(count: transactionsPerPage, context: context)
+                dataLoadingState = .loading(page: nextPage, previousPage: currentPage)
+                loadTransactions(for: nextPage)
+
+                return true
+            } else {
+                return false
+            }
+        case let .filtering(_, previousPage):
+            return previousPage != nil
+        case let .filtered(page, context):
+            if let currentPage = page, context != nil {
+                let nextPage = Pagination(count: transactionsPerPage, context: context)
+                dataLoadingState = .filtering(page: nextPage, previousPage: currentPage)
+                loadTransactions(for: nextPage)
+
+                return true
+            } else {
+                return false
+            }
+        }
     }
 }

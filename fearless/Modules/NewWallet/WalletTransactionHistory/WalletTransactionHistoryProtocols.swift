@@ -6,16 +6,17 @@ protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggab
 
 protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
     func setup()
+    func loadNext() -> Bool
 }
 
 protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
     func setup()
+    func loadNext() -> Bool
 }
 
 protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
     func didReceive(
         pageData: AssetTransactionPageData,
-        andSwitch newDataLoadingState: WalletTransactionHistoryDataState,
         reload: Bool
     )
 }

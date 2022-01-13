@@ -25,12 +25,15 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
     func setup() {
         interactor.setup()
     }
+
+    func loadNext() -> Bool {
+        interactor.loadNext()
+    }
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
     func didReceive(
         pageData: AssetTransactionPageData,
-        andSwitch _: WalletTransactionHistoryDataState,
         reload: Bool
     ) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
@@ -50,7 +53,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
 
         let viewModel = WalletTransactionHistoryViewModel(sections: viewModels, lastChanges: viewChanges)
 
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+        let state: WalletTransactionHistoryViewState = reload ? .reloaded(viewModel: viewModel) : .loaded(viewModel: viewModel)
+        view?.didReceive(state: state)
     }
 }
 

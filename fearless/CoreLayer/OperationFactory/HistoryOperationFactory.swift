@@ -63,7 +63,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
             remoteHistoryOperation = remoteHistoryFactory.createOperation(
                 address: address,
                 count: pagination.count,
-                cursor: nil
+                cursor: pagination.context?["endCursor"]
             )
         } else {
             let context = TransactionHistoryContext(context: [:], defaultRow: 0)
@@ -318,14 +318,16 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
 
     func createSubqueryHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation _: BaseOperation<SubqueryHistoryData>
+        remoteOperation: BaseOperation<SubqueryHistoryData>
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
+            let remoteData = try remoteOperation.extractNoCancellableResultData()
 
+            remoteData.historyElements.pageInfo.startCursor
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
-                context: nil // TODO: Pagination add
+                context: remoteData.historyElements.pageInfo.toContext()
             )
         }
     }

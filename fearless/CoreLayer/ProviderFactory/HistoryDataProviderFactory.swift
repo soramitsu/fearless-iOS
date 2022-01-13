@@ -58,7 +58,7 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
 
         let cache = createSingleValueCache()
 
-        let updateTrigger = DataProviderEventTrigger.onAll
+        let updateTrigger = DataProviderEventTrigger.onAddObserver
 
         return SingleValueProvider(
             targetIdentifier: targetIdentifier,
