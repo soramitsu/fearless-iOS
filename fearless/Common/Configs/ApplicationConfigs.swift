@@ -104,7 +104,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/feature/multiasset_twochains/chains/chains.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/2.0.x/chains/chains.json")!
     }
 
     var assetListURL: URL {
