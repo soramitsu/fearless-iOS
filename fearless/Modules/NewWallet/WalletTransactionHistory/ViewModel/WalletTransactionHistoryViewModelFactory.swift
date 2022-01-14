@@ -170,6 +170,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         let dateString = DateFormatter.txHistory.value(for: locale).string(from: date)
 
         let viewModel = WalletTransactionHistoryCellViewModel(
+            transaction: data,
             address: address,
             icon: try? iconGenerator.generateFromAddress(address).imageWithFillColor(UIColor.white, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
             transactionType: data.type,
@@ -223,6 +224,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         let signString = "+"
 
         let viewModel = WalletTransactionHistoryCellViewModel(
+            transaction: data,
             address: address,
             icon: icon,
             transactionType: R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages),
@@ -292,6 +294,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         let signString = incoming ? "+" : "-"
 
         let viewModel = WalletTransactionHistoryCellViewModel(
+            transaction: data,
             address: address,
             icon: try? iconGenerator.generateFromAddress(address).imageWithFillColor(UIColor.white, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
             transactionType: data.type,

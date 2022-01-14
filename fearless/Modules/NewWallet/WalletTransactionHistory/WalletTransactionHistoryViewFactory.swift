@@ -38,7 +38,9 @@ struct WalletTransactionHistoryViewFactory {
         let presenter = WalletTransactionHistoryPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            chain: chain,
+            asset: asset
         )
 
         let view = WalletTransactionHistoryViewController(

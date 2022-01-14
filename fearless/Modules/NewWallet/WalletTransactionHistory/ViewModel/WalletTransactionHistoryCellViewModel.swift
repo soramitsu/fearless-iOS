@@ -4,6 +4,7 @@ import UIKit
 import CommonWallet
 
 struct WalletTransactionHistoryCellViewModel {
+    let transaction: AssetTransactionData
     let address: String
     let icon: UIImage?
     let transactionType: String

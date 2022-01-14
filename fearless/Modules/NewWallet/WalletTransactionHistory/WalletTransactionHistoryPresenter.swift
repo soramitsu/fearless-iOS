@@ -7,17 +7,23 @@ final class WalletTransactionHistoryPresenter {
     let wireframe: WalletTransactionHistoryWireframeProtocol
     let interactor: WalletTransactionHistoryInteractorInputProtocol
     let viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol
+    let chain: ChainModel
+    let asset: AssetModel
 
     private(set) var viewModels: [WalletTransactionHistorySection] = []
 
     init(
         interactor: WalletTransactionHistoryInteractorInputProtocol,
         wireframe: WalletTransactionHistoryWireframeProtocol,
-        viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol
+        viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol,
+        chain: ChainModel,
+        asset: AssetModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.asset = asset
+        self.chain = chain
     }
 }
 
@@ -28,6 +34,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 
     func loadNext() -> Bool {
         interactor.loadNext()
+    }
+
+    func didSelect(viewModel: WalletTransactionHistoryCellViewModel) {
+        wireframe.showTransactionDetails(from: view, transaction: viewModel.transaction, chain: chain, asset: asset, selectedAccount: SelectedWalletSettings.shared.value)
     }
 }
 

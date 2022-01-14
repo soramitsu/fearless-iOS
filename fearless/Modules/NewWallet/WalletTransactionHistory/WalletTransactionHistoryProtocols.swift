@@ -7,6 +7,7 @@ protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggab
 protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
     func setup()
     func loadNext() -> Bool
+    func didSelect(viewModel: WalletTransactionHistoryCellViewModel)
 }
 
 protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
@@ -21,4 +22,12 @@ protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
     )
 }
 
-protocol WalletTransactionHistoryWireframeProtocol: AnyObject {}
+protocol WalletTransactionHistoryWireframeProtocol: AnyObject {
+    func showTransactionDetails(
+        from view: ControllerBackedProtocol?,
+        transaction: AssetTransactionData,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+}

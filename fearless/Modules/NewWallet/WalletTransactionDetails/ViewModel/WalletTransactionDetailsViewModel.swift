@@ -1,0 +1,144 @@
+import Foundation
+import CommonWallet
+
+class WalletTransactionDetailsViewModel {
+    let transaction: AssetTransactionData
+    let transactionType: TransactionType
+
+    let extrinsicHash: String
+    let status: String
+    let dateString: String?
+
+    init(
+        transaction: AssetTransactionData,
+        transactionType: TransactionType,
+        extrinsicHash: String,
+        status: String,
+        dateString: String?
+    ) {
+        self.transaction = transaction
+        self.transactionType = transactionType
+        self.extrinsicHash = extrinsicHash
+        self.status = status
+        self.dateString = dateString
+    }
+}
+
+class TransferTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
+    let from: String?
+    let to: String?
+    let amount: String?
+    let fee: String?
+    let total: String?
+
+    init(
+        transaction: AssetTransactionData,
+        transactionType: TransactionType,
+        extrinsicHash: String,
+        status: String,
+        dateString: String?,
+        from: String?,
+        to: String?,
+        amount: String?,
+        fee: String?,
+        total: String?
+    ) {
+        self.from = from
+        self.to = to
+        self.amount = amount
+        self.fee = fee
+        self.total = total
+
+        super.init(
+            transaction: transaction,
+            transactionType: transactionType,
+            extrinsicHash: extrinsicHash,
+            status: status,
+            dateString: dateString
+        )
+    }
+}
+
+class RewardTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
+    let era: String
+    let reward: String?
+    let validator: String?
+
+    init(
+        transaction: AssetTransactionData,
+        transactionType: TransactionType,
+        extrinsicHash: String,
+        status: String,
+        dateString: String?,
+        era: String,
+        reward: String?,
+        validator: String?
+    ) {
+        self.era = era
+        self.reward = reward
+        self.validator = validator
+
+        super.init(
+            transaction: transaction,
+            transactionType: transactionType,
+            extrinsicHash: extrinsicHash,
+            status: status,
+            dateString: dateString
+        )
+    }
+}
+
+class SlashTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
+    let era: String
+    let slash: String?
+    let validator: String?
+
+    init(
+        transaction: AssetTransactionData,
+        transactionType: TransactionType,
+        extrinsicHash: String,
+        status: String,
+        dateString: String?,
+        era: String,
+        slash: String?,
+        validator: String?
+    ) {
+        self.era = era
+        self.slash = slash
+        self.validator = validator
+
+        super.init(
+            transaction: transaction,
+            transactionType: transactionType,
+            extrinsicHash: extrinsicHash,
+            status: status,
+            dateString: dateString
+        )
+    }
+}
+
+class ExtrinsicTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
+    let module: String?
+    let call: String?
+
+    init(
+        transaction: AssetTransactionData,
+        transactionType: TransactionType,
+        extrinsicHash: String,
+        status: String,
+        dateString: String?,
+        module: String?,
+        call: String?
+    ) {
+        self.module = module
+        self.call = call
+
+        super.init(
+            transaction: transaction,
+            transactionType: transactionType,
+            extrinsicHash: extrinsicHash,
+            status: status,
+            dateString: dateString
+        )
+    }
+}

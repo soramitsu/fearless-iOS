@@ -215,13 +215,20 @@ extension WalletTransactionHistoryViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
         Constants.sectionHeight
     }
-//
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        tableView.deselectRow(at: indexPath, animated: true)
-//
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard case let .loaded(viewModel) = state else {
+            return
+        }
+
+        let sectionViewModel = viewModel.sections[indexPath.section]
+        let itemViewModel = sectionViewModel.items[indexPath.row]
+
+        tableView.deselectRow(at: indexPath, animated: true)
+        presenter.didSelect(viewModel: itemViewModel)
 //        let items = presenter.sectionModel(at: indexPath.section).items
 //        try? items[indexPath.row].command?.execute()
-//    }
+    }
 }
 
 extension WalletTransactionHistoryViewController: UIScrollViewDelegate {
