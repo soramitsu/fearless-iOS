@@ -33,7 +33,16 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
         }
 
         let hash = transaction.transactionId
-        let status = transaction.status.rawValue
+        var status: String
+
+        switch transaction.status {
+        case .pending:
+            status = R.string.localizable.transactionStatusPending(preferredLanguages: locale.rLanguages)
+        case .commited:
+            status = R.string.localizable.transactionStatusCompleted(preferredLanguages: locale.rLanguages)
+        case .rejected:
+            status = R.string.localizable.transactionStatusFailed(preferredLanguages: locale.rLanguages)
+        }
 
         let date = Date(timeIntervalSince1970: TimeInterval(transaction.timestamp))
         let dateString = DateFormatter.txDetails.value(for: locale).string(from: date)
