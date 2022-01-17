@@ -122,7 +122,7 @@ PODS:
     - Sourcery/CLI-Only (= 1.6.1)
   - Sourcery/CLI-Only (1.6.1)
   - Starscream (4.0.4)
-  - SVGKit (2.1.0):
+  - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.45.1)
@@ -134,7 +134,7 @@ DEPENDENCIES:
   - Charts
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `81cc1f6d79d6b573ae9b53d4c8d4fc63c4ee49bb`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `fe88a54b52bb586d39a2502f12bef0ecef127b6f`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -148,7 +148,7 @@ DEPENDENCIES:
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, branch `feature/without-origin`)
-  - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
+  - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
   - SwiftyBeaver
@@ -175,6 +175,7 @@ SPEC REPOS:
     - SoraKeystore
     - SoraUI
     - Sourcery
+    - SVGKit
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
@@ -183,25 +184,19 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: 81cc1f6d79d6b573ae9b53d4c8d4fc63c4ee49bb
+    :commit: fe88a54b52bb586d39a2502f12bef0ecef127b6f
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/soramitsu/fearless-starscream.git
-  SVGKit:
-    :git: https://github.com/SVGKit/SVGKit.git
-    :tag: 3.0.0
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: 81cc1f6d79d6b573ae9b53d4c8d4fc63c4ee49bb
+    :commit: fe88a54b52bb586d39a2502f12bef0ecef127b6f
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/soramitsu/fearless-starscream.git
-  SVGKit:
-    :git: https://github.com/SVGKit/SVGKit.git
-    :tag: 3.0.0
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
@@ -226,13 +221,13 @@ SPEC CHECKSUMS:
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: f3759f803bd0739f74fc92a4341eed0473ce61ac
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
+  SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: 06ac37e4d38c7068e0935bb30cda95f093bec761
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 0e2a2abdab85006461b3726223021481e15d7061
+PODFILE CHECKSUM: 04bfd2c2d1986583d22ba4e26b3934122fc40244
 
 COCOAPODS: 1.11.2

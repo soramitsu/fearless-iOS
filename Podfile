@@ -3,7 +3,7 @@ platform :ios, '11.0'
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => '81cc1f6d79d6b573ae9b53d4c8d4fc63c4ee49bb'
+  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'fe88a54b52bb586d39a2502f12bef0ecef127b6f'
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
   pod 'SoraKeystore'
@@ -19,7 +19,7 @@ abstract_target 'fearlessAll' do
   pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
   pod 'Kingfisher', :inhibit_warnings => true
-  pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :tag => '3.0.0'
+  pod 'SVGKit'
   pod 'keccak.c'
   pod 'Charts'
 
@@ -27,7 +27,7 @@ abstract_target 'fearlessAll' do
     inherit! :search_paths
 
     pod 'Cuckoo'
-    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => '81cc1f6d79d6b573ae9b53d4c8d4fc63c4ee49bb'
+    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'fe88a54b52bb586d39a2502f12bef0ecef127b6f'
     pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
