@@ -130,10 +130,10 @@ extension ChainAccountBalanceListViewModelFactory {
         let assetInfo = asset.displayInfo
 
         let balance = Decimal.fromSubstrateAmount(
-            accountInfo.data.available,
+            accountInfo.data.total,
             precision: assetInfo.assetPrecision
         ) ?? 0
-        return balance.stringWithPointSeparator
+        return balance.toString(digits: 4)
     }
 
     private func getPriceAttributedString(

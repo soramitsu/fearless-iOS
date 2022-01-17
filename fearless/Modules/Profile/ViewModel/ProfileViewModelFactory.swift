@@ -15,7 +15,6 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 
 enum ProfileOption: UInt, CaseIterable {
     case accountList
-    case connectionList
     case language
     case changePincode
     case about
@@ -47,8 +46,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             switch option {
             case .accountList:
                 return createAccountListViewModel(for: locale)
-            case .connectionList:
-                return createConnectionListViewModel(for: locale)
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:

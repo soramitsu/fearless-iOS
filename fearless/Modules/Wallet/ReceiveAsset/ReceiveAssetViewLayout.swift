@@ -26,7 +26,7 @@ final class ReceiveAssetViewLayout: UIView {
     }()
 
     let accountView: DetailsTriangularedView = {
-        let detailsView = UIFactory().createDetailsView(with: .largeIconTitleSubtitle, filled: false)
+        let detailsView = UIFactory().createAccountView(for: .options, filled: false)
         detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
         return detailsView
     }()

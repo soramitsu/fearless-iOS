@@ -37,6 +37,12 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
             for: .touchUpInside
         )
 
+        rootView.accountView.addTarget(
+            self,
+            action: #selector(actionAccountOptions),
+            for: .touchUpInside
+        )
+
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
@@ -48,6 +54,10 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
         if let image = rootView.imageView.image {
             presenter.share(qrImage: image)
         }
+    }
+
+    @objc func actionAccountOptions() {
+        presenter.presentAccountOptions()
     }
 }
 

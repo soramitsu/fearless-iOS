@@ -58,57 +58,28 @@ extension AddAccount {
 
             persistentOperation.addDependency(checkOperation)
 
-//            let selectedConnection = settings.selectedConnection
+            saveOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    switch saveOperation.result {
+                    case .success:
+                        self?.settings.setup()
+                        self?.eventCenter.notify(with: SelectedAccountChanged())
+                        self?.presenter?.didCompleteAccountImport()
 
-//            let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-//                if case let .failure(error) = persistentOperation.result {
-//                    throw error
-//                }
-//
-//                let type = try SS58AddressFactory().type(fromAddress: item.address)
-//
-//                let resultConnection: ConnectionItem
-//
-//                if selectedConnection.type == SNAddressType(rawValue: type.uint8Value) {
-//                    resultConnection = selectedConnection
-//                } else if let connection = ConnectionItem.supportedConnections
-//                    .first(where: { $0.type.rawValue == type.uint8Value }) {
-//                    resultConnection = connection
-//                } else {
-//                    throw AccountCreateError.unsupportedNetwork
-//                }
-//
-//                return (item, resultConnection)
-//            }
-//
-//            connectionOperation.addDependency(persistentOperation)
-//
-//            connectionOperation.completionBlock = { [weak self] in
-//                DispatchQueue.main.async {
-//                    switch connectionOperation.result {
-//                    case .success(let (accountItem, connectionItem)):
-//                        self?.settings.selectedAccount = accountItem
-//
-//                        if selectedConnection != connectionItem {
-//                            self?.settings.selectedConnection = connectionItem
-//
-//                            self?.eventCenter.notify(with: SelectedConnectionChanged())
-//                        }
-//
-//                        self?.eventCenter.notify(with: SelectedAccountChanged())
-//
-//                        self?.presenter?.didCompleteAccountImport()
-//                    case let .failure(error):
-//                        self?.presenter?.didReceiveAccountImport(error: error)
-//                    case .none:
-//                        let error = BaseOperationError.parentOperationCancelled
-//                        self?.presenter?.didReceiveAccountImport(error: error)
-//                    }
-//                }
-//            }
+                    case let .failure(error):
+                        self?.presenter?.didReceiveAccountImport(error: error)
+
+                    case .none:
+                        let error = BaseOperationError.parentOperationCancelled
+                        self?.presenter?.didReceiveAccountImport(error: error)
+                    }
+                }
+            }
+
+            saveOperation.addDependency(persistentOperation)
 
             operationManager.enqueue(
-                operations: [checkOperation, persistentOperation],
+                operations: [checkOperation, persistentOperation, saveOperation],
                 in: .transient
             )
         }

@@ -74,6 +74,19 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
             wireframe.close(view)
         }
     }
+
+    func presentAccountOptions() {
+        guard let address = account.fetch(for: chain.accountRequest())?.toAddress(), let view = view else {
+            return
+        }
+
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: selectedLocale
+        )
+    }
 }
 
 extension ReceiveAssetPresenter: Localizable {

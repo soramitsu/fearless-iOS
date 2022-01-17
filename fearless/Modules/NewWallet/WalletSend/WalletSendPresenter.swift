@@ -24,6 +24,8 @@ final class WalletSendPresenter {
     private var inputResult: AmountInputResult?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
 
+    private var amountViewModel: AmountInputViewModelProtocol?
+
     init(
         interactor: WalletSendInteractorInputProtocol,
         wireframe: WalletSendWireframeProtocol,
@@ -87,10 +89,16 @@ final class WalletSendPresenter {
     }
 
     private func provideInputViewModel() -> AmountInputViewModelProtocol? {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
+        guard let amountViewModel = amountViewModel else {
+            let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
 
-        return balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
-            .value(for: selectedLocale)
+            let viewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
+                .value(for: selectedLocale)
+            amountViewModel = viewModel
+            return viewModel
+        }
+
+        return amountViewModel
     }
 
     private func provideInputViewModelIfRate() {

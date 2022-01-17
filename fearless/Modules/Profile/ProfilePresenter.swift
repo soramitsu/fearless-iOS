@@ -52,9 +52,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         interactor.setup()
     }
 
-    func activateAccountDetails() {
-        // TODO: Implement when new details are done
-    }
+    func activateAccountDetails() {}
 
     func activateOption(at index: UInt) {
         guard let option = ProfileOption(rawValue: index) else {
@@ -64,8 +62,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view)
-        case .connectionList:
-            wireframe.showConnectionSelection(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:

@@ -33,7 +33,7 @@ final class ProfileInteractor {
 
             let userSettings = UserSettings(
                 userName: wallet.name,
-                details: genericAddress
+                details: ""
             )
 
             presenter?.didReceive(userSettings: userSettings)

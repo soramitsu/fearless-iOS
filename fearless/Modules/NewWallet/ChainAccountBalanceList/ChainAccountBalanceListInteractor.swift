@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import IrohaCrypto
+import SoraFoundation
 
 final class ChainAccountBalanceListInteractor {
     weak var presenter: ChainAccountBalanceListInteractorOutputProtocol!
@@ -133,5 +134,17 @@ extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, Walle
         chainId: ChainModel.Id
     ) {
         presenter.didReceiveAccountInfo(result: result, for: chainId)
+    }
+}
+
+extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        fetchChainsAndSubscribeBalance()
+    }
+}
+
+extension ChainAccountBalanceListInteractor: ApplicationHandlerDelegate {
+    func didReceiveDidBecomeActive(notification _: Notification) {
+        fetchChainsAndSubscribeBalance()
     }
 }
