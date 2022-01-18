@@ -66,14 +66,14 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     }
 
     private func setupExtrinsicService(_ account: ChainAccountResponse) {
-        extrinsicService = ExtrinsicService(
-            accountId: account.accountId,
-            chainFormat: chain.chainFormat,
-            cryptoType: account.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
+//        extrinsicService = ExtrinsicService(
+//            accountId: account.accountId,
+//            chainFormat: chain.chainFormat,
+//            cryptoType: account.cryptoType,
+//            runtimeRegistry: runtimeService,
+//            engine: connection,
+//            operationManager: operationManager
+//        )
 
         signingWrapper = SigningWrapper(
             keystore: keystore,
@@ -163,6 +163,7 @@ extension StakingRewardDestConfirmInteractor: StakingLocalStorageSubscriber, Sta
                     operationManager: operationManager
                 ) { [weak self] result in
                     if case let .success(maybeController) = result, let controller = maybeController {
+                        self?.presenter.didReceiveController(result: result)
                         self?.setupExtrinsicService(controller)
                     }
                 }

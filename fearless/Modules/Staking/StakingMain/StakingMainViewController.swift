@@ -54,7 +54,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupAssetSelectionView()
         setupNetworkInfoView()
         setupAlertsView()
-        setupAnalyticsView()
+//        setupAnalyticsView()
         setupLocalization()
         presenter.setup()
     }
@@ -71,7 +71,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidAppear(animated)
 
         networkInfoView.didAppearSkeleton()
-        analyticsView.didAppearSkeleton()
+//        analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
@@ -84,7 +84,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
 
         networkInfoView.didDisappearSkeleton()
-        analyticsView.didDisappearSkeleton()
+//        analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didDisappearSkeleton()
@@ -95,7 +95,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLayoutSubviews()
 
         networkInfoView.didUpdateSkeletonLayout()
-        analyticsView.didUpdateSkeletonLayout()
+//        analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
@@ -406,12 +406,12 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .nominator(viewModel, alerts, analyticsViewModel):
             applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
-            applyAnalyticsRewards(viewModel: analyticsViewModel)
+//            applyAnalyticsRewards(viewModel: analyticsViewModel)
             expandNetworkInfoView(false)
         case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
-            applyAnalyticsRewards(viewModel: analyticsViewModel)
+//            applyAnalyticsRewards(viewModel: analyticsViewModel)
             expandNetworkInfoView(false)
         }
     }

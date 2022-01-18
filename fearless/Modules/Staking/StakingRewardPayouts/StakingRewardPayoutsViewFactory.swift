@@ -74,7 +74,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let operationManager = OperationManagerFacade.sharedManager
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeProvider = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
@@ -89,7 +90,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             chain: chain,
             selectedAccountAddress: stashAddress,
             validatorsResolutionFactory: validatorsResolutionFactory,
-            runtimeCodingService: RuntimeRegistryFacade.sharedService,
+            runtimeCodingService: runtimeProvider,
             storageRequestFactory: storageRequestFactory,
             engine: connection,
             operationManager: operationManager,

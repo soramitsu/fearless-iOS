@@ -41,12 +41,12 @@ final class YourValidatorListPresenter {
     }
 
     private func updateView() {
-        guard lastError == nil else {
-            let errorDescription = R.string.localizable
-                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
-            view?.reload(state: .error(errorDescription))
-            return
-        }
+//        guard lastError == nil else {
+//            let errorDescription = R.string.localizable
+//                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
+//            view?.reload(state: .error(errorDescription))
+//            return
+//        }
 
         guard let model = validatorsModel else {
             view?.reload(state: .loading)

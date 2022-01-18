@@ -8,7 +8,7 @@ struct StakingRewardDestSetupViewFactory {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) -> StakingRewardDestSetupViewProtocol? {
-        guard let interactor = createInteractor(
+        guard let interactor = try? createInteractor(
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount
@@ -62,7 +62,7 @@ struct StakingRewardDestSetupViewFactory {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel
-    ) -> StakingRewardDestSetupInteractor? {
+    ) throws -> StakingRewardDestSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -116,7 +116,38 @@ struct StakingRewardDestSetupViewFactory {
 
         let facade = UserDataStorageFacade.shared
 
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let eraValidatorService = try serviceFactory.createEraValidatorService(
+            for: stakingSettings.value.chain.chainId
+        )
+
+        let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
+            for: stakingSettings.value.chain.chainId,
+            assetPrecision: stakingSettings.value.assetDisplayInfo.assetPrecision,
+            validatorService: eraValidatorService
+        )
 
         return StakingRewardDestSetupInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -124,7 +155,7 @@ struct StakingRewardDestSetupViewFactory {
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             substrateProviderFactory: substrateProviderFactory,
-            calculatorService: RewardCalculatorFacade.sharedService,
+            calculatorService: rewardCalculatorService,
             runtimeService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,

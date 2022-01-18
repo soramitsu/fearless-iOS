@@ -87,7 +87,7 @@ class ChainModel: Codable {
     }
 
     var erasPerDay: UInt32 {
-        0
+        1
     }
 
     var emptyURL: URL {

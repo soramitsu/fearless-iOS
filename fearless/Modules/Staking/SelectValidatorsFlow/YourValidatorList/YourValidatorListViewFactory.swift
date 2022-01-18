@@ -10,7 +10,7 @@ struct YourValidatorListViewFactory {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) -> YourValidatorListViewProtocol? {
-        guard let interactor = createInteractor(
+        guard let interactor = try? createInteractor(
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount
@@ -55,7 +55,7 @@ struct YourValidatorListViewFactory {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel
-    ) -> YourValidatorListInteractor? {
+    ) throws -> YourValidatorListInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -74,13 +74,45 @@ struct YourValidatorListViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: storageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: storageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let eraValidatorService = try serviceFactory.createEraValidatorService(
+            for: chain.chainId
+        )
+
+        let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
+            for: chain.chainId,
+            assetPrecision: Int16(asset.precision),
+            validatorService: eraValidatorService
+        )
+
+        defer {
+            eraValidatorService.setup()
+            rewardCalculatorService.setup()
+        }
+
         let validatorOperationFactory = ValidatorOperationFactory(
             asset: asset,
             chain: chain,
-            eraValidatorService: EraValidatorFacade.sharedService,
-            rewardService: RewardCalculatorFacade.sharedService,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardCalculatorService,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: RuntimeRegistryFacade.sharedService,
+            runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
@@ -94,7 +126,13 @@ struct YourValidatorListViewFactory {
 
         let facade = UserDataStorageFacade.shared
 
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         return YourValidatorListInteractor(
             chain: chain,
@@ -102,7 +140,7 @@ struct YourValidatorListViewFactory {
             selectedAccount: selectedAccount,
             substrateProviderFactory: substrateProviderFactory,
             runtimeService: runtimeService,
-            eraValidatorService: EraValidatorFacade.sharedService,
+            eraValidatorService: eraValidatorService,
             validatorOperationFactory: validatorOperationFactory,
             operationManager: OperationManagerFacade.sharedManager,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

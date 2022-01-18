@@ -23,6 +23,9 @@ final class YourValidatorListInteractor: AccountFetching {
     var rewardDestinationProvider: AnyDataProvider<DecodedPayee>?
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
+    var activeEraInfo: ActiveEraInfo?
+    var stashAddress: String?
+
     init(
         chain: ChainModel,
         asset: AssetModel,
@@ -56,54 +59,6 @@ final class YourValidatorListInteractor: AccountFetching {
         ) { [weak self] result in
             self?.presenter.didReceiveController(result: result)
         }
-    }
-
-    func handle(stashItem: StashItem?, at _: EraIndex) {
-        clear(dataProvider: &nominatorProvider)
-        clear(dataProvider: &ledgerProvider)
-        clear(dataProvider: &rewardDestinationProvider)
-
-        let addressFactory = SS58AddressFactory()
-
-        if let stashItem = stashItem {
-            fetchController(for: stashItem.controller)
-        }
-
-        if let address = stashItem?.controller,
-           let accountId = try? addressFactory.accountId(fromAddress: address, addressPrefix: chain.addressPrefix) {
-            nominatorProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
-            ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
-            rewardDestinationProvider = subscribePayee(for: accountId, chainId: chain.chainId)
-
-        } else {
-            presenter.didReceiveValidators(result: .success(nil))
-        }
-    }
-
-    func handle(nomination: Nomination?, stashAddress: AccountAddress, at activeEra: EraIndex) {
-        guard let nomination = nomination else {
-            presenter.didReceiveValidators(result: .success(nil))
-            return
-        }
-
-        let validatorsWrapper = createValidatorsWrapper(
-            for: nomination,
-            stashAddress: stashAddress,
-            activeEra: activeEra
-        )
-
-        validatorsWrapper.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let result = try validatorsWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceiveValidators(result: .success(result))
-                } catch {
-                    self?.presenter.didReceiveValidators(result: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: validatorsWrapper.allOperations, in: .transient)
     }
 
     func createValidatorsWrapper(
@@ -185,7 +140,9 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
         presenter.didReceiveLedger(result: result)
     }
 
-    func handleActiveEra(result _: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+        activeEraInfo = try? result.get()
+
         clear(dataProvider: &nominatorProvider)
         clear(dataProvider: &ledgerProvider)
         clear(dataProvider: &rewardDestinationProvider)
@@ -196,6 +153,59 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
         } else {
             presenter.didReceiveValidators(result: .success(nil))
         }
+    }
+
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
+        clear(dataProvider: &nominatorProvider)
+        clear(dataProvider: &ledgerProvider)
+        clear(dataProvider: &rewardDestinationProvider)
+
+        let addressFactory = SS58AddressFactory()
+
+        if let stashItem = try? result.get(),
+           let accountId = try? addressFactory.accountId(
+               fromAddress: stashItem.controller,
+               addressPrefix: chain.addressPrefix
+           ) {
+            stashAddress = stashItem.controller
+
+            fetchController(for: stashItem.controller)
+
+            nominatorProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
+            ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
+            rewardDestinationProvider = subscribePayee(for: accountId, chainId: chain.chainId)
+
+        } else {
+            presenter.didReceiveValidators(result: .success(nil))
+        }
+    }
+
+    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        guard let nomination = try? result.get(),
+              let activeEra = activeEraInfo?.index,
+              let stashAddress = stashAddress else {
+            presenter.didReceiveValidators(result: .success(nil))
+            return
+        }
+
+        let validatorsWrapper = createValidatorsWrapper(
+            for: nomination,
+            stashAddress: stashAddress,
+            activeEra: activeEra
+        )
+
+        validatorsWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try validatorsWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceiveValidators(result: .success(result))
+                } catch {
+                    self?.presenter.didReceiveValidators(result: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: validatorsWrapper.allOperations, in: .transient)
     }
 }
 

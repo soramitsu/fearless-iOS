@@ -109,7 +109,13 @@ struct StakingRewardDestConfirmViewFactory {
 
         let facade = UserDataStorageFacade.shared
 
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         return StakingRewardDestConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

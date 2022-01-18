@@ -156,6 +156,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
         let queryOperation = createQueryOperation(for: keys, at: blockHash, engine: engine)
 
+        var path = storagePath
         let decodingOperation = StorageFallbackDecodingListOperation<T>(path: storagePath)
         decodingOperation.configurationBlock = {
             do {

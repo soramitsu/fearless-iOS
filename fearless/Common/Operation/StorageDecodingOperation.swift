@@ -211,6 +211,7 @@ final class StorageFallbackDecodingListOperation<T: Decodable>: BaseOperation<[T
 
             result = .success(items)
         } catch {
+            print("StorageFallbackDecodingListOperation failed: ", error)
             result = .failure(error)
         }
     }

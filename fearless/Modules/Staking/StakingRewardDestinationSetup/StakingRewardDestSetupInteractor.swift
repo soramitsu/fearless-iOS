@@ -104,6 +104,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
 
 extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInputProtocol {
     func setup() {
+        calculatorService.setup()
+
         if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
