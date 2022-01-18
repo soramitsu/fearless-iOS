@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 final class SearchPeopleViewController: UIViewController, ViewHolder {
     typealias RootViewType = SearchPeopleViewLayout
@@ -79,6 +80,10 @@ extension SearchPeopleViewController: SearchPeopleViewProtocol {
     func didReceive(state: SearchPeopleViewState) {
         self.state = state
         applyState(state)
+    }
+
+    func didReceive(locale: Locale) {
+        rootView.locale = locale
     }
 }
 

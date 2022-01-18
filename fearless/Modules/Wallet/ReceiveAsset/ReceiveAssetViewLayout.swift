@@ -69,6 +69,14 @@ final class ReceiveAssetViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(viewModel: ReceiveAssetViewModel) {
+        navigationLabel.text =
+            R.string.localizable.walletReceiveNavigationTitle(viewModel.asset, preferredLanguages: locale.rLanguages)
+        accountView.titleLabel.text = viewModel.accountName
+        accountView.subtitleLabel?.text = viewModel.address
+        accountView.iconImage = viewModel.accountIcon
+    }
+
     func setupLayout() {
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in

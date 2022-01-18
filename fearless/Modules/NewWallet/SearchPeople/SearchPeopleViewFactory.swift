@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import RobinHood
 import FearlessUtils
+import SoraFoundation
 
 struct SearchPeopleViewFactory {
     static func createView(
@@ -44,10 +45,14 @@ struct SearchPeopleViewFactory {
             viewModelFactory: viewModelFactory,
             asset: asset,
             chain: chain,
-            selectedAccount: selectedMetaAccount
+            selectedAccount: selectedMetaAccount,
+            localizationManager: LocalizationManager.shared
         )
 
-        let view = SearchPeopleViewController(presenter: presenter)
+        let view = SearchPeopleViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         interactor.presenter = presenter

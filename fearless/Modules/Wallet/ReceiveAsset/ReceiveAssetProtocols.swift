@@ -9,9 +9,10 @@ protocol ReceiveAssetPresenterProtocol: AnyObject {
     func presentAccountOptions()
 }
 
-protocol ReceiveAssetViewProtocol: ControllerBackedProtocol, Localizable {
-    func bind(viewModel: ReceiveAssetViewModel)
+protocol ReceiveAssetViewProtocol: ControllerBackedProtocol {
+    func didReceive(viewModel: ReceiveAssetViewModel)
     func didReceive(image: UIImage)
+    func didReceive(locale: Locale)
 }
 
 protocol ReceiveAssetWireframeProtocol: AlertPresentable, ErrorPresentable, SharingPresentable, AddressOptionsPresentable {
