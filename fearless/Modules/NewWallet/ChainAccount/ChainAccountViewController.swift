@@ -20,9 +20,13 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     lazy var preferredContentHeight: CGFloat = Constants.defaultContentHeight
 
-    init(presenter: ChainAccountPresenterProtocol) {
+    init(
+        presenter: ChainAccountPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)
