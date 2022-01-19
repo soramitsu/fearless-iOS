@@ -39,7 +39,6 @@ final class SearchPeopleViewLayout: UIView {
         view.backgroundColor = .clear
         view.font = .p1Paragraph
         view.clearButtonMode = .whileEditing
-        view.placeholder = R.string.localizable.walletContactsSearchPlaceholder_v110()
         return view
     }()
 
@@ -60,6 +59,14 @@ final class SearchPeopleViewLayout: UIView {
         view.tintColor = R.color.colorGray()
         return view
     }()
+
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -114,5 +121,9 @@ final class SearchPeopleViewLayout: UIView {
             make.top.equalTo(searchBorderView.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
+    }
+
+    func applyLocalization() {
+        searchField.placeholder = R.string.localizable.walletContactsSearchPlaceholder_v110(preferredLanguages: locale.rLanguages)
     }
 }

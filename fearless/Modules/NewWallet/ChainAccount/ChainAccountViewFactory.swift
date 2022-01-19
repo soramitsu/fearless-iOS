@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 struct ChainAccountViewFactory {
     static func createView(chain: ChainModel, asset: AssetModel) -> ChainAccountViewProtocol? {
@@ -29,7 +30,10 @@ struct ChainAccountViewFactory {
             selectedMetaAccount: SelectedWalletSettings.shared.value
         )
 
-        let view = ChainAccountViewController(presenter: presenter)
+        let view = ChainAccountViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         interactor.presenter = presenter

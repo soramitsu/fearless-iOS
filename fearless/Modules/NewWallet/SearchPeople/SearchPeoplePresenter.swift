@@ -20,7 +20,8 @@ final class SearchPeoplePresenter {
         viewModelFactory: SearchPeopleViewModelFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -28,6 +29,7 @@ final class SearchPeoplePresenter {
         self.asset = asset
         self.chain = chain
         self.selectedAccount = selectedAccount
+        self.localizationManager = localizationManager
     }
 
     private func provideViewModel() {
@@ -72,6 +74,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
             asset.id,
             preferredLanguages: selectedLocale.rLanguages
         ))
+        view?.didReceive(locale: selectedLocale)
     }
 
     func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel) {
@@ -92,7 +95,9 @@ extension SearchPeoplePresenter: SearchPeopleInteractorOutputProtocol {
 }
 
 extension SearchPeoplePresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        view?.didReceive(locale: selectedLocale)
+    }
 }
 
 extension SearchPeoplePresenter: WalletScanQRModuleOutput {
