@@ -63,12 +63,47 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         existingStashAddress: AccountAddress?,
         selectedValidators: [SelectedValidatorInfo]?
     ) -> SelectValidatorsStartViewProtocol? {
-        guard let engine = WebSocketService.shared.connection else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
-        let eraValidatorService = EraValidatorFacade.sharedService
-        let runtimeService = RuntimeRegistryFacade.sharedService
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: stakingSettings.value.chain.chainId
+        ) else {
+            return nil
+        }
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: stakingSettings.value.chain.chainId,
+            assetPrecision: stakingSettings.value.assetDisplayInfo.assetPrecision,
+            validatorService: eraValidatorService
+        ) else {
+            return nil
+        }
+
+        eraValidatorService.setup()
+        rewardService.setup()
+
         let operationManager = OperationManagerFacade.sharedManager
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -76,7 +111,6 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let rewardService = RewardCalculatorFacade.sharedService
         let operationFactory = ValidatorOperationFactory(
             asset: asset,
             chain: chain,
@@ -84,7 +118,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
             runtimeService: runtimeService,
-            engine: engine,
+            engine: connection,
             identityOperationFactory: identityOperationFactory
         )
 

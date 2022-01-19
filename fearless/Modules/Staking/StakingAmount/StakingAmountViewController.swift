@@ -4,7 +4,7 @@ import SoraUI
 import FearlessUtils
 import CommonWallet
 
-final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
+final class StakingAmountViewController: UIViewController, AdaptiveDesignable, LoadableViewProtocol {
     var presenter: StakingAmountPresenterProtocol!
 
     @IBOutlet private var inputContainerView: UIView!
