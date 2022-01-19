@@ -86,7 +86,7 @@ final class StakingAmountPresenter {
             case .payout:
                 if let payoutAccount = payoutAccount, let address = payoutAccount.toAddress() {
                     let viewModel = try rewardDestViewModelFactory
-                        .createPayout(from: reward, priceData: priceData, address: address)
+                        .createPayout(from: reward, priceData: priceData, address: address, title: (try? payoutAccount.toDisplayAddress().username) ?? address)
                     view?.didReceiveRewardDestination(viewModel: viewModel)
                 }
             }

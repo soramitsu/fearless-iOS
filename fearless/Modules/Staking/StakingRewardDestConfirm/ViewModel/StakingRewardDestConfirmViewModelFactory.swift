@@ -27,12 +27,12 @@ final class StakingRewardDestConfirmVMFactory: StakingRewardDestConfirmVMFactory
         case let .payout(account):
             let payoutIcon = try iconGenerator.generateFromAddress(account.toDisplayAddress().address)
 
-            rewardDestViewModel = .payout(icon: payoutIcon, title: try (account.toAddress() ?? account.toDisplayAddress().address))
+            rewardDestViewModel = .payout(icon: payoutIcon, title: try account.toDisplayAddress().username)
         }
 
         return StakingRewardDestConfirmViewModel(
             senderIcon: icon,
-            senderName: controller?.toAddress() ?? stashItem.controller,
+            senderName: try controller?.toDisplayAddress().username ?? stashItem.controller,
             rewardDestination: rewardDestViewModel
         )
     }

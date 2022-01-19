@@ -252,7 +252,6 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
             case .restake:
                 presenter.didReceiveRewardDestinationAccount(result: .success(.restake))
             case let .payout(account):
-                break
                 fetchChainAccount(
                     chain: chain,
                     address: account,

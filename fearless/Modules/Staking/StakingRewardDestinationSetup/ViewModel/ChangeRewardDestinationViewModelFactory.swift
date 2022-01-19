@@ -31,7 +31,7 @@ final class ChangeRewardDestinationViewModelFactory {
                 return rewardDestinationViewModelFactory.createRestake(from: reward, priceData: priceData)
             case let .payout(account):
                 return try rewardDestinationViewModelFactory
-                    .createPayout(from: reward, priceData: priceData, address: account.toDisplayAddress().address)
+                    .createPayout(from: reward, priceData: priceData, address: account.toDisplayAddress().address, title: account.toDisplayAddress().username)
             }
         }
 
@@ -40,7 +40,7 @@ final class ChangeRewardDestinationViewModelFactory {
             return rewardDestinationViewModelFactory.createRestake(from: reward, priceData: priceData)
         case let .payout(address):
             return try rewardDestinationViewModelFactory
-                .createPayout(from: reward, priceData: priceData, address: address)
+                .createPayout(from: reward, priceData: priceData, address: address, title: address)
         }
     }
 
