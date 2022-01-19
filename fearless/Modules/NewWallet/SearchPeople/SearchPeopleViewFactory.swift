@@ -49,7 +49,10 @@ struct SearchPeopleViewFactory {
             localizationManager: LocalizationManager.shared
         )
 
-        let view = SearchPeopleViewController(presenter: presenter)
+        let view = SearchPeopleViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         interactor.presenter = presenter
