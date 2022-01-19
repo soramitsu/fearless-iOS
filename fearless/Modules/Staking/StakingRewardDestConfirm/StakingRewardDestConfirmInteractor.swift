@@ -102,7 +102,7 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
 
             feeProxy.estimateFee(
                 using: extrinsicService,
-                reuseIdentifier: setPayeeCall.callName
+                reuseIdentifier: UUID().uuidString
             ) { builder in
                 try builder.adding(call: setPayeeCall)
             }

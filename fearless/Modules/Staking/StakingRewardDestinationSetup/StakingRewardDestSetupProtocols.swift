@@ -17,7 +17,7 @@ protocol StakingRewardDestSetupPresenterProtocol: AnyObject {
 
 protocol StakingRewardDestSetupInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee()
+    func estimateFee(rewardDestination: RewardDestination<AccountAddress>)
     func fetchPayoutAccounts()
 }
 

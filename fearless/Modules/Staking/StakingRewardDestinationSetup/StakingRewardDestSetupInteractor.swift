@@ -30,6 +30,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
     private var stashItem: StashItem?
+    private var rewardDestination: RewardDestination<AccountAddress>?
 
     private lazy var callFactory = SubstrateCallFactory()
     private lazy var addressFactory = SS58AddressFactory()
@@ -98,11 +99,34 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
             operationManager: operationManager
         )
 
-        estimateFee()
+        if let rewardDestination = rewardDestination {
+            estimateFee(rewardDestination: rewardDestination)
+        }
     }
 }
 
 extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInputProtocol {
+    func estimateFee(rewardDestination: RewardDestination<AccountAddress>) {
+        self.rewardDestination = rewardDestination
+
+        guard let extrinsicService = extrinsicService,
+              let stashItem = stashItem else {
+            return
+        }
+        do {
+            let setPayeeCall = try callFactory.setRewardDestination(rewardDestination, stashItem: stashItem)
+
+            feeProxy.estimateFee(
+                using: extrinsicService,
+                reuseIdentifier: UUID().uuidString
+            ) { builder in
+                try builder.adding(call: setPayeeCall)
+            }
+        } catch {
+            presenter.didReceiveFee(result: .failure(error))
+        }
+    }
+
     func setup() {
         calculatorService.setup()
 
@@ -117,27 +141,6 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
         provideRewardCalculator()
 
         feeProxy.delegate = self
-    }
-
-    func estimateFee() {
-        guard let extrinsicService = extrinsicService,
-              let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
-            return
-        }
-        do {
-            let accountId = try addressFactory.accountId(fromAddress: address, type: chain.addressPrefix)
-
-            let setPayeeCall = callFactory.setPayee(for: .account(accountId))
-
-            feeProxy.estimateFee(
-                using: extrinsicService,
-                reuseIdentifier: setPayeeCall.callName
-            ) { builder in
-                try builder.adding(call: setPayeeCall)
-            }
-        } catch {
-            presenter.didReceiveFee(result: .failure(error))
-        }
     }
 
     func fetchPayoutAccounts() {
@@ -185,7 +188,9 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
 
                 accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
 
-                estimateFee()
+                if let rewardDestination = rewardDestination {
+                    estimateFee(rewardDestination: rewardDestination)
+                }
 
                 fetchChainAccount(
                     chain: chain,

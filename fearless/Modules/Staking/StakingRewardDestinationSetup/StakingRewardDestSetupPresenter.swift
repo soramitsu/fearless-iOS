@@ -17,7 +17,12 @@ final class StakingRewardDestSetupPresenter {
     let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
-    private var rewardDestination: RewardDestination<ChainAccountResponse>?
+    private var rewardDestination: RewardDestination<ChainAccountResponse>? {
+        didSet {
+            refreshFeeIfNeeded()
+        }
+    }
+
     private var calculator: RewardCalculatorEngineProtocol?
     private var originalDestination: RewardDestination<AccountAddress>?
     private var stashAccount: ChainAccountResponse?
@@ -56,11 +61,13 @@ final class StakingRewardDestSetupPresenter {
     // MARK: - Private functions
 
     private func refreshFeeIfNeeded() {
-        guard fee == nil else {
-            return
-        }
+//        guard fee == nil else {
+//            return
+//        }
 
-        interactor.estimateFee()
+        if let rewardDestination = rewardDestination {
+            interactor.estimateFee(rewardDestination: rewardDestination.accountAddress)
+        }
     }
 
     private func provideRewardDestination() {
@@ -119,6 +126,8 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
 
     func selectPayoutAccount() {
         interactor.fetchPayoutAccounts()
+
+        refreshFeeIfNeeded()
     }
 
     func displayLearnMore() {
