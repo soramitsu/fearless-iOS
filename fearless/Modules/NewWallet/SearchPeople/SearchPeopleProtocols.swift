@@ -2,6 +2,7 @@ import CommonWallet
 protocol SearchPeopleViewProtocol: ControllerBackedProtocol {
     func didReceive(state: SearchPeopleViewState)
     func didReceive(title: String?)
+    func didReceive(locale: Locale)
 }
 
 protocol SearchPeoplePresenterProtocol: AnyObject {

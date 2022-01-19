@@ -51,6 +51,7 @@ final class ReceiveAssetPresenter {
 
 extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
     func setup() {
+        view?.didReceive(locale: selectedLocale)
         provideViewModel()
         generateQR()
     }
@@ -146,7 +147,7 @@ private extension ReceiveAssetPresenter {
         guard let address = address else {
             return
         }
-        view?.bind(viewModel: ReceiveAssetViewModel(
+        view?.didReceive(viewModel: ReceiveAssetViewModel(
             asset: asset.id,
             accountName: account.name,
             address: address,

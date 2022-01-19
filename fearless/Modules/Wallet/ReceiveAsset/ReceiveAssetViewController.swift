@@ -6,7 +6,9 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
 
     let presenter: ReceiveAssetPresenterProtocol
 
-    init(presenter: ReceiveAssetPresenterProtocol) {
+    init(
+        presenter: ReceiveAssetPresenterProtocol
+    ) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -62,22 +64,16 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
 }
 
 extension ReceiveAssetViewController: ReceiveAssetViewProtocol {
-    func bind(viewModel: ReceiveAssetViewModel) {
-        rootView.navigationLabel.text =
-            R.string.localizable.walletReceiveNavigationTitle(viewModel.asset, preferredLanguages: selectedLocale.rLanguages)
-        rootView.accountView.titleLabel.text = viewModel.accountName
-        rootView.accountView.subtitleLabel?.text = viewModel.address
-        rootView.accountView.iconImage = viewModel.accountIcon
+    func didReceive(viewModel: ReceiveAssetViewModel) {
+        rootView.bind(viewModel: viewModel)
     }
 
     func didReceive(image: UIImage) {
         rootView.imageView.image = image
     }
-}
 
-extension ReceiveAssetViewController: Localizable {
-    func applyLocalization() {
-        rootView.locale = selectedLocale
+    func didReceive(locale: Locale) {
+        rootView.locale = locale
     }
 }
 
