@@ -73,6 +73,24 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
         settingsMigrator.remove(key: SettingsKey.selectedAccount.rawValue)
         settingsMigrator.remove(key: SettingsKey.selectedConnection.rawValue)
 
+        let entityName = "CDMetaAccount"
+        let request = NSFetchRequest<CDMetaAccount>(entityName: entityName)
+        request.sortDescriptors = [NSSortDescriptor(key: "isSelected", ascending: false)]
+
+        let context = manager.destinationContext
+        let results: [NSManagedObject] = try context.fetch(request)
+
+        var existsingPublicKeys: [Data] = []
+        results.forEach { metaaccount in
+            if let publicKey = metaaccount.value(forKey: "substratePublicKey") as? Data {
+                if existsingPublicKeys.contains(publicKey) {
+                    context.delete(metaaccount)
+                } else {
+                    existsingPublicKeys.append(publicKey)
+                }
+            }
+        }
+
         try super.end(mapping, manager: manager)
     }
 
