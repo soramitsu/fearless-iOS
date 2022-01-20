@@ -8,6 +8,7 @@ final class ProfileDetailsTableViewCell: UITableViewCell {
 
         detailsView.titleLabel.lineBreakMode = .byTruncatingMiddle
         detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        detailsView.actionView.image = R.image.iconInfo()!
     }
 
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {

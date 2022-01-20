@@ -60,10 +60,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileAccountsTitle(preferredLanguages: locale.rLanguages)
+            .profileWalletsTitle(preferredLanguages: locale.rLanguages)
         let viewModel = ProfileOptionViewModel(
             title: title,
-            icon: R.image.iconProfileAccounts()!,
+            icon: R.image.iconSettingsWallet()!,
             accessoryTitle: nil
         )
         return viewModel
@@ -87,7 +87,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             .profilePincodeChangeTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
-            icon: R.image.iconProfilePin()!,
+            icon: R.image.iconSettingsPin()!,
             accessoryTitle: nil
         )
     }
@@ -98,7 +98,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let subtitle = language?.title(in: locale)?.capitalized
         let viewModel = ProfileOptionViewModel(
             title: title,
-            icon: R.image.iconProfileLanguage()!,
+            icon: R.image.iconSettingsLanguage()!,
             accessoryTitle: subtitle
         )
 
@@ -110,7 +110,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             .profileAboutTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
-            icon: R.image.iconProfileAbout()!,
+            icon: R.image.iconSettingsWebsite()!,
             accessoryTitle: nil
         )
     }

@@ -44,9 +44,9 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     private func setupLocalization() {
         signUpButton.imageWithTitleView?.title = R.string.localizable
-            .onboardingCreateAccount(preferredLanguages: locale?.rLanguages)
+            .onboardingCreateWallet(preferredLanguages: locale?.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
-            .onboardingRestoreAccount(preferredLanguages: locale?.rLanguages)
+            .onboardingRestoreWallet(preferredLanguages: locale?.rLanguages)
 
         let text = NSAttributedString(string: R.string.localizable
             .onboardingTermsAndConditions1(preferredLanguages: locale?.rLanguages))

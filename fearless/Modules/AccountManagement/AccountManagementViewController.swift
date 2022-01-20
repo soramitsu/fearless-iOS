@@ -48,10 +48,10 @@ final class AccountManagementViewController: UIViewController {
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale
 
-        title = R.string.localizable.profileAccountsTitle(preferredLanguages: locale?.rLanguages)
+        title = R.string.localizable.profileWalletsTitle(preferredLanguages: locale?.rLanguages)
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
-            .accountsAddAccount(preferredLanguages: locale?.rLanguages)
+            .settingsAddWallet(preferredLanguages: locale?.rLanguages)
 
         updateRightItem()
     }

@@ -147,7 +147,7 @@ final class AccountImportViewController: UIViewController {
 
     private func setupLocalization() {
         title = R.string.localizable
-            .onboardingRestoreAccount(preferredLanguages: locale.rLanguages)
+            .importWallet(preferredLanguages: locale.rLanguages)
         sourceTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .importSourcePickerTitle(preferredLanguages: locale.rLanguages)
 
