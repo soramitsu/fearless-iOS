@@ -3,7 +3,8 @@ import Foundation
 protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         accountBalanceViewModel: AccountBalanceViewModel,
-        assetInfoViewModel: AssetInfoViewModel
+        assetInfoViewModel: AssetInfoViewModel,
+        chainAssetModel: ChainAssetModel?
     ) -> ChainAccountViewModel
 
     func buildAccountBalanceViewModel(
@@ -30,11 +31,13 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
 
     func buildChainAccountViewModel(
         accountBalanceViewModel: AccountBalanceViewModel,
-        assetInfoViewModel: AssetInfoViewModel
+        assetInfoViewModel: AssetInfoViewModel,
+        chainAssetModel: ChainAssetModel?
     ) -> ChainAccountViewModel {
         ChainAccountViewModel(
             accountBalanceViewModel: accountBalanceViewModel,
-            assetInfoViewModel: assetInfoViewModel
+            assetInfoViewModel: assetInfoViewModel,
+            chainAsset: chainAssetModel
         )
     }
 

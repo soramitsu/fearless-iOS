@@ -57,9 +57,13 @@ final class ChainAccountPresenter {
             locale: selectedLocale
         )
 
+        let allAssets = Array(chain.assets)
+        let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
+
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             accountBalanceViewModel: accountBalanceViewModel,
-            assetInfoViewModel: assetInfoViewModel
+            assetInfoViewModel: assetInfoViewModel,
+            chainAssetModel: chainAsset
         )
 
         view?.didReceiveState(.loaded(chainAccountViewModel))
@@ -71,7 +75,21 @@ private extension ChainAccountPresenter {
         var actions: [PurchaseAction] = []
 
         if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() {
-            let providersAggregator = PurchaseAggregator(providers: [rampProvider, moonpayProvider])
+            
+            let allAssets = Array(chain.assets)
+            let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
+            
+            var availableProviders: [PurchaseProviderProtocol] = []
+            chainAsset?.purchaseProviders?.compactMap { $0 }.forEach {
+                switch $0 {
+                case .moonpay:
+                    availableProviders.append(moonpayProvider)
+                case .ramp:
+                    availableProviders.append(rampProvider)
+                }
+            }
+            
+            let providersAggregator = PurchaseAggregator(providers: availableProviders)
             actions = providersAggregator.buildPurchaseActions(asset: asset, address: address)
         }
         return actions

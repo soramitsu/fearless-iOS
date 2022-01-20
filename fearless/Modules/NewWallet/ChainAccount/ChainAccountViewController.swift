@@ -61,6 +61,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         case let .loaded(viewModel):
             rootView.balanceView.bind(to: viewModel.accountBalanceViewModel)
             rootView.assetInfoView.bind(to: viewModel.assetInfoViewModel)
+            rootView.buyButton.isEnabled = viewModel.chainAsset?.purchaseProviders?.first != nil
         case .error:
             break
         }
