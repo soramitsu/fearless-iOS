@@ -55,6 +55,6 @@ class AssetInfoView: UIView {
         priceLabel.attributedText = viewModel.priceAttributedString
         priceLabel.isHidden = viewModel.priceAttributedString == nil
 
-        viewModel.imageViewModel?.loadAmountInputIcon(on: assetIconImageView, animated: false)
+        viewModel.imageViewModel?.loadAssetInfoIcon(on: assetIconImageView, animated: false)
     }
 }

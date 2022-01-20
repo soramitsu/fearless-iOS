@@ -183,7 +183,7 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         priceView.keyLabel.attributedText = viewModel.priceAttributedString
         priceView.valueLabel.text = viewModel.totalAmountString
 
-        viewModel.imageViewModel?.loadAmountInputIcon(
+        viewModel.imageViewModel?.loadBalanceListIcon(
             on: assetIconImageView,
             animated: false
         )

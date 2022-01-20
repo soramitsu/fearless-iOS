@@ -17,7 +17,8 @@ struct ChainAccountBalanceListViewFactory {
             repository: AnyDataProviderRepository(repository),
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            eventCenter: EventCenter.shared
         )
 
         let wireframe = ChainAccountBalanceListWireframe()

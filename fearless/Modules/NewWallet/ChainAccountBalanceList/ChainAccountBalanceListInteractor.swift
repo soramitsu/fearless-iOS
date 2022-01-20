@@ -11,6 +11,7 @@ final class ChainAccountBalanceListInteractor {
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let operationQueue: OperationQueue
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let eventCenter: EventCenterProtocol
 
     private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
@@ -20,13 +21,15 @@ final class ChainAccountBalanceListInteractor {
         repository: AnyDataProviderRepository<ChainModel>,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.repository = repository
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.eventCenter = eventCenter
     }
 
     private func fetchChainsAndSubscribeBalance() {
@@ -113,6 +116,8 @@ extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceL
 
 extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorInputProtocol {
     func setup() {
+        eventCenter.add(observer: self, dispatchIn: .main)
+
         fetchChainsAndSubscribeBalance()
 
         presenter.didReceiveSelectedAccount(selectedMetaAccount)
@@ -139,6 +144,10 @@ extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, Walle
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        fetchChainsAndSubscribeBalance()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         fetchChainsAndSubscribeBalance()
     }
 }
