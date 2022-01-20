@@ -75,10 +75,9 @@ private extension ChainAccountPresenter {
         var actions: [PurchaseAction] = []
 
         if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() {
-            
             let allAssets = Array(chain.assets)
             let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
-            
+
             var availableProviders: [PurchaseProviderProtocol] = []
             chainAsset?.purchaseProviders?.compactMap { $0 }.forEach {
                 switch $0 {
@@ -88,7 +87,7 @@ private extension ChainAccountPresenter {
                     availableProviders.append(rampProvider)
                 }
             }
-            
+
             let providersAggregator = PurchaseAggregator(providers: availableProviders)
             actions = providersAggregator.buildPurchaseActions(asset: asset, address: address)
         }

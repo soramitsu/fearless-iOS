@@ -55,11 +55,6 @@ class AssetInfoView: UIView {
         priceLabel.attributedText = viewModel.priceAttributedString
         priceLabel.isHidden = viewModel.priceAttributedString == nil
 
-        let iconSize = assetIconImageView.frame.size.height
-        viewModel.imageViewModel?.loadImage(
-            on: assetIconImageView,
-            targetSize: CGSize(width: iconSize, height: iconSize),
-            animated: true
-        )
+        viewModel.imageViewModel?.loadAmountInputIcon(on: assetIconImageView, animated: false)
     }
 }

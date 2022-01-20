@@ -80,6 +80,8 @@ class ChainAccountBalanceTableCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
+        assetIconImageView.kf.cancelDownloadTask()
+
         chainOptionsView.stackView.arrangedSubviews.forEach { subview in
             chainOptionsView.stackView.removeArrangedSubview(subview)
             subview.removeFromSuperview()
@@ -181,11 +183,9 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         priceView.keyLabel.attributedText = viewModel.priceAttributedString
         priceView.valueLabel.text = viewModel.totalAmountString
 
-        let iconSize = assetIconImageView.frame.size.height
-        viewModel.imageViewModel?.loadImage(
+        viewModel.imageViewModel?.loadAmountInputIcon(
             on: assetIconImageView,
-            targetSize: CGSize(width: iconSize, height: iconSize),
-            animated: true
+            animated: false
         )
 
         if let options = viewModel.options {
