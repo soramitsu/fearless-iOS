@@ -87,7 +87,12 @@ class ChainModel: Codable {
     }
 
     var erasPerDay: UInt32 {
-        1
+        let oldChainModel = Chain(rawValue: name)
+        switch oldChainModel {
+        case .polkadot: return 1
+        case .kusama, .westend, .rococo: return 4
+        default: return 1 // We have staking only for above chains
+        }
     }
 
     var emptyURL: URL {

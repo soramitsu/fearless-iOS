@@ -140,6 +140,15 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
         presenter.didReceiveLedger(result: result)
     }
 
+    func handlePayee(result: Result<RewardDestinationArg?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        do {
+            let payee = try result.get()
+            presenter.didReceiveRewardDestination(result: .success(payee))
+        } catch {
+            presenter.didReceiveRewardDestination(result: .failure(error))
+        }
+    }
+
     func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
         activeEraInfo = try? result.get()
 
@@ -167,6 +176,8 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
                fromAddress: stashItem.controller,
                addressPrefix: chain.addressPrefix
            ) {
+            presenter.didReceiveStashItem(result: .success(stashItem))
+
             stashAddress = stashItem.controller
 
             fetchController(for: stashItem.controller)
