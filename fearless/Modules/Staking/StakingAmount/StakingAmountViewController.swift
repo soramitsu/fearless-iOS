@@ -215,8 +215,9 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
                 )
             amountInputView.priceText = viewModel.price
 
-            amountInputView.assetIcon = viewModel.icon
             amountInputView.symbol = viewModel.symbol
+
+            viewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
         }
     }
 
