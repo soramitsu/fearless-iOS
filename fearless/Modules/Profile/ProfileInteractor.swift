@@ -36,7 +36,7 @@ final class ProfileInteractor {
                 details: ""
             )
 
-            presenter?.didReceive(userSettings: userSettings)
+            presenter?.didReceive(wallet: wallet)
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }

@@ -10,25 +10,24 @@ final class ProfilePresenter {
 
     private(set) var viewModelFactory: ProfileViewModelFactoryProtocol
 
-    private(set) var userSettings: UserSettings?
+    private(set) var selectedWallet: MetaAccountModel?
 
     init(viewModelFactory: ProfileViewModelFactoryProtocol) {
         self.viewModelFactory = viewModelFactory
     }
 
     private func updateAccountViewModel() {
-        guard let userSettings = userSettings else {
+        guard let wallet = selectedWallet else {
             return
         }
-
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: userSettings, locale: locale)
+        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: wallet, locale: locale)
         view?.didLoad(userViewModel: userDetailsViewModel)
     }
 
     private func updateOptionsViewModel() {
         guard
-            let userSettings = userSettings,
+            let wallet = selectedWallet,
             let language = localizationManager?.selectedLanguage
         else {
             return
@@ -37,7 +36,6 @@ final class ProfilePresenter {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         let optionViewModels = viewModelFactory.createOptionViewModels(
-            from: userSettings,
             language: language,
             locale: locale
         )
@@ -52,7 +50,12 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         interactor.setup()
     }
 
-    func activateAccountDetails() {}
+    func activateAccountDetails() {
+        guard let wallet = selectedWallet else {
+            return
+        }
+        wireframe.showAccountDetails(from: view, metaAccount: wallet)
+    }
 
     func activateOption(at index: UInt) {
         guard let option = ProfileOption(rawValue: index) else {
@@ -73,8 +76,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 }
 
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
-    func didReceive(userSettings: UserSettings) {
-        self.userSettings = userSettings
+    func didReceive(wallet: MetaAccountModel) {
+        selectedWallet = wallet
         updateAccountViewModel()
         updateOptionsViewModel()
     }

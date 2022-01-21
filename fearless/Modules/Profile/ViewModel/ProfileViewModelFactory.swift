@@ -4,10 +4,9 @@ import FearlessUtils
 import IrohaCrypto
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
-    func createUserViewModel(from settings: UserSettings, locale: Locale) -> ProfileUserViewModelProtocol
+    func createUserViewModel(from wallet: MetaAccountModel, locale: Locale) -> ProfileUserViewModelProtocol
 
     func createOptionViewModels(
-        from settings: UserSettings,
         language: Language,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol]
@@ -27,18 +26,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         self.iconGenerator = iconGenerator
     }
 
-    func createUserViewModel(from settings: UserSettings, locale _: Locale) -> ProfileUserViewModelProtocol {
-        let icon = try? iconGenerator.generateFromAddress(settings.details)
+    func createUserViewModel(from wallet: MetaAccountModel, locale _: Locale) -> ProfileUserViewModelProtocol {
+        let icon = try? iconGenerator.generateFromAddress("")
 
         return ProfileUserViewModel(
-            name: settings.userName,
-            details: settings.details,
+            name: wallet.name,
+            details: "",
             icon: icon
         )
     }
 
     func createOptionViewModels(
-        from _: UserSettings,
         language: Language,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {

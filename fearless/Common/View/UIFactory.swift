@@ -213,7 +213,6 @@ final class UIFactory: UIFactoryProtocol {
         view.titleLabel.font = UIFont.p2Paragraph
         view.subtitleLabel?.textColor = R.color.colorWhite()!
         view.subtitleLabel?.font = UIFont.p1Paragraph
-        view.contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
 
         return view
     }
