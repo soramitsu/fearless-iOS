@@ -59,6 +59,7 @@ class WalletDetailsTableCell: UITableViewCell {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorStrokeGray()
+        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
 
