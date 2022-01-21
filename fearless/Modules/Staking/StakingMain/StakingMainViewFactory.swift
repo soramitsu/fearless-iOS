@@ -8,7 +8,22 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     static func createView() -> StakingMainViewProtocol? {
         let settings = SettingsManager.shared
 
-        guard let sharedState = try? createSharedState() else {
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: storageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        guard
+            let chainAsset = stakingSettings.value,
+            let sharedState = try? createSharedState(
+                with: chainAsset,
+                stakingSettings: stakingSettings
+            ) else {
             return nil
         }
 
@@ -152,17 +167,11 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
     }
 
-    private static func createSharedState() throws -> StakingSharedState {
+    private static func createSharedState(
+        with chainAsset: ChainAsset,
+        stakingSettings: StakingAssetSettings
+    ) throws -> StakingSharedState {
         let storageFacade = SubstrateDataStorageFacade.shared
-
-        let stakingSettings = StakingAssetSettings(
-            storageFacade: storageFacade,
-            settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        stakingSettings.setup()
-
         let serviceFactory = StakingServiceFactory(
             chainRegisty: ChainRegistryFacade.sharedRegistry,
             storageFacade: storageFacade,
@@ -171,12 +180,12 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: stakingSettings.value.chain.chainId
+            for: chainAsset.chain.chainId
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: stakingSettings.value.chain.chainId,
-            assetPrecision: stakingSettings.value.assetDisplayInfo.assetPrecision,
+            for: chainAsset.chain.chainId,
+            assetPrecision: chainAsset.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService
         )
 

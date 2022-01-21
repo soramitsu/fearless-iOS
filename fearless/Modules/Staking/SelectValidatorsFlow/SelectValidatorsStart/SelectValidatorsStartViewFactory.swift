@@ -87,15 +87,18 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        guard let settings = stakingSettings.value else {
+            return nil
+        }
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
-            for: stakingSettings.value.chain.chainId
+            for: settings.chain.chainId
         ) else {
             return nil
         }
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
-            for: stakingSettings.value.chain.chainId,
-            assetPrecision: stakingSettings.value.assetDisplayInfo.assetPrecision,
+            for: settings.chain.chainId,
+            assetPrecision: settings.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService
         ) else {
             return nil

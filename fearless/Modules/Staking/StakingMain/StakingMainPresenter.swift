@@ -108,6 +108,7 @@ final class StakingMainPresenter {
             )
         ]).runValidation { [weak self] in
             guard
+                let selectedAccount = SelectedWalletSettings.shared.value,
                 let chainAsset = bondedState.commonData.chainAsset,
                 let amount = Decimal.fromSubstrateAmount(
                     bondedState.ledgerInfo.active,
@@ -138,7 +139,7 @@ final class StakingMainPresenter {
                 existingBonding: existingBonding,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: SelectedWalletSettings.shared.value
+                selectedAccount: selectedAccount
             )
         }
     }
@@ -164,9 +165,11 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        guard let chainAsset = chainAsset,
-              let commonData = stateMachine
-              .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chainAsset = chainAsset,
+            let commonData = stateMachine
+            .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
             return
         }
 
@@ -189,7 +192,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 amount: self?.amount,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: SelectedWalletSettings.shared.value
+                selectedAccount: selectedAccount
             )
         }
     }
@@ -303,7 +306,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performChangeValidatorsAction() {
-        guard let chainAsset = chainAsset else {
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chainAsset = chainAsset else {
             return
         }
 
@@ -311,7 +316,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             from: view,
             chain: chainAsset.chain,
             asset: chainAsset.asset,
-            selectedAccount: SelectedWalletSettings.shared.value
+            selectedAccount: selectedAccount
         )
     }
 
@@ -324,7 +329,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performBondMoreAction() {
-        guard let chainAsset = chainAsset else {
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chainAsset = chainAsset else {
             return
         }
 
@@ -332,12 +339,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             from: view,
             chain: chainAsset.chain,
             asset: chainAsset.asset,
-            selectedAccount: SelectedWalletSettings.shared.value
+            selectedAccount: selectedAccount
         )
     }
 
     func performRedeemAction() {
-        guard let view = view, let chainAsset = chainAsset else { return }
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let view = view,
+            let chainAsset = chainAsset else { return }
         let selectedLocale = view.localizationManager?.selectedLocale
         guard controllerAccount != nil else {
             let baseState = stateMachine.viewState(using: { (state: BaseStashNextState) in state })
@@ -353,12 +363,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             from: view,
             chain: chainAsset.chain,
             asset: chainAsset.asset,
-            selectedAccount: SelectedWalletSettings.shared.value
+            selectedAccount: selectedAccount
         )
     }
 
     func performAnalyticsAction() {
-        guard let chainAsset = chainAsset else {
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chainAsset = chainAsset else {
             return
         }
         let isNominator: AnalyticsContainerViewMode = {
@@ -384,7 +396,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             mode: isNominator.union(includeValidators),
             chain: chainAsset.chain,
             asset: chainAsset.asset,
-            selectedAccount: SelectedWalletSettings.shared.value
+            selectedAccount: selectedAccount
         )
     }
 
@@ -641,6 +653,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
             let manageStakingItems = context as? [StakingManageOption],
             index >= 0, index < manageStakingItems.count, let chainAsset = chainAsset else {
             return
@@ -657,7 +670,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                     stashAddress: stashAddress,
                     chain: chainAsset.chain,
                     asset: chainAsset.asset,
-                    selectedAccount: SelectedWalletSettings.shared.value
+                    selectedAccount: selectedAccount
                 )
                 return
             }
@@ -669,7 +682,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                     stashAddress: stashAddress,
                     chain: chainAsset.chain,
                     asset: chainAsset.asset,
-                    selectedAccount: SelectedWalletSettings.shared.value
+                    selectedAccount: selectedAccount
                 )
                 return
             }
@@ -678,21 +691,21 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 from: view,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: SelectedWalletSettings.shared.value
+                selectedAccount: selectedAccount
             )
         case .stakingBalance:
             wireframe.showStakingBalance(
                 from: view,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: SelectedWalletSettings.shared.value
+                selectedAccount: selectedAccount
             )
         case .changeValidators:
             wireframe.showNominatorValidators(
                 from: view,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: SelectedWalletSettings.shared.value
+                selectedAccount: selectedAccount
             )
         case .setupValidators:
             if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
@@ -703,7 +716,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 from: view,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: SelectedWalletSettings.shared.value
+                selectedAccount: selectedAccount
             )
         case .yourValidator:
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
@@ -712,7 +725,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                     stashAddress,
                     chain: chainAsset.chain,
                     asset: chainAsset.asset,
-                    selectedAccount: SelectedWalletSettings.shared.value,
+                    selectedAccount: selectedAccount,
                     from: view
                 )
             }

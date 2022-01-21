@@ -37,7 +37,16 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
     }
 
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel) {
-        wireframe.showTransactionDetails(from: view, transaction: viewModel.transaction, chain: chain, asset: asset, selectedAccount: SelectedWalletSettings.shared.value)
+        guard let selectedAccount = SelectedWalletSettings.shared.value else {
+            return
+        }
+        wireframe.showTransactionDetails(
+            from: view,
+            transaction: viewModel.transaction,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        )
     }
 }
 

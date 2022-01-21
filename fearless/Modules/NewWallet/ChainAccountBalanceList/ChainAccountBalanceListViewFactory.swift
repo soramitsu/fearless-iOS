@@ -3,7 +3,7 @@ import RobinHood
 import SoraFoundation
 
 struct ChainAccountBalanceListViewFactory {
-    static func createView() -> ChainAccountBalanceListViewProtocol? {
+    static func createView(selectedMetaAccount: MetaAccountModel) -> ChainAccountBalanceListViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
@@ -13,7 +13,7 @@ struct ChainAccountBalanceListViewFactory {
         )
 
         let interactor = ChainAccountBalanceListInteractor(
-            selectedMetaAccount: SelectedWalletSettings.shared.value,
+            selectedMetaAccount: selectedMetaAccount,
             repository: AnyDataProviderRepository(repository),
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,

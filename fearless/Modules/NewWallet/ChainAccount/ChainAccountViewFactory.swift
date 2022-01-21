@@ -2,13 +2,17 @@ import Foundation
 import SoraFoundation
 
 struct ChainAccountViewFactory {
-    static func createView(chain: ChainModel, asset: AssetModel) -> ChainAccountViewProtocol? {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedMetaAccount: MetaAccountModel
+    ) -> ChainAccountViewProtocol? {
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
         let interactor = ChainAccountInteractor(
-            selectedMetaAccount: SelectedWalletSettings.shared.value,
+            selectedMetaAccount: selectedMetaAccount,
             chain: chain,
             asset: asset,
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -27,7 +31,7 @@ struct ChainAccountViewFactory {
             logger: Logger.shared,
             asset: asset,
             chain: chain,
-            selectedMetaAccount: SelectedWalletSettings.shared.value
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let view = ChainAccountViewController(

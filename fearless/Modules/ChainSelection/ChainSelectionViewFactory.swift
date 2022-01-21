@@ -6,7 +6,8 @@ struct ChainSelectionViewFactory {
     static func createView(
         delegate: ChainSelectionDelegate,
         selectedChainId: ChainModel.Id?,
-        repositoryFilter: NSPredicate?
+        repositoryFilter: NSPredicate?,
+        selectedMetaAccount: MetaAccountModel
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
             for: repositoryFilter,
@@ -14,7 +15,7 @@ struct ChainSelectionViewFactory {
         )
 
         let interactor = ChainSelectionInteractor(
-            selectedMetaAccount: SelectedWalletSettings.shared.value,
+            selectedMetaAccount: selectedMetaAccount,
             repository: AnyDataProviderRepository(repository),
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             operationQueue: OperationManagerFacade.sharedDefaultQueue

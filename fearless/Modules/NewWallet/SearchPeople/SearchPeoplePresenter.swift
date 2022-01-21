@@ -56,11 +56,14 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
     }
 
     func didTapScanButton() {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
+            return
+        }
         wireframe.presentScan(
             from: view,
             chain: chain,
             asset: asset,
-            selectedAccount: SelectedWalletSettings.shared.value,
+            selectedAccount: selectedMetaAccount,
             moduleOutput: self
         )
     }

@@ -139,13 +139,17 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        guard let settings = stakingSettings.value else {
+            return nil
+        }
+
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: stakingSettings.value.chain.chainId
+            for: settings.chain.chainId
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: stakingSettings.value.chain.chainId,
-            assetPrecision: stakingSettings.value.assetDisplayInfo.assetPrecision,
+            for: settings.chain.chainId,
+            assetPrecision: settings.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService
         )
 

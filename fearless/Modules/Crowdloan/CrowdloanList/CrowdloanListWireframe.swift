@@ -24,11 +24,14 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
         delegate: ChainSelectionDelegate,
         selectedChainId: ChainModel.Id?
     ) {
-        guard let selectionView = ChainSelectionViewFactory.createView(
-            delegate: delegate,
-            selectedChainId: selectedChainId,
-            repositoryFilter: NSPredicate.hasCrowloans()
-        ) else {
+        guard
+            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let selectionView = ChainSelectionViewFactory.createView(
+                delegate: delegate,
+                selectedChainId: selectedChainId,
+                repositoryFilter: NSPredicate.hasCrowloans(),
+                selectedMetaAccount: selectedMetaAccount
+            ) else {
             return
         }
 

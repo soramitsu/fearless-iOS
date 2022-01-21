@@ -9,7 +9,12 @@ final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframe
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        guard let controller = WalletTransactionDetailsViewFactory.createView(transaction: transaction, asset: asset, chain: chain, selectedAccount: selectedAccount)?.controller else {
+        guard let controller = WalletTransactionDetailsViewFactory.createView(
+            transaction: transaction,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
+        )?.controller else {
             return
         }
 

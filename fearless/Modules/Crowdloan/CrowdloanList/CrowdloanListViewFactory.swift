@@ -6,8 +6,14 @@ import IrohaCrypto
 import RobinHood
 
 struct CrowdloanListViewFactory {
-    static func createView(with sharedState: CrowdloanSharedState) -> CrowdloanListViewProtocol? {
-        guard let interactor = createInteractor(from: sharedState) else {
+    static func createView(
+        with sharedState: CrowdloanSharedState,
+        selectedMetaAccount: MetaAccountModel
+    ) -> CrowdloanListViewProtocol? {
+        guard let interactor = createInteractor(
+            from: sharedState,
+            with: selectedMetaAccount
+        ) else {
             return nil
         }
 
@@ -39,9 +45,10 @@ struct CrowdloanListViewFactory {
     }
 
     private static func createInteractor(
-        from state: CrowdloanSharedState
+        from state: CrowdloanSharedState,
+        with selectedMetaAccount: MetaAccountModel
     ) -> CrowdloanListInteractor? {
-        let selectedMetaAccount: MetaAccountModel = SelectedWalletSettings.shared.value
+        let selectedMetaAccount: MetaAccountModel = selectedMetaAccount
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()

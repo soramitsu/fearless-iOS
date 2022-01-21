@@ -295,11 +295,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     ) {
         let stakingFilter: AssetSelectionFilter = { chainAsset in chainAsset.staking != nil }
 
-        guard let selectionView = AssetSelectionViewFactory.createView(
-            delegate: delegate,
-            selectedChainId: selectedChainAssetId,
-            assetFilter: stakingFilter
-        ) else {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let selectionView = AssetSelectionViewFactory.createView(
+                  delegate: delegate,
+                  selectedChainId: selectedChainAssetId,
+                  selectedMetaAccount: selectedMetaAccount,
+                  assetFilter: stakingFilter
+              ) else {
             return
         }
 

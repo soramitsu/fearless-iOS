@@ -73,7 +73,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 }
 
 extension ServiceCoordinator {
-    static func createDefault() -> ServiceCoordinatorProtocol {
+    static func createDefault(with selectedMetaAccount: MetaAccountModel) -> ServiceCoordinatorProtocol {
         let githubPhishingAPIService = GitHubPhishingServiceFactory.createService()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
@@ -89,7 +89,7 @@ extension ServiceCoordinator {
         )
 
         let accountInfoService = AccountInfoUpdatingService(
-            selectedAccount: walletSettings.value,
+            selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
             logger: logger

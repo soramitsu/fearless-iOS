@@ -8,7 +8,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let crowdloanIndex: Int = 1
 
     static func createView() -> MainTabBarViewProtocol? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
+        guard
+            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
             .findService()
         else {
             Logger.shared.error("Can't find required keystore import service")
@@ -17,7 +19,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
-        let serviceCoordinator = ServiceCoordinator.createDefault()
+        let serviceCoordinator = ServiceCoordinator.createDefault(
+            with: selectedMetaAccount
+        )
 
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
@@ -116,7 +120,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
         do {
-            guard let viewController = ChainAccountBalanceListViewFactory.createView()?.controller else {
+            guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+                  let viewController = ChainAccountBalanceListViewFactory.createView(
+                      selectedMetaAccount: selectedMetaAccount
+                  )?.controller else {
                 return nil
             }
 
@@ -219,9 +226,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         for localizationManager: LocalizationManagerProtocol,
         state: CrowdloanSharedState
     ) -> UIViewController? {
-        guard let crowloanView = CrowdloanListViewFactory.createView(
-            with: state
-        ) else {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let crowloanView = CrowdloanListViewFactory.createView(
+                  with: state,
+                  selectedMetaAccount: selectedMetaAccount
+              ) else {
             return nil
         }
 

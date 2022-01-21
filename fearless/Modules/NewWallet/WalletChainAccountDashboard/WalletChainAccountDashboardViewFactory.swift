@@ -9,12 +9,9 @@ struct WalletChainAccountDashboardViewFactory {
 
         let view = WalletChainAccountDashboardViewController(presenter: presenter)
 
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
-            return nil
-        }
-
         guard
-            let accountListView = ChainAccountViewFactory.createView(chain: chain, asset: asset),
+            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let accountListView = ChainAccountViewFactory.createView(chain: chain, asset: asset, selectedMetaAccount: selectedMetaAccount),
             let historyView = WalletTransactionHistoryViewFactory.createView(asset: asset, chain: chain, selectedAccount: selectedMetaAccount)
         else {
             return nil

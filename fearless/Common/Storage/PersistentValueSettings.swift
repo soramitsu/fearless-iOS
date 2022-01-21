@@ -15,13 +15,12 @@ class PersistentValueSettings<T> {
 
     var internalValue: T?
 
-    var value: T! {
+    var value: T? {
         mutex.lock()
 
         defer {
             mutex.unlock()
         }
-
         return internalValue
     }
 
