@@ -178,7 +178,7 @@ extension ChainAccountBalanceListViewModelFactory {
 
     private func getUsdBalanceString(
         for asset: AssetModel,
-        chain: ChainModel,
+        chain _: ChainModel,
         accountInfo: AccountInfo?,
         priceData: PriceData?,
         locale: Locale
@@ -187,15 +187,24 @@ extension ChainAccountBalanceListViewModelFactory {
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        let balance = getBalance(for: chain, asset: asset, accountInfo: accountInfo) ?? ""
+        let assetInfo = asset.displayInfo
+
+        var balance: Decimal
+        if let accountInfo = accountInfo {
+            balance = Decimal.fromSubstrateAmount(
+                accountInfo.data.total,
+                precision: assetInfo.assetPrecision
+            ) ?? 0
+        } else {
+            balance = Decimal.zero
+        }
 
         guard let priceData = priceData,
-              let priceDecimal = Decimal(string: priceData.price),
-              let balanceDecimal = Decimal(string: balance) else {
+              let priceDecimal = Decimal(string: priceData.price) else {
             return nil
         }
 
-        let totalBalanceDecimal = priceDecimal * balanceDecimal
+        let totalBalanceDecimal = priceDecimal * balance
 
         return usdTokenFormatterValue.stringFromDecimal(totalBalanceDecimal)
     }

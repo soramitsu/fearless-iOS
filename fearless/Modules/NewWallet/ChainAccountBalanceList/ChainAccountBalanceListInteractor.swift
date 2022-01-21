@@ -47,21 +47,6 @@ final class ChainAccountBalanceListInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            let addressFactory = SS58AddressFactory()
-
-            chains.forEach { chain in
-                guard
-                    let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-                    let address = try? addressFactory.address(
-                        fromAccountId: accountId,
-                        type: chain.addressPrefix
-                    )
-                else {
-                    return
-                }
-                print("Chain:\(chain.name) address:\(address)")
-            }
-
             presenter.didReceiveChains(result: .success(chains))
             subscribeToAccountInfo(for: chains)
             subscribeToPrice(for: chains)

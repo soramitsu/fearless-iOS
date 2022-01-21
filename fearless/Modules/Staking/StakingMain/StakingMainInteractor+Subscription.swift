@@ -146,15 +146,15 @@ extension StakingMainInteractor {
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainId)
     }
 
-    private func subscribeRewardsAnalytics(for stash: AccountAddress) {
-        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url {
-            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: stash, url: analyticsURL)
-        } else {
-            presenter.didReceieve(
-                subqueryRewards: .success(nil),
-                period: .week
-            )
-        }
+    private func subscribeRewardsAnalytics(for _: AccountAddress) {
+//        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url {
+//            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: stash, url: analyticsURL)
+//        } else {
+//            presenter.didReceieve(
+//                subqueryRewards: .success(nil),
+//                period: .week
+//            )
+//        }
     }
 }
 
