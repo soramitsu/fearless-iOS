@@ -30,7 +30,13 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
     private var stashItem: StashItem?
-    private var rewardDestination: RewardDestination<AccountAddress>?
+    private var rewardDestination: RewardDestination<AccountAddress>? {
+        didSet {
+            if let rewardDestination = rewardDestination {
+                estimateFee(rewardDestination: rewardDestination)
+            }
+        }
+    }
 
     private lazy var callFactory = SubstrateCallFactory()
     private lazy var addressFactory = SS58AddressFactory()
@@ -107,8 +113,6 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
 
 extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInputProtocol {
     func estimateFee(rewardDestination: RewardDestination<AccountAddress>) {
-        self.rewardDestination = rewardDestination
-
         guard let extrinsicService = extrinsicService,
               let stashItem = stashItem else {
             return
@@ -251,7 +255,11 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
                 return
             }
 
-            let rewardDestination = try RewardDestination(payee: payee, stashItem: stashItem, chainFormat: chain.chainFormat)
+            let rewardDestination = try RewardDestination(
+                payee: payee,
+                stashItem: stashItem,
+                chainFormat: chain.chainFormat
+            )
 
             switch rewardDestination {
             case .restake:
@@ -270,6 +278,8 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
                                 result: .success(.payout(account: accountItem))
                             )
                         } else {
+                            self?.rewardDestination = .payout(account: account)
+
                             self?.presenter.didReceiveRewardDestinationAddress(
                                 result: .success(.payout(account: account))
                             )
