@@ -119,6 +119,7 @@ final class AccountInfoUpdatingService {
     }
 
     private func unsubscribeFromChains() {
+        subscribedChains = [:]
         chainRegistry.chainsUnsubscribe(self)
     }
 }
