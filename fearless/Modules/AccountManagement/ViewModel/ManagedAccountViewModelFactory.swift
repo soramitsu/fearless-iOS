@@ -19,7 +19,7 @@ final class ManagedAccountViewModelFactory: ManagedAccountViewModelFactoryProtoc
         return ManagedAccountViewModelItem(
             identifier: item.identifier,
             name: item.info.name,
-            address: address,
+            totalBalance: "",
             icon: icon,
             isSelected: item.isSelected
         )

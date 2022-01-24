@@ -1,5 +1,9 @@
 import UIKit
 
+protocol ChainAccountBalanceListViewDelegate: AnyObject {
+    func accountButtonDidTap()
+}
+
 final class ChainAccountBalanceListViewLayout: UIView {
     enum LayoutConstants {
         static let accountButtonSize: CGFloat = 40
@@ -42,9 +46,12 @@ final class ChainAccountBalanceListViewLayout: UIView {
         return view
     }()
 
+    weak var delegate: ChainAccountBalanceListViewDelegate?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        configure()
         setupLayout()
     }
 
@@ -85,6 +92,15 @@ final class ChainAccountBalanceListViewLayout: UIView {
             make.top.equalTo(totalBalanceLabel.snp.bottom).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview()
         }
+    }
+
+    private func configure() {
+        accountButton.addTarget(self, action: #selector(accountButtonHandler), for: .touchUpInside)
+    }
+
+    @objc
+    private func accountButtonHandler() {
+        delegate?.accountButtonDidTap()
     }
 
     func bind(to viewModel: ChainAccountBalanceListViewModel) {

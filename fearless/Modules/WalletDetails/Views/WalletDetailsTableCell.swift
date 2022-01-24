@@ -2,8 +2,7 @@ import UIKit
 
 class WalletDetailsTableCell: UITableViewCell {
     enum LayoutConstants {
-        static let cellHeight: CGFloat = 48
-        static let chainImageSize = CGSize(width: 27, height: 27)
+        static let chainImageSize: CGFloat = 27
         static let addressImageSize: CGFloat = 16
     }
 
@@ -84,7 +83,7 @@ class WalletDetailsTableCell: UITableViewCell {
         viewModel.chainImageViewModel?.cancel(on: chainImageView)
         viewModel.chainImageViewModel?.loadImage(
             on: chainImageView,
-            targetSize: LayoutConstants.chainImageSize,
+            targetSize: CGSize(width: LayoutConstants.chainImageSize, height: LayoutConstants.chainImageSize),
             animated: false
         )
 

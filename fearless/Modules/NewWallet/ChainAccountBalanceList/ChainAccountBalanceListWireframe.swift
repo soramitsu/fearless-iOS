@@ -15,4 +15,17 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
 
         view?.controller.navigationController?.pushViewController(chainAccountView.controller, animated: true)
     }
+
+    func showWalletSelection(from view: ChainAccountBalanceListViewProtocol?) {
+        guard let walletSelection = AccountManagementViewFactory.createViewForSettings() else {
+            return
+        }
+
+        walletSelection.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(
+            walletSelection.controller,
+            animated: true
+        )
+    }
 }

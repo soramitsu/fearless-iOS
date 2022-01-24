@@ -87,6 +87,10 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {
         selectedMetaAccount = account
     }
+
+    func didTapAccountButton() {
+        wireframe.showWalletSelection(from: view)
+    }
 }
 
 extension ChainAccountBalanceListPresenter: Localizable {
