@@ -109,11 +109,19 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
     }
 
     func refresh() {
-        if let priceProviders = priceProviders {
-            for priceProvider in priceProviders {
-                priceProvider.refresh()
+        if let accountInfoProviders = accountInfoProviders {
+            for accountInfoProvider in accountInfoProviders {
+                accountInfoProvider.removeObserver(self)
             }
         }
+
+        if let priceProviders = priceProviders {
+            for priceProvider in priceProviders {
+                priceProvider.removeObserver(self)
+            }
+        }
+
+        fetchChainsAndSubscribeBalance()
     }
 }
 
@@ -129,16 +137,18 @@ extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, Walle
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        fetchChainsAndSubscribeBalance()
+        refresh()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
-        fetchChainsAndSubscribeBalance()
+        refresh()
     }
 }
 
 extension ChainAccountBalanceListInteractor: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
-        fetchChainsAndSubscribeBalance()
+        refresh()
     }
 }
+
+extension ChainAccountBalanceListInteractor: AnyProviderAutoCleaning {}
