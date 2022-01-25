@@ -84,7 +84,7 @@ private extension WalletDetailsViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
         }
     }
 }

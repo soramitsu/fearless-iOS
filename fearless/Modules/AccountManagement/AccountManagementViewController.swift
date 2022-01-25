@@ -75,7 +75,7 @@ final class AccountManagementViewController: UIViewController {
             + Constants.addActionVerticalInset
         tableView.contentInset = .init(top: 0, left: 0, bottom: bottomInset, right: 0)
 
-        tableView.register(R.nib.accountTableViewCell)
+        tableView.registerClassForCell(WalletTableViewCell.self)
 
         tableView.rowHeight = Constants.cellHeight
     }
@@ -85,7 +85,7 @@ final class AccountManagementViewController: UIViewController {
         updateRightItem()
 
         for cell in tableView.visibleCells {
-            if let accountCell = cell as? AccountTableViewCell {
+            if let accountCell = cell as? WalletTableViewCell {
                 accountCell.setReordering(tableView.isEditing, animated: true)
             }
         }
@@ -103,16 +103,15 @@ extension AccountManagementViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: R.reuseIdentifier.accountCellId,
-            for: indexPath
-        )!
+        guard let cell = tableView.dequeueReusableCellWithType(WalletTableViewCell.self) else {
+            return UITableViewCell()
+        }
 
         cell.delegate = self
         cell.setReordering(tableView.isEditing, animated: false)
 
         let item = presenter.item(at: indexPath.row)
-        cell.bind(viewModel: item)
+        cell.bind(to: item)
 
         return cell
     }
@@ -192,8 +191,8 @@ extension AccountManagementViewController: Localizable {
     }
 }
 
-extension AccountManagementViewController: AccountTableViewCellDelegate {
-    func didSelectInfo(_ cell: AccountTableViewCell) {
+extension AccountManagementViewController: WalletTableViewCellDelegate {
+    func didSelectInfo(_ cell: WalletTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else {
             return
         }

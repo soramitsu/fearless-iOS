@@ -38,6 +38,8 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
+        rootView.delegate = self
+
         if let refreshControl = rootView.tableView.refreshControl {
             refreshControl.addTarget(
                 self,
@@ -119,6 +121,12 @@ extension ChainAccountBalanceListViewController: UITableViewDelegate {
 
 extension ChainAccountBalanceListViewController: Localizable {
     func applyLocalization() {}
+}
+
+extension ChainAccountBalanceListViewController: ChainAccountBalanceListViewDelegate {
+    func accountButtonDidTap() {
+        presenter.didTapAccountButton()
+    }
 }
 
 extension ChainAccountBalanceListViewController: HiddableBarWhenPushed {}
