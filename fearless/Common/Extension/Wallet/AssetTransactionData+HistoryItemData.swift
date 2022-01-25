@@ -116,7 +116,7 @@ extension AssetTransactionData {
             fees: [fee],
             timestamp: timestamp,
             type: type.rawValue,
-            reason: nil,
+            reason: "",
             context: nil
         )
     }
@@ -217,7 +217,7 @@ extension AssetTransactionData {
             fees: [],
             timestamp: timestamp,
             type: type,
-            reason: nil,
+            reason: item.identifier,
             context: nil
         )
     }
@@ -274,7 +274,7 @@ extension AssetTransactionData {
             fromAddress: address,
             type: chain.addressPrefix
         )
-        let peerId = accountId?.toHex() ?? address
+        let peerId = item.address
 
         let status: AssetTransactionStatus = extrinsic.success ? .commited : .rejected
 
@@ -293,7 +293,7 @@ extension AssetTransactionData {
             fees: [],
             timestamp: timestamp,
             type: TransactionType.extrinsic.rawValue,
-            reason: nil,
+            reason: extrinsic.hash,
             context: nil
         )
     }

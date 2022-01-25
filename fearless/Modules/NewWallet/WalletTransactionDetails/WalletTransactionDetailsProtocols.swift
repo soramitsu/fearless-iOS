@@ -5,6 +5,10 @@ protocol WalletTransactionDetailsViewProtocol: ControllerBackedProtocol {
 
 protocol WalletTransactionDetailsPresenterProtocol: AnyObject {
     func setup()
+    func didTapCloseButton()
+    func didTapReceiverOrValidatorView()
+    func didTapSenderView()
+    func didTapExtrinsicView()
 }
 
 protocol WalletTransactionDetailsInteractorInputProtocol: AnyObject {
@@ -15,4 +19,6 @@ protocol WalletTransactionDetailsInteractorOutputProtocol: AnyObject {
     func didReceiveTransaction(_ transaction: AssetTransactionData)
 }
 
-protocol WalletTransactionDetailsWireframeProtocol: AnyObject {}
+protocol WalletTransactionDetailsWireframeProtocol: AnyObject, AddressOptionsPresentable, ExtrinsicOptionsPresentable, TextCopyPresentable {
+    func close(view: ControllerBackedProtocol?)
+}

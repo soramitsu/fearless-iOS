@@ -7,6 +7,7 @@ import IrohaCrypto
 class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
     var isSelected: Bool = false
     var order: Int32 = 0
+    private var privateKeysUsed: [Data] = []
 
     private lazy var addressFactory = SS58AddressFactory()
 
@@ -15,28 +16,34 @@ class SingleToMultiassetMigrationPolicy: NSEntityMigrationPolicy {
         in mapping: NSEntityMapping,
         manager: NSMigrationManager
     ) throws {
-        try super.createDestinationInstances(forSource: accountItem, in: mapping, manager: manager)
-
         guard let keystoreMigrator = manager
             .userInfo?[UserStorageMigratorKeys.keystoreMigrator] as? KeystoreMigrating else {
             fatalError("No keystore migrator found in context")
-        }
-
-        guard let metaAccount = manager.destinationInstances(
-            forEntityMappingName: mapping.name,
-            sourceInstances: [accountItem]
-        ).first else {
-            fatalError("Meta account expected after mapping")
         }
 
         guard let sourceAddress = accountItem.value(forKey: "identifier") as? AccountAddress else {
             fatalError("Unexpected empty source address")
         }
 
+        let accountId = try addressFactory.accountId(from: sourceAddress)
+
+        if privateKeysUsed.contains(accountId) {
+            return
+        }
+
+        try super.createDestinationInstances(forSource: accountItem, in: mapping, manager: manager)
+
+        guard let metaAccount = manager.destinationInstances(
+            forEntityMappingName: mapping.name,
+            sourceInstances: [accountItem]
+        ).first else {
+            return
+        }
+
+        privateKeysUsed.append(accountId)
+
         let metaId = UUID().uuidString
         metaAccount.setValue(metaId, forKey: "metaId")
-
-        let accountId = try addressFactory.accountId(from: sourceAddress)
 
         metaAccount.setValue(accountId.toHex(), forKey: "substrateAccountId")
 

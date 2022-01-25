@@ -1,7 +1,21 @@
 import UIKit
 import CommonWallet
+import FearlessUtils
 
 final class WalletTransactionDetailsViewLayout: UIView {
+    lazy var navigationBar: BaseNavigationBar = {
+        let navBar = BaseNavigationBar()
+        navBar.set(.present)
+        return navBar
+    }()
+
+    let navigationTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textColor = .white
+        return label
+    }()
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
@@ -12,7 +26,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
     let extrinsicHashView = UIFactory.default.createAccountView(for: .options, filled: false)
     let senderView = UIFactory.default.createAccountView(for: .options, filled: false)
     let receiverView = UIFactory.default.createAccountView(for: .options, filled: false)
-    let statusView = UIFactory.default.createTitleValueView()
+    let statusView = UIFactory.default.createIconTitleValueView(iconPosition: .right)
     let dateView = UIFactory.default.createTitleValueView()
     let amountView = UIFactory.default.createTitleValueView()
     let moduleView = UIFactory.default.createTitleValueView()
@@ -45,9 +59,11 @@ final class WalletTransactionDetailsViewLayout: UIView {
     }
 
     func bind(to viewModel: WalletTransactionDetailsViewModel) {
+        extrinsicHashView.isHidden = viewModel.extrinsicHash.count == 0
         extrinsicHashView.subtitleLabel?.text = viewModel.extrinsicHash
         statusView.valueLabel.text = viewModel.status
         dateView.valueLabel.text = viewModel.dateString
+        statusView.imageView.image = viewModel.statusIcon
 
         switch viewModel.transactionType {
         case .incoming, .outgoing:
@@ -80,6 +96,26 @@ final class WalletTransactionDetailsViewLayout: UIView {
         senderView.subtitleLabel?.text = viewModel.from
         amountView.valueLabel.text = viewModel.amount
         feeView.valueLabel.text = viewModel.fee
+
+        if let from = viewModel.from {
+            if let icon = try? PolkadotIconGenerator().generateFromAddress(from) {
+                senderView.iconImage = icon.imageWithFillColor(
+                    UIColor.black,
+                    size: UIConstants.smallAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
+            }
+        }
+
+        if let to = viewModel.to {
+            if let icon = try? PolkadotIconGenerator().generateFromAddress(to) {
+                receiverView.iconImage = icon.imageWithFillColor(
+                    UIColor.black,
+                    size: UIConstants.smallAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
+            }
+        }
     }
 
     private func bindReward(viewModel: RewardTransactionDetailsViewModel) {
@@ -92,12 +128,22 @@ final class WalletTransactionDetailsViewLayout: UIView {
         senderView.isHidden = true
 
         receiverView.isHidden = viewModel.validator?.count == 0
-
+        extrinsicHashView.titleLabel.text = R.string.localizable.stakingCommonEventId(preferredLanguages: locale.rLanguages)
         receiverView.titleLabel.text = R.string.localizable.stakingCommonValidator(preferredLanguages: locale.rLanguages)
 
         eraView.valueLabel.text = viewModel.era
         rewardView.valueLabel.text = viewModel.reward
         receiverView.subtitleLabel?.text = viewModel.validator
+
+        if let validator = viewModel.validator {
+            if let icon = try? PolkadotIconGenerator().generateFromAddress(validator) {
+                receiverView.iconImage = icon.imageWithFillColor(
+                    UIColor.black,
+                    size: UIConstants.smallAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
+            }
+        }
     }
 
     private func bindSlash(viewModel: SlashTransactionDetailsViewModel) {
@@ -115,6 +161,16 @@ final class WalletTransactionDetailsViewLayout: UIView {
         eraView.valueLabel.text = viewModel.era
         slashView.valueLabel.text = viewModel.slash
         receiverView.subtitleLabel?.text = viewModel.validator
+
+        if let validator = viewModel.validator {
+            if let icon = try? PolkadotIconGenerator().generateFromAddress(validator) {
+                receiverView.iconImage = icon.imageWithFillColor(
+                    UIColor.black,
+                    size: UIConstants.smallAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
+            }
+        }
     }
 
     private func bindExtrinsic(viewModel: ExtrinsicTransactionDetailsViewModel) {
@@ -122,12 +178,23 @@ final class WalletTransactionDetailsViewLayout: UIView {
         slashView.isHidden = true
         rewardView.isHidden = true
         receiverView.isHidden = true
-        senderView.isHidden = true
         eraView.isHidden = true
         feeView.isHidden = true
+        senderView.isHidden = viewModel.sender == nil
 
         moduleView.valueLabel.text = viewModel.module
         callView.valueLabel.text = viewModel.call
+        senderView.subtitleLabel?.text = viewModel.sender
+
+        if let sender = viewModel.sender {
+            if let icon = try? PolkadotIconGenerator().generateFromAddress(sender) {
+                senderView.iconImage = icon.imageWithFillColor(
+                    UIColor.black,
+                    size: UIConstants.smallAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
+            }
+        }
     }
 
     private func applyLocalization() {
@@ -146,9 +213,16 @@ final class WalletTransactionDetailsViewLayout: UIView {
     }
 
     private func setupLayout() {
+        addSubview(navigationBar)
+        navigationBar.setCenterViews([navigationTitleLabel])
+
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.leading.trailing.equalToSuperview()
         }
 

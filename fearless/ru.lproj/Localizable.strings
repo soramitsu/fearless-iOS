@@ -10,8 +10,6 @@
 "connection.error.title" = "Ошибка соединения";
 "connection.error.message" = "Пожалуйста, проверьте подключение к Интернету и повторите попытку.";
 "onboarding.restore.account" = "Восстановить";
-"onboarding.restore.wallet" = "У меня уже есть кошелёк";
-"import.wallet" = "Восстановить кошелёк";
 "onboarding.terms.and.conditions.1" = "Я подтверждаю, что прочитал и согласен с \
 Условиями использования и Политикой конфиденциальности";
 "onboarding.terms.and.conditions.2" = "Условиями использования";
@@ -44,7 +42,6 @@
 "no.email.bound.error.message" = "Пожалуйста, убедитесь, что на устройстве установлено почтовое приложение.";
 "connection.management.title" = "Сети";
 "onboarding.create.account" = "Создать аккаунт";
-"onboarding.create.wallet" = "Создать кошелёк";
 "NSCameraUsageDescription" = "Камера используется для сканирования QR кода.";
 "NSFaceIDUsageDescription" = "Face ID используется для авторизации в приложении";
 "NSPhotoLibraryUsageDescription" = "Загрузить изображения из библиотеки";
@@ -91,7 +88,6 @@
 "account.confirmation.details" = "Выберите слова в правильном порядке";
 "pincode.create.top.title" = "Новый PIN-код";
 "profile.accounts.title" = "Аккаунты";
-"profile.wallets.title" = "Кошельки";
 "profile.network.title" = "Сеть";
 "profile.pincode.change.title" = "Изменить PIN-код";
 "common.invalid.hard.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
@@ -101,7 +97,6 @@
 "common.edit" = "Редактировать";
 "common.done" = "Готово";
 "accounts.add.account" = "Добавить аккаунт";
-"settings.add.wallet" = "Добавить кошелёк";
 "account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";
 "about.website" = "Официальный сайт";
 "about.github" = "Исходный код на Github";
@@ -581,3 +576,15 @@
 "assetdetails.balance.locked" = "Заблокировано";
 "assetdetails.balance.title" = "Баланс";
 "wallet.send.navigation.title" = "Перевести %@";
+"profile.wallets.title" = "Кошельки";
+"settings.add.wallet" = "Добавить кошелёк";
+"onboarding.create.wallet" = "Создать кошелёк";
+"onboarding.restore.wallet" = "";
+"import.wallet" = "";
+"about.crowdloans" = "";
+"wallet.asset.your.balance" = "";
+"wallet.asset.transferable.caption" = "";
+"about.wiki" = "";
+"about.instagram" = "";
+"switch.node" = "";
+"wallet.transaction.detail.copy.id" = "";

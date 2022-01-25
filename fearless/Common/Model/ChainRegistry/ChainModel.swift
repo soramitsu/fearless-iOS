@@ -128,4 +128,8 @@ extension ChainModel {
     func subscanAddressURL(_ address: String) -> URL? {
         URL(string: "https://\(name).subscan.io/account/\(address)")
     }
+
+    func subscanExtrinsicUrl(_ extrinsicHash: String) -> URL? {
+        URL(string: "https://\(name).subscan.io/extrinsic/\(extrinsicHash)")
+    }
 }

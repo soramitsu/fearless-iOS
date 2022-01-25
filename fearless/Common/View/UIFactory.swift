@@ -74,7 +74,7 @@ protocol UIFactoryProtocol {
 
     func createTitleValueView() -> TitleValueView
 
-    func createIconTitleValueView() -> IconTitleValueView
+    func createIconTitleValueView(iconPosition: IconTitleValueView.IconPosition) -> IconTitleValueView
 
     func createTitleValueSelectionView() -> TitleValueSelectionView
 
@@ -484,8 +484,8 @@ final class UIFactory: UIFactoryProtocol {
         TitleValueView()
     }
 
-    func createIconTitleValueView() -> IconTitleValueView {
-        IconTitleValueView()
+    func createIconTitleValueView(iconPosition: IconTitleValueView.IconPosition = .left) -> IconTitleValueView {
+        IconTitleValueView(iconPosition: iconPosition)
     }
 
     func createHintView() -> HintView {

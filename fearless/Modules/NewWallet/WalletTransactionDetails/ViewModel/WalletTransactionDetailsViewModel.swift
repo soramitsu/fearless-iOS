@@ -8,19 +8,22 @@ class WalletTransactionDetailsViewModel {
     let extrinsicHash: String
     let status: String
     let dateString: String?
+    let statusIcon: UIImage?
 
     init(
         transaction: AssetTransactionData,
         transactionType: TransactionType,
         extrinsicHash: String,
         status: String,
-        dateString: String?
+        dateString: String?,
+        statusIcon: UIImage?
     ) {
         self.transaction = transaction
         self.transactionType = transactionType
         self.extrinsicHash = extrinsicHash
         self.status = status
         self.dateString = dateString
+        self.statusIcon = statusIcon
     }
 }
 
@@ -41,7 +44,8 @@ class TransferTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
         to: String?,
         amount: String?,
         fee: String?,
-        total: String?
+        total: String?,
+        statusIcon: UIImage?
     ) {
         self.from = from
         self.to = to
@@ -54,7 +58,8 @@ class TransferTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
             transactionType: transactionType,
             extrinsicHash: extrinsicHash,
             status: status,
-            dateString: dateString
+            dateString: dateString,
+            statusIcon: statusIcon
         )
     }
 }
@@ -72,7 +77,8 @@ class RewardTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
         dateString: String?,
         era: String,
         reward: String?,
-        validator: String?
+        validator: String?,
+        statusIcon: UIImage?
     ) {
         self.era = era
         self.reward = reward
@@ -83,7 +89,8 @@ class RewardTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
             transactionType: transactionType,
             extrinsicHash: extrinsicHash,
             status: status,
-            dateString: dateString
+            dateString: dateString,
+            statusIcon: statusIcon
         )
     }
 }
@@ -101,7 +108,8 @@ class SlashTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
         dateString: String?,
         era: String,
         slash: String?,
-        validator: String?
+        validator: String?,
+        statusIcon: UIImage?
     ) {
         self.era = era
         self.slash = slash
@@ -112,7 +120,8 @@ class SlashTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
             transactionType: transactionType,
             extrinsicHash: extrinsicHash,
             status: status,
-            dateString: dateString
+            dateString: dateString,
+            statusIcon: statusIcon
         )
     }
 }
@@ -120,6 +129,7 @@ class SlashTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
 class ExtrinsicTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
     let module: String?
     let call: String?
+    let sender: String?
 
     init(
         transaction: AssetTransactionData,
@@ -128,17 +138,21 @@ class ExtrinsicTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
         status: String,
         dateString: String?,
         module: String?,
-        call: String?
+        call: String?,
+        statusIcon: UIImage?,
+        sender: String?
     ) {
         self.module = module
         self.call = call
+        self.sender = sender
 
         super.init(
             transaction: transaction,
             transactionType: transactionType,
             extrinsicHash: extrinsicHash,
             status: status,
-            dateString: dateString
+            dateString: dateString,
+            statusIcon: statusIcon
         )
     }
 }

@@ -16,7 +16,13 @@ struct WalletTransactionDetailsViewFactory {
         let wireframe = WalletTransactionDetailsWireframe()
 
         let viewModelFactory = WalletTransactionDetailsViewModelFactory(accountAddress: address, assetBalanceFormatterFactory: AssetBalanceFormatterFactory(), asset: asset)
-        let presenter = WalletTransactionDetailsPresenter(interactor: interactor, wireframe: wireframe, viewModelFactory: viewModelFactory, localizationManager: LocalizationManager.shared)
+        let presenter = WalletTransactionDetailsPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory,
+            localizationManager: LocalizationManager.shared,
+            chain: chain
+        )
 
         let view = WalletTransactionDetailsViewController(presenter: presenter)
 
