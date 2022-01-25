@@ -93,7 +93,11 @@ extension WalletDetailsViewController: UITableViewDataSource {
 }
 
 extension WalletDetailsViewController: UITableViewDelegate {
-    func tableView(_: UITableView, didSelectRowAt _: IndexPath) {}
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let chain = chainViewModels?[indexPath.row], let address = chain.address {
+            UIPasteboard.general.string = address
+        }
+    }
 }
 
 extension WalletDetailsViewController: HiddableBarWhenPushed {}
