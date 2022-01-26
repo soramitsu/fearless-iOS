@@ -1,4 +1,6 @@
 import UIKit
+import RobinHood
+import BigInt
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
@@ -6,6 +8,8 @@ final class ChainAccountInteractor {
     private let chain: ChainModel
     private let asset: AssetModel
     private let operationQueue: OperationQueue
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
@@ -40,6 +44,7 @@ final class ChainAccountInteractor {
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         subscribeToAccountInfo()
+        fetchMinimalBalance()
 
         if let priceId = asset.priceId {
             _ = subscribeToPrice(for: priceId)
@@ -60,5 +65,17 @@ extension ChainAccountInteractor: WalletLocalStorageSubscriber, WalletLocalSubsc
         chainId: ChainModel.Id
     ) {
         presenter?.didReceiveAccountInfo(result: result, for: chainId)
+    }
+}
+
+extension ChainAccountInteractor: RuntimeConstantFetching {
+    func fetchMinimalBalance() {
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter?.didReceiveMinimumBalance(result: result)
+        }
     }
 }

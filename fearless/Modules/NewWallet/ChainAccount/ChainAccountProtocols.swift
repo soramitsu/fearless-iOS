@@ -1,3 +1,5 @@
+import BigInt
+
 protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)
 }
@@ -9,6 +11,8 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapSendButton()
     func didTapReceiveButton()
     func didTapBuyButton()
+    
+    func didTapInfoButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
@@ -18,6 +22,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
+    func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
 }
 
 protocol ChainAccountWireframeProtocol: AnyObject {
@@ -47,4 +52,8 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         action: PurchaseAction
     )
+    
+    func presentLockedInfo(from view: ControllerBackedProtocol?,
+                           balanceContext: BalanceContext,
+                           info: AssetBalanceDisplayInfo)
 }

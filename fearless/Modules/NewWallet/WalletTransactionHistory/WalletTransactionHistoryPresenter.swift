@@ -17,13 +17,15 @@ final class WalletTransactionHistoryPresenter {
         wireframe: WalletTransactionHistoryWireframeProtocol,
         viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol,
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.asset = asset
         self.chain = chain
+        self.localizationManager = localizationManager
     }
 }
 
@@ -70,7 +72,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
 
         self.viewModels = viewModels
 
-        let viewModel = WalletTransactionHistoryViewModel(sections: viewModels, lastChanges: viewChanges)
+        let viewModel = WalletTransactionHistoryViewModel(sections: viewModels,
+                                                          lastChanges: viewChanges)
 
         let state: WalletTransactionHistoryViewState = reload ? .reloaded(viewModel: viewModel) : .loaded(viewModel: viewModel)
         view?.didReceive(state: state)
