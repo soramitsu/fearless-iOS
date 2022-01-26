@@ -75,7 +75,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             transferableAmountString: assetFormatter.stringFromDecimal(transferableAssetValues.decimalAmount),
             transferableAmountFiatString: fiatFormatter.stringFromDecimal(transferableAssetValues.fiatAmount),
             lockedAmountString: assetFormatter.stringFromDecimal(lockedAssetValues.decimalAmount),
-            lockedAmountFiatString: fiatFormatter.stringFromDecimal(lockedAssetValues.fiatAmount)
+            lockedAmountFiatString: fiatFormatter.stringFromDecimal(lockedAssetValues.fiatAmount),
+            isEmptyAccount: accountInfo == nil
         )
     }
 

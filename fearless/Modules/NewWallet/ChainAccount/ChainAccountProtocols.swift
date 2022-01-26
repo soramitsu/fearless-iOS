@@ -23,6 +23,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
+    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
 }
 
 protocol ChainAccountWireframeProtocol: AnyObject {

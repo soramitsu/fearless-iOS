@@ -32,7 +32,6 @@ struct ChainAccountViewFactory {
             chain: chain,
             asset: asset,
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             storageRequestFactory: storageRequestFactory,
             connection: connection,

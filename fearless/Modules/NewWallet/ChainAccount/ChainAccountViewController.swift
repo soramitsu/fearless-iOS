@@ -52,6 +52,8 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
         rootView.receiveButton.addTarget(self, action: #selector(receiveButtonClicked), for: .touchUpInside)
         rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
+        rootView.balanceView.lockedView.button
+            .addTarget(self, action: #selector(lockedInfoButtonClicked), for: .touchUpInside)
     }
 
     private func applyState() {
@@ -81,6 +83,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     @objc private func buyButtonClicked() {
         presenter.didTapBuyButton()
+    }
+
+    @objc private func lockedInfoButtonClicked() {
+        presenter.didTapInfoButton()
     }
 }
 

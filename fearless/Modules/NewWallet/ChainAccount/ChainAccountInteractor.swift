@@ -8,7 +8,6 @@ final class ChainAccountInteractor {
     private let selectedMetaAccount: MetaAccountModel
     private let chain: ChainModel
     private let asset: AssetModel
-    private let operationQueue: OperationQueue
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
@@ -21,7 +20,6 @@ final class ChainAccountInteractor {
         chain: ChainModel,
         asset: AssetModel,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
-        operationQueue: OperationQueue,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         connection: JSONRPCEngine,
@@ -32,7 +30,6 @@ final class ChainAccountInteractor {
         self.chain = chain
         self.asset = asset
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
-        self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.connection = connection
         self.storageRequestFactory = storageRequestFactory
@@ -47,6 +44,26 @@ final class ChainAccountInteractor {
             presenter?.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists),
                 for: chain.chainId
+            )
+        }
+    }
+
+    private func fetchBalanceLocks() {
+        if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+            let balanceLocksOperation = createBalanceLocksFetchOperation(accountId)
+            balanceLocksOperation.targetOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    do {
+                        let balanceLocks = try balanceLocksOperation.targetOperation.extractNoCancellableResultData()
+                        self?.presenter?.didReceiveBalanceLocks(result: .success(balanceLocks))
+                    } catch {
+                        self?.presenter?.didReceiveBalanceLocks(result: .failure(error))
+                    }
+                }
+            }
+            operationManager.enqueue(
+                operations: balanceLocksOperation.allOperations,
+                in: .transient
             )
         }
     }
@@ -79,27 +96,10 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         subscribeToAccountInfo()
         fetchMinimalBalance()
+        fetchBalanceLocks()
 
         if let priceId = asset.priceId {
             _ = subscribeToPrice(for: priceId)
-        }
-
-        if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-            let balanceLocksOperation = createBalanceLocksFetchOperation(accountId)
-            balanceLocksOperation.targetOperation.completionBlock = { [weak presenter] in
-                DispatchQueue.main.async {
-                    do {
-                        let balanceLocks = try balanceLocksOperation.targetOperation.extractNoCancellableResultData()
-                        print("Received balance locks: ", balanceLocks)
-                    } catch {
-                        print("Failed to fetch balance locks: ", error)
-                    }
-                }
-            }
-            operationManager.enqueue(
-                operations: balanceLocksOperation.allOperations,
-                in: .transient
-            )
         }
     }
 }

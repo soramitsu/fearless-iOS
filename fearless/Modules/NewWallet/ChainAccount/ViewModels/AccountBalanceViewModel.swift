@@ -7,4 +7,5 @@ struct AccountBalanceViewModel {
     let transferableAmountFiatString: String?
     let lockedAmountString: String?
     let lockedAmountFiatString: String?
+    let isEmptyAccount: Bool
 }

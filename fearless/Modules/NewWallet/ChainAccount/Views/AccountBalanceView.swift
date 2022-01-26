@@ -54,5 +54,6 @@ class AccountBalanceView: TriangularedBlurView {
         transferableView.valueBottom.text = viewModel.transferableAmountFiatString
         lockedView.valueTop.text = viewModel.lockedAmountString
         lockedView.valueBottom.text = viewModel.lockedAmountFiatString
+        lockedView.button.isEnabled = !viewModel.isEmptyAccount
     }
 }
