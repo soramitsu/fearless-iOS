@@ -116,7 +116,7 @@ extension AssetTransactionData {
             fees: [fee],
             timestamp: timestamp,
             type: type.rawValue,
-            reason: nil,
+            reason: "",
             context: nil
         )
     }
@@ -217,7 +217,7 @@ extension AssetTransactionData {
             fees: [],
             timestamp: timestamp,
             type: type,
-            reason: nil,
+            reason: item.identifier,
             context: nil
         )
     }
@@ -260,21 +260,17 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubqueryHistoryElement,
         extrinsic: SubqueryExtrinsic,
-        address: String,
-        chain: ChainModel,
+        address _: String,
+        chain _: ChainModel,
         asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        addressFactory _: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(extrinsic.fee) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: address,
-            type: chain.addressPrefix
-        )
-        let peerId = accountId?.toHex() ?? address
+        let peerId = item.address
 
         let status: AssetTransactionStatus = extrinsic.success ? .commited : .rejected
 
@@ -293,7 +289,7 @@ extension AssetTransactionData {
             fees: [],
             timestamp: timestamp,
             type: TransactionType.extrinsic.rawValue,
-            reason: nil,
+            reason: extrinsic.hash,
             context: nil
         )
     }

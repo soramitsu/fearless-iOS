@@ -32,16 +32,19 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             return nil
         }
 
-        let hash = transaction.transactionId
+        let hash = transaction.reason ?? ""
         var status: String
-
+        var statusIcon: UIImage?
         switch transaction.status {
         case .pending:
             status = R.string.localizable.transactionStatusPending(preferredLanguages: locale.rLanguages)
+            statusIcon = R.image.iconPending()
         case .commited:
             status = R.string.localizable.transactionStatusCompleted(preferredLanguages: locale.rLanguages)
+            statusIcon = R.image.iconValid()
         case .rejected:
             status = R.string.localizable.transactionStatusFailed(preferredLanguages: locale.rLanguages)
+            statusIcon = R.image.iconTxFailed()
         }
 
         let date = Date(timeIntervalSince1970: TimeInterval(transaction.timestamp))
@@ -71,7 +74,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 to: to,
                 amount: amountString,
                 fee: feeString,
-                total: totalString
+                total: totalString,
+                statusIcon: statusIcon
             )
         case .reward:
             let era = transaction.details
@@ -85,7 +89,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 dateString: dateString,
                 era: era,
                 reward: reward,
-                validator: transaction.peerFirstName
+                validator: transaction.peerFirstName,
+                statusIcon: statusIcon
             )
         case .slash:
             let era = transaction.details
@@ -99,11 +104,13 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 dateString: dateString,
                 era: era,
                 slash: slash,
-                validator: transaction.peerFirstName
+                validator: transaction.peerFirstName,
+                statusIcon: statusIcon
             )
         case .extrinsic:
             let module = transaction.peerFirstName
             let call = transaction.peerLastName
+            let sender = transaction.peerId
 
             return ExtrinsicTransactionDetailsViewModel(
                 transaction: transaction,
@@ -112,7 +119,9 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 status: status,
                 dateString: dateString,
                 module: module,
-                call: call
+                call: call,
+                statusIcon: statusIcon,
+                sender: sender
             )
         }
     }

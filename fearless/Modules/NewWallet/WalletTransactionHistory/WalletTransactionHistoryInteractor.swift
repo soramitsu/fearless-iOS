@@ -79,7 +79,7 @@ final class WalletTransactionHistoryInteractor {
             for: address,
             asset: asset,
             chain: chain,
-            targetIdentifier: "wallet.transaction.history",
+            targetIdentifier: "wallet.transaction.history.\(address)",
             using: .main
         )
 

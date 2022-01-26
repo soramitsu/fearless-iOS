@@ -1,5 +1,6 @@
 import UIKit
 import CommonWallet
+import SoraFoundation
 
 final class WalletTransactionDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = WalletTransactionDetailsViewLayout
@@ -25,6 +26,32 @@ final class WalletTransactionDetailsViewController: UIViewController, ViewHolder
         super.viewDidLoad()
 
         presenter.setup()
+
+        rootView.navigationTitleLabel.text = R.string.localizable.commonDetails(preferredLanguages: selectedLocale.rLanguages)
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(closeButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.senderView.addTarget(
+            self,
+            action: #selector(senderAccountViewClicked),
+            for: .touchUpInside
+        )
+
+        rootView.receiverView.addTarget(
+            self,
+            action: #selector(receiverOrValidatorAccountViewClicked),
+            for: .touchUpInside
+        )
+
+        rootView.extrinsicHashView.addTarget(
+            self,
+            action: #selector(extrinsicViewClicked),
+            for: .touchUpInside
+        )
     }
 
     private func applyState(_ state: WalletTransactionDetailsViewState) {
@@ -38,6 +65,22 @@ final class WalletTransactionDetailsViewController: UIViewController, ViewHolder
             rootView.contentView.isHidden = true
         }
     }
+
+    @objc func closeButtonClicked() {
+        presenter.didTapCloseButton()
+    }
+
+    @objc func receiverOrValidatorAccountViewClicked() {
+        presenter.didTapReceiverOrValidatorView()
+    }
+
+    @objc func senderAccountViewClicked() {
+        presenter.didTapSenderView()
+    }
+
+    @objc func extrinsicViewClicked() {
+        presenter.didTapExtrinsicView()
+    }
 }
 
 extension WalletTransactionDetailsViewController: WalletTransactionDetailsViewProtocol {
@@ -45,4 +88,8 @@ extension WalletTransactionDetailsViewController: WalletTransactionDetailsViewPr
         self.state = state
         applyState(state)
     }
+}
+
+extension WalletTransactionDetailsViewController: Localizable {
+    func applyLocalization() {}
 }
