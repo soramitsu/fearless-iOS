@@ -48,6 +48,10 @@ class AssetInfoView: UIView {
 
         assetInfoStackView.addArrangedSubview(assetIconImageView)
         assetInfoStackView.addArrangedSubview(assetNameLabel)
+
+        assetIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(32)
+        }
     }
 
     func bind(to viewModel: AssetInfoViewModel) {
