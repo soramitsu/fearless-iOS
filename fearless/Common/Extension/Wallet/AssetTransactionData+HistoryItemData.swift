@@ -260,20 +260,16 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubqueryHistoryElement,
         extrinsic: SubqueryExtrinsic,
-        address: String,
-        chain: ChainModel,
+        address _: String,
+        chain _: ChainModel,
         asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        addressFactory _: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(extrinsic.fee) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: address,
-            type: chain.addressPrefix
-        )
         let peerId = item.address
 
         let status: AssetTransactionStatus = extrinsic.success ? .commited : .rejected
