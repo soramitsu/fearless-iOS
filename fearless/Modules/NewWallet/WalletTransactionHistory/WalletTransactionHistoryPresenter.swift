@@ -72,8 +72,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
 
         self.viewModels = viewModels
 
-        let viewModel = WalletTransactionHistoryViewModel(sections: viewModels,
-                                                          lastChanges: viewChanges)
+        let viewModel = WalletTransactionHistoryViewModel(
+            sections: viewModels,
+            lastChanges: viewChanges
+        )
 
         let state: WalletTransactionHistoryViewState = reload ? .reloaded(viewModel: viewModel) : .loaded(viewModel: viewModel)
         view?.didReceive(state: state)

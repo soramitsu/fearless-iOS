@@ -131,30 +131,32 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             delegate: self
         )
     }
-    
+
     func didTapInfoButton() {
-        if
-            let info = accountInfo,
-            let priceData = priceData,
-            let free = Decimal.fromSubstratePerbill(value: info.data.free),
-            let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
-            let miscFrozen = Decimal.fromSubstratePerbill(value: info.data.miscFrozen),
-            let feeFrozen = Decimal.fromSubstratePerbill(value: info.data.feeFrozen),
-            let price = Decimal(string: priceData.price),
-            let minBalance = minimumBalance,
-            let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance) {
-            let balanceContext = BalanceContext(free: free,
-                                                reserved: reserved,
-                                                miscFrozen: miscFrozen,
-                                                feeFrozen: feeFrozen,
-                                                price: price,
-                                                priceChange: priceData.usdDayChange ?? 0,
-                                                minimalBalance: decimalMinBalance,
-                                                balanceLocks: )
-            wireframe.presentLockedInfo(from: view,
-                                        balanceContext: balanceContext,
-                                        info: <#T##AssetBalanceDisplayInfo#>)
-        }
+//        if
+//            let info = accountInfo,
+//            let priceData = priceData,
+//            let free = Decimal.fromSubstratePerbill(value: info.data.free),
+//            let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
+//            let miscFrozen = Decimal.fromSubstratePerbill(value: info.data.miscFrozen),
+//            let feeFrozen = Decimal.fromSubstratePerbill(value: info.data.feeFrozen),
+//            let price = Decimal(string: priceData.price),
+//            let minBalance = minimumBalance,
+//            let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance) {
+//            let balanceContext = BalanceContext(
+//                free: free,
+//                reserved: reserved,
+//                miscFrozen: miscFrozen,
+//                feeFrozen: feeFrozen,
+//                price: price,
+//                priceChange: priceData.usdDayChange ?? 0,
+//                minimalBalance: decimalMinBalance,
+//                balanceLocks:
+//            )
+//            wireframe.presentLockedInfo(from: view,
+//                                        balanceContext: balanceContext,
+//                                        info: <#T##AssetBalanceDisplayInfo#>)
+//        }
     }
 }
 
@@ -180,7 +182,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             logger.error("ChainAccountPresenter:didReceivePriceData:error:\(error)")
         }
     }
-    
+
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimumBalance):

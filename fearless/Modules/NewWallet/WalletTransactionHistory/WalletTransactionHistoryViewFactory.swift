@@ -40,7 +40,8 @@ struct WalletTransactionHistoryViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             chain: chain,
-            asset: asset
+            asset: asset,
+            localizationManager: LocalizationManager.shared
         )
 
         let view = WalletTransactionHistoryViewController(

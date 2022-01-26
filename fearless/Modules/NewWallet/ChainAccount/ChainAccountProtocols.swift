@@ -11,7 +11,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapSendButton()
     func didTapReceiveButton()
     func didTapBuyButton()
-    
+
     func didTapInfoButton()
 }
 
@@ -52,8 +52,10 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         action: PurchaseAction
     )
-    
-    func presentLockedInfo(from view: ControllerBackedProtocol?,
-                           balanceContext: BalanceContext,
-                           info: AssetBalanceDisplayInfo)
+
+    func presentLockedInfo(
+        from view: ControllerBackedProtocol?,
+        balanceContext: BalanceContext,
+        info: AssetBalanceDisplayInfo
+    )
 }

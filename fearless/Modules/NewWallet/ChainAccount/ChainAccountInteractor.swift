@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import FearlessUtils
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
@@ -12,6 +13,8 @@ final class ChainAccountInteractor {
     private let operationManager: OperationManagerProtocol
     let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let storageRequestFactory: StorageRequestFactoryProtocol
+    let connection: JSONRPCEngine
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -19,7 +22,11 @@ final class ChainAccountInteractor {
         asset: AssetModel,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        storageRequestFactory: StorageRequestFactoryProtocol,
+        connection: JSONRPCEngine,
+        operationManager: OperationManagerProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -27,6 +34,10 @@ final class ChainAccountInteractor {
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
         self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.connection = connection
+        self.storageRequestFactory = storageRequestFactory
+        self.runtimeService = runtimeService
+        self.operationManager = operationManager
     }
 
     private func subscribeToAccountInfo() {
@@ -39,6 +50,29 @@ final class ChainAccountInteractor {
             )
         }
     }
+
+    private func createBalanceLocksFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<BalanceLocks?> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<BalanceLocks>]> = storageRequestFactory.queryItems(
+            engine: connection,
+            keyParams: { [accountId] },
+            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+            storagePath: .balanceLocks
+        )
+
+        let mapOperation = ClosureOperation<BalanceLocks?> {
+            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let dependencies = [coderFactoryOperation] + wrapper.allOperations
+
+        dependencies.forEach { mapOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
 }
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
@@ -48,6 +82,24 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
 
         if let priceId = asset.priceId {
             _ = subscribeToPrice(for: priceId)
+        }
+
+        if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+            let balanceLocksOperation = createBalanceLocksFetchOperation(accountId)
+            balanceLocksOperation.targetOperation.completionBlock = { [weak presenter] in
+                DispatchQueue.main.async {
+                    do {
+                        let balanceLocks = try balanceLocksOperation.targetOperation.extractNoCancellableResultData()
+                        print("Received balance locks: ", balanceLocks)
+                    } catch {
+                        print("Failed to fetch balance locks: ", error)
+                    }
+                }
+            }
+            operationManager.enqueue(
+                operations: balanceLocksOperation.allOperations,
+                in: .transient
+            )
         }
     }
 }

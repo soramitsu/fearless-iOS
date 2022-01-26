@@ -22,8 +22,29 @@ struct BalanceLock: Codable, Equatable {
     }
 }
 
-enum LockReason: UInt8, Codable {
-    case fee
-    case misc
-    case all
+enum LockReason: String, Codable {
+    case fee = "Fee"
+    case misc = "Misc"
+    case all = "All"
+
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+
+        let rawValue = try container.decode(
+            String.self)
+
+        switch rawValue {
+        case Self.fee.rawValue:
+            self = .fee
+        case Self.misc.rawValue:
+            self = .misc
+        case Self.all.rawValue:
+            self = .all
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unexpected type"
+            )
+        }
+    }
 }

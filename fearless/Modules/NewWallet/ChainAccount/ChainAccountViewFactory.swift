@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 struct ChainAccountViewFactory {
     static func createView(
@@ -7,8 +8,23 @@ struct ChainAccountViewFactory {
         asset: AssetModel,
         selectedMetaAccount: MetaAccountModel
     ) -> ChainAccountViewProtocol? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
+
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
         )
 
         let interactor = ChainAccountInteractor(
@@ -17,7 +33,11 @@ struct ChainAccountViewFactory {
             asset: asset,
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            storageRequestFactory: storageRequestFactory,
+            connection: connection,
+            operationManager: operationManager,
+            runtimeService: runtimeService
         )
         let wireframe = ChainAccountWireframe()
 

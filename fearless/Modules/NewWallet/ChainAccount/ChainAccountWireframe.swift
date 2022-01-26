@@ -79,12 +79,16 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         })
     }
 
-    func presentLockedInfo(from view: ControllerBackedProtocol?,
-                           balanceContext: BalanceContext,
-                           info: AssetBalanceDisplayInfo) {
-        ModalInfoFactory.createFromBalanceContext(balanceContext,
-                                                  amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info),
-                                                  priceFormatter: AssetBalanceFormatterFactory().createTokenFormatter(for: info),
-                                                  precision: info.assetPrecision)
+    func presentLockedInfo(
+        from _: ControllerBackedProtocol?,
+        balanceContext: BalanceContext,
+        info: AssetBalanceDisplayInfo
+    ) {
+        ModalInfoFactory.createFromBalanceContext(
+            balanceContext,
+            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info),
+            priceFormatter: AssetBalanceFormatterFactory().createTokenFormatter(for: info),
+            precision: info.assetPrecision
+        )
     }
 }
