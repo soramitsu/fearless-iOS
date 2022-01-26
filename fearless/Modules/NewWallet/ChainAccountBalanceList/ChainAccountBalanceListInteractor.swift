@@ -4,7 +4,7 @@ import IrohaCrypto
 import SoraFoundation
 
 final class ChainAccountBalanceListInteractor {
-    weak var presenter: ChainAccountBalanceListInteractorOutputProtocol!
+    weak var presenter: ChainAccountBalanceListInteractorOutputProtocol?
 
     let selectedMetaAccount: MetaAccountModel
     let repository: AnyDataProviderRepository<ChainModel>
@@ -47,13 +47,13 @@ final class ChainAccountBalanceListInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            presenter.didReceiveChains(result: .success(chains))
+            presenter?.didReceiveChains(result: .success(chains))
             subscribeToAccountInfo(for: chains)
             subscribeToPrice(for: chains)
         case let .failure(error):
-            presenter.didReceiveChains(result: .failure(error))
+            presenter?.didReceiveChains(result: .failure(error))
         case .none:
-            presenter.didReceiveChains(result: .failure(BaseOperationError.parentOperationCancelled))
+            presenter?.didReceiveChains(result: .failure(BaseOperationError.parentOperationCancelled))
         }
     }
 
@@ -82,7 +82,7 @@ final class ChainAccountBalanceListInteractor {
                 let dataProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
                 providers.append(dataProvider)
             } else {
-                presenter.didReceiveAccountInfo(
+                presenter?.didReceiveAccountInfo(
                     result: .failure(ChainAccountFetchingError.accountNotExists),
                     for: chain.chainId
                 )
@@ -95,7 +95,7 @@ final class ChainAccountBalanceListInteractor {
 
 extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        presenter.didReceivePriceData(result: result, for: priceId)
+        presenter?.didReceivePriceData(result: result, for: priceId)
     }
 }
 
@@ -105,7 +105,7 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
 
         fetchChainsAndSubscribeBalance()
 
-        presenter.didReceiveSelectedAccount(selectedMetaAccount)
+        presenter?.didReceiveSelectedAccount(selectedMetaAccount)
     }
 
     func refresh() {
@@ -131,7 +131,7 @@ extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, Walle
         accountId _: AccountId,
         chainId: ChainModel.Id
     ) {
-        presenter.didReceiveAccountInfo(result: result, for: chainId)
+        presenter?.didReceiveAccountInfo(result: result, for: chainId)
     }
 }
 

@@ -69,7 +69,17 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 
         setupLocalization()
 
-        rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
+        rootView.closeButton.addTarget(
+            self,
+            action: #selector(closeButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.filterButton.addTarget(
+            self,
+            action: #selector(filtersButtonClicked),
+            for: .touchUpInside
+        )
 
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
@@ -148,7 +158,9 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
         }
     }
 
-    @objc private func filterButtonClicked() {}
+    @objc private func filtersButtonClicked() {
+        presenter.didTapFiltersButton()
+    }
 }
 
 extension WalletTransactionHistoryViewController: WalletTransactionHistoryViewProtocol {
@@ -533,7 +545,7 @@ extension WalletTransactionHistoryViewController: Draggable {
                     image: R.image.iconClose(),
                     style: .plain,
                     target: self,
-                    action: #selector(filterButtonClicked)
+                    action: #selector(filtersButtonClicked)
                 )
                 navigationItem.setRightBarButton(filterItem, animated: true)
             }

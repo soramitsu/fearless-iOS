@@ -39,6 +39,10 @@ final class AccountManagementPresenter {
 }
 
 extension AccountManagementPresenter: AccountManagementPresenterProtocol {
+    func didTapCloseButton() {
+        wireframe.complete(from: view)
+    }
+
     func setup() {
         interactor.setup()
     }

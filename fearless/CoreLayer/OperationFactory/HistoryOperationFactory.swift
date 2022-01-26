@@ -35,7 +35,6 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         let filter = WalletHistoryFilter(string: request.filter)
-
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
@@ -130,7 +129,6 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         let filter = WalletHistoryFilter(string: request.filter)
-
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
@@ -324,7 +322,6 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
             let remoteData = try remoteOperation.extractNoCancellableResultData()
 
-            remoteData.historyElements.pageInfo.startCursor
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
                 context: remoteData.historyElements.pageInfo.toContext()

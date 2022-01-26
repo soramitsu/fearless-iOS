@@ -43,6 +43,16 @@ final class AccountManagementViewController: UIViewController {
         rightBarButtonItem.setTitleTextAttributes(attributes, for: .highlighted)
 
         navigationItem.rightBarButtonItem = rightBarButtonItem
+
+        if navigationController?.presentingViewController != nil {
+            let leftBarButton = UIBarButtonItem(image: R.image.iconClose(), style: .plain, target: self, action: #selector(closeButtonClicked))
+            leftBarButton.tintColor = .white
+            navigationItem.leftBarButtonItem = leftBarButton
+        }
+    }
+
+    @objc private func closeButtonClicked() {
+        presenter.didTapCloseButton()
     }
 
     private func setupLocalization() {
