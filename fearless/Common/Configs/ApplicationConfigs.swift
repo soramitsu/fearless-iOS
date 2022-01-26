@@ -104,17 +104,17 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/2.0/chains/chains_dev.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/chains/chains.json")!
     }
 
     var assetListURL: URL {
         URL(string:
-            "https://raw.githubusercontent.com/soramitsu/fearless-utils/2.0/chains/assets.json")!
+            "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/chains/assets.json")!
     }
 
     var commonTypesURL: URL {
         // swiftlint:disable:next line_length
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/2.0/scalecodec/type_registry/default.json")!
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/type_registry/default.json")!
     }
 
     var learnPayoutURL: URL {
