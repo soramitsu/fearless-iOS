@@ -14,7 +14,7 @@ protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
 protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
     func setup()
     func loadNext() -> Bool
-    func applyFilters(_ filters: [WalletTransactionHistoryFilter])
+    func applyFilters(_ filters: [FilterSet])
 }
 
 protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
@@ -23,7 +23,7 @@ protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
         reload: Bool
     )
 
-    func didReceive(filters: [WalletTransactionHistoryFilter])
+    func didReceive(filters: [FilterSet])
 }
 
 protocol WalletTransactionHistoryWireframeProtocol: AnyObject, FiltersPresentable {

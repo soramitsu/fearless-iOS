@@ -1,7 +1,7 @@
 import Foundation
 
 class SwitchFilterItem: BaseFilterItem {
-    var selected: Bool = false
+    var selected: Bool = true
 
     init(
         id: String,
@@ -14,5 +14,9 @@ class SwitchFilterItem: BaseFilterItem {
             id: id,
             title: title
         )
+    }
+
+    override func reset() {
+        selected = true
     }
 }

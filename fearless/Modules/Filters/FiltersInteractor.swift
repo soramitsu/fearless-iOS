@@ -3,23 +3,31 @@ import UIKit
 final class FiltersInteractor {
     weak var presenter: FiltersInteractorOutputProtocol?
 
-    private var filterItems: [BaseFilterItem]
+    private var filters: [FilterSet]
 
-    init(filterItems: [BaseFilterItem]) {
-        self.filterItems = filterItems
+    init(filters: [FilterSet]) {
+        self.filters = filters
     }
 }
 
 extension FiltersInteractor: FiltersInteractorInputProtocol {
     func setup() {
-        presenter?.didReceive(filterItems: filterItems)
+        presenter?.didReceive(filters: filters)
     }
 
     func resetFilters() {
-        filterItems.forEach { $0.reset() }
+        filters.map(\.items).reduce([], +).forEach { $0.reset() }
+
+        presenter?.didReceive(filters: filters)
     }
 
     func applyFilters() {
-        presenter?.didFinishWithFilters(filters: filterItems)
+        presenter?.didFinishWithFilters(filters: filters)
+    }
+
+    func switchFilterState(id: String, selected: Bool) {
+        if let switchFilter = filters.map(\.items).reduce([], +).first(where: { $0.id == id }) as? SwitchFilterItem {
+            switchFilter.selected = selected
+        }
     }
 }

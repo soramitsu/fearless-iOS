@@ -1773,6 +1773,9 @@
 		FA2E9BB727A13E890023FAD2 /* FiltersViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BB627A13E890023FAD2 /* FiltersViewState.swift */; };
 		FA2E9BB927A14A600023FAD2 /* FiltersPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BB827A14A600023FAD2 /* FiltersPresentable.swift */; };
 		FA2E9BBB27A14BB00023FAD2 /* WalletTransactionHistoryFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BBA27A14BB00023FAD2 /* WalletTransactionHistoryFilters.swift */; };
+		FA2E9BBD27A293DA0023FAD2 /* FilterSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BBC27A293DA0023FAD2 /* FilterSet.swift */; };
+		FA2E9BBF27A297CE0023FAD2 /* FilterSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BBE27A297CE0023FAD2 /* FilterSectionViewModel.swift */; };
+		FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BC027A2A1000023FAD2 /* FilterSectionHeaderView.swift */; };
 		FA38C9672758764B005C5577 /* VerticalContentButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9662758764B005C5577 /* VerticalContentButton.swift */; };
 		FA38C9692758881B005C5577 /* AccountBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C9682758881B005C5577 /* AccountBalanceView.swift */; };
 		FA38C96C275893F8005C5577 /* AccountBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA38C96B275893F8005C5577 /* AccountBalanceViewModel.swift */; };
@@ -3658,6 +3661,9 @@
 		FA2E9BB627A13E890023FAD2 /* FiltersViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewState.swift; sourceTree = "<group>"; };
 		FA2E9BB827A14A600023FAD2 /* FiltersPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersPresentable.swift; sourceTree = "<group>"; };
 		FA2E9BBA27A14BB00023FAD2 /* WalletTransactionHistoryFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryFilters.swift; sourceTree = "<group>"; };
+		FA2E9BBC27A293DA0023FAD2 /* FilterSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSet.swift; sourceTree = "<group>"; };
+		FA2E9BBE27A297CE0023FAD2 /* FilterSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSectionViewModel.swift; sourceTree = "<group>"; };
+		FA2E9BC027A2A1000023FAD2 /* FilterSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSectionHeaderView.swift; sourceTree = "<group>"; };
 		FA38C9662758764B005C5577 /* VerticalContentButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalContentButton.swift; sourceTree = "<group>"; };
 		FA38C9682758881B005C5577 /* AccountBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBalanceView.swift; sourceTree = "<group>"; };
 		FA38C96B275893F8005C5577 /* AccountBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBalanceViewModel.swift; sourceTree = "<group>"; };
@@ -9044,6 +9050,7 @@
 				FA2E9BAD27A116DA0023FAD2 /* SwitchFilterTableCellViewModel.swift */,
 				FA2E9BB127A11E310023FAD2 /* FilterCellViewModel.swift */,
 				FA2E9BB627A13E890023FAD2 /* FiltersViewState.swift */,
+				FA2E9BBE27A297CE0023FAD2 /* FilterSectionViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -9052,6 +9059,7 @@
 			isa = PBXGroup;
 			children = (
 				FA2E9BAB27A1135F0023FAD2 /* SwitchFilterTableCell.swift */,
+				FA2E9BC027A2A1000023FAD2 /* FilterSectionHeaderView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -9061,6 +9069,7 @@
 			children = (
 				FA2E9BA627A110D90023FAD2 /* BaseFilterItem.swift */,
 				FA2E9BB427A133A20023FAD2 /* SwitchFilterItem.swift */,
+				FA2E9BBC27A293DA0023FAD2 /* FilterSet.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -10273,6 +10282,7 @@
 				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
 				847C963D255351BB002D288F /* ScrollableContainerView.swift in Sources */,
 				8463A71A25E3116A003B8160 /* BalanceViewModel.swift in Sources */,
+				FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */,
 				8425EA9A25EA83FA00C307C9 /* ChainData+Value.swift in Sources */,
 				AEA2C1BA2681E9C50069492E /* ValidatorSearchInteractor.swift in Sources */,
 				84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */,
@@ -10506,6 +10516,7 @@
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
+				FA2E9BBD27A293DA0023FAD2 /* FilterSet.swift in Sources */,
 				849ECD3926DF792800F542A3 /* SkeletonRow+View.swift in Sources */,
 				AE1000F426679946004753B7 /* InitiatedBondingRecommendationWireframe.swift in Sources */,
 				84113B6C255B2835009BD21A /* AccountCreateError.swift in Sources */,
@@ -11313,6 +11324,7 @@
 				2FCB062A2D873BD72B795DB3 /* AssetSelectionPresenter.swift in Sources */,
 				BEA539EE97A287868FD8BE46 /* AssetSelectionViewFactory.swift in Sources */,
 				4BCDFD31075514EA99E56B5F /* ChainAccountBalanceListProtocols.swift in Sources */,
+				FA2E9BBF27A297CE0023FAD2 /* FilterSectionViewModel.swift in Sources */,
 				D931E542B4202C4716409C6A /* ChainAccountBalanceListWireframe.swift in Sources */,
 				1D717408356A36DD0F94D7A1 /* ChainAccountBalanceListPresenter.swift in Sources */,
 				67C724166D0BC22BE1638287 /* ChainAccountBalanceListInteractor.swift in Sources */,

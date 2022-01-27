@@ -43,14 +43,13 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
 
         let source: AnySingleValueProviderSource<AssetTransactionPageData> =
             AnySingleValueProviderSource {
-                var filter = WalletHistoryRequest()
-                filter.assets = [asset.identifier]
+                var filters: [WalletTransactionHistoryFilter] = WalletTransactionHistoryFilter.defaultFilters()
                 let operation = self.operationFactory
                     .fetchSubqueryHistoryOperation(
                         asset: asset,
                         chain: chain,
                         address: address,
-                        request: filter,
+                        filters: filters,
                         pagination: pagination
                     )
                 return operation

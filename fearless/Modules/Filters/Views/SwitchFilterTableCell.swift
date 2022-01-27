@@ -1,6 +1,12 @@
 import UIKit
 
+protocol SwitchFilterTableCellDelegate: AnyObject {
+    func switcherValueChanged(isOn: Bool)
+}
+
 class SwitchFilterTableCell: UITableViewCell {
+    weak var delegate: SwitchFilterTableCellDelegate?
+
     let filterTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -19,6 +25,12 @@ class SwitchFilterTableCell: UITableViewCell {
 
         configure()
         setupLayout()
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        delegate = nil
     }
 
     @available(*, unavailable)
@@ -56,7 +68,15 @@ class SwitchFilterTableCell: UITableViewCell {
     }
 
     func bind(to viewModel: SwitchFilterTableCellViewModel) {
+        delegate = viewModel
+
         filterTitleLabel.text = viewModel.title
         filterValueSwitch.isOn = viewModel.enabled
+
+        filterValueSwitch.addTarget(self, action: #selector(switcherValueChanged(sender:)), for: .valueChanged)
+    }
+
+    @objc func switcherValueChanged(sender: UISwitch) {
+        delegate?.switcherValueChanged(isOn: sender.isOn)
     }
 }

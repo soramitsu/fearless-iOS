@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 final class FiltersPresenter {
     weak var view: FiltersViewProtocol?
@@ -11,18 +12,22 @@ final class FiltersPresenter {
         interactor: FiltersInteractorInputProtocol,
         wireframe: FiltersWireframeProtocol,
         viewModelFactory: FiltersViewModelFactoryProtocol,
-        moduleOutput: FiltersModuleOutput?
+        moduleOutput: FiltersModuleOutput?,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.moduleOutput = moduleOutput
+        self.localizationManager = localizationManager
     }
 }
 
 extension FiltersPresenter: FiltersPresenterProtocol {
     func setup() {
         interactor.setup()
+
+        view?.didReceive(locale: selectedLocale)
     }
 
     func didTapApplyButton() {
@@ -33,15 +38,31 @@ extension FiltersPresenter: FiltersPresenterProtocol {
     func didTapResetButton() {
         interactor.resetFilters()
     }
+
+    func didTapCloseButton() {
+        wireframe.close(view: view)
+    }
 }
 
 extension FiltersPresenter: FiltersInteractorOutputProtocol {
-    func didReceive(filterItems: [BaseFilterItem]) {
-        let viewModel = viewModelFactory.buildViewModel(from: filterItems)
+    func didReceive(filters: [FilterSet]) {
+        let viewModel = viewModelFactory.buildViewModel(from: filters, delegate: self)
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
 
-    func didFinishWithFilters(filters: [BaseFilterItem]) {
+    func didFinishWithFilters(filters: [FilterSet]) {
         moduleOutput?.didFinishWithFilters(filters: filters)
+    }
+}
+
+extension FiltersPresenter: SwitchFilterTableCellViewModelDelegate {
+    func filterStateChanged(filterId: String, selected: Bool) {
+        interactor.switchFilterState(id: filterId, selected: selected)
+    }
+}
+
+extension FiltersPresenter: Localizable {
+    func applyLocalization() {
+        view?.didReceive(locale: selectedLocale)
     }
 }

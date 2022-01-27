@@ -12,7 +12,7 @@ final class WalletTransactionHistoryInteractor {
     let asset: AssetModel
     let selectedAccount: MetaAccountModel
     private(set) var selectedFilter: WalletHistoryRequest
-    var filters: [WalletTransactionHistoryFilter]
+    var filters: [FilterSet]
     let transactionsPerPage: Int
 
     private(set) var dataLoadingState: WalletTransactionHistoryDataState = .waitingCached
@@ -29,7 +29,7 @@ final class WalletTransactionHistoryInteractor {
         defaultFilter: WalletHistoryRequest,
         selectedFilter: WalletHistoryRequest,
         transactionsPerPage: Int = 100,
-        filters: [WalletTransactionHistoryFilter]
+        filters: [FilterSet]
     ) {
         self.chain = chain
         self.asset = asset
@@ -48,11 +48,13 @@ final class WalletTransactionHistoryInteractor {
             return
         }
 
+        let filterValues: [WalletTransactionHistoryFilter] = filters.compactMap { $0.items as? [WalletTransactionHistoryFilter] }.reduce([], +)
+
         historyService.fetchTransactionHistory(
             for: address,
             asset: asset,
             chain: chain,
-            filter: selectedFilter,
+            filters: filterValues,
             pagination: pagination,
             runCompletionIn: .main
         ) { [weak self] optionalResult in
@@ -301,20 +303,16 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         }
     }
 
-    func applyFilters(_: [WalletTransactionHistoryFilter]) {
-//        let selectedIds: [String] = filters.filter { $0.selected }.compactMap { filter in
-//            filter.id
-//        }
-//        let filterString = selectedIds.joined(separator: ",")
-//        selectedFilter.filter = filterString
-//
-//        dataProvider?.removeObserver(self)
-//
-//        let pagination = Pagination(count: transactionsPerPage)
-//        dataLoadingState = .filtering(page: pagination, previousPage: nil)
-//        loadTransactions(for: pagination)
-//
-//        presenter?.didReceive(filters: filters)
+    func applyFilters(_ filters: [FilterSet]) {
+        self.filters = filters
+
+        dataProvider?.removeObserver(self)
+
+        let pagination = Pagination(count: transactionsPerPage)
+        dataLoadingState = .filtering(page: pagination, previousPage: nil)
+        loadTransactions(for: pagination)
+
+        presenter?.didReceive(filters: filters)
 
 //        presenter?.didReceive(
 //            pageData: transactionData,

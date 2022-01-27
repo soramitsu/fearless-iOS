@@ -55,9 +55,12 @@ struct WalletTransactionHistoryViewFactory {
         return view
     }
 
-    static func transactionHistoryFilters() -> [WalletTransactionHistoryFilter] {
-        [WalletTransactionHistoryFilter(type: .transfer, selected: true),
-         WalletTransactionHistoryFilter(type: .reward, selected: true),
-         WalletTransactionHistoryFilter(type: .other, selected: true)]
+    static func transactionHistoryFilters() -> [FilterSet] {
+        [FilterSet(
+            title: R.string.localizable.walletFiltersHeader(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages),
+            items: [WalletTransactionHistoryFilter(type: .transfer, selected: true),
+                    WalletTransactionHistoryFilter(type: .reward, selected: true),
+                    WalletTransactionHistoryFilter(type: .other, selected: true)]
+        )]
     }
 }

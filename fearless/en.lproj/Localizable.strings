@@ -583,3 +583,4 @@ This is the hash of your transaction:";
 "about.instagram" = "Like on Instagram";
 "switch.node" = "Switch node";
 "wallet.transaction.detail.copy.id" = "Copy ID";
+"wallet.transaction.history.filter.title" = "Show";

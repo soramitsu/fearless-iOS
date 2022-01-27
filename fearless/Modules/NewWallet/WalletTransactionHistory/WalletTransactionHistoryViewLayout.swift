@@ -26,7 +26,6 @@ final class WalletTransactionHistoryViewLayout: UIView {
     let filterButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(R.image.iconFilter(), for: .normal)
-        button.isHidden = true
         return button
     }()
 

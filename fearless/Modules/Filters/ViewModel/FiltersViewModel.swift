@@ -1,5 +1,5 @@
 import Foundation
 
 struct FiltersViewModel {
-    let cellModels: [FilterCellViewModel]
+    let sections: [FilterSectionViewModel]
 }

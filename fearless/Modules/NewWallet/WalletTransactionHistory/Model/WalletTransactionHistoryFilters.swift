@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 class WalletTransactionHistoryFilter: SwitchFilterItem {
     enum HistoryFilterType: String {
@@ -20,11 +21,11 @@ class WalletTransactionHistoryFilter: SwitchFilterItem {
         var title: String {
             switch self {
             case .transfer:
-                return "Transfers"
+                return R.string.localizable.transferTitle(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages)
             case .reward:
-                return "Rewards"
+                return R.string.localizable.walletFiltersRewardsAndSlashes(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages)
             case .other:
-                return "Other transactions"
+                return R.string.localizable.walletFiltersExtrinsics(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages)
             }
         }
     }
@@ -35,5 +36,11 @@ class WalletTransactionHistoryFilter: SwitchFilterItem {
         self.type = type
 
         super.init(id: type.id, title: type.title, selected: selected)
+    }
+
+    static func defaultFilters() -> [WalletTransactionHistoryFilter] {
+        [WalletTransactionHistoryFilter(type: .transfer, selected: true),
+         WalletTransactionHistoryFilter(type: .reward, selected: true),
+         WalletTransactionHistoryFilter(type: .other, selected: true)]
     }
 }

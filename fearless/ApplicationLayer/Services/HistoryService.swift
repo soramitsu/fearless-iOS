@@ -10,7 +10,7 @@ protocol HistoryServiceProtocol {
         for address: String,
         asset: AssetModel,
         chain: ChainModel,
-        filter: WalletHistoryRequest,
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination,
         runCompletionIn queue: DispatchQueue,
         completionBlock: @escaping TransactionHistoryBlock
@@ -31,7 +31,7 @@ class HistoryService: HistoryServiceProtocol {
         for address: String,
         asset: AssetModel,
         chain: ChainModel,
-        filter: WalletHistoryRequest,
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination,
         runCompletionIn queue: DispatchQueue,
         completionBlock: @escaping TransactionHistoryBlock
@@ -41,7 +41,7 @@ class HistoryService: HistoryServiceProtocol {
             asset: asset,
             chain: chain,
             address: address,
-            request: filter,
+            filters: filters,
             pagination: pagination
         )
 

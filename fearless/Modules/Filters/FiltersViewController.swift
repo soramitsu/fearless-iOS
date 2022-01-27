@@ -33,6 +33,7 @@ final class FiltersViewController: UIViewController, ViewHolder {
 
         rootView.resetButton.addTarget(self, action: #selector(resetButtonClicked), for: .touchUpInside)
         rootView.applyButton.addTarget(self, action: #selector(applyButtonClicked), for: .touchUpInside)
+        rootView.navigationBar.backButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
     }
 
     func applyState() {
@@ -55,15 +56,41 @@ final class FiltersViewController: UIViewController, ViewHolder {
     @objc func applyButtonClicked() {
         presenter.didTapApplyButton()
     }
+
+    @objc func closeButtonClicked() {
+        presenter.didTapCloseButton()
+    }
 }
 
 extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard case let .loaded(viewModel) = state else {
+            return nil
+        }
+
+        let section = viewModel.sections[section]
+
+        let view = FilterSectionHeaderView()
+        view.titleLabel.text = section.title
+        return view
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
         guard case let .loaded(viewModel) = state else {
             return 0
         }
 
-        return viewModel.cellModels.count
+        return 40
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard case let .loaded(viewModel) = state else {
+            return 0
+        }
+
+        let section = viewModel.sections[section]
+
+        return section.items.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -71,7 +98,9 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
 
-        let cellModel = viewModel.cellModels[indexPath.row]
+        let sectionViewModel = viewModel.sections[indexPath.section]
+
+        let cellModel = sectionViewModel.items[indexPath.row]
 
         if let switchingFilterCellModel = cellModel as? SwitchFilterTableCellViewModel,
            let cell = tableView.dequeueReusableCellWithType(SwitchFilterTableCell.self) {
@@ -83,12 +112,22 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func numberOfSections(in _: UITableView) -> Int {
-        1
+        guard case let .loaded(viewModel) = state else {
+            return 0
+        }
+
+        return viewModel.sections.count
     }
 }
 
 extension FiltersViewController: FiltersViewProtocol {
     func didReceive(state: FiltersViewState) {
         self.state = state
+
+        applyState()
+    }
+
+    func didReceive(locale: Locale) {
+        rootView.locale = locale
     }
 }

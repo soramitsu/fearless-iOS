@@ -7,7 +7,7 @@ protocol HistoryOperationFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         address: String,
-        request: WalletHistoryRequest,
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?>
 
@@ -15,7 +15,7 @@ protocol HistoryOperationFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         address: String,
-        request: WalletHistoryRequest,
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?>
 }
@@ -31,14 +31,13 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         address: String,
-        request: WalletHistoryRequest,
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        let filter = WalletHistoryFilter(string: request.filter)
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
-        ).byApplying(filter: filter)
+        ).byApplying(filters: filters)
 
         guard !historyContext.isComplete else {
             let pageData = AssetTransactionPageData(
@@ -56,7 +55,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         if let baseUrl = chain.externalApi?.history?.url {
             let remoteHistoryFactory = SubqueryHistoryOperationFactory(
                 url: baseUrl,
-                filter: filter
+                filters: filters
             )
 
             remoteHistoryOperation = remoteHistoryFactory.createOperation(
@@ -125,14 +124,13 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         address: String,
-        request: WalletHistoryRequest,
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        let filter = WalletHistoryFilter(string: request.filter)
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
-        ).byApplying(filter: filter)
+        ).byApplying(filters: filters)
 
         guard !historyContext.isComplete else {
             let pageData = AssetTransactionPageData(

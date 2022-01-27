@@ -10,7 +10,7 @@ final class WalletTransactionHistoryPresenter {
     let chain: ChainModel
     let asset: AssetModel
 
-    private var filters: [WalletTransactionHistoryFilter]?
+    private var filters: [FilterSet]?
     private(set) var viewModels: [WalletTransactionHistorySection] = []
 
     init(
@@ -62,7 +62,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
-    func didReceive(filters: [WalletTransactionHistoryFilter]) {
+    func didReceive(filters: [FilterSet]) {
         self.filters = filters
     }
 
@@ -100,8 +100,8 @@ extension WalletTransactionHistoryPresenter: Localizable {
 }
 
 extension WalletTransactionHistoryPresenter: FiltersModuleOutput {
-    func didFinishWithFilters(filters: [BaseFilterItem]) {
-        guard let filters = filters as? [WalletTransactionHistoryFilter] else {
+    func didFinishWithFilters(filters: [FilterSet]) {
+        guard let filters = filters as? [FilterSet] else {
             return
         }
 

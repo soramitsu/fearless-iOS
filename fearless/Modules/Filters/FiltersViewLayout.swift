@@ -71,7 +71,7 @@ final class FiltersViewLayout: UIView {
 
         applyButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
-            make.width.equalToSuperview().offset(UIConstants.bigOffset * 2)
+            make.width.equalToSuperview().inset(UIConstants.defaultOffset * 2)
             make.centerX.equalToSuperview()
             make.height.equalTo(UIConstants.actionHeight)
         }

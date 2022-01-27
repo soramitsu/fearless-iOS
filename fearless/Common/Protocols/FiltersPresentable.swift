@@ -2,7 +2,7 @@ import Foundation
 
 protocol FiltersPresentable {
     func presentFilters(
-        with filterItems: [BaseFilterItem],
+        with filters: [FilterSet],
         from view: ControllerBackedProtocol?,
         moduleOutput: FiltersModuleOutput?
     )
@@ -10,11 +10,14 @@ protocol FiltersPresentable {
 
 extension FiltersPresentable {
     func presentFilters(
-        with filterItems: [BaseFilterItem],
+        with filters: [FilterSet],
         from view: ControllerBackedProtocol?,
         moduleOutput: FiltersModuleOutput?
     ) {
-        guard let view = view, let filtersViewController = FiltersViewFactory.createView(filterItems: filterItems, moduleOutput: moduleOutput)?.controller else {
+        guard let view = view, let filtersViewController = FiltersViewFactory.createView(
+            filters: filters,
+            moduleOutput: moduleOutput
+        )?.controller else {
             return
         }
 

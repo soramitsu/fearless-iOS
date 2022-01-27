@@ -1,8 +1,9 @@
 import Foundation
+import SoraFoundation
 
 struct FiltersViewFactory {
-    static func createView(filterItems: [BaseFilterItem], moduleOutput: FiltersModuleOutput?) -> FiltersViewProtocol? {
-        let interactor = FiltersInteractor(filterItems: filterItems)
+    static func createView(filters: [FilterSet], moduleOutput: FiltersModuleOutput?) -> FiltersViewProtocol? {
+        let interactor = FiltersInteractor(filters: filters)
         let wireframe = FiltersWireframe()
 
         let viewModelFactory: FiltersViewModelFactoryProtocol = FiltersViewModelFactory()
@@ -10,7 +11,8 @@ struct FiltersViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            moduleOutput: moduleOutput
+            moduleOutput: moduleOutput,
+            localizationManager: LocalizationManager.shared
         )
 
         let view = FiltersViewController(presenter: presenter)
