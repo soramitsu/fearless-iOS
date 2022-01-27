@@ -10,6 +10,7 @@ final class WalletTransactionHistoryPresenter {
     let chain: ChainModel
     let asset: AssetModel
 
+    private var filters: [WalletTransactionHistoryFilter]?
     private(set) var viewModels: [WalletTransactionHistorySection] = []
 
     init(
@@ -38,6 +39,14 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
         interactor.loadNext()
     }
 
+    func didTapFiltersButton() {
+        guard let filters = filters else {
+            return
+        }
+
+        wireframe.presentFilters(with: filters, from: view, moduleOutput: self)
+    }
+
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel) {
         guard let selectedAccount = SelectedWalletSettings.shared.value else {
             return
@@ -53,6 +62,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
+    func didReceive(filters: [WalletTransactionHistoryFilter]) {
+        self.filters = filters
+    }
+
     func didReceive(
         pageData: AssetTransactionPageData,
         reload: Bool
@@ -84,4 +97,14 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
 
 extension WalletTransactionHistoryPresenter: Localizable {
     func applyLocalization() {}
+}
+
+extension WalletTransactionHistoryPresenter: FiltersModuleOutput {
+    func didFinishWithFilters(filters: [BaseFilterItem]) {
+        guard let filters = filters as? [WalletTransactionHistoryFilter] else {
+            return
+        }
+
+        interactor.applyFilters(filters)
+    }
 }

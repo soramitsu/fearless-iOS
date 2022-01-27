@@ -21,6 +21,8 @@ protocol AccountManagementPresenterProtocol: AnyObject {
     func moveItem(at startIndex: Int, to finalIndex: Int)
 
     func removeItem(at index: Int)
+
+    func didTapCloseButton()
 }
 
 protocol AccountManagementInteractorInputProtocol: AnyObject {

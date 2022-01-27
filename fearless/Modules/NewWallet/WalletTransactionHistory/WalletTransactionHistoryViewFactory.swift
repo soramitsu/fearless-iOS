@@ -14,7 +14,6 @@ struct WalletTransactionHistoryViewFactory {
         let dataProviderFactory = HistoryDataProviderFactory(cacheFacade: SubstrateDataStorageFacade.shared, operationFactory: operationFactory)
         let service = HistoryService(operationFactory: operationFactory, operationQueue: OperationQueue())
 
-        // TODO: Check filters
         let interactor = WalletTransactionHistoryInteractor(
             chain: chain,
             asset: asset,
@@ -23,7 +22,8 @@ struct WalletTransactionHistoryViewFactory {
             historyService: service,
             logger: Logger.shared,
             defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
-            selectedFilter: WalletHistoryRequest(assets: [asset.identifier])
+            selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
+            filters: transactionHistoryFilters()
         )
         let wireframe = WalletTransactionHistoryWireframe()
 
@@ -53,5 +53,11 @@ struct WalletTransactionHistoryViewFactory {
         interactor.presenter = presenter
 
         return view
+    }
+
+    static func transactionHistoryFilters() -> [WalletTransactionHistoryFilter] {
+        [WalletTransactionHistoryFilter(type: .transfer, selected: true),
+         WalletTransactionHistoryFilter(type: .reward, selected: true),
+         WalletTransactionHistoryFilter(type: .other, selected: true)]
     }
 }

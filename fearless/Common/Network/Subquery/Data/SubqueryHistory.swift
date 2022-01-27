@@ -51,7 +51,7 @@ struct SubqueryRewardOrSlash: Decodable {
     let isReward: Bool
     let era: Int?
     let validator: String?
-    let stash: String
+    let stash: String?
     let eventIdx: Int?
 }
 
