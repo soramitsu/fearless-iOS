@@ -4,6 +4,7 @@ import SoraUI
 final class ChainAccountViewLayout: UIView {
     enum LayoutConstants {
         static let actionsViewHeight: CGFloat = 80
+        static let chainOptionsViewHeight: CGFloat = 20
     }
 
     let backgroundImageView: UIImageView = {
@@ -52,6 +53,10 @@ final class ChainAccountViewLayout: UIView {
         return container
     }()
 
+    let chainOptionsContentView = UIView()
+
+    let chainOptionsView = ChainOptionsView()
+
     let actionsView = TriangularedBlurView()
 
     let assetInfoView = AssetInfoView()
@@ -95,7 +100,15 @@ final class ChainAccountViewLayout: UIView {
             make.leading.top.trailing.equalToSuperview()
         }
 
+        chainOptionsContentView.addSubview(chainOptionsView)
+        chainOptionsView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.trailing.equalToSuperview().offset(UIConstants.minimalOffset)
+            make.height.equalTo(LayoutConstants.chainOptionsViewHeight)
+        }
+
         navigationBar.setCenterViews([assetInfoView])
+        navigationBar.setRightViews([chainOptionsContentView])
 
         addSubview(contentView)
         contentView.snp.makeConstraints { make in

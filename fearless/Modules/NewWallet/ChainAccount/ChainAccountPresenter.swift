@@ -60,12 +60,15 @@ final class ChainAccountPresenter {
             locale: selectedLocale
         )
 
+        let chainOptionsViewModel = viewModelFactory.buildChainOptionsViewModel(chain: chain)
+
         let allAssets = Array(chain.assets)
         let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
 
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             accountBalanceViewModel: accountBalanceViewModel,
             assetInfoViewModel: assetInfoViewModel,
+            chainOptionsViewModel: chainOptionsViewModel,
             chainAssetModel: chainAsset
         )
 

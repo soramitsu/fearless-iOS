@@ -4,6 +4,7 @@ protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         accountBalanceViewModel: AccountBalanceViewModel,
         assetInfoViewModel: AssetInfoViewModel,
+        chainOptionsViewModel: ChainOptionsViewModel,
         chainAssetModel: ChainAssetModel?
     ) -> ChainAccountViewModel
 
@@ -20,6 +21,8 @@ protocol ChainAccountViewModelFactoryProtocol {
         priceData: PriceData?,
         locale: Locale
     ) -> AssetInfoViewModel
+
+    func buildChainOptionsViewModel(chain: ChainModel) -> ChainOptionsViewModel
 }
 
 class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
@@ -32,11 +35,13 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         accountBalanceViewModel: AccountBalanceViewModel,
         assetInfoViewModel: AssetInfoViewModel,
+        chainOptionsViewModel: ChainOptionsViewModel,
         chainAssetModel: ChainAssetModel?
     ) -> ChainAccountViewModel {
         ChainAccountViewModel(
             accountBalanceViewModel: accountBalanceViewModel,
             assetInfoViewModel: assetInfoViewModel,
+            chainOptionsViewModel: chainOptionsViewModel,
             chainAsset: chainAssetModel
         )
     }
@@ -94,6 +99,13 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
                 priceData: priceData,
                 locale: locale
             )
+        )
+    }
+
+    func buildChainOptionsViewModel(chain: ChainModel) -> ChainOptionsViewModel {
+        ChainOptionsViewModel(
+            text: chain.name,
+            icon: chain.icon.map { RemoteImageViewModel(url: $0) }
         )
     }
 }
