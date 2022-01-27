@@ -341,7 +341,7 @@ Derivation path: %@";
 "staking.your.not.allocated.description" = "Others, who are active without your stake allocation.";
 "staking.your.inactive.description" = "Validators who were not elected in this era.";
 "tabbar.crowdloan.title" = "Crowdloans";
-"crowdloan.list.section.format" = "Select a Crowdloan Campaigh that you wish to contribute to. You will receive rewards if the campaign wins a parachain slot at the auction.";
+"crowdloan.list.section.format" = "Select a Crowdloan Campaign that you wish to contribute to. You will receive rewards if the campaign wins a parachain slot at the auction.";
 "crowdloan.you.contributions.title" = "Your contributions";
 "crowdloan.progress.format" = "Raised: %@ of %@";
 "crowdloan.active.section.format" = "Active (%@)";

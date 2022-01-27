@@ -36,6 +36,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
             )
 
         let view = AccountManagementViewController(nib: R.nib.accountManagementViewController)
+        view.localizationManager = LocalizationManager.shared
 
         let iconGenerator = PolkadotIconGenerator()
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: iconGenerator)

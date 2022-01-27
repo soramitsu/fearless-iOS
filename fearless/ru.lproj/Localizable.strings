@@ -579,7 +579,6 @@
 "profile.wallets.title" = "Кошельки";
 "settings.add.wallet" = "Добавить кошелёк";
 "onboarding.create.wallet" = "Создать кошелёк";
-"onboarding.restore.wallet" = "У меня уже есть кошелек";
 "import.wallet" = "Импорт кошелька";
 "about.crowdloans" = "Узнайте больше о Crowdloans";
 "wallet.asset.your.balance" = "Ваш баланс";
@@ -589,3 +588,4 @@
 "switch.node" = "Выбрать ноду";
 "wallet.transaction.detail.copy.id" = "Копировать идентификатор";
 "wallet.transaction.history.filter.title" = "Показать";
+"onboarding.restore.wallet" = "Восстановить кошелёк";
