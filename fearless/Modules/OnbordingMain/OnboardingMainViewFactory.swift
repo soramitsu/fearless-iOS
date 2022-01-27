@@ -44,7 +44,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
 
         let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
         view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-        view.locale = locale
+        view.localizationManager = LocalizationManager.shared
 
         let presenter = OnboardingMainPresenter(legalData: legalData, locale: locale)
 

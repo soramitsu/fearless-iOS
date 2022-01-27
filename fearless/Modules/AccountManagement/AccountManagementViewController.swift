@@ -180,6 +180,12 @@ extension AccountManagementViewController: UITableViewDelegate {
     ) {
         presenter.removeItem(at: indexPath.row)
     }
+
+    func tableView(_: UITableView, titleForDeleteConfirmationButtonForRowAt _: IndexPath) -> String? {
+        R.string.localizable.connectionDeleteConfirm(
+            preferredLanguages: localizationManager?.selectedLocale.rLanguages
+        )
+    }
 }
 
 extension AccountManagementViewController: AccountManagementViewProtocol {

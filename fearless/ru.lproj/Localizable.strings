@@ -579,7 +579,7 @@
 "profile.wallets.title" = "Кошельки";
 "settings.add.wallet" = "Добавить кошелёк";
 "onboarding.create.wallet" = "Создать кошелёк";
-"onboarding.restore.wallet" = "";
+"onboarding.restore.wallet" = "Восстановить кошелёк";
 "import.wallet" = "";
 "about.crowdloans" = "";
 "wallet.asset.your.balance" = "";
