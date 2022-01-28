@@ -42,8 +42,8 @@ final class SearchPeoplePresenter {
 
             let viewModel = viewModelFactory.buildSearchPeopleViewModel(results: searchData)
             view?.didReceive(state: .loaded(viewModel))
-        case .failure:
-            view?.didReceive(state: .error)
+        case let .failure(error):
+            view?.didReceive(state: .error(error))
         case .none:
             view?.didReceive(state: .empty)
         }

@@ -3,5 +3,5 @@ import Foundation
 enum SearchPeopleViewState {
     case empty
     case loaded(SearchPeopleViewModel)
-    case error
+    case error(Error)
 }

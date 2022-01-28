@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class SearchPeopleViewController: UIViewController, ViewHolder {
     typealias RootViewType = SearchPeopleViewLayout
@@ -7,6 +8,7 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
     let presenter: SearchPeoplePresenterProtocol
 
     private var state: SearchPeopleViewState = .empty
+    private var locale = Locale.current
 
     private lazy var searchActivityIndicatory: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .white)
@@ -59,8 +61,10 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
             rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
         case .error:
-            break
+            rootView.tableView.isHidden = true
         }
+
+        reloadEmptyState(animated: false)
     }
 
     @objc private func backButtonClicked() {
@@ -83,6 +87,7 @@ extension SearchPeopleViewController: SearchPeopleViewProtocol {
     }
 
     func didReceive(locale: Locale) {
+        self.locale = locale
         rootView.locale = locale
     }
 }
@@ -164,3 +169,62 @@ extension SearchPeopleViewController: UITextFieldDelegate {
 }
 
 extension SearchPeopleViewController: HiddableBarWhenPushed {}
+
+extension SearchPeopleViewController: LoadableViewProtocol {
+    var loadableContentView: UIView! { rootView.statusView }
+}
+
+extension SearchPeopleViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+    var contentViewForEmptyState: UIView { rootView.statusView }
+}
+
+extension SearchPeopleViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        switch state {
+        case let .error(error):
+            var errorMessage: String
+            if let searchError = error as? SearchServiceError,
+               case let SearchServiceError.addressInvalid = searchError {
+                errorMessage = R.string.localizable.walletSearchEmptyTitle_v1100(preferredLanguages: locale.rLanguages)
+            } else {
+                errorMessage = R.string.localizable.commonErrorNetwork(preferredLanguages: locale.rLanguages)
+            }
+
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = errorMessage
+            errorView.delegate = self
+            errorView.locale = locale
+            errorView.retryButton.isHidden = true
+            return errorView
+        case .empty:
+            let emptyView = EmptyStateView()
+            emptyView.image = R.image.iconEmptyHistory()
+            emptyView.title = R.string.localizable
+                .crowdloanEmptyMessage(preferredLanguages: locale.rLanguages)
+            emptyView.titleColor = R.color.colorLightGray()!
+            emptyView.titleFont = .p2Paragraph
+            return emptyView
+        case .loaded:
+            return nil
+        }
+    }
+}
+
+extension SearchPeopleViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        switch state {
+        case .error, .empty:
+            return true
+        case .loaded:
+            return false
+        }
+    }
+}
+
+extension SearchPeopleViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+//        presenter.refresh(shouldReset: true)
+    }
+}
