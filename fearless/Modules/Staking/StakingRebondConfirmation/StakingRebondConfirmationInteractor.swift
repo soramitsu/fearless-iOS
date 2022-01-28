@@ -19,6 +19,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     let keystore: KeystoreProtocol
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
@@ -43,7 +44,8 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         keystore: KeystoreProtocol,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
@@ -57,6 +59,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         self.keystore = keystore
         self.connection = connection
         self.selectedAccount = selectedAccount
+        self.accountRepository = accountRepository
     }
 
     private func handleController(accountItem: ChainAccountResponse) {
@@ -171,11 +174,19 @@ extension StakingRebondConfirmationInteractor: StakingLocalStorageSubscriber, St
 
                 accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
 
-                // TODO: Check this logic
-                if let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) {
-                    handleController(accountItem: accountResponse)
-//                    self?.presenter.didReceiveController(result: result)
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.controller,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    if case let .success(maybeController) = result, let controller = maybeController {
+                        self?.handleController(accountItem: controller)
+                    }
+
+                    self?.presenter.didReceiveController(result: result)
                 }
+
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
                 presenter.didReceiveAccountInfo(result: .success(nil))

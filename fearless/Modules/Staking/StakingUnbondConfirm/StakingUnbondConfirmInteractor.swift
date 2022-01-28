@@ -19,6 +19,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
     let keystore: KeystoreProtocol
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
@@ -45,7 +46,8 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         connection: JSONRPCEngine,
-        keystore: KeystoreProtocol
+        keystore: KeystoreProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
@@ -59,6 +61,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         self.connection = connection
         self.keystore = keystore
         self.selectedAccount = selectedAccount
+        self.accountRepository = accountRepository
     }
 
     private func handleController(accountItem: ChainAccountResponse) {
@@ -239,9 +242,15 @@ extension StakingUnbondConfirmInteractor: StakingLocalStorageSubscriber, Staking
 
                 nominationProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
 
-                if let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) {
-                    handleController(accountItem: accountResponse)
-//                    self?.presenter.didReceiveController(result: result)
+                fetchChainAccount(chain: chain, address: stashItem.controller, from: accountRepository, operationManager: operationManager) { [weak self] result in
+                    guard let self = self else {
+                        return
+                    }
+                    if case let .success(account) = result, let account = account {
+                        self.handleController(accountItem: account)
+                    }
+
+                    self.presenter.didReceiveController(result: result)
                 }
 
             } else {

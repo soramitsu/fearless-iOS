@@ -108,6 +108,16 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let feeProxy = ExtrinsicFeeProxy()
 
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
         return StakingRebondSetupInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
@@ -119,7 +129,8 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             asset: asset,
             selectedAccount: selectedAccount,
             connection: connection,
-            extrinsicService: extrinsicService
+            extrinsicService: extrinsicService,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

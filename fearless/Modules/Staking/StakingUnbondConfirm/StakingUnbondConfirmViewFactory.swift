@@ -113,6 +113,16 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
 
         let feeProxy = ExtrinsicFeeProxy()
 
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
         return StakingUnbondConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
@@ -125,7 +135,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             runtimeService: runtimeService,
             operationManager: operationManager,
             connection: connection,
-            keystore: Keychain()
+            keystore: Keychain(),
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

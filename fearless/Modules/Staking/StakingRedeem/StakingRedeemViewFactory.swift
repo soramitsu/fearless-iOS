@@ -118,6 +118,16 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             storageRequestFactory: storageOperationFactory
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
         return StakingRedeemInteractor(
             walletLocalSubscriptionHandler: walletLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -131,7 +141,8 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             runtimeService: runtimeService,
             engine: connection,
             operationManager: operationManager,
-            keystore: Keychain()
+            keystore: Keychain(),
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

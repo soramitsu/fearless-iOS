@@ -113,7 +113,13 @@ struct ControllerAccountConfirmationViewFactory {
             operationManager: operationManager
         )
 
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository()
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         return ControllerAccountConfirmationInteractor(
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,

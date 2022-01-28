@@ -124,11 +124,11 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
 
-//            dataValidatingFactory.has(
-//                controller: controller,
-//                for: stashItem?.controller ?? "",
-//                locale: locale
-//            ),
+            dataValidatingFactory.has(
+                controller: controller,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
 
             dataValidatingFactory.stashIsNotKilledAfterUnbonding(
                 amount: inputAmount,

@@ -172,9 +172,13 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
         let addressFactory = SS58AddressFactory()
 
         if let stashItem = try? result.get(),
-           let accountId = try? addressFactory.accountId(
+           let controllerAccountId = try? addressFactory.accountId(
                fromAddress: stashItem.controller,
                addressPrefix: chain.addressPrefix
+           ),
+           let stashAccountId = try? addressFactory.accountId(
+               fromAddress: stashItem.stash,
+               type: chain.addressPrefix
            ) {
             presenter.didReceiveStashItem(result: .success(stashItem))
 
@@ -182,9 +186,9 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
 
             fetchController(for: stashItem.controller)
 
-            nominatorProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
-            ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
-            rewardDestinationProvider = subscribePayee(for: accountId, chainId: chain.chainId)
+            nominatorProvider = subscribeNomination(for: stashAccountId, chainId: chain.chainId)
+            ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainId: chain.chainId)
+            rewardDestinationProvider = subscribePayee(for: stashAccountId, chainId: chain.chainId)
 
         } else {
             presenter.didReceiveValidators(result: .success(nil))

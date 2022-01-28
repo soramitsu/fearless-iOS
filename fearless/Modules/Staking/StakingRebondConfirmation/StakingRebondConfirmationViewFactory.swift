@@ -121,6 +121,16 @@ struct StakingRebondConfirmationViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
         return StakingRebondConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
@@ -133,7 +143,8 @@ struct StakingRebondConfirmationViewFactory {
             runtimeService: runtimeService,
             operationManager: operationManager,
             keystore: keystore,
-            connection: connection
+            connection: connection,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }
