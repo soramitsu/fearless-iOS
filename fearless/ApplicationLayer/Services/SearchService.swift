@@ -69,22 +69,13 @@ extension SearchService {
         chain: ChainModel,
         filterResults: ((SearchData) -> Bool)? = nil
     ) -> CompoundOperationWrapper<[SearchData]?> {
-        let addressCheckOperation: BaseOperation<Bool> = ClosureOperation {
-            (try? SS58AddressFactory().type(fromAddress: searchString).uint16Value == chain.addressPrefix) == true
-        }
         let fetchOperation = contactsOperation(chain: chain, filterResults: filterResults)
 
         let normalizedSearch = searchString.lowercased()
 
         let filterOperation: BaseOperation<[SearchData]?> = ClosureOperation {
-            let addressValid = try? addressCheckOperation.extractNoCancellableResultData()
-
             let result = try fetchOperation.targetOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            if let addressValid = addressValid, addressValid == false, result?.isEmpty == false {
-                throw SearchServiceError.addressInvalid
-            }
 
             return result?.filter {
                 ($0.firstName.lowercased().range(of: normalizedSearch) != nil) ||
@@ -92,7 +83,7 @@ extension SearchService {
             }
         }
 
-        let dependencies = [addressCheckOperation] + fetchOperation.allOperations
+        let dependencies = fetchOperation.allOperations
         dependencies.forEach { filterOperation.addDependency($0) }
 
         return CompoundOperationWrapper(

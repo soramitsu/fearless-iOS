@@ -51,6 +51,8 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.scanButton.addTarget(self, action: #selector(scanButtonClicked), for: .touchUpInside)
+
+        applyState(state)
     }
 
     private func applyState(_ state: SearchPeopleViewState) {
@@ -183,26 +185,17 @@ extension SearchPeopleViewController: EmptyStateViewOwnerProtocol {
 extension SearchPeopleViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         switch state {
-        case let .error(error):
+        case .empty, .error:
             var errorMessage: String
-            if let searchError = error as? SearchServiceError,
-               case let SearchServiceError.addressInvalid = searchError {
+            if rootView.searchField.text?.isEmpty == false {
                 errorMessage = R.string.localizable.walletSearchEmptyTitle_v1100(preferredLanguages: locale.rLanguages)
             } else {
-                errorMessage = R.string.localizable.commonErrorNetwork(preferredLanguages: locale.rLanguages)
+                errorMessage = R.string.localizable.commonSearchStartTitle(preferredLanguages: locale.rLanguages)
             }
 
-            let errorView = ErrorStateView()
-            errorView.errorDescriptionLabel.text = errorMessage
-            errorView.delegate = self
-            errorView.locale = locale
-            errorView.retryButton.isHidden = true
-            return errorView
-        case .empty:
             let emptyView = EmptyStateView()
             emptyView.image = R.image.iconEmptyHistory()
-            emptyView.title = R.string.localizable
-                .crowdloanEmptyMessage(preferredLanguages: locale.rLanguages)
+            emptyView.title = errorMessage
             emptyView.titleColor = R.color.colorLightGray()!
             emptyView.titleFont = .p2Paragraph
             return emptyView
