@@ -50,6 +50,8 @@ final class SearchPeopleViewLayout: UIView {
 
     let searchBorderView = BorderedContainerView()
 
+    let statusView = UIView()
+
     let contentView = UIView()
 
     let iconView: UIImageView = {
@@ -82,6 +84,13 @@ final class SearchPeopleViewLayout: UIView {
     }
 
     private func setupLayout() {
+        addSubview(statusView)
+        statusView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(safeAreaLayoutGuide).inset(64.0)
+        }
+
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()

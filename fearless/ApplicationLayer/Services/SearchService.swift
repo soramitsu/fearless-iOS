@@ -2,6 +2,10 @@ import CommonWallet
 import RobinHood
 import IrohaCrypto
 
+enum SearchServiceError: Error {
+    case addressInvalid
+}
+
 typealias SearchServiceSearchPeopleResultBlock = (Result<[SearchData]?, Error>) -> Void
 
 protocol SearchServiceProtocol {
