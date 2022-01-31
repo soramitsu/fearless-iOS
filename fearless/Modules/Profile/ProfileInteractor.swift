@@ -48,6 +48,13 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
     }
+
+    func updateWallet(_ wallet: MetaAccountModel) {
+        selectedWalletSettings.save(value: wallet)
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceive(wallet: wallet)
+        }
+    }
 }
 
 extension ProfileInteractor: EventVisitorProtocol {

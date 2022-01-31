@@ -92,4 +92,9 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         let operation = repository.saveOperation({ [] }, { [item.identifier] })
         operationQueue.addOperation(operation)
     }
+
+    func update(item: ManagedMetaAccountModel) {
+        let operation = repository.saveOperation({ [item] }, { [] })
+        operationQueue.addOperation(operation)
+    }
 }

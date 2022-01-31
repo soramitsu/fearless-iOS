@@ -3,7 +3,10 @@ import RobinHood
 import SoraFoundation
 
 final class WalletDetailsViewFactory {
-    static func createView(with selectedWallet: MetaAccountModel) -> WalletDetailsViewProtocol {
+    static func createView(
+        with selectedWallet: MetaAccountModel,
+        completion: @escaping (MetaAccountModel) -> Void
+    ) -> WalletDetailsViewProtocol {
         let chainsRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
@@ -11,7 +14,8 @@ final class WalletDetailsViewFactory {
         let interactor = WalletDetailsInteractor(
             selectedMetaAccount: selectedWallet,
             chainsRepository: AnyDataProviderRepository(chainsRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationManager: OperationManagerFacade.sharedManager,
+            walletDetailsChangeCompletion: completion
         )
 
         let wireframe = WalletDetailsWireframe()

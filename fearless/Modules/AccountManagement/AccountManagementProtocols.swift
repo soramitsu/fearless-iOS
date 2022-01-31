@@ -30,6 +30,7 @@ protocol AccountManagementInteractorInputProtocol: AnyObject {
     func select(item: ManagedMetaAccountModel)
     func save(items: [ManagedMetaAccountModel])
     func remove(item: ManagedMetaAccountModel)
+    func update(item: ManagedMetaAccountModel)
 }
 
 protocol AccountManagementInteractorOutputProtocol: AnyObject {
@@ -39,7 +40,11 @@ protocol AccountManagementInteractorOutputProtocol: AnyObject {
 }
 
 protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func showAccountDetails(from view: AccountManagementViewProtocol?, metaAccount: MetaAccountModel)
+    func showAccountDetails(
+        from view: AccountManagementViewProtocol?,
+        metaAccount: MetaAccountModel,
+        walletChangeNameCompletion: @escaping (MetaAccountModel) -> Void
+    )
     func showAddAccount(from view: AccountManagementViewProtocol?)
     func complete(from view: AccountManagementViewProtocol?)
 }

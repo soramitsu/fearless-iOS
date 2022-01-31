@@ -8,6 +8,18 @@ final class WalletDetailsPresenter {
     let selectedWallet: MetaAccountModel
 
     private var chainsWithAccounts: [ChainModel: ChainAccountResponse] = [:]
+    private lazy var inputViewModel: InputViewModelProtocol = {
+        let inputHandling = InputHandler(
+            predicate: NSPredicate.notEmpty,
+            processor: ByteLengthProcessor.username
+        )
+        inputHandling.changeValue(to: selectedWallet.name)
+        return InputViewModel(
+            inputHandler: inputHandling,
+            title: R.string.localizable.usernameSetupChooseTitle(preferredLanguages: selectedLocale.rLanguages)
+        )
+    }()
+
     private lazy var iconGenerator = {
         PolkadotIconGenerator()
     }
@@ -34,6 +46,7 @@ extension WalletDetailsPresenter: Localizable {
 extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol) {
         view = ui
+        view?.setInput(viewModel: inputViewModel)
         interactor.setup()
     }
 
@@ -45,6 +58,26 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         if let view = self.view {
             wireframe.close(view)
         }
+    }
+
+    func willDisappear() {
+        if inputViewModel.inputHandler.value != selectedWallet.name {
+            interactor.update(inputViewModel.inputHandler.value)
+        }
+    }
+
+    func didReceive(error: Error) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        guard !wireframe.present(error: error, from: view, locale: locale) else {
+            return
+        }
+
+        _ = wireframe.present(
+            error: CommonError.undefined,
+            from: view,
+            locale: locale
+        )
     }
 }
 
@@ -61,10 +94,6 @@ private extension WalletDetailsPresenter {
             navigationTitle: R.string.localizable.tabbarWalletTitle(
                 preferredLanguages: selectedLocale.rLanguages
             ),
-            title: R.string.localizable.usernameSetupChooseTitle(
-                preferredLanguages: selectedLocale.rLanguages
-            ),
-            walletName: selectedWallet.name,
             chainViewModels: chainsWithAccounts.map {
                 let icon = $0.key.icon.map { RemoteImageViewModel(url: $0) }
                 let address = $0.value.toAddress()
