@@ -59,7 +59,8 @@ final class CompletedCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
         viewModel.iconViewModel.loadImage(
             on: iconImageView,
             targetSize: CrowdloanViewConstants.iconSize,
-            animated: true
+            animated: true,
+            cornerRadius: 0
         )
     }
 

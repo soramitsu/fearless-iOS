@@ -9,6 +9,10 @@ final class BundleImageViewModel: NSObject {
 }
 
 extension BundleImageViewModel: ImageViewModelProtocol {
+    func loadImage(on imageView: UIImageView, targetSize _: CGSize, animated _: Bool, cornerRadius _: CGFloat) {
+        imageView.image = image
+    }
+
     func loadImage(on imageView: UIImageView, targetSize _: CGSize, animated _: Bool) {
         imageView.image = image
     }

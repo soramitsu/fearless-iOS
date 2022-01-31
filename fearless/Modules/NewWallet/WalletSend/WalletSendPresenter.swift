@@ -134,6 +134,7 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
     }
 
     func selectAmountPercentage(_ percentage: Float) {
+        amountViewModel = nil
         inputResult = .rate(Decimal(Double(percentage)))
 
         refreshFee()

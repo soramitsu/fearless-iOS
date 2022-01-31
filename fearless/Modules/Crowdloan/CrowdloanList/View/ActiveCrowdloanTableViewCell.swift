@@ -76,7 +76,8 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
         viewModel.iconViewModel.loadImage(
             on: iconImageView,
             targetSize: CrowdloanViewConstants.iconSize,
-            animated: true
+            animated: true,
+            cornerRadius: 0
         )
     }
 
@@ -94,6 +95,6 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
     override func showContributionLabel() {
         super.showContributionLabel()
 
-        contributionLabel?.textColor = R.color.colorWhite()
+        contributionLabel?.textColor = R.color.colorAccent()
     }
 }
