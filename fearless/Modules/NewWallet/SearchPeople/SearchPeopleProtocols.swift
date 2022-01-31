@@ -3,6 +3,7 @@ protocol SearchPeopleViewProtocol: ControllerBackedProtocol {
     func didReceive(state: SearchPeopleViewState)
     func didReceive(title: String?)
     func didReceive(locale: Locale)
+    func didReceive(input: String)
 }
 
 protocol SearchPeoplePresenterProtocol: AnyObject {

@@ -46,7 +46,8 @@ struct SearchPeopleViewFactory {
             asset: asset,
             chain: chain,
             selectedAccount: selectedMetaAccount,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            qrParser: SubstrateQRParser()
         )
 
         let view = SearchPeopleViewController(presenter: presenter)

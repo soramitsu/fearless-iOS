@@ -160,9 +160,9 @@ final class WalletScanQRPresenter: NSObject {
         }
     }
 
-    private func handleFailedMatching(for _: String) {
-        let message = L10n.InvoiceScan.Error.extractFail
-        view?.present(message: message, animated: true)
+    private func handleFailedMatching(for code: String) {
+        moduleOutput?.didFinishWith(incorrectAddress: code)
+        wireframe.close(view: view)
     }
 
     private func performProcessing(of receiverInfo: ReceiveInfo) {

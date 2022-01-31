@@ -92,6 +92,10 @@ extension SearchPeopleViewController: SearchPeopleViewProtocol {
         self.locale = locale
         rootView.locale = locale
     }
+
+    func didReceive(input: String) {
+        rootView.searchField.text = input
+    }
 }
 
 extension SearchPeopleViewController: UITableViewDelegate, UITableViewDataSource {

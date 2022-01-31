@@ -26,4 +26,5 @@ protocol WalletScanQRWireframeProtocol: ApplicationSettingsPresentable, ImageGal
 
 protocol WalletScanQRModuleOutput: AnyObject {
     func didFinishWith(payload: TransferPayload)
+    func didFinishWith(incorrectAddress: String)
 }

@@ -11,6 +11,7 @@ final class SearchPeoplePresenter {
     let asset: AssetModel
     let chain: ChainModel
     let selectedAccount: MetaAccountModel
+    let qrParser: QRParser
 
     private var searchResult: Result<[SearchData]?, Error>?
 
@@ -21,7 +22,8 @@ final class SearchPeoplePresenter {
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        qrParser: QRParser
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -29,6 +31,7 @@ final class SearchPeoplePresenter {
         self.asset = asset
         self.chain = chain
         self.selectedAccount = selectedAccount
+        self.qrParser = qrParser
         self.localizationManager = localizationManager
     }
 
@@ -118,5 +121,14 @@ extension SearchPeoplePresenter: WalletScanQRModuleOutput {
             asset: asset,
             chain: chain
         )
+    }
+
+    func didFinishWith(incorrectAddress: String) {
+        guard let code = try? qrParser.extractAddress(from: incorrectAddress) else {
+            return
+        }
+
+        view?.didReceive(input: code)
+        searchTextDidChanged(code)
     }
 }
