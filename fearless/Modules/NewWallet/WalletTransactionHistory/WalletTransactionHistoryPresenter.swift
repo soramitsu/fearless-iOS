@@ -70,6 +70,12 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
+        guard let _ = chain.externalApi?.history else {
+            let state: WalletTransactionHistoryViewState = .unsupported
+            view?.didReceive(state: state)
+            return
+        }
+
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         var viewModels = reload ? [] : self.viewModels

@@ -4,4 +4,5 @@ enum WalletTransactionHistoryViewState {
     case loading
     case loaded(viewModel: WalletTransactionHistoryViewModel)
     case reloaded(viewModel: WalletTransactionHistoryViewModel)
+    case unsupported
 }

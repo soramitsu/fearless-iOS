@@ -584,3 +584,5 @@ This is the hash of your transaction:";
 "switch.node" = "Switch node";
 "wallet.transaction.detail.copy.id" = "Copy ID";
 "wallet.transaction.history.filter.title" = "Show";
+"view.in" = "View in %s";
+"wallet.transaction.history.unsupported.message" = "Transaction history for this network is not supported yet";

@@ -115,6 +115,9 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             state = .loaded(viewModel: viewModel)
             reloadContent()
             rootView.tableView.isHidden = viewModel.sections.isEmpty
+        case .unsupported:
+            rootView.tableView.isHidden = false
+            reloadContent()
         }
 
         updateLoadingAndEmptyState(animated: true)
@@ -567,6 +570,8 @@ extension WalletTransactionHistoryViewController: EmptyStateDelegate {
         switch state {
         case let .loaded(viewModel):
             return viewModel.sections.isEmpty
+        case .unsupported:
+            return true
         default:
             return false
         }
@@ -587,7 +592,11 @@ extension WalletTransactionHistoryViewController: EmptyStateDataSource {
     }
 
     var titleForEmptyState: String? {
-        R.string.localizable.commonSearchStartTitle(preferredLanguages: selectedLocale.rLanguages)
+        if case WalletTransactionHistoryViewState.unsupported = state {
+            return R.string.localizable.walletTransactionHistoryUnsupportedMessage(preferredLanguages: selectedLocale.rLanguages)
+        }
+
+        return R.string.localizable.commonSearchStartTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     var titleColorForEmptyState: UIColor? {
