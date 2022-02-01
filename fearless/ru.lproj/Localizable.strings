@@ -591,3 +591,4 @@
 "wallet.transaction.history.filter.title" = "Показать";
 "view.in" = "Посмотреть в %s";
 "wallet.transaction.history.unsupported.message" = "История транзакций для этой сети еще не поддерживается";
+"wallet.transaction.history.empty.message" = "Здесь появится история транзакций";
