@@ -28,8 +28,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     AddressOptionsPresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
-        metaAccount: MetaAccountModel,
-        completion: @escaping (MetaAccountModel) -> Void
+        metaAccount: MetaAccountModel
     )
     func showAccountSelection(from view: ProfileViewProtocol?)
     func showConnectionSelection(from view: ProfileViewProtocol?)

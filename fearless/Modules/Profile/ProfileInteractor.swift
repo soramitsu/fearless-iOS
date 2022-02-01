@@ -65,4 +65,8 @@ extension ProfileInteractor: EventVisitorProtocol {
     func processSelectedUsernameChanged(event _: SelectedUsernameChanged) {
         provideUserSettings()
     }
+
+    func processWalletNameChanged(event: WalletNameChanged) {
+        updateWallet(event.wallet)
+    }
 }

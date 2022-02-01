@@ -5,18 +5,18 @@ final class WalletDetailsInteractor {
     private let selectedMetaAccount: MetaAccountModel
     private let chainsRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
-    private let walletDetailsChangeCompletion: (MetaAccountModel) -> Void
+    private let eventCenter: EventCenterProtocol
 
     init(
         selectedMetaAccount: MetaAccountModel,
         chainsRepository: AnyDataProviderRepository<ChainModel>,
         operationManager: OperationManagerProtocol,
-        walletDetailsChangeCompletion: @escaping (MetaAccountModel) -> Void
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainsRepository = chainsRepository
         self.operationManager = operationManager
-        self.walletDetailsChangeCompletion = walletDetailsChangeCompletion
+        self.eventCenter = eventCenter
     }
 }
 
@@ -34,14 +34,13 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try updateOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.walletDetailsChangeCompletion(accountItem)
             return accountItem
         }
         saveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 switch saveOperation.result {
-                case .success:
-                    break
+                case let .success(wallet):
+                    self?.eventCenter.notify(with: WalletNameChanged(wallet: wallet))
                 case let .failure(error):
                     self?.presenter.didReceive(error: error)
 

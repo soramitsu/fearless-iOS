@@ -4,12 +4,10 @@ extension SwitchAccount {
     final class AccountManagementWireframe: AccountManagementWireframeProtocol {
         func showAccountDetails(
             from view: AccountManagementViewProtocol?,
-            metaAccount: MetaAccountModel,
-            walletChangeNameCompletion: @escaping (MetaAccountModel) -> Void
+            metaAccount: MetaAccountModel
         ) {
             let walletDetails = WalletDetailsViewFactory.createView(
-                with: metaAccount,
-                completion: walletChangeNameCompletion
+                with: metaAccount
             )
             if let navigationController = view?.controller.navigationController {
                 navigationController.present(walletDetails.controller, animated: true)

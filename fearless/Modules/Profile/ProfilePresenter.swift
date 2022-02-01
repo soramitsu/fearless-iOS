@@ -54,10 +54,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         guard let wallet = selectedWallet else {
             return
         }
-        let walletNameChangeCompletion: (MetaAccountModel) -> Void = { [weak self] wallet in
-            self?.interactor.updateWallet(wallet)
-        }
-        wireframe.showAccountDetails(from: view, metaAccount: wallet, completion: walletNameChangeCompletion)
+        wireframe.showAccountDetails(from: view, metaAccount: wallet)
     }
 
     func activateOption(at index: UInt) {

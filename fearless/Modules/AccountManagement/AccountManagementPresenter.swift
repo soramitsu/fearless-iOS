@@ -55,15 +55,7 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         ) {
             wireframe.showAccountDetails(
                 from: view,
-                metaAccount: item.info,
-                walletChangeNameCompletion: { [weak self] wallet in
-                    let managedModel = ManagedMetaAccountModel(
-                        info: wallet,
-                        isSelected: item.isSelected,
-                        order: item.order
-                    )
-                    self?.interactor.update(item: managedModel)
-                }
+                metaAccount: item.info
             )
         }
     }

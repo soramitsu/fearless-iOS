@@ -4,8 +4,7 @@ import SoraFoundation
 
 final class WalletDetailsViewFactory {
     static func createView(
-        with selectedWallet: MetaAccountModel,
-        completion: @escaping (MetaAccountModel) -> Void
+        with selectedWallet: MetaAccountModel
     ) -> WalletDetailsViewProtocol {
         let chainsRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -15,7 +14,7 @@ final class WalletDetailsViewFactory {
             selectedMetaAccount: selectedWallet,
             chainsRepository: AnyDataProviderRepository(chainsRepository),
             operationManager: OperationManagerFacade.sharedManager,
-            walletDetailsChangeCompletion: completion
+            eventCenter: EventCenter.shared
         )
 
         let wireframe = WalletDetailsWireframe()

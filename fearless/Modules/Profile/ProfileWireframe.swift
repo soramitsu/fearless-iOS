@@ -4,10 +4,9 @@ import UIKit
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
-        metaAccount: MetaAccountModel,
-        completion: @escaping (MetaAccountModel) -> Void
+        metaAccount: MetaAccountModel
     ) {
-        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount, completion: completion)
+        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller
         )

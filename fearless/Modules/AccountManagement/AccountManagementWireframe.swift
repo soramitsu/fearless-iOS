@@ -3,12 +3,10 @@ import Foundation
 final class AccountManagementWireframe: AccountManagementWireframeProtocol {
     func showAccountDetails(
         from view: AccountManagementViewProtocol?,
-        metaAccount: MetaAccountModel,
-        walletChangeNameCompletion: @escaping (MetaAccountModel) -> Void
+        metaAccount: MetaAccountModel
     ) {
         let walletDetails = WalletDetailsViewFactory.createView(
-            with: metaAccount,
-            completion: walletChangeNameCompletion
+            with: metaAccount
         )
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller

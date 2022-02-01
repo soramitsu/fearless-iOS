@@ -33,7 +33,7 @@ protocol AccountManagementInteractorInputProtocol: AnyObject {
     func update(item: ManagedMetaAccountModel)
 }
 
-protocol AccountManagementInteractorOutputProtocol: AnyObject {
+protocol AccountManagementInteractorOutputProtocol: EventVisitorProtocol {
     func didCompleteSelection(of metaAccount: MetaAccountModel)
     func didReceive(changes: [DataProviderChange<ManagedMetaAccountModel>])
     func didReceive(error: Error)
@@ -42,8 +42,7 @@ protocol AccountManagementInteractorOutputProtocol: AnyObject {
 protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable {
     func showAccountDetails(
         from view: AccountManagementViewProtocol?,
-        metaAccount: MetaAccountModel,
-        walletChangeNameCompletion: @escaping (MetaAccountModel) -> Void
+        metaAccount: MetaAccountModel
     )
     func showAddAccount(from view: AccountManagementViewProtocol?)
     func complete(from view: AccountManagementViewProtocol?)
