@@ -27,7 +27,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         fetchChainsWithAccounts()
     }
 
-    func update(_ walletName: String) {
+    func update(walletName: String) {
         let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
             selectedMetaAccount.replacingName(walletName)
         }

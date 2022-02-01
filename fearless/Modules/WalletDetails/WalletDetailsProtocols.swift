@@ -14,7 +14,7 @@ protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
 
 protocol WalletDetailsInteractorInputProtocol: AnyObject {
     func setup()
-    func update(_ walletName: String)
+    func update(walletName: String)
 }
 
 protocol WalletDetailsInteractorOutputProtocol: AnyObject {

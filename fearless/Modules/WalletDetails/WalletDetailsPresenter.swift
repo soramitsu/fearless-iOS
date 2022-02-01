@@ -62,7 +62,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
 
     func willDisappear() {
         if inputViewModel.inputHandler.value != selectedWallet.name {
-            interactor.update(inputViewModel.inputHandler.value)
+            interactor.update(walletName: inputViewModel.inputHandler.value)
         }
     }
 
