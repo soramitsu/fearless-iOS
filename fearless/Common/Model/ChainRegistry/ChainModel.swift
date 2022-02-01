@@ -103,6 +103,13 @@ class ChainModel: Codable {
 extension ChainModel: Hashable {
     static func == (lhs: ChainModel, rhs: ChainModel) -> Bool {
         lhs.chainId == rhs.chainId
+            && lhs.externalApi == rhs.externalApi
+            && lhs.assets == rhs.assets
+            && lhs.options == rhs.options
+            && lhs.types == rhs.types
+            && lhs.icon == rhs.icon
+            && lhs.name == rhs.name
+            && lhs.addressPrefix == rhs.addressPrefix
     }
 
     func hash(into hasher: inout Hasher) {
