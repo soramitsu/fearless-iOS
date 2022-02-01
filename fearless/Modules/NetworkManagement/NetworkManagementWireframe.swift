@@ -3,7 +3,7 @@ import IrohaCrypto
 
 final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
     func presentAccountSelection(
-        _ accounts: [AccountItem],
+        _ accounts: [ChainAccountResponse],
         addressType: SNAddressType,
         delegate: ModalPickerViewControllerDelegate,
         from view: NetworkManagementViewProtocol?,
@@ -22,6 +22,7 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
         view?.controller.present(picker, animated: true, completion: nil)
     }
 
+    // TODO: Remove
     func presentAccountCreation(
         for connection: ConnectionItem,
         from view: NetworkManagementViewProtocol?

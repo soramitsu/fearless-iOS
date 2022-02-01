@@ -15,8 +15,7 @@ final class RewardCalculatorServiceStub: RewardCalculatorServiceProtocol {
 
     func throttle() {}
 
-    func fetchCalculatorOperation(with timeout: TimeInterval)
-    -> BaseOperation<RewardCalculatorEngineProtocol> {
+    func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         ClosureOperation { self.engine }
     }
 }

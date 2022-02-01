@@ -98,7 +98,7 @@ final class StakingRebondSetupViewController: UIViewController, ViewHolder {
             amountView.balanceText = nil
         }
 
-        amountView.assetIcon = viewModel.icon
+        viewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
         amountView.symbol = viewModel.symbol.uppercased()
     }
 

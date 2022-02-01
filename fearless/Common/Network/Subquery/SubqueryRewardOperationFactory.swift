@@ -3,7 +3,17 @@ import RobinHood
 import FearlessUtils
 
 protocol SubqueryRewardOperationFactoryProtocol {
-    func createOperation(address: String) -> BaseOperation<SubqueryRewardOrSlashData>
+    func createOperation(
+        address: String,
+        startTimestamp: Int64?,
+        endTimestamp: Int64?
+    ) -> BaseOperation<SubqueryRewardOrSlashData>
+}
+
+extension SubqueryRewardOperationFactoryProtocol {
+    func createOperation(address: String) -> BaseOperation<SubqueryRewardOrSlashData> {
+        createOperation(address: address, startTimestamp: nil, endTimestamp: nil)
+    }
 }
 
 final class SubqueryRewardOperationFactory {
@@ -13,14 +23,32 @@ final class SubqueryRewardOperationFactory {
         self.url = url
     }
 
-    private func prepareQueryForAddress(_ address: String) -> String {
-        """
+    private func prepareQueryForAddress(
+        _ address: String,
+        startTimestamp: Int64?,
+        endTimestamp: Int64?
+    ) -> String {
+        let timestampFilter: String = {
+            guard startTimestamp != nil || endTimestamp != nil else { return "" }
+            var result = "timestamp:{"
+            if let timestamp = startTimestamp {
+                result.append("greaterThanOrEqualTo:\"\(timestamp)\",")
+            }
+            if let timestamp = endTimestamp {
+                result.append("lessThanOrEqualTo:\"\(timestamp)\",")
+            }
+            result.append("}")
+            return result
+        }()
+
+        return """
         {
             historyElements(
                  orderBy: TIMESTAMP_DESC,
                  filter: {
                      address: { equalTo: \"\(address)\"},
-                     reward: { isNull: false }
+                     reward: { isNull: false },
+                    \(timestampFilter)
                  }
              ) {
                 nodes {
@@ -28,8 +56,6 @@ final class SubqueryRewardOperationFactory {
                     timestamp
                     address
                     reward
-                    extrinsic
-                    transfer
                 }
              }
         }
@@ -38,8 +64,16 @@ final class SubqueryRewardOperationFactory {
 }
 
 extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol {
-    func createOperation(address: String) -> BaseOperation<SubqueryRewardOrSlashData> {
-        let queryString = prepareQueryForAddress(address)
+    func createOperation(
+        address: String,
+        startTimestamp: Int64?,
+        endTimestamp: Int64?
+    ) -> BaseOperation<SubqueryRewardOrSlashData> {
+        let queryString = prepareQueryForAddress(
+            address,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp
+        )
 
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: self.url)

@@ -3,11 +3,11 @@ import CommonWallet
 
 protocol MainTabBarViewProtocol: ControllerBackedProtocol {
     func didReplaceView(for newView: UIViewController, for index: Int)
+    func presentFailedMemoView()
 }
 
 protocol MainTabBarPresenterProtocol: AnyObject {
     func setup()
-    func viewDidAppear()
 }
 
 protocol MainTabBarInteractorInputProtocol: AnyObject {
@@ -22,12 +22,9 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
-    var walletContext: CommonWalletContextProtocol { get set }
-
     func showNewWalletView(on view: MainTabBarViewProtocol?)
-    func reloadWalletContent()
 
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?)
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
 
     func presentAccountImport(on view: MainTabBarViewProtocol?)
 }
@@ -39,5 +36,7 @@ protocol MainTabBarViewFactoryProtocol: AnyObject {
         wireframe: MainTabBarWireframeProtocol
     )
 
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol)
+    static func reloadCrowdloanView(
+        on view: MainTabBarViewProtocol
+    ) -> UIViewController?
 }

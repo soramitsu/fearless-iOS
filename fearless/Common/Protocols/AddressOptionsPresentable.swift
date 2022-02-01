@@ -5,7 +5,7 @@ protocol AddressOptionsPresentable {
     func presentAccountOptions(
         from view: ControllerBackedProtocol,
         address: String,
-        chain: Chain,
+        chain: ChainModel,
         locale: Locale
     )
 }
@@ -43,7 +43,7 @@ extension AddressOptionsPresentable {
     func presentAccountOptions(
         from view: ControllerBackedProtocol,
         address: String,
-        chain: Chain,
+        chain: ChainModel,
         locale: Locale
     ) {
         let copyClosure = { copyAddress(from: view, address: address, locale: locale) }

@@ -10,25 +10,24 @@ final class ProfilePresenter {
 
     private(set) var viewModelFactory: ProfileViewModelFactoryProtocol
 
-    private(set) var userSettings: UserSettings?
+    private(set) var selectedWallet: MetaAccountModel?
 
     init(viewModelFactory: ProfileViewModelFactoryProtocol) {
         self.viewModelFactory = viewModelFactory
     }
 
     private func updateAccountViewModel() {
-        guard let userSettings = userSettings else {
+        guard let wallet = selectedWallet else {
             return
         }
-
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: userSettings, locale: locale)
+        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: wallet, locale: locale)
         view?.didLoad(userViewModel: userDetailsViewModel)
     }
 
     private func updateOptionsViewModel() {
         guard
-            let userSettings = userSettings,
+            let wallet = selectedWallet,
             let language = localizationManager?.selectedLanguage
         else {
             return
@@ -37,21 +36,10 @@ final class ProfilePresenter {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         let optionViewModels = viewModelFactory.createOptionViewModels(
-            from: userSettings,
             language: language,
             locale: locale
         )
         view?.didLoad(optionViewModels: optionViewModels)
-    }
-
-    private func copyAddress() {
-        if let address = userSettings?.account.address {
-            UIPasteboard.general.string = address
-
-            let locale = localizationManager?.selectedLocale
-            let title = R.string.localizable.commonCopied(preferredLanguages: locale?.rLanguages)
-            wireframe.presentSuccessNotification(title, from: view)
-        }
     }
 }
 
@@ -63,71 +51,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     }
 
     func activateAccountDetails() {
-        let locale = localizationManager?.selectedLocale
-
-        let title = R.string.localizable
-            .accountInfoTitle(preferredLanguages: locale?.rLanguages)
-
-        var actions: [AlertPresentableAction] = []
-
-        let accountsTitle = R.string.localizable.profileAccountsTitle(preferredLanguages: locale?.rLanguages)
-        let accountAction = AlertPresentableAction(title: accountsTitle) { [weak self] in
-            self?.wireframe.showAccountDetails(from: self?.view)
+        guard let wallet = selectedWallet else {
+            return
         }
-
-        actions.append(accountAction)
-
-        let copyTitle = R.string.localizable
-            .commonCopyAddress(preferredLanguages: locale?.rLanguages)
-        let copyAction = AlertPresentableAction(title: copyTitle) { [weak self] in
-            self?.copyAddress()
-        }
-
-        actions.append(copyAction)
-
-        if
-            let address = userSettings?.account.address,
-            let url = userSettings?.connection.type.chain.polkascanAddressURL(address) {
-            let polkascanTitle = R.string.localizable
-                .transactionDetailsViewPolkascan(preferredLanguages: locale?.rLanguages)
-
-            let polkascanAction = AlertPresentableAction(title: polkascanTitle) { [weak self] in
-                if let view = self?.view {
-                    self?.wireframe.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-            actions.append(polkascanAction)
-        }
-
-        if
-            let address = userSettings?.account.address,
-            let url = userSettings?.connection.type.chain.subscanAddressURL(address) {
-            let subscanTitle = R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: locale?.rLanguages)
-            let subscanAction = AlertPresentableAction(title: subscanTitle) { [weak self] in
-                if let view = self?.view {
-                    self?.wireframe.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-            actions.append(subscanAction)
-        }
-
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-
-        let viewModel = AlertPresentableViewModel(
-            title: title,
-            message: nil,
-            actions: actions,
-            closeAction: closeTitle
-        )
-
-        wireframe.present(
-            viewModel: viewModel,
-            style: .actionSheet,
-            from: view
-        )
+        wireframe.showAccountDetails(from: view, metaAccount: wallet)
     }
 
     func activateOption(at index: UInt) {
@@ -138,8 +65,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view)
-        case .connectionList:
-            wireframe.showConnectionSelection(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
@@ -151,8 +76,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 }
 
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
-    func didReceive(userSettings: UserSettings) {
-        self.userSettings = userSettings
+    func didReceive(wallet: MetaAccountModel) {
+        selectedWallet = wallet
         updateAccountViewModel()
         updateOptionsViewModel()
     }

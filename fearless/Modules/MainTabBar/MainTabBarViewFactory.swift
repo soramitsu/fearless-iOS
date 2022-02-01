@@ -8,7 +8,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let crowdloanIndex: Int = 1
 
     static func createView() -> MainTabBarViewProtocol? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
+        guard
+            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
             .findService()
         else {
             Logger.shared.error("Can't find required keystore import service")
@@ -17,19 +19,20 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
-        let serviceCoordinator = ServiceCoordinator.createDefault()
+        let serviceCoordinator = ServiceCoordinator.createDefault(
+            with: selectedMetaAccount
+        )
 
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
-            settings: SettingsManager.shared,
             serviceCoordinator: serviceCoordinator,
             keystoreImportService: keystoreImportService
         )
 
+        let presenter = MainTabBarPresenter()
+
         guard
-            let walletContext = try? WalletContextFactory().createContext(),
             let walletController = createWalletController(
-                walletContext: walletContext,
                 localizationManager: localizationManager
             )
         else {
@@ -40,7 +43,14 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
+        // TODO: Move setup to loading state
+        let crowdloanState = CrowdloanSharedState()
+        crowdloanState.settings.setup()
+
+        guard let crowdloanController = createCrowdloanController(
+            for: localizationManager,
+            state: crowdloanState
+        ) else {
             return nil
         }
 
@@ -48,7 +58,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        let view = MainTabBarViewController()
+        let view = MainTabBarViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
         view.viewControllers = [
             walletController,
             crowdloanController,
@@ -56,9 +69,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             settingsController
         ]
 
-        let presenter = MainTabBarPresenter()
-
-        let wireframe = MainTabBarWireframe(walletContext: walletContext)
+        let wireframe = MainTabBarWireframe()
 
         view.presenter = presenter
         presenter.view = view
@@ -71,39 +82,50 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func reloadWalletView(
         on view: MainTabBarViewProtocol,
-        wireframe: MainTabBarWireframeProtocol
+        wireframe _: MainTabBarWireframeProtocol
     ) {
         let localizationManager = LocalizationManager.shared
 
         guard
-            let walletContext = try? WalletContextFactory().createContext(),
             let walletController = createWalletController(
-                walletContext: walletContext,
                 localizationManager: localizationManager
             )
         else {
             return
         }
 
-        wireframe.walletContext = walletContext
         view.didReplaceView(for: walletController, for: Self.walletIndex)
     }
 
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) {
+    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
         let localizationManager = LocalizationManager.shared
-        guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
-            return
+
+        // TODO: Move setup to loading state
+        let crowdloanState = CrowdloanSharedState()
+        crowdloanState.settings.setup()
+
+        guard let crowdloanController = createCrowdloanController(
+            for: localizationManager,
+            state: crowdloanState
+        ) else {
+            return nil
         }
 
         view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
+
+        return crowdloanController
     }
 
     static func createWalletController(
-        walletContext: CommonWalletContextProtocol,
         localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
         do {
-            let viewController = try walletContext.createRootController()
+            guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+                  let viewController = ChainAccountBalanceListViewFactory.createView(
+                      selectedMetaAccount: selectedMetaAccount
+                  )?.controller else {
+                return nil
+            }
 
             let localizableTitle = LocalizableResource { locale in
                 R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
@@ -126,7 +148,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
                 viewController?.tabBarItem.title = currentTitle
             }
 
-            return viewController
+            let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+            return navigationController
         } catch {
             Logger.shared.error("Can't create wallet: \(error)")
 
@@ -137,9 +161,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createStakingController(
         for localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
-        guard let viewController = StakingMainViewFactory.createView()?.controller else {
-            return nil
-        }
+        // TODO: Remove when staking is fixed
+        let viewController = StakingMainViewFactory.createView()?.controller ?? UIViewController()
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -170,11 +193,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createProfileController(
         for localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
-        guard let settingsView = ProfileViewFactory.createView() else {
-            return nil
-        }
+        // TODO: Remove when settings fixed
+        let viewController = ProfileViewFactory.createView()?.controller ?? UIViewController()
 
-        let navigationController = FearlessNavigationController(rootViewController: settingsView.controller)
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
@@ -201,9 +223,14 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createCrowdloanController(
-        for localizationManager: LocalizationManagerProtocol
+        for localizationManager: LocalizationManagerProtocol,
+        state: CrowdloanSharedState
     ) -> UIViewController? {
-        guard let crowloanView = CrowdloanListViewFactory.createView() else {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let crowloanView = CrowdloanListViewFactory.createView(
+                  with: state,
+                  selectedMetaAccount: selectedMetaAccount
+              ) else {
             return nil
         }
 

@@ -13,9 +13,9 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    static func createViewForConnection(item: ConnectionItem) -> OnboardingMainViewProtocol? {
-        let wireframe = SelectConnection.OnboardingMainWireframe(connectionItem: item)
-        return createView(for: wireframe)
+    // TODO: Remove with connection refactoring
+    static func createViewForConnection(item _: ConnectionItem) -> OnboardingMainViewProtocol? {
+        nil
     }
 
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol? {
@@ -44,7 +44,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
 
         let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
         view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-        view.locale = locale
+        view.localizationManager = LocalizationManager.shared
 
         let presenter = OnboardingMainPresenter(legalData: legalData, locale: locale)
 

@@ -21,8 +21,22 @@ protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
     func showRewardDetails(_ rewardModel: AnalyticsRewardDetailsModel, from view: ControllerBackedProtocol?)
-    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
-    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
+
+    func showRewardPayoutsForNominator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRewardPayoutsForValidator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 }
 
 protocol AnalyticsRewardsViewModelFactoryProtocol {

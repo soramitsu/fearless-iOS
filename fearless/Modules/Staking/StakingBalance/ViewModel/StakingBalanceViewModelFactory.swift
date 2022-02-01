@@ -2,23 +2,23 @@ import Foundation
 import SoraFoundation
 
 struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
-    private let chain: Chain
+    private let asset: AssetModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let timeFormatter: TimeFormatterProtocol
 
     init(
-        chain: Chain,
+        asset: AssetModel,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         timeFormatter: TimeFormatterProtocol
     ) {
-        self.chain = chain
+        self.asset = asset
         self.balanceViewModelFactory = balanceViewModelFactory
         self.timeFormatter = timeFormatter
     }
 
     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
         LocalizableResource { locale in
-            let precision = chain.addressType.precision
+            let precision = Int16(asset.precision)
             let redeemableDecimal = Decimal.fromSubstrateAmount(
                 balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
                 precision: precision

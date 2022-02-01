@@ -1,44 +1,39 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
-import FearlessUtils
 
 struct CrowdloanContributionSetupViewFactory {
     static func createView(
         for paraId: ParaId,
-        customFlow: CustomCrowdloanFlow?
+        state: CrowdloanSharedState
     ) -> CrowdloanContributionSetupViewProtocol? {
-        let settings = SettingsManager.shared
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
+        guard
+            let chain = state.settings.value,
+            let asset = chain.utilityAssets().first,
+            let interactor = createInteractor(
+                for: paraId,
+                chainAsset: ChainAsset(chain: chain, asset: asset.asset),
+                state: state
+            )
+        else {
+            return nil
+        }
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
+        let wireframe = CrowdloanContributionSetupWireframe(state: state)
 
-        guard let interactor = createInteractor(for: paraId, assetId: assetId) else { return nil }
-
-        let wireframe = CrowdloanContributionSetupWireframe()
-
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
-        )
+        let assetInfo = asset.asset.displayInfo(with: chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
 
         let localizationManager = LocalizationManager.shared
-        let amountFormatterFactory = AmountFormatterFactory()
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: amountFormatterFactory,
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(
             presentable: wireframe,
-            amountFormatterFactory: amountFormatterFactory,
-            chain: addressType.chain,
-            asset: asset
+            assetInfo: assetInfo
         )
 
         let presenter = CrowdloanContributionSetupPresenter(
@@ -47,10 +42,9 @@ struct CrowdloanContributionSetupViewFactory {
             balanceViewModelFactory: balanceViewModelFactory,
             contributionViewModelFactory: contributionViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            chain: addressType.chain,
+            assetInfo: assetInfo,
             localizationManager: localizationManager,
-            logger: Logger.shared,
-            customFlow: customFlow
+            logger: Logger.shared
         )
 
         let view = CrowdloanContributionSetupViewController(
@@ -67,64 +61,64 @@ struct CrowdloanContributionSetupViewFactory {
 
     private static func createInteractor(
         for paraId: ParaId,
-        assetId: WalletAssetId
+        chainAsset: ChainAsset,
+        state: CrowdloanSharedState
     ) -> CrowdloanContributionSetupInteractor? {
-        guard let engine = WebSocketService.shared.connection else { return nil }
-
-        let settings = SettingsManager.shared
-
-        guard let selectedAccount = settings.selectedAccount else { return nil }
-
-        let chain = settings.selectedConnection.type.chain
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
+            return nil
+        }
 
         let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        let runtimeService = RuntimeRegistryFacade.sharedService
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return nil
+        }
+
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
+            return nil
+        }
 
         let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
+            accountId: accountResponse.accountId,
+            chainFormat: chainAsset.chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
-            engine: engine,
+            engine: connection,
             operationManager: operationManager
         )
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let singleValueProviderFactory = SingleValueProviderFactory.shared
-
-        let crowdloanFundsProvider = singleValueProviderFactory.getCrowdloanFunds(
-            for: paraId,
-            connection: settings.selectedConnection,
-            engine: engine,
-            runtimeService: runtimeService
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager,
+            logger: Logger.shared
         )
 
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        let crowdloanOperationFactory = CrowdloanOperationFactory(
-            requestOperationFactory: storageRequestFactory,
-            operationManager: operationManager
+        let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
         )
 
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
-            selectedAccountAddress: selectedAccount.address,
-            chain: chain,
-            assetId: assetId,
+            selectedMetaAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
-            crowdloanFundsProvider: crowdloanFundsProvider,
-            singleValueProviderFactory: singleValueProviderFactory,
-            operationManager: operationManager,
-            logger: Logger.shared,
-            crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: engine,
-            settings: SettingsManager.shared
+            crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
+            operationManager: operationManager
         )
     }
 }

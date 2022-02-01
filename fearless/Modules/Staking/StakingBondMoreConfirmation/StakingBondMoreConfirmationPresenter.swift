@@ -10,13 +10,16 @@ final class StakingBondMoreConfirmationPresenter {
     let confirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
     let logger: LoggerProtocol?
+
+    var stashAccount: ChainAccountResponse?
 
     private var balance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var stashAccount: AccountItem?
+    private var selectedAccount: MetaAccountModel
     private var stashItem: StashItem?
 
     init(
@@ -26,7 +29,9 @@ final class StakingBondMoreConfirmationPresenter {
         confirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -36,6 +41,8 @@ final class StakingBondMoreConfirmationPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -59,13 +66,9 @@ final class StakingBondMoreConfirmationPresenter {
     }
 
     private func provideConfirmationViewModel() {
-        guard let stashAccount = stashAccount else {
-            return
-        }
-
         do {
             let viewModel = try confirmViewModelFactory.createViewModel(
-                controllerItem: stashAccount,
+                account: selectedAccount,
                 amount: inputAmount
             )
 
@@ -106,7 +109,6 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPrese
                 spendingAmount: inputAmount,
                 locale: locale
             ),
-
             dataValidatingFactory.has(
                 stash: stashAccount,
                 for: stashItem?.stash ?? "",
@@ -138,7 +140,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -168,7 +170,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
         switch result {
         case let .success(dispatchInfo):
             if let feeValue = BigUInt(dispatchInfo.fee) {
-                fee = Decimal.fromSubstrateAmount(feeValue, precision: chain.addressType.precision)
+                fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision))
             } else {
                 fee = nil
             }
@@ -179,7 +181,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
         }
     }
 
-    func didReceiveStash(result: Result<AccountItem?, Error>) {
+    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(stashAccount):
             self.stashAccount = stashAccount

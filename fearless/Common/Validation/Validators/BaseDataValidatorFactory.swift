@@ -44,9 +44,10 @@ extension BaseDataValidatingFactoryProtocol {
             self?.basePresentable.presentAmountTooHigh(from: view, locale: locale)
 
         }, preservesCondition: {
+            let amount = spendingAmount ?? 0
+
             if let balance = balance,
-               let fee = fee,
-               let amount = spendingAmount {
+               let fee = fee {
                 return amount + fee <= balance
             } else {
                 return false
@@ -110,10 +111,14 @@ extension BaseDataValidatingFactoryProtocol {
             )
 
         }, preservesCondition: {
+            guard let spendingAmount = spendingAmount else {
+                return true
+            }
+
             if
-                let spendingAmount = spendingAmount,
                 let totalAmount = totalAmount,
-                let minimumBalance = minimumBalance {
+                let minimumBalance = minimumBalance,
+                totalAmount > spendingAmount {
                 return totalAmount - spendingAmount >= minimumBalance
             } else {
                 return false

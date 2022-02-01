@@ -7,13 +7,15 @@ final class YourValidatorListPresenter {
     let interactor: YourValidatorListInteractorInputProtocol
 
     let viewModelFactory: YourValidatorListViewModelFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
     private var validatorsModel: YourValidatorsModel?
-    private var controllerAccount: AccountItem?
     private var stashItem: StashItem?
     private var ledger: StakingLedger?
+    private var controllerAccount: ChainAccountResponse?
     private var rewardDestinationArg: RewardDestinationArg?
     private var lastError: Error?
 
@@ -21,7 +23,9 @@ final class YourValidatorListPresenter {
         interactor: YourValidatorListInteractorInputProtocol,
         wireframe: YourValidatorListWireframeProtocol,
         viewModelFactory: YourValidatorListViewModelFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -29,18 +33,20 @@ final class YourValidatorListPresenter {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
 
         self.localizationManager = localizationManager
     }
 
     private func updateView() {
-        guard lastError == nil else {
-            let errorDescription = R.string.localizable
-                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
-            view?.reload(state: .error(errorDescription))
-            return
-        }
+//        guard lastError == nil else {
+//            let errorDescription = R.string.localizable
+//                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
+//            view?.reload(state: .error(errorDescription))
+//            return
+//        }
 
         guard let model = validatorsModel else {
             view?.reload(state: .loading)
@@ -92,7 +98,12 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
     func didSelectValidator(viewModel: YourValidatorViewModel) {
         if let validatorInfo = validatorsModel?.allValidators
             .first(where: { $0.address == viewModel.address }) {
-            wireframe.present(validatorInfo, from: view)
+            wireframe.present(
+                validatorInfo,
+                asset: asset,
+                chain: chain,
+                from: view
+            )
         }
     }
 
@@ -120,12 +131,12 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
         if
             let amount = Decimal.fromSubstrateAmount(
                 bondedAmount,
-                precision: chain.addressType.precision
+                precision: Int16(asset.precision)
             ),
             let rewardDestination = try? RewardDestination(
                 payee: rewardDestination,
                 stashItem: stashItem,
-                chain: chain
+                chainFormat: chain.chainFormat
             ) {
             let selectedTargets = validatorsModel.map {
                 !$0.pendingValidators.isEmpty ? $0.pendingValidators : $0.currentValidators
@@ -139,25 +150,31 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
                 selectedTargets: selectedTargets
             )
 
-            wireframe.proceedToSelectValidatorsStart(from: view, existingBonding: existingBonding)
+            wireframe.proceedToSelectValidatorsStart(
+                from: view,
+                asset: asset,
+                chain: chain,
+                selectedAccount: selectedAccount,
+                existingBonding: existingBonding
+            )
         }
     }
 }
 
 extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol {
-    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(item):
-            handle(validatorsModel: item)
+            controllerAccount = item
         case let .failure(error):
             handle(error: error)
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
         switch result {
         case let .success(item):
-            controllerAccount = item
+            handle(validatorsModel: item)
         case let .failure(error):
             handle(error: error)
         }

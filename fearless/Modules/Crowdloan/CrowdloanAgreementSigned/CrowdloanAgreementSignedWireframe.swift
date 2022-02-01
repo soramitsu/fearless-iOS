@@ -2,6 +2,12 @@ import Foundation
 import UIKit
 
 final class CrowdloanAgreementSignedWireframe: CrowdloanAgreementSignedWireframeProtocol {
+    let state: CrowdloanSharedState
+
+    init(state: CrowdloanSharedState) {
+        self.state = state
+    }
+
     func presentContributionSetup(
         from view: CrowdloanAgreementSignedViewProtocol?,
         paraId: ParaId,
@@ -9,6 +15,7 @@ final class CrowdloanAgreementSignedWireframe: CrowdloanAgreementSignedWireframe
     ) {
         guard let setupView = CrowdloanContributionSetupViewFactory.createView(
             for: paraId,
+            state: state,
             customFlow: customFlow
         ) else {
             return

@@ -4,13 +4,14 @@ import SoraKeystore
 import FearlessUtils
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
-    static func createView(input: StakingRewardDetailsInput) -> StakingRewardDetailsViewProtocol? {
-        let settings = SettingsManager.shared
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
+    static func createView(
+        selectedAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel,
+        input: StakingRewardDetailsInput
+    ) -> StakingRewardDetailsViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: input.chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -18,7 +19,11 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             balanceViewModelFactory: balanceViewModelFactory,
             iconGenerator: PolkadotIconGenerator()
         )
+
         let presenter = StakingRewardDetailsPresenter(
+            asset: asset,
+            selectedAccount: selectedAccount,
+            chain: chain,
             input: input,
             viewModelFactory: viewModelFactory
         )
@@ -27,14 +32,14 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             localizationManager: LocalizationManager.shared
         )
 
-        let asset = primitiveFactory.createAssetForAddressType(input.chain.addressType)
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
-        let providerFactory = SingleValueProviderFactory.shared
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-        let interactor = StakingRewardDetailsInteractor(priceProvider: priceProvider)
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        let interactor = StakingRewardDetailsInteractor(
+            asset: asset,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+        )
         let wireframe = StakingRewardDetailsWireframe()
 
         presenter.view = view

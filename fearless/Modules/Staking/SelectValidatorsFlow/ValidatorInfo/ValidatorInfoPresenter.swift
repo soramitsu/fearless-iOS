@@ -7,7 +7,7 @@ final class ValidatorInfoPresenter {
     let wireframe: ValidatorInfoWireframeProtocol
 
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
-    private let chain: Chain
+    private let chain: ChainModel
     private let logger: LoggerProtocol?
 
     private(set) var validatorInfoResult: Result<ValidatorInfoProtocol?, Error>?
@@ -17,7 +17,7 @@ final class ValidatorInfoPresenter {
         interactor: ValidatorInfoInteractorInputProtocol,
         wireframe: ValidatorInfoWireframeProtocol,
         viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {

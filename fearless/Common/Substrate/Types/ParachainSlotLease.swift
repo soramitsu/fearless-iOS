@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import FearlessUtils
 
 struct ParachainSlotLease: Decodable {
     let accountId: AccountId

@@ -120,12 +120,7 @@ extension ProfileViewController: UITableViewDelegate {
 extension ProfileViewController: ProfileViewProtocol {
     func didLoad(userViewModel: ProfileUserViewModelProtocol) {
         self.userViewModel = userViewModel
-        userIcon = try? iconGenerating?.generateFromAddress(userViewModel.details)
-            .imageWithFillColor(
-                .white,
-                size: UIConstants.normalAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
+        userIcon = R.image.iconBirdGreen()
         tableView.reloadData()
     }
 

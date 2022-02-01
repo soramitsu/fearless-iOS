@@ -5,14 +5,15 @@ final class StakingRewardDestConfirmPresenter {
     weak var view: StakingRewardDestConfirmViewProtocol?
     let wireframe: StakingRewardDestConfirmWireframeProtocol
     let interactor: StakingRewardDestConfirmInteractorInputProtocol
-    let rewardDestination: RewardDestination<AccountItem>
+    let rewardDestination: RewardDestination<ChainAccountResponse>
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let confirmModelFactory: StakingRewardDestConfirmVMFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
     let logger: LoggerProtocol?
 
-    private var controllerAccount: AccountItem?
+    private var controllerAccount: ChainAccountResponse?
     private var stashItem: StashItem?
     private var fee: Decimal?
     private var balance: Decimal?
@@ -21,11 +22,12 @@ final class StakingRewardDestConfirmPresenter {
     init(
         interactor: StakingRewardDestConfirmInteractorInputProtocol,
         wireframe: StakingRewardDestConfirmWireframeProtocol,
-        rewardDestination: RewardDestination<AccountItem>,
+        rewardDestination: RewardDestination<ChainAccountResponse>,
         confirmModelFactory: StakingRewardDestConfirmVMFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -35,6 +37,7 @@ final class StakingRewardDestConfirmPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
         self.logger = logger
     }
 
@@ -104,7 +107,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
 
     func presentSenderAccountOptions() {
         guard
-            let address = controllerAccount?.address,
+            let address = controllerAccount?.toAddress(),
             let view = view,
             let locale = view.localizationManager?.selectedLocale else {
             return
@@ -114,10 +117,9 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
     }
 
     func presentPayoutAccountOptions() {
-        guard
-            let address = rewardDestination.payoutAccount?.address,
-            let view = view,
-            let locale = view.localizationManager?.selectedLocale else {
+        guard let address = rewardDestination.payoutAccount?.toAddress(),
+              let view = view,
+              let locale = view.localizationManager?.selectedLocale else {
             return
         }
 
@@ -130,7 +132,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0, precision: Int16(asset.precision))
             } ?? nil
 
             provideFeeViewModel()
@@ -163,7 +165,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(controller):
             controllerAccount = controller
@@ -178,7 +180,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
         switch result {
         case let .success(accountInfo):
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(asset.precision))
             } ?? nil
         case let .failure(error):
             logger?.error("Did receive balance error: \(error)")

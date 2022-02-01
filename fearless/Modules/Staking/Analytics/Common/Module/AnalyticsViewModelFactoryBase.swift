@@ -1,6 +1,5 @@
 import BigInt
 import SoraFoundation
-import CommonWallet
 
 protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }
@@ -17,23 +16,28 @@ struct AnalyticsSelectedChartData {
 }
 
 class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
-    let chain: Chain
+    let assetInfo: AssetBalanceDisplayInfo
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let amountFormatterFactory: NumberFormatterFactoryProtocol
-    let asset: WalletAsset
     let calendar: Calendar
 
+    @available(*, deprecated, message: "Use init(assetInfo:balanceViewModelFactory:calendar:) instead")
     init(
-        chain: Chain,
+        chain _: Chain,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        amountFormatterFactory: NumberFormatterFactoryProtocol,
-        asset: WalletAsset,
         calendar: Calendar
     ) {
-        self.chain = chain
+        assetInfo = AssetBalanceDisplayInfo.usd()
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.amountFormatterFactory = amountFormatterFactory
-        self.asset = asset
+        self.calendar = calendar
+    }
+
+    init(
+        assetInfo: AssetBalanceDisplayInfo,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        calendar: Calendar
+    ) {
+        self.assetInfo = assetInfo
+        self.balanceViewModelFactory = balanceViewModelFactory
         self.calendar = calendar
     }
 
@@ -119,22 +123,15 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         let amounts = calculateChartAmounts(chartDoubles: chartDoubles)
 
         let bottomYValue = balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
-        let averageAmount: Double? = {
-            guard !chartDoubles.isEmpty else { return nil }
-            return chartDoubles.reduce(0.0, +) / Double(chartDoubles.count)
-        }()
-
-        let averageAmountText: String? = {
-            guard let averageAmount = averageAmount else { return nil }
-            let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
-            let formattedAmount = displayFormatter.value(for: locale).stringFromDecimal(Decimal(averageAmount)) ?? ""
-            let tokenSymbol = asset.symbol
-
-            return R.string.localizable.stakingAnalyticsAvg(
-                formattedAmount + "\n" + tokenSymbol,
-                preferredLanguages: locale.rLanguages
-            )
-        }()
+        let averageAmount = chartDoubles.reduce(0.0, +) / Double(yValues.count)
+        let averageAmountRawText = balanceViewModelFactory
+            .amountFromValue(Decimal(averageAmount))
+            .value(for: locale)
+            .replacingOccurrences(of: " ", with: "\n")
+        let averageAmountText = R.string.localizable.stakingAnalyticsAvg(
+            averageAmountRawText,
+            preferredLanguages: locale.rLanguages
+        )
 
         let selectedChartAmounts: [ChartAmount] = {
             guard let selectedIndex = selectedChartIndex else { return amounts }
@@ -250,7 +247,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         guard
             let tokenDecimal = Decimal.fromSubstrateAmount(
                 data.amount,
-                precision: chain.addressType.precision
+                precision: assetInfo.assetPrecision
             )
         else { return "" }
 
@@ -279,8 +276,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         return sortedByDay
             .map { date, rewards in
-                let rewardsSortedByDesc = rewards.sorted(by: { $0.date > $1.date })
-                let items = createViewModelItems(rewardsData: rewardsSortedByDesc, locale: locale)
+                let items = createViewModelItems(rewardsData: rewards, locale: locale)
                 let title = dateTitleFormatter.string(from: date).uppercased()
 
                 return AnalyticsRewardSection(

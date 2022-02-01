@@ -17,7 +17,7 @@ protocol StakingStateProtocol {
     func accept(visitor: StakingStateVisitorProtocol)
 
     func process(address: String?)
-    func process(chain: Chain?)
+    func process(chainAsset: ChainAsset?)
     func process(accountInfo: AccountInfo?)
     func process(price: PriceData?)
     func process(rewardEstimationAmount: Decimal?)

@@ -8,6 +8,8 @@ protocol RichAmountDisplayViewModelProtocol: WalletFormViewBindingProtocol,
 }
 
 struct RichAmountDisplayViewModel: RichAmountDisplayViewModelProtocol {
+    var iconViewModel: ImageViewModelProtocol?
+
     let title: String
     let amount: String
     let icon: UIImage?

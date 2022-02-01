@@ -25,12 +25,11 @@ final class ExportMnemonicViewFactory: ExportMnemonicViewFactoryProtocol {
         )
 
         let keychain = Keychain()
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let repository = AccountRepositoryFactory.createRepository()
 
         let interactor = ExportMnemonicInteractor(
             keystore: keychain,
-            repository: AnyDataProviderRepository(repository),
+            repository: repository,
             operationManager: OperationManagerFacade.sharedManager
         )
         let wireframe = ExportMnemonicWireframe()

@@ -12,9 +12,8 @@ class NetworkManagementTests: XCTestCase {
         // given
 
         let facade = UserDataStorageTestFacade()
-
         let settings = InMemorySettingsManager()
-
+        
         settings.selectedConnection = ConnectionItem.supportedConnections.first!
 
         let managedConnections = ConnectionItem.supportedConnections.enumerated().map { (index, item) in
@@ -25,12 +24,12 @@ class NetworkManagementTests: XCTestCase {
         }
 
         let mapper = ManagedConnectionItemMapper()
-        let connectionsRepository: CoreDataRepository<ManagedConnectionItem, CDConnectionItem> = facade.createRepository(mapper: AnyCoreDataMapper(mapper))
+        let connectionsRepository: CoreDataRepository<ManagedConnectionItem, CDChain> = facade.createRepository(mapper: AnyCoreDataMapper(mapper))
         let operation = connectionsRepository.saveOperation({ managedConnections }, { [] })
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
-        let observer: CoreDataContextObservable<ManagedConnectionItem, CDConnectionItem> =
+        let observer: CoreDataContextObservable<ManagedConnectionItem, CDChain> =
             CoreDataContextObservable(service: facade.databaseService,
                                                  mapper: AnyCoreDataMapper(mapper),
                                                  predicate: { _ in true })
@@ -38,8 +37,7 @@ class NetworkManagementTests: XCTestCase {
                                                  sortDescriptors: [NSSortDescriptor.connectionsByOrder],
                                                  mapper: AnyCoreDataMapper(mapper))
 
-        let accountsMapper = ManagedAccountItemMapper()
-        let accountsRepository: CoreDataRepository<ManagedAccountItem, CDAccountItem> = facade.createRepository(filter: nil, sortDescriptors: [NSSortDescriptor.accountsByOrder], mapper: AnyCoreDataMapper(accountsMapper))
+        let accountsRepository = AccountRepositoryFactory.createManagedRepository(for: facade)
 
         let view = MockNetworkManagementViewProtocol()
         let wireframe = MockNetworkManagementWireframeProtocol()

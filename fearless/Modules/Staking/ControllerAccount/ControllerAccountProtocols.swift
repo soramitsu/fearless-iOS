@@ -7,8 +7,8 @@ protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         stashItem: StashItem,
-        stashAccountItem: AccountItem?,
-        chosenAccountItem: AccountItem?
+        stashAccountItem: ChainAccountResponse?,
+        chosenAccountItem: ChainAccountResponse?
     ) -> ControllerAccountViewModel
 }
 
@@ -22,16 +22,16 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(for account: AccountItem)
+    func estimateFee(for account: ChainAccountResponse)
     func fetchLedger(controllerAddress: AccountAddress)
     func fetchControllerAccountInfo(controllerAddress: AccountAddress)
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceiveStashAccount(result: Result<AccountItem?, Error>)
-    func didReceiveControllerAccount(result: Result<AccountItem?, Error>)
-    func didReceiveAccounts(result: Result<[AccountItem], Error>)
+    func didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>)
+    func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress)
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
@@ -45,7 +45,11 @@ protocol ControllerAccountWireframeProtocol: WebPresentable,
     ErrorPresentable {
     func showConfirmation(
         from view: ControllerBackedProtocol?,
-        controllerAccountItem: AccountItem
+        controllerAccountItem: ChainAccountResponse,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     )
+
     func close(view: ControllerBackedProtocol?)
 }

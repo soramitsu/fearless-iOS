@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 
 extension RuntimeMetadata {
-    func getStorageMetadata(for codingPath: StorageCodingPath) -> StorageEntryMetadata? {
+    func getStorageMetadata(for codingPath: StorageCodingPath) -> RuntimeStorageEntryMetadata? {
         getStorageMetadata(in: codingPath.moduleName, storageName: codingPath.itemName)
     }
 
@@ -11,7 +11,7 @@ extension RuntimeMetadata {
             return nil
         }
 
-        guard let events = module.events, eventIndex < events.count else {
+        guard let events = try? module.events(using: schemaResolver), eventIndex < events.count else {
             return nil
         }
 

@@ -6,18 +6,18 @@ import RobinHood
 class BaseAccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
-    let request: AccountCreationRequest
+    let request: MetaAccountCreationRequest
     let mnemonic: IRMnemonicProtocol
     let shuffledWords: [String]
-    let accountOperationFactory: AccountOperationFactoryProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
+    let accountOperationFactory: MetaAccountOperationFactoryProtocol
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
 
     init(
-        request: AccountCreationRequest,
+        request: MetaAccountCreationRequest,
         mnemonic: IRMnemonicProtocol,
-        accountOperationFactory: AccountOperationFactoryProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
+        accountOperationFactory: MetaAccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.request = request
@@ -28,7 +28,9 @@ class BaseAccountConfirmInteractor {
         self.operationManager = operationManager
     }
 
-    func createAccountUsingOperation(_: BaseOperation<AccountItem>) {}
+    internal func createAccountUsingOperation(_: BaseOperation<MetaAccountModel>) {
+        fatalError("This function should be overriden")
+    }
 }
 
 extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
@@ -45,7 +47,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
             return
         }
 
-        let operation = accountOperationFactory.newAccountOperation(
+        let operation = accountOperationFactory.newMetaAccountOperation(
             request: request,
             mnemonic: mnemonic
         )
@@ -53,7 +55,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
     }
 
     func skipConfirmation() {
-        let operation = accountOperationFactory.newAccountOperation(
+        let operation = accountOperationFactory.newMetaAccountOperation(
             request: request,
             mnemonic: mnemonic
         )

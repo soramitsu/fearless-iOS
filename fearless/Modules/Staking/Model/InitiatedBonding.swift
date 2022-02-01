@@ -2,5 +2,5 @@ import Foundation
 
 struct InitiatedBonding {
     let amount: Decimal
-    let rewardDestination: RewardDestination<AccountItem>
+    let rewardDestination: RewardDestination<ChainAccountResponse>
 }

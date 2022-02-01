@@ -24,25 +24,26 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
     }
 
     func presentAddressOptions(
-        _ address: String,
-        chain: Chain,
-        locale: Locale,
-        copyClosure: @escaping () -> Void,
-        from view: AccountInfoViewProtocol?
+        _: String,
+        chain _: Chain,
+        locale _: Locale,
+        copyClosure _: @escaping () -> Void,
+        from _: AccountInfoViewProtocol?
     ) {
-        let alertController = UIAlertController
-            .presentAccountOptions(
-                address,
-                chain: chain,
-                locale: locale,
-                copyClosure: copyClosure
-            ) { [weak self, view] url in
-                if let view = view {
-                    self?.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-        view?.controller.present(alertController, animated: true, completion: nil)
+        // TODO: Restore logic
+//        let alertController = UIAlertController
+//            .presentAccountOptions(
+//                address,
+//                chain: chain,
+//                locale: locale,
+//                copyClosure: copyClosure
+//            ) { [weak self, view] url in
+//                if let view = view {
+//                    self?.showWeb(url: url, from: view, style: .automatic)
+//                }
+//            }
+//
+//        view?.controller.present(alertController, animated: true, completion: nil)
     }
 
     // MARK: Private

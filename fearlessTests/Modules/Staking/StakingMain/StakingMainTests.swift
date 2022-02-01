@@ -11,15 +11,32 @@ class StakingMainTests: XCTestCase {
     func testNominatorStateSetup() throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
+        let substrateStorageFacade = SubstrateStorageTestFacade()
+        let userStorageFacade = UserDataStorageTestFacade()
+        let selectedMetaAccount = AccountGenerator.generateMetaAccount()
+        let selectedChain = ChainModelGenerator.generateChain(
+            generatingAssets: 2,
+            addressPrefix: 42,
+            assetPresicion: 12,
+            hasStaking: true
+        )
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: .westend,
-                                                            keychain: keychain,
-                                                            settings: settings)
+        let walletSettings = SelectedWalletSettings(
+            storageFacade: userStorageFacade,
+            operationQueue: OperationQueue()
+        )
 
-        let storageFacade = SubstrateStorageTestFacade()
+        walletSettings.save(value: selectedMetaAccount)
+
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: InMemorySettingsManager(),
+            operationQueue: OperationQueue()
+        )
+
+        let selectedChainAsset = ChainAsset(chain: selectedChain, asset: selectedChain.assets.first!)
+        stakingSettings.save(value: selectedChainAsset)
+
         let operationManager = OperationManager()
 
         let eventCenter = MockEventCenterProtocol().applyingDefaultStub()
@@ -27,29 +44,23 @@ class StakingMainTests: XCTestCase {
         let view = MockStakingMainViewProtocol()
         let wireframe = MockStakingMainWireframeProtocol()
 
-        let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
-
         let calculatorService = RewardCalculatorServiceStub(engine: WestendStub.rewardCalculator)
-        let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
         let eraValidatorService = EraValidatorServiceStub.westendStub()
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
-        let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balance in
+        let viewModelFacade = StakingViewModelFacade()
+        let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chainAsset, balance in
             AnalyticsRewardsViewModelFactory(
-                chain: chain,
+                assetInfo: chainAsset.assetDisplayInfo,
                 balanceViewModelFactory: balance,
-                amountFormatterFactory: AmountFormatterFactory(),
-                asset: primitiveFactory.createAssetForAddressType(chain.addressType),
                 calendar: .init(identifier: .gregorian)
             )
         }
         let stateViewModelFactory = StakingStateViewModelFactory(
-            primitiveFactory: primitiveFactory,
             analyticsRewardsViewModelFactoryBuilder: analyticsRewardsViewModelFactoryBuilder,
             logger: Logger.shared
         )
-        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+
+        let networkViewModelFactory = NetworkInfoViewModelFactory()
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
@@ -58,38 +69,79 @@ class StakingMainTests: XCTestCase {
                                              dataValidatingFactory: dataValidatingFactory,
                                              logger: Logger.shared)
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                                    operationManager: operationManager)
+        let eraInfoOperationFactory = MockNetworkStakingInfoOperationFactoryProtocol()
 
-        let operationFactory = MockNetworkStakingInfoOperationFactoryProtocol()
-
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
-        let anyAccountRepository = AnyDataProviderRepository(accountRepository)
-
-        let accountRepositoryFactory = AccountRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager,
-            logger: Logger.shared
+        let accountProviderFactory = AccountProviderFactory(
+            storageFacade: UserDataStorageTestFacade(),
+            operationManager: operationManager
         )
 
         let eraCountdownOperationFactory = EraCountdownOperationFactoryStub(eraCountdown: .testStub)
 
-        let interactor = StakingMainInteractor(providerFactory: providerFactory,
-                                               substrateProviderFactory: substrateProviderFactory,
-                                               accountRepositoryFactory: accountRepositoryFactory,
-                                               settings: settings,
-                                               eventCenter: eventCenter,
-                                               primitiveFactory: primitiveFactory,
-                                               eraValidatorService: eraValidatorService,
-                                               calculatorService: calculatorService,
-                                               runtimeService: runtimeCodingService,
-                                               accountRepository: anyAccountRepository,
-                                               operationManager: operationManager,
-                                               eraInfoOperationFactory: operationFactory,
-                                               applicationHandler: ApplicationHandler(),
-                                               eraCountdownOperationFactory: eraCountdownOperationFactory,
-                                               logger: Logger.shared)
+        let chainRegistry = MockChainRegistryProtocol().applyDefault(for: [selectedChain])
+
+        let accountResponse = selectedMetaAccount.fetch(for: selectedChain.accountRequest())!
+        let address = try accountResponse.accountId.toAddress(using: selectedChain.chainFormat)
+
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactoryStub(
+            minNominatorBond: 0,
+            counterForNominators: 10,
+            maxNominatorsCount: 100,
+            nomination: Nomination(targets: [Data(repeating: 0, count: 32)], submittedIn: 10),
+            validatorPrefs: nil,
+            ledgerInfo: StakingLedger(
+                stash: accountResponse.accountId,
+                total: BigUInt(1e+12),
+                active: BigUInt(1e+12),
+                unlocking: [],
+                claimedRewards: []
+            ),
+            activeEra: ActiveEraInfo(index: 15),
+            currentEra: 15,
+            payee: RewardDestinationArg.staked,
+            totalReward: nil,
+            stashItem: StashItem(stash: address, controller: address),
+            storageFacade: substrateStorageFacade
+        )
+
+        let rewardAnalyticsProviderFactory = StakingAnalyticsLocalSubscriptionFactoryStub(
+            weaklyAnalytics: []
+        )
+
+        let sharedState = StakingSharedState(
+            settings: stakingSettings,
+            eraValidatorService: eraValidatorService,
+            rewardCalculationService: calculatorService,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            stakingAnalyticsLocalSubscriptionFactory: rewardAnalyticsProviderFactory
+        )
+
+        let stakingServiceFactory = MockStakingServiceFactoryProtocol().apply(
+            eraValidatorService: eraValidatorService,
+            rewardCalculatorService: calculatorService
+        )
+
+        let walletLocalSubscriptionService = WalletLocalSubscriptionFactoryStub(
+            balance: BigUInt(1e+18)
+        )
+
+        let interactor = StakingMainInteractor(
+            selectedWalletSettings: walletSettings,
+            sharedState: sharedState,
+            chainRegistry: chainRegistry,
+            stakingRemoteSubscriptionService: MockStakingRemoteSubscriptionServiceProtocol().applyDefault(),
+            stakingAccountUpdatingService: MockStakingAccountUpdatingServiceProtocol().applyDefault(),
+            walletLocalSubscriptionFactory: walletLocalSubscriptionService,
+            priceLocalSubscriptionFactory: PriceProviderFactoryStub(),
+            stakingServiceFactory: stakingServiceFactory,
+            accountProviderFactory: accountProviderFactory,
+            eventCenter: eventCenter,
+            operationManager: operationManager,
+            eraInfoOperationFactory: eraInfoOperationFactory,
+            applicationHandler: ApplicationHandler(),
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
+            commonSettings: InMemorySettingsManager()
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe
@@ -101,31 +153,33 @@ class StakingMainTests: XCTestCase {
 
         let accountExpectation = XCTestExpectation()
         let nominatorStateExpectation = XCTestExpectation()
-        let chainExpectation = XCTestExpectation()
         let networkStakingInfoExpectation = XCTestExpectation()
         let networkStakingInfoExpandedExpectation = XCTestExpectation()
 
-        stub(operationFactory) { stub in
-            when(stub).networkStakingOperation().then { _ in
+        stub(eraInfoOperationFactory) { stub in
+            when(stub).networkStakingOperation(for: any(), runtimeService: any()).then { _ in
                 CompoundOperationWrapper.createWithResult(
                     NetworkStakingInfo(
                         totalStake: BigUInt.zero,
                         minStakeAmongActiveNominators: BigUInt.zero,
                         minimalBalance: BigUInt.zero,
                         activeNominatorsCount: 0,
-                        lockUpPeriod: 0
+                        lockUpPeriod: 0,
+                        stakingDuration: StakingDuration(
+                            session: 60,
+                            era: 120,
+                            unlocking: 180
+                        )
                     )
                 )
             }
         }
 
         stub(view) { stub in
-            stub.didReceive(viewModel: any()).then { _ in
-                accountExpectation.fulfill()
-            }
-
-            stub.didReceiveChainName(chainName: any()).then { _ in
-                chainExpectation.fulfill()
+            stub.didReceive(viewModel: any()).then { viewModel in
+                if viewModel.balanceViewModel != nil {
+                    accountExpectation.fulfill()
+                }
             }
 
             stub.didRecieveNetworkStakingInfo(viewModel: any()).then { _ in
@@ -133,7 +187,7 @@ class StakingMainTests: XCTestCase {
             }
 
             stub.didReceiveStakingState(viewModel: any()).then { state in
-                if case .nominator = state {
+                if case let .nominator(_, _, analyticsViewModel) = state, analyticsViewModel != nil {
                     nominatorStateExpectation.fulfill()
                 }
             }
@@ -144,27 +198,11 @@ class StakingMainTests: XCTestCase {
 
         presenter.setup()
 
-        // prepare and save stash account and that should allow to resolve state to nominator by state machine
-
-        let stashAccountId = WestendStub.ledgerInfo.item!.stash
-        let stash = try SS58AddressFactory().addressFromAccountId(data: stashAccountId,
-                                                                  type: .genericSubstrate)
-        let controller = settings.selectedAccount!.address
-        let stashItem = StashItem(stash: stash, controller: controller)
-
-        let repository: CoreDataRepository<StashItem, CDStashItem> = storageFacade.createRepository()
-        let saveStashItemOperation = repository.saveOperation( { [stashItem] }, { [] })
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-            operationManager.enqueue(operations: [saveStashItemOperation], in: .transient)
-        }
-
         // then
 
         let expectations = [
             accountExpectation,
             nominatorStateExpectation,
-            chainExpectation,
             networkStakingInfoExpectation,
             networkStakingInfoExpandedExpectation
         ]
@@ -233,24 +271,20 @@ class StakingMainTests: XCTestCase {
     ) -> StakingMainPresenter {
         let interactor = StakingMainInteractorInputProtocolStub()
 
-        let settings = InMemorySettingsManager()
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
-        let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chain, balance in
+        let viewModelFacade = StakingViewModelFacade()
+        let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder = { chainAsset, balance in
             AnalyticsRewardsViewModelFactory(
-                chain: chain,
+                assetInfo: chainAsset.assetDisplayInfo,
                 balanceViewModelFactory: balance,
-                amountFormatterFactory: AmountFormatterFactory(),
-                asset: primitiveFactory.createAssetForAddressType(chain.addressType),
                 calendar: .init(identifier: .gregorian)
             )
         }
         let stateViewModelFactory = StakingStateViewModelFactory(
-            primitiveFactory: primitiveFactory,
             analyticsRewardsViewModelFactoryBuilder: analyticsRewardsViewModelFactoryBuilder,
             logger: nil
         )
-        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+
+        let networkViewModelFactory = NetworkInfoViewModelFactory()
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
@@ -265,7 +299,16 @@ class StakingMainTests: XCTestCase {
         presenter.wireframe = wireframe
         presenter.interactor = interactor
 
-        presenter.didReceive(newChain: .westend)
+        let selectedChain = ChainModelGenerator.generateChain(
+            generatingAssets: 2,
+            addressPrefix: 42,
+            assetPresicion: 12,
+            hasStaking: true
+        )
+
+        let selectedChainAsset = ChainAsset(chain: selectedChain, asset: selectedChain.assets.first!)
+
+        presenter.didReceive(newChainAsset: selectedChainAsset)
         presenter.didReceive(stashItem: StashItem(stash: WestendStub.address, controller: WestendStub.address))
         presenter.didReceive(ledgerInfo: WestendStub.ledgerInfo.item)
         presenter.didReceive(nomination: WestendStub.nomination.item)

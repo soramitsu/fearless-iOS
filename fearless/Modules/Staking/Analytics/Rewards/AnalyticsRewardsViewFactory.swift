@@ -3,35 +3,30 @@ import SoraKeystore
 import SoraFoundation
 
 struct AnalyticsRewardsViewFactory {
-    static func createView(accountIsNominator: Bool) -> AnalyticsRewardsViewProtocol? {
-        let settings = SettingsManager.shared
-
-        let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-        let addressType = settings.selectedConnection.type
-        let chain = addressType.chain
-        guard
-            let accountAddress = settings.selectedAccount?.address,
-            let assetId = WalletAssetId(rawValue: asset.identifier)
-        else {
+    static func createView(
+        accountIsNominator: Bool,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> AnalyticsRewardsViewProtocol? {
+        guard let interactor = createInteractor(
+            selectedAccount: selectedAccount,
+            chain: chain,
+            asset: asset
+        ) else {
             return nil
         }
 
-        let interactor = createInteractor(accountAddress: accountAddress, chain: chain, assetId: assetId)
         let wireframe = AnalyticsRewardsWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
         let viewModelFactory = AnalyticsRewardsViewModelFactory(
-            chain: chain,
+            assetInfo: asset.displayInfo,
             balanceViewModelFactory: balanceViewModelFactory,
-            amountFormatterFactory: AmountFormatterFactory(),
-            asset: asset,
             calendar: Calendar(identifier: .gregorian)
         )
 
@@ -41,6 +36,9 @@ struct AnalyticsRewardsViewFactory {
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
             accountIsNominator: accountIsNominator,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount,
             logger: Logger.shared
         )
 
@@ -53,25 +51,31 @@ struct AnalyticsRewardsViewFactory {
     }
 
     private static func createInteractor(
-        accountAddress: AccountAddress,
-        chain: Chain,
-        assetId: WalletAssetId
-    ) -> AnalyticsRewardsInteractor {
+        selectedAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel
+    ) -> AnalyticsRewardsInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
         let operationManager = OperationManagerFacade.sharedManager
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
         )
 
-        let interactor = AnalyticsRewardsInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
+        return AnalyticsRewardsInteractor(
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
-            assetId: assetId,
+            asset: asset,
             chain: chain,
-            selectedAccountAddress: accountAddress
+            selectedAccount: selectedAccount
         )
-        return interactor
     }
 }

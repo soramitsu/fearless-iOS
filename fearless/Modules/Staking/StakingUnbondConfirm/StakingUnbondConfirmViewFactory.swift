@@ -4,14 +4,29 @@ import SoraKeystore
 import RobinHood
 
 struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol {
-    static func createView(from amount: Decimal) -> StakingUnbondConfirmViewProtocol? {
-        guard let interactor = createInteractor() else {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        amount: Decimal
+    ) -> StakingUnbondConfirmViewProtocol? {
+        guard let interactor = createInteractor(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return nil
         }
 
         let wireframe = StakingUnbondConfirmWireframe()
 
-        let presenter = createPresenter(from: interactor, wireframe: wireframe, amount: amount)
+        let presenter = createPresenter(
+            chain: chain,
+            asset: asset,
+            interactor: interactor,
+            wireframe: wireframe,
+            amount: amount
+        )
 
         let view = StakingUnbondConfirmViewController(
             presenter: presenter,
@@ -25,19 +40,14 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
     }
 
     private static func createPresenter(
-        from interactor: StakingUnbondConfirmInteractorInputProtocol,
+        chain: ChainModel,
+        asset: AssetModel,
+        interactor: StakingUnbondConfirmInteractorInputProtocol,
         wireframe: StakingUnbondConfirmWireframeProtocol,
         amount: Decimal
     ) -> StakingUnbondConfirmPresenter {
-        let settings = SettingsManager.shared
-
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -53,52 +63,80 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
+            asset: asset,
             logger: Logger.shared
         )
     }
 
-    private static func createInteractor() -> StakingUnbondConfirmInteractor? {
-        let settings = SettingsManager.shared
+    private static func createInteractor(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingUnbondConfirmInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard let engine = WebSocketService.shared.connection else {
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
         )
 
-        let chain = settings.selectedConnection.type.chain
-        let networkType = chain.addressType
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
 
-        let asset = WalletPrimitiveFactory(settings: settings)
-            .createAssetForAddressType(networkType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
-
-        let extrinsicServiceFactory = ExtrinsicServiceFactory(
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
-            engine: engine,
-            operationManager: OperationManagerFacade.sharedManager
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
         )
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let feeProxy = ExtrinsicFeeProxy()
+
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         return StakingUnbondConfirmInteractor(
-            assetId: assetId,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            asset: asset,
             chain: chain,
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
-            extrinsicServiceFactory: extrinsicServiceFactory,
-            feeProxy: ExtrinsicFeeProxy(),
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            settings: settings,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager
+            selectedAccount: selectedAccount,
+            extrinsicService: extrinsicService,
+            feeProxy: feeProxy,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            connection: connection,
+            keystore: Keychain(),
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

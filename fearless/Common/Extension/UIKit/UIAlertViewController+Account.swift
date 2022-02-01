@@ -3,7 +3,7 @@ import UIKit
 extension UIAlertController {
     static func presentAccountOptions(
         _ address: String,
-        chain: Chain,
+        chain: ChainModel,
         locale: Locale,
         copyClosure: @escaping () -> Void,
         urlClosure: @escaping (URL) -> Void

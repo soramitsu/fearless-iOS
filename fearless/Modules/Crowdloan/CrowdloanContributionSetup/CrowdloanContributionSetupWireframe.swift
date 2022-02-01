@@ -1,20 +1,23 @@
 import Foundation
 
 final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWireframeProtocol {
+    let state: CrowdloanSharedState
+
+    init(state: CrowdloanSharedState) {
+        self.state = state
+    }
+
     func showConfirmation(
         from view: CrowdloanContributionSetupViewProtocol?,
         paraId: ParaId,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol?,
-        customFlow: CustomCrowdloanFlow?,
-        ethereumAddress: String?
+        bonusService: CrowdloanBonusServiceProtocol?
     ) {
         guard let confirmationView = CrowdloanContributionConfirmViewFactory.createView(
             with: paraId,
             inputAmount: inputAmount,
             bonusService: bonusService,
-            customFlow: customFlow,
-            ethereumAddress: ethereumAddress
+            state: state
         ) else {
             return
         }
@@ -29,7 +32,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let customFlow = displayInfo.flowIfSupported else {
+        guard let customFlow = displayInfo.flow else {
             return
         }
 
@@ -50,39 +53,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
-        case .astar:
-            showAstarCustomFlow(
-                from: view,
-                for: displayInfo,
-                inputAmount: inputAmount,
-                delegate: delegate,
-                existingService: existingService
-            )
         default: break
         }
-    }
-
-    private func showAstarCustomFlow(
-        from view: CrowdloanContributionSetupViewProtocol?,
-        for displayInfo: CrowdloanDisplayInfo,
-        inputAmount: Decimal,
-        delegate: CustomCrowdloanDelegate,
-        existingService: CrowdloanBonusServiceProtocol?
-    ) {
-        guard let astarView = ReferralCrowdloanViewFactory.createAstarView(
-            for: delegate,
-            displayInfo: displayInfo,
-            inputAmount: inputAmount,
-            existingService: existingService
-        ) else {
-            return
-        }
-
-        let navigationController = FearlessNavigationController(
-            rootViewController: astarView.controller
-        )
-
-        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     private func showKaruraCustomFlow(
@@ -96,7 +68,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
-            existingService: existingService
+            existingService: existingService,
+            state: state
         ) else {
             return
         }
@@ -119,7 +92,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
-            existingService: existingService
+            existingService: existingService,
+            state: state
         ) else {
             return
         }

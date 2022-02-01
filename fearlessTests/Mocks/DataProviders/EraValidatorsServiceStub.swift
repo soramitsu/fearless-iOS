@@ -16,7 +16,7 @@ final class EraValidatorServiceStub: EraValidatorServiceProtocol {
 
     func update(to chain: Chain, engine: JSONRPCEngine) {}
 
-    func fetchInfoOperation(with timeout: TimeInterval) -> BaseOperation<EraStakersInfo> {
+    func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
         return BaseOperation.createWithResult(info)
     }
 }

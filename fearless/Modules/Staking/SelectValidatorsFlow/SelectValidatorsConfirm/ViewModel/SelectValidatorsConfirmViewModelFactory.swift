@@ -6,7 +6,7 @@ import SoraFoundation
 protocol SelectValidatorsConfirmViewModelFactoryProtocol {
     func createViewModel(
         from state: SelectValidatorsConfirmationModel,
-        asset: WalletAsset
+        asset: AssetModel
     ) throws
         -> LocalizableResource<SelectValidatorsConfirmViewModel>
 
@@ -15,7 +15,7 @@ protocol SelectValidatorsConfirmViewModelFactoryProtocol {
 
 final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
-    private lazy var amountFactory = AmountFormatterFactory()
+    private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
 
     func createHints(from duration: StakingDuration) -> LocalizableResource<[TitleIconViewModel]> {
         LocalizableResource { locale in
@@ -60,11 +60,11 @@ final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmView
         }
     }
 
-    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: WalletAsset) throws
+    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: AssetModel) throws
         -> LocalizableResource<SelectValidatorsConfirmViewModel> {
         let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
-        let amountFormatter = amountFactory.createInputFormatter(for: asset)
+        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
         let rewardViewModel: RewardDestinationTypeViewModel
 

@@ -2,10 +2,11 @@ import Foundation
 import FearlessUtils
 import CommonWallet
 import SoraFoundation
+import IrohaCrypto
 
 protocol StakingPayoutConfirmViewModelFactoryProtocol {
     func createPayoutConfirmViewModel(
-        with account: AccountItem,
+        with account: ChainAccountResponse,
         rewardAmount: Decimal,
         rewardDestination: RewardDestination<DisplayAddress>?,
         priceData: PriceData?
@@ -13,14 +14,13 @@ protocol StakingPayoutConfirmViewModelFactoryProtocol {
 }
 
 final class StakingPayoutConfirmViewModelFactory {
-    private let asset: WalletAsset
+    private let asset: AssetModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var iconGenerator = PolkadotIconGenerator()
-    private lazy var amountFactory = AmountFormatterFactory()
 
     init(
-        asset: WalletAsset,
+        asset: AssetModel,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.asset = asset
@@ -29,8 +29,10 @@ final class StakingPayoutConfirmViewModelFactory {
 
     // MARK: - Private functions
 
-    private func createAccountRow(with account: AccountItem) -> LocalizableResource<PayoutConfirmViewModel> {
-        let userIcon = try? iconGenerator.generateFromAddress(account.address)
+    private func createAccountRow(with account: ChainAccountResponse) -> LocalizableResource<PayoutConfirmViewModel> {
+        let addressFactory = SS58AddressFactory()
+        let address = (try? addressFactory.address(fromAccountId: account.accountId, type: account.addressPrefix)) ?? ""
+        let userIcon = try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(
                 .white,
                 size: UIConstants.smallAddressIconSize,
@@ -43,8 +45,8 @@ final class StakingPayoutConfirmViewModelFactory {
 
             return .accountInfo(.init(
                 title: title,
-                address: account.address,
-                name: account.username,
+                address: address,
+                name: account.name,
                 icon: userIcon
             ))
         }
@@ -124,7 +126,7 @@ final class StakingPayoutConfirmViewModelFactory {
 extension StakingPayoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol {
     func createPayoutConfirmViewModel
     (
-        with account: AccountItem,
+        with account: ChainAccountResponse,
         rewardAmount: Decimal,
         rewardDestination: RewardDestination<DisplayAddress>?,
         priceData: PriceData?

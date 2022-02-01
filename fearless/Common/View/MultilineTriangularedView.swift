@@ -1,18 +1,15 @@
 import UIKit
+import SnapKit
 
 class MultilineTriangularedView: UIView {
+    enum Layout {
+        static let verticalOffset: CGFloat = 8
+        static let horizontalOffset: CGFloat = 16
+    }
+
     private(set) var backgroundView: TriangularedView!
     private(set) var titleLabel: UILabel!
     private(set) var subtitleLabel: UILabel!
-
-    private var calculatedSubtitleWidth: CGFloat = 0.0
-    private var calculatedSubtitleHeight: CGFloat = 0.0
-
-    override var intrinsicContentSize: CGSize {
-        let height = contentInsets.top + titleLabel.intrinsicContentSize.height + verticalSpacing +
-            calculatedSubtitleHeight + contentInsets.bottom
-        return CGSize(width: UIView.noIntrinsicMetric, height: height)
-    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,44 +23,23 @@ class MultilineTriangularedView: UIView {
         configure()
     }
 
-    var contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0) {
-        didSet {
-            invalidateIntrinsicContentSize()
-            setNeedsLayout()
-        }
-    }
-
-    var verticalSpacing: CGFloat = 4.0 {
-        didSet {
-            invalidateIntrinsicContentSize()
-            setNeedsLayout()
-        }
-    }
-
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        let availableWidth = bounds.width - contentInsets.left - contentInsets.right
-
-        backgroundView.frame = bounds
-
-        titleLabel.frame = CGRect(
-            x: bounds.minX + contentInsets.left,
-            y: bounds.minY + contentInsets.top,
-            width: availableWidth,
-            height: titleLabel.intrinsicContentSize.height
-        )
-
-        if abs(calculatedSubtitleWidth - availableWidth) > CGFloat.leastNormalMagnitude {
-            updateSubtitleSizeForWidth(availableWidth)
+        backgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-
-        subtitleLabel.frame = CGRect(
-            x: bounds.minX + contentInsets.left,
-            y: titleLabel.frame.maxY + verticalSpacing,
-            width: calculatedSubtitleWidth,
-            height: calculatedSubtitleHeight
-        )
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(Layout.verticalOffset)
+            make.leading.equalToSuperview().offset(Layout.horizontalOffset)
+            make.trailing.equalToSuperview().offset(-Layout.horizontalOffset)
+        }
+        subtitleLabel.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().offset(-Layout.verticalOffset)
+            make.leading.equalToSuperview().offset(Layout.horizontalOffset)
+            make.trailing.equalToSuperview().offset(-Layout.horizontalOffset)
+            make.top.greaterThanOrEqualTo(titleLabel.snp.bottom)
+        }
     }
 
     private func configure() {
@@ -72,7 +48,6 @@ class MultilineTriangularedView: UIView {
         if backgroundView == nil {
             backgroundView = TriangularedView()
             backgroundView.isUserInteractionEnabled = false
-            backgroundView.shadowOpacity = 0.0
             addSubview(backgroundView)
         }
 
@@ -86,16 +61,5 @@ class MultilineTriangularedView: UIView {
             subtitleLabel.numberOfLines = 0
             addSubview(subtitleLabel)
         }
-    }
-
-    private func updateSubtitleSizeForWidth(_ width: CGFloat) {
-        calculatedSubtitleWidth = width
-        calculatedSubtitleHeight = subtitleLabel
-            .sizeThatFits(CGSize(
-                width: width,
-                height: CGFloat.greatestFiniteMagnitude
-            )).height
-
-        invalidateIntrinsicContentSize()
     }
 }

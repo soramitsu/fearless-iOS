@@ -11,6 +11,56 @@ enum AccountHeaderType {
 
 enum ModalPickerFactory {
     static func createPickerForList(
+        _ types: [MultiassetCryptoType],
+        selectedType: MultiassetCryptoType?,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !types.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<TitleWithSubtitleTableViewCell, TitleWithSubtitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonCryptoType(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.cellNib = UINib(resource: R.nib.titleWithSubtitleTableViewCell)
+        viewController.delegate = delegate
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+
+        if let selectedType = selectedType {
+            viewController.selectedIndex = types.firstIndex(of: selectedType) ?? 0
+        } else {
+            viewController.selectedIndex = 0
+        }
+
+        viewController.viewModels = types.map { type in
+            LocalizableResource { locale in
+                TitleWithSubtitleViewModel(
+                    title: type.titleForLocale(locale),
+                    subtitle: type.subtitleForLocale(locale)
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    @available(*, deprecated, message: "Use createPickerForList(_ types: [MultiassetCryptoType], ...) instead")
+    static func createPickerForList(
         _ types: [CryptoType],
         selectedType: CryptoType?,
         delegate: ModalPickerViewControllerDelegate?,
@@ -158,8 +208,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         title: LocalizableResource<String>,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -174,8 +224,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         addressType: SNAddressType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -194,8 +244,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         headerType: AccountHeaderType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -227,10 +277,10 @@ enum ModalPickerFactory {
 
         viewController.viewModels = accounts.compactMap { account in
             let viewModel: AccountPickerViewModel
-            if let icon = try? iconGenerator.generateFromAddress(account.address) {
-                viewModel = AccountPickerViewModel(title: account.username, icon: icon)
+            if let icon = try? iconGenerator.generateFromAddress(account.toAddress() ?? "") {
+                viewModel = AccountPickerViewModel(title: account.name, icon: icon)
             } else {
-                viewModel = AccountPickerViewModel(title: account.username, icon: EmptyAccountIcon())
+                viewModel = AccountPickerViewModel(title: account.name, icon: EmptyAccountIcon())
             }
 
             return LocalizableResource { _ in viewModel }
@@ -306,7 +356,7 @@ enum ModalPickerFactory {
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.walletAssetBuyWith(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages)
         }
 
         viewController.cellNib = UINib(resource: R.nib.purchaseProviderPickerTableViewCell)

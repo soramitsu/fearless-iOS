@@ -7,12 +7,8 @@ final class MainTabBarInteractor {
     weak var presenter: MainTabBarInteractorOutputProtocol?
 
     let eventCenter: EventCenterProtocol
-    let settings: SettingsManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let serviceCoordinator: ServiceCoordinatorProtocol
-
-    private var currentAccount: AccountItem?
-    private var currentConnection: ConnectionItem?
 
     deinit {
         stopServices()
@@ -20,23 +16,14 @@ final class MainTabBarInteractor {
 
     init(
         eventCenter: EventCenterProtocol,
-        settings: SettingsManagerProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
         keystoreImportService: KeystoreImportServiceProtocol
     ) {
         self.eventCenter = eventCenter
-        self.settings = settings
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
 
-        updateSelectedItems()
-
         startServices()
-    }
-
-    private func updateSelectedItems() {
-        currentAccount = settings.selectedAccount
-        currentConnection = settings.selectedConnection
     }
 
     private func startServices() {
@@ -61,19 +48,8 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 
 extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        if currentAccount != settings.selectedAccount {
-            serviceCoordinator.updateOnAccountChange()
-            updateSelectedItems()
-            presenter?.didReloadSelectedAccount()
-        }
-    }
-
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        if currentConnection != settings.selectedConnection {
-            serviceCoordinator.updateOnNetworkChange()
-            updateSelectedItems()
-            presenter?.didReloadSelectedNetwork()
-        }
+        serviceCoordinator.updateOnAccountChange()
+        presenter?.didReloadSelectedAccount()
     }
 
     func processBalanceChanged(event _: WalletBalanceChanged) {
