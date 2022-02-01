@@ -136,6 +136,14 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
+    func didTapOptionsButton() {
+        wireframe.presentChainActionsFlow(
+            from: view,
+            items: [.export, .switchNode],
+            delegate: self
+        )
+    }
+
     func didTapInfoButton() {
         print(accountInfo)
         if let info = accountInfo,

@@ -11,7 +11,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapSendButton()
     func didTapReceiveButton()
     func didTapBuyButton()
-
+    func didTapOptionsButton()
     func didTapInfoButton()
 }
 
@@ -58,5 +58,11 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         balanceContext: BalanceContext,
         info: AssetBalanceDisplayInfo
+    )
+
+    func presentChainActionsFlow(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        delegate: ModalPickerViewControllerDelegate
     )
 }

@@ -23,21 +23,21 @@ class BaseTopBar: UIView {
 
         leftStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
         }
 
         centerStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
             make.leading.greaterThanOrEqualTo(leftStackView.snp.trailing).offset(UIConstants.defaultOffset)
         }
 
         rightStackView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
             make.leading.greaterThanOrEqualTo(centerStackView.snp.trailing).offset(UIConstants.defaultOffset)
         }
     }

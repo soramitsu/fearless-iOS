@@ -40,6 +40,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
     var hasCloseItem: Bool = false
     var allowsSelection: Bool = true
+    var showSelection: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
@@ -180,7 +181,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         cell.bind(model: viewModels[indexPath.row].value(for: locale))
-        cell.checkmarked = (selectedIndex == indexPath.row)
+        cell.checkmarked = (selectedIndex == indexPath.row) && showSelection
 
         return cell
     }
