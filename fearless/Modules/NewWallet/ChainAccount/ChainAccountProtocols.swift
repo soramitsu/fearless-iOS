@@ -63,6 +63,11 @@ protocol ChainAccountWireframeProtocol: AnyObject {
     func presentChainActionsFlow(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
-        delegate: ModalPickerViewControllerDelegate
+        callback: @escaping ModalPickerSelectionCallback
+    )
+
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
     )
 }

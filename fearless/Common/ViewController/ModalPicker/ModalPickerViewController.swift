@@ -2,6 +2,8 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
+typealias ModalPickerSelectionCallback = (Int) -> Void
+
 protocol ModalPickerViewControllerDelegate: AnyObject {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?)
     func modalPickerDidCancel(context: AnyObject?)
@@ -27,6 +29,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
     @IBOutlet private var tableView: UITableView!
 
+    var selectionCallback: ModalPickerSelectionCallback?
     var localizedTitle: LocalizableResource<String>?
     var icon: UIImage?
     var actionType: ModalPickerViewAction = .none
@@ -161,6 +164,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
             presenter?.hide(view: self, animated: true)
             delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
+
+            selectionCallback?(indexPath.row)
         }
     }
 

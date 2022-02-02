@@ -425,7 +425,7 @@ enum ModalPickerFactory {
 
     static func createPickerForList(
         _ chainActions: [ChainAction],
-        delegate: ModalPickerViewControllerDelegate?,
+        callback: ModalPickerSelectionCallback?,
         context: AnyObject?
     ) -> UIViewController? {
         guard !chainActions.isEmpty else {
@@ -441,7 +441,7 @@ enum ModalPickerFactory {
 
         viewController.showSelection = false
         viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
-        viewController.delegate = delegate
+        viewController.selectionCallback = callback
         viewController.modalPresentationStyle = .custom
         viewController.context = context
 
