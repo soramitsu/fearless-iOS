@@ -18,6 +18,7 @@ final class ProfileViewController: UIViewController {
 
     private(set) var optionViewModels: [ProfileOptionViewModelProtocol] = []
     private(set) var userViewModel: ProfileUserViewModelProtocol?
+    private(set) var logoutViewModel: ProfileOptionViewModelProtocol?
     private(set) var userIcon: UIImage?
 
     override func viewDidLoad() {
@@ -51,45 +52,74 @@ final class ProfileViewController: UIViewController {
 
 extension ProfileViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        1
+        2
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        optionViewModels.count + 2
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        40
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch section {
+        case 0:
+            return optionViewModels.count + 2
+        case 1:
+            return 1
+        default:
+            return 0
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch indexPath.row {
+        switch indexPath.section {
         case 0:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.profileSectionCellId,
-                for: indexPath
-            )!
+            switch indexPath.row {
+            case 0:
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: R.reuseIdentifier.profileSectionCellId,
+                    for: indexPath
+                )!
 
-            let locale = localizationManager?.selectedLocale
-            cell.titleLabel.text = R.string.localizable.profileTitle(preferredLanguages: locale?.rLanguages)
+                let locale = localizationManager?.selectedLocale
+                cell.titleLabel.text = R.string.localizable.profileTitle(preferredLanguages: locale?.rLanguages)
 
-            return cell
-        case 1:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.profileDetailsCellId,
-                for: indexPath
-            )!
+                return cell
+            case 1:
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: R.reuseIdentifier.profileDetailsCellId,
+                    for: indexPath
+                )!
 
-            if let userViewModel = userViewModel {
-                cell.bind(model: userViewModel, icon: userIcon)
+                if let userViewModel = userViewModel {
+                    cell.bind(model: userViewModel, icon: userIcon)
+                }
+
+                return cell
+            default:
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: R.reuseIdentifier.profileCellId,
+                    for: indexPath
+                )!
+
+                cell.bind(viewModel: optionViewModels[indexPath.row - 2])
+
+                return cell
             }
-
-            return cell
-        default:
+        case 1:
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: R.reuseIdentifier.profileCellId,
                 for: indexPath
             )!
-
-            cell.bind(viewModel: optionViewModels[indexPath.row - 2])
-
+            if let logoutViewModel = logoutViewModel {
+                cell.bind(viewModel: ProfileOptionViewModel(
+                    title: logoutViewModel.title,
+                    icon: logoutViewModel.icon,
+                    accessoryTitle: nil
+                ))
+            }
             return cell
+        default:
+            return UITableViewCell()
         }
     }
 
@@ -108,11 +138,15 @@ extension ProfileViewController: UITableViewDataSource {
 extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        if indexPath.row == 1 {
-            presenter.activateAccountDetails()
-        } else if indexPath.row >= 2 {
-            presenter.activateOption(at: UInt(indexPath.row) - 2)
+        if indexPath.section == 0 {
+            if indexPath.row == 1 {
+                presenter.activateAccountDetails()
+            } else if indexPath.row >= 2 {
+                presenter.activateOption(at: UInt(indexPath.row) - 2)
+            }
+        }
+        if indexPath.section == 1 {
+            presenter.logout()
         }
     }
 }
@@ -124,8 +158,12 @@ extension ProfileViewController: ProfileViewProtocol {
         tableView.reloadData()
     }
 
-    func didLoad(optionViewModels: [ProfileOptionViewModelProtocol]) {
+    func didLoad(
+        optionViewModels: [ProfileOptionViewModelProtocol],
+        logoutViewModel: ProfileOptionViewModelProtocol
+    ) {
         self.optionViewModels = optionViewModels
+        self.logoutViewModel = logoutViewModel
         tableView.reloadData()
     }
 }

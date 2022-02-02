@@ -15,32 +15,6 @@ final class ProfilePresenter {
     init(viewModelFactory: ProfileViewModelFactoryProtocol) {
         self.viewModelFactory = viewModelFactory
     }
-
-    private func updateAccountViewModel() {
-        guard let wallet = selectedWallet else {
-            return
-        }
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: wallet, locale: locale)
-        view?.didLoad(userViewModel: userDetailsViewModel)
-    }
-
-    private func updateOptionsViewModel() {
-        guard
-            let wallet = selectedWallet,
-            let language = localizationManager?.selectedLanguage
-        else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let optionViewModels = viewModelFactory.createOptionViewModels(
-            language: language,
-            locale: locale
-        )
-        view?.didLoad(optionViewModels: optionViewModels)
-    }
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
@@ -73,6 +47,35 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showAbout(from: view)
         }
     }
+
+    func logout() {
+        let locale = localizationManager?.selectedLocale
+
+        let removeTitle = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: locale?.rLanguages)
+
+        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+            self?.interactor.logout { [weak self] in
+                self?.wireframe.logout(from: self?.view)
+            }
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel)
+
+        let title = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: locale?.rLanguages)
+        let details = R.string.localizable
+            .profileLogoutDescription(preferredLanguages: locale?.rLanguages)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: details,
+            actions: [cancelAction, removeAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
 }
 
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
@@ -99,5 +102,33 @@ extension ProfilePresenter: Localizable {
             updateAccountViewModel()
             updateOptionsViewModel()
         }
+    }
+}
+
+private extension ProfilePresenter {
+    func updateAccountViewModel() {
+        guard let wallet = selectedWallet else {
+            return
+        }
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: wallet, locale: locale)
+        view?.didLoad(userViewModel: userDetailsViewModel)
+    }
+
+    func updateOptionsViewModel() {
+        guard
+            let language = localizationManager?.selectedLanguage
+        else {
+            return
+        }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let optionViewModels = viewModelFactory.createOptionViewModels(
+            language: language,
+            locale: locale
+        )
+        let logoutViewModel = viewModelFactory.createLogoutViewModel(locale: locale)
+        view?.didLoad(optionViewModels: optionViewModels, logoutViewModel: logoutViewModel)
     }
 }
