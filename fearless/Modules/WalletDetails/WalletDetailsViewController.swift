@@ -1,4 +1,6 @@
 import UIKit
+import SoraUI
+import SoraFoundation
 
 final class WalletDetailsViewController: UIViewController, ViewHolder {
     enum Constants {
@@ -9,6 +11,7 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
 
     let output: WalletDetailsViewOutputProtocol
     private var chainViewModels: [WalletDetailsCellViewModel]?
+    private var inputViewModel: InputViewModelProtocol?
 
     init(output: WalletDetailsViewOutputProtocol) {
         self.output = output
@@ -32,12 +35,23 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
         output.didLoad(ui: self)
     }
 
+    override func viewWillDisappear(_: Bool) {
+        output.willDisappear()
+        super.viewWillDisappear(true)
+    }
+
     @objc private func closeButtonClicked() {
         output.didTapCloseButton()
     }
 }
 
 extension WalletDetailsViewController: WalletDetailsViewProtocol {
+    func setInput(viewModel: InputViewModelProtocol) {
+        inputViewModel = viewModel
+        rootView.walletView.animatedInputField.title = viewModel.title
+        rootView.walletView.animatedInputField.text = viewModel.inputHandler.value
+    }
+
     func bind(to viewModel: WalletDetailsViewModel) {
         chainViewModels = viewModel.chainViewModels
         rootView.tableView.refreshControl?.endRefreshing()
@@ -46,8 +60,36 @@ extension WalletDetailsViewController: WalletDetailsViewProtocol {
     }
 }
 
+extension WalletDetailsViewController: AnimatedTextFieldDelegate {
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        guard let viewModel = inputViewModel else {
+            return true
+        }
+
+        let shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
+
+        if !shouldApply, textField.text != viewModel.inputHandler.value {
+            textField.text = viewModel.inputHandler.value
+        }
+
+        return shouldApply
+    }
+
+    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
+        textField.resignFirstResponder()
+
+        return false
+    }
+}
+
 private extension WalletDetailsViewController {
     func configure() {
+        rootView.walletView.animatedInputField.delegate = self
+
         rootView.tableView.registerClassForCell(WalletDetailsTableCell.self)
 
         rootView.tableView.dataSource = self

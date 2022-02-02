@@ -87,6 +87,7 @@ final class WalletTableViewCell: UITableViewCell {
             selectionImageView.image = R.image.listCheckmarkIcon()
             infoImageView.image = R.image.iconInfo()
         } else {
+            selectionImageView.image = nil
             infoImageView.image = R.image.iconInfoFilled()
         }
         walletLabel.text = viewModel.name

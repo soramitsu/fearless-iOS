@@ -62,6 +62,8 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         }
 
         provideInitialList()
+
+        eventCenter.add(observer: self)
     }
 
     func select(item: ManagedMetaAccountModel) {
@@ -91,5 +93,23 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     func remove(item: ManagedMetaAccountModel) {
         let operation = repository.saveOperation({ [] }, { [item.identifier] })
         operationQueue.addOperation(operation)
+    }
+
+    func update(item: ManagedMetaAccountModel) {
+        let operation = repository.saveOperation({ [item] }, { [] })
+        operationQueue.addOperation(operation)
+    }
+}
+
+extension AccountManagementInteractor: EventVisitorProtocol {
+    func processWalletNameChanged(event: WalletNameChanged) {
+        let operation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        operation.completionBlock = { [weak self] in
+            let items = try? operation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            if let changedItem = items?.first(where: { $0.info.metaId == event.wallet.metaId }) {
+                self?.update(item: changedItem)
+            }
+        }
     }
 }
