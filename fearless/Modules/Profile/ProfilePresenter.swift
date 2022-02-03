@@ -49,10 +49,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     }
 
     func logout() {
-        let locale = localizationManager?.selectedLocale
-
         let removeTitle = R.string.localizable
-            .profileLogoutTitle(preferredLanguages: locale?.rLanguages)
+            .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
 
         let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
             self?.interactor.logout { [weak self] in
@@ -60,13 +58,13 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             }
         }
 
-        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
         let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel)
 
         let title = R.string.localizable
-            .profileLogoutTitle(preferredLanguages: locale?.rLanguages)
+            .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
         let details = R.string.localizable
-            .profileLogoutDescription(preferredLanguages: locale?.rLanguages)
+            .profileLogoutDescription(preferredLanguages: selectedLocale.rLanguages)
         let viewModel = AlertPresentableViewModel(
             title: title,
             message: details,
@@ -88,10 +86,12 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
     func didReceiveUserDataProvider(error: Error) {
         logger?.debug("Did receive user data provider \(error)")
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
+        if !wireframe.present(error: error, from: view, locale: selectedLocale) {
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: selectedLocale
+            )
         }
     }
 }
@@ -124,13 +124,11 @@ private extension ProfilePresenter {
             return
         }
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
         let optionViewModels = viewModelFactory.createOptionViewModels(
             language: language,
-            locale: locale
+            locale: selectedLocale
         )
-        let logoutViewModel = viewModelFactory.createLogoutViewModel(locale: locale)
+        let logoutViewModel = viewModelFactory.createLogoutViewModel(locale: selectedLocale)
         view?.didLoad(optionViewModels: optionViewModels, logoutViewModel: logoutViewModel)
     }
 }
