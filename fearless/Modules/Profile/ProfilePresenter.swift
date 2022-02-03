@@ -110,8 +110,10 @@ private extension ProfilePresenter {
         guard let wallet = selectedWallet else {
             return
         }
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: wallet, locale: locale)
+        let userDetailsViewModel = viewModelFactory.createUserViewModel(
+            from: wallet,
+            locale: selectedLocale
+        )
         view?.didLoad(userViewModel: userDetailsViewModel)
     }
 

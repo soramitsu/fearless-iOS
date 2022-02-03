@@ -8,6 +8,7 @@ final class ProfileViewController: UIViewController {
         static let sectionCellHeight: CGFloat = 56.0
         static let detailsCellHeight: CGFloat = 86.0
         static let headerInsets = UIEdgeInsets(top: 0.0, left: 16.0, bottom: 16, right: 16.0)
+        static let tableViewFooterHeight: CGFloat = 40.0
     }
 
     var presenter: ProfilePresenterProtocol!
@@ -56,7 +57,7 @@ extension ProfileViewController: UITableViewDataSource {
     }
 
     func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
-        40
+        Constants.tableViewFooterHeight
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -75,49 +76,56 @@ extension ProfileViewController: UITableViewDataSource {
         case 0:
             switch indexPath.row {
             case 0:
-                let cell = tableView.dequeueReusableCell(
+                if let cell = tableView.dequeueReusableCell(
                     withIdentifier: R.reuseIdentifier.profileSectionCellId,
                     for: indexPath
-                )!
+                ) {
+                    let locale = localizationManager?.selectedLocale
+                    cell.titleLabel.text = R.string.localizable.profileTitle(preferredLanguages: locale?.rLanguages)
 
-                let locale = localizationManager?.selectedLocale
-                cell.titleLabel.text = R.string.localizable.profileTitle(preferredLanguages: locale?.rLanguages)
-
-                return cell
+                    return cell
+                } else {
+                    return UITableViewCell()
+                }
             case 1:
-                let cell = tableView.dequeueReusableCell(
+                if let cell = tableView.dequeueReusableCell(
                     withIdentifier: R.reuseIdentifier.profileDetailsCellId,
                     for: indexPath
-                )!
+                ) {
+                    if let userViewModel = userViewModel {
+                        cell.bind(model: userViewModel, icon: userIcon)
+                    }
 
-                if let userViewModel = userViewModel {
-                    cell.bind(model: userViewModel, icon: userIcon)
+                    return cell
+                } else {
+                    return UITableViewCell()
                 }
-
-                return cell
             default:
-                let cell = tableView.dequeueReusableCell(
+                if let cell = tableView.dequeueReusableCell(
                     withIdentifier: R.reuseIdentifier.profileCellId,
                     for: indexPath
-                )!
+                ) {
+                    cell.bind(viewModel: optionViewModels[indexPath.row - 2])
 
-                cell.bind(viewModel: optionViewModels[indexPath.row - 2])
-
-                return cell
+                    return cell
+                } else {
+                    return UITableViewCell()
+                }
             }
         case 1:
-            let cell = tableView.dequeueReusableCell(
+            if let cell = tableView.dequeueReusableCell(
                 withIdentifier: R.reuseIdentifier.profileCellId,
                 for: indexPath
-            )!
-            if let logoutViewModel = logoutViewModel {
+            ), let logoutViewModel = logoutViewModel {
                 cell.bind(viewModel: ProfileOptionViewModel(
                     title: logoutViewModel.title,
                     icon: logoutViewModel.icon,
                     accessoryTitle: nil
                 ))
+                return cell
+            } else {
+                return UITableViewCell()
             }
-            return cell
         default:
             return UITableViewCell()
         }
