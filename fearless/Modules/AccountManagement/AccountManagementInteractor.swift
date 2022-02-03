@@ -108,8 +108,14 @@ extension AccountManagementInteractor: EventVisitorProtocol {
             let items = try? operation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             if let changedItem = items?.first(where: { $0.info.metaId == event.wallet.metaId }) {
-                self?.update(item: changedItem)
+                let newItem = ManagedMetaAccountModel(
+                    info: event.wallet,
+                    isSelected: changedItem.isSelected,
+                    order: changedItem.order
+                )
+                self?.update(item: newItem)
             }
         }
+        operationQueue.addOperation(operation)
     }
 }
