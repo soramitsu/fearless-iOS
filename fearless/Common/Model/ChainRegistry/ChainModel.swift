@@ -70,6 +70,10 @@ class ChainModel: Codable {
         options?.contains(.testnet) ?? false
     }
 
+    var isPolkadotOrKusama: Bool {
+        name.lowercased() == "polkadot" || name.lowercased() == "kusama"
+    }
+
     var hasCrowdloans: Bool {
         options?.contains(.crowdloans) ?? false
     }
