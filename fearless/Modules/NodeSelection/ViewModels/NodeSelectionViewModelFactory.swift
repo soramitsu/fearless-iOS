@@ -6,10 +6,17 @@ protocol NodeSelectionViewModelFactoryProtocol {
 
 class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
     func buildViewModel(from chain: ChainModel) -> NodeSelectionViewModel {
-        NodeSelectionViewModel(
+        let cellViewModels: [NodeSelectionTableCellViewModel] = chain.nodes.compactMap { node in
+            NodeSelectionTableCellViewModel(
+                node: node,
+                selected: node.url == chain.selectedNode?.url,
+                selectable: chain.selectedNode != nil
+            )
+        }
+        return NodeSelectionViewModel(
             title: chain.name,
-            autoSelectEnabled: false,
-            nodes: Array(chain.nodes)
+            autoSelectEnabled: chain.selectedNode == nil,
+            viewModels: cellViewModels
         )
     }
 }

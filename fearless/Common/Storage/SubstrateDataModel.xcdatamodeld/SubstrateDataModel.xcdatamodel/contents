@@ -25,7 +25,9 @@
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDChainAsset" inverseName="chain" inverseEntity="CDChainAsset"/>
+        <relationship name="customNodes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDChainNode"/>
         <relationship name="nodes" optional="YES" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="CDChainNode" inverseName="chain" inverseEntity="CDChainNode"/>
+        <relationship name="selectedNode" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainNode"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="chainId"/>
@@ -96,7 +98,8 @@
     </entity>
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="104"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="299"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="329"/>
+        <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="104"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
@@ -105,6 +108,5 @@
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>
-        <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="104"/>
     </elements>
 </model>

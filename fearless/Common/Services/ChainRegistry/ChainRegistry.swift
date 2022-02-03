@@ -6,6 +6,7 @@ protocol ChainRegistryProtocol: AnyObject {
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
+    func reconnect(url: URL)
 
     func chainsSubscribe(
         _ target: AnyObject,
@@ -77,6 +78,25 @@ final class ChainRegistry {
             failing: failureClosure,
             options: options
         )
+    }
+
+    func reconnect(url: URL) {
+        let fetchOperation = chainProvider.fetch(offset: 0, count: runtimeVersionSubscriptions.count, synchronized: false) { result in
+            switch result {
+            case let .success(chains):
+                let chain = chains.first { chainModel in
+                    chainModel.nodes.first { node in
+                        node.url.absoluteString == url.absoluteString
+                    } != nil
+                }
+                
+            case let .failure(error):
+                break
+            case .none:
+                break
+            }
+        }
+        
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {

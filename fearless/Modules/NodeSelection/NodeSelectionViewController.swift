@@ -71,7 +71,7 @@ extension NodeSelectionViewController: UITableViewDelegate, UITableViewDataSourc
             return 0
         }
 
-        return viewModel.nodes.count
+        return viewModel.viewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -84,15 +84,15 @@ extension NodeSelectionViewController: UITableViewDelegate, UITableViewDataSourc
             return UITableViewCell()
         }
 
-        cell.bind(to: viewModel.nodes[indexPath.row])
+        cell.bind(to: viewModel.viewModels[indexPath.row])
         return cell
     }
 
-    func tableView(_: UITableView, didSelectRowAt _: IndexPath) {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard case let .loaded(viewModel) = state else {
             return
         }
 
-//        presenter.didSelectViewModel(viewModel: viewModel.nodes[indexPath.row])
+        presenter.didSelectNode(viewModel.viewModels[indexPath.row].node)
     }
 }

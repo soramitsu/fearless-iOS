@@ -1,6 +1,7 @@
 import Foundation
 
 protocol ConnectionPoolProtocol {
+    func reconnect(url: URL)
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
 }
@@ -22,6 +23,18 @@ class ConnectionPool {
 }
 
 extension ConnectionPool: ConnectionPoolProtocol {
+    func reconnect(chain: ChainModel, disconnectedUrl: URL) {
+        let weakWrapper = connections.values.first { value in
+            (value as? ChainConnection)?.ranking.first(where: { rank in
+                rank.url.absoluteString == url.absoluteString
+            }) != nil
+        }
+
+        guard let connection = weakWrapper as? ChainConnection else {
+            return
+        }
+    }
+
     func setupConnection(for chain: ChainModel) throws -> ChainConnection {
         mutex.lock()
 

@@ -24,6 +24,10 @@ extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
     func setup() {
         interactor.setup()
     }
+
+    func didSelectNode(_ node: ChainNodeModel) {
+        interactor.selectNode(node)
+    }
 }
 
 extension NodeSelectionPresenter: NodeSelectionInteractorOutputProtocol {

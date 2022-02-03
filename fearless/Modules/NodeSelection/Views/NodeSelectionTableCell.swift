@@ -1,6 +1,13 @@
 import UIKit
 
 class NodeSelectionTableCell: UITableViewCell {
+    let selectedIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.listCheckmarkIcon()
+        imageView.tintColor = .white
+        return imageView
+    }()
+
     let nodeNameLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -49,12 +56,19 @@ class NodeSelectionTableCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        contentView.addSubview(selectedIconImageView)
         contentView.addSubview(nodeNameLabel)
         contentView.addSubview(nodeUrlLabel)
         contentView.addSubview(infoButton)
 
+        selectedIconImageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(30)
+        }
+
         nodeNameLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset * 3)
+            make.leading.equalTo(selectedIconImageView.snp.trailing).offset(UIConstants.defaultOffset)
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
         }
 
@@ -72,8 +86,9 @@ class NodeSelectionTableCell: UITableViewCell {
         }
     }
 
-    func bind(to viewModel: ChainNodeModel) {
-        nodeNameLabel.text = viewModel.name
-        nodeUrlLabel.text = viewModel.url.absoluteString
+    func bind(to viewModel: NodeSelectionTableCellViewModel) {
+        nodeNameLabel.text = viewModel.node.name
+        nodeUrlLabel.text = viewModel.node.url.absoluteString
+        selectedIconImageView.isHidden = !viewModel.selected
     }
 }

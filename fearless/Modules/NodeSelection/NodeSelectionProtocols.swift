@@ -7,10 +7,12 @@ protocol NodeSelectionViewProtocol: ControllerBackedProtocol {
 
 protocol NodeSelectionPresenterProtocol: AnyObject {
     func setup()
+    func didSelectNode(_ node: ChainNodeModel)
 }
 
 protocol NodeSelectionInteractorInputProtocol: AnyObject {
     func setup()
+    func selectNode(_ node: ChainNodeModel)
 }
 
 protocol NodeSelectionInteractorOutputProtocol: AnyObject {

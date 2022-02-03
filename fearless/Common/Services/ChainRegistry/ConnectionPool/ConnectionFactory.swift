@@ -17,7 +17,9 @@ final class ConnectionFactory {
 
 extension ConnectionFactory: ConnectionFactoryProtocol {
     func createConnection(for chain: ChainModel) throws -> ChainConnection {
-        guard let url = chain.nodes.first?.url else {
+        let node: ChainNodeModel? = chain.selectedNode ?? chain.nodes.first
+
+        guard let url = node?.url else {
             throw JSONRPCEngineError.unknownError
         }
 

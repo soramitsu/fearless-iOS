@@ -1,9 +1,18 @@
 import Foundation
 import SoraFoundation
+import RobinHood
 
 struct NodeSelectionViewFactory {
     static func createView(chain: ChainModel) -> NodeSelectionViewProtocol? {
-        let interactor = NodeSelectionInteractor(chain: chain)
+        let repository: CoreDataRepository<ChainModel, CDChain> = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let interactor = NodeSelectionInteractor(
+            chain: chain,
+            repository: AnyDataProviderRepository(repository),
+            operationManager: OperationManagerFacade.sharedManager
+        )
         let wireframe = NodeSelectionWireframe()
 
         let presenter = NodeSelectionPresenter(

@@ -135,8 +135,10 @@ extension WebSocketService: WebSocketEngineDelegate {
             if attempt > 1 {
                 scheduleNetworkUnreachable()
 
+                chainRegistry.reconnect(url: settings.url)
+
                 stateListeners.forEach { listenerWeakWrapper in
-                    (listenerWeakWrapper.target as? WebSocketServiceStateListener)?.websocketNetworkDown()
+                    (listenerWeakWrapper.target as? WebSocketServiceStateListener)?.websocketNetworkDown(url: settings.url)
                 }
             }
         case .connected:
