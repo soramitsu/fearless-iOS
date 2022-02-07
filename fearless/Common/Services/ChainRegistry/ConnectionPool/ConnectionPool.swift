@@ -1,20 +1,27 @@
 import Foundation
+import FearlessUtils
 
 protocol ConnectionPoolProtocol {
-    func reconnect(url: URL)
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
+    func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
+    func setDelegate(_ delegate: ConnectionPoolDelegate)
+}
+
+protocol ConnectionPoolDelegate: AnyObject {
+    func connectionNeedsReconnect(url: URL)
 }
 
 class ConnectionPool {
     let connectionFactory: ConnectionFactoryProtocol
+    weak var delegate: ConnectionPoolDelegate?
 
     private var mutex = NSLock()
 
-    private(set) var connections: [ChainModel.Id: WeakWrapper] = [:]
+    private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
 
     private func clearUnusedConnections() {
-        connections = connections.filter { $0.value.target != nil }
+        connectionsByChainIds = connectionsByChainIds.filter { $0.value.target != nil }
     }
 
     init(connectionFactory: ConnectionFactoryProtocol) {
@@ -23,19 +30,21 @@ class ConnectionPool {
 }
 
 extension ConnectionPool: ConnectionPoolProtocol {
-    func reconnect(chain: ChainModel, disconnectedUrl: URL) {
-        let weakWrapper = connections.values.first { value in
-            (value as? ChainConnection)?.ranking.first(where: { rank in
-                rank.url.absoluteString == url.absoluteString
-            }) != nil
-        }
-
-        guard let connection = weakWrapper as? ChainConnection else {
-            return
-        }
+    func setDelegate(_ delegate: ConnectionPoolDelegate) {
+        self.delegate = delegate
     }
 
     func setupConnection(for chain: ChainModel) throws -> ChainConnection {
+        try setupConnection(for: chain, ignoredUrl: nil)
+    }
+
+    func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
+        let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != ignoredUrl })
+
+        guard let url = node?.url else {
+            throw JSONRPCEngineError.unknownError
+        }
+
         mutex.lock()
 
         defer {
@@ -44,14 +53,15 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         clearUnusedConnections()
 
-        if let connection = connections[chain.chainId]?.target as? ChainConnection {
-            let ranking = chain.nodes.map { ConnectionRank(chainNode: $0) }
-            connection.set(ranking: ranking)
+        if let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
+            connection.reconnect(url: url)
             return connection
         }
 
-        let connection = try connectionFactory.createConnection(for: chain)
-        connections[chain.chainId] = WeakWrapper(target: connection)
+        let connection = connectionFactory.createConnection(for: url, delegate: self)
+        let wrapper = WeakWrapper(target: connection)
+
+        connectionsByChainIds[chain.chainId] = wrapper
 
         return connection
     }
@@ -63,6 +73,25 @@ extension ConnectionPool: ConnectionPoolProtocol {
             mutex.unlock()
         }
 
-        return connections[chainId]?.target as? ChainConnection
+        return connectionsByChainIds[chainId]?.target as? ChainConnection
+    }
+}
+
+extension ConnectionPool: WebSocketEngineDelegate {
+    func webSocketDidChangeState(engine: WebSocketEngine, from _: WebSocketEngine.State, to newState: WebSocketEngine.State) {
+        guard let previousUrl = engine.url else {
+            return
+        }
+
+        switch newState {
+        case let .connecting(attempt):
+            if attempt >= 1 {
+                delegate?.connectionNeedsReconnect(url: previousUrl)
+            }
+        case .connected:
+            break
+        default:
+            break
+        }
     }
 }

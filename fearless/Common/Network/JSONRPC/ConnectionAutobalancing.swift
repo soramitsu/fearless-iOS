@@ -8,6 +8,7 @@ struct ConnectionRank {
 protocol ConnectionAutobalancing {
     var ranking: [ConnectionRank] { get }
     func set(ranking: [ConnectionRank])
+    func disconnectIfNeeded()
 }
 
 extension ConnectionRank {

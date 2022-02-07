@@ -6,7 +6,6 @@ protocol ChainRegistryProtocol: AnyObject {
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
-    func reconnect(url: URL)
 
     func chainsSubscribe(
         _ target: AnyObject,
@@ -53,6 +52,8 @@ final class ChainRegistry {
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
         self.logger = logger
 
+        connectionPool.setDelegate(self)
+
         subscribeToChains()
     }
 
@@ -78,25 +79,6 @@ final class ChainRegistry {
             failing: failureClosure,
             options: options
         )
-    }
-
-    func reconnect(url: URL) {
-        let fetchOperation = chainProvider.fetch(offset: 0, count: runtimeVersionSubscriptions.count, synchronized: false) { result in
-            switch result {
-            case let .success(chains):
-                let chain = chains.first { chainModel in
-                    chainModel.nodes.first { node in
-                        node.url.absoluteString == url.absoluteString
-                    } != nil
-                }
-                
-            case let .failure(error):
-                break
-            case .none:
-                break
-            }
-        }
-        
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
@@ -227,5 +209,38 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func syncUp() {
         syncUpServices()
+    }
+}
+
+extension ChainRegistry: ConnectionPoolDelegate {
+    func connectionNeedsReconnect(url: URL) {
+        chainProvider.fetch(offset: 0, count: 100, synchronized: true) { [weak self] result in
+            switch result {
+            case let .success(chains):
+                let failedChain = chains.first { chain in
+                    chain.nodes.first { node in
+                        node.url == url
+                    } != nil
+                }
+
+                guard let failedChain = failedChain, failedChain.selectedNode == nil else {
+                    return
+                }
+
+                if failedChain.selectedNode == nil {
+                    self?.clearRuntimeSubscription(for: failedChain.chainId)
+
+                    if let connection = try? self?.connectionPool.setupConnection(for: failedChain, ignoredUrl: url) {
+                        _ = self?.runtimeProviderPool.setupRuntimeProvider(for: failedChain)
+                        self?.setupRuntimeVersionSubscription(for: failedChain, connection: connection)
+                    }
+                }
+
+            case .failure:
+                break
+            case .none:
+                break
+            }
+        }
     }
 }

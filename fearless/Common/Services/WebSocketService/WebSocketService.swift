@@ -35,6 +35,7 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     private(set) var settings: WebSocketServiceSettings
     private(set) var engine: WebSocketEngine?
+
     private(set) var subscriptions: [WebSocketSubscribing]?
 
     private(set) var isThrottled: Bool = true
@@ -127,6 +128,7 @@ extension WebSocketService: ApplicationHandlerDelegate {
 
 extension WebSocketService: WebSocketEngineDelegate {
     func webSocketDidChangeState(
+        engine _: WebSocketEngine,
         from _: WebSocketEngine.State,
         to newState: WebSocketEngine.State
     ) {
@@ -134,8 +136,6 @@ extension WebSocketService: WebSocketEngineDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 scheduleNetworkUnreachable()
-
-                chainRegistry.reconnect(url: settings.url)
 
                 stateListeners.forEach { listenerWeakWrapper in
                     (listenerWeakWrapper.target as? WebSocketServiceStateListener)?.websocketNetworkDown(url: settings.url)
