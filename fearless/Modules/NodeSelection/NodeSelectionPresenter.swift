@@ -37,7 +37,9 @@ extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
         wireframe.dismiss(view: view)
     }
 
-    func didTapAddNodeButton() {}
+    func didTapAddNodeButton() {
+        wireframe.presentAddNodeFlow(with: interactor.chain, moduleOutput: self, from: view)
+    }
 }
 
 extension NodeSelectionPresenter: NodeSelectionInteractorOutputProtocol {
@@ -52,3 +54,5 @@ extension NodeSelectionPresenter: Localizable {
         view?.didReceive(locale: selectedLocale)
     }
 }
+
+extension NodeSelectionPresenter: AddCustomNodeModuleOutput {}
