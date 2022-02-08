@@ -85,6 +85,7 @@ extension ProfileViewController: UITableViewDataSource {
 
                     return cell
                 } else {
+                    assertionFailure("Profile section cell creation failed")
                     return UITableViewCell()
                 }
             case 1:
@@ -98,6 +99,7 @@ extension ProfileViewController: UITableViewDataSource {
 
                     return cell
                 } else {
+                    assertionFailure("Profile details cell creation failed")
                     return UITableViewCell()
                 }
             default:
@@ -109,6 +111,7 @@ extension ProfileViewController: UITableViewDataSource {
 
                     return cell
                 } else {
+                    assertionFailure("Profile cell creation failed")
                     return UITableViewCell()
                 }
             }
@@ -124,9 +127,11 @@ extension ProfileViewController: UITableViewDataSource {
                 ))
                 return cell
             } else {
+                assertionFailure("Profile cell creation failed")
                 return UITableViewCell()
             }
         default:
+            assertionFailure("wrong index apth for cell")
             return UITableViewCell()
         }
     }
