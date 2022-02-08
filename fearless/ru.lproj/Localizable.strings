@@ -108,8 +108,8 @@
 "common.save" = "Сохранить";
 "common.copied" = "Скопировано в буфер обмена";
 "connections.add.connection" = "Добавить соединение";
-"connection.management.default.title" = "По умолчанию";
-"connection.management.custom.title" = "Добавленные";
+"connection.management.default.title" = "Ноды по умолчанию";
+"connection.management.custom.title" = "Добавленные ноды";
 "account.delete.confirmation.title" = "Забыть аккаунт?";
 "account.delete.confirmation.description" = "Прежде чем продолжить, убедитесь, что вы создали резервную копию своей учетной записи.";
 "account.delete.confirm" = "Забыть";
@@ -348,7 +348,7 @@
 "crowdloan.completed.section.format" = "Завершённые (%@)";
 "crowdloan.empty.message" = "Информация о краудлоунах \n появится здесь.";
 "common.time.left.format" = "%@ осталось";
-"common.existential.warning.message" = "Операция сделает аккаунт неактивным в хранилища блоков, так как это общий баланс будет ниже минимального.";
+"common.existential.warning.message" = "Эта операция приведет к тому, что счет опустится ниже экзистенциального депозита, что приведет к его деактивации (счет будет стерт из состояния блокчейна для экономии места). Если вы решите продолжить, вы потеряете все средства, которые находятся ниже суммы экзистенциального депозита, установленного сетью. За подробной информацией обращайтесь к официальной документации сети (например, Polkadot Wiki). Fearless Wallet является полностью не опекунским приложением и не контролирует и не знает о любых ваших действиях в самой сети. ПРОДОЛЖАЙТЕ ТОЛЬКО В ТОМ СЛУЧАЕ, ЕСЛИ ВЫ ПОЛНОСТЬЮ СОГЛАСНЫ И ПОНИМАЕТЕ ПОСЛЕДСТВИЯ.";
 "common.existential.warning.title" = "Операция сделает аккаунт неактивным";
 "crowdloan.ended.message" = "Невозможно внести вклад в выбранный краудлоун, поскольку он уже завершён.";
 "crowdloan.ended.title" = "Краудлоун завершён";
@@ -592,3 +592,13 @@
 "view.in" = "Посмотреть в %s";
 "wallet.transaction.history.unsupported.message" = "История транзакций для этой сети еще не поддерживается";
 "wallet.transaction.history.empty.message" = "Здесь появится история транзакций";
+"account.option" = "";
+"switch.node.autoselect.title" = "Автоматический выбор нод";
+"add.node.button.title" = "Добавить ноду";
+"profile.logout.title" = "";
+"profile.logout.description" = "";
+"delete.custom.node.title" = "";
+"network.url.address" = "";
+"error.message.enter.the.name" = "";
+"error.message.enter.the.url.address" = "";
+"node" = "Нода";
