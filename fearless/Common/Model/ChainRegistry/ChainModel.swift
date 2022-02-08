@@ -105,7 +105,7 @@ class ChainModel: Codable {
         URL(string: "")!
     }
 
-    func replacingSelectedNode(_ node: ChainNodeModel) -> ChainModel {
+    func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {
         ChainModel(
             chainId: chainId,
             parentId: parentId,

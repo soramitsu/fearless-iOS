@@ -21,6 +21,10 @@ final class NodeSelectionPresenter {
 }
 
 extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
+    func didChangeValueForAutomaticNodeSwitch(isOn: Bool) {
+        interactor.setAutomaticSwitchNodes(isOn)
+    }
+
     func setup() {
         interactor.setup()
     }
@@ -28,6 +32,12 @@ extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
     func didSelectNode(_ node: ChainNodeModel) {
         interactor.selectNode(node)
     }
+
+    func didTapCloseButton() {
+        wireframe.dismiss(view: view)
+    }
+
+    func didTapAddNodeButton() {}
 }
 
 extension NodeSelectionPresenter: NodeSelectionInteractorOutputProtocol {

@@ -11,7 +11,8 @@ struct NodeSelectionViewFactory {
         let interactor = NodeSelectionInteractor(
             chain: chain,
             repository: AnyDataProviderRepository(repository),
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            eventCenter: EventCenter.shared
         )
         let wireframe = NodeSelectionWireframe()
 

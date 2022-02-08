@@ -17,6 +17,8 @@ protocol ChainAccountPresenterProtocol: AnyObject {
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
+
+    var chain: ChainModel { get set }
 }
 
 protocol ChainAccountInteractorOutputProtocol: AnyObject {

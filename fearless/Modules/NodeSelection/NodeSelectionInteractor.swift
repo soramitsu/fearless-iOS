@@ -4,18 +4,21 @@ import RobinHood
 final class NodeSelectionInteractor {
     weak var presenter: NodeSelectionInteractorOutputProtocol?
 
-    let chain: ChainModel
+    var chain: ChainModel
     let repository: AnyDataProviderRepository<ChainModel>
     let operationManager: OperationManagerProtocol
+    let eventCenter: EventCenterProtocol
 
     init(
         chain: ChainModel,
         repository: AnyDataProviderRepository<ChainModel>,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.chain = chain
         self.repository = repository
         self.operationManager = operationManager
+        self.eventCenter = eventCenter
     }
 }
 
@@ -24,7 +27,7 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
         presenter?.didReceive(chain: chain)
     }
 
-    func selectNode(_ node: ChainNodeModel) {
+    func selectNode(_ node: ChainNodeModel?) {
         let saveOperation = repository.saveOperation { [weak self] in
             guard let self = self else {
                 return []
@@ -35,15 +38,26 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
             []
         }
 
-        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
-        let logOperation = ClosureOperation {
-            let chains = try fetchOperation.extractNoCancellableResultData()
-            print("chains: ", chains)
+        saveOperation.completionBlock = { [weak self] in
+            guard let self = self else { return }
+            self.chain = self.chain.replacingSelectedNode(node)
+
+            DispatchQueue.main.async {
+                self.presenter?.didReceive(chain: self.chain)
+            }
+
+            let event = ChainsUpdatedEvent(updatedChains: [self.chain])
+            self.eventCenter.notify(with: event)
         }
 
-        logOperation.addDependency(fetchOperation)
-        fetchOperation.addDependency(saveOperation)
+        operationManager.enqueue(operations: [saveOperation], in: .transient)
+    }
 
-        operationManager.enqueue(operations: [saveOperation, fetchOperation, logOperation], in: .transient)
+    func setAutomaticSwitchNodes(_ automatic: Bool) {
+        if automatic {
+            selectNode(nil)
+        } else {
+            selectNode(chain.nodes.first)
+        }
     }
 }

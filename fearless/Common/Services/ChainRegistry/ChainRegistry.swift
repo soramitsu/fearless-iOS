@@ -103,8 +103,12 @@ final class ChainRegistry {
 
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
                 case let .update(updatedChain):
-                    _ = try connectionPool.setupConnection(for: updatedChain)
+                    clearRuntimeSubscription(for: updatedChain.chainId)
+
+                    let connection = try connectionPool.setupConnection(for: updatedChain)
                     _ = runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
+
                 case let .delete(chainId):
                     runtimeProviderPool.destroyRuntimeProvider(for: chainId)
                     clearRuntimeSubscription(for: chainId)

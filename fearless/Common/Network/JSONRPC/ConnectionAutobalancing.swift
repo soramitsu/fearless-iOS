@@ -9,6 +9,7 @@ protocol ConnectionAutobalancing {
     var ranking: [ConnectionRank] { get }
     func set(ranking: [ConnectionRank])
     func disconnectIfNeeded()
+    var url: URL? { get set }
 }
 
 extension ConnectionRank {

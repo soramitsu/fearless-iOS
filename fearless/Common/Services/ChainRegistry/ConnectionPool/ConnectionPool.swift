@@ -54,8 +54,11 @@ extension ConnectionPool: ConnectionPoolProtocol {
         clearUnusedConnections()
 
         if let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
-            connection.reconnect(url: url)
-            return connection
+            if connection.url == url {
+                return connection
+            } else {
+                connectionsByChainIds[chain.chainId] = nil
+            }
         }
 
         let connection = connectionFactory.createConnection(for: url, delegate: self)
