@@ -2,6 +2,8 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
@@ -67,14 +69,11 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
-    func logout(from view: ProfileViewProtocol?) {
+    func logout(from _: ProfileViewProtocol?) {
         guard let onboarding = OnboardingMainViewFactory.createViewForAdding() else {
             return
         }
-
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(onboarding.controller, animated: true)
-        }
+        rootAnimator.animateTransition(to: onboarding.controller)
     }
 
     // MARK: Private
