@@ -67,6 +67,16 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
+    func logout(from view: ProfileViewProtocol?) {
+        guard let onboarding = OnboardingMainViewFactory.createViewForAdding() else {
+            return
+        }
+
+        if let navigationController = view?.controller.navigationController {
+            navigationController.pushViewController(onboarding.controller, animated: true)
+        }
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

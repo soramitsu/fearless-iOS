@@ -577,6 +577,8 @@
 "assetdetails.balance.title" = "Баланс";
 "wallet.send.navigation.title" = "Перевести %@";
 "profile.wallets.title" = "Кошельки";
+"profile.logout.title" = "Выйти";
+"profile.logout.description" = "Это действие приведет к удалению всех учетных записей с этого устройства. Прежде чем продолжить, убедитесь, что вы сделали резервную копию своей мнемоники.";
 "settings.add.wallet" = "Добавить кошелёк";
 "onboarding.create.wallet" = "Создать кошелёк";
 "onboarding.restore.wallet" = "У меня уже есть кошелек";
