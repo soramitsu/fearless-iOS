@@ -24,27 +24,48 @@ protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {
 
 protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceedToCustomList(
-        from view: ControllerBackedProtocol?,
+        from: ControllerBackedProtocol?,
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
-        maxTargets: Int
+        maxTargets: Int,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     )
 
     func proceedToRecommendedList(
         from view: SelectValidatorsStartViewProtocol?,
         validatorList: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        selectedAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel
     )
 }
 
 protocol SelectValidatorsStartViewFactoryProtocol: AnyObject {
-    static func createInitiatedBondingView(with state: InitiatedBonding)
+    static func createInitiatedBondingView(
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        state: InitiatedBonding
+    )
         -> SelectValidatorsStartViewProtocol?
 
-    static func createChangeTargetsView(with state: ExistingBonding)
+    static func createChangeTargetsView(
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        state: ExistingBonding
+    )
         -> SelectValidatorsStartViewProtocol?
 
-    static func createChangeYourValidatorsView(with state: ExistingBonding)
+    static func createChangeYourValidatorsView(
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        state: ExistingBonding
+    )
         -> SelectValidatorsStartViewProtocol?
 }

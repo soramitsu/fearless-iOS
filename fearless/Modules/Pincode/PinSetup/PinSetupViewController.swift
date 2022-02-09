@@ -107,7 +107,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
                     .pincodeSetYourPinCode(preferredLanguages: languages)
             } else {
                 titleLabel.text = R.string.localizable
-                    .pincodeConfirmYourPinCode(preferredLanguages: languages)
+                    .pincodeConfirmPinCode(preferredLanguages: languages)
             }
         } else {
             titleLabel.text = R.string.localizable

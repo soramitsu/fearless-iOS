@@ -14,15 +14,19 @@ final class CrowdloansOperationFactoryStub: CrowdloanOperationFactoryProtocol {
 
     func fetchCrowdloansOperation(
         connection: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol,
-        chain: Chain
+        runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<[Crowdloan]> {
         CompoundOperationWrapper.createWithResult(crowdloans)
     }
 
-    func fetchContributionOperation(connection: JSONRPCEngine, runtimeService: RuntimeCodingServiceProtocol, address: AccountAddress, trieIndex: UInt32) -> CompoundOperationWrapper<CrowdloanContributionResponse> {
+    func fetchContributionOperation(
+        connection: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        accountId: AccountId,
+        trieIndex: UInt32
+    ) -> CompoundOperationWrapper<CrowdloanContributionResponse> {
         CompoundOperationWrapper.createWithResult(
-            CrowdloanContributionResponse(address: address, trieIndex: trieIndex, contribution: nil)
+            CrowdloanContributionResponse(accountId: accountId, trieIndex: trieIndex, contribution: nil)
         )
     }
 

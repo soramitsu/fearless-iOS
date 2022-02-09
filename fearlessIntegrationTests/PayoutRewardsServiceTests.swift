@@ -32,7 +32,7 @@ class PayoutRewardsServiceTests: XCTestCase {
             operationManager: operationManager
         )
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
-            assetId: assetId,
+            url: assetId.subqueryHistoryUrl!,
             addressFactory: addressFactory
         )
 

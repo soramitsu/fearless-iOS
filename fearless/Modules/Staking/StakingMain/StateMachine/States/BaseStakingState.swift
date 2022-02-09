@@ -16,9 +16,9 @@ class BaseStakingState: StakingStateProtocol {
 
     func accept(visitor _: StakingStateVisitorProtocol) {}
 
-    func process(chain: Chain?) {
-        if commonData.chain != chain {
-            commonData = StakingStateCommonData.empty.byReplacing(chain: chain)
+    func process(chainAsset: ChainAsset?) {
+        if commonData.chainAsset != chainAsset {
+            commonData = StakingStateCommonData.empty.byReplacing(chainAsset: chainAsset)
 
             guard let stateMachine = stateMachine else {
                 return
@@ -38,6 +38,7 @@ class BaseStakingState: StakingStateProtocol {
             commonData = commonData
                 .byReplacing(address: address)
                 .byReplacing(accountInfo: nil)
+                .byReplacing(subqueryRewards: nil, period: .week)
 
             guard let stateMachine = stateMachine else {
                 return
@@ -116,6 +117,12 @@ class BaseStakingState: StakingStateProtocol {
 
     func process(eraCountdown: EraCountdown) {
         commonData = commonData.byReplacing(eraCountdown: eraCountdown)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod)) {
+        commonData = commonData.byReplacing(subqueryRewards: subqueryRewards.0, period: subqueryRewards.1)
 
         stateMachine?.transit(to: self)
     }

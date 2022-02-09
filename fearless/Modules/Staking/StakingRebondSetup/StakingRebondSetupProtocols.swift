@@ -26,17 +26,27 @@ protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
-    func didReceiveController(result: Result<AccountItem?, Error>)
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
 protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
-    func proceed(view _: StakingRebondSetupViewProtocol?, amount _: Decimal)
+    func proceed(
+        view: StakingRebondSetupViewProtocol?,
+        amount: Decimal,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
     func close(view: StakingRebondSetupViewProtocol?)
 }
 
 protocol StakingRebondSetupViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingRebondSetupViewProtocol?
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingRebondSetupViewProtocol?
 }

@@ -112,6 +112,6 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         let localKeyboardFrame = view.convert(keyboardFrame, from: nil)
         let bottomInset = view.bounds.height - localKeyboardFrame.minY
 
-        constraint.constant = -(bottomInset + offsetFromKeyboardWithInset(bottomInset))
+        constraint.constant = bottomInset + offsetFromKeyboardWithInset(bottomInset)
     }
 }

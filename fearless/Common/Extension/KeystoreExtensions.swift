@@ -1,15 +1,6 @@
 import Foundation
 import SoraKeystore
 
-enum KeystoreTag: String, CaseIterable {
-    case pincode
-
-    static func secretKeyTagForAddress(_ address: String) -> String { address + "-" + "secretKey" }
-    static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy" }
-    static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv" }
-    static func seedTagForAddress(_ address: String) -> String { address + "-" + "seed" }
-}
-
 extension KeystoreProtocol {
     func loadIfKeyExists(_ tag: String) throws -> Data? {
         guard try checkKey(for: tag) else {
@@ -19,6 +10,7 @@ extension KeystoreProtocol {
         return try fetchKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveSecretKey(_ secretKey: Data, address: String) throws {
         let tag = KeystoreTag.secretKeyTagForAddress(address)
 
@@ -36,6 +28,7 @@ extension KeystoreProtocol {
         return try checkKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveEntropy(_ entropy: Data, address: String) throws {
         let tag = KeystoreTag.entropyTagForAddress(address)
 
@@ -53,6 +46,7 @@ extension KeystoreProtocol {
         return try checkKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveDeriviation(_ path: String, address: String) throws {
         guard let data = path.data(using: .utf8) else {
             return
@@ -78,6 +72,7 @@ extension KeystoreProtocol {
         return try checkKey(for: tag)
     }
 
+    @available(*, deprecated, message: "Use saveKey(_ key: Data, with identifier: String) instead")
     func saveSeed(_ data: Data, address: String) throws {
         let tag = KeystoreTag.seedTagForAddress(address)
 

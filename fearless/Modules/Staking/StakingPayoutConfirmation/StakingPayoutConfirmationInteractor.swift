@@ -5,23 +5,25 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 
-final class StakingPayoutConfirmationInteractor {
+final class StakingPayoutConfirmationInteractor: AccountFetching {
     typealias Batch = [PayoutInfo]
-    internal let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    internal let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
     private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let signer: SigningWrapperProtocol
 
-    private let accountRepository: AnyDataProviderRepository<AccountItem>
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol?
-    private let selectedAccount: AccountItem
     private let payouts: [PayoutInfo]
-    private let chain: Chain
-    private let assetId: WalletAssetId
+    private let chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
 
     private var batches: [Batch]?
 
@@ -36,33 +38,35 @@ final class StakingPayoutConfirmationInteractor {
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol!
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         signer: SigningWrapperProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        selectedAccount: AccountItem,
+        selectedAccount: MetaAccountModel,
         payouts: [PayoutInfo],
-        chain: Chain,
-        assetId: WalletAssetId
+        chain: ChainModel,
+        asset: AssetModel,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicOperationFactory = extrinsicOperationFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
         self.signer = signer
-        self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.logger = logger
         self.selectedAccount = selectedAccount
         self.payouts = payouts
         self.chain = chain
-        self.assetId = assetId
+        self.asset = asset
+        self.accountRepository = accountRepository
     }
 
     // MARK: - Private functions
@@ -108,8 +112,12 @@ final class StakingPayoutConfirmationInteractor {
     private func provideRewardAmount() {
         let rewardAmount = payouts.map(\.reward).reduce(0, +)
 
+        guard let account = selectedAccount.fetch(for: chain.accountRequest()) else {
+            return
+        }
+
         presenter.didRecieve(
-            account: selectedAccount,
+            account: account,
             rewardAmount: rewardAmount
         )
     }
@@ -124,7 +132,7 @@ final class StakingPayoutConfirmationInteractor {
             let rewardDestination = try RewardDestination(
                 payee: payee,
                 stashItem: stashItem,
-                chain: chain
+                chainFormat: chain.chainFormat
             )
 
             switch rewardDestination {
@@ -132,29 +140,26 @@ final class StakingPayoutConfirmationInteractor {
                 presenter.didReceiveRewardDestination(result: .success(.restake))
 
             case let .payout(payoutAddress):
-                let queryOperation = accountRepository
-                    .fetchOperation(by: payoutAddress, options: RepositoryFetchOptions())
+                fetchChainAccount(
+                    chain: chain,
+                    address: payoutAddress,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    switch result {
+                    case let .success(account):
+                        let displayAddress = DisplayAddress(
+                            address: payoutAddress,
+                            username: account?.name ?? ""
+                        )
 
-                queryOperation.completionBlock = {
-                    DispatchQueue.main.async {
-                        do {
-                            let account = try queryOperation.extractNoCancellableResultData()
+                        let destination: RewardDestination = .payout(account: displayAddress)
+                        self?.presenter.didReceiveRewardDestination(result: .success(destination))
 
-                            let displayAddress = DisplayAddress(
-                                address: payoutAddress,
-                                username: account?.username ?? ""
-                            )
-
-                            let result: RewardDestination = .payout(account: displayAddress)
-
-                            self.presenter.didReceiveRewardDestination(result: .success(result))
-                        } catch {
-                            self.presenter.didReceiveRewardDestination(result: .failure(error))
-                        }
+                    case let .failure(error):
+                        self?.presenter.didReceiveRewardDestination(result: .failure(error))
                     }
                 }
-
-                operationManager.enqueue(operations: [queryOperation], in: .transient)
             }
         } catch {
             logger?.error("Did receive reward destination error: \(error)")
@@ -176,7 +181,7 @@ final class StakingPayoutConfirmationInteractor {
         )
 
         let dependencies = feeOperation.allOperations
-        let precision = chain.addressType.precision
+        let precision = Int16(asset.precision)
 
         let mergeOperation = ClosureOperation<Decimal> {
             let results = try feeOperation.targetOperation.extractNoCancellableResultData()
@@ -278,12 +283,17 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     func setup() {
         generateBatches { self.estimateFee() }
 
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAccount.address)
-        balanceProvider = subscribeToAccountInfoProvider(
-            for: selectedAccount.address,
-            runtimeService: runtimeService
-        )
-        priceProvider = subscribeToPriceProvider(for: assetId)
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            stashItemProvider = subscribeStashItemProvider(for: address)
+        }
+
+        if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
+            balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+        }
+
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
 
         provideRewardAmount()
     }
@@ -334,20 +344,20 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     }
 }
 
-// MARK: - SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning
-
-extension StakingPayoutConfirmationInteractor: SingleValueProviderSubscriber,
-    SingleValueSubscriptionHandler,
-    AnyProviderAutoCleaning {
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+extension StakingPayoutConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         presenter.didReceivePriceData(result: result)
     }
+}
 
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
+extension StakingPayoutConfirmationInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
+}
 
-    func handlePayee(result: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {
+extension StakingPayoutConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handlePayee(result: Result<RewardDestinationArg?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         switch result {
         case let .success(payee):
             guard let payee = payee else {
@@ -360,23 +370,17 @@ extension StakingPayoutConfirmationInteractor: SingleValueProviderSubscriber,
             presenter.didReceiveRewardDestination(result: .failure(error))
         }
     }
-}
 
-// MARK: - SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler
-
-extension StakingPayoutConfirmationInteractor: SubstrateProviderSubscriber,
-    SubstrateProviderSubscriptionHandler {
-    func handleStashItem(result: Result<StashItem?, Error>) {
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             stashItem = try result.get()
 
             clear(dataProvider: &payeeProvider)
 
-            if let stashItem = stashItem {
-                payeeProvider = subscribeToPayeeProvider(
-                    for: stashItem.stash,
-                    runtimeService: runtimeService
-                )
+            let addressFactory = SS58AddressFactory()
+            if let stashItem = stashItem,
+               let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
+                payeeProvider = subscribePayee(for: accountId, chainId: chain.chainId)
             } else {
                 presenter.didReceiveRewardDestination(result: .success(nil))
             }
@@ -386,3 +390,9 @@ extension StakingPayoutConfirmationInteractor: SubstrateProviderSubscriber,
         }
     }
 }
+
+// MARK: - SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning
+
+extension StakingPayoutConfirmationInteractor: AnyProviderAutoCleaning {}
+
+// MARK: - SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler

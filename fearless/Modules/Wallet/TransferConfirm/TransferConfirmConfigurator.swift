@@ -14,17 +14,27 @@ final class TransferConfirmConfigurator {
     }
 
     let viewModelFactory: TransferConfirmViewModelFactory
+    let localizationManager: LocalizationManagerProtocol
 
-    init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
+    init(
+        assets: [WalletAsset],
+        selectedAccount: AccountItem,
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         viewModelFactory = TransferConfirmViewModelFactory(
             assets: assets,
-            amountFormatterFactory: amountFormatterFactory
+            selectedAccount: selectedAccount,
+            amountFormatterFactory: amountFormatterFactory,
+            balanceViewModelFactory: balanceViewModelFactory
         )
+        self.localizationManager = localizationManager
     }
 
     func configure(builder: TransferConfirmationModuleBuilderProtocol) {
         let title = LocalizableResource { locale in
-            R.string.localizable.walletSendConfirmTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages)
         }
 
         builder
@@ -32,7 +42,6 @@ final class TransferConfirmConfigurator {
             .with(accessoryViewType: .onlyActionBar)
             .with(completion: .hide)
             .with(viewModelFactoryOverriding: viewModelFactory)
-            .with(viewBinder: TransferConfirmBinder())
             .with(definitionFactory: WalletFearlessDefinitionFactory())
             .with(accessoryViewFactory: TransferConfirmAccessoryViewFactory.self)
     }

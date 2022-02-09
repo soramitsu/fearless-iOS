@@ -5,45 +5,107 @@ import SoraFoundation
 
 final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryProtocol {
     static func createInitiatedBondingView(
-        with state: InitiatedBonding
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        state: InitiatedBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = InitBondingSelectValidatorsStartWireframe(state: state)
-        return createView(with: wireframe, existingStashAddress: nil, selectedValidators: nil)
+        return createView(
+            selectedAccount: selectedAccount,
+            chain: chain,
+            asset: asset,
+            wireframe: wireframe,
+            existingStashAddress: nil,
+            selectedValidators: nil
+        )
     }
 
     static func createChangeTargetsView(
-        with state: ExistingBonding
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
         return createView(
-            with: wireframe,
+            selectedAccount: selectedAccount,
+            chain: chain,
+            asset: asset,
+            wireframe: wireframe,
             existingStashAddress: state.stashAddress,
             selectedValidators: state.selectedTargets
         )
     }
 
     static func createChangeYourValidatorsView(
-        with state: ExistingBonding
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
         let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
         return createView(
-            with: wireframe,
+            selectedAccount: selectedAccount,
+            chain: chain,
+            asset: asset,
+            wireframe: wireframe,
             existingStashAddress: state.stashAddress,
             selectedValidators: state.selectedTargets
         )
     }
 
     private static func createView(
-        with wireframe: SelectValidatorsStartWireframeProtocol,
+        selectedAccount: MetaAccountModel,
+        chain: ChainModel,
+        asset: AssetModel,
+        wireframe: SelectValidatorsStartWireframeProtocol,
         existingStashAddress: AccountAddress?,
         selectedValidators: [SelectedValidatorInfo]?
     ) -> SelectValidatorsStartViewProtocol? {
-        guard let engine = WebSocketService.shared.connection else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
-        let eraValidatorService = EraValidatorFacade.sharedService
-        let runtimeService = RuntimeRegistryFacade.sharedService
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard
+            let settings = stakingSettings.value,
+            let eraValidatorService = try? serviceFactory.createEraValidatorService(
+                for: settings.chain.chainId
+            ) else {
+            return nil
+        }
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: settings.chain.chainId,
+            assetPrecision: settings.assetDisplayInfo.assetPrecision,
+            validatorService: eraValidatorService
+        ) else {
+            return nil
+        }
+
+        eraValidatorService.setup()
+        rewardService.setup()
+
         let operationManager = OperationManagerFacade.sharedManager
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -51,16 +113,14 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let chain = SettingsManager.shared.selectedConnection.type.chain
-
-        let rewardService = RewardCalculatorFacade.sharedService
         let operationFactory = ValidatorOperationFactory(
+            asset: asset,
             chain: chain,
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
             runtimeService: runtimeService,
-            engine: engine,
+            engine: connection,
             identityOperationFactory: identityOperationFactory
         )
 
@@ -75,7 +135,10 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             wireframe: wireframe,
             existingStashAddress: existingStashAddress,
             initialTargets: selectedValidators,
-            logger: Logger.shared
+            logger: Logger.shared,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
         )
 
         let view = SelectValidatorsStartViewController(

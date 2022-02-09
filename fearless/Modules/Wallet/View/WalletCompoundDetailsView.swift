@@ -37,9 +37,9 @@ final class WalletCompoundDetailsView: WalletFormItemView {
 
     private func setupContentInsets() {
         if borderType.contains(.bottom) {
-            contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
-        } else {
-            contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+            var contentInsets = self.contentInsets
+            contentInsets.bottom = 16.0
+            self.contentInsets = contentInsets
         }
     }
 

@@ -23,17 +23,14 @@ final class KaruraBonusService {
 
     let signingWrapper: SigningWrapperProtocol
     let address: AccountAddress
-    let chain: Chain
     let operationManager: OperationManagerProtocol
 
     init(
         address: AccountAddress,
-        chain: Chain,
         signingWrapper: SigningWrapperProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.address = address
-        self.chain = chain
         self.signingWrapper = signingWrapper
         self.operationManager = operationManager
     }
@@ -160,13 +157,8 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
 
             let signedData = try self.signingWrapper.sign(statement)
 
-            let addressFactory = SS58AddressFactory()
-            let accountId = try addressFactory.accountId(from: self.address)
-            let addressType = self.chain == .rococo ? SNAddressType.genericSubstrate : self.chain.addressType
-            let finalAddress = try addressFactory.addressFromAccountId(data: accountId, type: addressType)
-
             return KaruraVerifyInfo(
-                address: finalAddress,
+                address: self.address,
                 amount: String(amount),
                 signature: signedData.rawData().toHex(includePrefix: true),
                 referral: referralCode

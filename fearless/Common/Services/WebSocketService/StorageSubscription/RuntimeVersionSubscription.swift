@@ -194,11 +194,30 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             let decoder = try ScaleDecoder(data: rawMetadata)
             let metadata = try RuntimeMetadata(scaleDecoder: decoder)
 
-            if let data = try? runtimeOverrides?.extractResultData(),
-               let overrides = try? JSONDecoder().decode(RuntimeOverrides.self, from: data),
-               !overrides.modules.isEmpty {
+            func overridenRuntime() -> RuntimeMetadata? {
+                guard let data = try? runtimeOverrides?.extractResultData(),
+                      let overrides = try? JSONDecoder().decode(RuntimeOverrides.self, from: data),
+                      !overrides.modules.isEmpty,
+                      metadata.version < 14
+                else {
+                    return nil
+                }
+
+                typealias ModuleMetadata = RuntimeMetadataV1.ModuleMetadata
+                typealias ModuleConstantMetadata = RuntimeMetadataV1.ModuleConstantMetadata
+                typealias ExtrinsicMetadata = RuntimeMetadataV1.ExtrinsicMetadata
+                typealias StorageMetadata = RuntimeMetadataV1.StorageMetadata
+                typealias FunctionMetadata = RuntimeMetadataV1.FunctionMetadata
+                typealias EventMetadata = RuntimeMetadataV1.EventMetadata
+                typealias ErrorMetadata = RuntimeMetadataV1.ErrorMetadata
+
                 var modules: [ModuleMetadata] = []
                 for module in metadata.modules {
+                    guard let module = module as? ModuleMetadata else {
+                        assertionFailure()
+                        return nil
+                    }
+
                     guard let override = overrides.modules.first(where: { $0.name == module.name }) else {
                         modules.append(module)
                         continue
@@ -207,6 +226,11 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                     var constants: [ModuleConstantMetadata] = []
                     if let constantOverrides = override.constants {
                         for constant in module.constants {
+                            guard let constant = constant as? ModuleConstantMetadata else {
+                                assertionFailure()
+                                return nil
+                            }
+
                             guard let override = constantOverrides.first(where: { $0.name == constant.name }) else {
                                 constants.append(constant)
                                 continue
@@ -220,29 +244,47 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                             ))
                         }
                     } else {
-                        constants.append(contentsOf: module.constants)
+                        for constant in module.constants {
+                            guard let constant = constant as? ModuleConstantMetadata else {
+                                assertionFailure()
+                                return nil
+                            }
+
+                            constants.append(constant)
+                        }
+                    }
+
+                    guard let moduleStorage = module.storage as? StorageMetadata?,
+                          let moduleCalls = try? module.calls(using: metadata.schemaResolver) as? [FunctionMetadata]?,
+                          let moduleEvents = try? module.events(using: metadata.schemaResolver) as? [EventMetadata]?,
+                          let moduleErrors = try? module.errors(using: metadata.schemaResolver) as? [ErrorMetadata]
+                    else {
+                        assertionFailure()
+                        return nil
                     }
 
                     modules.append(ModuleMetadata(
                         name: module.name,
-                        storage: module.storage,
-                        calls: module.calls,
-                        events: module.events,
+                        storage: moduleStorage,
+                        calls: moduleCalls,
+                        events: moduleEvents,
                         constants: constants,
-                        errors: module.errors,
+                        errors: moduleErrors,
                         index: override.index ?? module.index
                     ))
                 }
 
-                let newMetadata = RuntimeMetadata(
-                    metaReserved: metadata.metaReserved,
-                    runtimeMetadataVersion: metadata.runtimeMetadataVersion,
-                    modules: modules,
-                    extrinsic: metadata.extrinsic
-                )
+                guard let moduleExtrinsic = metadata.extrinsic as? ExtrinsicMetadata else {
+                    assertionFailure()
+                    return nil
+                }
 
+                return RuntimeMetadata.v1(modules: modules, extrinsic: moduleExtrinsic)
+            }
+
+            if let overriden = overridenRuntime() {
                 let encoder = ScaleEncoder()
-                try newMetadata.encode(scaleEncoder: encoder)
+                try overriden.encode(scaleEncoder: encoder)
                 rawMetadata = encoder.encode()
             }
 
@@ -311,7 +353,7 @@ private struct RuntimeOverrides: Decodable {
 
 private struct RuntimeMetadataV14BreakingUpdate: RuntimeMetadataBreakingUpgrade {
     let versionIssueIntroduced: UInt32 = 9110
-    let isFixed = false
+    let isFixed = true
 
     func blockHashForBackwardCompatibility(for chain: Chain) -> String? {
         switch chain {
@@ -385,7 +427,7 @@ private extension Chain {
             return .notAffected
         }
 
-        if let response = recent.forcedResponse(for: self) {
+        if !recent.isFixed, let response = recent.forcedResponse(for: self) {
             return .forceResponse(response, recent.overridesUrl(for: self))
         }
 

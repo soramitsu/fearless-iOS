@@ -17,6 +17,9 @@ protocol ApplicationConfigProtocol {
     var moonPayApiKey: String { get }
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
+    var chainListURL: URL { get }
+    var assetListURL: URL { get }
+    var commonTypesURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
 }
@@ -78,8 +81,8 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // swiftlint:enable force_cast
 
-    // swiftlint:disable line_length
     var logoURL: URL {
+        // swiftlint:disable:next line_length
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }
@@ -100,11 +103,26 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://polkadot.js.org/phishing/address.json")!
     }
 
+    var chainListURL: URL {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/chains/chains.json")!
+    }
+
+    var assetListURL: URL {
+        URL(string:
+            "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/chains/assets.json")!
+    }
+
+    var commonTypesURL: URL {
+        // swiftlint:disable:next line_length
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/type_registry/default.json")!
+    }
+
     var learnPayoutURL: URL {
         URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
     }
 
     var learnControllerAccountURL: URL {
+        // swiftlint:disable:next line_length
         URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
     }
 }

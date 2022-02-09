@@ -3,7 +3,7 @@ import CommonWallet
 import FearlessUtils
 import SoraFoundation
 
-final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
+final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, LoadableViewProtocol {
     typealias RootViewType = StakingRewardDestSetupLayout
 
     let presenter: StakingRewardDestSetupPresenterProtocol
@@ -42,6 +42,8 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
         setupView()
 
         presenter.setup()
+
+        didStartLoading()
     }
 
     // MARK: - Actions
@@ -79,6 +81,8 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
     }
 
     private func applyRewardDestinationType(from viewModel: RewardDestinationViewModelProtocol) {
+        didStopLoading()
+
         let activeTextColor = R.color.colorWhite()!
         let inactiveTextColor = R.color.colorLightGray()!
 

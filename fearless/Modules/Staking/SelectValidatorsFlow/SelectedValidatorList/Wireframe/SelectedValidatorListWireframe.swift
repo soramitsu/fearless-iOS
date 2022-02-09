@@ -1,8 +1,17 @@
 class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
-    func present(_ validatorInfo: ValidatorInfoProtocol, from view: ControllerBackedProtocol?) {
+    func present(
+        _ validatorInfo: ValidatorInfoProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
+        from view: ControllerBackedProtocol?
+    ) {
         guard
             let validatorInfoView = ValidatorInfoViewFactory
-            .createView(with: validatorInfo) else {
+            .createView(
+                asset: asset,
+                chain: chain,
+                validatorInfo: validatorInfo
+            ) else {
             return
         }
 
@@ -15,7 +24,10 @@ class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
     func proceed(
         from _: SelectedValidatorListViewProtocol?,
         targets _: [SelectedValidatorInfo],
-        maxTargets _: Int
+        maxTargets _: Int,
+        chain _: ChainModel,
+        asset _: AssetModel,
+        selectedAccount _: MetaAccountModel
     ) {}
 
     func dismiss(_ view: ControllerBackedProtocol?) {

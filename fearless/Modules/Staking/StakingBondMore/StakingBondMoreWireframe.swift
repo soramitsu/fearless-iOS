@@ -1,8 +1,14 @@
 import Foundation
 
 final class StakingBondMoreWireframe: StakingBondMoreWireframeProtocol {
-    func showConfirmation(from view: ControllerBackedProtocol?, amount: Decimal) {
-        guard let confirmation = StakingBondMoreConfirmViewFactory.createView(from: amount) else {
+    func showConfirmation(
+        from view: ControllerBackedProtocol?,
+        amount: Decimal,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let confirmation = StakingBondMoreConfirmViewFactory.createView(chain: chain, asset: asset, selectedAccount: selectedAccount, amount: amount) else {
             return
         }
 

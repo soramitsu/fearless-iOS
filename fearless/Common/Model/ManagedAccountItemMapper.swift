@@ -7,34 +7,28 @@ enum ManagedAccountItemMapperError: Error {
     case invalidEntity
 }
 
+// TODO: remove
 final class ManagedAccountItemMapper: CoreDataMapperProtocol {
     typealias DataProviderModel = ManagedAccountItem
-    typealias CoreDataEntity = CDAccountItem
+    typealias CoreDataEntity = CDMetaAccount
 
     var entityIdentifierFieldName: String {
-        #keyPath(CoreDataEntity.identifier)
+        #keyPath(CoreDataEntity.metaId)
     }
 
     func populate(
-        entity: CDAccountItem,
-        from model: DataProviderModel,
+        entity _: CDMetaAccount,
+        from _: DataProviderModel,
         using _: NSManagedObjectContext
-    ) throws {
-        entity.identifier = model.address
-        entity.cryptoType = Int16(model.cryptoType.rawValue)
-        entity.networkType = Int16(model.networkType.rawValue)
-        entity.publicKey = model.publicKeyData
-        entity.username = model.username
-        entity.order = model.order
-    }
+    ) throws {}
 
-    func transform(entity: CDAccountItem) throws -> DataProviderModel {
+    func transform(entity: CDMetaAccount) throws -> DataProviderModel {
         guard
-            let address = entity.identifier,
-            let username = entity.username,
-            let cryptoType = CryptoType(rawValue: UInt8(entity.cryptoType)),
-            let networkType = SNAddressType(rawValue: UInt8(entity.networkType)),
-            let publicKeyData = entity.publicKey
+            let address = entity.metaId,
+            let username = entity.name,
+            let cryptoType = CryptoType(rawValue: UInt8(entity.substrateCryptoType)),
+            let networkType = SNAddressType(rawValue: UInt8(0)),
+            let publicKeyData = entity.substratePublicKey
         else {
             throw ManagedAccountItemMapperError.invalidEntity
         }
@@ -45,7 +39,7 @@ final class ManagedAccountItemMapper: CoreDataMapperProtocol {
             networkType: networkType,
             username: username,
             publicKeyData: publicKeyData,
-            order: entity.order
+            order: Int16(entity.order)
         )
     }
 }

@@ -10,7 +10,7 @@ struct PeriodRewardViewModel {
 struct StakingEstimationViewModel {
     let assetBalance: LocalizableResource<AssetBalanceViewModelProtocol>
     let rewardViewModel: LocalizableResource<PeriodRewardViewModel>?
-    let asset: WalletAsset
+    let assetInfo: AssetBalanceDisplayInfo
     let inputLimit: Decimal
     let amount: Decimal?
 }

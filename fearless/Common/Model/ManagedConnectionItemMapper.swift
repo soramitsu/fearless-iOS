@@ -7,31 +7,27 @@ enum ManagedConnectionItemMapperError: Error {
     case invalidEntity
 }
 
+// TODO: Fix logic
 final class ManagedConnectionItemMapper: CoreDataMapperProtocol {
     typealias DataProviderModel = ManagedConnectionItem
-    typealias CoreDataEntity = CDConnectionItem
+    typealias CoreDataEntity = CDChain
 
     var entityIdentifierFieldName: String {
-        #keyPath(CoreDataEntity.identifier)
+        #keyPath(CoreDataEntity.chainId)
     }
 
     func populate(
-        entity: CDConnectionItem,
-        from model: DataProviderModel,
+        entity _: CDChain,
+        from _: DataProviderModel,
         using _: NSManagedObjectContext
-    ) throws {
-        entity.identifier = model.url.absoluteString
-        entity.title = model.title
-        entity.networkType = Int16(model.type.rawValue)
-        entity.order = model.order
-    }
+    ) throws {}
 
-    func transform(entity: CDConnectionItem) throws -> DataProviderModel {
+    func transform(entity: CDChain) throws -> DataProviderModel {
         guard
-            let identifier = entity.identifier,
+            let identifier = entity.chainId,
             let url = URL(string: identifier),
-            let title = entity.title,
-            let networkType = SNAddressType(rawValue: UInt8(entity.networkType))
+            let title = entity.name,
+            let networkType = SNAddressType(rawValue: UInt8(entity.addressPrefix))
         else {
             throw ManagedAccountItemMapperError.invalidEntity
         }
@@ -40,7 +36,7 @@ final class ManagedConnectionItemMapper: CoreDataMapperProtocol {
             title: title,
             url: url,
             type: networkType,
-            order: entity.order
+            order: 0
         )
     }
 }

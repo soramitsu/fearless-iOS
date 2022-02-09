@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 
+@available(*, deprecated, message: "Use AssetBalanceFormatterFactory instead")
 struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     let assetPrecision: Int
     let usdPrecision: Int
@@ -34,14 +35,14 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     }
 
     func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenFormatter> {
-        createTokenFormatterCommon(for: asset, roundingMode: .down)
+        createCommonTokenFormatter(for: asset, roundingMode: .down)
     }
 
     func createFeeTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenFormatter> {
-        createTokenFormatterCommon(for: asset, roundingMode: .up)
+        createCommonTokenFormatter(for: asset, roundingMode: .up)
     }
 
-    private func createTokenFormatterCommon(
+    private func createCommonTokenFormatter(
         for asset: WalletAsset?,
         roundingMode: NumberFormatter.RoundingMode
     ) -> LocalizableResource<TokenFormatter> {

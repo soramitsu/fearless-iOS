@@ -23,15 +23,40 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(activeEraResult: Result<EraIndex?, Error>)
     func didReceive(priceResult: Result<PriceData?, Error>)
     func didReceive(stashItemResult: Result<StashItem?, Error>)
-    func didReceive(controllerResult: Result<AccountItem?, Error>)
-    func didReceive(stashResult: Result<AccountItem?, Error>)
+    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>)
+    func didReceive(stashResult: Result<ChainAccountResponse?, Error>)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
 }
 
 protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
-    func showBondMore(from view: ControllerBackedProtocol?)
-    func showUnbond(from view: ControllerBackedProtocol?)
-    func showRedeem(from view: ControllerBackedProtocol?)
-    func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption)
+    func showBondMore(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showUnbond(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRedeem(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRebond(
+        from view: ControllerBackedProtocol?,
+        option: StakingRebondOption,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
     func cancel(from view: ControllerBackedProtocol?)
 }

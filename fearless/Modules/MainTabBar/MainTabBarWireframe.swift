@@ -2,31 +2,20 @@ import Foundation
 import CommonWallet
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
-    var walletContext: CommonWalletContextProtocol
-
-    init(walletContext: CommonWalletContextProtocol) {
-        self.walletContext = walletContext
-    }
-
     func showNewWalletView(on view: MainTabBarViewProtocol?) {
         if let view = view {
             MainTabBarViewFactory.reloadWalletView(on: view, wireframe: self)
         }
     }
 
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?, moduleOutput: CrowdloanListModuleOutput?) -> UIViewController? {
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
         if let view = view {
             return MainTabBarViewFactory.reloadCrowdloanView(
-                on: view,
-                moduleOutput: moduleOutput
+                on: view
             )
         }
 
         return nil
-    }
-
-    func reloadWalletContent() {
-        try? walletContext.prepareAccountUpdateCommand().execute()
     }
 
     func presentAccountImport(on view: MainTabBarViewProtocol?) {

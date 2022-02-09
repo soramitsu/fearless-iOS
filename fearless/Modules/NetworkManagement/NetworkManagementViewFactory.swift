@@ -9,7 +9,7 @@ final class NetworkManagementViewFactory: NetworkManagementViewFactoryProtocol {
 
         let facade = UserDataStorageFacade.shared
         let connectionsMapper = ManagedConnectionItemMapper()
-        let observer: CoreDataContextObservable<ManagedConnectionItem, CDConnectionItem> =
+        let observer: CoreDataContextObservable<ManagedConnectionItem, CDChain> =
             CoreDataContextObservable(
                 service: facade.databaseService,
                 mapper: AnyCoreDataMapper(connectionsMapper),

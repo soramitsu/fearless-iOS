@@ -293,33 +293,14 @@ class JSONRPCTests: XCTestCase {
     func testWestendStakersFetch() throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-        let chain = Chain.westend
+        let chainId = Chain.westend.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
-
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain,
-                                                      logger: Logger.shared)
-
-        runtimeService.setup()
-
-        let webSocketService = createWebSocketService(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            settings: settings
-        )
-
-        webSocketService.setup()
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
+        let connection = chainRegistry.getConnection(for: chainId)!
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -341,7 +322,7 @@ class JSONRPCTests: XCTestCase {
         // when
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
-            engine: webSocketService.connection!,
+            engine: connection,
             keys: keys,
             factory: factoryClosure,
             storagePath: .erasStakers
@@ -374,32 +355,15 @@ class JSONRPCTests: XCTestCase {
     func performTestMultipleChangesQuery(keysCount: Int) throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-        let chain = Chain.kusama
+        let chainId = Chain.kusama.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
+        let operationManager = OperationManager()
 
-        let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain)
-
-        runtimeService.setup()
-
-        let webSocketService = createWebSocketService(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            settings: settings
-        )
-
-        webSocketService.setup()
+        let connection = chainRegistry.getConnection(for: chainId)!
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
         let address = "GqpApQStgzzGxYa1XQZQUq9L3aXhukxDWABccbeHEh7zPYR"
 
@@ -427,7 +391,7 @@ class JSONRPCTests: XCTestCase {
         // when
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
-            engine: webSocketService.connection!,
+            engine: connection,
             keyParams1: keyParams1,
             keyParams2: keyParams2,
             factory: factoryClosure,
@@ -446,53 +410,5 @@ class JSONRPCTests: XCTestCase {
         // then
 
         XCTAssertEqual(keysCount, resultsCount)
-    }
-
-    private func createRuntimeService(from storageFacade: StorageFacadeProtocol,
-                                      operationManager: OperationManagerProtocol,
-                                      chain: Chain,
-                                      logger: LoggerProtocol? = nil) throws
-    -> RuntimeRegistryService {
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager,
-                                                           logger: logger)
-
-        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
-            FileManager.default.temporaryDirectory
-        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
-        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
-                                                          directoryPath: runtimeDirectory)
-
-        return RuntimeRegistryService(chain: chain,
-                                      metadataProviderFactory: providerFactory,
-                                      dataOperationFactory: DataOperationFactory(),
-                                      filesOperationFacade: filesRepository,
-                                      operationManager: operationManager,
-                                      eventCenter: EventCenter.shared,
-                                      logger: logger)
-    }
-
-    private func createWebSocketService(storageFacade: StorageFacadeProtocol,
-                                        runtimeService: RuntimeCodingServiceProtocol,
-                                        operationManager: OperationManagerProtocol,
-                                        settings: SettingsManagerProtocol
-    ) -> WebSocketServiceProtocol {
-        let connectionItem = settings.selectedConnection
-        let address = settings.selectedAccount?.address
-
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: address)
-
-        let factory = WebSocketSubscriptionFactory(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager
-        )
-
-        return WebSocketService(settings: settings,
-                                connectionFactory: WebSocketEngineFactory(),
-                                subscriptionsFactory: factory,
-                                applicationHandler: ApplicationHandler())
     }
 }

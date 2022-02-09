@@ -30,16 +30,26 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveBondingDuration(result: Result<UInt32, Error>)
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveController(result: Result<AccountItem?, Error>)
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 
 protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func close(view: StakingUnbondSetupViewProtocol?)
-    func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal)
+    func proceed(
+        view: StakingUnbondSetupViewProtocol?,
+        amount: Decimal,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 }
 
 protocol StakingUnbondSetupViewFactoryProtocol {
-    static func createView() -> StakingUnbondSetupViewProtocol?
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingUnbondSetupViewProtocol?
 }

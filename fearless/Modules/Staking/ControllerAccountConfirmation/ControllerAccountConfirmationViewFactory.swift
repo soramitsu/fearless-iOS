@@ -6,23 +6,16 @@ import RobinHood
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(
-        controllerAccountItem: AccountItem
+        controllerAccountItem: ChainAccountResponse,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) -> ControllerAccountConfirmationViewProtocol? {
-        let settings = SettingsManager.shared
-
-        guard let engine = WebSocketService.shared.connection else {
-            return nil
-        }
-
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
         guard let interactor = createInteractor(
             controllerAccountItem: controllerAccountItem,
-            primitiveFactory: primitiveFactory,
-            connection: engine,
             chain: chain,
-            settings: settings
+            asset: asset,
+            selectedAccount: selectedAccount
         ) else {
             return nil
         }
@@ -30,15 +23,17 @@ struct ControllerAccountConfirmationViewFactory {
         let wireframe = ControllerAccountConfirmationWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = ControllerAccountConfirmationPresenter(
             controllerAccountItem: controllerAccountItem,
             chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             iconGenerator: PolkadotIconGenerator(),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory
@@ -59,64 +54,89 @@ struct ControllerAccountConfirmationViewFactory {
     }
 
     private static func createInteractor(
-        controllerAccountItem: AccountItem,
-        primitiveFactory: WalletPrimitiveFactoryProtocol,
-        connection: JSONRPCEngine,
-        chain: Chain,
-        settings: SettingsManagerProtocol
+        controllerAccountItem: ChainAccountResponse,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) -> ControllerAccountConfirmationInteractor? {
-        let operationManager = OperationManagerFacade.sharedManager
-        let runtimeService = RuntimeRegistryFacade.sharedService
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
-        )
-
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let assetId = WalletAssetId(rawValue: asset.identifier),
-            let selectedAccount = settings.selectedAccount
-        else {
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
-        let facade = UserDataStorageFacade.shared
+        let operationManager = OperationManagerFacade.sharedManager
 
-        let filter = NSPredicate.filterAccountBy(networkType: chain.addressType)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            facade.createRepository(
-                filter: filter,
-                sortDescriptors: [.accountsByOrder]
-            )
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedAccount.metaId,
+            accountResponse: accountResponse
+        )
+
+        let feeProxy = ExtrinsicFeeProxy()
+
+        let facade = UserDataStorageFacade.shared
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
 
-        let extrinsicServiceFactory = ExtrinsicServiceFactory(
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
         )
 
-        let interactor = ControllerAccountConfirmationInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
+        return ControllerAccountConfirmationInteractor(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             runtimeService: runtimeService,
-            extrinsicServiceFactory: extrinsicServiceFactory,
-            signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
-            feeProxy: ExtrinsicFeeProxy(),
-            assetId: assetId,
+            extrinsicService: extrinsicService,
+            signingWrapper: signingWrapper,
+            feeProxy: feeProxy,
             controllerAccountItem: controllerAccountItem,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory,
-            selectedAccountAddress: selectedAccount.address,
             engine: connection,
-            chain: chain
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
-        return interactor
     }
 }

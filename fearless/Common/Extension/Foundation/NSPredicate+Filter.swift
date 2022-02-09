@@ -2,9 +2,10 @@ import Foundation
 import IrohaCrypto
 
 extension NSPredicate {
+    // TODO: Remove
     static func filterAccountBy(networkType: SNAddressType) -> NSPredicate {
         let rawValue = Int16(networkType.rawValue)
-        return NSPredicate(format: "%K == %d", #keyPath(CDAccountItem.networkType), rawValue)
+        return NSPredicate(format: "%K == %d", #keyPath(CDMetaAccount.order), rawValue)
     }
 
     static func filterTransactionsBy(address: String) -> NSPredicate {
@@ -50,7 +51,43 @@ extension NSPredicate {
         return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])
     }
 
-    static func filterAccountItemByAddress(_ address: String) -> NSPredicate {
-        NSPredicate(format: "%K == %@", #keyPath(CDAccountItem.identifier), address)
+    static func filterAccountItemByAccountId(_ accountId: AccountId) -> NSPredicate {
+        let hexAccountId = accountId.toHex()
+
+        let substrateAccountFilter = NSPredicate(
+            format: "%K == %@",
+            #keyPath(CDMetaAccount.substrateAccountId), hexAccountId
+        )
+
+        let ethereumAccountFilter = NSPredicate(
+            format: "%K == %@",
+            #keyPath(CDMetaAccount.ethereumAddress), hexAccountId
+        )
+
+        let chainAccountFilter = NSPredicate(
+            format: "ANY %K == %@", #keyPath(CDMetaAccount.chainAccounts.accountId), hexAccountId
+        )
+
+        return NSCompoundPredicate(orPredicateWithSubpredicates: [
+            substrateAccountFilter,
+            ethereumAccountFilter,
+            chainAccountFilter
+        ])
+    }
+
+    static func selectedMetaAccount() -> NSPredicate {
+        NSPredicate(format: "%K == true", #keyPath(CDMetaAccount.isSelected))
+    }
+
+    static func relayChains() -> NSPredicate {
+        NSPredicate(format: "%K = nil", #keyPath(CDChain.parentId))
+    }
+
+    static func chainBy(identifier: ChainModel.Id) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDChain.chainId), identifier)
+    }
+
+    static func hasCrowloans() -> NSPredicate {
+        NSPredicate(format: "%K == true", #keyPath(CDChain.hasCrowdloans))
     }
 }

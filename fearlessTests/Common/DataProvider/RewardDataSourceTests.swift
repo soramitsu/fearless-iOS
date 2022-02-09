@@ -9,8 +9,22 @@ class RewardDataSourceTests: NetworkBaseTests {
             // given
 
             let storageFacade = SubstrateStorageTestFacade()
-            let url = WalletAssetId.westend.subqueryHistoryUrl
-            TotalRewardMock.register(mock: .westend, url: url!)
+            let chain = ChainModelGenerator.generateChain(
+                generatingAssets: 1,
+                addressPrefix: 42,
+                assetPresicion: 12,
+                hasStaking: true,
+                hasCrowdloans: true
+            )
+
+            guard
+                let url = chain.externalApi?.staking?.url,
+                let assetPrecision = chain.assets.first?.displayInfo.assetPrecision else {
+                XCTFail("Unexpected chain")
+                return
+            }
+
+            TotalRewardMock.register(mock: .westend, url: url)
 
             let expectedReward: Decimal = 5.0
 
@@ -22,8 +36,8 @@ class RewardDataSourceTests: NetworkBaseTests {
             let actualRewardItem = try performRewardRequest(
                 for: AnyDataProviderRepository(repository),
                 address: WestendStub.address,
-                assetId: .westend,
-                chain: .westend
+                url: url,
+                assetPrecision: assetPrecision
             ).get()
 
             // then
@@ -39,8 +53,23 @@ class RewardDataSourceTests: NetworkBaseTests {
             // given
 
             let storageFacade = SubstrateStorageTestFacade()
-            let url = WalletAssetId.westend.subqueryHistoryUrl
-            TotalRewardMock.register(mock: .error, url: url!)
+
+            let chain = ChainModelGenerator.generateChain(
+                generatingAssets: 1,
+                addressPrefix: 42,
+                assetPresicion: 12,
+                hasStaking: true,
+                hasCrowdloans: true
+            )
+
+            guard
+                let url = chain.externalApi?.staking?.url,
+                let assetPrecision = chain.assets.first?.displayInfo.assetPrecision else {
+                XCTFail("Unexpected chain")
+                return
+            }
+
+            TotalRewardMock.register(mock: .error, url: url)
 
             // when
 
@@ -50,8 +79,8 @@ class RewardDataSourceTests: NetworkBaseTests {
             let result = try performRewardRequest(
                 for: AnyDataProviderRepository(repository),
                 address: WestendStub.address,
-                assetId: .westend,
-                chain: .westend
+                url: url,
+                assetPrecision: assetPrecision
             )
 
             // then
@@ -69,23 +98,24 @@ class RewardDataSourceTests: NetworkBaseTests {
 
     func performRewardRequest(for repository: AnyDataProviderRepository<SingleValueProviderObject>,
                               address: String,
-                              assetId: WalletAssetId,
-                              chain: Chain) throws -> Result<TotalRewardItem?, Error> {
+                              url: URL,
+                              assetPrecision: Int16
+    ) throws -> Result<TotalRewardItem?, Error> {
         let operationManager = OperationManager()
 
         let trigger = DataProviderProxyTrigger()
 
         let operationFactory = SubqueryRewardOperationFactory(
-            url: assetId.subqueryHistoryUrl!
+            url: url
         )
 
         let source = SubqueryRewardSource(address: address,
-                                         chain: chain,
-                                         targetIdentifier: address,
-                                         repository: AnyDataProviderRepository(repository),
-                                         operationFactory: operationFactory,
-                                         trigger: trigger,
-                                         operationManager: operationManager)
+                                          assetPrecision: assetPrecision,
+                                          targetIdentifier: address,
+                                          repository: AnyDataProviderRepository(repository),
+                                          operationFactory: operationFactory,
+                                          trigger: trigger,
+                                          operationManager: operationManager)
 
         let provider = SingleValueProvider(targetIdentifier: address,
                                            source: AnySingleValueProviderSource(source),

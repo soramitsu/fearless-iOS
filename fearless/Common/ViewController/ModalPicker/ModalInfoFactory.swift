@@ -60,27 +60,33 @@ struct ModalInfoFactory {
 
     static func createFromBalanceContext(
         _ balanceContext: BalanceContext,
-        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
+        priceFormatter: LocalizableResource<TokenFormatter>,
+        precision: Int16
     ) -> UIViewController {
-        let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
+        let viewController: ModalPickerViewController<BottomSheetInfoBalanceCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
         viewController.headerHeight = Self.headerHeight
         viewController.footerHeight = Self.footerHeight
         viewController.allowsSelection = false
-        viewController.hasCloseItem = true
+        viewController.hasCloseItem = false
+        viewController.separatorStyle = .singleLine
+        viewController.separatorColor = R.color.colorDarkGray()
 
         viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.walletBalanceFrozen(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
         }
 
-        viewController.cellNib = UINib(resource: R.nib.detailsDisplayTableViewCell)
         viewController.modalPresentationStyle = .custom
 
         let viewModels = createViewModelsForContext(
             balanceContext,
-            amountFormatter: amountFormatter
+            amountFormatter: amountFormatter,
+            priceFormatter: priceFormatter,
+            precision: precision
         )
+
         viewController.viewModels = viewModels
 
         let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
@@ -173,48 +179,92 @@ struct ModalInfoFactory {
 
     private static func createViewModelsForContext(
         _ balanceContext: BalanceContext,
-        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>
-    ) -> [LocalizableResource<TitleWithSubtitleViewModel>] {
-        [
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceLocked(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.locked) ?? ""
-
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
-
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceBonded(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.bonded) ?? ""
-
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
-
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
+        priceFormatter: LocalizableResource<TokenFormatter>,
+        precision: Int16
+    ) -> [LocalizableResource<StakingAmountViewModel>] {
+        print(balanceContext.toContext())
+        let staticModels: [LocalizableResource<StakingAmountViewModel>] = [
             LocalizableResource { locale in
                 let title = R.string.localizable
                     .walletBalanceReserved(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.reserved) ?? ""
 
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
+                let amountString = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.reserved) ?? ""
 
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.redeemable) ?? ""
+                let formatter = priceFormatter.value(for: locale)
 
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
-            },
+                let price = balanceContext.reserved * balanceContext.price
+                let priceString = balanceContext.price == 0.0 ? nil : formatter.stringFromDecimal(price)
 
-            LocalizableResource { locale in
-                let title = R.string.localizable
-                    .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
-                let details = amountFormatter.value(for: locale).stringFromDecimal(balanceContext.unbonding) ?? ""
+                let balance = BalanceViewModel(
+                    amount: amountString,
+                    price: priceString
+                )
 
-                return TitleWithSubtitleViewModel(title: title, subtitle: details)
+                return StakingAmountViewModel(title: title, balance: balance)
             }
         ]
+
+        let balanceLockKnownModels: [LocalizableResource<StakingAmountViewModel>] =
+            createLockViewModel(
+                from: balanceContext.balanceLocks.mainLocks(),
+                balanceContext: balanceContext,
+                amountFormatter: amountFormatter,
+                priceFormatter: priceFormatter,
+                precision: precision
+            )
+
+        let balanceLockUnknownModels: [LocalizableResource<StakingAmountViewModel>] =
+            createLockViewModel(
+                from: balanceContext.balanceLocks.auxLocks(),
+                balanceContext: balanceContext,
+                amountFormatter: amountFormatter,
+                priceFormatter: priceFormatter,
+                precision: precision
+            )
+
+        return balanceLockKnownModels + balanceLockUnknownModels + staticModels
+    }
+
+    private static func createLockViewModel(
+        from locks: BalanceLocks,
+        balanceContext: BalanceContext,
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
+        priceFormatter: LocalizableResource<TokenFormatter>,
+        precision: Int16
+    ) -> [LocalizableResource<StakingAmountViewModel>] {
+        locks.map { lock in
+            LocalizableResource<StakingAmountViewModel> { locale in
+                let formatter = priceFormatter.value(for: locale)
+                let amountFormatter = amountFormatter.value(for: locale)
+
+                let title: String = {
+                    guard let mainTitle = LockType(rawValue: lock.displayId ?? "")?
+                        .displayType
+                        .value(for: locale) else {
+                        return lock.displayId?.capitalized ?? ""
+                    }
+                    return mainTitle
+                }()
+
+                let lockAmount = Decimal.fromSubstrateAmount(
+                    lock.amount,
+                    precision: precision
+                ) ?? 0.0
+                let price = lockAmount * balanceContext.price
+
+                let priceString = balanceContext.price == 0.0 ? nil : formatter.stringFromDecimal(price)
+                let amountString = amountFormatter.stringFromDecimal(lockAmount) ?? ""
+
+                let balance = BalanceViewModel(
+                    amount: amountString,
+                    price: priceString
+                )
+
+                return StakingAmountViewModel(
+                    title: title, balance: balance
+                )
+            }
+        }
     }
 }

@@ -15,15 +15,9 @@ final class WebSocketService: WebSocketServiceProtocol {
             address: address
         )
         let storageFacade = SubstrateDataStorageFacade.shared
-        let subscriptionFactory = WebSocketSubscriptionFactory(
-            storageFacade: storageFacade,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager
-        )
         return WebSocketService(
             settings: settings,
-            connectionFactory: WebSocketEngineFactory(),
-            subscriptionsFactory: subscriptionFactory,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
             applicationHandler: ApplicationHandler()
         )
     }()
@@ -37,8 +31,7 @@ final class WebSocketService: WebSocketServiceProtocol {
     var connection: JSONRPCEngine? { engine }
 
     let applicationHandler: ApplicationHandlerProtocol
-    let connectionFactory: WebSocketEngineFactoryProtocol
-    let subscriptionsFactory: WebSocketSubscriptionFactoryProtocol
+    let chainRegistry: ChainRegistryProtocol
 
     private(set) var settings: WebSocketServiceSettings
     private(set) var engine: WebSocketEngine?
@@ -52,14 +45,12 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     init(
         settings: WebSocketServiceSettings,
-        connectionFactory: WebSocketEngineFactoryProtocol,
-        subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
+        chainRegistry: ChainRegistryProtocol,
         applicationHandler: ApplicationHandlerProtocol
     ) {
         self.settings = settings
         self.applicationHandler = applicationHandler
-        self.connectionFactory = connectionFactory
-        self.subscriptionsFactory = subscriptionsFactory
+        self.chainRegistry = chainRegistry
     }
 
     func setup() {
@@ -113,21 +104,7 @@ final class WebSocketService: WebSocketServiceProtocol {
         subscriptions = nil
     }
 
-    private func setupConnection() {
-        let engine = connectionFactory.createEngine(for: settings.url, autoconnect: isActive)
-        engine.delegate = self
-        self.engine = engine
-
-        if let address = settings.address, let type = settings.addressType {
-            subscriptions = try? subscriptionsFactory.createSubscriptions(
-                address: address,
-                type: type,
-                engine: engine
-            )
-        } else {
-            subscriptions = nil
-        }
-    }
+    private func setupConnection() {}
 }
 
 extension WebSocketService: ApplicationHandlerDelegate {

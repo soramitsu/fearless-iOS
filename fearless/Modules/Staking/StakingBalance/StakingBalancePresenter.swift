@@ -1,15 +1,18 @@
 import SoraFoundation
+import Darwin
 
 final class StakingBalancePresenter {
     let interactor: StakingBalanceInteractorInputProtocol
     let wireframe: StakingBalanceWireframeProtocol
     let viewModelFactory: StakingBalanceViewModelFactoryProtocol
     weak var view: StakingBalanceViewProtocol?
-    let accountAddress: AccountAddress
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
 
-    var controllerAccount: AccountItem?
-    var stashAccount: AccountItem?
+    var controllerAccount: ChainAccountResponse?
+    var stashAccount: ChainAccountResponse?
     var stakingLedger: StakingLedger?
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
@@ -22,15 +25,19 @@ final class StakingBalancePresenter {
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        accountAddress: AccountAddress,
-        countdownTimer: CountdownTimerProtocol
+        countdownTimer: CountdownTimerProtocol,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.accountAddress = accountAddress
         self.countdownTimer = countdownTimer
+        self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.countdownTimer.delegate = self
     }
 
@@ -60,7 +67,15 @@ final class StakingBalancePresenter {
                 locale: locale ?? Locale.current
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showBondMore(from: view)
+            guard let self = self else {
+                return
+            }
+            self.wireframe.showBondMore(
+                from: view,
+                chain: self.chain,
+                asset: self.asset,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -79,7 +94,15 @@ final class StakingBalancePresenter {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showUnbond(from: view)
+            guard let self = self else {
+                return
+            }
+            self.wireframe.showUnbond(
+                from: view,
+                chain: self.chain,
+                asset: self.asset,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -91,7 +114,16 @@ final class StakingBalancePresenter {
                 locale: locale ?? Locale.current
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showRedeem(from: view)
+            guard let self = self else {
+                return
+            }
+
+            self.wireframe.showRedeem(
+                from: view,
+                chain: self.chain,
+                asset: self.asset,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -99,7 +131,17 @@ final class StakingBalancePresenter {
         let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
             let title = option.titleForLocale(locale)
             let action = AlertPresentableAction(title: title) { [weak self] in
-                self?.wireframe.showRebond(from: self?.view, option: option)
+                guard let self = self else {
+                    return
+                }
+
+                self.wireframe.showRebond(
+                    from: view,
+                    option: option,
+                    chain: self.chain,
+                    asset: self.asset,
+                    selectedAccount: self.selectedAccount
+                )
             }
             return action
         }
@@ -201,7 +243,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(controllerResult: Result<AccountItem?, Error>) {
+    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>) {
         switch controllerResult {
         case let .success(controller):
             controllerAccount = controller
@@ -210,7 +252,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(stashResult: Result<AccountItem?, Error>) {
+    func didReceive(stashResult: Result<ChainAccountResponse?, Error>) {
         switch stashResult {
         case let .success(stash):
             stashAccount = stash

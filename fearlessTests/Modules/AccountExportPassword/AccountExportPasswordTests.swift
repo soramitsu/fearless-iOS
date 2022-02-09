@@ -20,7 +20,7 @@ class AccountExportPasswordTests: XCTestCase {
 
         let givenAccount = settings.selectedAccount!
 
-        let accountsRepository: CoreDataRepository<AccountItem, CDAccountItem> = facade.createRepository()
+        let accountsRepository = AccountRepositoryFactory.createRepository(for: facade)
         let operation = accountsRepository.saveOperation({ [givenAccount]}, { [] })
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)

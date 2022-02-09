@@ -3,12 +3,16 @@ import SoraKeystore
 import RobinHood
 
 struct StakingRewardDestSetupViewFactory {
-    static func createView() -> StakingRewardDestSetupViewProtocol? {
-        let settings = SettingsManager.shared
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
-        guard let interactor = createInteractor(settings: settings) else {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingRewardDestSetupViewProtocol? {
+        guard let interactor = try? createInteractor(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return nil
         }
 
@@ -17,8 +21,7 @@ struct StakingRewardDestSetupViewFactory {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -38,6 +41,8 @@ struct StakingRewardDestSetupViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             applicationConfig: ApplicationConfig.shared,
             chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             logger: Logger.shared
         )
 
@@ -54,54 +59,114 @@ struct StakingRewardDestSetupViewFactory {
     }
 
     private static func createInteractor(
-        settings: SettingsManagerProtocol
-    ) -> StakingRewardDestSetupInteractor? {
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) throws -> StakingRewardDestSetupInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
         guard
-            let engine = WebSocketService.shared.connection,
-            let selectedAddress = settings.selectedAccount?.address else {
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
-        let chain = settings.selectedConnection.type.chain
-
-        let networkType = chain.addressType
-
-        let asset = WalletPrimitiveFactory(settings: settings)
-            .createAssetForAddressType(networkType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
-
-        let extrinsicServiceFactory = ExtrinsicServiceFactory(
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
-            engine: engine,
-            operationManager: OperationManagerFacade.sharedManager
-        )
+        let operationManager = OperationManagerFacade.sharedManager
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        let feeProxy = ExtrinsicFeeProxy()
+
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let logger = Logger.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedAccount.metaId,
+            accountResponse: accountResponse
+        )
+
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> = UserDataStorageFacade.shared
-            .createRepository(
-                filter: filter, sortDescriptors: [.accountsByOrder]
-            )
+        guard let settings = stakingSettings.value else {
+            return nil
+        }
+
+        let eraValidatorService = try serviceFactory.createEraValidatorService(
+            for: settings.chain.chainId
+        )
+
+        let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
+            for: settings.chain.chainId,
+            assetPrecision: settings.assetDisplayInfo.assetPrecision,
+            validatorService: eraValidatorService
+        )
 
         return StakingRewardDestSetupInteractor(
-            selectedAccountAddress: selectedAddress,
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            extrinsicServiceFactory: extrinsicServiceFactory,
-            substrateProviderFactory: substrateProviderFactory,
-            calculatorService: RewardCalculatorFacade.sharedService,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            feeProxy: ExtrinsicFeeProxy(),
-            assetId: assetId,
-            chain: chain
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            substrateProviderFactory: substrateProviderFactory,
+            calculatorService: rewardCalculatorService,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            feeProxy: feeProxy,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount,
+            connection: connection
         )
     }
 }

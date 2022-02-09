@@ -9,6 +9,9 @@ final class SelectValidatorsStartPresenter {
     let initialTargets: [SelectedValidatorInfo]?
     let existingStashAddress: AccountAddress?
     let logger: LoggerProtocol?
+    let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
 
     private var electedValidators: [AccountAddress: ElectedValidatorInfo]?
     private var recommendedValidators: [ElectedValidatorInfo]?
@@ -20,8 +23,14 @@ final class SelectValidatorsStartPresenter {
         wireframe: SelectValidatorsStartWireframeProtocol,
         existingStashAddress: AccountAddress?,
         initialTargets: [SelectedValidatorInfo]?,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) {
+        self.chain = chain
+        self.selectedAccount = selectedAccount
+        self.asset = asset
         self.interactor = interactor
         self.wireframe = wireframe
         self.existingStashAddress = existingStashAddress
@@ -112,7 +121,10 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         wireframe.proceedToRecommendedList(
             from: view,
             validatorList: recommendedValidatorList,
-            maxTargets: maxNominations
+            maxTargets: maxNominations,
+            selectedAccount: selectedAccount,
+            chain: chain,
+            asset: asset
         )
     }
 
@@ -134,7 +146,10 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             validatorList: electedValidatorList,
             recommendedValidatorList: recommendedValidatorList,
             selectedValidatorList: selectedValidators,
-            maxTargets: maxNominations
+            maxTargets: maxNominations,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
         )
     }
 }

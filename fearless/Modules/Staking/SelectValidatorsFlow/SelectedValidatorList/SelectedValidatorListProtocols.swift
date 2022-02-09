@@ -31,13 +31,18 @@ protocol SelectedValidatorListViewModelFactoryProtocol: AnyObject {
 protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
         from view: ControllerBackedProtocol?
     )
 
     func proceed(
         from view: SelectedValidatorListViewProtocol?,
         targets: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     )
 
     func dismiss(_ view: ControllerBackedProtocol?)
@@ -47,6 +52,9 @@ protocol SelectedValidatorListViewFactoryProtocol {
     static func createInitiatedBondingView(
         for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: InitiatedBonding
     ) -> SelectedValidatorListViewProtocol?
@@ -54,6 +62,9 @@ protocol SelectedValidatorListViewFactoryProtocol {
     static func createChangeTargetsView(
         for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol?
@@ -61,6 +72,9 @@ protocol SelectedValidatorListViewFactoryProtocol {
     static func createChangeYourValidatorsView(
         for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol?

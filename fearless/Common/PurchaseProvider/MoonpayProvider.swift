@@ -3,6 +3,11 @@ import FearlessUtils
 import IrohaCrypto
 
 final class MoonpayProvider: PurchaseProviderProtocol {
+    enum Constants {
+        static let title = "Moonpay"
+        static let icon = R.image.iconMoonPay()
+    }
+
     static let baseUrlString = "https://buy.moonpay.com/"
 
     private var colorCode: String?
@@ -26,22 +31,11 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseActions(
-        for chain: Chain,
-        assetId _: WalletAssetId?,
-        address: String
-    ) -> [PurchaseAction] {
-        let optionUrl: URL?
-
-        guard chain == .polkadot else { return [] }
-        optionUrl = buildURLForToken("DOT", address: address)
-
-        if let url = optionUrl {
-            let action = PurchaseAction(title: "MoonPay", url: url, icon: R.image.iconMoonPay()!)
-            return [action]
-        } else {
-            return []
+    func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
+        if let url = buildURLForToken(asset.id, address: address) {
+            return [PurchaseAction(title: Constants.title, url: url, icon: Constants.icon!)]
         }
+        return []
     }
 
     private func calculateHmac(for query: String) throws -> String {
