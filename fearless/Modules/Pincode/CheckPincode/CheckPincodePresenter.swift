@@ -21,7 +21,9 @@ class CheckPincodePresenter: PinSetupPresenterProtocol {
         interactor.startAuth()
     }
 
-    func cancel() {}
+    func cancel() {
+        moduleOutput.close(view: view)
+    }
 
     func activateBiometricAuth() {
         interactor.startAuth()

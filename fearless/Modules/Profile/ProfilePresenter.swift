@@ -79,6 +79,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 }
 
 extension ProfilePresenter: CheckPincodeModuleOutput {
+    func close(view: ControllerBackedProtocol?) {
+        wireframe.close(view: view)
+    }
+
     func didCheck() {
         interactor.logout { [weak self] in
             DispatchQueue.main.async {

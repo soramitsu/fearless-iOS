@@ -45,6 +45,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         from view: ProfileViewProtocol?,
         output: CheckPincodeModuleOutput
     )
+    func close(view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

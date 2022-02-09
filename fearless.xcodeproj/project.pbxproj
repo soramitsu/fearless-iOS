@@ -1475,6 +1475,8 @@
 		C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */; };
 		C67E781127B318840053346B /* CheckPincodeViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781027B318840053346B /* CheckPincodeViewFactory.swift */; };
 		C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */; };
+		C67E781927B3AC350053346B /* CheckPincodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781827B3AC350053346B /* CheckPincodeViewController.swift */; };
+		C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */; };
 		C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */; };
 		C68130E1275FD426007B573A /* ReceiveAssetWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */; };
 		C68130E3275FD88E007B573A /* ReceiveAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */; };
@@ -3344,6 +3346,8 @@
 		C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeProtocols.swift; sourceTree = "<group>"; };
 		C67E781027B318840053346B /* CheckPincodeViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewFactory.swift; sourceTree = "<group>"; };
 		C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodePresenter.swift; sourceTree = "<group>"; };
+		C67E781827B3AC350053346B /* CheckPincodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewController.swift; sourceTree = "<group>"; };
+		C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewLayout.swift; sourceTree = "<group>"; };
 		C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetPresenter.swift; sourceTree = "<group>"; };
 		C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetWireframe.swift; sourceTree = "<group>"; };
 		C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewModel.swift; sourceTree = "<group>"; };
@@ -8288,6 +8292,8 @@
 				C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */,
 				C67E781027B318840053346B /* CheckPincodeViewFactory.swift */,
 				C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */,
+				C67E781827B3AC350053346B /* CheckPincodeViewController.swift */,
+				C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */,
 			);
 			path = CheckPincode;
 			sourceTree = "<group>";
@@ -10698,6 +10704,7 @@
 				84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */,
 				8472974D260A9CDF009B86D0 /* SelectValidatorsConfirmationModel.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,
+				C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */,
 				84C91FAF261E7CDD002796B9 /* WalletHistoryFilterEditor.swift in Sources */,
 				84BB3CF8267D276D00676FFE /* BaseCrowdloanTableViewCell.swift in Sources */,
 				84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */,
@@ -10922,6 +10929,7 @@
 				84CEAAF726D7B8010021B881 /* SettingsMigrator.swift in Sources */,
 				844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */,
 				84FAB0632542C8D600319F74 /* ContactItem.swift in Sources */,
+				C67E781927B3AC350053346B /* CheckPincodeViewController.swift in Sources */,
 				06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */,
 				84DED3EF26661CC600A153BB /* CrowdloanFlow.swift in Sources */,
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
