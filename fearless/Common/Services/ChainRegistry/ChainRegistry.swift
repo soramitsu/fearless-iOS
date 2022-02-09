@@ -218,7 +218,7 @@ extension ChainRegistry: ChainRegistryProtocol {
 
 extension ChainRegistry: ConnectionPoolDelegate {
     func connectionNeedsReconnect(url: URL) {
-        chainProvider.fetch(offset: 0, count: 100, synchronized: true) { [weak self] result in
+        _ = chainProvider.fetch(offset: 0, count: availableChainIds?.count ?? 0, synchronized: true) { [weak self] result in
             switch result {
             case let .success(chains):
                 let failedChain = chains.first { chain in
