@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import IrohaCrypto
+import RobinHood
 
 enum ProfileInteractorError: Error {
     case noSelectedAccount
@@ -11,13 +12,19 @@ final class ProfileInteractor {
 
     let selectedWalletSettings: SelectedWalletSettings
     let eventCenter: EventCenterProtocol
+    let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
+    let operationQueue: OperationQueue
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
+        operationQueue: OperationQueue
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
+        self.repository = repository
+        self.operationQueue = operationQueue
     }
 
     private func provideUserSettings() {
@@ -48,6 +55,21 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
     }
+
+    func updateWallet(_ wallet: MetaAccountModel) {
+        selectedWalletSettings.save(value: wallet)
+        DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async {
+                self?.presenter?.didReceive(wallet: wallet)
+            }
+        }
+    }
+
+    func logout(completion: @escaping () -> Void) {
+        let operation = repository.deleteAllOperation()
+        operation.completionBlock = completion
+        operationQueue.addOperation(operation)
+    }
 }
 
 extension ProfileInteractor: EventVisitorProtocol {
@@ -57,5 +79,9 @@ extension ProfileInteractor: EventVisitorProtocol {
 
     func processSelectedUsernameChanged(event _: SelectedUsernameChanged) {
         provideUserSettings()
+    }
+
+    func processWalletNameChanged(event: WalletNameChanged) {
+        updateWallet(event.wallet)
     }
 }
