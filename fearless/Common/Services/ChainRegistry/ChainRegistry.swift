@@ -232,12 +232,15 @@ extension ChainRegistry: ConnectionPoolDelegate {
                 }
 
                 if failedChain.selectedNode == nil {
+                    self?.mutex.lock()
                     self?.clearRuntimeSubscription(for: failedChain.chainId)
 
                     if let connection = try? self?.connectionPool.setupConnection(for: failedChain, ignoredUrl: url) {
                         _ = self?.runtimeProviderPool.setupRuntimeProvider(for: failedChain)
                         self?.setupRuntimeVersionSubscription(for: failedChain, connection: connection)
                     }
+
+                    self?.mutex.unlock()
                 }
 
             case .failure:
