@@ -212,7 +212,17 @@ final class ChainModelMapper {
         }
         let nodeEntity: CDChainNode
 
-        let maybeExistingEntity = entity.nodes?
+        var allNodes = NSSet()
+
+        if let nodes = entity.nodes {
+            allNodes = allNodes.addingObjects(from: Set(_immutableCocoaSet: nodes)) as NSSet
+        }
+
+        if let customNodes = entity.customNodes {
+            allNodes = allNodes.addingObjects(from: Set(_immutableCocoaSet: customNodes)) as NSSet
+        }
+
+        let maybeExistingEntity = allNodes
             .first { ($0 as? CDChainNode)?.url == node.url } as? CDChainNode
 
         if let existingEntity = maybeExistingEntity {

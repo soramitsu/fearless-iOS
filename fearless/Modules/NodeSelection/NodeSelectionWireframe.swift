@@ -2,11 +2,11 @@ import Foundation
 
 final class NodeSelectionWireframe: NodeSelectionWireframeProtocol {
     func presentAddNodeFlow(
-        with _: ChainModel,
-        moduleOutput _: AddCustomNodeModuleOutput?,
+        with chain: ChainModel,
+        moduleOutput: AddCustomNodeModuleOutput?,
         from view: ControllerBackedProtocol?
     ) {
-        guard let controller = AddCustomNodeViewFactory.createView()?.controller else {
+        guard let controller = AddCustomNodeViewFactory.createView(chain: chain, moduleOutput: moduleOutput)?.controller else {
             return
         }
 

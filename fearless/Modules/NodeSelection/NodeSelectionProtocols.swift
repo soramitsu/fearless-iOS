@@ -17,6 +17,7 @@ protocol NodeSelectionInteractorInputProtocol: AnyObject {
     func setup()
     func selectNode(_ node: ChainNodeModel?)
     func setAutomaticSwitchNodes(_ automatic: Bool)
+    func deleteNode(_ node: ChainNodeModel)
 
     var chain: ChainModel { get set }
 }
@@ -25,7 +26,7 @@ protocol NodeSelectionInteractorOutputProtocol: AnyObject {
     func didReceive(chain: ChainModel)
 }
 
-protocol NodeSelectionWireframeProtocol: PresentDismissable {
+protocol NodeSelectionWireframeProtocol: PresentDismissable, AlertPresentable {
     func presentAddNodeFlow(
         with chain: ChainModel,
         moduleOutput: AddCustomNodeModuleOutput?,

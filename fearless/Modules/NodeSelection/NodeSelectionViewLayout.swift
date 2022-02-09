@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 final class NodeSelectionViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
@@ -25,7 +26,7 @@ final class NodeSelectionViewLayout: UIView {
         return view
     }()
 
-    let headerView = UIView()
+    let headerView = BorderedContainerView()
 
     let switchTitle: UILabel = {
         let label = UILabel()
@@ -123,10 +124,17 @@ final class NodeSelectionViewLayout: UIView {
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.setRightViews([editButton])
+
+        headerView.borderType = .bottom
+        headerView.strokeColor = R.color.colorDarkGray() ?? .gray
+        headerView.strokeWidth = 0.5
     }
 
     func bind(to viewModel: NodeSelectionViewModel) {
         navigationTitleLabel.text = viewModel.title
         switchView.isOn = viewModel.autoSelectEnabled
+
+        let textColor = viewModel.autoSelectEnabled ? R.color.colorWhite() : R.color.colorGray()
+        switchTitle.textColor = textColor
     }
 }

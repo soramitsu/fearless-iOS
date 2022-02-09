@@ -1,18 +1,29 @@
-protocol AddCustomNodeViewProtocol: ControllerBackedProtocol {
-    func didReceive(state: AddCustomNodeViewState)
+import SoraFoundation
+
+protocol AddCustomNodeViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
+    func didReceive(nameViewModel: InputViewModelProtocol)
+    func didReceive(nodeViewModel: InputViewModelProtocol)
+    func didReceive(locale: Locale)
 }
 
 protocol AddCustomNodePresenterProtocol: AnyObject {
     func setup()
-    
-    func nameTextFieldValueChanged(_ value: String)
-    func addressTextFieldValueChanged(_ value: String)
+    func didTapAddNodeButton()
+    func didTapCloseButton()
 }
 
-protocol AddCustomNodeInteractorInputProtocol: AnyObject {}
+protocol AddCustomNodeInteractorInputProtocol: AnyObject {
+    func addConnection(url: URL, name: String)
+}
 
-protocol AddCustomNodeInteractorOutputProtocol: AnyObject {}
+protocol AddCustomNodeInteractorOutputProtocol: AnyObject {
+    func didStartAdding(url: URL)
+    func didCompleteAdding(url: URL)
+    func didReceiveError(error: Error, for url: URL)
+}
 
-protocol AddCustomNodeWireframeProtocol: AnyObject {}
+protocol AddCustomNodeWireframeProtocol: PresentDismissable, AlertPresentable, ErrorPresentable {}
 
-protocol AddCustomNodeModuleOutput: AnyObject {}
+protocol AddCustomNodeModuleOutput: AnyObject {
+    func didChangedNodesList()
+}

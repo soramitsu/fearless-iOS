@@ -5,16 +5,15 @@ protocol AddCustomNodeViewModelFactoryProtocol {
 }
 
 class AddCustomNodeViewModelFactory: AddCustomNodeViewModelFactoryProtocol {
-    
     func buildViewState(with name: String?, address: String?) -> AddCustomNodeViewState {
-        if name?.count == 0 {
+        if name?.isEmpty == true {
             return .needsName
         }
-        
-        if address?.count == 0 {
+
+        if address?.isEmpty == true {
             return .needsUrl
         }
-        
+
         return .done
     }
 }

@@ -15,3 +15,9 @@ struct ChainNodeModel: Equatable, Codable, Hashable {
 extension ChainNodeModel: Identifiable {
     var identifier: String { url.absoluteString }
 }
+
+extension ChainNodeModel {
+    var clearUrlString: String? {
+        url.absoluteString.components(separatedBy: "?api").first
+    }
+}

@@ -18,6 +18,11 @@ final class NodeSelectionPresenter {
         self.viewModelFactory = viewModelFactory
         self.localizationManager = localizationManager
     }
+
+    private func provideViewModel() {
+        let viewModel = viewModelFactory.buildViewModel(from: interactor.chain, locale: selectedLocale, cellsDelegate: self)
+        view?.didReceive(state: .loaded(viewModel: viewModel))
+    }
 }
 
 extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
@@ -43,16 +48,33 @@ extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
 }
 
 extension NodeSelectionPresenter: NodeSelectionInteractorOutputProtocol {
-    func didReceive(chain: ChainModel) {
-        let viewModel = viewModelFactory.buildViewModel(from: chain)
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+    func didReceive(chain _: ChainModel) {
+        provideViewModel()
     }
 }
 
 extension NodeSelectionPresenter: Localizable {
     func applyLocalization() {
+        provideViewModel()
+
         view?.didReceive(locale: selectedLocale)
     }
 }
 
-extension NodeSelectionPresenter: AddCustomNodeModuleOutput {}
+extension NodeSelectionPresenter: AddCustomNodeModuleOutput {
+    func didChangedNodesList() {
+//        provideViewModel()
+    }
+}
+
+extension NodeSelectionPresenter: NodeSelectionTableCellViewModelDelegate {
+    func deleteNode(_ node: ChainNodeModel) {
+        let viewModel = viewModelFactory.buildDeleteNodeAlertViewModel(node: node, locale: selectedLocale) { [weak self] in
+            self?.interactor.deleteNode(node)
+        }
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+
+    func showNodeInfo(_: ChainNodeModel) {}
+}

@@ -1,7 +1,7 @@
 import Foundation
+import SoraFoundation
 
-enum AddCustomNodeViewState {
-    case needsName
-    case needsUrl
-    case done
+struct AddCustomNodeViewModel {
+    let nameInputViewModel: InputViewModel
+    let addressInputViewModel: InputViewModel
 }

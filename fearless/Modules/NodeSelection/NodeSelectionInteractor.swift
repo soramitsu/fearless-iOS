@@ -25,6 +25,37 @@ final class NodeSelectionInteractor {
 extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     func setup() {
         presenter?.didReceive(chain: chain)
+
+        eventCenter.add(observer: self)
+    }
+
+    func deleteNode(_ node: ChainNodeModel) {
+        guard let customNodes = chain.customNodes else {
+            return
+        }
+
+        let updatedChain = chain.replacingCustomNodes(customNodes.filter { $0 != node })
+
+        let saveOperation = repository.saveOperation {
+            [updatedChain]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            guard let self = self else { return }
+
+            self.chain = updatedChain
+
+            DispatchQueue.main.async {
+                self.presenter?.didReceive(chain: updatedChain)
+            }
+
+            let event = ChainsUpdatedEvent(updatedChains: [updatedChain])
+            self.eventCenter.notify(with: event)
+        }
+
+        operationManager.enqueue(operations: [saveOperation], in: .transient)
     }
 
     func selectNode(_ node: ChainNodeModel?) {
@@ -40,13 +71,15 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
 
         saveOperation.completionBlock = { [weak self] in
             guard let self = self else { return }
-            self.chain = self.chain.replacingSelectedNode(node)
+            let updatedChain = self.chain.replacingSelectedNode(node)
+
+            self.chain = updatedChain
 
             DispatchQueue.main.async {
-                self.presenter?.didReceive(chain: self.chain)
+                self.presenter?.didReceive(chain: updatedChain)
             }
 
-            let event = ChainsUpdatedEvent(updatedChains: [self.chain])
+            let event = ChainsUpdatedEvent(updatedChains: [updatedChain])
             self.eventCenter.notify(with: event)
         }
 
@@ -58,6 +91,21 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
             selectNode(nil)
         } else {
             selectNode(chain.nodes.first)
+        }
+    }
+}
+
+extension NodeSelectionInteractor: EventVisitorProtocol {
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
+            guard let self = self else { return false }
+            return updatedChain.chainId == self.chain.chainId
+        }) {
+            chain = updated
+
+            DispatchQueue.main.async {
+                self.presenter?.didReceive(chain: self.chain)
+            }
         }
     }
 }

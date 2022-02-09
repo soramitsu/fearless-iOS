@@ -1,15 +1,17 @@
 import UIKit
 
-final class SearchPeopleTableSectionHeaderView: UIView {
+final class TableSectionTitleView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
+        label.font = .p2Paragraph
         label.textColor = R.color.colorAlmostWhite()
         return label
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        setupLayout()
     }
 
     @available(*, unavailable)
@@ -21,8 +23,9 @@ final class SearchPeopleTableSectionHeaderView: UIView {
         addSubview(titleLabel)
 
         titleLabel.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.trailing.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.bottom.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
 }

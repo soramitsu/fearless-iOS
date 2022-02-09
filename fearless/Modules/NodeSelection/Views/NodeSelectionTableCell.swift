@@ -1,6 +1,21 @@
 import UIKit
 
+protocol NodeSelectionTableCellDelegate: AnyObject {
+    func didTapDeleteButton()
+    func didTapInfoButton()
+}
+
 class NodeSelectionTableCell: UITableViewCell {
+    weak var delegate: NodeSelectionTableCellDelegate?
+
+    let mainStackView: UIStackView = {
+        let stackView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.defaultOffset)
+        stackView.alignment = .center
+        return stackView
+    }()
+
+    let textInfoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
+
     let selectedIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.listCheckmarkIcon()
@@ -22,7 +37,14 @@ class NodeSelectionTableCell: UITableViewCell {
 
     let infoButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconInfo(), for: .normal)
+        button.setImage(R.image.iconHorMore(), for: .normal)
+        button.isHidden = true // not implemented yet
+        return button
+    }()
+
+    let deleteButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconDelete(), for: .normal)
         return button
     }()
 
@@ -53,42 +75,63 @@ class NodeSelectionTableCell: UITableViewCell {
         )
 
         selectionStyle = .none
+
+        deleteButton.addTarget(self, action: #selector(deleteButtonClicked), for: .touchUpInside)
+        infoButton.addTarget(self, action: #selector(infoButtonClicked), for: .touchUpInside)
     }
 
     private func setupLayout() {
-        contentView.addSubview(selectedIconImageView)
-        contentView.addSubview(nodeNameLabel)
-        contentView.addSubview(nodeUrlLabel)
-        contentView.addSubview(infoButton)
+        contentView.addSubview(mainStackView)
 
-        selectedIconImageView.snp.makeConstraints { make in
+        mainStackView.addArrangedSubview(deleteButton)
+        mainStackView.addArrangedSubview(selectedIconImageView)
+        mainStackView.addArrangedSubview(textInfoStackView)
+        textInfoStackView.addArrangedSubview(nodeNameLabel)
+        textInfoStackView.addArrangedSubview(nodeUrlLabel)
+        mainStackView.addArrangedSubview(infoButton)
+
+        mainStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(30)
-        }
-
-        nodeNameLabel.snp.makeConstraints { make in
-            make.leading.equalTo(selectedIconImageView.snp.trailing).offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
-        }
-
-        nodeUrlLabel.snp.makeConstraints { make in
-            make.leading.equalTo(nodeNameLabel.snp.leading)
-            make.top.equalTo(nodeNameLabel.snp.bottom).offset(UIConstants.minimalOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
+        deleteButton.snp.makeConstraints { make in
+            make.size.equalTo(30)
+        }
+
+        selectedIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(30)
+        }
+
         infoButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.centerY.equalToSuperview()
-            make.leading.equalTo(nodeUrlLabel.snp.trailing).offset(UIConstants.defaultOffset)
             make.size.equalTo(22)
         }
     }
 
-    func bind(to viewModel: NodeSelectionTableCellViewModel) {
+    func bind(to viewModel: NodeSelectionTableCellViewModel, tableState: NodeSelectionTableState) {
+        delegate = viewModel
+
         nodeNameLabel.text = viewModel.node.name
-        nodeUrlLabel.text = viewModel.node.url.absoluteString
+        nodeUrlLabel.text = viewModel.node.clearUrlString
         selectedIconImageView.isHidden = !viewModel.selected
+
+        let deleteEnabled = (tableState == .editing && viewModel.editable && !viewModel.selected)
+        deleteButton.alpha = deleteEnabled ? 1 : 0
+        deleteButton.isHidden = viewModel.selected
+
+        let textColor = viewModel.selectable ? R.color.colorWhite() : R.color.colorGray()
+
+        nodeNameLabel.textColor = textColor
+        nodeUrlLabel.textColor = textColor
+    }
+
+    @objc private func deleteButtonClicked() {
+        delegate?.didTapDeleteButton()
+    }
+
+    @objc private func infoButtonClicked() {
+        delegate?.didTapInfoButton()
     }
 }

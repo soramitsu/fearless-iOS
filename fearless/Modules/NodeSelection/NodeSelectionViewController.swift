@@ -1,12 +1,17 @@
 import UIKit
 
 final class NodeSelectionViewController: UIViewController, ViewHolder {
+    enum Constants {
+        static let tableSectionHeaderHeight: CGFloat = 30
+    }
+
     typealias RootViewType = NodeSelectionViewLayout
 
     let presenter: NodeSelectionPresenterProtocol
 
     var state: NodeSelectionViewState = .loading
     var tableState: NodeSelectionTableState = .normal
+    var locale = Locale.current
 
     init(presenter: NodeSelectionPresenterProtocol) {
         self.presenter = presenter
@@ -27,9 +32,16 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
 
         presenter.setup()
 
-        rootView.tableView.registerClassForCell(NodeSelectionTableCell.self)
+        rootView.tableView.contentInsetAdjustmentBehavior = .never
+        rootView.tableView.contentInset = .zero
 
+        rootView.tableView.registerClassForCell(NodeSelectionTableCell.self)
         rootView.tableView.tableFooterView = UIView()
+        rootView.tableView.tableHeaderView = UIView()
+
+        if #available(iOS 15.0, *) {
+            rootView.tableView.sectionHeaderTopPadding = 0
+        }
 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
@@ -38,6 +50,12 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
         rootView.navigationBar.backButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
         rootView.editButton.addTarget(self, action: #selector(editButtonClicked), for: .touchUpInside)
         rootView.addNodeButton.addTarget(self, action: #selector(addNodeButtonClicked), for: .touchUpInside)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        tableState = .normal
     }
 
     func applyState() {
@@ -57,6 +75,10 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
 
     @objc private func editButtonClicked() {
         tableState = tableState.reversed
+        rootView.tableView.reloadData()
+
+        let editButtonTitle = tableState == .normal ? R.string.localizable.commonEdit(preferredLanguages: locale.rLanguages) : R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        rootView.editButton.setTitle(editButtonTitle, for: .normal)
     }
 
     @objc private func closeButtonClicked() {
@@ -75,25 +97,49 @@ extension NodeSelectionViewController: NodeSelectionViewProtocol {
     }
 
     func didReceive(locale: Locale) {
+        self.locale = locale
         rootView.locale = locale
     }
 }
 
 extension NodeSelectionViewController: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        guard case .loaded = state else {
-            return 0
+    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard case let .loaded(viewModel) = state else {
+            return nil
         }
 
-        return 1
+        let sectionHeaderView = TableSectionTitleView()
+        sectionHeaderView.titleLabel.text = viewModel.sections[section].title
+
+        return sectionHeaderView
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard case let .loaded(viewModel) = state else {
             return 0
         }
 
-        return viewModel.viewModels.count
+        return !viewModel.sections[section].viewModels.isEmpty ? Constants.tableSectionHeaderHeight : .leastNormalMagnitude
+    }
+
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+
+    func numberOfSections(in _: UITableView) -> Int {
+        guard case let .loaded(viewModel) = state else {
+            return 0
+        }
+
+        return viewModel.sections.count
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard case let .loaded(viewModel) = state else {
+            return 0
+        }
+
+        return viewModel.sections[section].viewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -106,7 +152,9 @@ extension NodeSelectionViewController: UITableViewDelegate, UITableViewDataSourc
             return UITableViewCell()
         }
 
-        cell.bind(to: viewModel.viewModels[indexPath.row])
+        let cellViewModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]
+        cell.bind(to: cellViewModel, tableState: tableState)
+
         return cell
     }
 
@@ -115,6 +163,8 @@ extension NodeSelectionViewController: UITableViewDelegate, UITableViewDataSourc
             return
         }
 
-        presenter.didSelectNode(viewModel.viewModels[indexPath.row].node)
+        let cellViewModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]
+
+        presenter.didSelectNode(cellViewModel.node)
     }
 }

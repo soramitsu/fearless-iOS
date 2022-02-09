@@ -14,8 +14,13 @@ enum NodeSelectionTableState {
     }
 }
 
+struct NodeSelectionTableSection {
+    let title: String
+    let viewModels: [NodeSelectionTableCellViewModel]
+}
+
 struct NodeSelectionViewModel {
     let title: String
     let autoSelectEnabled: Bool
-    let viewModels: [NodeSelectionTableCellViewModel]
+    let sections: [NodeSelectionTableSection]
 }

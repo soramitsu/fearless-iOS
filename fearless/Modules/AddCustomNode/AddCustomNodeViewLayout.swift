@@ -95,4 +95,10 @@ final class AddCustomNodeViewLayout: UIView {
 
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: nodeNameInputView)
     }
+
+    func handleKeyboard(frame: CGRect) {
+        addNodeButton.snp.updateConstraints { make in
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
+        }
+    }
 }
