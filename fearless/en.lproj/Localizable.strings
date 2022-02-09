@@ -572,6 +572,8 @@ This is the hash of your transaction:";
 "assetdetails.balance.title" = "Your balance";
 "wallet.send.navigation.title" = "Send %@";
 "profile.wallets.title" = "Wallets";
+"profile.logout.title" = "Logout";
+"profile.logout.description" = "This action will result in deleting all accounts from this device. Make sure you have backed up your passphrase before preceeding.";
 "settings.add.wallet" = "Add wallet";
 "onboarding.create.wallet" = "Create wallet";
 "onboarding.restore.wallet" = "I already have a wallet";

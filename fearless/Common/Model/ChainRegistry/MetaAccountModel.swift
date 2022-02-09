@@ -61,4 +61,17 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts
         )
     }
+
+    func replacingName(_ walletName: String) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: walletName,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts
+        )
+    }
 }

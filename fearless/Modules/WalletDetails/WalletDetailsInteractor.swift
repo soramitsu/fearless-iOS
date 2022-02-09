@@ -4,16 +4,19 @@ final class WalletDetailsInteractor {
 
     private let selectedMetaAccount: MetaAccountModel
     private let chainsRepository: AnyDataProviderRepository<ChainModel>
-    private let operationQueue: OperationQueue
+    private let operationManager: OperationManagerProtocol
+    private let eventCenter: EventCenterProtocol
 
     init(
         selectedMetaAccount: MetaAccountModel,
         chainsRepository: AnyDataProviderRepository<ChainModel>,
-        operationQueue: OperationQueue
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainsRepository = chainsRepository
-        self.operationQueue = operationQueue
+        self.operationManager = operationManager
+        self.eventCenter = eventCenter
     }
 }
 
@@ -22,6 +25,33 @@ extension WalletDetailsInteractor: AccountFetching {}
 extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
     func setup() {
         fetchChainsWithAccounts()
+    }
+
+    func update(walletName: String) {
+        let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
+            selectedMetaAccount.replacingName(walletName)
+        }
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+            let accountItem = try updateOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            return accountItem
+        }
+        saveOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                switch saveOperation.result {
+                case let .success(wallet):
+                    self?.eventCenter.notify(with: WalletNameChanged(wallet: wallet))
+                case let .failure(error):
+                    self?.presenter.didReceive(error: error)
+
+                case .none:
+                    let error = BaseOperationError.parentOperationCancelled
+                    self?.presenter.didReceive(error: error)
+                }
+            }
+        }
+        saveOperation.addDependency(updateOperation)
+        operationManager.enqueue(operations: [updateOperation, saveOperation], in: .transient)
     }
 }
 
@@ -35,7 +65,7 @@ private extension WalletDetailsInteractor {
             }
         }
 
-        operationQueue.addOperation(fetchOperation)
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 
     func handleChains(result: Result<[ChainModel], Error>?) {

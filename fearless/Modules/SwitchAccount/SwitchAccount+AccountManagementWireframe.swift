@@ -2,8 +2,13 @@ import Foundation
 
 extension SwitchAccount {
     final class AccountManagementWireframe: AccountManagementWireframeProtocol {
-        func showAccountDetails(from view: AccountManagementViewProtocol?, metaAccount: MetaAccountModel) {
-            let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
+        func showAccountDetails(
+            from view: AccountManagementViewProtocol?,
+            metaAccount: MetaAccountModel
+        ) {
+            let walletDetails = WalletDetailsViewFactory.createView(
+                with: metaAccount
+            )
             if let navigationController = view?.controller.navigationController {
                 navigationController.present(walletDetails.controller, animated: true)
             }
