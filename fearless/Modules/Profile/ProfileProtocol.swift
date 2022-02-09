@@ -30,8 +30,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     AlertPresentable,
     WebPresentable,
     ModalAlertPresenting,
-    AddressOptionsPresentable,
-    CheckPincodePresentable {
+    AddressOptionsPresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
@@ -42,6 +41,10 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)
     func logout(from view: ProfileViewProtocol?)
+    func showCheckPincode(
+        from view: ProfileViewProtocol?,
+        output: CheckPincodeModuleOutput
+    )
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

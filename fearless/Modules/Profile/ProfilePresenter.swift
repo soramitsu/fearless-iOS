@@ -53,9 +53,9 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
 
         let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
-            guard let self = self, let view = self.view else { return }
-            self.wireframe.presentCheckPincode(
-                from: view,
+            guard let self = self else { return }
+            self.wireframe.showCheckPincode(
+                from: self.view,
                 output: self
             )
         }

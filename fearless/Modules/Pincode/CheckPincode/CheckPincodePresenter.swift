@@ -2,16 +2,13 @@ import Foundation
 
 class CheckPincodePresenter: PinSetupPresenterProtocol {
     weak var view: PinSetupViewProtocol?
-    let wireframe: CheckPincodeWireframeProtocol
     let interactor: LocalAuthInteractorInputProtocol
     let moduleOutput: CheckPincodeModuleOutput
 
     init(
-        wireframe: CheckPincodeWireframeProtocol,
         interactor: LocalAuthInteractorInputProtocol,
         moduleOutput: CheckPincodeModuleOutput
     ) {
-        self.wireframe = wireframe
         self.interactor = interactor
         self.moduleOutput = moduleOutput
     }
@@ -46,7 +43,6 @@ extension CheckPincodePresenter: LocalAuthInteractorOutputProtocol {
 
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in
-            self?.wireframe.finishCheck(from: self?.view)
             self?.moduleOutput.didCheck()
         }
     }

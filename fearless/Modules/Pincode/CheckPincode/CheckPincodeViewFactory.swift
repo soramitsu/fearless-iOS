@@ -3,9 +3,7 @@ import SoraFoundation
 
 final class CheckPincodeViewFactory {
     static func createView(
-        moduleOutput: CheckPincodeModuleOutput,
-        targetView: UIViewController? = nil,
-        presentationStyle: PresentationStyle
+        moduleOutput: CheckPincodeModuleOutput
     ) -> PinSetupViewProtocol {
         let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
 
@@ -17,12 +15,7 @@ final class CheckPincodeViewFactory {
             biometryAuth: BiometryAuth(),
             locale: LocalizationManager.shared.selectedLocale
         )
-        let wireframe = CheckPincodeWireframe(
-            targetView: targetView,
-            presentationStyle: presentationStyle
-        )
         let presenter = CheckPincodePresenter(
-            wireframe: wireframe,
             interactor: interactor,
             moduleOutput: moduleOutput
         )

@@ -70,10 +70,21 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func logout(from _: ProfileViewProtocol?) {
-        guard let onboarding = OnboardingMainViewFactory.createViewForAdding() else {
-            return
+        if let window = UIApplication.shared.windows.first {
+            window.rootViewController?.dismiss(animated: true, completion: nil)
+            let presenter = RootPresenterFactory.createPresenter(with: window)
+            presenter.loadOnLaunch()
         }
-        rootAnimator.animateTransition(to: onboarding.controller)
+    }
+
+    func showCheckPincode(
+        from view: ProfileViewProtocol?,
+        output: CheckPincodeModuleOutput
+    ) {
+        let checkPincodeViewController = CheckPincodeViewFactory.createView(
+            moduleOutput: output
+        ).controller
+        view?.controller.present(checkPincodeViewController, animated: true)
     }
 
     // MARK: Private

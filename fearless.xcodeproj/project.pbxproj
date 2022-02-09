@@ -1475,9 +1475,7 @@
 		C67E780D27B3155B0053346B /* CheckPincodePresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E780C27B3155B0053346B /* CheckPincodePresentable.swift */; };
 		C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */; };
 		C67E781127B318840053346B /* CheckPincodeViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781027B318840053346B /* CheckPincodeViewFactory.swift */; };
-		C67E781327B319C50053346B /* CheckPincodeWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781227B319C50053346B /* CheckPincodeWireframe.swift */; };
 		C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */; };
-		C67E781727B325E20053346B /* PresentationStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781627B325E20053346B /* PresentationStyle.swift */; };
 		C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */; };
 		C68130E1275FD426007B573A /* ReceiveAssetWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */; };
 		C68130E3275FD88E007B573A /* ReceiveAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */; };
@@ -3347,9 +3345,7 @@
 		C67E780C27B3155B0053346B /* CheckPincodePresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodePresentable.swift; sourceTree = "<group>"; };
 		C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeProtocols.swift; sourceTree = "<group>"; };
 		C67E781027B318840053346B /* CheckPincodeViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewFactory.swift; sourceTree = "<group>"; };
-		C67E781227B319C50053346B /* CheckPincodeWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeWireframe.swift; sourceTree = "<group>"; };
 		C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodePresenter.swift; sourceTree = "<group>"; };
-		C67E781627B325E20053346B /* PresentationStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationStyle.swift; sourceTree = "<group>"; };
 		C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetPresenter.swift; sourceTree = "<group>"; };
 		C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetWireframe.swift; sourceTree = "<group>"; };
 		C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewModel.swift; sourceTree = "<group>"; };
@@ -8294,9 +8290,7 @@
 				C67E780C27B3155B0053346B /* CheckPincodePresentable.swift */,
 				C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */,
 				C67E781027B318840053346B /* CheckPincodeViewFactory.swift */,
-				C67E781227B319C50053346B /* CheckPincodeWireframe.swift */,
 				C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */,
-				C67E781627B325E20053346B /* PresentationStyle.swift */,
 			);
 			path = CheckPincode;
 			sourceTree = "<group>";
@@ -10680,7 +10674,6 @@
 				843F657126584D2C00829C14 /* JsonSingleProviderSource.swift in Sources */,
 				F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
-				C67E781327B319C50053346B /* CheckPincodeWireframe.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				8498430326592D29006BBB9F /* CrowdloanStatusSectionView.swift in Sources */,
 				840D891D26242AE500AB231B /* StorageRequest.swift in Sources */,
@@ -11242,7 +11235,6 @@
 				F022F1444E0F75CCA42F4648 /* YourValidatorListProtocols.swift in Sources */,
 				8493D0E326FF571D00A28008 /* PriceProviderFactory.swift in Sources */,
 				F7EB8F835CFA7FC949EF4C22 /* YourValidatorListWireframe.swift in Sources */,
-				C67E781727B325E20053346B /* PresentationStyle.swift in Sources */,
 				AEA0C8AC267B6B5200F9666F /* SelectedValidatorListViewFactory.swift in Sources */,
 				DBA436B3B1C90965FE8F9B79 /* YourValidatorListPresenter.swift in Sources */,
 				E7CAD629FF0D4E97594F7A05 /* YourValidatorListInteractor.swift in Sources */,
