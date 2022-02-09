@@ -160,6 +160,85 @@ final class ChainModelMapper {
         entity.nodes = Set(nodeEntities) as NSSet
     }
 
+    private func updateEntityCustomNodes(
+        for entity: CDChain,
+        from model: ChainModel,
+        context: NSManagedObjectContext
+    ) {
+        guard let customNodes = model.customNodes else {
+            return
+        }
+
+        let nodeEntities: [CDChainNode] = customNodes.map { node in
+            let nodeEntity: CDChainNode
+
+            let maybeExistingEntity = entity.customNodes?
+                .first { ($0 as? CDChainNode)?.url == node.url } as? CDChainNode
+
+            if let existingEntity = maybeExistingEntity {
+                nodeEntity = existingEntity
+            } else {
+                nodeEntity = CDChainNode(context: context)
+            }
+
+            nodeEntity.url = node.url
+            nodeEntity.name = node.name
+            nodeEntity.apiQueryName = node.apikey?.queryName
+            nodeEntity.apiKeyName = node.apikey?.keyName
+
+            return nodeEntity
+        }
+
+        let existingNodeIds = Set(customNodes.map(\.url))
+
+        if let oldNodes = entity.customNodes as? Set<CDChainNode> {
+            for oldNode in oldNodes {
+                if !existingNodeIds.contains(oldNode.url!) {
+                    context.delete(oldNode)
+                }
+            }
+        }
+
+        entity.customNodes = Set(nodeEntities) as NSSet
+    }
+
+    private func updateEntitySelectedNode(
+        for entity: CDChain,
+        from model: ChainModel,
+        context: NSManagedObjectContext
+    ) {
+        guard let node = model.selectedNode else {
+            return
+        }
+        let nodeEntity: CDChainNode
+
+        var allNodes = NSSet()
+
+        if let nodes = entity.nodes {
+            allNodes = allNodes.addingObjects(from: Set(_immutableCocoaSet: nodes)) as NSSet
+        }
+
+        if let customNodes = entity.customNodes {
+            allNodes = allNodes.addingObjects(from: Set(_immutableCocoaSet: customNodes)) as NSSet
+        }
+
+        let maybeExistingEntity = allNodes
+            .first { ($0 as? CDChainNode)?.url == node.url } as? CDChainNode
+
+        if let existingEntity = maybeExistingEntity {
+            nodeEntity = existingEntity
+        } else {
+            nodeEntity = CDChainNode(context: context)
+        }
+
+        nodeEntity.url = node.url
+        nodeEntity.name = node.name
+        nodeEntity.apiQueryName = node.apikey?.queryName
+        nodeEntity.apiKeyName = node.apikey?.keyName
+
+        entity.selectedNode = nodeEntity
+    }
+
     private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApiSet? {
         let staking: ChainModel.ExternalApi?
 
@@ -214,6 +293,20 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
+        let customNodes: [ChainNodeModel] = entity.customNodes?.compactMap { anyNode in
+            guard let node = anyNode as? CDChainNode else {
+                return nil
+            }
+
+            return createChainNode(from: node)
+        } ?? []
+
+        var selectedNode: ChainNodeModel?
+
+        if let selectedNodeEntity = entity.selectedNode {
+            selectedNode = createChainNode(from: selectedNodeEntity)
+        }
+
         let types: ChainModel.TypesSettings?
 
         if let url = entity.types, let overridesCommon = entity.typesOverrideCommon {
@@ -247,7 +340,9 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             types: types,
             icon: entity.icon,
             options: options.isEmpty ? nil : options,
-            externalApi: externalApiSet
+            externalApi: externalApiSet,
+            selectedNode: selectedNode,
+            customNodes: Set(customNodes)
         )
 
         let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
@@ -286,5 +381,9 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         updateEntityNodes(for: entity, from: model, context: context)
 
         updateExternalApis(in: entity, from: model.externalApi)
+
+        updateEntityCustomNodes(for: entity, from: model, context: context)
+
+        updateEntitySelectedNode(for: entity, from: model, context: context)
     }
 }

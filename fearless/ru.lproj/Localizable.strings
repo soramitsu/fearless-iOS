@@ -593,3 +593,14 @@
 "wallet.transaction.history.filter.title" = "Показать";
 "view.in" = "Посмотреть в %s";
 "wallet.transaction.history.unsupported.message" = "История транзакций для этой сети еще не поддерживается";
+"wallet.transaction.history.empty.message" = "Здесь появится история транзакций";
+"account.option" = "";
+"switch.node.autoselect.title" = "Автоматический выбор нод";
+"add.node.button.title" = "Добавить ноду";
+"delete.custom.node.title" = "Удалить выбранную ноду?";
+"network.url.address" = "URL-адрес";
+"error.message.enter.the.name" = "Введите имя…";
+"error.message.enter.the.url.address" = "Введите URL-адрес…";
+"node" = "Нода";
+"wallet.transaction.history.error.message" = "Сервис временно недоступен";
+"node.selection.delete.node.title" = "Удалить выбранную ноду?";

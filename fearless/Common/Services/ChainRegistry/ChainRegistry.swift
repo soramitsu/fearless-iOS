@@ -52,6 +52,8 @@ final class ChainRegistry {
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
         self.logger = logger
 
+        connectionPool.setDelegate(self)
+
         subscribeToChains()
     }
 
@@ -101,8 +103,12 @@ final class ChainRegistry {
 
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
                 case let .update(updatedChain):
-                    _ = try connectionPool.setupConnection(for: updatedChain)
+                    clearRuntimeSubscription(for: updatedChain.chainId)
+
+                    let connection = try connectionPool.setupConnection(for: updatedChain)
                     _ = runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
+
                 case let .delete(chainId):
                     runtimeProviderPool.destroyRuntimeProvider(for: chainId)
                     clearRuntimeSubscription(for: chainId)
@@ -207,5 +213,41 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func syncUp() {
         syncUpServices()
+    }
+}
+
+extension ChainRegistry: ConnectionPoolDelegate {
+    func connectionNeedsReconnect(url: URL) {
+        _ = chainProvider.fetch(offset: 0, count: availableChainIds?.count ?? 0, synchronized: true) { [weak self] result in
+            switch result {
+            case let .success(chains):
+                let failedChain = chains.first { chain in
+                    chain.nodes.first { node in
+                        node.url == url
+                    } != nil
+                }
+
+                guard let failedChain = failedChain, failedChain.selectedNode == nil else {
+                    return
+                }
+
+                if failedChain.selectedNode == nil {
+                    self?.mutex.lock()
+                    self?.clearRuntimeSubscription(for: failedChain.chainId)
+
+                    if let connection = try? self?.connectionPool.setupConnection(for: failedChain, ignoredUrl: url) {
+                        _ = self?.runtimeProviderPool.setupRuntimeProvider(for: failedChain)
+                        self?.setupRuntimeVersionSubscription(for: failedChain, connection: connection)
+                    }
+
+                    self?.mutex.unlock()
+                }
+
+            case .failure:
+                break
+            case .none:
+                break
+            }
+        }
     }
 }

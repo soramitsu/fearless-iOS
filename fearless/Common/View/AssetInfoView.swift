@@ -1,7 +1,17 @@
 import UIKit
 
 class AssetInfoView: UIView {
-    private let verticalStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+    enum LayoutConstants {
+        static let actionsViewHeight: CGFloat = 80
+        static let chainOptionsViewHeight: CGFloat = 20
+    }
+
+    private let verticalStackView: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+        stackView.alignment = .center
+        return stackView
+    }()
+
     private let assetInfoStackView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.minimalOffset)
 
     private let assetIconImageView: UIImageView = {
@@ -22,6 +32,8 @@ class AssetInfoView: UIView {
         label.font = .p1Paragraph
         return label
     }()
+
+    private let chainView = ChainOptionsView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -44,6 +56,7 @@ class AssetInfoView: UIView {
         }
 
         verticalStackView.addArrangedSubview(assetInfoStackView)
+        verticalStackView.addArrangedSubview(chainView)
         verticalStackView.addArrangedSubview(priceLabel)
 
         assetInfoStackView.addArrangedSubview(assetIconImageView)
@@ -52,12 +65,20 @@ class AssetInfoView: UIView {
         assetIconImageView.snp.makeConstraints { make in
             make.size.equalTo(32)
         }
+
+        chainView.snp.makeConstraints { make in
+            make.height.equalTo(LayoutConstants.chainOptionsViewHeight)
+        }
     }
 
     func bind(to viewModel: AssetInfoViewModel) {
         assetNameLabel.text = viewModel.assetInfo?.symbol
         priceLabel.attributedText = viewModel.priceAttributedString
         priceLabel.isHidden = viewModel.priceAttributedString == nil
+
+        if let chainViewModel = viewModel.chainViewModel {
+            chainView.bind(to: chainViewModel)
+        }
 
         viewModel.imageViewModel?.loadAssetInfoIcon(on: assetIconImageView, animated: false)
     }

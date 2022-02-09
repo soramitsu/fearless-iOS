@@ -91,6 +91,8 @@ final class ChainAccountBalanceListInteractor {
 
         accountInfoProviders = providers
     }
+
+    private func refreshChain(_: ChainModel) {}
 }
 
 extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
@@ -141,6 +143,10 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        refresh()
+    }
+
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
         refresh()
     }
 }

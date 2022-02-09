@@ -98,7 +98,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
                 for: assetModel,
                 priceData: priceData,
                 locale: locale
-            )
+            ), chainViewModel: buildChainOptionsViewModel(chain: chain)
         )
     }
 
