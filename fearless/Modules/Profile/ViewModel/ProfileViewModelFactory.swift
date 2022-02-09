@@ -10,6 +10,8 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
         language: Language,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol]
+
+    func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol
 }
 
 enum ProfileOption: UInt, CaseIterable {
@@ -54,6 +56,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         }
 
         return optionViewModels
+    }
+
+    func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol {
+        let title = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsLogout()!,
+            accessoryTitle: nil
+        )
+        return viewModel
     }
 
     private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {

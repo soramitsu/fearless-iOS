@@ -1,20 +1,9 @@
 import UIKit
 
 final class WalletDetailsViewLayout: UIView {
-    private var walletView: MultilineTriangularedView = {
-        let view = MultilineTriangularedView()
-        view.backgroundView.fillColor = .clear
-        view.backgroundView.highlightedFillColor = .clear
-        view.backgroundView.strokeColor = .darkGray
-        view.backgroundView.highlightedStrokeColor = .darkGray
-        view.backgroundView.strokeWidth = 1.0
-
-        view.titleLabel.font = .p2Paragraph
-        view.titleLabel.textColor = R.color.colorLightGray()
-
-        view.subtitleLabel.font = .p1Paragraph
-        view.subtitleLabel.textColor = R.color.colorWhite()
-
+    var walletView: CommonInputView = {
+        let view = CommonInputView()
+        view.animatedInputField.textField.returnKeyType = .done
         return view
     }()
 
@@ -46,6 +35,7 @@ final class WalletDetailsViewLayout: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        configureTextField()
     }
 
     @available(*, unavailable)
@@ -55,12 +45,18 @@ final class WalletDetailsViewLayout: UIView {
 
     func bind(to viewModel: WalletDetailsViewModel) {
         navigationLabel.text = viewModel.navigationTitle
-        walletView.titleLabel.text = viewModel.title
-        walletView.subtitleLabel.text = viewModel.walletName
     }
 }
 
 private extension WalletDetailsViewLayout {
+    func configureTextField() {
+        walletView.animatedInputField.textField.returnKeyType = .done
+        walletView.animatedInputField.textField.textContentType = .nickname
+        walletView.animatedInputField.textField.autocapitalizationType = .none
+        walletView.animatedInputField.textField.autocorrectionType = .no
+        walletView.animatedInputField.textField.spellCheckingType = .no
+    }
+
     func setupLayout() {
         backgroundColor = R.color.colorBlack()
 
