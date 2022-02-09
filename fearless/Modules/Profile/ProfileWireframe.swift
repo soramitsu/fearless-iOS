@@ -2,6 +2,8 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
@@ -67,14 +69,22 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
-    func logout(from view: ProfileViewProtocol?) {
-        guard let onboarding = OnboardingMainViewFactory.createViewForAdding() else {
-            return
+    func logout(from _: ProfileViewProtocol?) {
+        if let window = UIApplication.shared.windows.first {
+            window.rootViewController?.dismiss(animated: true, completion: nil)
+            let presenter = RootPresenterFactory.createPresenter(with: window)
+            presenter.loadOnLaunch()
         }
+    }
 
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(onboarding.controller, animated: true)
-        }
+    func showCheckPincode(
+        from view: ProfileViewProtocol?,
+        output: CheckPincodeModuleOutput
+    ) {
+        let checkPincodeViewController = CheckPincodeViewFactory.createView(
+            moduleOutput: output
+        ).controller
+        view?.controller.present(checkPincodeViewController, animated: true)
     }
 
     // MARK: Private
