@@ -1,14 +1,17 @@
 import Foundation
 
 final class AccountManagementWireframe: AccountManagementWireframeProtocol {
-    func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?) {
-        guard let infoView = AccountInfoViewFactory.createView(address: account.address) else {
-            return
-        }
-
-        let navigationController = ImportantFlowViewFactory.createNavigation(from: infoView.controller)
-
-        view?.controller.present(navigationController, animated: true, completion: nil)
+    func showAccountDetails(
+        from view: AccountManagementViewProtocol?,
+        metaAccount: MetaAccountModel
+    ) {
+        let walletDetails = WalletDetailsViewFactory.createView(
+            with: metaAccount
+        )
+        let navigationController = FearlessNavigationController(
+            rootViewController: walletDetails.controller
+        )
+        view?.controller.present(navigationController, animated: true)
     }
 
     func showAddAccount(from view: AccountManagementViewProtocol?) {

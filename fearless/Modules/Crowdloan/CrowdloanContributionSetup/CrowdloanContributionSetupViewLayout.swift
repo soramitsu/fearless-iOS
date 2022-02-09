@@ -21,11 +21,11 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     let networkFeeView = NetworkFeeView()
 
-    var ethereumAddressForRewardView: EthereumAddressForRewardView?
-
     private(set) var estimatedRewardView: TitleValueView?
 
     private(set) var bonusView: RowView<TitleValueSelectionView>?
+
+    private var assetViewModel: AssetBalanceViewModelProtocol?
 
     let leasingPeriodView = TitleMultiValueView()
 
@@ -70,6 +70,11 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
+        amountInputView.iconView.image = nil
+
+        self.assetViewModel = assetViewModel
+
         amountInputView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
@@ -81,10 +86,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             amountInputView.balanceText = nil
         }
 
-        amountInputView.assetIcon = assetViewModel.icon
-
         let symbol = assetViewModel.symbol.uppercased()
         amountInputView.symbol = symbol
+
+        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
 
         hintView.titleLabel.text = R.string.localizable.crowdloanUnlockHint(
             symbol,
@@ -131,15 +136,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
     }
 
-    func bind(customFlow: CustomCrowdloanFlow?) {
-        if let customFlow = customFlow, customFlow.hasEthereumReferral {
-            createEthereumAddressViewIfNeeded()
-            applyLocalization()
-        } else {
-            removeEthereumAddressViewIfNeeded()
-        }
-    }
-
     private func applyLocalization() {
         contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
             preferredLanguages: locale.rLanguages
@@ -168,16 +164,9 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         bonusView?.rowContentView.titleLabel.text = R.string.localizable.commonBonus(
             preferredLanguages: locale.rLanguages
         )
-
-        ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.title = R.string.localizable
-            .moonbeanEthereumAddress(preferredLanguages: locale.rLanguages)
-
-        ethereumAddressForRewardView?.ethereumHintView.titleLabel.text = R.string.localizable
-            .moonbeamAddressHint(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
-        // TODO: move magic numbers to constants
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
@@ -225,6 +214,11 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.height.equalTo(24)
         }
 
+        contentView.stackView.addArrangedSubview(crowdloanInfoTitleLabel)
+        crowdloanInfoTitleLabel.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+        }
+
         contentView.stackView.addArrangedSubview(raisedView)
         raisedView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
@@ -267,7 +261,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
 
         estimatedRewardView = view
-        estimatedRewardView?.borderView.isHidden = ethereumAddressForRewardView != nil
     }
 
     private func removeEstimatedRewardViewIfNeeded() {
@@ -281,41 +274,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         self.estimatedRewardView = nil
     }
 
-    private func createEthereumAddressViewIfNeeded() {
-        guard ethereumAddressForRewardView == nil else { return }
-
-        let maybeLastViewIndex: Int? = {
-            if let estimatedRewardView = estimatedRewardView {
-                estimatedRewardView.borderView.isHidden = true
-
-                return contentView.stackView.arrangedSubviews.firstIndex(
-                    of: estimatedRewardView
-                )
-            }
-
-            leasingPeriodView.borderView.isHidden = true
-            return contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView)
-        }()
-
-        guard let lastIndex = maybeLastViewIndex else { return }
-
-        let view = EthereumAddressForRewardView()
-        contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
-        ethereumAddressForRewardView = view
-    }
-
-    private func removeEthereumAddressViewIfNeeded() {
-        guard let ethereumAddressForRewardView = ethereumAddressForRewardView else { return }
-
-        contentView.stackView.removeArrangedSubview(ethereumAddressForRewardView)
-        ethereumAddressForRewardView.removeFromSuperview()
-
-        self.ethereumAddressForRewardView = nil
-        estimatedRewardView?.borderView.isHidden = false
-    }
-
     private func createBonusViewIfNeeded() {
-        guard bonusView == nil else { return }
+        guard bonusView == nil else {
+            return
+        }
 
         let maybeLastViewIndex: Int? = {
             if let estimatedRewardView = estimatedRewardView {
@@ -327,7 +289,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             return contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView)
         }()
 
-        guard let lastIndex = maybeLastViewIndex else { return }
+        guard
+            let lastIndex = maybeLastViewIndex else {
+            return
+        }
 
         let view = RowView(contentView: TitleValueSelectionView(), preferredHeight: 48.0)
         view.borderView.strokeWidth = 1.0
@@ -354,7 +319,9 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     private func removeBonusViewIfNeeded() {
-        guard let bonusView = bonusView else { return }
+        guard let bonusView = bonusView else {
+            return
+        }
 
         contentView.stackView.removeArrangedSubview(bonusView)
         bonusView.removeFromSuperview()
@@ -363,9 +330,12 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     private func createLearnMoreViewIfNeeded() {
-        guard learnMoreView == nil else { return }
+        guard learnMoreView == nil else {
+            return
+        }
 
-        guard let timeLeftIndex = contentView.stackView.arrangedSubviews.firstIndex(of: timeLeftVew) else {
+        guard
+            let timeLeftIndex = contentView.stackView.arrangedSubviews.firstIndex(of: timeLeftVew) else {
             return
         }
 
@@ -381,7 +351,9 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     private func removeLearnMoreViewIfNeeded() {
-        guard let learnMoreView = learnMoreView else { return }
+        guard let learnMoreView = learnMoreView else {
+            return
+        }
 
         contentView.stackView.removeArrangedSubview(learnMoreView)
         learnMoreView.removeFromSuperview()

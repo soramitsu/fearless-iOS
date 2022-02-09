@@ -5,6 +5,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     static func createInitiatedBondingView(
         for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: InitiatedBonding
     ) -> SelectedValidatorListViewProtocol? {
@@ -12,6 +15,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         return createView(
             validatorList: validatorList,
             maxTargets: maxTargets,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             delegate: delegate,
             with: wireframe
         )
@@ -20,6 +26,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     static func createChangeTargetsView(
         for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol? {
@@ -27,6 +36,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         return createView(
             validatorList: validatorList,
             maxTargets: maxTargets,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             delegate: delegate,
             with: wireframe
         )
@@ -35,6 +47,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     static func createChangeYourValidatorsView(
         for validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol? {
@@ -42,6 +57,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         return createView(
             validatorList: validatorList,
             maxTargets: maxTargets,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             delegate: delegate,
             with: wireframe
         )
@@ -50,6 +68,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
     static func createView(
         validatorList: [SelectedValidatorInfo],
         maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with wireframe: SelectedValidatorListWireframeProtocol
     ) -> SelectedValidatorListViewProtocol? {
@@ -60,7 +81,10 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
             selectedValidatorList: validatorList,
-            maxTargets: maxTargets
+            maxTargets: maxTargets,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
         )
 
         presenter.delegate = delegate

@@ -50,7 +50,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
                                                            logger: nil)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
-        let signer = try DummySigner(cryptoType: .sr25519)
+        let signer = try DummySigner(cryptoType: CryptoType.sr25519)
 
         let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
 
@@ -59,8 +59,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
                                                                     operationManager: operationManager)
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         let extrinsicOperationFactory = ExtrinsicOperationFactoryStub()
 
@@ -71,7 +70,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
             extrinsicService: extrinsicService,
             runtimeService: runtimeCodingService,
             signer: signer,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             operationManager: OperationManager(),
             logger: Logger.shared,
             selectedAccount: settings.selectedAccount!,

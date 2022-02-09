@@ -10,48 +10,10 @@ final class ProfilePresenter {
 
     private(set) var viewModelFactory: ProfileViewModelFactoryProtocol
 
-    private(set) var userSettings: UserSettings?
+    private(set) var selectedWallet: MetaAccountModel?
 
     init(viewModelFactory: ProfileViewModelFactoryProtocol) {
         self.viewModelFactory = viewModelFactory
-    }
-
-    private func updateAccountViewModel() {
-        guard let userSettings = userSettings else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: userSettings, locale: locale)
-        view?.didLoad(userViewModel: userDetailsViewModel)
-    }
-
-    private func updateOptionsViewModel() {
-        guard
-            let userSettings = userSettings,
-            let language = localizationManager?.selectedLanguage
-        else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let optionViewModels = viewModelFactory.createOptionViewModels(
-            from: userSettings,
-            language: language,
-            locale: locale
-        )
-        view?.didLoad(optionViewModels: optionViewModels)
-    }
-
-    private func copyAddress() {
-        if let address = userSettings?.account.address {
-            UIPasteboard.general.string = address
-
-            let locale = localizationManager?.selectedLocale
-            let title = R.string.localizable.commonCopied(preferredLanguages: locale?.rLanguages)
-            wireframe.presentSuccessNotification(title, from: view)
-        }
     }
 }
 
@@ -63,71 +25,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     }
 
     func activateAccountDetails() {
-        let locale = localizationManager?.selectedLocale
-
-        let title = R.string.localizable
-            .accountInfoTitle(preferredLanguages: locale?.rLanguages)
-
-        var actions: [AlertPresentableAction] = []
-
-        let accountsTitle = R.string.localizable.profileAccountsTitle(preferredLanguages: locale?.rLanguages)
-        let accountAction = AlertPresentableAction(title: accountsTitle) { [weak self] in
-            self?.wireframe.showAccountDetails(from: self?.view)
+        guard let wallet = selectedWallet else {
+            return
         }
-
-        actions.append(accountAction)
-
-        let copyTitle = R.string.localizable
-            .commonCopyAddress(preferredLanguages: locale?.rLanguages)
-        let copyAction = AlertPresentableAction(title: copyTitle) { [weak self] in
-            self?.copyAddress()
-        }
-
-        actions.append(copyAction)
-
-        if
-            let address = userSettings?.account.address,
-            let url = userSettings?.connection.type.chain.polkascanAddressURL(address) {
-            let polkascanTitle = R.string.localizable
-                .transactionDetailsViewPolkascan(preferredLanguages: locale?.rLanguages)
-
-            let polkascanAction = AlertPresentableAction(title: polkascanTitle) { [weak self] in
-                if let view = self?.view {
-                    self?.wireframe.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-            actions.append(polkascanAction)
-        }
-
-        if
-            let address = userSettings?.account.address,
-            let url = userSettings?.connection.type.chain.subscanAddressURL(address) {
-            let subscanTitle = R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: locale?.rLanguages)
-            let subscanAction = AlertPresentableAction(title: subscanTitle) { [weak self] in
-                if let view = self?.view {
-                    self?.wireframe.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-            actions.append(subscanAction)
-        }
-
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-
-        let viewModel = AlertPresentableViewModel(
-            title: title,
-            message: nil,
-            actions: actions,
-            closeAction: closeTitle
-        )
-
-        wireframe.present(
-            viewModel: viewModel,
-            style: .actionSheet,
-            from: view
-        )
+        wireframe.showAccountDetails(from: view, metaAccount: wallet)
     }
 
     func activateOption(at index: UInt) {
@@ -138,8 +39,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view)
-        case .connectionList:
-            wireframe.showConnectionSelection(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
@@ -148,11 +47,38 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showAbout(from: view)
         }
     }
+
+    func logout() {
+        let removeTitle = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
+
+        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+            self?.interactor.logout { [weak self] in
+                self?.wireframe.logout(from: self?.view)
+            }
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel)
+
+        let title = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
+        let details = R.string.localizable
+            .profileLogoutDescription(preferredLanguages: selectedLocale.rLanguages)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: details,
+            actions: [cancelAction, removeAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
 }
 
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
-    func didReceive(userSettings: UserSettings) {
-        self.userSettings = userSettings
+    func didReceive(wallet: MetaAccountModel) {
+        selectedWallet = wallet
         updateAccountViewModel()
         updateOptionsViewModel()
     }
@@ -160,10 +86,12 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
     func didReceiveUserDataProvider(error: Error) {
         logger?.debug("Did receive user data provider \(error)")
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
+        if !wireframe.present(error: error, from: view, locale: selectedLocale) {
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: selectedLocale
+            )
         }
     }
 }
@@ -174,5 +102,33 @@ extension ProfilePresenter: Localizable {
             updateAccountViewModel()
             updateOptionsViewModel()
         }
+    }
+}
+
+private extension ProfilePresenter {
+    func updateAccountViewModel() {
+        guard let wallet = selectedWallet else {
+            return
+        }
+        let userDetailsViewModel = viewModelFactory.createUserViewModel(
+            from: wallet,
+            locale: selectedLocale
+        )
+        view?.didLoad(userViewModel: userDetailsViewModel)
+    }
+
+    func updateOptionsViewModel() {
+        guard
+            let language = localizationManager?.selectedLanguage
+        else {
+            return
+        }
+
+        let optionViewModels = viewModelFactory.createOptionViewModels(
+            language: language,
+            locale: selectedLocale
+        )
+        let logoutViewModel = viewModelFactory.createLogoutViewModel(locale: selectedLocale)
+        view?.didLoad(optionViewModels: optionViewModels, logoutViewModel: logoutViewModel)
     }
 }

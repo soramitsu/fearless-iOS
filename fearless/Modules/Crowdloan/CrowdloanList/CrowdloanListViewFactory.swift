@@ -2,26 +2,27 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 import SoraKeystore
+import IrohaCrypto
+import RobinHood
 
 struct CrowdloanListViewFactory {
-    static func createView() -> CrowdloanListViewProtocol? {
-        guard let interactor = createInteractor() else {
+    static func createView(
+        with sharedState: CrowdloanSharedState,
+        selectedMetaAccount: MetaAccountModel
+    ) -> CrowdloanListViewProtocol? {
+        guard let interactor = createInteractor(
+            from: sharedState,
+            with: selectedMetaAccount
+        ) else {
             return nil
         }
 
-        let wireframe = CrowdloanListWireframe()
+        let wireframe = CrowdloanListWireframe(state: sharedState)
 
         let localizationManager = LocalizationManager.shared
 
-        let settings = SettingsManager.shared
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: SettingsManager.shared)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
         let viewModelFactory = CrowdloansViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
-            asset: asset,
-            chain: addressType.chain
+            amountFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let presenter = CrowdloanListPresenter(
@@ -34,7 +35,6 @@ struct CrowdloanListViewFactory {
 
         let view = CrowdloanListViewController(
             presenter: presenter,
-            tokenSymbol: LocalizableResource { _ in asset.symbol },
             localizationManager: localizationManager
         )
 
@@ -44,25 +44,29 @@ struct CrowdloanListViewFactory {
         return view
     }
 
-    private static func createInteractor() -> CrowdloanListInteractor? {
-        let settings = SettingsManager.shared
+    private static func createInteractor(
+        from state: CrowdloanSharedState,
+        with selectedMetaAccount: MetaAccountModel
+    ) -> CrowdloanListInteractor? {
+        let selectedMetaAccount: MetaAccountModel = selectedMetaAccount
 
-        guard
-            let connection = WebSocketService.shared.connection,
-            let selectedAddress = settings.selectedAccount?.address else {
-            return nil
-        }
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
 
-        let chain = settings.selectedConnection.type.chain
-        let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
+        let logger = Logger.shared
+
+        let crowdloanRemoteSubscriptionService = CrowdloanRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            repository: AnyDataProviderRepository(repository),
+            operationManager: operationManager,
+            logger: logger
+        )
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
-
-        let providerFactory = SingleValueProviderFactory.shared
 
         let crowdloanOperationFactory = CrowdloanOperationFactory(
             requestOperationFactory: storageRequestFactory,
@@ -70,14 +74,16 @@ struct CrowdloanListViewFactory {
         )
 
         return CrowdloanListInteractor(
-            selectedAddress: selectedAddress,
-            runtimeService: runtimeService,
+            selectedMetaAccount: selectedMetaAccount,
+            settings: state.settings,
+            chainRegistry: chainRegistry,
             crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: connection,
-            singleValueProviderFactory: providerFactory,
-            chain: chain,
+            crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
+            crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: logger
         )
     }
 }

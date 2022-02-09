@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import Network
 
 protocol SubscanOperationFactoryProtocol {
     func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData>
@@ -7,6 +8,7 @@ protocol SubscanOperationFactoryProtocol {
     func fetchConcreteExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) ->
         BaseOperation<SubscanConcreteExtrinsicsData>
     func fetchRawExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanRawExtrinsicsData>
+    func fetchAllExtrinsicForCall<T: Decodable>(_ url: URL, call: CallCodingPath, historyInfo: HistoryInfo, of _: T.Type) -> BaseOperation<T>
 }
 
 final class SubscanOperationFactory {
@@ -41,9 +43,7 @@ final class SubscanOperationFactory {
             return resultData
         }
 
-        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
-
-        return operation
+        return NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
     }
 }
 
@@ -63,5 +63,16 @@ extension SubscanOperationFactory: SubscanOperationFactoryProtocol {
 
     func fetchRawExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanRawExtrinsicsData> {
         fetchOperation(url, info: info)
+    }
+
+    func fetchAllExtrinsicForCall<T: Decodable>(_ url: URL, call: CallCodingPath, historyInfo: HistoryInfo, of _: T.Type) -> BaseOperation<T> {
+        let info = ExtrinsicsInfo(
+            row: historyInfo.row,
+            page: historyInfo.page,
+            address: historyInfo.address,
+            moduleName: call.moduleName,
+            callName: call.callName
+        )
+        return fetchOperation(url, info: info)
     }
 }

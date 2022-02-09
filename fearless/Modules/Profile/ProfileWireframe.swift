@@ -2,17 +2,15 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
-    func showAccountDetails(from view: ProfileViewProtocol?) {
-        guard let accountManagement = AccountManagementViewFactory.createViewForSettings() else {
-            return
-        }
-
-        accountManagement.controller.hidesBottomBarWhenPushed = true
-
-        view?.controller.navigationController?.pushViewController(
-            accountManagement.controller,
-            animated: true
+    func showAccountDetails(
+        from view: ProfileViewProtocol?,
+        metaAccount: MetaAccountModel
+    ) {
+        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
+        let navigationController = FearlessNavigationController(
+            rootViewController: walletDetails.controller
         )
+        view?.controller.present(navigationController, animated: true)
     }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {
@@ -66,6 +64,16 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         if let navigationController = view?.controller.navigationController {
             aboutView.controller.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(aboutView.controller, animated: true)
+        }
+    }
+
+    func logout(from view: ProfileViewProtocol?) {
+        guard let onboarding = OnboardingMainViewFactory.createViewForAdding() else {
+            return
+        }
+
+        if let navigationController = view?.controller.navigationController {
+            navigationController.pushViewController(onboarding.controller, animated: true)
         }
     }
 

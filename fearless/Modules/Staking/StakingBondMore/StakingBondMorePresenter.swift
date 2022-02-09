@@ -11,19 +11,23 @@ final class StakingBondMorePresenter {
     let logger: LoggerProtocol?
 
     var amount: Decimal = 0
-    private let asset: WalletAsset
+    private let asset: AssetModel
+    private let chain: ChainModel
+    private let selectedAccount: MetaAccountModel
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
     private var stashItem: StashItem?
-    private var stashAccount: AccountItem?
+    private var stashAccount: ChainAccountResponse?
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
         wireframe: StakingBondMoreWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        asset: WalletAsset,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -31,6 +35,8 @@ final class StakingBondMorePresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.asset = asset
+        self.chain = chain
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -95,7 +101,13 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.wireframe.showConfirmation(from: strongSelf.view, amount: strongSelf.amount)
+            strongSelf.wireframe.showConfirmation(
+                from: strongSelf.view,
+                amount: strongSelf.amount,
+                chain: strongSelf.chain,
+                asset: strongSelf.asset,
+                selectedAccount: strongSelf.selectedAccount
+            )
         }
     }
 
@@ -132,7 +144,7 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: asset.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -160,7 +172,7 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
         switch result {
         case let .success(dispatchInfo):
             if let feeValue = BigUInt(dispatchInfo.fee) {
-                fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision)
+                fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision))
             } else {
                 fee = nil
             }
@@ -171,7 +183,7 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
         }
     }
 
-    func didReceiveStash(result: Result<AccountItem?, Error>) {
+    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(stashAccount):
             self.stashAccount = stashAccount

@@ -3,29 +3,31 @@ import UIKit
 final class CustomValidatorListInteractor {
     weak var presenter: CustomValidatorListInteractorOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let assetId: WalletAssetId
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let asset: AssetModel
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        assetId: WalletAssetId
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        asset: AssetModel
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.assetId = assetId
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.asset = asset
     }
 }
 
 extension CustomValidatorListInteractor: CustomValidatorListInteractorInputProtocol {
     func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
     }
 }
 
-extension CustomValidatorListInteractor: SingleValueProviderSubscriber,
-    SingleValueSubscriptionHandler, AnyProviderAutoCleaning {
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+extension CustomValidatorListInteractor: PriceLocalStorageSubscriber,
+    PriceLocalSubscriptionHandler, AnyProviderAutoCleaning {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         presenter.didReceivePriceData(result: result)
     }
 }

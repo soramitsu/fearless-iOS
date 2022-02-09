@@ -2,10 +2,72 @@ import Foundation
 import FearlessUtils
 import RobinHood
 
+protocol NMapKeyParamProtocol {
+    func encode(encoder: DynamicScaleEncoding, type: String) throws -> Data
+}
+
+struct NMapKeyParam<T: Encodable>: NMapKeyParamProtocol {
+    var value: T
+
+    func encode(encoder: DynamicScaleEncoding, type: String) throws -> Data {
+        try encoder.append(value, ofType: type)
+        return try encoder.encode()
+    }
+}
+
 enum StorageKeyEncodingOperationError: Error {
     case missingRequiredParams
     case incompatibleStorageType
     case invalidStoragePath
+}
+
+class UnkeyedEncodingOperation: BaseOperation<Data> {
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: StorageCodingPath
+    let storageKeyFactory: StorageKeyFactoryProtocol
+
+    init(path: StorageCodingPath, storageKeyFactory: StorageKeyFactoryProtocol) {
+        self.path = path
+        self.storageKeyFactory = storageKeyFactory
+
+        super.init()
+    }
+
+    private func performEncoding() {
+        do {
+            guard let factory = codingFactory else {
+                throw StorageKeyEncodingOperationError.missingRequiredParams
+            }
+
+            guard factory.metadata.getStorageMetadata(in: path.moduleName, storageName: path.itemName) != nil else {
+                throw StorageKeyEncodingOperationError.invalidStoragePath
+            }
+
+            let keyData: Data = try storageKeyFactory.createStorageKey(
+                moduleName: path.moduleName,
+                storageName: path.itemName
+            )
+
+            result = .success(keyData)
+        } catch {
+            result = .failure(error)
+        }
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        performEncoding()
+    }
 }
 
 class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
@@ -23,17 +85,7 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
         super.init()
     }
 
-    override func main() {
-        super.main()
-
-        if isCancelled {
-            return
-        }
-
-        if result != nil {
-            return
-        }
-
+    private func performEncoding() {
         do {
             guard let factory = codingFactory, let keyParams = keyParams else {
                 throw StorageKeyEncodingOperationError.missingRequiredParams
@@ -58,7 +110,7 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
                 hasher = doubleMapEntry.hasher
             case let .nMap(nMapEntry):
                 guard
-                    let firstKey = nMapEntry.keyVec.first,
+                    let firstKey = try nMapEntry.keys(using: factory.metadata.schemaResolver).first,
                     let firstHasher = nMapEntry.hashers.first else {
                     throw StorageKeyEncodingOperationError.missingRequiredParams
                 }
@@ -87,6 +139,20 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
         } catch {
             result = .failure(error)
         }
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        performEncoding()
     }
 }
 
@@ -180,6 +246,102 @@ class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOperation
         let encoder = factory.createEncoder()
         try encoder.append(param, ofType: type)
         return try encoder.encode()
+    }
+}
+
+class NMapKeyEncodingOperation: BaseOperation<[Data]> {
+    var keyParams: [[NMapKeyParamProtocol]]?
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: StorageCodingPath
+    let storageKeyFactory: StorageKeyFactoryProtocol
+
+    init(
+        path: StorageCodingPath,
+        storageKeyFactory: StorageKeyFactoryProtocol,
+        keyParams: [[NMapKeyParamProtocol]]? = nil
+    ) {
+        self.path = path
+        self.keyParams = keyParams
+        self.storageKeyFactory = storageKeyFactory
+
+        super.init()
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        do {
+            guard let factory = codingFactory,
+                  let keyParams = keyParams
+            else {
+                throw StorageKeyEncodingOperationError.missingRequiredParams
+            }
+
+            guard let entry = factory.metadata.getStorageMetadata(
+                in: path.moduleName,
+                storageName: path.itemName
+            ) else {
+                throw StorageKeyEncodingOperationError.invalidStoragePath
+            }
+
+            guard case let .nMap(nMapEntry) = entry.type else {
+                throw StorageKeyEncodingOperationError.incompatibleStorageType
+            }
+
+            let keyEntries = try nMapEntry.keys(using: factory.metadata.schemaResolver)
+            guard keyEntries.count == keyParams.count else {
+                throw StorageKeyEncodingOperationError.incompatibleStorageType
+            }
+
+            let keysEncoded = try keyParams.enumerated().map { index, params in
+                try params.map { param in
+                    try param.encode(encoder: factory.createEncoder(), type: keyEntries[index])
+                }
+            }
+
+            var params: [[NMapKeyParamProtocol]] = []
+            for index in 0 ..< keyParams[0].count {
+                var array: [NMapKeyParamProtocol] = []
+                for param in keyParams {
+                    array.append(param[index])
+                }
+                params.append(array)
+            }
+
+            let keys: [Data] = try params.map { params in
+                let encodedParams: [Data] = try params.enumerated().map { index, param in
+                    try param.encode(encoder: factory.createEncoder(), type: keyEntries[index])
+                }
+
+                return try storageKeyFactory.createStorageKey(
+                    moduleName: path.moduleName,
+                    storageName: path.itemName,
+                    keys: encodedParams,
+                    hashers: nMapEntry.hashers
+                )
+            }
+
+            result = .success(keys)
+        } catch {
+            result = .failure(error)
+        }
+    }
+
+    private func encodeParam(
+        _ param: NMapKeyParamProtocol,
+        factory: RuntimeCoderFactoryProtocol,
+        type: String
+    ) throws -> Data {
+        try param.encode(encoder: factory.createEncoder(), type: type)
     }
 }
 

@@ -7,13 +7,13 @@ import SoraFoundation
 
 final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
     let contactViewModelFactory: ContactsFactoryWrapperProtocol
-    let networkType: SNAddressType
+    let addressPrefix: UInt16
 
     private lazy var addressFactory = SS58AddressFactory()
 
-    init(networkType: SNAddressType, contactViewModelFactory: ContactsFactoryWrapperProtocol) {
+    init(addressPrefix: UInt16, contactViewModelFactory: ContactsFactoryWrapperProtocol) {
         self.contactViewModelFactory = contactViewModelFactory
-        self.networkType = networkType
+        self.addressPrefix = addressPrefix
     }
 
     func search(
@@ -24,7 +24,10 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
         commandFactory: WalletCommandFactoryProtocol
     ) -> [ContactViewModelProtocol]? {
         do {
-            let peerId = try addressFactory.accountId(fromAddress: query, type: networkType)
+            let peerId = try addressFactory.accountId(
+                fromAddress: query,
+                addressPrefix: addressPrefix
+            )
             let accountIdData = try Data(hexString: parameters.accountId)
 
             guard peerId != accountIdData else {

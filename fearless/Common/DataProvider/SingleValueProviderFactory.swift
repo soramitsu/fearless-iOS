@@ -56,6 +56,7 @@ protocol SingleValueProviderFactoryProtocol {
     ) -> AnyDataProvider<DecodedCrowdloanFunds>
 }
 
+@available(*, deprecated, message: "Use subsclass of LocalSubscriptionFactory instead")
 final class SingleValueProviderFactory {
     static let shared = SingleValueProviderFactory(
         facade: SubstrateDataStorageFacade.shared,
@@ -260,7 +261,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         let source = SubqueryRewardSource(
             address: address,
-            chain: chain,
+            assetPrecision: chain.addressType.precision,
             targetIdentifier: identifier,
             repository: AnyDataProviderRepository(repository),
             operationFactory: operationFactory,

@@ -214,6 +214,11 @@ extension PayoutRewardsService {
         }
     }
 
+    private struct TupleStruct<T1: Codable, T2: Codable>: Codable {
+        let key1: T1
+        let key2: T2
+    }
+
     func createCreateHistoryByEraAccountIdOperation<T: Decodable>(
         dependingOn erasMapping: BaseOperation<[Data: [EraIndex]]>,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
@@ -225,19 +230,27 @@ extension PayoutRewardsService {
             }
         }
 
-        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
-            try keys().map { StringScaleMapper(value: $0.0) }
+        let nMapKeys: () throws -> [[NMapKeyParamProtocol]] = {
+            let keys = try keys()
+            return [
+                keys.map { NMapKeyParam(value: String($0.0)) }, // Integers are represented as strings
+                keys.map { NMapKeyParam(value: $0.1) }
+            ]
         }
 
-        let keyParams2: () throws -> [Data] = {
-            try keys().map(\.1)
-        }
+//
+//        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
+//            try keys().map { StringScaleMapper(value: $0.0) }
+//        }
+//
+//        let keyParams2: () throws -> [Data] = {
+//            try keys().map(\.1)
+//        }
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keyParams1: keyParams1,
-                keyParams2: keyParams2,
+                keyParams: nMapKeys,
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
                 storagePath: path
             )

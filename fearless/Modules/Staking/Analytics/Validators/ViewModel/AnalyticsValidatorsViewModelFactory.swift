@@ -7,15 +7,18 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     private lazy var iconGenerator = PolkadotIconGenerator()
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    private let chain: Chain
+    private let chain: ChainModel
+    private let asset: AssetModel
     private let percentFormatter = NumberFormatter.percent
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        chain: Chain
+        chain: ChainModel,
+        asset: AssetModel
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.chain = chain
+        self.asset = asset
     }
 
     func createViewModel(
@@ -44,7 +47,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
         let addressFactory = SS58AddressFactory()
         let validatorsAddresses = nomination.targets.compactMap { accountId in
-            try? addressFactory.address(fromAccountId: accountId, type: UInt16(chain.addressType.rawValue))
+            try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix)
         }
 
         let validatorsViewModel: [AnalyticsValidatorItemViewModel] = validatorsAddresses.map { address in
@@ -71,7 +74,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                     let totalAmount = rewardsOfValidator.reduce(Decimal(0)) { amount, info in
                         let decimal = Decimal.fromSubstrateAmount(
                             info.amount,
-                            precision: chain.addressType.precision
+                            precision: Int16(asset.precision)
                         )
                         return amount + (decimal ?? 0.0)
                     }
@@ -253,7 +256,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         let totalAmount = rewardsOfStash.reduce(Decimal(0)) { amount, info in
             let decimal = Decimal.fromSubstrateAmount(
                 info.amount,
-                precision: self.chain.addressType.precision
+                precision: Int16(asset.precision)
             )
             return amount + (decimal ?? 0.0)
         }

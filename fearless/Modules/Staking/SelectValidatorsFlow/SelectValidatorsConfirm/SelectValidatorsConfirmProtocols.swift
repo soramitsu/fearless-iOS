@@ -45,12 +45,24 @@ protocol SelectValidatorsConfirmWireframeProtocol: AlertPresentable, ErrorPresen
 }
 
 protocol SelectValidatorsConfirmViewFactoryProtocol: AnyObject {
-    static func createInitiatedBondingView(for state: PreparedNomination<InitiatedBonding>)
-        -> SelectValidatorsConfirmViewProtocol?
+    static func createInitiatedBondingView(
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        for state: PreparedNomination<InitiatedBonding>
+    ) -> SelectValidatorsConfirmViewProtocol?
 
-    static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
-        -> SelectValidatorsConfirmViewProtocol?
+    static func createChangeTargetsView(
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        for state: PreparedNomination<ExistingBonding>
+    ) -> SelectValidatorsConfirmViewProtocol?
 
-    static func createChangeYourValidatorsView(for state: PreparedNomination<ExistingBonding>)
-        -> SelectValidatorsConfirmViewProtocol?
+    static func createChangeYourValidatorsView(
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel,
+        for state: PreparedNomination<ExistingBonding>
+    ) -> SelectValidatorsConfirmViewProtocol?
 }

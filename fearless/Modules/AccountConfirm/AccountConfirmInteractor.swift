@@ -4,18 +4,22 @@ import IrohaCrypto
 import RobinHood
 
 class AccountConfirmInteractor: BaseAccountConfirmInteractor {
-    private(set) var settings: SettingsManagerProtocol
+    private(set) var settings: SelectedWalletSettings
     private var currentOperation: Operation?
 
+    let eventCenter: EventCenterProtocol
+
     init(
-        request: AccountCreationRequest,
+        request: MetaAccountCreationRequest,
         mnemonic: IRMnemonicProtocol,
-        accountOperationFactory: AccountOperationFactoryProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
-        settings: SettingsManagerProtocol,
-        operationManager: OperationManagerProtocol
+        accountOperationFactory: MetaAccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        settings: SelectedWalletSettings,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.settings = settings
+        self.eventCenter = eventCenter
 
         super.init(
             request: request,
@@ -26,50 +30,32 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
         )
     }
 
-    override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+    override func createAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
         guard currentOperation == nil else {
             return
         }
 
-        let persistentOperation = accountRepository.saveOperation({
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            return [accountItem]
-        }, { [] })
+            self?.settings.save(value: accountItem)
 
-        persistentOperation.addDependency(importOperation)
-
-        let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-            let accountItem = try importOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
-
-            guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type.rawValue == type.uint8Value })
-            else {
-                throw AccountCreateError.unsupportedNetwork
-            }
-
-            return (accountItem, connectionItem)
+            return accountItem
         }
 
-        connectionOperation.addDependency(persistentOperation)
-
-        currentOperation = connectionOperation
-
-        connectionOperation.completionBlock = { [weak self] in
+        saveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 self?.currentOperation = nil
 
-                switch connectionOperation.result {
-                case .success(let (accountItem, connectionItem)):
-                    self?.settings.selectedAccount = accountItem
-                    self?.settings.selectedConnection = connectionItem
-
+                switch saveOperation.result {
+                case .success:
+                    self?.settings.setup()
+                    self?.eventCenter.notify(with: SelectedAccountChanged())
                     self?.presenter?.didCompleteConfirmation()
+
                 case let .failure(error):
                     self?.presenter?.didReceive(error: error)
+
                 case .none:
                     let error = BaseOperationError.parentOperationCancelled
                     self?.presenter?.didReceive(error: error)
@@ -77,8 +63,10 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             }
         }
 
+        saveOperation.addDependency(importOperation)
+
         operationManager.enqueue(
-            operations: [importOperation, persistentOperation, connectionOperation],
+            operations: [importOperation, saveOperation],
             in: .transient
         )
     }

@@ -11,22 +11,22 @@ final class StakingPayoutConfirmationPresenter {
     private var fee: Decimal?
     private var rewardAmount: Decimal = 0.0
     private var priceData: PriceData?
-    private var account: AccountItem?
+    private var account: ChainAccountResponse?
     private var rewardDestination: RewardDestination<DisplayAddress>?
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    private let chain: Chain
-    private let asset: WalletAsset
+    private let chain: ChainModel
+    private let asset: AssetModel
     private let logger: LoggerProtocol?
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
@@ -108,8 +108,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     func presentAccountOptions(for viewModel: AccountInfoViewModel) {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        if let view = view,
-           let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
+        if let view = view {
             wireframe.presentAccountOptions(
                 from: view,
                 address: viewModel.address,
@@ -152,7 +151,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
             if let availableValue = accountInfo?.data.available {
                 balance = Decimal.fromSubstrateAmount(
                     availableValue,
-                    precision: asset.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = 0.0
@@ -193,7 +192,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         handle(error: error)
     }
 
-    func didRecieve(account: AccountItem, rewardAmount: Decimal) {
+    func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal) {
         self.account = account
         self.rewardAmount = rewardAmount
 

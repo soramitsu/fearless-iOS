@@ -9,12 +9,16 @@ class ProfileTests: XCTestCase {
     func testProfileSuccessfullyLoaded() throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
+        let storageFacade = UserDataStorageTestFacade()
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            keychain: keychain,
-                                                            settings: settings)
+        let walletSettings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: OperationQueue()
+        )
+
+        let selectedAccount = AccountGenerator.generateMetaAccount()
+
+        walletSettings.save(value: selectedAccount)
 
         let view = MockProfileViewProtocol()
 
@@ -45,9 +49,10 @@ class ProfileTests: XCTestCase {
             when(stub).add(observer: any(), dispatchIn: any()).thenDoNothing()
         }
 
-        let interactor = ProfileInteractor(settingsManager: settings,
-                                           eventCenter: eventCenter,
-                                           logger: Logger.shared)
+        let interactor = ProfileInteractor(
+            selectedWalletSettings: walletSettings,
+            eventCenter: eventCenter
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe

@@ -1,46 +1,44 @@
 import Foundation
 
 final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
-    func presentAgreement(
-        from view: CrowdloanListViewProtocol?,
-        paraId: ParaId,
-        customFlow: CustomCrowdloanFlow
-    ) {
-        switch customFlow {
-        case .moonbeam:
-            let setupView = CrowdloanAgreementViewFactory.createView(
-                for: paraId,
-                customFlow: customFlow
-            )
+    let state: CrowdloanSharedState
 
-            guard let setupView = setupView else { return }
-
-            setupView.controller.hidesBottomBarWhenPushed = true
-            view?.controller.navigationController?.pushViewController(
-                setupView.controller,
-                animated: true
-            )
-        default: break
-        }
+    init(state: CrowdloanSharedState) {
+        self.state = state
     }
 
-    func presentContributionSetup(
-        from view: CrowdloanListViewProtocol?,
-        paraId: ParaId,
-        customFlow: CustomCrowdloanFlow?
-    ) {
+    func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId) {
         guard let setupView = CrowdloanContributionSetupViewFactory.createView(
             for: paraId,
-            customFlow: customFlow
+            state: state
         ) else {
             return
         }
 
         setupView.controller.hidesBottomBarWhenPushed = true
+        view?.controller.navigationController?.pushViewController(setupView.controller, animated: true)
+    }
 
-        view?.controller.navigationController?.pushViewController(
-            setupView.controller,
-            animated: true
+    func selectChain(
+        from view: CrowdloanListViewProtocol?,
+        delegate: ChainSelectionDelegate,
+        selectedChainId: ChainModel.Id?
+    ) {
+        guard
+            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let selectionView = ChainSelectionViewFactory.createView(
+                delegate: delegate,
+                selectedChainId: selectedChainId,
+                repositoryFilter: NSPredicate.hasCrowloans(),
+                selectedMetaAccount: selectedMetaAccount
+            ) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: selectionView.controller
         )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }

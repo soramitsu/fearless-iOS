@@ -9,12 +9,11 @@ protocol StakingStateViewModelFactoryProtocol {
 }
 
 typealias AnalyticsRewardsViewModelFactoryBuilder = (
-    Chain,
+    ChainAsset,
     BalanceViewModelFactoryProtocol
 ) -> AnalyticsRewardsViewModelFactoryProtocol
 
 final class StakingStateViewModelFactory {
-    let primitiveFactory: WalletPrimitiveFactoryProtocol
     let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
     let logger: LoggerProtocol?
 
@@ -22,68 +21,59 @@ final class StakingStateViewModelFactory {
 
     var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
-    private var cachedChain: Chain?
+    private var cachedChainAsset: ChainAsset?
 
     private lazy var addressFactory = SS58AddressFactory()
 
     init(
-        primitiveFactory: WalletPrimitiveFactoryProtocol,
         analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
         logger: LoggerProtocol? = nil
     ) {
-        self.primitiveFactory = primitiveFactory
         self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
     }
 
-    private func updateCacheForChain(_ newChain: Chain) {
-        if newChain != cachedChain {
+    private func updateCacheForChainAsset(_ newChainAsset: ChainAsset) {
+        if newChainAsset != cachedChainAsset {
             balanceViewModelFactory = nil
             rewardViewModelFactory = nil
-            cachedChain = newChain
+            cachedChainAsset = newChainAsset
         }
     }
 
     private func convertAmount(
         _ amount: BigUInt?,
-        for chain: Chain,
+        for chainAsset: ChainAsset,
         defaultValue: Decimal
     ) -> Decimal {
         if let amount = amount {
             return Decimal.fromSubstrateAmount(
                 amount,
-                precision: chain.addressType.precision
+                precision: chainAsset.assetDisplayInfo.assetPrecision
             ) ?? defaultValue
         } else {
             return defaultValue
         }
     }
 
-    private func getBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
+    private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
         if let factory = balanceViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
-            limit: StakingConstants.maxAmount
-        )
+        let factory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
 
         balanceViewModelFactory = factory
 
         return factory
     }
 
-    private func getRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol {
+    private func getRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
         if let factory = rewardViewModelFactory {
             return factory
         }
 
-        let factory = RewardViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType
-        )
+        let factory = RewardViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
 
         rewardViewModelFactory = factory
 
@@ -91,15 +81,15 @@ final class StakingStateViewModelFactory {
     }
 
     private func createNominationViewModel(
-        for chain: Chain,
+        for chainAsset: ChainAsset,
         commonData: StakingStateCommonData,
         state: BaseStashNextState,
         ledgerInfo: StakingLedger,
         viewStatus: NominationViewStatus
     ) -> LocalizableResource<NominationViewModelProtocol> {
-        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
-        let stakedAmount = convertAmount(ledgerInfo.active, for: chain, defaultValue: 0.0)
+        let stakedAmount = convertAmount(ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
             priceData: commonData.price
@@ -131,14 +121,14 @@ final class StakingStateViewModelFactory {
     }
 
     private func createValidationViewModel(
-        for chain: Chain,
+        for chainAsset: ChainAsset,
         commonData: StakingStateCommonData,
         state: ValidatorState,
         viewStatus: ValidationViewStatus
     ) -> LocalizableResource<ValidationViewModelProtocol> {
-        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
-        let stakedAmount = convertAmount(state.ledgerInfo.active, for: chain, defaultValue: 0.0)
+        let stakedAmount = convertAmount(state.ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
             priceData: commonData.price
@@ -171,14 +161,14 @@ final class StakingStateViewModelFactory {
 
     private func createAnalyticsViewModel(
         commonData: StakingStateCommonData,
-        chain: Chain
+        chainAsset: ChainAsset
     ) -> LocalizableResource<RewardAnalyticsWidgetViewModel>? {
         guard let rewardsForPeriod = commonData.subqueryRewards, let rewards = rewardsForPeriod.0 else {
             return nil
         }
-        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
-        let analyticsViewModelFactory = analyticsRewardsViewModelFactoryBuilder(chain, balanceViewModelFactory)
+        let analyticsViewModelFactory = analyticsRewardsViewModelFactoryBuilder(chainAsset, balanceViewModelFactory)
         let fullViewModel = analyticsViewModelFactory.createViewModel(
             from: rewards,
             priceData: commonData.price,
@@ -194,7 +184,7 @@ final class StakingStateViewModelFactory {
     }
 
     private func createPeriodReward(
-        for chain: Chain,
+        for chainAsset: ChainAsset,
         commonData: StakingStateCommonData,
         amount: Decimal?
     ) throws -> LocalizableResource<PeriodRewardViewModel>? {
@@ -202,7 +192,7 @@ final class StakingStateViewModelFactory {
             return nil
         }
 
-        let rewardViewModelFactory = getRewardViewModelFactory(for: chain)
+        let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
 
         let monthlyReturn = calculator.calculateMaxReturn(isCompound: true, period: .month)
 
@@ -229,16 +219,16 @@ final class StakingStateViewModelFactory {
     }
 
     private func createEstimationViewModel(
-        for chain: Chain,
+        for chainAsset: ChainAsset,
         commonData: StakingStateCommonData,
         amount: Decimal?
     )
         throws -> StakingEstimationViewModel {
-        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let balance = convertAmount(
             commonData.accountInfo?.data.available,
-            for: chain,
+            for: chainAsset,
             defaultValue: 0.0
         )
 
@@ -250,17 +240,15 @@ final class StakingStateViewModelFactory {
             )
 
         let reward: LocalizableResource<PeriodRewardViewModel>? = try createPeriodReward(
-            for: chain,
+            for: chainAsset,
             commonData: commonData,
             amount: amount
         )
 
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-
         return StakingEstimationViewModel(
             assetBalance: balanceViewModel,
             rewardViewModel: reward,
-            asset: asset,
+            assetInfo: chainAsset.assetDisplayInfo,
             inputLimit: StakingConstants.maxAmount,
             amount: amount
         )
@@ -271,12 +259,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: InitialStakingState) {
         logger?.debug("Initial state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         lastViewModel = .undefined
     }
@@ -284,16 +272,16 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: NoStashState) {
         logger?.debug("No stash state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         do {
             let viewModel = try createEstimationViewModel(
-                for: chain,
+                for: chainAsset,
                 commonData: state.commonData,
                 amount: state.rewardEstimationAmount
             )
@@ -308,12 +296,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: StashState) {
         logger?.debug("Stash state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         lastViewModel = .undefined
     }
@@ -321,12 +309,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: PendingBondedState) {
         logger?.debug("Pending bonded state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         lastViewModel = .undefined
     }
@@ -334,12 +322,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: BondedState) {
         logger?.debug("Bonded state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         let status: NominationViewStatus = {
             if let era = state.commonData.eraStakersInfo?.activeEra {
@@ -350,14 +338,18 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         }()
 
         let viewModel = createNominationViewModel(
-            for: chain,
+            for: chainAsset,
             commonData: state.commonData,
             state: state,
             ledgerInfo: state.ledgerInfo,
             viewStatus: status
         )
 
-        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
+        let analyticsViewModel = createAnalyticsViewModel(
+            commonData: state.commonData,
+            chainAsset: chainAsset
+        )
+
         let alerts = stakingAlertsForBondedState(state)
         lastViewModel = .nominator(
             viewModel: viewModel,
@@ -369,12 +361,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: PendingNominatorState) {
         logger?.debug("Pending nominator state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         lastViewModel = .undefined
     }
@@ -382,22 +374,26 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: NominatorState) {
         logger?.debug("Nominator state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         let viewModel = createNominationViewModel(
-            for: chain,
+            for: chainAsset,
             commonData: state.commonData,
             state: state,
             ledgerInfo: state.ledgerInfo,
             viewStatus: state.status
         )
 
-        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
+        let analyticsViewModel = createAnalyticsViewModel(
+            commonData: state.commonData,
+            chainAsset: chainAsset
+        )
+
         let alerts = stakingAlertsForNominatorState(state)
         lastViewModel = .nominator(
             viewModel: viewModel,
@@ -409,12 +405,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: PendingValidatorState) {
         logger?.debug("Pending validator")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         lastViewModel = .undefined
     }
@@ -422,22 +418,25 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
     func visit(state: ValidatorState) {
         logger?.debug("Validator state")
 
-        guard let chain = state.commonData.chain else {
+        guard let chainAsset = state.commonData.chainAsset else {
             lastViewModel = .undefined
             return
         }
 
-        updateCacheForChain(chain)
+        updateCacheForChainAsset(chainAsset)
 
         let viewModel = createValidationViewModel(
-            for: chain,
+            for: chainAsset,
             commonData: state.commonData,
             state: state,
             viewStatus: state.status
         )
 
         let alerts = stakingAlertsForValidatorState(state)
-        let analyticsViewModel = createAnalyticsViewModel(commonData: state.commonData, chain: chain)
+        let analyticsViewModel = createAnalyticsViewModel(
+            commonData: state.commonData,
+            chainAsset: chainAsset
+        )
         lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: analyticsViewModel)
     }
 }

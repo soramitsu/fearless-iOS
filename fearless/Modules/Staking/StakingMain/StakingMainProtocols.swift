@@ -4,17 +4,15 @@ import CommonWallet
 import BigInt
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: StakingMainViewModelProtocol)
-    func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
+    func didReceive(viewModel: StakingMainViewModel)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
-    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?)
-
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
+    func performAssetSelection()
     func performMainAction()
     func performAccountAction()
     func performManageStakingAction()
@@ -35,6 +33,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
+    func save(chainAsset: ChainAsset)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
@@ -61,7 +60,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(networkStakingInfoError: Error)
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
-    func didReceive(newChain: Chain)
+    func didReceive(newChainAsset: ChainAsset)
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod)
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
@@ -70,12 +69,18 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 
-    func didReceiveControllerAccount(result: Result<AccountItem?, Error>)
+    func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
     func networkInfoViewExpansion(isExpanded: Bool)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
-    func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
+    func showSetupAmount(
+        from view: StakingMainViewProtocol?,
+        amount: Decimal?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 
     func showManageStaking(
         from view: StakingMainViewProtocol?,
@@ -86,7 +91,10 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func proceedToSelectValidatorsStart(
         from view: StakingMainViewProtocol?,
-        existingBonding: ExistingBonding
+        existingBonding: ExistingBonding,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     )
 
     func showStories(
@@ -96,19 +104,87 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)
 
-    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
-    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
-    func showStakingBalance(from view: ControllerBackedProtocol?)
-    func showNominatorValidators(from view: ControllerBackedProtocol?)
-    func showRewardDestination(from view: ControllerBackedProtocol?)
-    func showControllerAccount(from view: ControllerBackedProtocol?)
+    func showRewardPayoutsForNominator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRewardPayoutsForValidator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showStakingBalance(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showNominatorValidators(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRewardDestination(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showControllerAccount(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
-    func showBondMore(from view: ControllerBackedProtocol?)
-    func showRedeem(from view: ControllerBackedProtocol?)
-    func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode)
 
-    func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?)
+    func showBondMore(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showRedeem(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showAnalytics(
+        from view: ControllerBackedProtocol?,
+        mode: AnalyticsContainerViewMode,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    )
+
+    func showYourValidatorInfo(
+        _ stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
+
+    func showChainAssetSelection(
+        from view: StakingMainViewProtocol?,
+        selectedChainAssetId: ChainAssetId?,
+        delegate: AssetSelectionDelegate
+    )
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {

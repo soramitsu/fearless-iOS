@@ -90,8 +90,7 @@ final class StakingBMConfirmationViewLayout: UIView {
             amountView.balanceText = nil
         }
 
-        amountView.assetIcon = assetViewModel.icon
-
+        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
         amountView.symbol = assetViewModel.symbol.uppercased()
 
         setNeedsLayout()

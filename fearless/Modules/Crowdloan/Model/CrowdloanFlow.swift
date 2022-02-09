@@ -11,6 +11,7 @@ enum CustomCrowdloanFlow {
     case bifrost
     case moonbeam(MoonbeamFlowData)
     case astar(AstarFlowData)
+    case moonbeamMemoFix(String)
 
     var name: String {
         switch self {
@@ -18,6 +19,7 @@ enum CustomCrowdloanFlow {
         case .bifrost: return "bifrost"
         case .moonbeam: return "moonbeam"
         case .astar: return "astar"
+        case .moonbeamMemoFix: return ""
 
         case let .unsupported(name): return name
         }
@@ -32,8 +34,15 @@ enum CustomCrowdloanFlow {
 
     var hasEthereumReferral: Bool {
         switch self {
-        case .moonbeam: return true
+        case .moonbeam, .moonbeamMemoFix: return true
         default: return false
+        }
+    }
+
+    var needsContribute: Bool {
+        switch self {
+        case .moonbeamMemoFix: return false
+        default: return true
         }
     }
 }
@@ -71,6 +80,7 @@ extension CustomCrowdloanFlow: Codable {
         switch self {
         case let .unsupported(name): try NoDataFlow(name: name).encode(to: encoder)
 
+        case .moonbeamMemoFix: try NoDataFlow(name: name).encode(to: encoder)
         case .karura: try NoDataFlow(name: "karura").encode(to: encoder)
         case .bifrost: try NoDataFlow(name: "bifrost").encode(to: encoder)
         case let .moonbeam(data): try FlowWithData(name: "moonbeam", data: data).encode(to: encoder)
@@ -82,6 +92,8 @@ extension CustomCrowdloanFlow: Codable {
 extension CustomCrowdloanFlow: Equatable {
     static func == (lhs: CustomCrowdloanFlow, rhs: CustomCrowdloanFlow) -> Bool {
         switch (lhs, rhs) {
+        case (.moonbeamMemoFix, .moonbeamMemoFix):
+            return true
         case let (.astar(lhsData), .astar(rhsData)):
             return lhsData == rhsData
         case (.karura, .karura):

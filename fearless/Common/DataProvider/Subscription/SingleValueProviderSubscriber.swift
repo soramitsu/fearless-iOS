@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 
+@available(*, deprecated, message: "Use subsclass of LocalSubscriber instead")
 protocol SingleValueProviderSubscriber {
     var singleValueProviderFactory: SingleValueProviderFactoryProtocol { get }
 

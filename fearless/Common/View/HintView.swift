@@ -1,6 +1,6 @@
 import UIKit
 
-final class HintView: UIView {
+class HintView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()

@@ -7,7 +7,7 @@ final class SubqueryRewardSource {
     typealias Model = TotalRewardItem
 
     let address: String
-    let chain: Chain
+    let assetPrecision: Int16
     let targetIdentifier: String
     let repository: AnyDataProviderRepository<SingleValueProviderObject>
     let operationFactory: SubqueryRewardOperationFactoryProtocol
@@ -22,7 +22,7 @@ final class SubqueryRewardSource {
 
     init(
         address: String,
-        chain: Chain,
+        assetPrecision: Int16,
         targetIdentifier: String,
         repository: AnyDataProviderRepository<SingleValueProviderObject>,
         operationFactory: SubqueryRewardOperationFactoryProtocol,
@@ -31,7 +31,7 @@ final class SubqueryRewardSource {
         logger: LoggerProtocol? = nil
     ) {
         self.address = address
-        self.chain = chain
+        self.assetPrecision = assetPrecision
         self.targetIdentifier = targetIdentifier
         self.repository = repository
         self.operationFactory = operationFactory
@@ -145,7 +145,7 @@ final class SubqueryRewardSource {
                 let nextAmount = BigUInt(rewardOrSlash.amount),
                 let nextAmountDecimal = Decimal.fromSubstrateAmount(
                     nextAmount,
-                    precision: chain.addressType.precision
+                    precision: assetPrecision
                 )
             else {
                 logger?.error("Broken reward: \(remoteItem)")

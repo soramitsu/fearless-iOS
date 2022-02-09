@@ -19,12 +19,7 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
         do {
             let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
 
-            let metadata = AccountCreationMetadata(
-                mnemonic: mnemonic.allWords(),
-                availableCryptoTypes: CryptoType.allCases,
-                defaultCryptoType: .sr25519
-            )
-            presenter.didReceive(metadata: metadata)
+            presenter.didReceive(mnemonic: mnemonic.allWords())
         } catch {
             presenter.didReceiveMnemonicGeneration(error: error)
         }

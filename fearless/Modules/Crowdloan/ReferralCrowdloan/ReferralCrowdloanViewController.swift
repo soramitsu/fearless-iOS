@@ -10,8 +10,6 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
     private var referralViewModel: ReferralCrowdloanViewModel?
     private var codeInputViewModel: InputViewModelProtocol?
 
-    private var state = ReferralCrowdloanViewState.loading
-
     init(presenter: ReferralCrowdloanPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -65,30 +63,7 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
 
         rootView.locale = selectedLocale
 
-        applyState()
-    }
-
-    private func applyState() {
-        rootView.contentView.stackView.arrangedSubviews.forEach { arrangedSubview in
-            arrangedSubview.isHidden = true
-        }
-
-        var visibleViews: [UIView] = []
-
-        switch state {
-        case .loading:
-            visibleViews = [rootView.codeInputView]
-        case let .loadedDefaultFlow(referralCrowdloanViewModel):
-            visibleViews = [rootView.codeInputView, rootView.bonusView, rootView.privacyView, rootView.learnMoreView, rootView.actionButton]
-            rootView.bind(to: referralCrowdloanViewModel)
-        case let .loadedAstarFlow(astarReferralCrowdloanViewModel):
-            visibleViews = [rootView.codeInputView, rootView.applyAppBonusButton, rootView.learnMoreView, rootView.actionButton]
-            rootView.bind(to: astarReferralCrowdloanViewModel)
-        }
-
-        visibleViews.forEach { visibleView in
-            visibleView.isHidden = false
-        }
+        applyReferralViewModel()
     }
 
     private func applyReferralViewModel() {
@@ -96,23 +71,27 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
             return
         }
 
+        rootView.applyAppBonusLabel.text = R.string.localizable.crowdloanAppBonusFormat(
+            referralViewModel.bonusPercentage,
+            preferredLanguages: selectedLocale.rLanguages
+        )
+
         rootView.bonusView.valueLabel.text = referralViewModel.bonusValue
-        rootView.myBonusView.valueLabel.text = referralViewModel.bonusValue
 
         if referralViewModel.canApplyDefaultCode {
-            rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.applyFearlessWalletBonus(
+            rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApply(
                 preferredLanguages: selectedLocale.rLanguages
             ).uppercased()
 
             rootView.applyAppBonusButton.isEnabled = true
-            rootView.applyAppBonusButton.applyDisabledStyle()
+            rootView.applyAppBonusButton.applyDefaultStyle()
         } else {
-            rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.appliedFearlessWalletBonus(
+            rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApplied(
                 preferredLanguages: selectedLocale.rLanguages
             ).uppercased()
 
             rootView.applyAppBonusButton.isEnabled = false
-            rootView.applyAppBonusButton.applyDefaultStyle()
+            rootView.applyAppBonusButton.applyDisabledStyle()
         }
 
         rootView.applyAppBonusButton.invalidateLayout()
@@ -198,13 +177,14 @@ extension ReferralCrowdloanViewController: AnimatedTextFieldDelegate {
 }
 
 extension ReferralCrowdloanViewController: ReferralCrowdloanViewProtocol {
-    func didReceiveState(state: ReferralCrowdloanViewState) {
-        self.state = state
-        applyState()
-    }
-
     func didReceiveLearnMore(viewModel: LearnMoreViewModel) {
         rootView.learnMoreView.bind(viewModel: viewModel)
+    }
+
+    func didReceiveReferral(viewModel: ReferralCrowdloanViewModel) {
+        referralViewModel = viewModel
+
+        applyReferralViewModel()
     }
 
     func didReceiveInput(viewModel: InputViewModelProtocol) {

@@ -16,11 +16,24 @@ struct AnalyticsContainerViewMode: OptionSet {
 }
 
 enum AnalyticsContainerViewFactory {
-    static func createView(mode: AnalyticsContainerViewMode) -> AnalyticsContainerViewProtocol {
-        let rewardsModule = AnalyticsRewardsViewFactory
-            .createView(accountIsNominator: mode.contains(.accountIsNominator))
+    static func createView(
+        mode: AnalyticsContainerViewMode,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> AnalyticsContainerViewProtocol {
+        let rewardsModule = AnalyticsRewardsViewFactory.createView(
+            accountIsNominator: mode.contains(.accountIsNominator),
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        )
         let stakeModule = AnalyticsStakeViewFactory.createView()
-        let validatorsModule = mode.contains(.includeValidatorsTab) ? AnalyticsValidatorsViewFactory.createView() : nil
+        let validatorsModule = mode.contains(.includeValidatorsTab) ? AnalyticsValidatorsViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) : nil
         let modules = [rewardsModule, stakeModule, validatorsModule].compactMap { $0 }
 
         let containerModule = AnalyticsContainerViewController(

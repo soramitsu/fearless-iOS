@@ -21,6 +21,7 @@ protocol ValidatorListFilterPresenterProtocol: Localizable {
 
 protocol ValidatorListFilterViewFactoryProtocol {
     static func createView(
+        asset: AssetModel,
         with filter: CustomValidatorListFilter,
         delegate: ValidatorListFilterDelegate?
     ) -> ValidatorListFilterViewProtocol?

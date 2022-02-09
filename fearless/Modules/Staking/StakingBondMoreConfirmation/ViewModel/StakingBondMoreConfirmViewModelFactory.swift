@@ -5,37 +5,44 @@ import FearlessUtils
 
 protocol StakingBondMoreConfirmViewModelFactoryProtocol {
     func createViewModel(
-        controllerItem: AccountItem,
+        account: MetaAccountModel,
         amount: Decimal
     ) throws -> StakingBondMoreConfirmViewModel
 }
 
 final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
-    let asset: WalletAsset
+    let asset: AssetModel
+    let chain: ChainModel
 
-    private lazy var formatterFactory = AmountFormatterFactory()
+    private lazy var formatterFactory = AssetBalanceFormatterFactory()
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    init(asset: WalletAsset) {
+    init(
+        asset: AssetModel,
+        chain: ChainModel
+    ) {
         self.asset = asset
+        self.chain = chain
     }
 
     func createViewModel(
-        controllerItem: AccountItem,
+        account: MetaAccountModel,
         amount: Decimal
     ) throws -> StakingBondMoreConfirmViewModel {
-        let formatter = formatterFactory.createInputFormatter(for: asset)
+        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).string(from: amount as NSNumber) ?? ""
         }
 
-        let icon = try iconGenerator.generateFromAddress(controllerItem.address)
+        let address = account.fetch(for: chain.accountRequest())?.toAddress() ?? ""
+
+        let icon = try iconGenerator.generateFromAddress(address)
 
         return StakingBondMoreConfirmViewModel(
-            senderAddress: controllerItem.address,
+            senderAddress: address,
             senderIcon: icon,
-            senderName: controllerItem.username,
+            senderName: account.name,
             amount: amount
         )
     }

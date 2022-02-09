@@ -11,9 +11,19 @@ final class AnalyticsRewardsWireframe: AnalyticsRewardsWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
-        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
-            .createViewForNominator(stashAddress: stashAddress) else { return }
+    func showRewardPayoutsForNominator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory.createViewForNominator(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            stashAddress: stashAddress
+        ) else { return }
 
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: rewardPayoutsView.controller
@@ -22,9 +32,19 @@ final class AnalyticsRewardsWireframe: AnalyticsRewardsWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
-        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
-            .createViewForValidator(stashAddress: stashAddress) else { return }
+    func showRewardPayoutsForValidator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory.createViewForValidator(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            stashAddress: stashAddress
+        ) else { return }
 
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: rewardPayoutsView.controller

@@ -39,8 +39,8 @@ extension AddAccount {
 
         func presentCryptoTypeSelection(
             from view: AccountImportViewProtocol?,
-            availableTypes: [CryptoType],
-            selectedType: CryptoType,
+            availableTypes: [MultiassetCryptoType],
+            selectedType: MultiassetCryptoType,
             delegate: ModalPickerViewControllerDelegate?,
             context: AnyObject?
         ) {

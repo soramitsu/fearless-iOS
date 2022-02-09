@@ -17,7 +17,7 @@ class AddConnectionTests: XCTestCase {
         let facade = UserDataStorageTestFacade()
 
         let mapper = ManagedConnectionItemMapper()
-        let repository: CoreDataRepository<ManagedConnectionItem, CDConnectionItem> = facade
+        let repository: CoreDataRepository<ManagedConnectionItem, CDChain> = facade
             .createRepository(filter: nil,
                               sortDescriptors: [NSSortDescriptor.connectionsByOrder],
                               mapper: AnyCoreDataMapper(mapper))

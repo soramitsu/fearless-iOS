@@ -3,20 +3,18 @@ import RobinHood
 
 protocol ChildSubscriptionFactoryProtocol {
     func createEventEmittingSubscription(
-        remoteKey: Data,
+        keys: SubscriptionStorageKeys,
         eventFactory: @escaping EventEmittingFactoryClosure
-    )
-        -> StorageChildSubscribing
+    ) -> StorageChildSubscribing
 
-    func createEmptyHandlingSubscription(remoteKey: Data) -> StorageChildSubscribing
+    func createEmptyHandlingSubscription(keys: SubscriptionStorageKeys) -> StorageChildSubscribing
 }
 
 final class ChildSubscriptionFactory {
     let storageFacade: StorageFacadeProtocol
-    let logger: LoggerProtocol
     let operationManager: OperationManagerProtocol
-    let localKeyFactory: ChainStorageIdFactoryProtocol
     let eventCenter: EventCenterProtocol
+    let logger: LoggerProtocol
 
     private lazy var repository: AnyDataProviderRepository<ChainStorageItem> = {
         let coreDataRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
@@ -29,27 +27,23 @@ final class ChildSubscriptionFactory {
         storageFacade: StorageFacadeProtocol,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
-        localKeyFactory: ChainStorageIdFactoryProtocol,
         logger: LoggerProtocol
     ) {
         self.storageFacade = storageFacade
         self.operationManager = operationManager
         self.eventCenter = eventCenter
-        self.localKeyFactory = localKeyFactory
         self.logger = logger
     }
 }
 
 extension ChildSubscriptionFactory: ChildSubscriptionFactoryProtocol {
     func createEventEmittingSubscription(
-        remoteKey: Data,
+        keys: SubscriptionStorageKeys,
         eventFactory: @escaping EventEmittingFactoryClosure
     ) -> StorageChildSubscribing {
-        let localKey = localKeyFactory.createIdentifier(for: remoteKey)
-
-        return EventEmittingStorageSubscription(
-            remoteStorageKey: remoteKey,
-            localStorageKey: localKey,
+        EventEmittingStorageSubscription(
+            remoteStorageKey: keys.remote,
+            localStorageKey: keys.local,
             storage: repository,
             operationManager: operationManager,
             logger: logger,
@@ -58,12 +52,10 @@ extension ChildSubscriptionFactory: ChildSubscriptionFactoryProtocol {
         )
     }
 
-    func createEmptyHandlingSubscription(remoteKey: Data) -> StorageChildSubscribing {
-        let localKey = localKeyFactory.createIdentifier(for: remoteKey)
-
-        return EmptyHandlingStorageSubscription(
-            remoteStorageKey: remoteKey,
-            localStorageKey: localKey,
+    func createEmptyHandlingSubscription(keys: SubscriptionStorageKeys) -> StorageChildSubscribing {
+        EmptyHandlingStorageSubscription(
+            remoteStorageKey: keys.remote,
+            localStorageKey: keys.local,
             storage: repository,
             operationManager: operationManager,
             logger: logger

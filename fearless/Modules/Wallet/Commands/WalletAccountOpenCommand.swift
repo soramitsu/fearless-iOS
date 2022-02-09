@@ -21,17 +21,17 @@ final class WalletAccountOpenCommand: WalletCommandProtocol {
     }
 
     func execute() throws {
-        let controller = UIAlertController.presentAccountOptions(
-            address,
-            chain: chain,
-            locale: locale,
-            copyClosure: copyAddress,
-            urlClosure: present(url:)
-        )
-
-        let command = commandFactory?.preparePresentationCommand(for: controller)
-        command?.presentationStyle = .modal(inNavigation: false)
-        try command?.execute()
+//        let controller = UIAlertController.presentAccountOptions(
+//            address,
+//            chain: chain,
+//            locale: locale,
+//            copyClosure: copyAddress,
+//            urlClosure: present(url:)
+//        )
+//
+//        let command = commandFactory?.preparePresentationCommand(for: controller)
+//        command?.presentationStyle = .modal(inNavigation: false)
+//        try command?.execute()
     }
 
     private func copyAddress() {

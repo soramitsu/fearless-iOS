@@ -7,3 +7,17 @@ func dispatchInQueueWhenPossible(_ queue: DispatchQueue?, block: @escaping () ->
         block()
     }
 }
+
+func callbackClosureIfProvided<T>(
+    _ closure: ((Result<T, Error>) -> Void)?,
+    queue: DispatchQueue?,
+    result: Result<T, Error>
+) {
+    guard let closure = closure else {
+        return
+    }
+
+    dispatchInQueueWhenPossible(queue) {
+        closure(result)
+    }
+}

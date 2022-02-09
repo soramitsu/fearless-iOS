@@ -20,6 +20,8 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     private(set) var bonusView: TitleValueView?
 
+    private var assetViewModel: AssetBalanceViewModelProtocol?
+
     let leasingPeriodView = TitleMultiValueView()
 
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
@@ -47,6 +49,11 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
+        amountInputView.iconView.image = nil
+
+        self.assetViewModel = assetViewModel
+
         amountInputView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
@@ -58,7 +65,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
             amountInputView.balanceText = nil
         }
 
-        amountInputView.assetIcon = assetViewModel.icon
+        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
 
         let symbol = assetViewModel.symbol.uppercased()
         amountInputView.symbol = symbol
@@ -78,7 +85,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(bonus: String?) {
-        if let bonus = bonus, !bonus.isEmpty {
+        if let bonus = bonus {
             createBonusViewIfNeeded()
             bonusView?.valueLabel.text = bonus
         } else {

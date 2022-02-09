@@ -16,17 +16,27 @@ final class AnalyticsValidatorsPresenter {
     private var rewards: [SubqueryRewardItemData]?
     private var eraRange: EraRange?
 
+    let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
+
     init(
         interactor: AnalyticsValidatorsInteractorInputProtocol,
         wireframe: AnalyticsValidatorsWireframeProtocol,
         viewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol?,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
+        self.asset = asset
+        self.chain = chain
+        self.selectedAccount = selectedAccount
         self.localizationManager = localizationManager
     }
 
@@ -65,7 +75,13 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
     }
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
-        wireframe.showValidatorInfo(address: validatorAddress, view: view)
+        wireframe.showValidatorInfo(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            address: validatorAddress,
+            view: view
+        )
     }
 
     func handlePageAction(page: AnalyticsValidatorsPage) {

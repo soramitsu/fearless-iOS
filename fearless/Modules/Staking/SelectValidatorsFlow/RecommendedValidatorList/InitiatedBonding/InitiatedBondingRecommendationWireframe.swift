@@ -10,7 +10,10 @@ final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWir
     override func proceed(
         from view: RecommendedValidatorListViewProtocol?,
         targets: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        selectedAccount: MetaAccountModel,
+        asset: AssetModel,
+        chain: ChainModel
     ) {
         let nomination = PreparedNomination(
             bonding: state,
@@ -18,7 +21,12 @@ final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWir
             maxTargets: maxTargets
         )
 
-        guard let confirmView = SelectValidatorsConfirmViewFactory.createInitiatedBondingView(for: nomination) else {
+        guard let confirmView = SelectValidatorsConfirmViewFactory.createInitiatedBondingView(
+            selectedAccount: selectedAccount,
+            asset: asset,
+            chain: chain,
+            for: nomination
+        ) else {
             return
         }
 

@@ -5,37 +5,38 @@ import FearlessUtils
 
 protocol StakingRedeemViewModelFactoryProtocol {
     func createRedeemViewModel(
-        controllerItem: AccountItem,
+        controllerItem: ChainAccountResponse,
         amount: Decimal
     ) throws -> StakingRedeemViewModel
 }
 
 final class StakingRedeemViewModelFactory: StakingRedeemViewModelFactoryProtocol {
-    let asset: WalletAsset
+    let asset: AssetModel
 
-    private lazy var formatterFactory = AmountFormatterFactory()
+    private lazy var formatterFactory = AssetBalanceFormatterFactory()
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    init(asset: WalletAsset) {
+    init(asset: AssetModel) {
         self.asset = asset
     }
 
     func createRedeemViewModel(
-        controllerItem: AccountItem,
+        controllerItem: ChainAccountResponse,
         amount: Decimal
     ) throws -> StakingRedeemViewModel {
-        let formatter = formatterFactory.createInputFormatter(for: asset)
+        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).string(from: amount as NSNumber) ?? ""
         }
 
-        let icon = try iconGenerator.generateFromAddress(controllerItem.address)
+        let address = controllerItem.toAddress() ?? ""
+        let icon = try iconGenerator.generateFromAddress(address)
 
         return StakingRedeemViewModel(
-            senderAddress: controllerItem.address,
+            senderAddress: address,
             senderIcon: icon,
-            senderName: controllerItem.username,
+            senderName: controllerItem.name,
             amount: amount
         )
     }

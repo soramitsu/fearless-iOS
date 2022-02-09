@@ -5,14 +5,16 @@ import SoraKeystore
 struct CrowdloanAgreementViewFactory {
     static func createView(
         for paraId: ParaId,
-        customFlow: CustomCrowdloanFlow
+        customFlow: CustomCrowdloanFlow,
+        with sharedState: CrowdloanSharedState
     ) -> CrowdloanAgreementViewProtocol? {
         switch customFlow {
         case let .moonbeam(moonbeamFlowData):
             return CrowdloanAgreementViewFactory.createMoonbeamView(
                 for: paraId,
                 customFlow: customFlow,
-                moonbeamFlowData: moonbeamFlowData
+                moonbeamFlowData: moonbeamFlowData,
+                with: sharedState
             )
         default:
             return nil
@@ -22,7 +24,8 @@ struct CrowdloanAgreementViewFactory {
     private static func createMoonbeamView(
         for paraId: ParaId,
         customFlow: CustomCrowdloanFlow,
-        moonbeamFlowData: MoonbeamFlowData
+        moonbeamFlowData: MoonbeamFlowData,
+        with sharedState: CrowdloanSharedState
     ) -> CrowdloanAgreementViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
@@ -33,7 +36,7 @@ struct CrowdloanAgreementViewFactory {
         ) else {
             return nil
         }
-        let wireframe = CrowdloanAgreementWireframe()
+        let wireframe = CrowdloanAgreementWireframe(state: sharedState)
 
         let presenter = CrowdloanAgreementPresenter(
             interactor: interactor,

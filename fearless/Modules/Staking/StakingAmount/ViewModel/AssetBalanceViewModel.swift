@@ -1,15 +1,34 @@
 import UIKit
 
 protocol AssetBalanceViewModelProtocol {
-    var icon: UIImage? { get }
     var symbol: String { get }
     var balance: String? { get }
     var price: String? { get }
+    var iconViewModel: ImageViewModelProtocol? { get }
+}
+
+extension AssetBalanceViewModelProtocol {
+    @available(*, deprecated, message: "Use iconViewModel instead")
+    var icon: UIImage? { nil }
 }
 
 struct AssetBalanceViewModel: AssetBalanceViewModelProtocol {
-    let icon: UIImage?
     let symbol: String
     let balance: String?
     let price: String?
+    let iconViewModel: ImageViewModelProtocol?
+}
+
+extension ImageViewModelProtocol {
+    func loadAmountInputIcon(on imageView: UIImageView, animated _: Bool) {
+        loadImage(on: imageView, targetSize: CGSize(width: 24.0, height: 24.0), animated: true, cornerRadius: 0)
+    }
+
+    func loadAssetInfoIcon(on imageView: UIImageView, animated _: Bool) {
+        loadImage(on: imageView, targetSize: CGSize(width: 32.0, height: 32.0), animated: true, cornerRadius: 0)
+    }
+
+    func loadBalanceListIcon(on imageView: UIImageView, animated _: Bool) {
+        loadImage(on: imageView, targetSize: CGSize(width: 48.0, height: 48.0), animated: true, cornerRadius: 0)
+    }
 }

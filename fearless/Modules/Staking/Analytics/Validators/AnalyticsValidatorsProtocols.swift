@@ -29,7 +29,13 @@ protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
 }
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
-    func showValidatorInfo(address: AccountAddress, view: ControllerBackedProtocol?)
+    func showValidatorInfo(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        address: AccountAddress,
+        view: ControllerBackedProtocol?
+    )
 }
 
 protocol AnalyticsValidatorsViewModelFactoryProtocol: AnyObject {

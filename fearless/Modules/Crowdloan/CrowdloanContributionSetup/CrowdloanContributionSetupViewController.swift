@@ -1,7 +1,6 @@
 import UIKit
 import CommonWallet
 import SoraFoundation
-import SoraUI
 
 final class CrowdloanContributionSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanContributionSetupViewLayout
@@ -9,7 +8,6 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     let presenter: CrowdloanContributionSetupPresenterProtocol
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
-    private var ethereumAddressViewModel: InputViewModelProtocol?
 
     var uiFactory: UIFactoryProtocol = UIFactory.default
 
@@ -58,14 +56,9 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 
-    private var isFormValid: Bool {
-        [amountInputViewModel?.isValid, ethereumAddressViewModel?.inputHandler.completed]
-            .compactMap { $0 }
-            .allSatisfy { $0 }
-    }
-
     private func updateActionButton() {
-        rootView.actionButton.set(enabled: isFormValid)
+        let isEnabled = (amountInputViewModel?.isValid == true)
+        rootView.actionButton.set(enabled: isEnabled)
     }
 
     @objc func actionProceed() {
@@ -101,17 +94,6 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         updateActionButton()
     }
 
-    func didReceiveEthereumAddress(viewModel: InputViewModelProtocol) {
-        ethereumAddressViewModel?.inputHandler.removeObserver(self)
-
-        ethereumAddressViewModel = viewModel
-        ethereumAddressViewModel?.inputHandler.addObserver(self)
-
-        rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.text = viewModel.inputHandler.value
-
-        updateActionButton()
-    }
-
     func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel) {
         title = viewModel.title
         rootView.bind(crowdloanViewModel: viewModel)
@@ -130,13 +112,6 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
         if let bonusView = rootView.bonusView {
             bonusView.addTarget(self, action: #selector(actionBonuses), for: .touchUpInside)
-        }
-    }
-
-    func didReceiveCustomCrowdloanFlow(viewModel: CustomCrowdloanFlow?) {
-        rootView.bind(customFlow: viewModel)
-        if case .moonbeam = viewModel {
-            rootView.ethereumAddressForRewardView?.ethereumAddressView.animatedInputField.delegate = self
         }
     }
 }
@@ -164,46 +139,18 @@ extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver
     }
 }
 
-extension CrowdloanContributionSetupViewController: InputHandlingObserver {
-    func didChangeInputValue(_ handler: InputHandling, from _: String) {
-        presenter.updateEthereumAddress(handler.value)
-    }
-}
-
-extension CrowdloanContributionSetupViewController: AnimatedTextFieldDelegate {
-    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-
-    func animatedTextField(
-        _: AnimatedTextField,
-        shouldChangeCharactersIn range: NSRange,
-        replacementString string: String
-    ) -> Bool {
-        _ = ethereumAddressViewModel?.inputHandler.didReceiveReplacement(string, for: range)
-        return false
-    }
-}
-
 extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
     func textField(
-        _ textField: UITextField,
+        _: UITextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        if textField === rootView.amountInputView.textField {
-            return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
-        }
-
-        return true
+        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }
 
 extension CrowdloanContributionSetupViewController: Localizable {
     func applyLocalization() {
-        if isViewLoaded {
-            setupLocalization()
-        }
+        if isSetup {}
     }
 }
