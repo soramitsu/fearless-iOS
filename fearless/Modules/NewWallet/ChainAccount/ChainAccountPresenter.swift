@@ -139,7 +139,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapOptionsButton() {
-        let items: [ChainAction] = [.export, .switchNode]
+        let items: [ChainAction] = [.export, .switchNode, .copyAddress]
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self else { return }
             let action = items[selectedIndex]
@@ -151,6 +151,11 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
                     from: self.view,
                     chain: self.chain
                 )
+            case .copyAddress:
+                UIPasteboard.general.string = self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+
+                let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
+                self.wireframe.presentSuccessNotification(title, from: self.view)
             }
         }
 

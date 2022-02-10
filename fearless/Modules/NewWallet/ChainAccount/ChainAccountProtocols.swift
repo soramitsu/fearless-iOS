@@ -28,7 +28,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
 }
 
-protocol ChainAccountWireframeProtocol: AnyObject {
+protocol ChainAccountWireframeProtocol: AnyObject, ModalAlertPresenting {
     func close(view: ControllerBackedProtocol?)
 
     func presentSendFlow(
