@@ -80,7 +80,7 @@ class SearchPeopleTableCell: UITableViewCell {
 
     func bind(to viewModel: SearchPeopleTableCellViewModel) {
         addressLabel.text = viewModel.address
-
+        print("[moon] set address: \(viewModel)")
         if let icon = viewModel.icon {
             accountIconImageView.bind(icon: icon)
         }

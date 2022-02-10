@@ -39,6 +39,19 @@ extension RuntimeConstantFetching {
         constOperation.completionBlock = {
             DispatchQueue.main.async {
                 if let result = constOperation.result {
+                    if case let .failure(errorKind) = result,
+                       case StorageDecodingOperationError.invalidStoragePath = errorKind,
+                       let snapshot = runtimeCodingService.runtimeSnapshot,
+                       let override = snapshot.typeRegistryCatalog.override(
+                           for: path.moduleName,
+                           constantName: path.constantName,
+                           version: UInt64(snapshot.specVersion)
+                       ),
+                       let overriden = T(override) {
+                        closure(.success(overriden))
+                        return
+                    }
+
                     closure(result)
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))

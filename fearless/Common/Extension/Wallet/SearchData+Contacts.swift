@@ -65,13 +65,14 @@ extension SearchData {
     static func createFromChainAccount(
         chain: ChainModel,
         account: MetaAccountModel,
-        addressFactory: SS58AddressFactory
+        addressFactory _: SS58AddressFactory // TODO: Remove
     ) throws -> SearchData? {
         guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
+            assertionFailure()
             return nil
         }
 
-        let address = try addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix)
+        let address = try AddressFactory.address(for: accountId, chain: chain)
 
         let contactContext = ContactContext(destination: .local)
 

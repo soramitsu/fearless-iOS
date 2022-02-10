@@ -9,7 +9,7 @@ protocol RuntimeRegistryServiceProtocol: ApplicationServiceProtocol {
 }
 
 protocol RuntimeCodingServiceProtocol {
-//    var runtimeMetadata: RuntimeMetadata? { get }
+    var runtimeSnapshot: RuntimeSnapshot? { get }
 
     func fetchCoderFactoryOperation(
         with timeout: TimeInterval,
