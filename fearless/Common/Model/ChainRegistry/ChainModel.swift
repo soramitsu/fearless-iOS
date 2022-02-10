@@ -155,6 +155,7 @@ extension ChainModel: Hashable {
             && lhs.name == rhs.name
             && lhs.addressPrefix == rhs.addressPrefix
             && lhs.selectedNode == rhs.selectedNode
+            && lhs.nodes == rhs.nodes
     }
 
     func hash(into hasher: inout Hasher) {
