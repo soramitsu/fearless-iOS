@@ -5,10 +5,6 @@ final class CheckPincodeViewFactory {
     static func createView(
         moduleOutput: CheckPincodeModuleOutput
     ) -> PinSetupViewProtocol {
-        let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
-
-        pinVerifyView.mode = .securedInput
-
         let interactor = LocalAuthInteractor(
             secretManager: KeychainManager.shared,
             settingsManager: SettingsManager.shared,
@@ -20,12 +16,13 @@ final class CheckPincodeViewFactory {
             moduleOutput: moduleOutput
         )
 
-        pinVerifyView.presenter = presenter
+        let pinVerifyView = CheckPincodeViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
         presenter.view = pinVerifyView
 
         interactor.presenter = presenter
-
-        pinVerifyView.localizationManager = LocalizationManager.shared
 
         return pinVerifyView
     }

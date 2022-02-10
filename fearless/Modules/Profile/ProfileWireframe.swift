@@ -77,6 +77,10 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
+    func close(view: ControllerBackedProtocol?) {
+        view?.controller.dismiss(animated: true)
+    }
+
     func showCheckPincode(
         from view: ProfileViewProtocol?,
         output: CheckPincodeModuleOutput
@@ -84,6 +88,11 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         let checkPincodeViewController = CheckPincodeViewFactory.createView(
             moduleOutput: output
         ).controller
+        view?.controller.navigationController?.setNavigationBarHidden(
+            false,
+            animated: true
+        )
+        checkPincodeViewController.modalPresentationStyle = .fullScreen
         view?.controller.present(checkPincodeViewController, animated: true)
     }
 
