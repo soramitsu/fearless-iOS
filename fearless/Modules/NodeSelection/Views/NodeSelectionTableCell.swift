@@ -38,7 +38,6 @@ class NodeSelectionTableCell: UITableViewCell {
     let infoButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconHorMore(), for: .normal)
-        button.isHidden = true // not implemented yet
         return button
     }()
 

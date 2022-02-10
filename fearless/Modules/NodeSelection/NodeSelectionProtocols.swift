@@ -37,6 +37,6 @@ protocol NodeSelectionWireframeProtocol: PresentDismissable, AlertPresentable {
         chain: ChainModel,
         node: ChainNodeModel,
         mode: NetworkInfoMode,
-        from view: NetworkManagementViewProtocol?
+        from view: ControllerBackedProtocol?
     )
 }

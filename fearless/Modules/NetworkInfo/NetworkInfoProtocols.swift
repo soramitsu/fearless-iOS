@@ -15,8 +15,8 @@ protocol NetworkInfoPresenterProtocol: AnyObject {
 }
 
 protocol NetworkInfoInteractorInputProtocol: AnyObject {
-    func updateConnection(
-        _ oldConnection: ConnectionItem,
+    func updateNode(
+        _ node: ChainNodeModel,
         newURL: URL,
         newName: String
     )

@@ -25,7 +25,7 @@ final class NetworkInfoPresenter {
         self.node = node
         self.chain = chain
 
-        let nameInputHandling = InputHandler(value: node.clearUrlString ?? "", enabled: mode.contains(.name))
+        let nameInputHandling = InputHandler(value: node.name, enabled: mode.contains(.name))
         nameViewModel = InputViewModel(inputHandler: nameInputHandling)
 
         let processor = TrimmingCharacterProcessor(charset: CharacterSet.whitespacesAndNewlines)
@@ -63,11 +63,11 @@ extension NetworkInfoPresenter: NetworkInfoPresenterProtocol {
             return
         }
 
-//        interactor.updateConnection(
-//            connectionItem,
-//            newURL: url,
-//            newName: nameViewModel.inputHandler.value
-//        )
+        interactor.updateNode(
+            node,
+            newURL: url,
+            newName: nameViewModel.inputHandler.value
+        )
     }
 }
 

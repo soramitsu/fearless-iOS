@@ -17,7 +17,7 @@ final class NodeSelectionWireframe: NodeSelectionWireframeProtocol {
         chain: ChainModel,
         node: ChainNodeModel,
         mode: NetworkInfoMode,
-        from view: NetworkManagementViewProtocol?
+        from view: ControllerBackedProtocol?
     ) {
         guard let networkInfoView = NetworkInfoViewFactory.createView(
             with: chain,

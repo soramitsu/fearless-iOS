@@ -49,6 +49,8 @@ final class NetworkInfoViewController: UIViewController {
         nodeField.textField.keyboardType = .URL
 
         nodeField.delegate = self
+
+        networkView.layout = .smallIconTitleSubtitle
     }
 
     private func configureNavigationItem() {
@@ -99,7 +101,7 @@ final class NetworkInfoViewController: UIViewController {
         ).isActive = true
 
         button.topAnchor.constraint(
-            equalTo: networkView.bottomAnchor,
+            equalTo: nodeBackgroundView.bottomAnchor,
             constant: Constants.margin
         ).isActive = true
 
@@ -218,10 +220,16 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
     }
 
     func set(chain: ChainModel) {
-        networkView.title = chain.name
+        networkView.title = R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+        networkView.subtitle = chain.name
 
         if let icon = chain.icon {
-            networkView.iconView.kf.setImage(with: icon)
+            let imageViewModel = RemoteImageViewModel(url: icon)
+            imageViewModel.loadImage(
+                on: networkView.iconView,
+                targetSize: UIConstants.smallAddressIconSize,
+                animated: true
+            )
         }
     }
 }

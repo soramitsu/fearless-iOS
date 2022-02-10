@@ -2,7 +2,8 @@ import Foundation
 
 protocol NodeSelectionTableCellViewModelDelegate: AnyObject {
     func deleteNode(_ node: ChainNodeModel)
-    func showNodeInfo(_ node: ChainNodeModel)
+    func showDefaultNodeInfo(_ node: ChainNodeModel)
+    func showCustomNodeInfo(_ node: ChainNodeModel)
 }
 
 class NodeSelectionTableCellViewModel {
@@ -33,6 +34,10 @@ extension NodeSelectionTableCellViewModel: NodeSelectionTableCellDelegate {
     }
 
     func didTapInfoButton() {
-        delegate?.showNodeInfo(node)
+        if editable {
+            delegate?.showCustomNodeInfo(node)
+        } else {
+            delegate?.showDefaultNodeInfo(node)
+        }
     }
 }

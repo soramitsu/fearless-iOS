@@ -9,13 +9,9 @@ final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
         mode: NetworkInfoMode,
         node: ChainNodeModel
     ) -> NetworkInfoViewProtocol? {
-        let mapper = ManagedConnectionItemMapper()
-        let repository = UserDataStorageFacade.shared
-            .createRepository(
-                filter: nil,
-                sortDescriptors: [NSSortDescriptor.connectionsByOrder],
-                mapper: AnyCoreDataMapper(mapper)
-            )
+        let repository: CoreDataRepository<ChainModel, CDChain> = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
 
         let view = NetworkInfoViewController(nib: R.nib.networkInfoViewController)
         let presenter = NetworkInfoPresenter(
@@ -27,9 +23,9 @@ final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
 
         let substrateOperationFactory = SubstrateOperationFactory(logger: Logger.shared)
         let interactor = NetworkInfoInteractor(
+            chain: chain,
             repository: AnyDataProviderRepository(repository),
             substrateOperationFactory: substrateOperationFactory,
-            settingsManager: SettingsManager.shared,
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared
         )
