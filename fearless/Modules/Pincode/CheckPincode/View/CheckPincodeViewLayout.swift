@@ -53,6 +53,7 @@ final class CheckPincodeViewLayout: UIView {
 
         setupLayout()
         applyLocalization()
+        setupAccessibilityIdentifiers()
     }
 
     @available(*, unavailable)
