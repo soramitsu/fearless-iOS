@@ -4,7 +4,11 @@ import RobinHood
 import SoraKeystore
 
 final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
-    static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol? {
+    static func createView(
+        with chain: ChainModel,
+        mode: NetworkInfoMode,
+        node: ChainNodeModel
+    ) -> NetworkInfoViewProtocol? {
         let mapper = ManagedConnectionItemMapper()
         let repository = UserDataStorageFacade.shared
             .createRepository(
@@ -15,7 +19,8 @@ final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
 
         let view = NetworkInfoViewController(nib: R.nib.networkInfoViewController)
         let presenter = NetworkInfoPresenter(
-            connectionItem: connectionItem,
+            chain: chain,
+            node: node,
             mode: mode,
             localizationManager: LocalizationManager.shared
         )

@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import Kingfisher
 
 final class NetworkInfoViewController: UIViewController {
     private enum Constants {
@@ -216,11 +217,12 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
         }
     }
 
-    func set(networkType: Chain) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+    func set(chain: ChainModel) {
+        networkView.title = chain.name
 
-        networkView.title = networkType.titleForLocale(locale)
-        networkView.iconImage = networkType.icon
+        if let icon = chain.icon {
+            networkView.iconView.kf.setImage(with: icon)
+        }
     }
 }
 

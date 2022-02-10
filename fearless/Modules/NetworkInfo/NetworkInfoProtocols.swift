@@ -3,7 +3,7 @@ import SoraFoundation
 protocol NetworkInfoViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func set(nameViewModel: InputViewModelProtocol)
     func set(nodeViewModel: InputViewModelProtocol)
-    func set(networkType: Chain)
+    func set(chain: ChainModel)
 }
 
 protocol NetworkInfoPresenterProtocol: AnyObject {
@@ -33,5 +33,9 @@ protocol NetworkInfoWireframeProtocol: AlertPresentable, ErrorPresentable, Modal
 }
 
 protocol NetworkInfoViewFactoryProtocol: AnyObject {
-    static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol?
+    static func createView(
+        with chain: ChainModel,
+        mode: NetworkInfoMode,
+        node: ChainNodeModel
+    ) -> NetworkInfoViewProtocol?
 }

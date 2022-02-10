@@ -32,4 +32,11 @@ protocol NodeSelectionWireframeProtocol: PresentDismissable, AlertPresentable {
         moduleOutput: AddCustomNodeModuleOutput?,
         from view: ControllerBackedProtocol?
     )
+
+    func presentNodeInfo(
+        chain: ChainModel,
+        node: ChainNodeModel,
+        mode: NetworkInfoMode,
+        from view: NetworkManagementViewProtocol?
+    )
 }

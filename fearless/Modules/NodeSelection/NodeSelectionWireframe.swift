@@ -12,4 +12,22 @@ final class NodeSelectionWireframe: NodeSelectionWireframeProtocol {
 
         view?.controller.present(controller, animated: true)
     }
+
+    func presentNodeInfo(
+        chain: ChainModel,
+        node: ChainNodeModel,
+        mode: NetworkInfoMode,
+        from view: NetworkManagementViewProtocol?
+    ) {
+        guard let networkInfoView = NetworkInfoViewFactory.createView(
+            with: chain,
+            mode: mode,
+            node: node
+        ) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: networkInfoView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }
