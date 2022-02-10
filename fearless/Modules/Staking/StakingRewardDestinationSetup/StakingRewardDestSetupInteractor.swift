@@ -179,14 +179,15 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
             presenter.didReceiveStashItem(result: result)
 
             if let stashItem = stashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
-                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
+               let stashAccountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix),
+               let controllerAccountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
+                ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainId: chain.chainId)
 
-                payeeProvider = subscribePayee(for: accountId, chainId: chain.chainId)
+                payeeProvider = subscribePayee(for: stashAccountId, chainId: chain.chainId)
 
-                nominationProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
+                nominationProvider = subscribeNomination(for: stashAccountId, chainId: chain.chainId)
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                accountInfoProvider = subscribeToAccountInfoProvider(for: controllerAccountId, chainId: chain.chainId)
 
                 if let rewardDestination = rewardDestination {
                     estimateFee(rewardDestination: rewardDestination)
