@@ -1477,6 +1477,7 @@
 		C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */; };
 		C67E781927B3AC350053346B /* CheckPincodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781827B3AC350053346B /* CheckPincodeViewController.swift */; };
 		C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */; };
+		C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781D27B4D7870053346B /* PinViewConfigurator.swift */; };
 		C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */; };
 		C68130E1275FD426007B573A /* ReceiveAssetWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */; };
 		C68130E3275FD88E007B573A /* ReceiveAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */; };
@@ -3348,6 +3349,7 @@
 		C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodePresenter.swift; sourceTree = "<group>"; };
 		C67E781827B3AC350053346B /* CheckPincodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewController.swift; sourceTree = "<group>"; };
 		C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewLayout.swift; sourceTree = "<group>"; };
+		C67E781D27B4D7870053346B /* PinViewConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinViewConfigurator.swift; sourceTree = "<group>"; };
 		C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetPresenter.swift; sourceTree = "<group>"; };
 		C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetWireframe.swift; sourceTree = "<group>"; };
 		C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewModel.swift; sourceTree = "<group>"; };
@@ -8289,13 +8291,22 @@
 		C67E780B27B314A20053346B /* CheckPincode */ = {
 			isa = PBXGroup;
 			children = (
+				C67E781C27B4D75C0053346B /* View */,
 				C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */,
 				C67E781027B318840053346B /* CheckPincodeViewFactory.swift */,
 				C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */,
-				C67E781827B3AC350053346B /* CheckPincodeViewController.swift */,
-				C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */,
 			);
 			path = CheckPincode;
+			sourceTree = "<group>";
+		};
+		C67E781C27B4D75C0053346B /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C67E781827B3AC350053346B /* CheckPincodeViewController.swift */,
+				C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */,
+				C67E781D27B4D7870053346B /* PinViewConfigurator.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
@@ -10617,6 +10628,7 @@
 				84FAB0692542EBDE00319F74 /* SearchData+Contacts.swift in Sources */,
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
 				84293E41261AF05E008E5EDD /* HistoryItemTableViewCell.swift in Sources */,
+				C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */,
 				AEE5FB0326415E40002B8FDC /* StakingRebondSetupWireframe.swift in Sources */,
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */,

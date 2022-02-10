@@ -34,7 +34,7 @@ final class CheckPincodeViewLayout: UIView {
     }()
 
     let pinView: PinView = {
-        let view = PinView(frame: .zero)
+        let view = PinViewConfigurator.defaultPinView()
         view.numpadView?.accessoryIcon = view.numpadView?.accessoryIcon?.tinted(with: R.color.colorWhite()!)
         view.numpadView?.backspaceIcon = view.numpadView?.backspaceIcon?.tinted(with: R.color.colorWhite()!)
         return view

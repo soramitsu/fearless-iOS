@@ -29,45 +29,7 @@ final class CheckPincodeViewController: UIViewController, ViewHolder, Localizabl
     }
 
     func configurePinView() {
-        rootView.pinView.mode = .securedInput
         rootView.pinView.delegate = self
-        rootView.pinView.characterFieldsView?.numberOfCharacters = 6
-        rootView.pinView.securedCharacterFieldsView?.numberOfCharacters = 6
-        rootView.pinView.characterFieldsView?.fieldStrokeWidth = 2
-        rootView.pinView.securedCharacterFieldsView?.fieldSize = CGSize(width: 15, height: 15)
-        rootView.pinView.characterFieldsView?.fieldSpacing = 24
-        rootView.pinView.securedCharacterFieldsView?.fieldSpacing = 24
-        rootView.pinView.numpadView?.shadowRadius = 36
-        rootView.pinView.numpadView?.keyRadius = 36
-        rootView.pinView.numpadView?.verticalSpacing = 15
-        rootView.pinView.numpadView?.horizontalSpacing = 22
-        rootView.pinView.numpadView?.backspaceIcon =
-            R.image.pinBackspace()?.tinted(with: .white)?.withRenderingMode(.automatic)
-        rootView.pinView.numpadView?.fillColor = .clear
-        rootView.pinView.numpadView?.highlightedFillColor = R.color.colorCellSelection()
-        rootView.pinView.numpadView?.titleColor = .white
-        rootView.pinView.numpadView?.highlightedTitleColor = UIColor(
-            red: 255 / 255,
-            green: 255 / 255,
-            blue: 255 / 255,
-            alpha: 0.5
-        )
-        rootView.pinView.numpadView?.titleFont = R.font.soraRc0040417Regular(size: 25)!
-        rootView.pinView.securedCharacterFieldsView?.strokeWidth = 2
-        rootView.pinView.securedCharacterFieldsView?.fieldRadius = 6
-        rootView.pinView.verticalSpacing = 79
-        rootView.pinView.securedCharacterFieldsView?.fillColor = .white
-        rootView.pinView.securedCharacterFieldsView?.strokeColor = .white
-        rootView.pinView.numpadView?.shadowOpacity = 0
-        rootView.pinView.numpadView?.shadowRadius = 0
-        rootView.pinView.numpadView?.shadowOffset = CGSize(width: 0, height: 1)
-        rootView.pinView.numpadView?.shadowColor = UIColor(
-            red: 47 / 255,
-            green: 128 / 255,
-            blue: 124 / 255,
-            alpha: 0.3
-        )
-        rootView.pinView.numpadView?.supportsAccessoryControl = true
     }
 
     @available(*, unavailable)
