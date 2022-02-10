@@ -454,8 +454,8 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
         let username = usernameViewModel.inputHandler.value
         let password = passwordViewModel?.inputHandler.value ?? ""
-        let substrateDerivationPath = substrateDerivationPathViewModel?.inputHandler.value ?? ""
-        let ethereumDerivationPath = ethereumDerivationPathViewModel?.inputHandler.value ?? ""
+        let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
+        let ethereumDerivationPath = (ethereumDerivationPathViewModel?.inputHandler.value).nonEmpty(or: DerivationPathConstants.defaultEthereum)
 
         switch selectedSourceType {
         case .mnemonic:
@@ -490,6 +490,16 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
             interactor.importAccountWithKeystore(request: request)
         }
+    }
+}
+
+private extension Optional where Wrapped == String {
+    func nonEmpty(or defaultValue: String) -> String {
+        guard let self = self, !self.isEmpty else {
+            return defaultValue
+        }
+
+        return self
     }
 }
 
