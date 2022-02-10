@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     enum Constants {
-        static let defaultContentHeight: CGFloat = 430
+        static let defaultContentHeight: CGFloat = 440
     }
 
     typealias RootViewType = ChainAccountViewLayout

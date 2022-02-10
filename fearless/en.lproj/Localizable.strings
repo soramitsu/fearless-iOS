@@ -491,7 +491,7 @@ to your account to avoid remaining stake.";
 "wallet.contacts.empty.title_v1.10" = "Your accounts and contacts\
 to whom you were sending\
 transfers will appear here";
-"wallet.search.empty.title_v1.10.0" = "Address format is invalid.\
+"wallet.search.empty.title_v1.10.0" = "The address format is invalid.\
 Make sure that address\
 belongs to the right network";
 "staking.analytics.period.7d" = "7d";
@@ -572,8 +572,6 @@ This is the hash of your transaction:";
 "assetdetails.balance.title" = "Your balance";
 "wallet.send.navigation.title" = "Send %@";
 "profile.wallets.title" = "Wallets";
-"profile.logout.title" = "Logout";
-"profile.logout.description" = "This action will result in deleting all accounts from this device. Make sure you have backed up your passphrase before preceeding.";
 "settings.add.wallet" = "Add wallet";
 "onboarding.create.wallet" = "Create wallet";
 "onboarding.restore.wallet" = "I already have a wallet";
@@ -592,6 +590,8 @@ This is the hash of your transaction:";
 "account.option" = "Account option";
 "switch.node.autoselect.title" = "Auto select nodes";
 "add.node.button.title" = "Add node";
+"profile.logout.title" = "Logout";
+"profile.logout.description" = "This action will result in deleting all accounts from this device. Make sure you have backed up your passphrase before preceeding.";
 "delete.custom.node.title" = "Delete custom node?";
 "network.url.address" = "URL address";
 "error.message.enter.the.name" = "Enter the name…";
