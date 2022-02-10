@@ -59,9 +59,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     func updateWallet(_ wallet: MetaAccountModel) {
         selectedWalletSettings.save(value: wallet)
         DispatchQueue.main.async { [weak self] in
-            DispatchQueue.main.async {
-                self?.presenter?.didReceive(wallet: wallet)
-            }
+            self?.presenter?.didReceive(wallet: wallet)
         }
     }
 
