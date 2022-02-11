@@ -5,6 +5,7 @@ final class AddCustomNodeInteractor {
     weak var presenter: AddCustomNodeInteractorOutputProtocol?
     var chain: ChainModel
     private let repository: AnyDataProviderRepository<ChainModel>
+    private let nodeRepository: AnyDataProviderRepository<ChainNodeModel>
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
     private let substrateOperationFactory: SubstrateOperationFactoryProtocol
@@ -12,12 +13,14 @@ final class AddCustomNodeInteractor {
     init(
         chain: ChainModel,
         repository: AnyDataProviderRepository<ChainModel>,
+        nodeRepository: AnyDataProviderRepository<ChainNodeModel>,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
         substrateOperationFactory: SubstrateOperationFactoryProtocol
     ) {
         self.chain = chain
         self.repository = repository
+        self.nodeRepository = nodeRepository
         self.operationManager = operationManager
         self.eventCenter = eventCenter
         self.substrateOperationFactory = substrateOperationFactory
@@ -41,11 +44,20 @@ extension AddCustomNodeInteractor: AddCustomNodeInteractorInputProtocol {
         let updatedChain = chain.replacingCustomNodes(updatedNodes)
 
         let fetchNetworkOperation = substrateOperationFactory.fetchChainOperation(url)
+        let fetchNodeOperation = nodeRepository.fetchOperation(
+            by: url.absoluteString,
+            options: RepositoryFetchOptions()
+        )
 
         let saveOperation = repository.saveOperation {
+            guard try fetchNodeOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) == nil
+            else {
+                throw AddConnectionError.alreadyExists
+            }
+
             guard case .success = fetchNetworkOperation.result else {
-                self.presenter?.didReceiveError(error: AddConnectionError.invalidConnection, for: url)
-                return []
+                throw AddConnectionError.invalidConnection
             }
 
             return [updatedChain]
@@ -55,18 +67,26 @@ extension AddCustomNodeInteractor: AddCustomNodeInteractorInputProtocol {
 
         saveOperation.completionBlock = { [weak self] in
             guard let self = self else { return }
-            self.chain = updatedChain
 
             DispatchQueue.main.async {
-                let event = ChainsUpdatedEvent(updatedChains: [updatedChain])
-                self.eventCenter.notify(with: event)
+                switch saveOperation.result {
+                case .success:
+                    self.chain = updatedChain
 
-                self.presenter?.didCompleteAdding(url: url)
+                    let event = ChainsUpdatedEvent(updatedChains: [updatedChain])
+                    self.eventCenter.notify(with: event)
+
+                    self.presenter?.didCompleteAdding(url: url)
+                case let .failure(error):
+                    self.presenter?.didReceiveError(error: error, for: url)
+                case .none:
+                    self.presenter?.didReceiveError(error: BaseOperationError.parentOperationCancelled, for: url)
+                }
             }
         }
 
         saveOperation.addDependency(fetchNetworkOperation)
 
-        operationManager.enqueue(operations: [fetchNetworkOperation, saveOperation], in: .transient)
+        operationManager.enqueue(operations: [fetchNodeOperation, fetchNetworkOperation, saveOperation], in: .transient)
     }
 }

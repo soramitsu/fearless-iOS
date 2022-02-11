@@ -76,5 +76,20 @@ extension NodeSelectionPresenter: NodeSelectionTableCellViewModelDelegate {
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
 
-    func showNodeInfo(_: ChainNodeModel) {}
+    func showCustomNodeInfo(_ node: ChainNodeModel) {
+        showNodeInfo(node, mode: .all)
+    }
+
+    func showDefaultNodeInfo(_ node: ChainNodeModel) {
+        showNodeInfo(node, mode: .none)
+    }
+
+    func showNodeInfo(_ node: ChainNodeModel, mode: NetworkInfoMode) {
+        wireframe.presentNodeInfo(
+            chain: interactor.chain,
+            node: node,
+            mode: mode,
+            from: view
+        )
+    }
 }

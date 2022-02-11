@@ -63,6 +63,7 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(viewModel):
+            rootView.editButton.isHidden = viewModel.sections.count < 2
             rootView.bind(to: viewModel)
 
             rootView.tableView.reloadData()
