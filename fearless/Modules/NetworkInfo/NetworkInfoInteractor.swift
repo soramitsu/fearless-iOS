@@ -7,20 +7,20 @@ final class NetworkInfoInteractor {
     weak var presenter: NetworkInfoInteractorOutputProtocol!
 
     private(set) var chain: ChainModel
-    let repository: AnyDataProviderRepository<ChainModel>
+    let nodeRepository: AnyDataProviderRepository<ChainNodeModel>
     let substrateOperationFactory: SubstrateOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
 
     init(
         chain: ChainModel,
-        repository: AnyDataProviderRepository<ChainModel>,
+        nodeRepository: AnyDataProviderRepository<ChainNodeModel>,
         substrateOperationFactory: SubstrateOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol
     ) {
         self.chain = chain
-        self.repository = repository
+        self.nodeRepository = nodeRepository
         self.substrateOperationFactory = substrateOperationFactory
         self.operationManager = operationManager
         self.eventCenter = eventCenter
@@ -36,7 +36,11 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
 
         presenter.didStartConnectionUpdate(with: newURL)
 
-        let updatedNode = ChainNodeModel(url: newURL, name: newName, apikey: nil)
+        let updatedNode = ChainNodeModel(
+            url: newURL,
+            name: newName,
+            apikey: nil
+        )
 
         var updatedNodes: [ChainNodeModel]
         if let customNodes = chain.customNodes {
@@ -44,38 +48,41 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
         } else {
             updatedNodes = []
         }
-        updatedNodes = updatedNodes.filter { $0.url != node.url }
+        updatedNodes = updatedNodes.filter { $0 != node }
         updatedNodes.append(updatedNode)
 
-        let updatedChain = chain.replacingCustomNodes(updatedNodes)
+        chain = chain.replacingCustomNodes(updatedNodes)
+
+        if chain.selectedNode == node {
+            chain = chain.replacingSelectedNode(updatedNode)
+        }
 
         let fetchNetworkOperation = substrateOperationFactory.fetchChainOperation(newURL)
 
-        let saveOperation = repository.saveOperation {
-            guard case .success = fetchNetworkOperation.result else {
-                self.presenter?.didReceive(error: AddConnectionError.invalidConnection, for: newURL)
-                return []
-            }
-
-            return [updatedChain]
+        let nodeSaveOperation = nodeRepository.saveOperation {
+            [updatedNode]
         } _: {
             []
         }
 
-        saveOperation.completionBlock = { [weak self] in
+        nodeSaveOperation.completionBlock = { [weak self] in
             guard let self = self else { return }
-            self.chain = updatedChain
 
             DispatchQueue.main.async {
-                let event = ChainsUpdatedEvent(updatedChains: [updatedChain])
-                self.eventCenter.notify(with: event)
-
-                self.presenter.didCompleteConnectionUpdate(with: newURL)
+                switch nodeSaveOperation.result {
+                case .success:
+                    let event = ChainsUpdatedEvent(updatedChains: [self.chain])
+                    self.eventCenter.notify(with: event)
+                    self.presenter.didCompleteConnectionUpdate(with: newURL)
+                case let .failure(error):
+                    self.presenter.didReceive(error: error, for: newURL)
+                case .none:
+                    self.presenter.didReceive(error: BaseOperationError.parentOperationCancelled, for: newURL)
+                }
             }
         }
 
-        saveOperation.addDependency(fetchNetworkOperation)
-
-        operationManager.enqueue(operations: [fetchNetworkOperation, saveOperation], in: .transient)
+        nodeSaveOperation.addDependency(fetchNetworkOperation)
+        operationManager.enqueue(operations: [fetchNetworkOperation, nodeSaveOperation], in: .transient)
     }
 }

@@ -8,11 +8,22 @@ struct AddCustomNodeViewFactory {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
+        let facade = SubstrateDataStorageFacade.shared
+
+        let mapper = ChainNodeModelMapper()
+
+        let nodeRepository: CoreDataRepository<ChainNodeModel, CDChainNode> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
         let substrateOperationFactory = SubstrateOperationFactory(logger: Logger.shared)
 
         let interactor = AddCustomNodeInteractor(
             chain: chain,
             repository: AnyDataProviderRepository(repository),
+            nodeRepository: AnyDataProviderRepository(nodeRepository),
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared,
             substrateOperationFactory: substrateOperationFactory
