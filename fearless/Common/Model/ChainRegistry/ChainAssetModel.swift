@@ -32,7 +32,6 @@ extension ChainAssetModel: Hashable {
             lhs.asset == rhs.asset &&
             lhs.staking == rhs.staking &&
             lhs.purchaseProviders == rhs.purchaseProviders
-
     }
 
     func hash(into hasher: inout Hasher) {
