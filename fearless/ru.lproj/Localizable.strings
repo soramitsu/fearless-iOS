@@ -577,8 +577,6 @@
 "assetdetails.balance.title" = "Баланс";
 "wallet.send.navigation.title" = "Перевести %@";
 "profile.wallets.title" = "Кошельки";
-"profile.logout.title" = "Выйти";
-"profile.logout.description" = "Это действие приведет к удалению всех учетных записей с этого устройства. Прежде чем продолжить, убедитесь, что вы сделали резервную копию своей мнемоники.";
 "settings.add.wallet" = "Добавить кошелёк";
 "onboarding.create.wallet" = "Создать кошелёк";
 "onboarding.restore.wallet" = "У меня уже есть кошелек";
@@ -597,6 +595,8 @@
 "account.option" = "";
 "switch.node.autoselect.title" = "Автоматический выбор нод";
 "add.node.button.title" = "Добавить ноду";
+"profile.logout.title" = "Выйти";
+"profile.logout.description" = "Это действие приведет к удалению всех учетных записей с этого устройства. Прежде чем продолжить, убедитесь, что вы сделали резервную копию своей парольной фразы.";
 "delete.custom.node.title" = "Удалить выбранную ноду?";
 "network.url.address" = "URL-адрес";
 "error.message.enter.the.name" = "Введите имя…";
@@ -604,3 +604,7 @@
 "node" = "Нода";
 "wallet.transaction.history.error.message" = "Сервис временно недоступен";
 "node.selection.delete.node.title" = "Удалить выбранную ноду?";
+"wallet.settings" = "Настройки кошелька";
+"view.wallet" = "Посмотреть кошелек";
+"export.wallet" = "Экспорт аккаунта";
+"select.validators.disclaimer" = "";
