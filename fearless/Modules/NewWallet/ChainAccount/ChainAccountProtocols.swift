@@ -35,7 +35,8 @@ protocol ChainAccountWireframeProtocol: AnyObject, ModalAlertPresenting {
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     )
 
     func presentReceiveFlow(
@@ -72,4 +73,10 @@ protocol ChainAccountWireframeProtocol: AnyObject, ModalAlertPresenting {
         from view: ControllerBackedProtocol?,
         chain: ChainModel
     )
+}
+
+protocol ChainAccountModuleInput: AnyObject {}
+
+protocol ChainAccountModuleOutput: AnyObject {
+    func updateTransactionHistory()
 }

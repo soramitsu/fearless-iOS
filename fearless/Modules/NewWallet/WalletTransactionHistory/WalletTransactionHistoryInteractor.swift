@@ -303,6 +303,12 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         }
     }
 
+    func reload() {
+        let pagination = Pagination(count: transactionsPerPage)
+        dataLoadingState = .filtering(page: pagination, previousPage: nil)
+        loadTransactions(for: pagination)
+    }
+
     func applyFilters(_ filters: [FilterSet]) {
         self.filters = filters
 
@@ -313,10 +319,5 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         loadTransactions(for: pagination)
 
         presenter?.didReceive(filters: filters)
-
-//        presenter?.didReceive(
-//            pageData: transactionData,
-//            reload: true
-//        )
     }
 }

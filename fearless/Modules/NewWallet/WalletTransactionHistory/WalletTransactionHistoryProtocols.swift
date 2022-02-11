@@ -15,6 +15,7 @@ protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
     func setup()
     func loadNext() -> Bool
     func applyFilters(_ filters: [FilterSet])
+    func reload()
 }
 
 protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
@@ -34,4 +35,8 @@ protocol WalletTransactionHistoryWireframeProtocol: AnyObject, FiltersPresentabl
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     )
+}
+
+protocol WalletTransactionHistoryModuleInput: AnyObject {
+    func updateTransactionHistory()
 }

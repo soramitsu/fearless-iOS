@@ -12,6 +12,7 @@ final class SearchPeoplePresenter {
     let chain: ChainModel
     let selectedAccount: MetaAccountModel
     let qrParser: QRParser
+    let transferFinishBlock: WalletTransferFinishBlock?
 
     private var searchResult: Result<[SearchData]?, Error>?
 
@@ -23,7 +24,8 @@ final class SearchPeoplePresenter {
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
-        qrParser: QRParser
+        qrParser: QRParser,
+        transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -32,6 +34,7 @@ final class SearchPeoplePresenter {
         self.chain = chain
         self.selectedAccount = selectedAccount
         self.qrParser = qrParser
+        self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
 
@@ -88,7 +91,8 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
             from: view,
             to: viewModel.address,
             asset: asset,
-            chain: chain
+            chain: chain,
+            transferFinishBlock: transferFinishBlock
         )
     }
 }
@@ -119,7 +123,8 @@ extension SearchPeoplePresenter: WalletScanQRModuleOutput {
             from: view,
             to: address,
             asset: asset,
-            chain: chain
+            chain: chain,
+            transferFinishBlock: transferFinishBlock
         )
     }
 

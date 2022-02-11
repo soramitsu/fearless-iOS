@@ -2,12 +2,18 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 
-struct ChainAccountViewFactory {
+struct ChainAccountModule {
+    let view: ChainAccountViewProtocol?
+    let moduleInput: ChainAccountModuleInput?
+}
+
+enum ChainAccountViewFactory {
     static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedMetaAccount: MetaAccountModel
-    ) -> ChainAccountViewProtocol? {
+        selectedMetaAccount: MetaAccountModel,
+        moduleOutput: ChainAccountModuleOutput?
+    ) -> ChainAccountModule? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -51,7 +57,8 @@ struct ChainAccountViewFactory {
             logger: Logger.shared,
             asset: asset,
             chain: chain,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            moduleOutput: moduleOutput
         )
 
         let view = ChainAccountViewController(
@@ -62,6 +69,6 @@ struct ChainAccountViewFactory {
         presenter.view = view
         interactor.presenter = presenter
 
-        return view
+        return ChainAccountModule(view: view, moduleInput: presenter)
     }
 }

@@ -4,8 +4,13 @@ import CommonWallet
 import RobinHood
 import SoraFoundation
 
-struct WalletTransactionHistoryViewFactory {
-    static func createView(asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel) -> WalletTransactionHistoryViewProtocol? {
+struct WalletTransactionHistoryModule {
+    let view: WalletTransactionHistoryViewProtocol?
+    let moduleInput: WalletTransactionHistoryModuleInput?
+}
+
+enum WalletTransactionHistoryViewFactory {
+    static func createView(asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel) -> WalletTransactionHistoryModule? {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
@@ -52,7 +57,7 @@ struct WalletTransactionHistoryViewFactory {
         presenter.view = view
         interactor.presenter = presenter
 
-        return view
+        return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }
 
     static func transactionHistoryFilters() -> [FilterSet] {

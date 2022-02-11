@@ -10,12 +10,14 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     ) {
         let searchView = SearchPeopleViewFactory.createView(
             chain: chain,
             asset: asset,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            transferFinishBlock: transferFinishBlock
         )
 
         guard let controller = searchView?.controller else {

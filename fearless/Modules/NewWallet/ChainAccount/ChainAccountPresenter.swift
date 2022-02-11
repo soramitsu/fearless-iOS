@@ -14,6 +14,7 @@ final class ChainAccountPresenter {
     }
 
     let selectedMetaAccount: MetaAccountModel
+    weak var moduleOutput: ChainAccountModuleOutput?
 
     private var accountInfo: AccountInfo?
     private var priceData: PriceData?
@@ -37,7 +38,8 @@ final class ChainAccountPresenter {
         logger: LoggerProtocol,
         asset: AssetModel,
         chain _: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        moduleOutput: ChainAccountModuleOutput?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -45,6 +47,7 @@ final class ChainAccountPresenter {
         self.logger = logger
         self.asset = asset
         self.selectedMetaAccount = selectedMetaAccount
+        self.moduleOutput = moduleOutput
     }
 
     func provideViewModel() {
@@ -77,6 +80,8 @@ final class ChainAccountPresenter {
         view?.didReceiveState(.loaded(chainAccountViewModel))
     }
 }
+
+extension ChainAccountPresenter: ChainAccountModuleInput {}
 
 private extension ChainAccountPresenter {
     func getPurchaseActions() -> [PurchaseAction] {
@@ -117,7 +122,10 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             from: view,
             asset: asset,
             chain: chain,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            transferFinishBlock: { [weak self] in
+                self?.moduleOutput?.updateTransactionHistory()
+            }
         )
     }
 
