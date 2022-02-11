@@ -114,6 +114,7 @@ extension ChainModel: Hashable {
             && lhs.icon == rhs.icon
             && lhs.name == rhs.name
             && lhs.addressPrefix == rhs.addressPrefix
+            && lhs.nodes == rhs.nodes
     }
 
     func hash(into hasher: inout Hasher) {
