@@ -1472,6 +1472,12 @@
 		C6663B20275F20AE00D699AF /* ReceiveAssetViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */; };
 		C6663B22275F5F3500D699AF /* ReceiveAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */; };
 		C6663B24275F609B00D699AF /* ReceiveAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */; };
+		C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */; };
+		C67E781127B318840053346B /* CheckPincodeViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781027B318840053346B /* CheckPincodeViewFactory.swift */; };
+		C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */; };
+		C67E781927B3AC350053346B /* CheckPincodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781827B3AC350053346B /* CheckPincodeViewController.swift */; };
+		C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */; };
+		C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781D27B4D7870053346B /* PinViewConfigurator.swift */; };
 		C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */; };
 		C68130E1275FD426007B573A /* ReceiveAssetWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */; };
 		C68130E3275FD88E007B573A /* ReceiveAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */; };
@@ -1700,6 +1706,7 @@
 		FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */; };
 		FA072C23277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */; };
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
+		FA1109E927A8FDAB003C2158 /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1109E827A8FDAB003C2158 /* Bool+ToInt.swift */; };
 		FA1A023C274F51A900DA07CB /* ChainAccountBalanceTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */; };
 		FA1A023E274F55D900DA07CB /* HorizontalKeyValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */; };
 		FA1A0241274F8F5D00DA07CB /* ChainAccountBalanceListViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A0240274F8F5D00DA07CB /* ChainAccountBalanceListViewState.swift */; };
@@ -3338,6 +3345,12 @@
 		C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewLayout.swift; sourceTree = "<group>"; };
 		C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewController.swift; sourceTree = "<group>"; };
 		C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetProtocols.swift; sourceTree = "<group>"; };
+		C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeProtocols.swift; sourceTree = "<group>"; };
+		C67E781027B318840053346B /* CheckPincodeViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewFactory.swift; sourceTree = "<group>"; };
+		C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodePresenter.swift; sourceTree = "<group>"; };
+		C67E781827B3AC350053346B /* CheckPincodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewController.swift; sourceTree = "<group>"; };
+		C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewLayout.swift; sourceTree = "<group>"; };
+		C67E781D27B4D7870053346B /* PinViewConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinViewConfigurator.swift; sourceTree = "<group>"; };
 		C68130DE275FD0A0007B573A /* ReceiveAssetPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetPresenter.swift; sourceTree = "<group>"; };
 		C68130E0275FD426007B573A /* ReceiveAssetWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetWireframe.swift; sourceTree = "<group>"; };
 		C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewModel.swift; sourceTree = "<group>"; };
@@ -3590,6 +3603,7 @@
 		FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGalleryProtocols.swift; sourceTree = "<group>"; };
 		FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceLocalSearchEngineProtocol.swift; sourceTree = "<group>"; };
 		FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsPresentable.swift; sourceTree = "<group>"; };
+		FA1109E827A8FDAB003C2158 /* Bool+ToInt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
 		FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceTableCell.swift; sourceTree = "<group>"; };
 		FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalKeyValueView.swift; sourceTree = "<group>"; };
 		FA1A0240274F8F5D00DA07CB /* ChainAccountBalanceListViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceListViewState.swift; sourceTree = "<group>"; };
@@ -6219,6 +6233,7 @@
 				AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */,
 				84D33995262250B800130A89 /* String+Substrate.swift */,
 				84443BA126C123F100C33B5D /* Data+Random.swift */,
+				FA1109E827A8FDAB003C2158 /* Bool+ToInt.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -6337,6 +6352,7 @@
 		849014A724AA87E3008F705E /* Pincode */ = {
 			isa = PBXGroup;
 			children = (
+				C67E780B27B314A20053346B /* CheckPincode */,
 				84C4C2D5255D2B580045B582 /* ChangePincode */,
 				849014A824AA87E3008F705E /* PinSetup */,
 				849014B124AA87E3008F705E /* ScreenAuthorization */,
@@ -8275,6 +8291,27 @@
 			path = ReceiveAsset;
 			sourceTree = "<group>";
 		};
+		C67E780B27B314A20053346B /* CheckPincode */ = {
+			isa = PBXGroup;
+			children = (
+				C67E781C27B4D75C0053346B /* View */,
+				C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */,
+				C67E781027B318840053346B /* CheckPincodeViewFactory.swift */,
+				C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */,
+			);
+			path = CheckPincode;
+			sourceTree = "<group>";
+		};
+		C67E781C27B4D75C0053346B /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C67E781827B3AC350053346B /* CheckPincodeViewController.swift */,
+				C67E781A27B3AD510053346B /* CheckPincodeViewLayout.swift */,
+				C67E781D27B4D7870053346B /* PinViewConfigurator.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
 			isa = PBXGroup;
 			children = (
@@ -9869,6 +9906,7 @@
 				FA1A023C274F51A900DA07CB /* ChainAccountBalanceTableCell.swift in Sources */,
 				842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */,
 				843910DB253F90C400E3C217 /* FearlessWindow.swift in Sources */,
+				FA1109E927A8FDAB003C2158 /* Bool+ToInt.swift in Sources */,
 				84DD5F4C263DE82C00425ACF /* DataValidationRunner.swift in Sources */,
 				84D8F16B24D8263300AF43E9 /* ModalPickerFactory.swift in Sources */,
 				847C965E255363B9002D288F /* ExportRestoreJsonWireframe.swift in Sources */,
@@ -10008,6 +10046,7 @@
 				8430AAE126022CA1005B1066 /* BaseStakingState.swift in Sources */,
 				FA256998274CE65100875A53 /* HTTPHeadersBuilderProtocol.swift in Sources */,
 				FA256995274CE65100875A53 /* DashcaseJSONEncoder.swift in Sources */,
+				C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				842349C52624E98C0066ACFE /* MultiAddress+Query.swift in Sources */,
 				84155DED2539817200A27058 /* ApplicationService.swift in Sources */,
@@ -10593,6 +10632,7 @@
 				84FAB0692542EBDE00319F74 /* SearchData+Contacts.swift in Sources */,
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
 				84293E41261AF05E008E5EDD /* HistoryItemTableViewCell.swift in Sources */,
+				C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */,
 				AEE5FB0326415E40002B8FDC /* StakingRebondSetupWireframe.swift in Sources */,
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */,
@@ -10680,6 +10720,7 @@
 				84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */,
 				8472974D260A9CDF009B86D0 /* SelectValidatorsConfirmationModel.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,
+				C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */,
 				84C91FAF261E7CDD002796B9 /* WalletHistoryFilterEditor.swift in Sources */,
 				84BB3CF8267D276D00676FFE /* BaseCrowdloanTableViewCell.swift in Sources */,
 				84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */,
@@ -10868,6 +10909,7 @@
 				849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */,
 				8472C5B2265CF9C500E2481B /* StakingRewardDestConfirmInteractor.swift in Sources */,
 				846CA77A27099B1E0011124C /* StakingAnalyticsLocalSubscriptionFactory.swift in Sources */,
+				C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */,
 				8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */,
 				E14F809C3917EFA4B5388AC8 /* AccountConfirmViewFactory.swift in Sources */,
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
@@ -10903,6 +10945,7 @@
 				84CEAAF726D7B8010021B881 /* SettingsMigrator.swift in Sources */,
 				844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */,
 				84FAB0632542C8D600319F74 /* ContactItem.swift in Sources */,
+				C67E781927B3AC350053346B /* CheckPincodeViewController.swift in Sources */,
 				06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */,
 				84DED3EF26661CC600A153BB /* CrowdloanFlow.swift in Sources */,
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
@@ -11256,6 +11299,7 @@
 				B1CCC5B7BF30F6ACA309B112 /* StakingRedeemViewController.swift in Sources */,
 				C21129B2B8D8B33BCBD5843E /* StakingRedeemViewFactory.swift in Sources */,
 				85A093F6055DDD2E2E9253F2 /* ControllerAccountProtocols.swift in Sources */,
+				C67E781127B318840053346B /* CheckPincodeViewFactory.swift in Sources */,
 				BE3F6213B26F35EB6324DBD8 /* ControllerAccountWireframe.swift in Sources */,
 				84DED40B266656D400A153BB /* KaruraBonusService.swift in Sources */,
 				885551F78A5926D16D5AF0CB /* ControllerAccountPresenter.swift in Sources */,
