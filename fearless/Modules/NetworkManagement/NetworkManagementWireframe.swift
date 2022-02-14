@@ -38,19 +38,19 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
     }
 
     func presentConnectionInfo(
-        _ connectionItem: ConnectionItem,
-        mode: NetworkInfoMode,
-        from view: NetworkManagementViewProtocol?
+        _: ConnectionItem,
+        mode _: NetworkInfoMode,
+        from _: NetworkManagementViewProtocol?
     ) {
-        guard let networkInfoView = NetworkInfoViewFactory.createView(
-            with: connectionItem,
-            mode: mode
-        ) else {
-            return
-        }
-
-        let navigationController = FearlessNavigationController(rootViewController: networkInfoView.controller)
-        view?.controller.present(navigationController, animated: true, completion: nil)
+//        guard let networkInfoView = NetworkInfoViewFactory.createView(
+//            with: connectionItem,
+//            mode: mode
+//        ) else {
+//            return
+//        }
+//
+//        let navigationController = FearlessNavigationController(rootViewController: networkInfoView.controller)
+//        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func presentConnectionAdd(from view: NetworkManagementViewProtocol?) {

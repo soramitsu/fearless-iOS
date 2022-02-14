@@ -29,6 +29,8 @@ final class ChainRegistry {
     let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
     let logger: LoggerProtocol?
 
+    private var chains: [ChainModel] = []
+
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
     private let mutex = NSLock()
@@ -51,6 +53,8 @@ final class ChainRegistry {
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
         self.logger = logger
+
+        connectionPool.setDelegate(self)
 
         subscribeToChains()
     }
@@ -100,14 +104,25 @@ final class ChainRegistry {
                     runtimeSyncService.register(chain: newChain, with: connection)
 
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
+
+                    chains.append(newChain)
                 case let .update(updatedChain):
-                    _ = try connectionPool.setupConnection(for: updatedChain)
+                    clearRuntimeSubscription(for: updatedChain.chainId)
+
+                    let connection = try connectionPool.setupConnection(for: updatedChain)
                     _ = runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
+
+                    chains = chains.filter { $0.chainId != updatedChain.chainId }
+                    chains.append(updatedChain)
+
                 case let .delete(chainId):
                     runtimeProviderPool.destroyRuntimeProvider(for: chainId)
                     clearRuntimeSubscription(for: chainId)
 
                     runtimeSyncService.unregister(chainId: chainId)
+
+                    chains = chains.filter { $0.chainId != chainId }
                 }
             } catch {
                 logger?.error("Unexpected error on handling chains update: \(error)")
@@ -207,5 +222,27 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func syncUp() {
         syncUpServices()
+    }
+}
+
+extension ChainRegistry: ConnectionPoolDelegate {
+    func connectionNeedsReconnect(url: URL) {
+        let failedChain = chains.first { chain in
+            chain.nodes.first { node in
+                node.url == url
+            } != nil
+        }
+
+        guard let failedChain = failedChain, failedChain.selectedNode == nil else {
+            return
+        }
+
+        let node = failedChain.selectedNode ?? failedChain.nodes.first(where: { $0.url != url })
+
+        if let newUrl = node?.url {
+            if let connection = getConnection(for: failedChain.chainId) {
+                connection.reconnect(url: newUrl)
+            }
+        }
     }
 }

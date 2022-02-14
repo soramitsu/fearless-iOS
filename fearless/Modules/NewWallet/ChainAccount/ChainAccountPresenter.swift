@@ -9,7 +9,10 @@ final class ChainAccountPresenter {
     let viewModelFactory: ChainAccountViewModelFactoryProtocol
     let logger: LoggerProtocol
     let asset: AssetModel
-    let chain: ChainModel
+    var chain: ChainModel {
+        interactor.chain
+    }
+
     let selectedMetaAccount: MetaAccountModel
 
     private var accountInfo: AccountInfo?
@@ -33,7 +36,7 @@ final class ChainAccountPresenter {
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
         asset: AssetModel,
-        chain: ChainModel,
+        chain _: ChainModel,
         selectedMetaAccount: MetaAccountModel
     ) {
         self.interactor = interactor
@@ -41,7 +44,6 @@ final class ChainAccountPresenter {
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.asset = asset
-        self.chain = chain
         self.selectedMetaAccount = selectedMetaAccount
     }
 
@@ -136,8 +138,35 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
+    func didTapOptionsButton() {
+        let items: [ChainAction] = [.export, .switchNode, .copyAddress]
+        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
+            guard let self = self else { return }
+            let action = items[selectedIndex]
+            switch action {
+            case .export:
+                break
+            case .switchNode:
+                self.wireframe.presentNodeSelection(
+                    from: self.view,
+                    chain: self.chain
+                )
+            case .copyAddress:
+                UIPasteboard.general.string = self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+
+                let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
+                self.wireframe.presentSuccessNotification(title, from: self.view)
+            }
+        }
+
+        wireframe.presentChainActionsFlow(
+            from: view,
+            items: items,
+            callback: selectionCallback
+        )
+    }
+
     func didTapInfoButton() {
-        print(accountInfo)
         if let info = accountInfo,
            let free = Decimal.fromSubstratePerbill(value: info.data.free),
            let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
