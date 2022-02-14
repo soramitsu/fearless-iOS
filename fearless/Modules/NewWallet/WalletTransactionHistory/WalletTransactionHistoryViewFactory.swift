@@ -23,7 +23,7 @@ struct WalletTransactionHistoryViewFactory {
             logger: Logger.shared,
             defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
             selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
-            filters: transactionHistoryFilters()
+            filters: transactionHistoryFilters(for: chain)
         )
         let wireframe = WalletTransactionHistoryWireframe()
 
@@ -55,12 +55,16 @@ struct WalletTransactionHistoryViewFactory {
         return view
     }
 
-    static func transactionHistoryFilters() -> [FilterSet] {
-        [FilterSet(
+    static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
+        var filters: [WalletTransactionHistoryFilter] = [WalletTransactionHistoryFilter(type: .transfer, selected: true),
+                                                         WalletTransactionHistoryFilter(type: .other, selected: true)]
+        if chain.hasStakingRewardHistory {
+            filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
+        }
+
+        return [FilterSet(
             title: R.string.localizable.walletFiltersHeader(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages),
-            items: [WalletTransactionHistoryFilter(type: .transfer, selected: true),
-                    WalletTransactionHistoryFilter(type: .reward, selected: true),
-                    WalletTransactionHistoryFilter(type: .other, selected: true)]
+            items: filters
         )]
     }
 }
