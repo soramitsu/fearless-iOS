@@ -1,8 +1,13 @@
 import Foundation
 
 final class AccountManagementWireframe: AccountManagementWireframeProtocol {
-    func showAccountDetails(from view: AccountManagementViewProtocol?, metaAccount: MetaAccountModel) {
-        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
+    func showAccountDetails(
+        from view: AccountManagementViewProtocol?,
+        metaAccount: MetaAccountModel
+    ) {
+        let walletDetails = WalletDetailsViewFactory.createView(
+            with: metaAccount
+        )
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller
         )

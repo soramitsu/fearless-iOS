@@ -15,9 +15,17 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
 
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
 
+        let repository = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+            .createManagedMetaAccountRepository(
+                for: nil,
+                sortDescriptors: [NSSortDescriptor.accountsByOrder]
+            )
+
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            repository: repository,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let wireframe = ProfileWireframe()

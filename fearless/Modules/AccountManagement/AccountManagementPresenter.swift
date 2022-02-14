@@ -53,7 +53,10 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         if let item = listCalculator.allItems.first(
             where: { $0.identifier == viewModel.identifier }
         ) {
-            wireframe.showAccountDetails(from: view, metaAccount: item.info)
+            wireframe.showAccountDetails(
+                from: view,
+                metaAccount: item.info
+            )
         }
     }
 
