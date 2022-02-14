@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import Kingfisher
 
 final class NetworkInfoViewController: UIViewController {
     private enum Constants {
@@ -48,6 +49,8 @@ final class NetworkInfoViewController: UIViewController {
         nodeField.textField.keyboardType = .URL
 
         nodeField.delegate = self
+
+        networkView.layout = .smallIconTitleSubtitle
     }
 
     private func configureNavigationItem() {
@@ -98,7 +101,7 @@ final class NetworkInfoViewController: UIViewController {
         ).isActive = true
 
         button.topAnchor.constraint(
-            equalTo: networkView.bottomAnchor,
+            equalTo: nodeBackgroundView.bottomAnchor,
             constant: Constants.margin
         ).isActive = true
 
@@ -216,11 +219,18 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
         }
     }
 
-    func set(networkType: Chain) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+    func set(chain: ChainModel) {
+        networkView.title = R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+        networkView.subtitle = chain.name
 
-        networkView.title = networkType.titleForLocale(locale)
-        networkView.iconImage = networkType.icon
+        if let icon = chain.icon {
+            let imageViewModel = RemoteImageViewModel(url: icon)
+            imageViewModel.loadImage(
+                on: networkView.iconView,
+                targetSize: UIConstants.smallAddressIconSize,
+                animated: true
+            )
+        }
     }
 }
 

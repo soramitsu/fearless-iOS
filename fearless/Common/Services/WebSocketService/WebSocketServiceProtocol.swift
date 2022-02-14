@@ -3,7 +3,7 @@ import IrohaCrypto
 import FearlessUtils
 
 protocol WebSocketServiceStateListener: AnyObject {
-    func websocketNetworkDown()
+    func websocketNetworkDown(url: URL)
 }
 
 protocol WebSocketServiceProtocol: ApplicationServiceProtocol {

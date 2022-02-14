@@ -65,6 +65,24 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         view?.controller.navigationController?.present(buyView, animated: true)
     }
 
+    func presentChainActionsFlow(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        let actionsView = ModalPickerFactory.createPickerForList(
+            items,
+            callback: callback,
+            context: nil
+        )
+
+        guard let actionsView = actionsView else {
+            return
+        }
+
+        view?.controller.navigationController?.present(actionsView, animated: true)
+    }
+
     func presentPurchaseWebView(
         from view: ControllerBackedProtocol?,
         action: PurchaseAction
@@ -91,5 +109,16 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             precision: info.assetPrecision
         )
         view?.controller.present(balanceLocksController, animated: true)
+    }
+
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
+    ) {
+        guard let controller = NodeSelectionViewFactory.createView(chain: chain)?.controller else {
+            return
+        }
+
+        view?.controller.present(controller, animated: true)
     }
 }

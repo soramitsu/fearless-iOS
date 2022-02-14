@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     enum Constants {
-        static let defaultContentHeight: CGFloat = 410
+        static let defaultContentHeight: CGFloat = 440
     }
 
     typealias RootViewType = ChainAccountViewLayout
@@ -49,6 +49,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
             for: .touchUpInside
         )
 
+        rootView.optionsButton.addTarget(self, action: #selector(optionsButtonClicked), for: .touchUpInside)
         rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
         rootView.receiveButton.addTarget(self, action: #selector(receiveButtonClicked), for: .touchUpInside)
         rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
@@ -63,7 +64,6 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         case let .loaded(viewModel):
             rootView.balanceView.bind(to: viewModel.accountBalanceViewModel)
             rootView.assetInfoView.bind(to: viewModel.assetInfoViewModel)
-            rootView.chainOptionsView.bind(to: viewModel.chainOptionsViewModel)
             rootView.buyButton.isEnabled = viewModel.chainAsset?.purchaseProviders?.first != nil
         case .error:
             break
@@ -88,6 +88,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     @objc private func lockedInfoButtonClicked() {
         presenter.didTapInfoButton()
+    }
+
+    @objc private func optionsButtonClicked() {
+        presenter.didTapOptionsButton()
     }
 }
 
