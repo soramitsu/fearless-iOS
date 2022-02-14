@@ -28,7 +28,10 @@ class ChainAssetModel: Codable {
 
 extension ChainAssetModel: Hashable {
     static func == (lhs: ChainAssetModel, rhs: ChainAssetModel) -> Bool {
-        lhs.assetId == rhs.assetId
+        lhs.assetId == rhs.assetId &&
+            lhs.asset == rhs.asset &&
+            lhs.staking == rhs.staking &&
+            lhs.purchaseProviders == rhs.purchaseProviders
     }
 
     func hash(into hasher: inout Hasher) {

@@ -15,6 +15,14 @@ struct AssetModel: Equatable, Codable, Hashable {
     var name: String {
         id.uppercased()
     }
+
+    static func == (lhs: AssetModel, rhs: AssetModel) -> Bool {
+        lhs.id == rhs.id &&
+            lhs.chainId == rhs.chainId &&
+            lhs.precision == rhs.precision &&
+            lhs.icon == rhs.icon &&
+            lhs.priceId == rhs.priceId
+    }
 }
 
 extension AssetModel: Identifiable {

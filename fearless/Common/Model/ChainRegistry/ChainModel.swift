@@ -70,6 +70,10 @@ class ChainModel: Codable {
         options?.contains(.testnet) ?? false
     }
 
+    var isPolkadotOrKusama: Bool {
+        name.lowercased() == "polkadot" || name.lowercased() == "kusama"
+    }
+
     var hasCrowdloans: Bool {
         options?.contains(.crowdloans) ?? false
     }
@@ -103,6 +107,14 @@ class ChainModel: Codable {
 extension ChainModel: Hashable {
     static func == (lhs: ChainModel, rhs: ChainModel) -> Bool {
         lhs.chainId == rhs.chainId
+            && lhs.externalApi == rhs.externalApi
+            && lhs.assets == rhs.assets
+            && lhs.options == rhs.options
+            && lhs.types == rhs.types
+            && lhs.icon == rhs.icon
+            && lhs.name == rhs.name
+            && lhs.addressPrefix == rhs.addressPrefix
+            && lhs.nodes == rhs.nodes
     }
 
     func hash(into hasher: inout Hasher) {
