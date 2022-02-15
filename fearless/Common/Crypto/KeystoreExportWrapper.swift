@@ -4,11 +4,12 @@ import FearlessUtils
 import IrohaCrypto
 
 protocol KeystoreExportWrapperProtocol {
-    func export(account: AccountItem, password: String?) throws -> Data
+    func export(chainAccount: ChainAccountResponse, password: String?, address: String) throws -> Data
 }
 
 enum KeystoreExportWrapperError: Error {
     case missingSecretKey
+    case unsupportedCryptoType
 }
 
 final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
@@ -26,26 +27,28 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         self.keystore = keystore
     }
 
-    func export(account: AccountItem, password: String?) throws -> Data {
-        guard let secretKey = try keystore.fetchSecretKeyForAddress(account.address) else {
+    func export(chainAccount: ChainAccountResponse, password: String?, address: String) throws -> Data {
+        guard let secretKey = try keystore.fetchSecretKeyForAddress(address) else {
             throw KeystoreExportWrapperError.missingSecretKey
         }
 
-        let addressType = try ss58Factory.type(fromAddress: account.address)
+        let addressType = try ss58Factory.type(fromAddress: address)
 
         var builder = KeystoreBuilder()
-            .with(name: account.username)
+            .with(name: chainAccount.name)
 
         if let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
            let genesisHashData = try? Data(hexString: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
-
+        guard let cryptoType = FearlessUtils.CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
+            throw KeystoreExportWrapperError.unsupportedCryptoType
+        }
         let keystoreData = KeystoreData(
-            address: account.address,
+            address: address,
             secretKeyData: secretKey,
-            publicKeyData: account.publicKeyData,
-            cryptoType: account.cryptoType.utilsType
+            publicKeyData: chainAccount.publicKey,
+            cryptoType: cryptoType
         )
 
         let definition = try builder.build(from: keystoreData, password: password)

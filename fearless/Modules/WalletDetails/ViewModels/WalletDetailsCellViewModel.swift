@@ -2,7 +2,7 @@ import UIKit
 
 struct WalletDetailsCellViewModel {
     let chainImageViewModel: RemoteImageViewModel?
-    let chainName: String
+    let chain: ChainModel
     let addressImage: UIImage?
     let address: String?
 }

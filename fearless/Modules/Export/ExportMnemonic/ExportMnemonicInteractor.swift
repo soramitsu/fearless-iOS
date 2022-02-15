@@ -2,6 +2,7 @@ import UIKit
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 enum ExportMnemonicInteractorError: Error {
     case missingAccount
@@ -12,12 +13,12 @@ final class ExportMnemonicInteractor {
     weak var presenter: ExportMnemonicInteractorOutputProtocol!
 
     let keystore: KeystoreProtocol
-    let repository: AnyDataProviderRepository<AccountItem>
+    let repository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
 
     init(
         keystore: KeystoreProtocol,
-        repository: AnyDataProviderRepository<AccountItem>,
+        repository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.keystore = keystore
@@ -27,16 +28,34 @@ final class ExportMnemonicInteractor {
 }
 
 extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
-    func fetchExportDataForAddress(_ address: String) {
-        let accountOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        let exportOperation: BaseOperation<ExportMnemonicData> = ClosureOperation { [weak self] in
-            guard let account = try accountOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            else {
-                throw ExportMnemonicInteractorError.missingAccount
+    func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainRespone):
+                guard let response = chainRespone else {
+                    self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
+                    return
+                }
+                self?.fetchExportData(
+                    address: address,
+                    cryptoType: response.cryptoType
+                )
+            case .failure:
+                self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
             }
+        }
+    }
 
+    private func fetchExportData(
+        address: String,
+        cryptoType: CryptoType
+    ) {
+        let exportOperation: BaseOperation<ExportMnemonicData> = ClosureOperation { [weak self] in
             guard let entropy = try self?.keystore.fetchEntropyForAddress(address) else {
                 throw ExportMnemonicInteractorError.missingEntropy
             }
@@ -45,21 +64,12 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
 
             let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(address)
 
-            let addressRawType = try SS58AddressFactory().type(fromAddress: address)
-
-            guard let chain = SNAddressType(rawValue: addressRawType.uint8Value)?.chain else {
-                throw AccountExportPasswordInteractorError.unsupportedAddress
-            }
-
             return ExportMnemonicData(
-                account: account,
                 mnemonic: mnemonic,
                 derivationPath: derivationPath,
-                networkType: chain
+                cryptoType: cryptoType
             )
         }
-
-        exportOperation.addDependency(accountOperation)
 
         exportOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -73,7 +83,8 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 }
             }
         }
-
-        operationManager.enqueue(operations: [accountOperation, exportOperation], in: .transient)
+        operationManager.enqueue(operations: [exportOperation], in: .transient)
     }
 }
+
+extension ExportMnemonicInteractor: AccountFetching {}

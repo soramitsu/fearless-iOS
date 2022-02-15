@@ -2,21 +2,23 @@ import UIKit
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 enum ExportSeedInteractorError: Error {
     case missingSeed
+    case missingAccount
 }
 
 final class ExportSeedInteractor {
     weak var presenter: ExportSeedInteractorOutputProtocol!
 
     let keystore: KeystoreProtocol
-    let repository: AnyDataProviderRepository<AccountItem>
+    let repository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
 
     init(
         keystore: KeystoreProtocol,
-        repository: AnyDataProviderRepository<AccountItem>,
+        repository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.keystore = keystore
@@ -26,19 +28,40 @@ final class ExportSeedInteractor {
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
-    func fetchExportDataForAddress(_ address: String) {
-        let accountOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
-            guard let account = try accountOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            else {
-                throw ExportMnemonicInteractorError.missingAccount
+    func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainRespone):
+                guard let response = chainRespone else {
+                    self?.presenter.didReceive(error: ExportSeedInteractorError.missingAccount)
+                    return
+                }
+                self?.fetchExportData(
+                    address: address,
+                    cryptoType: response.cryptoType,
+                    chain: chain
+                )
+            case .failure:
+                self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
             }
+        }
+    }
+
+    private func fetchExportData(
+        address: String,
+        cryptoType: CryptoType,
+        chain: ChainModel
+    ) {
+        let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
 
             var optionalSeed: Data? = try self?.keystore.fetchSeedForAddress(address)
 
-            if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
+            if optionalSeed == nil, cryptoType.supportsSeedFromSecretKey {
                 optionalSeed = try self?.keystore.fetchSecretKeyForAddress(address)
             }
 
@@ -48,21 +71,13 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
 
             let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(address)
 
-            let addressRawType = try SS58AddressFactory().type(fromAddress: address)
-
-            guard let chain = SNAddressType(rawValue: addressRawType.uint8Value)?.chain else {
-                throw AccountExportPasswordInteractorError.unsupportedAddress
-            }
-
             return ExportSeedData(
-                account: account,
                 seed: seed,
                 derivationPath: derivationPath,
-                networkType: chain
+                chain: chain,
+                cryptoType: cryptoType
             )
         }
-
-        exportOperation.addDependency(accountOperation)
 
         exportOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -77,6 +92,8 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: [accountOperation, exportOperation], in: .transient)
+        operationManager.enqueue(operations: [exportOperation], in: .transient)
     }
 }
+
+extension ExportSeedInteractor: AccountFetching {}

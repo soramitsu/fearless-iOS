@@ -5,6 +5,7 @@ protocol WalletDetailsViewOutputProtocol {
     func updateData()
     func didTapCloseButton()
     func willDisappear()
+    func showActions(for chain: ChainModel)
 }
 
 protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
@@ -22,6 +23,16 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
     func didReceive(error: Error)
 }
 
-protocol WalletDetailsWireframeProtocol: ErrorPresentable, AlertPresentable {
+protocol WalletDetailsWireframeProtocol: ErrorPresentable,
+    AlertPresentable,
+    AddressOptionsPresentable,
+    AuthorizationPresentable {
     func close(_ view: WalletDetailsViewProtocol)
+    func showExport(
+        for address: String,
+        chain: ChainModel,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: ControllerBackedProtocol?
+    )
 }

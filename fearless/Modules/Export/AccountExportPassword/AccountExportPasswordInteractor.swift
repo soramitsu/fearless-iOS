@@ -6,18 +6,19 @@ enum AccountExportPasswordInteractorError: Error {
     case missingAccount
     case invalidResult
     case unsupportedAddress
+    case unsupportedCryptoType
 }
 
 final class AccountExportPasswordInteractor {
     weak var presenter: AccountExportPasswordInteractorOutputProtocol!
 
     let exportJsonWrapper: KeystoreExportWrapperProtocol
-    let repository: AnyDataProviderRepository<AccountItem>
+    let repository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
 
     init(
         exportJsonWrapper: KeystoreExportWrapperProtocol,
-        repository: AnyDataProviderRepository<AccountItem>,
+        repository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.exportJsonWrapper = exportJsonWrapper
@@ -27,18 +28,44 @@ final class AccountExportPasswordInteractor {
 }
 
 extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputProtocol {
-    func exportAccount(address: String, password: String) {
-        let accountOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
-            guard let account = try accountOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            else {
-                throw AccountExportPasswordInteractorError.missingAccount
+    func exportAccount(address: String, password: String, chain: ChainModel) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainResponse):
+                guard let response = chainResponse else {
+                    self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+                    return
+                }
+                self?.createExportOperation(
+                    address: address,
+                    password: password,
+                    chain: chain,
+                    chainAccount: response
+                )
+            case .failure:
+                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
             }
+        }
+    }
 
+    private func createExportOperation(
+        address: String,
+        password: String,
+        chain: ChainModel,
+        chainAccount: ChainAccountResponse
+    ) {
+        let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
             guard let data = try self?.exportJsonWrapper
-                .export(account: account, password: password)
+                .export(
+                    chainAccount: chainAccount,
+                    password: password,
+                    address: address
+                )
             else {
                 throw BaseOperationError.parentOperationCancelled
             }
@@ -47,20 +74,12 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                 throw AccountExportPasswordInteractorError.invalidResult
             }
 
-            let addressRawType = try SS58AddressFactory().type(fromAddress: address)
-
-            guard let chain = SNAddressType(rawValue: addressRawType.uint8Value)?.chain else {
-                throw AccountExportPasswordInteractorError.unsupportedAddress
-            }
-
             return RestoreJson(
                 data: result,
                 chain: chain,
-                cryptoType: account.cryptoType
+                cryptoType: chainAccount.cryptoType
             )
         }
-
-        exportOperation.addDependency(accountOperation)
 
         exportOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -75,6 +94,8 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
             }
         }
 
-        operationManager.enqueue(operations: [accountOperation, exportOperation], in: .transient)
+        operationManager.enqueue(operations: [exportOperation], in: .transient)
     }
 }
+
+extension AccountExportPasswordInteractor: AccountFetching {}

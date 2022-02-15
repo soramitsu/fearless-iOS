@@ -13,7 +13,7 @@ final class SigningWrapper: SigningWrapperProtocol {
     let metaId: String
     let accountId: AccountId?
     let isEthereumBased: Bool
-    let cryptoType: MultiassetCryptoType
+    let cryptoType: CryptoType
     let publicKeyData: Data
 
     @available(*, deprecated, message: "Use init(keystore:metaId:accountId:cryptoType:) instead")
@@ -31,7 +31,7 @@ final class SigningWrapper: SigningWrapperProtocol {
         metaId: String,
         accountId: AccountId?,
         isEthereumBased: Bool,
-        cryptoType: MultiassetCryptoType,
+        cryptoType: CryptoType,
         publicKeyData: Data
     ) {
         self.keystore = keystore
@@ -70,7 +70,7 @@ final class SigningWrapper: SigningWrapperProtocol {
                 originalData,
                 secretKey: secretKey
             )
-        case .substrateEcdsa, .ethereumEcdsa:
+        case .ecdsa:
             return try signEcdsa(
                 originalData,
                 secretKey: secretKey

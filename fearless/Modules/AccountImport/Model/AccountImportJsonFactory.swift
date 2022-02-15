@@ -29,11 +29,10 @@ final class AccountImportJsonFactory {
         }
 
         // TODO: Check with Ethereum data
-        // cryptoType: MultiassetCryptoType(rawValue: info.cryptoType),
         return MetaAccountImportPreferredInfo(
             username: info.meta?.name,
             networkType: chain,
-            cryptoType: MultiassetCryptoType(rawValue: 0), // FIXME: Pass correct value here
+            cryptoType: CryptoType(info.cryptoType),
             networkTypeConfirmed: networkTypeConfirmed
         )
     }

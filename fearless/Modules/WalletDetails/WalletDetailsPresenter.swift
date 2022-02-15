@@ -67,17 +67,35 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     }
 
     func didReceive(error: Error) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        guard !wireframe.present(error: error, from: view, locale: locale) else {
+        guard !wireframe.present(error: error, from: view, locale: selectedLocale) else {
             return
         }
 
         _ = wireframe.present(
             error: CommonError.undefined,
             from: view,
-            locale: locale
+            locale: selectedLocale
         )
+    }
+
+    func showActions(for chain: ChainModel) {
+        guard let view = view, let address = chainsWithAccounts[chain]?.toAddress() else {
+            return
+        }
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: selectedLocale
+        ) { [weak self] in
+            self?.wireframe.showExport(
+                for: address,
+                chain: chain,
+                options: ExportOption.allCases,
+                locale: self?.selectedLocale,
+                from: view
+            )
+        }
     }
 }
 
@@ -108,7 +126,7 @@ private extension WalletDetailsPresenter {
                 }
                 return WalletDetailsCellViewModel(
                     chainImageViewModel: icon,
-                    chainName: $0.key.name,
+                    chain: $0.key,
                     addressImage: addressImage,
                     address: address
                 )

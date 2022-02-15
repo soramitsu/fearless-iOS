@@ -4,12 +4,13 @@ import SoraKeystore
 import RobinHood
 
 final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryProtocol {
-    static func createView(with address: String) -> AccountExportPasswordViewProtocol? {
+    static func createView(with address: String, chain: ChainModel) -> AccountExportPasswordViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
         let view = AccountExportPasswordViewController(nib: R.nib.accountExportPasswordViewController)
         let presenter = AccountExportPasswordPresenter(
             address: address,
+            chain: chain,
             localizationManager: localizationManager
         )
 
