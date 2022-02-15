@@ -14,6 +14,7 @@ final class WalletTransactionHistoryInteractor {
     private(set) var selectedFilter: WalletHistoryRequest
     var filters: [FilterSet]
     let transactionsPerPage: Int
+    let eventCenter: EventCenterProtocol
 
     private(set) var dataLoadingState: WalletTransactionHistoryDataState = .waitingCached
     private(set) var pages: [AssetTransactionPageData] = []
@@ -29,7 +30,8 @@ final class WalletTransactionHistoryInteractor {
         defaultFilter: WalletHistoryRequest,
         selectedFilter: WalletHistoryRequest,
         transactionsPerPage: Int = 100,
-        filters: [FilterSet]
+        filters: [FilterSet],
+        eventCenter: EventCenterProtocol
     ) {
         self.chain = chain
         self.asset = asset
@@ -41,6 +43,7 @@ final class WalletTransactionHistoryInteractor {
         self.defaultFilter = defaultFilter
         self.transactionsPerPage = transactionsPerPage
         self.filters = filters
+        self.eventCenter = eventCenter
     }
 
     private func loadTransactions(for pagination: Pagination) {
@@ -270,6 +273,8 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         setupDataProvider()
 
         presenter?.didReceive(filters: filters)
+
+        eventCenter.add(observer: self)
     }
 
     func loadNext() -> Bool {
@@ -319,5 +324,11 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         loadTransactions(for: pagination)
 
         presenter?.didReceive(filters: filters)
+    }
+}
+
+extension WalletTransactionHistoryInteractor: EventVisitorProtocol {
+    func processNewTransaction(event _: WalletNewTransactionInserted) {
+        reload()
     }
 }

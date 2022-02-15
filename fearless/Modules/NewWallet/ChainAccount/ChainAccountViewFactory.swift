@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import FearlessUtils
+import RobinHood
 
 struct ChainAccountModule {
     let view: ChainAccountViewProtocol?
@@ -33,6 +34,61 @@ enum ChainAccountViewFactory {
             operationManager: operationManager
         )
 
+        let eventCenter = EventCenter.shared
+
+        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
+        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
+        var subscriptionContainer: StorageSubscriptionContainer?
+
+        let localStorageIdFactory = LocalStorageKeyFactory()
+        if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress(),
+           let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
+           let accountStorageKey = try? StorageKeyFactory().accountInfoKeyForId(accountId),
+           let localStorageKey = try? localStorageIdFactory.createKey(from: accountStorageKey, chainId: chain.chainId) {
+            let storageRequestFactory = StorageRequestFactory(
+                remoteFactory: StorageKeyFactory(),
+                operationManager: OperationManagerFacade.sharedManager
+            )
+
+            let contactOperationFactory: WalletContactOperationFactoryProtocol = WalletContactOperationFactory(
+                storageFacade: SubstrateDataStorageFacade.shared,
+                targetAddress: address
+            )
+
+            let transactionSubscription = TransactionSubscription(
+                engine: connection,
+                address: address,
+                chain: chain,
+                runtimeService: runtimeService,
+                txStorage: AnyDataProviderRepository(txStorage),
+                contactOperationFactory: contactOperationFactory,
+                storageRequestFactory: storageRequestFactory,
+                operationManager: operationManager,
+                eventCenter: eventCenter,
+                logger: Logger.shared
+            )
+
+            let accountInfoSubscription = AccountInfoSubscription(
+                transactionSubscription: transactionSubscription,
+                remoteStorageKey: accountStorageKey,
+                localStorageKey: localStorageKey,
+                storage: AnyDataProviderRepository(storage),
+                operationManager: OperationManagerFacade.sharedManager,
+                logger: Logger.shared,
+                eventCenter: EventCenter.shared
+            )
+
+            subscriptionContainer = StorageSubscriptionContainer(
+                engine: connection,
+                children: [accountInfoSubscription],
+                logger: Logger.shared
+            )
+        }
+
         let interactor = ChainAccountInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chain: chain,
@@ -43,8 +99,10 @@ enum ChainAccountViewFactory {
             connection: connection,
             operationManager: operationManager,
             runtimeService: runtimeService,
-            eventCenter: EventCenter.shared
+            eventCenter: eventCenter,
+            transactionSubscription: subscriptionContainer
         )
+
         let wireframe = ChainAccountWireframe()
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()

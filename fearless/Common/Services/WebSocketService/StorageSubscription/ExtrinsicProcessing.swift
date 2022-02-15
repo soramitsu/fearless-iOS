@@ -53,11 +53,11 @@ final class ExtrinsicProcessor {
             }
 
             if eventPath == .balanceDeposit {
-                return try? record.event.params.map(to: BalanceDepositEvent.self).amount
+                return try? record.event.data.map(to: BalanceDepositEvent.self).amount
             }
 
             if eventPath == .treasuryDeposit {
-                return try? record.event.params.map(to: TreasuryDepositEvent.self).amount
+                return try? record.event.data.map(to: TreasuryDepositEvent.self).amount
             }
 
             return nil

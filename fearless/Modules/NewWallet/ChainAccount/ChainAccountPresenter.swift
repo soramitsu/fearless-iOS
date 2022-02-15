@@ -123,9 +123,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             asset: asset,
             chain: chain,
             selectedMetaAccount: selectedMetaAccount,
-            transferFinishBlock: { [weak self] in
-                self?.moduleOutput?.updateTransactionHistory()
-            }
+            transferFinishBlock: nil
         )
     }
 
