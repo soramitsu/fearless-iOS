@@ -47,12 +47,13 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
             KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
         let secretKey = try keystore.fetchKey(for: secretKeyTag)
 
-        let addressType = try ss58Factory.type(fromAddress: address)
+        let addressType = isEthereum ? nil : try? ss58Factory.type(fromAddress: address)
 
         var builder = KeystoreBuilder()
             .with(name: chainAccount.name)
 
-        if let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
+        if let addressType = addressType,
+           let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
            let genesisHashData = try? Data(hexString: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
