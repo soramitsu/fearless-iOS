@@ -10,7 +10,7 @@ protocol KeystoreExportWrapperProtocol {
         address: String,
         metaId: String,
         accountId: AccountId?,
-        isEthereum: Bool
+        genesisHash: String
     ) throws -> Data
 }
 
@@ -40,28 +40,23 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         address: String,
         metaId: String,
         accountId: AccountId?,
-        isEthereum: Bool
+        genesisHash: String
     ) throws -> Data {
-        let secretKeyTag = isEthereum ?
-            KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId) :
-            KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+        let secretKeyTag = chainAccount.isEthereumBased ?
+            KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId) :
+            KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
         let secretKey = try keystore.fetchKey(for: secretKeyTag)
 
-        let addressType = isEthereum ? nil : try? ss58Factory.type(fromAddress: address)
+        var builder = KeystoreBuilder().with(name: chainAccount.name)
 
-        var builder = KeystoreBuilder()
-            .with(name: chainAccount.name)
-
-        if let addressType = addressType,
-           let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
-           let genesisHashData = try? Data(hexString: genesisHash) {
+        if let genesisHashData = try? Data(hexString: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
-        } else {
-            builder = builder.with(genesisHash: "0xfe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d")
         }
+
         guard let cryptoType = FearlessUtils.CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
             throw KeystoreExportWrapperError.unsupportedCryptoType
         }
+
         let keystoreData = KeystoreData(
             address: address,
             secretKeyData: secretKey,
@@ -69,7 +64,11 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
             cryptoType: cryptoType
         )
 
-        let definition = try builder.build(from: keystoreData, password: password, isEthereum: isEthereum)
+        let definition = try builder.build(
+            from: keystoreData,
+            password: password,
+            isEthereum: chainAccount.isEthereumBased
+        )
 
         return try jsonEncoder.encode(definition)
     }

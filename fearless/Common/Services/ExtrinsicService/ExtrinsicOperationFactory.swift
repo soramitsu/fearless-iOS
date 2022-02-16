@@ -23,6 +23,8 @@ protocol ExtrinsicOperationFactoryProtocol {
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol
     ) -> CompoundOperationWrapper<SubmitAndWatchExtrinsicResult>
+
+    func createGenesisBlockHashOperation() -> BaseOperation<String>
 }
 
 extension ExtrinsicOperationFactoryProtocol {
@@ -171,10 +173,7 @@ final class ExtrinsicOperationFactory {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
-        let genesisBlockOperation = createBlockHashOperation(
-            connection: engine,
-            for: { 0 }
-        )
+        let genesisBlockOperation = createGenesisBlockHashOperation()
 
         let eraWrapper = eraOperationFactory.createOperation(
             from: engine,
@@ -421,6 +420,13 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
         return CompoundOperationWrapper(
             targetOperation: wrapperOperation,
             dependencies: builderWrapper.allOperations + submitOperationList
+        )
+    }
+
+    func createGenesisBlockHashOperation() -> BaseOperation<String> {
+        createBlockHashOperation(
+            connection: engine,
+            for: { 0 }
         )
     }
 }

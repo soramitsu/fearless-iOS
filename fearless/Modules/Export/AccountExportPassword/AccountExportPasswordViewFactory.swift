@@ -18,10 +18,27 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
 
         let repository = AccountRepositoryFactory.createRepository()
 
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            return nil
+        }
+        let extrinsicOperationFactory = ExtrinsicOperationFactory(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection
+        )
+
         let interactor = AccountExportPasswordInteractor(
             exportJsonWrapper: exportJsonWrapper,
             repository: repository,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            extrinsicOperationFactory: extrinsicOperationFactory
         )
         let wireframe = AccountExportPasswordWireframe()
 

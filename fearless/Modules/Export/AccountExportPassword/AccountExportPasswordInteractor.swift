@@ -7,23 +7,27 @@ enum AccountExportPasswordInteractorError: Error {
     case invalidResult
     case unsupportedAddress
     case unsupportedCryptoType
+    case missingGenesisHash
 }
 
 final class AccountExportPasswordInteractor {
     weak var presenter: AccountExportPasswordInteractorOutputProtocol!
 
-    let exportJsonWrapper: KeystoreExportWrapperProtocol
-    let repository: AnyDataProviderRepository<MetaAccountModel>
-    let operationManager: OperationManagerProtocol
+    private let exportJsonWrapper: KeystoreExportWrapperProtocol
+    private let repository: AnyDataProviderRepository<MetaAccountModel>
+    private let operationManager: OperationManagerProtocol
+    private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
 
     init(
         exportJsonWrapper: KeystoreExportWrapperProtocol,
         repository: AnyDataProviderRepository<MetaAccountModel>,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
     ) {
         self.exportJsonWrapper = exportJsonWrapper
         self.repository = repository
         self.operationManager = operationManager
+        self.extrinsicOperationFactory = extrinsicOperationFactory
     }
 }
 
@@ -37,18 +41,32 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):
-                guard let response = chainResponse,
+                guard let self = self,
+                      let response = chainResponse,
                       let metaAccount = SelectedWalletSettings.shared.value else {
                     self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
                     return
                 }
-                self?.createExportOperation(
-                    address: address,
-                    password: password,
-                    chain: chain,
-                    chainAccount: response,
-                    metaId: metaAccount.metaId
-                )
+
+                let genesisOperation = self.extrinsicOperationFactory.createGenesisBlockHashOperation()
+                genesisOperation.completionBlock = { [weak self] in
+                    do {
+                        guard let genesisHash = try genesisOperation.extractResultData() else {
+                            throw AccountExportPasswordInteractorError.missingGenesisHash
+                        }
+                        self?.createExportOperation(
+                            address: address,
+                            password: password,
+                            chain: chain,
+                            chainAccount: response,
+                            metaId: metaAccount.metaId,
+                            genesisHash: genesisHash
+                        )
+                    } catch {
+                        self?.presenter.didReceive(error: error)
+                    }
+                }
+                self.operationManager.enqueue(operations: [genesisOperation], in: .transient)
             case .failure:
                 self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
             }
@@ -60,18 +78,18 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         password: String,
         chain: ChainModel,
         chainAccount: ChainAccountResponse,
-        metaId: String
+        metaId: String,
+        genesisHash: String
     ) {
         let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
-            guard let data = try self?.exportJsonWrapper
-                .export(
-                    chainAccount: chainAccount,
-                    password: password,
-                    address: address,
-                    metaId: metaId,
-                    accountId: chainAccount.isChainAccount ? chainAccount.accountId : nil,
-                    isEthereum: chainAccount.isEthereumBased
-                )
+            guard let data = try self?.exportJsonWrapper.export(
+                chainAccount: chainAccount,
+                password: password,
+                address: address,
+                metaId: metaId,
+                accountId: chainAccount.isChainAccount ? chainAccount.accountId : nil,
+                genesisHash: genesisHash
+            )
             else {
                 throw BaseOperationError.parentOperationCancelled
             }
