@@ -29,6 +29,10 @@ final class ExportMnemonicInteractor {
 
 extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
+        guard let metaAccount = SelectedWalletSettings.shared.value else {
+            presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
+            return
+        }
         fetchChainAccount(
             chain: chain,
             address: address,
@@ -37,13 +41,16 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
         ) { [weak self] result in
             switch result {
             case let .success(chainRespone):
-                guard let response = chainRespone else {
+                guard let response = chainRespone,
+                      let accountId = metaAccount.fetch(for: chain.accountRequest())?.accountId else {
                     self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
                     return
                 }
                 self?.fetchExportData(
-                    address: address,
-                    cryptoType: response.cryptoType
+                    metaId: metaAccount.metaId,
+                    accountId: response.isChainAccount ? accountId : nil,
+                    cryptoType: response.cryptoType,
+                    isEthereum: response.isEthereumBased
                 )
             case .failure:
                 self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -52,17 +59,22 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
     }
 
     private func fetchExportData(
-        address: String,
-        cryptoType: CryptoType
+        metaId: String,
+        accountId: AccountId?,
+        cryptoType: CryptoType,
+        isEthereum: Bool
     ) {
         let exportOperation: BaseOperation<ExportMnemonicData> = ClosureOperation { [weak self] in
-            guard let entropy = try self?.keystore.fetchEntropyForAddress(address) else {
+            let entropyTag = KeystoreTagV2.entropyTagForMetaId(metaId, accountId: accountId)
+            guard let entropy = try self?.keystore.fetchKey(for: entropyTag) else {
                 throw ExportMnemonicInteractorError.missingEntropy
             }
 
             let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
-
-            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(address)
+            let derivationPathTag = isEthereum ?
+                KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId) :
+                KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
+            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
 
             return ExportMnemonicData(
                 mnemonic: mnemonic,

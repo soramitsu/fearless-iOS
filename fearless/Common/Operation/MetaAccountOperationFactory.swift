@@ -52,13 +52,16 @@ final class MetaAccountOperationFactory {
 private extension MetaAccountOperationFactory {
     // MARK: - Factory functions
 
-    func createKeypairFactory(_ cryptoType: CryptoType) -> KeypairFactoryProtocol {
+    func createKeypairFactory(_ cryptoType: CryptoType, isEthereumBased: Bool) -> KeypairFactoryProtocol {
         switch cryptoType {
         case .sr25519:
             return SR25519KeypairFactory()
         case .ed25519:
             return Ed25519KeypairFactory()
         case .ecdsa:
+            if isEthereumBased {
+                return BIP32KeypairFactory()
+            }
             return EcdsaKeypairFactory()
         }
     }
@@ -150,7 +153,7 @@ private extension MetaAccountOperationFactory {
         cryptoType: CryptoType,
         isEthereum: Bool
     ) throws -> (publicKey: Data, secretKey: Data) {
-        let keypairFactory = createKeypairFactory(cryptoType)
+        let keypairFactory = createKeypairFactory(cryptoType, isEthereumBased: isEthereum)
 
         let keypair = try keypairFactory.createKeypairFromSeed(
             seed,
