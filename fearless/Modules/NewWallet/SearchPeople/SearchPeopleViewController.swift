@@ -186,15 +186,17 @@ extension SearchPeopleViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         switch state {
         case .empty, .error:
+            let emptyView = EmptyStateView()
+
             var errorMessage: String
             if rootView.searchField.text?.isEmpty == false {
                 errorMessage = R.string.localizable.walletSearchEmptyTitle_v1100(preferredLanguages: locale.rLanguages)
+                emptyView.image = R.image.iconEmptySearch()
             } else {
                 errorMessage = R.string.localizable.commonSearchStartTitle(preferredLanguages: locale.rLanguages)
+                emptyView.image = R.image.iconEmptyHistory()
             }
 
-            let emptyView = EmptyStateView()
-            emptyView.image = R.image.iconEmptyHistory()
             emptyView.title = errorMessage
             emptyView.titleColor = R.color.colorLightGray()!
             emptyView.titleFont = .p2Paragraph

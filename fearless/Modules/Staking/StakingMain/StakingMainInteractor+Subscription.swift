@@ -228,13 +228,9 @@ extension StakingMainInteractor: StakingLocalStorageSubscriber, StakingLocalSubs
 
     func handleTotalReward(
         result: Result<TotalRewardItem, Error>,
-        for address: AccountAddress,
+        for _: AccountAddress,
         api _: ChainModel.ExternalApi
     ) {
-        guard selectedAccount?.toAddress() == address else {
-            return
-        }
-
         switch result {
         case let .success(totalReward):
             presenter.didReceive(totalReward: totalReward)

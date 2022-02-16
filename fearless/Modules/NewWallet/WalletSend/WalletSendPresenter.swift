@@ -106,7 +106,20 @@ final class WalletSendPresenter {
             return
         }
 
-        provideInputViewModel()
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
+
+        let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
+            .value(for: selectedLocale)
+        amountViewModel = inputViewModel
+
+        let viewModel = WalletSendViewModel(
+            accountViewModel: provideAccountViewModel(),
+            assetBalanceViewModel: provideAssetVewModel(),
+            feeViewModel: provideFeeViewModel(),
+            amountInputViewModel: inputViewModel
+        )
+
+        view?.didReceive(state: .loaded(viewModel))
     }
 
     private func refreshFee() {
@@ -247,6 +260,7 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
             } ?? nil
 
             provideViewModel()
+            provideInputViewModelIfRate()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }

@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 protocol ChainAccountBalanceListViewModelFactoryProtocol {
     func buildChainAccountBalanceListViewModel(
@@ -22,21 +23,63 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
+        var chainAssets = chains.map { chain in
+            chain.assets.compactMap { asset in
+                ChainAsset(chain: chain, asset: asset.asset)
+            }
+        }
+        .reduce([], +)
+
+        var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
+        var balanceByChainAsset: [ChainAsset: Decimal] = [:]
+
+        chainAssets.forEach { chainAsset in
+            let accountInfo: AccountInfo? = accountInfos?[chainAsset.chain.chainId]
+
+            usdBalanceByChainAsset[chainAsset] = getUsdBalance(
+                for: chainAsset,
+                accountInfo: accountInfo,
+                priceData: prices?[chainAsset.asset.priceId ?? ""],
+                locale: locale
+            )
+
+            balanceByChainAsset[chainAsset] = getBalance(
+                for: chainAsset,
+                accountInfo: accountInfo
+            )
+        }
+
+        let chainAssetsSorted = chainAssets
+            .sorted { ca1, ca2 in
+                (
+                    usdBalanceByChainAsset[ca1] ?? Decimal.zero,
+                    balanceByChainAsset[ca1] ?? Decimal.zero,
+                    ca2.chain.isTestnet.intValue,
+                    ca1.chain.isPolkadotOrKusama.intValue,
+                    ca2.chain.name
+                ) > (
+                    usdBalanceByChainAsset[ca2] ?? Decimal.zero,
+                    balanceByChainAsset[ca2] ?? Decimal.zero,
+                    ca1.chain.isTestnet.intValue,
+                    ca2.chain.isPolkadotOrKusama.intValue,
+                    ca1.chain.name
+                )
+            }
+
         let totalWalletBalance: Decimal = chains.compactMap { chainModel in
 
             chainModel.assets.compactMap { asset in
+                let chainAsset = ChainAsset(chain: chainModel, asset: asset.asset)
                 let accountInfo = accountInfos?[chainModel.chainId]
 
-                let balance = getBalance(
-                    for: chainModel,
-                    asset: asset.asset,
+                let balanceDecimal = getBalance(
+                    for: chainAsset,
                     accountInfo: accountInfo
-                ) ?? ""
+                )
 
                 guard let priceId = asset.asset.priceId,
                       let priceData = prices?[priceId],
-                      let priceDecimal = Decimal(string: priceData.price),
-                      let balanceDecimal = Decimal(string: balance)
+                      let priceDecimal = Decimal(string: priceData.price)
                 else {
                     return nil
                 }
@@ -45,24 +88,20 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             }.reduce(0, +)
         }.reduce(0, +)
 
-        let viewModels: [ChainAccountBalanceCellViewModel] = chains.map { chain in
+        let viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
+            var priceData: PriceData?
 
-            chain.assets.compactMap { asset in
-                var priceData: PriceData?
-
-                if let prices = prices, let priceId = asset.asset.priceId {
-                    priceData = prices[priceId]
-                }
-
-                return buildChainAccountBalanceCellViewModel(
-                    chainAsset: ChainAsset(chain: chain, asset: asset.asset),
-                    priceData: priceData,
-                    accountInfo: accountInfos?[chain.chainId],
-                    locale: locale
-                )
+            if let prices = prices, let priceId = chainAsset.asset.priceId {
+                priceData = prices[priceId]
             }
 
-        }.reduce([], +)
+            return buildChainAccountBalanceCellViewModel(
+                chainAsset: chainAsset,
+                priceData: priceData,
+                accountInfo: accountInfos?[chainAsset.chain.chainId],
+                locale: locale
+            )
+        }
 
         return ChainAccountBalanceListViewModel(
             accountName: selectedMetaAccount?.name,
@@ -85,14 +124,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
     ) -> ChainAccountBalanceCellViewModel {
         let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
         let title = chainAsset.chain.name
-        let balance = getBalance(
-            for: chainAsset.chain,
-            asset: chainAsset.asset,
+        let balance = getBalanceString(
+            for: chainAsset,
             accountInfo: accountInfo
         )
         let totalAmountString = getUsdBalanceString(
-            for: chainAsset.asset,
-            chain: chainAsset.chain,
+            for: chainAsset,
             accountInfo: accountInfo,
             priceData: priceData,
             locale: locale
@@ -118,22 +155,31 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 }
 
 extension ChainAccountBalanceListViewModelFactory {
-    private func getBalance(
-        for _: ChainModel,
-        asset: AssetModel,
+    private func getBalanceString(
+        for chainAsset: ChainAsset,
         accountInfo: AccountInfo?
     ) -> String? {
+        let balance = getBalance(for: chainAsset, accountInfo: accountInfo)
+        let digits = balance > 0 ? 4 : 0
+        return balance.toString(digits: digits)
+    }
+
+    private func getBalance(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?
+    ) -> Decimal {
         guard let accountInfo = accountInfo else {
-            return Decimal.zero.stringWithPointSeparator
+            return Decimal.zero
         }
 
-        let assetInfo = asset.displayInfo
+        let assetInfo = chainAsset.asset.displayInfo
 
         let balance = Decimal.fromSubstrateAmount(
             accountInfo.data.total,
             precision: assetInfo.assetPrecision
         ) ?? 0
-        return balance.toString(digits: 4)
+
+        return balance
     }
 
     private func getPriceAttributedString(
@@ -177,8 +223,7 @@ extension ChainAccountBalanceListViewModelFactory {
     }
 
     private func getUsdBalanceString(
-        for asset: AssetModel,
-        chain _: ChainModel,
+        for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
         priceData: PriceData?,
         locale: Locale
@@ -187,7 +232,20 @@ extension ChainAccountBalanceListViewModelFactory {
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        let assetInfo = asset.displayInfo
+        return usdTokenFormatterValue.stringFromDecimal(getUsdBalance(for: chainAsset, accountInfo: accountInfo, priceData: priceData, locale: locale))
+    }
+
+    private func getUsdBalance(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> Decimal {
+        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
+        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
+        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
+
+        let assetInfo = chainAsset.asset.displayInfo
 
         var balance: Decimal
         if let accountInfo = accountInfo {
@@ -201,12 +259,12 @@ extension ChainAccountBalanceListViewModelFactory {
 
         guard let priceData = priceData,
               let priceDecimal = Decimal(string: priceData.price) else {
-            return nil
+            return Decimal.zero
         }
 
         let totalBalanceDecimal = priceDecimal * balance
 
-        return usdTokenFormatterValue.stringFromDecimal(totalBalanceDecimal)
+        return totalBalanceDecimal
     }
 }
 
