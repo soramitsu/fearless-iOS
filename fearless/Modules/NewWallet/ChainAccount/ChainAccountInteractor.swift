@@ -6,7 +6,7 @@ import FearlessUtils
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
     private let selectedMetaAccount: MetaAccountModel
-    private let chain: ChainModel
+    var chain: ChainModel
     private let asset: AssetModel
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
@@ -14,6 +14,7 @@ final class ChainAccountInteractor {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let connection: JSONRPCEngine
+    let eventCenter: EventCenterProtocol
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -24,7 +25,8 @@ final class ChainAccountInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         connection: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -35,6 +37,7 @@ final class ChainAccountInteractor {
         self.storageRequestFactory = storageRequestFactory
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.eventCenter = eventCenter
     }
 
     private func subscribeToAccountInfo() {
@@ -94,6 +97,8 @@ final class ChainAccountInteractor {
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
+        eventCenter.add(observer: self)
+
         subscribeToAccountInfo()
         fetchMinimalBalance()
         fetchBalanceLocks()
@@ -128,6 +133,17 @@ extension ChainAccountInteractor: RuntimeConstantFetching {
             operationManager: operationManager
         ) { [weak self] (result: Result<BigUInt, Error>) in
             self?.presenter?.didReceiveMinimumBalance(result: result)
+        }
+    }
+}
+
+extension ChainAccountInteractor: EventVisitorProtocol {
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
+            guard let self = self else { return false }
+            return updatedChain.chainId == self.chain.chainId
+        }) {
+            chain = updated
         }
     }
 }

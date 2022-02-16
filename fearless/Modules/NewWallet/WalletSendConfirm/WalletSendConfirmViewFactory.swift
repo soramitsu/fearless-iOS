@@ -53,6 +53,7 @@ struct WalletSendConfirmViewFactory {
             localizationManager: LocalizationManager.shared
         )
 
+        dataValidatingFactory.view = view
         presenter.view = view
         interactor.presenter = presenter
 

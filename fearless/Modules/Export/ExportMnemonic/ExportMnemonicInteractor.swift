@@ -33,6 +33,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
             presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
             return
         }
+
         fetchChainAccount(
             chain: chain,
             address: address,

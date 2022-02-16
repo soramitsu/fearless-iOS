@@ -15,6 +15,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processChainSyncDidStart(event: ChainSyncDidStart)
     func processChainSyncDidComplete(event: ChainSyncDidComplete)
     func processChainSyncDidFail(event: ChainSyncDidFail)
+    func processChainsUpdated(event: ChainsUpdatedEvent)
 
     func processRuntimeCommonTypesSyncCompleted(event: RuntimeCommonTypesSyncCompleted)
     func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted)
@@ -39,6 +40,7 @@ extension EventVisitorProtocol {
     func processChainSyncDidStart(event _: ChainSyncDidStart) {}
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {}
     func processChainSyncDidFail(event _: ChainSyncDidFail) {}
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {}
 
     func processRuntimeCommonTypesSyncCompleted(event _: RuntimeCommonTypesSyncCompleted) {}
     func processRuntimeChainTypesSyncCompleted(event _: RuntimeChainTypesSyncCompleted) {}

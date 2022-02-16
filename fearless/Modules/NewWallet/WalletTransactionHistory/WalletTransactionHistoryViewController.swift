@@ -596,7 +596,7 @@ extension WalletTransactionHistoryViewController: EmptyStateDataSource {
             return R.string.localizable.walletTransactionHistoryUnsupportedMessage(preferredLanguages: selectedLocale.rLanguages)
         }
 
-        return R.string.localizable.commonSearchStartTitle(preferredLanguages: selectedLocale.rLanguages)
+        return R.string.localizable.walletTransactionHistoryEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
     }
 
     var titleColorForEmptyState: UIColor? {

@@ -1,7 +1,7 @@
 import UIKit
 
 final class SearchPeopleTableSectionHeaderView: UIView {
-    private var titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorAlmostWhite()

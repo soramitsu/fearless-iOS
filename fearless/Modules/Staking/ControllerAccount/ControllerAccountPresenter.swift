@@ -233,10 +233,10 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
                     precision: Int16(asset.precision)
                 )
                 switch address {
-                case chosenAccountItem?.toAddress():
-                    controllerBalance = amount
                 case stashItem?.stash:
                     balance = amount
+                case chosenAccountItem?.toAddress():
+                    controllerBalance = amount
                 default:
                     logger?.warning("Recieved \(String(describing: amount)) for unknown address \(address)")
                 }
