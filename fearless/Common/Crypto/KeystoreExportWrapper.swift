@@ -4,7 +4,14 @@ import FearlessUtils
 import IrohaCrypto
 
 protocol KeystoreExportWrapperProtocol {
-    func export(chainAccount: ChainAccountResponse, password: String?, address: String) throws -> Data
+    func export(
+        chainAccount: ChainAccountResponse,
+        password: String?,
+        address: String,
+        metaId: String,
+        accountId: AccountId?,
+        isEthereum: Bool
+    ) throws -> Data
 }
 
 enum KeystoreExportWrapperError: Error {
@@ -27,10 +34,18 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         self.keystore = keystore
     }
 
-    func export(chainAccount: ChainAccountResponse, password: String?, address: String) throws -> Data {
-        guard let secretKey = try keystore.fetchSecretKeyForAddress(address) else {
-            throw KeystoreExportWrapperError.missingSecretKey
-        }
+    func export(
+        chainAccount: ChainAccountResponse,
+        password: String?,
+        address: String,
+        metaId: String,
+        accountId: AccountId?,
+        isEthereum: Bool
+    ) throws -> Data {
+        let secretKeyTag = isEthereum ?
+            KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId) :
+            KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+        let secretKey = try keystore.fetchKey(for: secretKeyTag)
 
         let addressType = try ss58Factory.type(fromAddress: address)
 

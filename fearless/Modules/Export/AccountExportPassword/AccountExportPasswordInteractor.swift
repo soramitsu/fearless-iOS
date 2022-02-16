@@ -37,7 +37,8 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):
-                guard let response = chainResponse else {
+                guard let response = chainResponse,
+                      let metaAccount = SelectedWalletSettings.shared.value else {
                     self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
                     return
                 }
@@ -45,7 +46,8 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                     address: address,
                     password: password,
                     chain: chain,
-                    chainAccount: response
+                    chainAccount: response,
+                    metaId: metaAccount.metaId
                 )
             case .failure:
                 self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
@@ -57,14 +59,18 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         address: String,
         password: String,
         chain: ChainModel,
-        chainAccount: ChainAccountResponse
+        chainAccount: ChainAccountResponse,
+        metaId: String
     ) {
         let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
             guard let data = try self?.exportJsonWrapper
                 .export(
                     chainAccount: chainAccount,
                     password: password,
-                    address: address
+                    address: address,
+                    metaId: metaId,
+                    accountId: chainAccount.isChainAccount ? chainAccount.accountId : nil,
+                    isEthereum: chainAccount.isEthereumBased
                 )
             else {
                 throw BaseOperationError.parentOperationCancelled
