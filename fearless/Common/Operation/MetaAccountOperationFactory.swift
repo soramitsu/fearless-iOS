@@ -198,7 +198,7 @@ private extension MetaAccountOperationFactory {
             let seedResult = try deriveSeed(
                 from: mnemonic.toString(),
                 password: password,
-                ethereumBased: false
+                ethereumBased: ethereumBased
             )
 
             seed = ethereumBased ? seedResult.seed : seedResult.seed.miniSeed
@@ -213,9 +213,9 @@ private extension MetaAccountOperationFactory {
             isEthereum: ethereumBased
         )
 
-        let address = ethereumBased ?
-            try keypair.publicKey.ethereumAddressFromPublicKey() :
-            try keypair.publicKey.publicKeyToAccountId()
+        let address = ethereumBased
+            ? try keypair.publicKey.ethereumAddressFromPublicKey()
+            : try keypair.publicKey.publicKeyToAccountId()
 
         return AccountQuery(
             publicKey: keypair.publicKey,
