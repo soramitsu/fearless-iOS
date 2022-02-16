@@ -36,7 +36,8 @@ struct ChainAccountViewFactory {
             storageRequestFactory: storageRequestFactory,
             connection: connection,
             operationManager: operationManager,
-            runtimeService: runtimeService
+            runtimeService: runtimeService,
+            eventCenter: EventCenter.shared
         )
         let wireframe = ChainAccountWireframe()
 

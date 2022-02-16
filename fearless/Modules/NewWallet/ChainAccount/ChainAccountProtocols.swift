@@ -11,12 +11,14 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapSendButton()
     func didTapReceiveButton()
     func didTapBuyButton()
-
+    func didTapOptionsButton()
     func didTapInfoButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
+
+    var chain: ChainModel { get set }
 }
 
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
@@ -26,7 +28,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
 }
 
-protocol ChainAccountWireframeProtocol: AnyObject {
+protocol ChainAccountWireframeProtocol: AnyObject, ModalAlertPresenting {
     func close(view: ControllerBackedProtocol?)
 
     func presentSendFlow(
@@ -58,5 +60,16 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         balanceContext: BalanceContext,
         info: AssetBalanceDisplayInfo
+    )
+
+    func presentChainActionsFlow(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
     )
 }

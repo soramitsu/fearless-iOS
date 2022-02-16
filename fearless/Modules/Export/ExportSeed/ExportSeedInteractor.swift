@@ -29,6 +29,11 @@ final class ExportSeedInteractor {
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
+        guard let metaAccount = SelectedWalletSettings.shared.value else {
+            presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
+            return
+        }
+
         fetchChainAccount(
             chain: chain,
             address: address,
@@ -37,12 +42,14 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
         ) { [weak self] result in
             switch result {
             case let .success(chainRespone):
-                guard let response = chainRespone else {
+                guard let response = chainRespone,
+                      let accountId = metaAccount.fetch(for: chain.accountRequest())?.accountId else {
                     self?.presenter.didReceive(error: ExportSeedInteractorError.missingAccount)
                     return
                 }
                 self?.fetchExportData(
-                    address: address,
+                    metaId: metaAccount.metaId,
+                    accountId: response.isChainAccount ? accountId : nil,
                     cryptoType: response.cryptoType,
                     chain: chain
                 )
@@ -53,23 +60,35 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
     }
 
     private func fetchExportData(
-        address: String,
+        metaId: String,
+        accountId: AccountId?,
         cryptoType: CryptoType,
         chain: ChainModel
     ) {
         let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
+            let seedTag = chain.isEthereumBased
+                ? KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
 
-            var optionalSeed: Data? = try self?.keystore.fetchSeedForAddress(address)
+            var optionalSeed: Data? = try self?.keystore.fetchKey(for: seedTag)
+
+            let keyTag = chain.isEthereumBased
+                ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
 
             if optionalSeed == nil, cryptoType.supportsSeedFromSecretKey {
-                optionalSeed = try self?.keystore.fetchSecretKeyForAddress(address)
+                optionalSeed = try self?.keystore.fetchKey(for: keyTag)
             }
 
             guard let seed = optionalSeed else {
                 throw ExportSeedInteractorError.missingSeed
             }
 
-            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(address)
+            let derivationPathTag = chain.isEthereumBased
+                ? KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
+
+            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
 
             return ExportSeedData(
                 seed: seed,

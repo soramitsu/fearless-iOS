@@ -22,7 +22,7 @@ class BaseTopBar: UIView {
         addSubview(rightStackView)
 
         leftStackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct ChainAsset: Equatable {
+struct ChainAsset: Equatable, Hashable {
     let chain: ChainModel
     let asset: AssetModel
 }

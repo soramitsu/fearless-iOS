@@ -139,8 +139,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     }
 
     func didTapConfirmButton() {
-        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(asset.precision))
-        let spendingValue = (sendAmountValue ?? 0) +
+        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0
+        let spendingValue = sendAmountValue +
             (fee?.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0)
 
         DataValidationRunner(validators: [
@@ -165,7 +165,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.view?.didStartLoading()
-            strongSelf.interactor.submitExtrinsic(for: spendingValue, receiverAddress: strongSelf.receiverAddress)
+            strongSelf.interactor.submitExtrinsic(for: sendAmountValue, receiverAddress: strongSelf.receiverAddress)
         }
     }
 }
