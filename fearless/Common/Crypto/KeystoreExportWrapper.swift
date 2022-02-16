@@ -56,6 +56,8 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
            let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
            let genesisHashData = try? Data(hexString: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
+        } else {
+            builder = builder.with(genesisHash: "0xfe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d")
         }
         guard let cryptoType = FearlessUtils.CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
             throw KeystoreExportWrapperError.unsupportedCryptoType
@@ -67,7 +69,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
             cryptoType: cryptoType
         )
 
-        let definition = try builder.build(from: keystoreData, password: password)
+        let definition = try builder.build(from: keystoreData, password: password, isEthereum: isEthereum)
 
         return try jsonEncoder.encode(definition)
     }
