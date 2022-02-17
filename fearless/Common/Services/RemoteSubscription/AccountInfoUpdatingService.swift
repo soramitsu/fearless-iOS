@@ -15,6 +15,7 @@ final class AccountInfoUpdatingService {
     let chainRegistry: ChainRegistryProtocol
     let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     let logger: LoggerProtocol?
+    let eventCenter: EventCenterProtocol
 
     private var subscribedChains: [ChainModel.Id: SubscriptionInfo] = [:]
 
@@ -28,12 +29,14 @@ final class AccountInfoUpdatingService {
         selectedAccount: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
         remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        eventCenter: EventCenterProtocol
     ) {
         selectedMetaAccount = selectedAccount
         self.chainRegistry = chainRegistry
         self.remoteSubscriptionService = remoteSubscriptionService
         self.logger = logger
+        self.eventCenter = eventCenter
     }
 
     private func removeAllSubscriptions() {
@@ -127,6 +130,8 @@ final class AccountInfoUpdatingService {
 extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
     func setup() {
         subscribeToChains()
+
+        eventCenter.add(observer: self)
     }
 
     func throttle() {
@@ -139,5 +144,14 @@ extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
         self.selectedMetaAccount = selectedMetaAccount
 
         subscribeToChains()
+    }
+}
+
+extension AccountInfoUpdatingService: EventVisitorProtocol {
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        event.updatedChains.forEach { chain in
+            removeSubscription(for: chain.chainId)
+            addSubscriptionIfNeeded(for: chain)
+        }
     }
 }
