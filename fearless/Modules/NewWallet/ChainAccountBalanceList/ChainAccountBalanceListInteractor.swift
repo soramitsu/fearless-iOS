@@ -149,6 +149,10 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processChainsUpdated(event _: ChainsUpdatedEvent) {
         refresh()
     }
+
+    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
+        refresh()
+    }
 }
 
 extension ChainAccountBalanceListInteractor: ApplicationHandlerDelegate {

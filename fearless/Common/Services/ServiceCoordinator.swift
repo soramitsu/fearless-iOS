@@ -92,7 +92,8 @@ extension ServiceCoordinator {
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
-            logger: logger
+            logger: logger,
+            eventCenter: EventCenter.shared
         )
 
         return ServiceCoordinator(
