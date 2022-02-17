@@ -28,6 +28,7 @@ final class ChainRegistry {
     let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
     let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
     let logger: LoggerProtocol?
+    let eventCenter: EventCenterProtocol
 
     private var chains: [ChainModel] = []
 
@@ -43,7 +44,8 @@ final class ChainRegistry {
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        eventCenter: EventCenterProtocol
     ) {
         self.runtimeProviderPool = runtimeProviderPool
         self.connectionPool = connectionPool
@@ -53,6 +55,7 @@ final class ChainRegistry {
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
         self.logger = logger
+        self.eventCenter = eventCenter
 
         connectionPool.setDelegate(self)
 
@@ -242,6 +245,9 @@ extension ChainRegistry: ConnectionPoolDelegate {
         if let newUrl = node?.url {
             if let connection = getConnection(for: failedChain.chainId) {
                 connection.reconnect(url: newUrl)
+
+                let event = ChainsUpdatedEvent(updatedChains: [failedChain])
+                eventCenter.notify(with: event)
             }
         }
     }
