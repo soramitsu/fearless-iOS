@@ -1,5 +1,7 @@
 import BigInt
 
+typealias WalletTransferFinishBlock = () -> Void
+
 protocol WalletSendConfirmViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(state: WalletSendConfirmViewState)
     func didReceive(title: String)

@@ -8,7 +8,8 @@ struct SearchPeopleViewFactory {
     static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     ) -> SearchPeopleViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
             UserDataStorageFacade.shared
@@ -47,7 +48,8 @@ struct SearchPeopleViewFactory {
             chain: chain,
             selectedAccount: selectedMetaAccount,
             localizationManager: LocalizationManager.shared,
-            qrParser: SubstrateQRParser()
+            qrParser: SubstrateQRParser(),
+            transferFinishBlock: transferFinishBlock
         )
 
         let view = SearchPeopleViewController(presenter: presenter)

@@ -3,7 +3,12 @@ import FearlessUtils
 import SoraFoundation
 
 struct WalletSendViewFactory {
-    static func createView(receiverAddress: String, asset: AssetModel, chain: ChainModel) -> WalletSendViewProtocol? {
+    static func createView(
+        receiverAddress: String,
+        asset: AssetModel,
+        chain: ChainModel,
+        transferFinishBlock: WalletTransferFinishBlock?
+    ) -> WalletSendViewProtocol? {
         guard let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress) else {
             return nil
         }
@@ -26,7 +31,8 @@ struct WalletSendViewFactory {
             logger: Logger.shared,
             asset: asset,
             receiverAddress: receiverAddress,
-            chain: chain
+            chain: chain,
+            transferFinishBlock: transferFinishBlock
         )
 
         let view = WalletSendViewController(

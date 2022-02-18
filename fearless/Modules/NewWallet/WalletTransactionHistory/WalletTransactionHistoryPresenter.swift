@@ -30,6 +30,12 @@ final class WalletTransactionHistoryPresenter {
     }
 }
 
+extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput {
+    func updateTransactionHistory() {
+        interactor.reload()
+    }
+}
+
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterProtocol {
     func setup() {
         interactor.setup()
