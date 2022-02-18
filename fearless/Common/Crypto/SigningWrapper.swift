@@ -58,6 +58,13 @@ final class SigningWrapper: SigningWrapperProtocol {
 
         let secretKey = try keystore.fetchKey(for: tag)
 
+        if isEthereumBased {
+            return try signEthereumEcdsa(
+                originalData,
+                secretKey: secretKey
+            )
+        }
+
         switch cryptoType {
         case .sr25519:
             return try signSr25519(
