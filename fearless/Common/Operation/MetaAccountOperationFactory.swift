@@ -147,11 +147,12 @@ private extension MetaAccountOperationFactory {
 
     // MARK: - Meta account generation function
 
-    func generateKeypair(
+    private func generateKeypair(
         from seed: Data,
         chaincodes: [Chaincode],
         cryptoType: CryptoType,
-        isEthereum: Bool
+        isEthereum: Bool,
+        seedSource: SeedSource? = nil
     ) throws -> (publicKey: Data, secretKey: Data) {
         let keypairFactory = createKeypairFactory(cryptoType, isEthereumBased: isEthereum)
 
@@ -160,7 +161,15 @@ private extension MetaAccountOperationFactory {
             chaincodeList: chaincodes
         )
 
-        if isEthereum || cryptoType == .sr25519 {
+        if isEthereum, let seedSource = seedSource, case SeedSource.seed = seedSource {
+            let privateKey = try SECPrivateKey(rawData: seed)
+
+            return (
+                publicKey: try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey().rawData(),
+                secretKey: seed
+            )
+
+        } else if cryptoType == .sr25519 || isEthereum {
             return (
                 publicKey: keypair.publicKey().rawData(),
                 secretKey: keypair.privateKey().rawData()
@@ -210,7 +219,8 @@ private extension MetaAccountOperationFactory {
             from: seed,
             chaincodes: chaincodes,
             cryptoType: cryptoType,
-            isEthereum: ethereumBased
+            isEthereum: ethereumBased,
+            seedSource: seedSource
         )
 
         let address = ethereumBased
