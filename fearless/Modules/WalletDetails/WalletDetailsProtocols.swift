@@ -25,14 +25,27 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
 
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,
     AlertPresentable,
-    AddressOptionsPresentable,
+    ModalAlertPresenting,
     AuthorizationPresentable {
     func close(_ view: WalletDetailsViewProtocol)
+    func presentAcions(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        callback: @escaping ModalPickerSelectionCallback
+    )
     func showExport(
         for address: String,
         chain: ChainModel,
         options: [ExportOption],
         locale: Locale?,
         from view: ControllerBackedProtocol?
+    )
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
+    )
+    func present(
+        from view: ControllerBackedProtocol,
+        url: URL
     )
 }

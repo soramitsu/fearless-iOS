@@ -145,17 +145,29 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             let action = items[selectedIndex]
             switch action {
             case .export:
-                break
+                guard let address =
+                    self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+                else { return }
+                self.wireframe.showExport(
+                    for: address,
+                    chain: self.chain,
+                    options: ExportOption.allCases,
+                    locale: self.selectedLocale,
+                    from: self.view
+                )
             case .switchNode:
                 self.wireframe.presentNodeSelection(
                     from: self.view,
                     chain: self.chain
                 )
             case .copyAddress:
-                UIPasteboard.general.string = self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+                UIPasteboard.general.string =
+                    self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
 
                 let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
                 self.wireframe.presentSuccessNotification(title, from: self.view)
+            default:
+                break
             }
         }
 

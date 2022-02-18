@@ -5,6 +5,24 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         view.controller.navigationController?.dismiss(animated: true)
     }
 
+    func presentAcions(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        let actionsView = ModalPickerFactory.createPickerForList(
+            items,
+            callback: callback,
+            context: nil
+        )
+
+        guard let actionsView = actionsView else {
+            return
+        }
+
+        view?.controller.navigationController?.present(actionsView, animated: true)
+    }
+
     func showExport(
         for address: String,
         chain: ChainModel,
@@ -12,7 +30,11 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         locale: Locale?,
         from view: ControllerBackedProtocol?
     ) {
-        authorize(animated: true, cancellable: true) { [weak self] success in
+        authorize(
+            animated: true,
+            cancellable: true,
+            from: view
+        ) { [weak self] success in
             if success {
                 self?.performExportPresentation(
                     for: address,
@@ -23,6 +45,29 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
                 )
             }
         }
+    }
+
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
+    ) {
+        guard let controller = NodeSelectionViewFactory.createView(chain: chain)?.controller else {
+            return
+        }
+
+        view?.controller.present(controller, animated: true)
+    }
+
+    func present(
+        from view: ControllerBackedProtocol,
+        url: URL
+    ) {
+        let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
+        view.controller.present(
+            webController,
+            animated: true,
+            completion: nil
+        )
     }
 }
 

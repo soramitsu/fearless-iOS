@@ -28,7 +28,10 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
 }
 
-protocol ChainAccountWireframeProtocol: AnyObject, ModalAlertPresenting {
+protocol ChainAccountWireframeProtocol: ErrorPresentable,
+    AlertPresentable,
+    ModalAlertPresenting,
+    AuthorizationPresentable {
     func close(view: ControllerBackedProtocol?)
 
     func presentSendFlow(
@@ -71,5 +74,13 @@ protocol ChainAccountWireframeProtocol: AnyObject, ModalAlertPresenting {
     func presentNodeSelection(
         from view: ControllerBackedProtocol?,
         chain: ChainModel
+    )
+
+    func showExport(
+        for address: String,
+        chain: ChainModel,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: ControllerBackedProtocol?
     )
 }
