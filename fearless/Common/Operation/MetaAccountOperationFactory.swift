@@ -341,7 +341,6 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         }
     }
 
-    //  TODO: Support ethereum json
     func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
@@ -361,19 +360,23 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 throw AccountOperationFactoryError.decryption
             }
 
-            let publicKey: IRPublicKeyProtocol
+            let substratePublicKey: IRPublicKeyProtocol
 
             switch request.cryptoType {
             case .sr25519:
-                publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try SNPublicKey(rawData: keystore.publicKeyData)
             case .ed25519:
-                publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try EDPublicKey(rawData: keystore.publicKeyData)
             case .ecdsa:
-                publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try SECPublicKey(rawData: keystore.publicKeyData)
             }
 
+            let privateKey = try SECPrivateKey(rawData: keystore.secretKeyData)
+            let ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+            let ethereumAddress = try ethereumPublicKey.rawData().ethereumAddressFromPublicKey()
+
             let metaId = UUID().uuidString
-            let accountId = try publicKey.rawData().publicKeyToAccountId()
+            let accountId = try substratePublicKey.rawData().publicKeyToAccountId()
 
             try saveSecretKey(keystore.secretKeyData, metaId: metaId, ethereumBased: false)
 
@@ -382,9 +385,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 name: request.username,
                 substrateAccountId: accountId,
                 substrateCryptoType: request.cryptoType.rawValue,
-                substratePublicKey: publicKey.rawData(),
-                ethereumAddress: nil,
-                ethereumPublicKey: nil,
+                substratePublicKey: substratePublicKey.rawData(),
+                ethereumAddress: ethereumAddress,
+                ethereumPublicKey: ethereumPublicKey.rawData(),
                 chainAccounts: []
             )
         }
