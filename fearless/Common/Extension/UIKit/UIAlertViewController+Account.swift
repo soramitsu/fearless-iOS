@@ -6,7 +6,8 @@ extension UIAlertController {
         chain: ChainModel,
         locale: Locale,
         copyClosure: @escaping () -> Void,
-        urlClosure: @escaping (URL) -> Void
+        urlClosure: @escaping (URL) -> Void,
+        exportClosure: (() -> Void)? = nil
     ) -> UIAlertController {
         var title = address
 
@@ -49,6 +50,14 @@ extension UIAlertController {
             }
 
             alertController.addAction(viewSubscan)
+        }
+
+        if let exportClosure = exportClosure {
+            let exportTitle = R.string.localizable.commonExport(preferredLanguages: locale.rLanguages)
+            let showExportFlow = UIAlertAction(title: exportTitle, style: .default) { _ in
+                exportClosure()
+            }
+            alertController.addAction(showExportFlow)
         }
 
         let cancelTitle = R.string.localizable

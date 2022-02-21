@@ -12,8 +12,8 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
-    let chainsUrl: URL
-    let assetsUrl: URL
+    let chainsUrl: URL?
+    let assetsUrl: URL?
     let repository: AnyDataProviderRepository<ChainModel>
     let dataFetchFactory: DataOperationFactoryProtocol
     let eventCenter: EventCenterProtocol
@@ -31,8 +31,8 @@ final class ChainSyncService {
     }()
 
     init(
-        chainsUrl: URL,
-        assetsUrl: URL,
+        chainsUrl: URL?,
+        assetsUrl: URL?,
         dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
@@ -68,6 +68,11 @@ final class ChainSyncService {
     }
 
     private func executeSync() {
+        guard let chainsUrl = chainsUrl, let assetsUrl = assetsUrl else {
+            assertionFailure()
+            return
+        }
+
         let remoteFetchAssetsOperation = dataFetchFactory.fetchData(from: assetsUrl)
         let remoteFetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())

@@ -40,8 +40,8 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 
     func presentCryptoTypeSelection(
         from view: AccountCreateViewProtocol?,
-        availableTypes: [MultiassetCryptoType],
-        selectedType: MultiassetCryptoType,
+        availableTypes: [CryptoType],
+        selectedType: CryptoType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )

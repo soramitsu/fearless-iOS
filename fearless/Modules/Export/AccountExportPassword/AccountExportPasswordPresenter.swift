@@ -17,9 +17,11 @@ final class AccountExportPasswordPresenter {
     let localizationManager: LocalizationManagerProtocol
 
     let address: String
+    let chain: ChainModel
 
-    init(address: String, localizationManager: LocalizationManagerProtocol) {
+    init(address: String, chain: ChainModel, localizationManager: LocalizationManagerProtocol) {
         self.address = address
+        self.chain = chain
         self.localizationManager = localizationManager
     }
 }
@@ -38,7 +40,7 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
             return
         }
 
-        interactor.exportAccount(address: address, password: password)
+        interactor.exportAccount(address: address, password: password, chain: chain)
     }
 }
 

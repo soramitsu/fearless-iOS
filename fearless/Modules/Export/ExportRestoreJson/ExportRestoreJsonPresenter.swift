@@ -15,9 +15,9 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
     func setup() {
         let viewModel = ExportStringViewModel(
             option: .keystore,
-            networkType: model.chain,
-            derivationPath: nil,
+            chain: model.chain,
             cryptoType: model.cryptoType,
+            derivationPath: nil,
             data: model.data
         )
         view?.set(viewModel: viewModel)

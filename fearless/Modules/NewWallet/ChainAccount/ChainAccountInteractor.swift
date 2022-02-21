@@ -17,6 +17,8 @@ final class ChainAccountInteractor {
     let eventCenter: EventCenterProtocol
     let transactionSubscription: StorageSubscriptionContainer?
 
+    var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+
     init(
         selectedMetaAccount: MetaAccountModel,
         chain: ChainModel,
@@ -45,7 +47,7 @@ final class ChainAccountInteractor {
 
     private func subscribeToAccountInfo() {
         if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-            _ = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+            accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
         } else {
             presenter?.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists),
@@ -140,6 +142,8 @@ extension ChainAccountInteractor: RuntimeConstantFetching {
     }
 }
 
+extension ChainAccountInteractor: AnyProviderAutoCleaning {}
+
 extension ChainAccountInteractor: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
@@ -148,5 +152,11 @@ extension ChainAccountInteractor: EventVisitorProtocol {
         }) {
             chain = updated
         }
+    }
+
+    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
+        clear(dataProvider: &accountInfoProvider)
+
+        subscribeToAccountInfo()
     }
 }

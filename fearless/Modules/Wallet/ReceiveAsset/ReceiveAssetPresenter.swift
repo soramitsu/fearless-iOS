@@ -58,8 +58,10 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
 
     func share(qrImage: UIImage) {
         guard let address = address else {
+            assertionFailure()
             return
         }
+
         let sources = sharingFactory.createSources(
             accountAddress: address,
             qrImage: qrImage,
@@ -67,6 +69,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
             chainName: chain.name,
             locale: selectedLocale
         )
+
         wireframe.share(sources: sources, from: view, with: nil)
     }
 
@@ -145,8 +148,10 @@ private extension ReceiveAssetPresenter {
 
     private func provideViewModel() {
         guard let address = address else {
+            assertionFailure()
             return
         }
+
         view?.didReceive(viewModel: ReceiveAssetViewModel(
             asset: asset.id,
             accountName: account.name,

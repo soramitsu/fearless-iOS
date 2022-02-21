@@ -23,6 +23,10 @@ final class RuntimeRegistryService {
         self.chain = chain
         self.chainRegistry = chainRegistry
     }
+
+    private var chainRuntimeProvider: RuntimeProviderProtocol? {
+        chainRegistry.getRuntimeProvider(for: chain.genesisHash)
+    }
 }
 
 extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
@@ -52,11 +56,15 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
+    var runtimeSnapshot: RuntimeSnapshot? {
+        chainRuntimeProvider?.snapshot
+    }
+
     func fetchCoderFactoryOperation(
         with _: TimeInterval,
         closure _: RuntimeMetadataClosure?
     ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        chainRegistry.getRuntimeProvider(for: chain.genesisHash)?.fetchCoderFactoryOperation() ??
+        chainRuntimeProvider?.fetchCoderFactoryOperation() ??
             BaseOperation.createWithError(RuntimeProviderError.providerUnavailable)
     }
 
@@ -67,7 +75,7 @@ extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
             mutex.unlock()
         }
 
-        return chainRegistry.getRuntimeProvider(for: chain.genesisHash)?.fetchCoderFactoryOperation() ??
+        return chainRuntimeProvider?.fetchCoderFactoryOperation() ??
             BaseOperation.createWithError(RuntimeProviderError.providerUnavailable)
     }
 }

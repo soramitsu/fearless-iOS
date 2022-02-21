@@ -213,7 +213,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
 //            sources: [crowdloanInfoUrl: CrowdloanDisplayInfoList()]
 //        )
 //
-//        guard let signingWrapper = try? DummySigner(cryptoType: MultiassetCryptoType.sr25519) else {
+//        guard let signingWrapper = try? DummySigner(cryptoType: CryptoType.sr25519) else {
 //            return nil
 //        }
 //        

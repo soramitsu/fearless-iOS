@@ -5,6 +5,7 @@ protocol WalletDetailsViewOutputProtocol {
     func updateData()
     func didTapCloseButton()
     func willDisappear()
+    func showActions(for chain: ChainModel)
 }
 
 protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
@@ -22,6 +23,29 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
     func didReceive(error: Error)
 }
 
-protocol WalletDetailsWireframeProtocol: ErrorPresentable, AlertPresentable {
+protocol WalletDetailsWireframeProtocol: ErrorPresentable,
+    AlertPresentable,
+    ModalAlertPresenting,
+    AuthorizationPresentable {
     func close(_ view: WalletDetailsViewProtocol)
+    func presentAcions(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+    func showExport(
+        for address: String,
+        chain: ChainModel,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: ControllerBackedProtocol?
+    )
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
+    )
+    func present(
+        from view: ControllerBackedProtocol,
+        url: URL
+    )
 }

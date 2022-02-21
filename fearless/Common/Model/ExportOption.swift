@@ -1,6 +1,6 @@
 import Foundation
 
-enum ExportOption {
+enum ExportOption: CaseIterable {
     case keystore
     case mnemonic
     case seed

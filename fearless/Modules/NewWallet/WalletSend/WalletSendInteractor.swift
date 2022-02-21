@@ -93,15 +93,9 @@ final class WalletSendInteractor: RuntimeConstantFetching {
 
 extension WalletSendInteractor: WalletSendInteractorInputProtocol {
     func estimateFee(for amount: BigUInt) {
-        let addressFactory = SS58AddressFactory()
-        guard let accountId = try? addressFactory.accountId(
-            fromAddress: receiverAddress,
-            type: chain.addressPrefix
-        ) else {
-            return
-        }
-        let call = callFactory.transfer(to: accountId, amount: amount)
+        guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
 
+        let call = callFactory.transfer(to: accountId, amount: amount)
         let identifier = String(amount)
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in

@@ -13,7 +13,7 @@ protocol AccountExportPasswordPresenterProtocol: AnyObject {
 }
 
 protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
-    func exportAccount(address: String, password: String)
+    func exportAccount(address: String, password: String, chain: ChainModel)
 }
 
 protocol AccountExportPasswordInteractorOutputProtocol: AnyObject {
@@ -26,5 +26,5 @@ protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, AlertPresenta
 }
 
 protocol AccountExportPasswordViewFactoryProtocol: AnyObject {
-    static func createView(with address: String) -> AccountExportPasswordViewProtocol?
+    static func createView(with address: String, chain: ChainModel) -> AccountExportPasswordViewProtocol?
 }

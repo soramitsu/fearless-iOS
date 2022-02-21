@@ -82,10 +82,9 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideSenderAccountViewModel() -> AccountViewModel? {
-        let addressFactory = SS58AddressFactory()
-
         guard let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId,
-              let senderAddress = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) else {
+              let senderAddress = try? AddressFactory.address(for: accountId, chain: chain)
+        else {
             return nil
         }
 
