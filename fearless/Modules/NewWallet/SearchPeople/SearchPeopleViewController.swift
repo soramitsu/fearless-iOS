@@ -217,10 +217,3 @@ extension SearchPeopleViewController: EmptyStateDelegate {
         }
     }
 }
-
-extension SearchPeopleViewController: ErrorStateViewDelegate {
-    func didRetry(errorView _: ErrorStateView) {
-        // TODO: why commented?
-//        presenter.refresh(shouldReset: true)
-    }
-}
