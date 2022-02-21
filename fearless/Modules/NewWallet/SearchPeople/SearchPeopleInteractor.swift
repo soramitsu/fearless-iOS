@@ -26,9 +26,7 @@ final class SearchPeopleInteractor {
 
 extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
     func performSearch(query: String) {
-        let addressFactory = SS58AddressFactory()
-
-        let peerId = try? addressFactory.accountId(fromAddress: query, addressPrefix: chain.addressPrefix)
+        let peerId = try? AddressFactory.accountId(from: query, chain: chain)
         let currentAccountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId
 
         if let peerId = peerId, let currentAccountId = currentAccountId {

@@ -121,8 +121,7 @@ extension SearchService {
             let accountsResult = try accounts.compactMap {
                 try SearchData.createFromChainAccount(
                     chain: chain,
-                    account: $0,
-                    addressFactory: SS58AddressFactory() // TODO: Remove
+                    account: $0
                 )
             }
 
@@ -134,7 +133,7 @@ extension SearchService {
                 try SearchData.createFromContactItem(
                     contact,
                     addressPrefix: chain.addressPrefix,
-                    addressFactory: SS58AddressFactory() // TODO: Remove
+                    chain: chain
                 )
             }
 
