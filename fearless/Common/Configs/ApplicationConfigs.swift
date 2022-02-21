@@ -118,7 +118,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     // MARK: - GitHub
 
     var chainListURL: URL? {
-        GitHubUrl.url(suffix: "chains/chains.json")
+        GitHubUrl.url(suffix: "chains/chains_dev.json")
     }
 
     var assetListURL: URL? {
@@ -135,8 +135,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-//    private static let defaultBranch = "android/2.0.1"
-    private static let defaultBranch = "moonriver-test"
+    private static let defaultBranch = "ios/2.0"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
