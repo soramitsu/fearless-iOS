@@ -223,8 +223,7 @@ protocol ConstantDecodable {
 
 extension ConstantDecodable {
     func decode(at path: ConstantCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON {
-        guard let entry = codingFactory.metadata
-            .getConstant(in: path.moduleName, constantName: path.constantName) else {
+        guard let entry = codingFactory.metadata.getConstant(in: path.moduleName, constantName: path.constantName) else {
             throw StorageDecodingOperationError.invalidStoragePath
         }
 

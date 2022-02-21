@@ -6,6 +6,22 @@ enum ChainFormat {
     case substrate(_ prefix: UInt16)
 }
 
+enum AddressFactory {
+    private static let substrateFactory = SS58AddressFactory()
+
+    private static func chainFormat(of chain: ChainModel) -> ChainFormat {
+        chain.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
+    }
+
+    static func address(for accountId: AccountId, chain: ChainModel) throws -> AccountAddress {
+        try accountId.toAddress(using: chainFormat(of: chain))
+    }
+
+    static func accountId(from address: AccountAddress, chain: ChainModel) throws -> AccountId {
+        try address.toAccountId(using: chainFormat(of: chain))
+    }
+}
+
 extension AccountId {
     func toAddress(using conversion: ChainFormat) throws -> AccountAddress {
         switch conversion {

@@ -23,6 +23,8 @@ protocol ExtrinsicOperationFactoryProtocol {
         _ closure: @escaping ExtrinsicBuilderClosure,
         signer: SigningWrapperProtocol
     ) -> CompoundOperationWrapper<SubmitAndWatchExtrinsicResult>
+
+    func createGenesisBlockHashOperation() -> BaseOperation<String>
 }
 
 extension ExtrinsicOperationFactoryProtocol {
@@ -86,7 +88,7 @@ extension ExtrinsicOperationFactoryProtocol {
 
 final class ExtrinsicOperationFactory {
     let accountId: AccountId
-    let cryptoType: MultiassetCryptoType
+    let cryptoType: CryptoType
     let chainFormat: ChainFormat
     let runtimeRegistry: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
@@ -102,7 +104,7 @@ final class ExtrinsicOperationFactory {
     ) {
         accountId = (try? address.toAccountId()) ?? Data(repeating: 0, count: 32)
         chainFormat = .ethereum
-        cryptoType = .substrateEcdsa
+        cryptoType = .ecdsa
         self.runtimeRegistry = runtimeRegistry
         self.engine = engine
         self.eraOperationFactory = eraOperationFactory
@@ -111,7 +113,7 @@ final class ExtrinsicOperationFactory {
     init(
         accountId: AccountId,
         chainFormat: ChainFormat,
-        cryptoType: MultiassetCryptoType,
+        cryptoType: CryptoType,
         runtimeRegistry: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
         eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
@@ -171,10 +173,7 @@ final class ExtrinsicOperationFactory {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
-        let genesisBlockOperation = createBlockHashOperation(
-            connection: engine,
-            for: { 0 }
-        )
+        let genesisBlockOperation = createGenesisBlockHashOperation()
 
         let eraWrapper = eraOperationFactory.createOperation(
             from: engine,
@@ -421,6 +420,13 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
         return CompoundOperationWrapper(
             targetOperation: wrapperOperation,
             dependencies: builderWrapper.allOperations + submitOperationList
+        )
+    }
+
+    func createGenesisBlockHashOperation() -> BaseOperation<String> {
+        createBlockHashOperation(
+            connection: engine,
+            for: { 0 }
         )
     }
 }

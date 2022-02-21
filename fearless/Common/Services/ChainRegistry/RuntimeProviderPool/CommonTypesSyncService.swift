@@ -7,7 +7,7 @@ protocol CommonTypesSyncServiceProtocol {
 }
 
 class CommonTypesSyncService {
-    let url: URL
+    let url: URL?
     let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
     let dataOperationFactory: DataOperationFactoryProtocol
     let eventCenter: EventCenterProtocol
@@ -26,7 +26,7 @@ class CommonTypesSyncService {
     }()
 
     init(
-        url: URL,
+        url: URL?,
         filesOperationFactory: RuntimeFilesOperationFactoryProtocol,
         dataOperationFactory: DataOperationFactoryProtocol,
         eventCenter: EventCenterProtocol,
@@ -45,6 +45,11 @@ class CommonTypesSyncService {
 
     private func performSyncUpIfNeeded(with dataHasher: StorageHasher) {
         guard !isSyncing else {
+            return
+        }
+
+        guard let url = url else {
+            assertionFailure()
             return
         }
 

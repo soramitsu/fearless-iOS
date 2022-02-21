@@ -6,10 +6,10 @@ protocol AccountRepositoryFactoryProtocol {
     // TODO: remove
     @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
     func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem>
-    func createRepository() -> AnyDataProviderRepository<AccountItem>
+    func createRepository() -> AnyDataProviderRepository<MetaAccountModel>
 
     // TODO: remove
-    func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>
+    func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel>
 
     func createMetaAccountRepository(
         for filter: NSPredicate?,
@@ -33,14 +33,14 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
         Self.createManagedRepository(for: storageFacade)
     }
 
-    func createRepository() -> AnyDataProviderRepository<AccountItem> {
+    func createRepository() -> AnyDataProviderRepository<MetaAccountModel> {
         Self.createRepository(for: storageFacade)
     }
 
     // TODO: remove
     func createAccountRepository(
         for _: SNAddressType
-    ) -> AnyDataProviderRepository<AccountItem> {
+    ) -> AnyDataProviderRepository<MetaAccountModel> {
         Self.createRepository(for: storageFacade)
     }
 
@@ -87,8 +87,8 @@ extension AccountRepositoryFactory {
 
     static func createRepository(
         for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
-    ) -> AnyDataProviderRepository<AccountItem> {
-        let mapper = CodableCoreDataMapper<AccountItem, CDMetaAccount>()
+    ) -> AnyDataProviderRepository<MetaAccountModel> {
+        let mapper = MetaAccountMapper()
         let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
 
         return AnyDataProviderRepository(repository)

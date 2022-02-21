@@ -1,9 +1,14 @@
 import UIKit
 
+protocol WalletDetailsTableCellDelegate: AnyObject {
+    func didTapActions(_ cell: WalletDetailsTableCell)
+}
+
 class WalletDetailsTableCell: UITableViewCell {
     enum LayoutConstants {
         static let chainImageSize: CGFloat = 27
         static let addressImageSize: CGFloat = 16
+        static let actionImageSize: CGFloat = 18
     }
 
     private var mainStackView: UIStackView = {
@@ -62,6 +67,16 @@ class WalletDetailsTableCell: UITableViewCell {
         return label
     }()
 
+    private var actionImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = R.image.iconHorMore()
+        imageView.isUserInteractionEnabled = true
+        return imageView
+    }()
+
+    weak var delegate: WalletDetailsTableCellDelegate?
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -87,7 +102,7 @@ class WalletDetailsTableCell: UITableViewCell {
             animated: false
         )
 
-        chainLabel.text = viewModel.chainName
+        chainLabel.text = viewModel.chain.name
         addressLabel.text = viewModel.address
         if let addressImage = viewModel.addressImage {
             addressImageView.isHidden = false
@@ -110,6 +125,10 @@ private extension WalletDetailsTableCell {
         )
 
         selectionStyle = .none
+
+        let recognizer = UITapGestureRecognizer()
+        recognizer.addTarget(self, action: #selector(showActions))
+        actionImageView.addGestureRecognizer(recognizer)
     }
 
     func setupLayout() {
@@ -126,6 +145,11 @@ private extension WalletDetailsTableCell {
 
         mainStackView.addArrangedSubview(infoStackView)
 
+        mainStackView.addArrangedSubview(actionImageView)
+        actionImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.actionImageSize)
+        }
+
         infoStackView.addArrangedSubview(chainLabel)
         infoStackView.addArrangedSubview(addressStackView)
         addressStackView.snp.makeConstraints { make in
@@ -137,5 +161,10 @@ private extension WalletDetailsTableCell {
             make.size.equalTo(LayoutConstants.addressImageSize)
         }
         addressStackView.addArrangedSubview(addressLabel)
+    }
+
+    @objc
+    private func showActions() {
+        delegate?.didTapActions(self)
     }
 }

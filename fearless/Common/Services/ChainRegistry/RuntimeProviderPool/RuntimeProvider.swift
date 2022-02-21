@@ -4,6 +4,7 @@ import FearlessUtils
 
 protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     var chainId: ChainModel.Id { get }
+    var snapshot: RuntimeSnapshot? { get }
 
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
@@ -179,7 +180,10 @@ final class RuntimeProvider {
         }
     }
 
-    func fetchCoderFactoryOperation(with _: TimeInterval, closure _: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
+    func fetchCoderFactoryOperation(
+        with _: TimeInterval,
+        closure _: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
             var fetchedFactory: RuntimeCoderFactoryProtocol?
 
@@ -202,6 +206,10 @@ final class RuntimeProvider {
 }
 
 extension RuntimeProvider: RuntimeProviderProtocol {
+    var runtimeSnapshot: RuntimeSnapshot? {
+        snapshot
+    }
+
     func setup() {
         mutex.lock()
 

@@ -1,6 +1,5 @@
 import Foundation
 
-@available(*, deprecated, message: "Use MultiassetCryptoType instead")
 enum CryptoType: UInt8, Codable, CaseIterable {
     case sr25519
     case ed25519
