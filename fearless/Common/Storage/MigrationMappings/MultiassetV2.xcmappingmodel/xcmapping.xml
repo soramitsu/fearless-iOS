@@ -121,13 +121,14 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxECaAALAAwAGwA3ADgAOQBHAEgASQBK
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z117"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z117">
+        <attribute name="migrationpolicyclassname" type="string">fearless.MultiassetV2MigrationPolicy</attribute>
         <attribute name="sourcename" type="string">CDMetaAccount</attribute>
         <attribute name="mappingtypename" type="string">Undefined</attribute>
         <attribute name="mappingnumber" type="int16">2</attribute>
         <attribute name="destinationname" type="string">CDMetaAccount</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z115"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z104 z110 z113 z121 z108 z112 z114 z116 z102"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z102 z114 z110 z108 z113 z121 z116 z112 z104"></relationship>
         <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z119"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z118">
@@ -152,7 +153,7 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxECaAALAAwAGwA3ADgAOQBHAEgASQBK
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z125"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z123">
-        <attribute name="migrationpolicyclassname" type="string">fearless.MultiassetV2MigrationPolicy</attribute>
+        <attribute name="migrationpolicyclassname" type="string"></attribute>
         <attribute name="sourcename" type="string">CDCustomChainNode</attribute>
         <attribute name="mappingtypename" type="string">Undefined</attribute>
         <attribute name="mappingnumber" type="int16">1</attribute>
