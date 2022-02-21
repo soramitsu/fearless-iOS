@@ -11,7 +11,7 @@ struct ChainAccountResponse: Equatable {
     let accountId: AccountId
     let publicKey: Data
     let name: String
-    let cryptoType: MultiassetCryptoType
+    let cryptoType: CryptoType
     let addressPrefix: UInt16
     let isEthereumBased: Bool
     let isChainAccount: Bool
@@ -55,7 +55,7 @@ extension ChainAccountResponse {
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
         if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId }) {
-            guard let cryptoType = MultiassetCryptoType(rawValue: chainAccount.cryptoType) else {
+            guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil
             }
 
@@ -81,14 +81,14 @@ extension MetaAccountModel {
                 accountId: accountId,
                 publicKey: publicKey,
                 name: name,
-                cryptoType: MultiassetCryptoType.ethereumEcdsa,
+                cryptoType: .ecdsa,
                 addressPrefix: request.addressPrefix,
                 isEthereumBased: request.isEthereumBased,
                 isChainAccount: false
             )
         }
 
-        guard let cryptoType = MultiassetCryptoType(rawValue: substrateCryptoType) else {
+        guard let cryptoType = CryptoType(rawValue: substrateCryptoType) else {
             return nil
         }
 

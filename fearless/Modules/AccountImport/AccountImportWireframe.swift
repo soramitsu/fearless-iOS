@@ -37,8 +37,8 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
 
     func presentCryptoTypeSelection(
         from view: AccountImportViewProtocol?,
-        availableTypes: [MultiassetCryptoType],
-        selectedType: MultiassetCryptoType,
+        availableTypes: [CryptoType],
+        selectedType: CryptoType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     ) {

@@ -10,10 +10,7 @@ final class SearchPeopleViewController: UIViewController, ViewHolder {
     private var state: SearchPeopleViewState = .empty
     private var locale = Locale.current
 
-    private lazy var searchActivityIndicatory: UIActivityIndicatorView = {
-        let activityIndicator = UIActivityIndicatorView(style: .white)
-        return activityIndicator
-    }()
+    private lazy var searchActivityIndicatory: UIActivityIndicatorView = .init(style: .white)
 
     init(presenter: SearchPeoplePresenterProtocol) {
         self.presenter = presenter
@@ -120,8 +117,7 @@ extension SearchPeopleViewController: UITableViewDelegate, UITableViewDataSource
             return UITableViewCell()
         }
 
-        guard let cell = tableView.dequeueReusableCellWithType(SearchPeopleTableCell.self)
-        else {
+        guard let cell = tableView.dequeueReusableCellWithType(SearchPeopleTableCell.self) else {
             return UITableViewCell()
         }
 
@@ -219,11 +215,5 @@ extension SearchPeopleViewController: EmptyStateDelegate {
         case .loaded:
             return false
         }
-    }
-}
-
-extension SearchPeopleViewController: ErrorStateViewDelegate {
-    func didRetry(errorView _: ErrorStateView) {
-//        presenter.refresh(shouldReset: true)
     }
 }

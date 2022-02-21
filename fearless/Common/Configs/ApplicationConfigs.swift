@@ -17,11 +17,14 @@ protocol ApplicationConfigProtocol {
     var moonPayApiKey: String { get }
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
-    var chainListURL: URL { get }
-    var assetListURL: URL { get }
-    var commonTypesURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
+
+    // MARK: - GitHub
+
+    var chainListURL: URL? { get }
+    var assetListURL: URL? { get }
+    var commonTypesURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -103,20 +106,6 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://polkadot.js.org/phishing/address.json")!
     }
 
-    var chainListURL: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/chains/chains.json")!
-    }
-
-    var assetListURL: URL {
-        URL(string:
-            "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/chains/assets.json")!
-    }
-
-    var commonTypesURL: URL {
-        // swiftlint:disable:next line_length
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/ios/2.0/type_registry/default.json")!
-    }
-
     var learnPayoutURL: URL {
         URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
     }
@@ -124,5 +113,31 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var learnControllerAccountURL: URL {
         // swiftlint:disable:next line_length
         URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
+    }
+
+    // MARK: - GitHub
+
+    var chainListURL: URL? {
+        GitHubUrl.url(suffix: "chains/chains_dev.json")
+    }
+
+    var assetListURL: URL? {
+        GitHubUrl.url(suffix: "chains/assets.json")
+    }
+
+    var commonTypesURL: URL? {
+        GitHubUrl.url(suffix: "type_registry/default.json")
+    }
+}
+
+private enum GitHubUrl {
+    private static var baseUrl: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+    }
+
+    private static let defaultBranch = "ios/2.0"
+
+    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
+        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
     }
 }

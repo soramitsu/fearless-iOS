@@ -1,7 +1,7 @@
 import IrohaCrypto
 
 protocol ExportMnemonicInteractorInputProtocol: AnyObject {
-    func fetchExportDataForAddress(_ address: String)
+    func fetchExportDataForAddress(_ address: String, chain: ChainModel)
 }
 
 protocol ExportMnemonicInteractorOutputProtocol: AnyObject {
@@ -15,5 +15,5 @@ protocol ExportMnemonicWireframeProtocol: ExportGenericWireframeProtocol {
 }
 
 protocol ExportMnemonicViewFactoryProtocol: AnyObject {
-    static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol?
+    static func createViewForAddress(_ address: String, chain: ChainModel) -> ExportGenericViewProtocol?
 }

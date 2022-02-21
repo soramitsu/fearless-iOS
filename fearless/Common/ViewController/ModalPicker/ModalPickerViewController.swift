@@ -151,22 +151,20 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if indexPath.row != selectedIndex {
-            if var oldCell = tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0)) as? C {
-                oldCell.checkmarked = false
-            }
-
-            if var newCell = tableView.cellForRow(at: indexPath) as? C {
-                newCell.checkmarked = true
-            }
-
-            selectedIndex = indexPath.row
-
-            presenter?.hide(view: self, animated: true)
-            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
-
-            selectionCallback?(indexPath.row)
+        if var oldCell = tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0)) as? C {
+            oldCell.checkmarked = false
         }
+
+        if var newCell = tableView.cellForRow(at: indexPath) as? C {
+            newCell.checkmarked = true
+        }
+
+        selectedIndex = indexPath.row
+
+        presenter?.hide(view: self, animated: true)
+        delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
+
+        selectionCallback?(indexPath.row)
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {

@@ -6,6 +6,7 @@ protocol AuthorizationPresentable: ScreenAuthorizationWireframeProtocol {
     func authorize(
         animated: Bool,
         cancellable: Bool,
+        from view: ControllerBackedProtocol?,
         with completionBlock: @escaping AuthorizationCompletionBlock
     )
 }
@@ -81,13 +82,25 @@ extension AuthorizationPresentable {
         cancellable: Bool,
         with completionBlock: @escaping AuthorizationCompletionBlock
     ) {
+        authorize(
+            animated: animated,
+            cancellable: cancellable,
+            from: nil,
+            with: completionBlock
+        )
+    }
+
+    func authorize(
+        animated: Bool,
+        cancellable: Bool,
+        from view: ControllerBackedProtocol? = nil,
+        with completionBlock: @escaping AuthorizationCompletionBlock
+    ) {
         guard !isAuthorizing else {
             return
         }
 
-        guard let presentingController = UIApplication.shared.keyWindow?
-            .rootViewController?.topModalViewController
-        else {
+        guard let presentingController = view?.controller else {
             return
         }
 

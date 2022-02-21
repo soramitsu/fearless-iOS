@@ -21,7 +21,7 @@ class AccountItemMapperTests: XCTestCase {
             metaId: UUID().uuidString,
             name: "metaAccount",
             substrateAccountId: accountId,
-            substrateCryptoType: MultiassetCryptoType.substrateEcdsa.rawValue,
+            substrateCryptoType: CryptoType.ecdsa.rawValue,
             substratePublicKey: keypair.publicKey().rawData(),
             ethereumAddress: address.asSecretData(),
             ethereumPublicKey: keypair.publicKey().rawData(),

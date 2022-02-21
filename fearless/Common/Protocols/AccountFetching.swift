@@ -129,7 +129,7 @@ extension AccountFetching {
                                     accountId: chainAccount.accountId,
                                     publicKey: chainAccount.publicKey,
                                     name: meta.name,
-                                    cryptoType: MultiassetCryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                                    cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                                     addressPrefix: chain.addressPrefix,
                                     isEthereumBased: false,
                                     isChainAccount: true
@@ -176,7 +176,7 @@ extension AccountFetching {
                                 accountId: chainAccount.accountId,
                                 publicKey: chainAccount.publicKey,
                                 name: meta.name,
-                                cryptoType: MultiassetCryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                                cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                                 addressPrefix: chain.addressPrefix,
                                 isEthereumBased: false,
                                 isChainAccount: true

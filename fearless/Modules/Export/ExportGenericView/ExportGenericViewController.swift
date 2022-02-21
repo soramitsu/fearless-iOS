@@ -333,7 +333,10 @@ extension ExportGenericViewController {
         bottomSeparator.heightAnchor.constraint(equalToConstant: UIConstants.formSeparatorWidth).isActive = true
     }
 
-    private func setupAdvancedContainerView(with viewModel: ExportGenericViewModelProtocol, locale: Locale) {
+    private func setupAdvancedContainerView(
+        with viewModel: ExportGenericViewModelProtocol,
+        locale: Locale
+    ) {
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -345,7 +348,7 @@ extension ExportGenericViewController {
         ).isActive = true
 
         let cryptoTypeView = setupCryptoTypeView(
-            viewModel.cryptoType,
+            cryptoType: viewModel.cryptoType,
             advancedContainerView: containerView,
             locale: locale
         )
@@ -362,7 +365,7 @@ extension ExportGenericViewController {
         }
 
         let networkTypeView = setupNetworkView(
-            chain: viewModel.networkType,
+            chain: viewModel.chain,
             advancedContainerView: containerView,
             locale: locale
         )
@@ -400,7 +403,7 @@ extension ExportGenericViewController {
     }
 
     private func setupCryptoTypeView(
-        _ cryptoType: CryptoType,
+        cryptoType: CryptoType,
         advancedContainerView: UIView,
         locale: Locale
     ) -> UIView {
@@ -433,7 +436,7 @@ extension ExportGenericViewController {
     }
 
     private func setupNetworkView(
-        chain: Chain,
+        chain: ChainModel,
         advancedContainerView: UIView,
         locale: Locale
     ) -> UIView {
@@ -443,8 +446,14 @@ extension ExportGenericViewController {
 
         networkView.title = R.string.localizable
             .commonNetwork(preferredLanguages: locale.rLanguages)
-        networkView.subtitle = chain.titleForLocale(locale)
-        networkView.iconImage = chain.icon
+        networkView.subtitle = chain.name
+        if let iconUrl = chain.icon {
+            let remoteImage = RemoteImageViewModel(url: iconUrl)
+            remoteImage.loadBalanceListIcon(
+                on: networkView.iconView,
+                animated: false
+            )
+        }
 
         return networkView
     }
