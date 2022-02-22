@@ -5,6 +5,9 @@ final class WalletChainAccountDashboardPresenter {
     let wireframe: WalletChainAccountDashboardWireframeProtocol
     let interactor: WalletChainAccountDashboardInteractorInputProtocol
 
+    weak var transactionHistoryModuleInput: WalletTransactionHistoryModuleInput?
+    weak var chainAccountModuleInput: ChainAccountModuleInput?
+
     init(
         interactor: WalletChainAccountDashboardInteractorInputProtocol,
         wireframe: WalletChainAccountDashboardWireframeProtocol
@@ -19,3 +22,9 @@ extension WalletChainAccountDashboardPresenter: WalletChainAccountDashboardPrese
 }
 
 extension WalletChainAccountDashboardPresenter: WalletChainAccountDashboardInteractorOutputProtocol {}
+
+extension WalletChainAccountDashboardPresenter: ChainAccountModuleOutput {
+    func updateTransactionHistory() {
+        transactionHistoryModuleInput?.updateTransactionHistory()
+    }
+}
