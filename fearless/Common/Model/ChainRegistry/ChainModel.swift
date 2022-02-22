@@ -80,6 +80,14 @@ class ChainModel: Codable {
         name.lowercased() == "polkadot" || name.lowercased() == "kusama"
     }
 
+    var isWestend: Bool {
+        name.lowercased() == "westend"
+    }
+
+    var hasStakingRewardHistory: Bool {
+        isPolkadotOrKusama || isWestend
+    }
+
     var hasCrowdloans: Bool {
         options?.contains(.crowdloans) ?? false
     }
