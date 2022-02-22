@@ -22,13 +22,11 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             return
         }
 
-        guard let address = metaAccount.value(forKey: "ethereumAddress") as? String,
-              let metaId = metaAccount.value(forKey: "metaId") as? String else {
+        guard let metaId = metaAccount.value(forKey: "metaId") as? String else {
             return
         }
 
         if let ethereumPublicKey = try migrateKeystore(
-            for: address,
             metaId: metaId,
             keystoreMigrator: keystoreMigrator
         ) {
@@ -41,7 +39,6 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
     }
 
     private func migrateKeystore(
-        for _: AccountAddress,
         metaId: String,
         keystoreMigrator: KeystoreMigrating
     ) throws -> IRPublicKeyProtocol? {
