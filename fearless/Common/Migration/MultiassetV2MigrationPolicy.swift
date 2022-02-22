@@ -67,6 +67,22 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             publicKey = secrets.keypair.publicKey()
         }
 
+        if let seed = keystoreMigrator.fetchKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: nil)) {
+            let ethereumDPString = DerivationPathConstants.defaultEthereum
+
+            let ethSecretKeyTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)
+            keystoreMigrator.save(key: seed, for: ethSecretKeyTag)
+
+            let privateKey = try SECPrivateKey(rawData: seed)
+
+            if let ethereumDP = ethereumDPString.data(using: .utf8) {
+                let ethDPTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
+                keystoreMigrator.save(key: ethereumDP, for: ethDPTag)
+            }
+
+            publicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+        }
+
         return publicKey
     }
 }
