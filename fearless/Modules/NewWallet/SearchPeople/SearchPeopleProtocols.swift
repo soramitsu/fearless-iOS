@@ -28,7 +28,8 @@ protocol SearchPeopleWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         to address: String,
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     )
 
     func presentScan(

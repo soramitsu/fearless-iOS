@@ -11,14 +11,26 @@ struct WalletChainAccountDashboardViewFactory {
 
         guard
             let selectedMetaAccount = SelectedWalletSettings.shared.value,
-            let accountListView = ChainAccountViewFactory.createView(chain: chain, asset: asset, selectedMetaAccount: selectedMetaAccount),
-            let historyView = WalletTransactionHistoryViewFactory.createView(asset: asset, chain: chain, selectedAccount: selectedMetaAccount)
+            let historyModule = WalletTransactionHistoryViewFactory.createView(
+                asset: asset,
+                chain: chain,
+                selectedAccount: selectedMetaAccount
+            ),
+            let chainAccountModule = ChainAccountViewFactory.createView(
+                chain: chain,
+                asset: asset,
+                selectedMetaAccount: selectedMetaAccount,
+                moduleOutput: presenter
+            )
         else {
             return nil
         }
 
-        view.content = accountListView
-        view.draggable = historyView
+        view.content = chainAccountModule.view
+        view.draggable = historyModule.view
+
+        presenter.transactionHistoryModuleInput = historyModule.moduleInput
+        presenter.chainAccountModuleInput = chainAccountModule.moduleInput
 
         presenter.view = view
         interactor.presenter = presenter
