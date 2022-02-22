@@ -132,7 +132,6 @@ extension SearchService {
             let contactsResult = try contacts.map { contact in
                 try SearchData.createFromContactItem(
                     contact,
-                    addressPrefix: chain.addressPrefix,
                     chain: chain
                 )
             }
