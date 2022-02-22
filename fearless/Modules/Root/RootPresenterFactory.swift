@@ -15,7 +15,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let networkConnectionsMigrator = NetworkConnectionsMigrator(settings: settings)
 
         let dbMigrator = UserStorageMigrator(
-            targetVersion: .version2,
+            targetVersion: .version3,
             storeURL: UserStorageParams.storageURL,
             modelDirectory: UserStorageParams.modelDirectory,
             keystore: keychain,
