@@ -89,7 +89,7 @@ extension ConnectionPool: WebSocketEngineDelegate {
         switch newState {
         case let .connecting(attempt):
             if attempt > 1 {
-                delegate?.connectionNeedsReconnect(url: previousUrl)
+//                delegate?.connectionNeedsReconnect(url: previousUrl)
             }
         case .connected:
             break
