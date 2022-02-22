@@ -44,13 +44,9 @@ extension SearchData {
 
     static func createFromContactItem(
         _ contactItem: ContactItem,
-        addressPrefix: UInt16,
-        addressFactory: SS58AddressFactory
+        chain: ChainModel
     ) throws -> SearchData {
-        let accountId = try addressFactory.accountId(
-            fromAddress: contactItem.peerAddress,
-            addressPrefix: addressPrefix
-        )
+        let accountId = try AddressFactory.accountId(from: contactItem.peerAddress, chain: chain)
 
         let contactContext = ContactContext(destination: .remote)
 
@@ -64,14 +60,12 @@ extension SearchData {
 
     static func createFromChainAccount(
         chain: ChainModel,
-        account: MetaAccountModel,
-        addressFactory _: SS58AddressFactory // TODO: Remove
+        account: MetaAccountModel
     ) throws -> SearchData? {
         guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
             assertionFailure()
             return nil
         }
-
         let address = try AddressFactory.address(for: accountId, chain: chain)
 
         let contactContext = ContactContext(destination: .local)
