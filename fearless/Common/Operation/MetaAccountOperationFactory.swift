@@ -294,7 +294,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             try saveSecretKey(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
             try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
-            try saveSeed(ethereumQuery.seed, metaId: metaId, ethereumBased: true)
+            try saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
 
             try saveEntropy(mnemonic.entropy(), metaId: metaId)
 
@@ -335,7 +335,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             try saveSecretKey(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
             try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
-            try saveSeed(ethereumQuery.seed, metaId: metaId, ethereumBased: true)
+            try saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
 
             return metaAccount
         }
