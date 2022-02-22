@@ -54,7 +54,7 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             )
 
             let ethSeedTag = KeystoreTagV2.ethereumSeedTagForMetaId(metaId)
-            keystoreMigrator.save(key: secrets.seed, for: ethSeedTag)
+            keystoreMigrator.save(key: secrets.keypair.privateKey().rawData(), for: ethSeedTag)
 
             let ethSecretKeyTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)
             keystoreMigrator.save(key: secrets.keypair.privateKey().rawData(), for: ethSecretKeyTag)
