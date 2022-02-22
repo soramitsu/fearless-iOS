@@ -44,7 +44,6 @@ extension SearchData {
 
     static func createFromContactItem(
         _ contactItem: ContactItem,
-        addressPrefix _: UInt16,
         chain: ChainModel
     ) throws -> SearchData {
         let accountId = try AddressFactory.accountId(from: contactItem.peerAddress, chain: chain)
