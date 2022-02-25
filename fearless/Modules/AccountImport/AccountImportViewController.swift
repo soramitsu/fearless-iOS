@@ -492,7 +492,7 @@ extension AccountImportViewController: UITextFieldDelegate {
             return true
         }
 
-        var shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
+        let shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
 
         if !shouldApply, textField.text != viewModel.inputHandler.value {
             textField.text = viewModel.inputHandler.value
