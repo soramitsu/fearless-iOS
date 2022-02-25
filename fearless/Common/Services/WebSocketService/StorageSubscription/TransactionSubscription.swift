@@ -14,7 +14,7 @@ struct TransactionSubscriptionResult {
 final class TransactionSubscription {
     let engine: JSONRPCEngine
     let address: String
-    let chain: Chain
+    let chain: ChainModel
     let runtimeService: RuntimeCodingServiceProtocol
     let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     let contactOperationFactory: WalletContactOperationFactoryProtocol
@@ -26,7 +26,7 @@ final class TransactionSubscription {
     init(
         engine: JSONRPCEngine,
         address: String,
-        chain: Chain,
+        chain: ChainModel,
         runtimeService: RuntimeCodingServiceProtocol,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
         contactOperationFactory: WalletContactOperationFactoryProtocol,
@@ -150,7 +150,7 @@ extension TransactionSubscription {
     private func createContactSaveWrapper(
         dependingOn processingOperaton: BaseOperation<[TransactionSubscriptionResult]>,
         contactOperationFactory: WalletContactOperationFactoryProtocol,
-        chain: Chain
+        chain: ChainModel
     ) -> CompoundOperationWrapper<Void> {
         let addressFactory = SS58AddressFactory()
 
@@ -160,7 +160,7 @@ extension TransactionSubscription {
                     if let peerId = item.processingResult.peerId {
                         let address = try addressFactory.addressFromAccountId(
                             data: peerId,
-                            type: chain.addressType
+                            addressPrefix: chain.addressPrefix
                         )
 
                         result.insert(address)

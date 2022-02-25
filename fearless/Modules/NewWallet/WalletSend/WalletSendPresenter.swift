@@ -14,6 +14,9 @@ final class WalletSendPresenter {
     let asset: AssetModel
     let chain: ChainModel
     let receiverAddress: String
+    let transferFinishBlock: WalletTransferFinishBlock?
+
+    private weak var moduleOutput: WalletSendModuleOutput?
 
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
@@ -36,7 +39,8 @@ final class WalletSendPresenter {
         logger: LoggerProtocol? = nil,
         asset: AssetModel,
         receiverAddress: String,
-        chain: ChainModel
+        chain: ChainModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -47,6 +51,7 @@ final class WalletSendPresenter {
         self.asset = asset
         self.receiverAddress = receiverAddress
         self.chain = chain
+        self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
 
@@ -197,7 +202,8 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
                 chain: strongSelf.chain,
                 asset: strongSelf.asset,
                 receiverAddress: strongSelf.receiverAddress,
-                amount: amount
+                amount: amount,
+                transferFinishBlock: strongSelf.transferFinishBlock
             )
         }
     }

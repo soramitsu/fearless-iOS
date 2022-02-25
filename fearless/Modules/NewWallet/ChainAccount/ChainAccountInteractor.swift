@@ -15,6 +15,7 @@ final class ChainAccountInteractor {
     let storageRequestFactory: StorageRequestFactoryProtocol
     let connection: JSONRPCEngine
     let eventCenter: EventCenterProtocol
+    let transactionSubscription: StorageSubscriptionContainer?
 
     var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
@@ -28,7 +29,8 @@ final class ChainAccountInteractor {
         connection: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        transactionSubscription: StorageSubscriptionContainer?
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -40,6 +42,7 @@ final class ChainAccountInteractor {
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.eventCenter = eventCenter
+        self.transactionSubscription = transactionSubscription
     }
 
     private func subscribeToAccountInfo() {

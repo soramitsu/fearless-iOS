@@ -38,7 +38,8 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     )
 
     func presentReceiveFlow(
@@ -83,4 +84,10 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         locale: Locale?,
         from view: ControllerBackedProtocol?
     )
+}
+
+protocol ChainAccountModuleInput: AnyObject {}
+
+protocol ChainAccountModuleOutput: AnyObject {
+    func updateTransactionHistory()
 }

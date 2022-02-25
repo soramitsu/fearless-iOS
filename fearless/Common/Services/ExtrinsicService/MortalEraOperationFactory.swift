@@ -87,9 +87,13 @@ final class MortalEraOperationFactory {
 
             guard
                 let bestNumber = BigUInt.fromHexString(bestHeader.number),
-                let finalizedNumber = BigUInt.fromHexString(finalizedHeader.number),
-                bestNumber >= finalizedNumber else {
+                let finalizedNumber = BigUInt.fromHexString(finalizedHeader.number)
+            else {
                 throw BaseOperationError.unexpectedDependentResult
+            }
+
+            guard bestNumber >= finalizedNumber else {
+                return BlockNumber(finalizedNumber)
             }
 
             let blockNumber = bestNumber - finalizedNumber > Self.maxFinalityLag ? bestNumber : finalizedNumber

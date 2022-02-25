@@ -34,6 +34,11 @@ protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseEr
         chain: ChainModel,
         asset: AssetModel,
         receiverAddress: String,
-        amount: Decimal
+        amount: Decimal,
+        transferFinishBlock: WalletTransferFinishBlock?
     )
+}
+
+protocol WalletSendModuleOutput: AnyObject {
+    func transferDidComplete()
 }
