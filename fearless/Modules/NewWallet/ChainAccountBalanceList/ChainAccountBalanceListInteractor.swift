@@ -47,9 +47,12 @@ final class ChainAccountBalanceListInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            presenter?.didReceiveChains(result: .success(chains))
-            subscribeToAccountInfo(for: chains)
-            subscribeToPrice(for: chains)
+            let accountSupportsEthereum = SelectedWalletSettings.shared.value?.ethereumPublicKey != nil
+
+            let filteredChains: [ChainModel] = accountSupportsEthereum ? chains : chains.filter { $0.isEthereumBased == false }
+            presenter?.didReceiveChains(result: .success(filteredChains))
+            subscribeToAccountInfo(for: filteredChains)
+            subscribeToPrice(for: filteredChains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:
