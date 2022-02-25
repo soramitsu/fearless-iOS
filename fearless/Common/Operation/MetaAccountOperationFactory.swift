@@ -371,9 +371,13 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey = try SECPublicKey(rawData: keystore.publicKeyData)
             }
 
-            let privateKey = try SECPrivateKey(rawData: keystore.secretKeyData)
-            let ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
-            let ethereumAddress = try ethereumPublicKey.rawData().ethereumAddressFromPublicKey()
+            var ethereumPublicKey: IRPublicKeyProtocol?
+            var ethereumAddress: Data?
+
+            if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
+                ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+                ethereumAddress = try ethereumPublicKey?.rawData().ethereumAddressFromPublicKey()
+            }
 
             let metaId = UUID().uuidString
             let accountId = try substratePublicKey.rawData().publicKeyToAccountId()
@@ -387,7 +391,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substrateCryptoType: request.cryptoType.rawValue,
                 substratePublicKey: substratePublicKey.rawData(),
                 ethereumAddress: ethereumAddress,
-                ethereumPublicKey: ethereumPublicKey.rawData(),
+                ethereumPublicKey: ethereumPublicKey?.rawData(),
                 chainAccounts: []
             )
         }
