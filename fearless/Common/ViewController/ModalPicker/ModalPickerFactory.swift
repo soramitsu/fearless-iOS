@@ -415,4 +415,47 @@ enum ModalPickerFactory {
 
         return viewController
     }
+
+    static func createPickerForList(
+        _ chainActions: [JsonExportAction],
+        callback: ModalPickerSelectionCallback?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !chainActions.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<TitleWithSubtitleTableViewCell, TitleWithSubtitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.importSourcePickerTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.cellNib = UINib(resource: R.nib.titleWithSubtitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+
+        viewController.viewModels = chainActions.map { action in
+            LocalizableResource { _ in
+                TitleWithSubtitleViewModel(
+                    title: action.title,
+                    subtitle: ""
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
 }

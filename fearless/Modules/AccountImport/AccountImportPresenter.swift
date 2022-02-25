@@ -16,6 +16,7 @@ final class AccountImportPresenter {
     static let maxMnemonicSize: Int = 24
     static let maxRawSeedLength: Int = 66
     static let maxKeystoreLength: Int = 4000
+    static let maxEthereumDerivationPathLength: Int = 15
 
     weak var view: AccountImportViewProtocol?
     var wireframe: AccountImportWireframeProtocol!
@@ -233,11 +234,14 @@ final class AccountImportPresenter {
         guard let sourceType = selectedSourceType else {
             return
         }
+        let processor = EthereumDerivationPathProcessor()
 
         let viewModel = createViewModel(
             for: .ecdsa,
             sourceType: sourceType,
-            isEthereum: true
+            isEthereum: true,
+            processor: processor,
+            maxLength: AccountImportPresenter.maxEthereumDerivationPathLength
         )
 
         ethereumDerivationPathViewModel = viewModel
@@ -249,7 +253,9 @@ final class AccountImportPresenter {
     private func createViewModel(
         for cryptoType: CryptoType,
         sourceType: AccountImportSource,
-        isEthereum: Bool
+        isEthereum: Bool,
+        processor: TextProcessing? = nil,
+        maxLength: Int? = nil
     ) -> InputViewModel {
         let predicate: NSPredicate
         let placeholder: String
@@ -279,7 +285,12 @@ final class AccountImportPresenter {
             }
         }
 
-        let inputHandling = InputHandler(required: false, predicate: predicate)
+        let inputHandling = InputHandler(
+            required: false,
+            maxLength: maxLength ?? Int.max,
+            predicate: predicate,
+            processor: processor
+        )
         return InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
     }
 
