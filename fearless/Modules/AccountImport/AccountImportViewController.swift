@@ -145,6 +145,8 @@ final class AccountImportViewController: UIViewController {
         passwordTextField.delegate = self
 
         uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
+
+        ethereumDerivationPathField.keyboardType = .decimalPad
     }
 
     private func setupLocalization() {
@@ -490,7 +492,7 @@ extension AccountImportViewController: UITextFieldDelegate {
             return true
         }
 
-        let shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
+        var shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
 
         if !shouldApply, textField.text != viewModel.inputHandler.value {
             textField.text = viewModel.inputHandler.value
