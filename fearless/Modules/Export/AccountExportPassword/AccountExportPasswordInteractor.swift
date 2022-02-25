@@ -81,7 +81,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         metaId: String,
         genesisHash: String
     ) {
-        let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
+        let exportOperation: BaseOperation<String> = ClosureOperation { [weak self] in
             guard let data = try self?.exportJsonWrapper.export(
                 chainAccount: chainAccount,
                 password: password,
@@ -98,17 +98,26 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                 throw AccountExportPasswordInteractorError.invalidResult
             }
 
+            return result
+        }
+
+        let fileSaveOperation: BaseOperation<RestoreJson> = ClosureOperation {
+            let content = try exportOperation.extractNoCancellableResultData()
+            let fileUrl = URL(fileURLWithPath: NSTemporaryDirectory() + "/\(address).json")
+            try content.write(toFile: fileUrl.path, atomically: true, encoding: .utf8)
+
             return RestoreJson(
-                data: result,
+                data: content,
                 chain: chain,
-                cryptoType: chainAccount.cryptoType
+                cryptoType: chainAccount.cryptoType,
+                fileURL: fileUrl
             )
         }
 
-        exportOperation.completionBlock = { [weak self] in
+        fileSaveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let model = try exportOperation
+                    let model = try fileSaveOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
                     self?.presenter.didExport(json: model)
@@ -118,7 +127,9 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
             }
         }
 
-        operationManager.enqueue(operations: [exportOperation], in: .transient)
+        fileSaveOperation.addDependency(exportOperation)
+
+        operationManager.enqueue(operations: [exportOperation, fileSaveOperation], in: .transient)
     }
 }
 
