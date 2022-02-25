@@ -97,6 +97,7 @@ final class AccountCreateViewController: UIViewController {
             action: #selector(actionOpenCryptoType),
             for: .valueChanged
         )
+        ethereumDerivationPathField.keyboardType = .decimalPad
     }
 
     private func setupNavigationItem() {
