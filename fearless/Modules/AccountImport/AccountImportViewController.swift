@@ -145,6 +145,8 @@ final class AccountImportViewController: UIViewController {
         passwordTextField.delegate = self
 
         uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
+
+        ethereumDerivationPathField.keyboardType = .decimalPad
     }
 
     private func setupLocalization() {

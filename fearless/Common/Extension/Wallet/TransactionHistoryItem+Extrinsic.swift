@@ -7,27 +7,22 @@ extension TransactionHistoryItem {
     static func createFromSubscriptionResult(
         _ result: TransactionSubscriptionResult,
         address: String,
-        addressFactory: SS58AddressFactoryProtocol
+        chain: ChainModel
     ) -> TransactionHistoryItem? {
         do {
-            let typeRawValue = try addressFactory.type(fromAddress: address)
             let extrinsic = result.processingResult.extrinsic
-
-            guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
-                return nil
-            }
 
             guard let txOrigin = try? extrinsic.signature?.address.map(to: MultiAddress.self).accountId else {
                 return nil
             }
 
-            let sender = try addressFactory.addressFromAccountId(data: txOrigin, type: addressType)
+            let sender = try AddressFactory.address(for: txOrigin, chain: chain)
             let receiver: AccountAddress? = {
                 if sender != address {
                     return address
                 } else {
                     if let peerId = result.processingResult.peerId {
-                        return try? addressFactory.addressFromAccountId(data: peerId, type: addressType)
+                        return try? AddressFactory.address(for: peerId, chain: chain)
                     } else {
                         return nil
                     }
