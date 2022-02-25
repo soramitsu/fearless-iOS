@@ -70,11 +70,11 @@ final class AccountCreatePresenter {
         processor: TextProcessing? = nil,
         maxLength: Int? = nil
     ) -> InputViewModel {
-        let predicate: NSPredicate
+        let predicate: NSPredicate?
         let placeholder: String
 
         if isEthereum {
-            predicate = NSPredicate.deriviationPathHardPassword
+            predicate = nil
             placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch cryptoType {
