@@ -67,7 +67,7 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             publicKey = secrets.keypair.publicKey()
         }
 
-        if let seed = keystoreMigrator.fetchKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: nil)) {
+        if let seed = keystoreMigrator.fetchKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: nil)), seed.count == 32 {
             let ethereumDPString = DerivationPathConstants.defaultEthereum
 
             let ethSecretKeyTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)
