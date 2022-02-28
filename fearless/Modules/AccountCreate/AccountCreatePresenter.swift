@@ -3,6 +3,8 @@ import IrohaCrypto
 import SoraFoundation
 
 final class AccountCreatePresenter {
+    static let maxEthereumDerivationPathLength: Int = 15
+
     weak var view: AccountCreateViewProtocol?
     var wireframe: AccountCreateWireframeProtocol!
     var interactor: AccountCreateInteractorInputProtocol!
@@ -52,7 +54,9 @@ final class AccountCreatePresenter {
     private func applyEthereumDerivationPathViewModel() {
         let viewModel = createViewModel(
             for: .ecdsa,
-            isEthereum: true
+            isEthereum: true,
+            processor: EthereumDerivationPathProcessor(),
+            maxLength: AccountCreatePresenter.maxEthereumDerivationPathLength
         )
         ethereumDerivationPathViewModel = viewModel
 
@@ -60,12 +64,17 @@ final class AccountCreatePresenter {
         view?.didValidateEthereumDerivationPath(.none)
     }
 
-    private func createViewModel(for cryptoType: CryptoType, isEthereum: Bool) -> InputViewModel {
-        let predicate: NSPredicate
+    private func createViewModel(
+        for cryptoType: CryptoType,
+        isEthereum: Bool,
+        processor: TextProcessing? = nil,
+        maxLength: Int? = nil
+    ) -> InputViewModel {
+        let predicate: NSPredicate?
         let placeholder: String
 
         if isEthereum {
-            predicate = NSPredicate.deriviationPathHardPassword
+            predicate = nil
             placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch cryptoType {
@@ -78,7 +87,11 @@ final class AccountCreatePresenter {
             }
         }
 
-        let inputHandling = InputHandler(predicate: predicate)
+        let inputHandling = InputHandler(
+            maxLength: maxLength ?? Int.max,
+            predicate: predicate,
+            processor: processor
+        )
         return InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
     }
 

@@ -22,13 +22,11 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
             return
         }
 
-//        walletSelection.controller.hidesBottomBarWhenPushed = false
+        walletSelection.hidesBottomBarWhenPushed = false
 
-        let navigationController = UINavigationController(rootViewController: walletSelection)
-        view?.controller.present(navigationController, animated: true, completion: nil)
-//        view?.controller.navigationController?.pushViewController(
-//            walletSelection.controller,
-//            animated: true
-//        )
+        view?.controller.navigationController?.pushViewController(
+            walletSelection,
+            animated: true
+        )
     }
 }
