@@ -133,6 +133,8 @@ final class WalletSendPresenter {
             return
         }
 
+        view?.didStartFeeCalculation()
+
         interactor.estimateFee(for: amount)
     }
 }
@@ -259,6 +261,8 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
     }
 
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
+        view?.didStopFeeCalculation()
+
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
