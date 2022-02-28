@@ -257,17 +257,11 @@ final class AccountImportPresenter {
         processor: TextProcessing? = nil,
         maxLength: Int? = nil
     ) -> InputViewModel {
-        let predicate: NSPredicate
+        let predicate: NSPredicate?
         let placeholder: String
         if isEthereum {
-            switch (cryptoType, sourceType) {
-            case (_, .mnemonic):
-                predicate = NSPredicate.deriviationPathHardPassword
-                placeholder = DerivationPathConstants.defaultEthereum
-            default:
-                predicate = NSPredicate.deriviationPathHard
-                placeholder = DerivationPathConstants.defaultEthereum
-            }
+            predicate = nil
+            placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch (cryptoType, sourceType) {
             case (.sr25519, .mnemonic):
