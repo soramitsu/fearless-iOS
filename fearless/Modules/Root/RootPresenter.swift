@@ -8,7 +8,12 @@ final class RootPresenter {
 
 extension RootPresenter: RootPresenterProtocol {
     func loadOnLaunch() {
-        interactor.setup()
+        interactor.setup(runMigrations: true)
+        interactor.decideModuleSynchroniously()
+    }
+
+    func reload() {
+        interactor.setup(runMigrations: false)
         interactor.decideModuleSynchroniously()
     }
 }

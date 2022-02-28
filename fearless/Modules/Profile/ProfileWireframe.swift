@@ -73,7 +73,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         if let window = UIApplication.shared.windows.first {
             window.rootViewController?.dismiss(animated: true, completion: nil)
             let presenter = RootPresenterFactory.createPresenter(with: window)
-            presenter.loadOnLaunch()
+            presenter.reload()
         }
     }
 
