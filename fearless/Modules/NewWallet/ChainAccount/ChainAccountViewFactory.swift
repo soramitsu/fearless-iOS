@@ -100,7 +100,9 @@ enum ChainAccountViewFactory {
             operationManager: operationManager,
             runtimeService: runtimeService,
             eventCenter: eventCenter,
-            transactionSubscription: subscriptionContainer
+            transactionSubscription: subscriptionContainer,
+            repository: AccountRepositoryFactory.createRepository(),
+            availableExportOptionsProvider: AvailableExportOptionsProvider()
         )
 
         let wireframe = ChainAccountWireframe()

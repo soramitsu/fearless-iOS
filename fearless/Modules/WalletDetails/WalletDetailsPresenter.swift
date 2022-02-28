@@ -82,6 +82,15 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         guard let address = chainsWithAccounts[chain]?.toAddress() else {
             return
         }
+        interactor.getAvailableExportOptions(for: chain, address: address)
+    }
+}
+
+extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
+    func didReceiveExportOptions(options: [ExportOption], for chain: ChainModel) {
+        guard let address = chainsWithAccounts[chain]?.toAddress() else {
+            return
+        }
         let items: [ChainAction] = createActions(for: chain, address: address)
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self,
@@ -93,7 +102,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
                 self.wireframe.showExport(
                     for: address,
                     chain: chain,
-                    options: ExportOption.allCases,
+                    options: options,
                     locale: self.selectedLocale,
                     from: self.view
                 )
@@ -118,9 +127,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
             callback: selectionCallback
         )
     }
-}
 
-extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
     func didReceive(chainsWithAccounts: [ChainModel: ChainAccountResponse]) {
         self.chainsWithAccounts = chainsWithAccounts
         provideViewModel(chainsWithAccounts: chainsWithAccounts)

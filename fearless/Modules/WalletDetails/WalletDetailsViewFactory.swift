@@ -14,7 +14,9 @@ final class WalletDetailsViewFactory {
             selectedMetaAccount: selectedWallet,
             chainsRepository: AnyDataProviderRepository(chainsRepository),
             operationManager: OperationManagerFacade.sharedManager,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            repository: AccountRepositoryFactory.createRepository(),
+            availableExportOptionsProvider: AvailableExportOptionsProvider()
         )
 
         let wireframe = WalletDetailsWireframe()
