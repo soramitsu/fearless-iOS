@@ -16,6 +16,8 @@ final class ChainAccountInteractor {
     let connection: JSONRPCEngine
     let eventCenter: EventCenterProtocol
     let transactionSubscription: StorageSubscriptionContainer?
+    let repository: AnyDataProviderRepository<MetaAccountModel>
+    let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
     var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
@@ -30,7 +32,8 @@ final class ChainAccountInteractor {
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         eventCenter: EventCenterProtocol,
-        transactionSubscription: StorageSubscriptionContainer?
+        transactionSubscription: StorageSubscriptionContainer?,
+        repository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -43,6 +46,7 @@ final class ChainAccountInteractor {
         self.operationManager = operationManager
         self.eventCenter = eventCenter
         self.transactionSubscription = transactionSubscription
+        self.repository = repository
     }
 
     private func subscribeToAccountInfo() {
@@ -112,6 +116,31 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             _ = subscribeToPrice(for: priceId)
         }
     }
+
+    func getAvailableExportOptions(for address: String) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainResponse):
+                guard let self = self, let response = chainResponse else {
+                    self?.presenter?.didReceiveExportOptions(options: [.keystore])
+                    return
+                }
+                let options = self.availableExportOptionsProvider
+                    .getAvailableExportOptions(
+                        for: address,
+                        accountId: response.accountId
+                    )
+                self.presenter?.didReceiveExportOptions(options: options)
+            default:
+                self?.presenter?.didReceiveExportOptions(options: [.keystore])
+            }
+        }
+    }
 }
 
 extension ChainAccountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
@@ -160,3 +189,5 @@ extension ChainAccountInteractor: EventVisitorProtocol {
         subscribeToAccountInfo()
     }
 }
+
+extension ChainAccountInteractor: AccountFetching {}
