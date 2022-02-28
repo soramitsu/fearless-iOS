@@ -17,7 +17,7 @@ final class ChainAccountInteractor {
     let eventCenter: EventCenterProtocol
     let transactionSubscription: StorageSubscriptionContainer?
     let repository: AnyDataProviderRepository<MetaAccountModel>
-    let availableExportOptionsProvider = AvailableExportOptionsProvider()
+    let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
 
     var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
@@ -33,7 +33,8 @@ final class ChainAccountInteractor {
         runtimeService: RuntimeCodingServiceProtocol,
         eventCenter: EventCenterProtocol,
         transactionSubscription: StorageSubscriptionContainer?,
-        repository: AnyDataProviderRepository<MetaAccountModel>
+        repository: AnyDataProviderRepository<MetaAccountModel>,
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -47,6 +48,7 @@ final class ChainAccountInteractor {
         self.eventCenter = eventCenter
         self.transactionSubscription = transactionSubscription
         self.repository = repository
+        self.availableExportOptionsProvider = availableExportOptionsProvider
     }
 
     private func subscribeToAccountInfo() {

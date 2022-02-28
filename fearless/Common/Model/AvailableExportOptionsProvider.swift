@@ -6,7 +6,7 @@ protocol AvailableExportOptionsProviderProtocol {
     ) -> [ExportOption]
 }
 
-final class AvailableExportOptionsProvider {
+final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtocol {
     let keystore = Keychain()
 
     func getAvailableExportOptions(

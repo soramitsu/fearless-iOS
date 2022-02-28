@@ -7,20 +7,22 @@ final class WalletDetailsInteractor {
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<MetaAccountModel>
-    private let availableExportOptionsProvider = AvailableExportOptionsProvider()
+    private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
 
     init(
         selectedMetaAccount: MetaAccountModel,
         chainsRepository: AnyDataProviderRepository<ChainModel>,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
-        repository: AnyDataProviderRepository<MetaAccountModel>
+        repository: AnyDataProviderRepository<MetaAccountModel>,
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainsRepository = chainsRepository
         self.operationManager = operationManager
         self.eventCenter = eventCenter
         self.repository = repository
+        self.availableExportOptionsProvider = availableExportOptionsProvider
     }
 }
 
