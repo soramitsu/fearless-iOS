@@ -25,10 +25,7 @@ final class ChainSyncService {
     private(set) var isSyncing: Bool = false
     private let mutex = NSLock()
 
-    private lazy var scheduler: Scheduler = {
-        let scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
-        return scheduler
-    }()
+    private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
     init(
         chainsUrl: URL?,
