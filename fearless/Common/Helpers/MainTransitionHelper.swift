@@ -24,7 +24,7 @@ struct MainTransitionHelper {
             return
         }
 
-        navigationController?.popToRootViewController(animated: false)
+        navigationController?.popToRootViewController(animated: true)
 
         tabBarController.selectedIndex = selectingIndex
 
