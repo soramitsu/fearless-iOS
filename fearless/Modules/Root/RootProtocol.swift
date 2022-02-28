@@ -2,6 +2,7 @@ import UIKit
 
 protocol RootPresenterProtocol: AnyObject {
     func loadOnLaunch()
+    func reload()
 }
 
 protocol RootWireframeProtocol: AnyObject {
@@ -12,7 +13,7 @@ protocol RootWireframeProtocol: AnyObject {
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(runMigrations: Bool)
     func decideModuleSynchroniously()
 }
 

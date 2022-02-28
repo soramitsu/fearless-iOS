@@ -145,7 +145,7 @@ extension WalletSendViewController: AmountInputViewModelObserver {
         guard case let .loaded(viewModel) = state else {
             return
         }
-        
+
         rootView.amountView.fieldText = viewModel.amountInputViewModel?.displayAmount
 
         let amount = viewModel.amountInputViewModel?.decimalAmount ?? 0.0
