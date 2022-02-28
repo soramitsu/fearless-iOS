@@ -130,10 +130,11 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
                     self?.presenter?.didReceiveExportOptions(options: [.keystore])
                     return
                 }
+                let accountId = response.isChainAccount ? response.accountId : nil
                 let options = self.availableExportOptionsProvider
                     .getAvailableExportOptions(
-                        for: address,
-                        accountId: response.accountId
+                        for: self.selectedMetaAccount.metaId,
+                        accountId: accountId
                     )
                 self.presenter?.didReceiveExportOptions(options: options)
             default:
