@@ -270,8 +270,10 @@ extension RewardCalculatorService: RewardCalculatorServiceProtocol {
 
             let semaphore = DispatchSemaphore(value: 0)
 
+            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCalculator.\(self.chainId)", qos: .utility)
+
             self.syncQueue.async {
-                self.fetchInfoFactory(runCompletionIn: nil) { [weak semaphore] info in
+                self.fetchInfoFactory(runCompletionIn: queue) { [weak semaphore] info in
                     fetchedInfo = info
                     semaphore?.signal()
                 }
