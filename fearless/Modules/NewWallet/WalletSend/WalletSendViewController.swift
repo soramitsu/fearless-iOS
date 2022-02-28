@@ -70,7 +70,6 @@ final class WalletSendViewController: UIViewController, ViewHolder {
                 amountViewModel.observable.remove(observer: self)
                 amountViewModel.observable.add(observer: self)
                 rootView.amountView.fieldText = amountViewModel.displayAmount
-                updateActionButton()
             }
         }
     }
@@ -101,6 +100,15 @@ extension WalletSendViewController: WalletSendViewProtocol {
         self.state = state
 
         applyState(state)
+    }
+
+    func didStartFeeCalculation() {
+        rootView.actionButton.applyDisabledStyle()
+        rootView.actionButton.isEnabled = false
+    }
+
+    func didStopFeeCalculation() {
+        updateActionButton()
     }
 }
 
@@ -137,9 +145,8 @@ extension WalletSendViewController: AmountInputViewModelObserver {
         guard case let .loaded(viewModel) = state else {
             return
         }
+        
         rootView.amountView.fieldText = viewModel.amountInputViewModel?.displayAmount
-
-        updateActionButton()
 
         let amount = viewModel.amountInputViewModel?.decimalAmount ?? 0.0
         presenter.updateAmount(amount)
