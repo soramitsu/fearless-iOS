@@ -16,10 +16,12 @@ protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
 protocol WalletDetailsInteractorInputProtocol: AnyObject {
     func setup()
     func update(walletName: String)
+    func getAvailableExportOptions(for chain: ChainModel, address: String)
 }
 
 protocol WalletDetailsInteractorOutputProtocol: AnyObject {
     func didReceive(chainsWithAccounts: [ChainModel: ChainAccountResponse])
+    func didReceiveExportOptions(options: [ExportOption], for chain: ChainModel)
     func didReceive(error: Error)
 }
 

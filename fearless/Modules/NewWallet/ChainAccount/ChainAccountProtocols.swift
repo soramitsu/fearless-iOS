@@ -17,6 +17,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
+    func getAvailableExportOptions(for address: String)
 
     var chain: ChainModel { get set }
 }
@@ -26,6 +27,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
+    func didReceiveExportOptions(options: [ExportOption])
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,

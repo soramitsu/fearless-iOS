@@ -142,6 +142,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         return ChainAccountBalanceCellViewModel(
+            chain: chainAsset.chain,
             asset: chainAsset.asset,
             assetName: title,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),

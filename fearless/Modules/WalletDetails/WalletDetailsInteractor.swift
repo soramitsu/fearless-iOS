@@ -6,17 +6,23 @@ final class WalletDetailsInteractor {
     private let chainsRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
+    private let repository: AnyDataProviderRepository<MetaAccountModel>
+    private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
 
     init(
         selectedMetaAccount: MetaAccountModel,
         chainsRepository: AnyDataProviderRepository<ChainModel>,
         operationManager: OperationManagerProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        repository: AnyDataProviderRepository<MetaAccountModel>,
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainsRepository = chainsRepository
         self.operationManager = operationManager
         self.eventCenter = eventCenter
+        self.repository = repository
+        self.availableExportOptionsProvider = availableExportOptionsProvider
     }
 }
 
@@ -52,6 +58,32 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         }
         saveOperation.addDependency(updateOperation)
         operationManager.enqueue(operations: [updateOperation, saveOperation], in: .transient)
+    }
+
+    func getAvailableExportOptions(for chain: ChainModel, address: String) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainResponse):
+                guard let self = self, let response = chainResponse else {
+                    self?.presenter?.didReceiveExportOptions(options: [.keystore], for: chain)
+                    return
+                }
+                let accountId = response.isChainAccount ? response.accountId : nil
+                let options = self.availableExportOptionsProvider
+                    .getAvailableExportOptions(
+                        for: self.selectedMetaAccount.metaId,
+                        accountId: accountId
+                    )
+                self.presenter?.didReceiveExportOptions(options: options, for: chain)
+            default:
+                self?.presenter?.didReceiveExportOptions(options: [.keystore], for: chain)
+            }
+        }
     }
 }
 
