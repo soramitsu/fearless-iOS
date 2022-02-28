@@ -1,6 +1,25 @@
 import RobinHood
 import CoreData
 
+enum SubstrateStorageParams {
+    static let modelVersion: SubstrateStorageVersion = .version2
+    static let modelDirectory: String = "SubstrateDataModel.momd"
+    static let databaseName = "SubstrateDataModel.sqlite"
+
+    static let storageDirectoryURL: URL = {
+        let baseURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first?.appendingPathComponent("CoreData")
+
+        return baseURL!
+    }()
+
+    static var storageURL: URL {
+        storageDirectoryURL.appendingPathComponent(databaseName)
+    }
+}
+
 class SubstrateDataStorageFacade: StorageFacadeProtocol {
     static let shared = SubstrateDataStorageFacade()
 
