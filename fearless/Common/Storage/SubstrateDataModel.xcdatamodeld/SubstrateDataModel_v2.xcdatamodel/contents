@@ -64,7 +64,6 @@
         <attribute name="targetAddress" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
-    <entity name="CDMockEntity" representedClassName="CDMockEntity" syncable="YES" codeGenerationType="class"/>
     <entity name="CDPhishingItem" representedClassName="CDPhishingItem" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="publicKey" optional="YES" attributeType="String"/>
@@ -109,6 +108,5 @@
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>
-        <element name="CDMockEntity" positionX="-27" positionY="162" width="128" height="29"/>
     </elements>
 </model>
