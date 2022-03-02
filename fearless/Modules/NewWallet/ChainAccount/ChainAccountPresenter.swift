@@ -9,8 +9,12 @@ final class ChainAccountPresenter {
     let viewModelFactory: ChainAccountViewModelFactoryProtocol
     let logger: LoggerProtocol
     let asset: AssetModel
-    let chain: ChainModel
+    var chain: ChainModel {
+        interactor.chain
+    }
+
     let selectedMetaAccount: MetaAccountModel
+    weak var moduleOutput: ChainAccountModuleOutput?
 
     private var accountInfo: AccountInfo?
     private var priceData: PriceData?
@@ -33,16 +37,17 @@ final class ChainAccountPresenter {
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
         asset: AssetModel,
-        chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        chain _: ChainModel,
+        selectedMetaAccount: MetaAccountModel,
+        moduleOutput: ChainAccountModuleOutput?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.asset = asset
-        self.chain = chain
         self.selectedMetaAccount = selectedMetaAccount
+        self.moduleOutput = moduleOutput
     }
 
     func provideViewModel() {
@@ -75,6 +80,8 @@ final class ChainAccountPresenter {
         view?.didReceiveState(.loaded(chainAccountViewModel))
     }
 }
+
+extension ChainAccountPresenter: ChainAccountModuleInput {}
 
 private extension ChainAccountPresenter {
     func getPurchaseActions() -> [PurchaseAction] {
@@ -115,7 +122,8 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             from: view,
             asset: asset,
             chain: chain,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            transferFinishBlock: nil
         )
     }
 
@@ -136,8 +144,14 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
+    func didTapOptionsButton() {
+        guard let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() else {
+            return
+        }
+        interactor.getAvailableExportOptions(for: address)
+    }
+
     func didTapInfoButton() {
-        print(accountInfo)
         if let info = accountInfo,
            let free = Decimal.fromSubstratePerbill(value: info.data.free),
            let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
@@ -208,6 +222,46 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         case let .failure(error):
             logger.error("Did receive balance locks error: \(error)")
         }
+    }
+
+    func didReceiveExportOptions(options: [ExportOption]) {
+        let items: [ChainAction] = [.export, .switchNode, .copyAddress]
+        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
+            guard let self = self else { return }
+            let action = items[selectedIndex]
+            switch action {
+            case .export:
+                guard let address =
+                    self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+                else { return }
+                self.wireframe.showExport(
+                    for: address,
+                    chain: self.chain,
+                    options: options,
+                    locale: self.selectedLocale,
+                    from: self.view
+                )
+            case .switchNode:
+                self.wireframe.presentNodeSelection(
+                    from: self.view,
+                    chain: self.chain
+                )
+            case .copyAddress:
+                UIPasteboard.general.string =
+                    self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+
+                let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
+                self.wireframe.presentSuccessNotification(title, from: self.view)
+            default:
+                break
+            }
+        }
+
+        wireframe.presentChainActionsFlow(
+            from: view,
+            items: items,
+            callback: selectionCallback
+        )
     }
 }
 

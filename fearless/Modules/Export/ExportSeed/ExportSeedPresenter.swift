@@ -7,12 +7,14 @@ final class ExportSeedPresenter {
     var interactor: ExportSeedInteractorInputProtocol!
 
     let address: String
+    let chain: ChainModel
     let localizationManager: LocalizationManager
 
     private(set) var exportViewModel: ExportStringViewModel?
 
-    init(address: String, localizationManager: LocalizationManager) {
+    init(address: String, chain: ChainModel, localizationManager: LocalizationManager) {
         self.address = address
+        self.chain = chain
         self.localizationManager = localizationManager
     }
 
@@ -28,7 +30,7 @@ final class ExportSeedPresenter {
         if let derivationPath = viewModel.derivationPath {
             text = R.string.localizable
                 .exportSeedWithDpTemplate(
-                    viewModel.networkType.titleForLocale(locale),
+                    viewModel.chain.name,
                     viewModel.data,
                     derivationPath,
                     preferredLanguages: locale.rLanguages
@@ -36,7 +38,7 @@ final class ExportSeedPresenter {
         } else {
             text = R.string.localizable
                 .exportSeedWithoutDpTemplate(
-                    viewModel.networkType.titleForLocale(locale),
+                    viewModel.chain.name,
                     viewModel.data,
                     preferredLanguages: locale.rLanguages
                 )
@@ -52,7 +54,7 @@ final class ExportSeedPresenter {
 
 extension ExportSeedPresenter: ExportGenericPresenterProtocol {
     func setup() {
-        interactor.fetchExportDataForAddress(address)
+        interactor.fetchExportDataForAddress(address, chain: chain)
     }
 
     func activateExport() {
@@ -82,9 +84,9 @@ extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
     func didReceive(exportData: ExportSeedData) {
         let viewModel = ExportStringViewModel(
             option: .seed,
-            networkType: exportData.networkType,
+            chain: exportData.chain,
+            cryptoType: exportData.cryptoType,
             derivationPath: exportData.derivationPath,
-            cryptoType: exportData.account.cryptoType,
             data: exportData.seed.toHex(includePrefix: true)
         )
 

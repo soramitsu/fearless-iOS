@@ -6,7 +6,7 @@ import FearlessUtils
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
     private let selectedMetaAccount: MetaAccountModel
-    private let chain: ChainModel
+    var chain: ChainModel
     private let asset: AssetModel
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
@@ -14,6 +14,12 @@ final class ChainAccountInteractor {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let connection: JSONRPCEngine
+    let eventCenter: EventCenterProtocol
+    let transactionSubscription: StorageSubscriptionContainer?
+    let repository: AnyDataProviderRepository<MetaAccountModel>
+    let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+
+    var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -24,7 +30,11 @@ final class ChainAccountInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         connection: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        eventCenter: EventCenterProtocol,
+        transactionSubscription: StorageSubscriptionContainer?,
+        repository: AnyDataProviderRepository<MetaAccountModel>,
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -35,11 +45,15 @@ final class ChainAccountInteractor {
         self.storageRequestFactory = storageRequestFactory
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.eventCenter = eventCenter
+        self.transactionSubscription = transactionSubscription
+        self.repository = repository
+        self.availableExportOptionsProvider = availableExportOptionsProvider
     }
 
     private func subscribeToAccountInfo() {
         if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-            _ = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+            accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
         } else {
             presenter?.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists),
@@ -94,12 +108,40 @@ final class ChainAccountInteractor {
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
+        eventCenter.add(observer: self)
+
         subscribeToAccountInfo()
         fetchMinimalBalance()
         fetchBalanceLocks()
 
         if let priceId = asset.priceId {
             _ = subscribeToPrice(for: priceId)
+        }
+    }
+
+    func getAvailableExportOptions(for address: String) {
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainResponse):
+                guard let self = self, let response = chainResponse else {
+                    self?.presenter?.didReceiveExportOptions(options: [.keystore])
+                    return
+                }
+                let accountId = response.isChainAccount ? response.accountId : nil
+                let options = self.availableExportOptionsProvider
+                    .getAvailableExportOptions(
+                        for: self.selectedMetaAccount.metaId,
+                        accountId: accountId
+                    )
+                self.presenter?.didReceiveExportOptions(options: options)
+            default:
+                self?.presenter?.didReceiveExportOptions(options: [.keystore])
+            }
         }
     }
 }
@@ -131,3 +173,24 @@ extension ChainAccountInteractor: RuntimeConstantFetching {
         }
     }
 }
+
+extension ChainAccountInteractor: AnyProviderAutoCleaning {}
+
+extension ChainAccountInteractor: EventVisitorProtocol {
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
+            guard let self = self else { return false }
+            return updatedChain.chainId == self.chain.chainId
+        }) {
+            chain = updated
+        }
+    }
+
+    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
+        clear(dataProvider: &accountInfoProvider)
+
+        subscribeToAccountInfo()
+    }
+}
+
+extension ChainAccountInteractor: AccountFetching {}

@@ -126,6 +126,8 @@ final class AccountImportViewController: UIViewController {
             for: .valueChanged
         )
 
+        ethereumCryptoTypeView.applyDisabledStyle()
+
         usernameTextField.textField.returnKeyType = .done
         usernameTextField.textField.textContentType = .nickname
         usernameTextField.textField.autocapitalizationType = .none
@@ -143,6 +145,8 @@ final class AccountImportViewController: UIViewController {
         passwordTextField.delegate = self
 
         uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
+
+        ethereumDerivationPathField.keyboardType = .decimalPad
     }
 
     private func setupLocalization() {
@@ -167,6 +171,9 @@ final class AccountImportViewController: UIViewController {
         substrateCryptoTypeView.actionControl.invalidateLayout()
         ethereumCryptoTypeView.twoVerticalLabelView.titleLabel.text = R.string.localizable
             .ethereumCryptoType(preferredLanguages: locale.rLanguages)
+        ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text =
+            R.string.localizable
+                .ecdsaSelectionSubtitle(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
 
         substrateDerivationPathLabel.text = R.string.localizable

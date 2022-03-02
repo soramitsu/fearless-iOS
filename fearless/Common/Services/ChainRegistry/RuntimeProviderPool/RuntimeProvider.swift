@@ -4,6 +4,7 @@ import FearlessUtils
 
 protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     var chainId: ChainModel.Id { get }
+    var snapshot: RuntimeSnapshot? { get }
 
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
@@ -160,11 +161,16 @@ final class RuntimeProvider {
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
+            guard let self = self else {
+                throw RuntimeProviderError.providerUnavailable
+            }
+
             var fetchedFactory: RuntimeCoderFactoryProtocol?
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .utility)
+            self.fetchCoderFactory(runCompletionIn: queue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -179,13 +185,22 @@ final class RuntimeProvider {
         }
     }
 
-    func fetchCoderFactoryOperation(with _: TimeInterval, closure _: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
+    func fetchCoderFactoryOperation(
+        with _: TimeInterval,
+        closure _: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
+            guard let self = self else {
+                throw RuntimeProviderError.providerUnavailable
+            }
+
+            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .utility)
+
             var fetchedFactory: RuntimeCoderFactoryProtocol?
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+            self.fetchCoderFactory(runCompletionIn: queue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -202,6 +217,10 @@ final class RuntimeProvider {
 }
 
 extension RuntimeProvider: RuntimeProviderProtocol {
+    var runtimeSnapshot: RuntimeSnapshot? {
+        snapshot
+    }
+
     func setup() {
         mutex.lock()
 

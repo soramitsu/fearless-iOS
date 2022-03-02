@@ -4,8 +4,13 @@ import CommonWallet
 import RobinHood
 import SoraFoundation
 
-struct WalletTransactionHistoryViewFactory {
-    static func createView(asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel) -> WalletTransactionHistoryViewProtocol? {
+struct WalletTransactionHistoryModule {
+    let view: WalletTransactionHistoryViewProtocol?
+    let moduleInput: WalletTransactionHistoryModuleInput?
+}
+
+enum WalletTransactionHistoryViewFactory {
+    static func createView(asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel) -> WalletTransactionHistoryModule? {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
@@ -23,7 +28,8 @@ struct WalletTransactionHistoryViewFactory {
             logger: Logger.shared,
             defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
             selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
-            filters: transactionHistoryFilters()
+            filters: transactionHistoryFilters(for: chain),
+            eventCenter: EventCenter.shared
         )
         let wireframe = WalletTransactionHistoryWireframe()
 
@@ -52,15 +58,19 @@ struct WalletTransactionHistoryViewFactory {
         presenter.view = view
         interactor.presenter = presenter
 
-        return view
+        return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }
 
-    static func transactionHistoryFilters() -> [FilterSet] {
-        [FilterSet(
+    static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
+        var filters: [WalletTransactionHistoryFilter] = [WalletTransactionHistoryFilter(type: .transfer, selected: true),
+                                                         WalletTransactionHistoryFilter(type: .other, selected: true)]
+        if chain.hasStakingRewardHistory {
+            filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
+        }
+
+        return [FilterSet(
             title: R.string.localizable.walletFiltersHeader(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages),
-            items: [WalletTransactionHistoryFilter(type: .transfer, selected: true),
-                    WalletTransactionHistoryFilter(type: .reward, selected: true),
-                    WalletTransactionHistoryFilter(type: .other, selected: true)]
+            items: filters
         )]
     }
 }

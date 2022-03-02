@@ -11,12 +11,15 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapSendButton()
     func didTapReceiveButton()
     func didTapBuyButton()
-
+    func didTapOptionsButton()
     func didTapInfoButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
+    func getAvailableExportOptions(for address: String)
+
+    var chain: ChainModel { get set }
 }
 
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
@@ -24,16 +27,21 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
+    func didReceiveExportOptions(options: [ExportOption])
 }
 
-protocol ChainAccountWireframeProtocol: AnyObject {
+protocol ChainAccountWireframeProtocol: ErrorPresentable,
+    AlertPresentable,
+    ModalAlertPresenting,
+    AuthorizationPresentable {
     func close(view: ControllerBackedProtocol?)
 
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     )
 
     func presentReceiveFlow(
@@ -59,4 +67,29 @@ protocol ChainAccountWireframeProtocol: AnyObject {
         balanceContext: BalanceContext,
         info: AssetBalanceDisplayInfo
     )
+
+    func presentChainActionsFlow(
+        from view: ControllerBackedProtocol?,
+        items: [ChainAction],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+
+    func presentNodeSelection(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel
+    )
+
+    func showExport(
+        for address: String,
+        chain: ChainModel,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: ControllerBackedProtocol?
+    )
+}
+
+protocol ChainAccountModuleInput: AnyObject {}
+
+protocol ChainAccountModuleOutput: AnyObject {
+    func updateTransactionHistory()
 }

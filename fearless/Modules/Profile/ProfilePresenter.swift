@@ -53,9 +53,11 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
 
         let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
-            self?.interactor.logout { [weak self] in
-                self?.wireframe.logout(from: self?.view)
-            }
+            guard let self = self else { return }
+            self.wireframe.showCheckPincode(
+                from: self.view,
+                output: self
+            )
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
@@ -73,6 +75,20 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+}
+
+extension ProfilePresenter: CheckPincodeModuleOutput {
+    func close(view: ControllerBackedProtocol?) {
+        wireframe.close(view: view)
+    }
+
+    func didCheck() {
+        interactor.logout { [weak self] in
+            DispatchQueue.main.async {
+                self?.wireframe.logout(from: self?.view)
+            }
+        }
     }
 }
 

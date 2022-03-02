@@ -2,14 +2,19 @@ import Foundation
 import FearlessUtils
 
 struct EventRecord: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case phase
+        case event
+    }
+
     let phase: Phase
     let event: Event
 
     init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
+        var container = try decoder.container(keyedBy: CodingKeys.self)
 
-        phase = try container.decode(Phase.self)
-        event = try container.decode(Event.self)
+        phase = try container.decode(Phase.self, forKey: .phase)
+        event = try container.decode(Event.self, forKey: .event)
     }
 }
 
@@ -53,17 +58,20 @@ enum Phase: Decodable {
     }
 }
 
+struct EventWrapper: Decodable {}
+
 struct Event: Decodable {
-    let moduleIndex: UInt8
-    let eventIndex: UInt32
-    let params: JSON
+    let section: String
+    let method: String
+    let data: JSON
 
     init(from decoder: Decoder) throws {
         var unkeyedContainer = try decoder.unkeyedContainer()
 
-        moduleIndex = try unkeyedContainer.decode(UInt8.self)
-        eventIndex = try unkeyedContainer.decode(UInt32.self)
-        params = try unkeyedContainer.decode(JSON.self)
+        section = try unkeyedContainer.decode(String.self)
+        var arrayContainer = try unkeyedContainer.nestedUnkeyedContainer()
+        method = try arrayContainer.decode(String.self)
+        data = try arrayContainer.decode(JSON.self)
     }
 }
 

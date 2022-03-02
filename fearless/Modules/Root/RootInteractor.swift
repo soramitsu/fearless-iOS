@@ -75,9 +75,12 @@ extension RootInteractor: RootInteractorInputProtocol {
         }
     }
 
-    func setup() {
+    func setup(runMigrations: Bool) {
         setupURLHandlingService()
-        runMigrators()
+
+        if runMigrations {
+            runMigrators()
+        }
 
         // TODO: Move to loading screen
         settings.setup(runningCompletionIn: .main) { result in

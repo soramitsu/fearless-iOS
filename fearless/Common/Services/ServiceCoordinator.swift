@@ -37,7 +37,7 @@ final class ServiceCoordinator {
 }
 
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
-    func updateOnNetworkDown() {
+    func updateOnNetworkDown(url _: URL) {
         // TODO: Replace with multiassets code
 //        let selectedConnectionItem = settings.selectedConnection
 //
@@ -92,7 +92,8 @@ extension ServiceCoordinator {
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
-            logger: logger
+            logger: logger,
+            eventCenter: EventCenter.shared
         )
 
         return ServiceCoordinator(
@@ -104,7 +105,7 @@ extension ServiceCoordinator {
 }
 
 extension ServiceCoordinator: WebSocketServiceStateListener {
-    func websocketNetworkDown() {
-        updateOnNetworkDown()
+    func websocketNetworkDown(url: URL) {
+        updateOnNetworkDown(url: url)
     }
 }

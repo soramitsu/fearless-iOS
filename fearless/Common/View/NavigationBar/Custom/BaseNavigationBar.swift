@@ -16,6 +16,13 @@ class BaseNavigationBar: BaseTopBar {
         return button
     }()
 
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textColor = .white
+        return label
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -35,5 +42,10 @@ class BaseNavigationBar: BaseTopBar {
         case .present:
             backButton.setImage(R.image.iconClose(), for: .normal)
         }
+    }
+
+    func setTitle(_ title: String) {
+        setCenterViews([titleLabel])
+        titleLabel.text = title
     }
 }

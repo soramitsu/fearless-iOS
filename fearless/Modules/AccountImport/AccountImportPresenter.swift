@@ -16,6 +16,7 @@ final class AccountImportPresenter {
     static let maxMnemonicSize: Int = 24
     static let maxRawSeedLength: Int = 66
     static let maxKeystoreLength: Int = 4000
+    static let maxEthereumDerivationPathLength: Int = 15
 
     weak var view: AccountImportViewProtocol?
     var wireframe: AccountImportWireframeProtocol!
@@ -24,7 +25,7 @@ final class AccountImportPresenter {
     private(set) var metadata: MetaAccountImportMetadata?
 
     private(set) var selectedSourceType: AccountImportSource?
-    private(set) var selectedCryptoType: MultiassetCryptoType?
+    private(set) var selectedCryptoType: CryptoType?
 
     private(set) var sourceViewModel: InputViewModelProtocol?
     private(set) var usernameViewModel: InputViewModelProtocol?
@@ -217,7 +218,11 @@ final class AccountImportPresenter {
             return
         }
 
-        let viewModel = createViewModel(for: cryptoType, sourceType: sourceType)
+        let viewModel = createViewModel(
+            for: cryptoType,
+            sourceType: sourceType,
+            isEthereum: false
+        )
 
         substrateDerivationPathViewModel = viewModel
 
@@ -229,8 +234,15 @@ final class AccountImportPresenter {
         guard let sourceType = selectedSourceType else {
             return
         }
+        let processor = EthereumDerivationPathProcessor()
 
-        let viewModel = createViewModel(for: .ethereumEcdsa, sourceType: sourceType)
+        let viewModel = createViewModel(
+            for: .ecdsa,
+            sourceType: sourceType,
+            isEthereum: true,
+            processor: processor,
+            maxLength: AccountImportPresenter.maxEthereumDerivationPathLength
+        )
 
         ethereumDerivationPathViewModel = viewModel
 
@@ -239,56 +251,64 @@ final class AccountImportPresenter {
     }
 
     private func createViewModel(
-        for cryptoType: MultiassetCryptoType,
-        sourceType: AccountImportSource
+        for cryptoType: CryptoType,
+        sourceType: AccountImportSource,
+        isEthereum: Bool,
+        processor: TextProcessing? = nil,
+        maxLength: Int? = nil
     ) -> InputViewModel {
-        let predicate: NSPredicate
+        let predicate: NSPredicate?
         let placeholder: String
-
-        switch (cryptoType, sourceType) {
-        case (.sr25519, .mnemonic):
-            predicate = NSPredicate.deriviationPathHardSoftPassword
-            placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
-        case (.sr25519, _):
-            predicate = NSPredicate.deriviationPathHardSoft
-            placeholder = DerivationPathConstants.hardSoftPlaceholder
-        case (.ethereumEcdsa, .mnemonic):
-            predicate = NSPredicate.deriviationPathHardPassword
+        if isEthereum {
+            predicate = nil
             placeholder = DerivationPathConstants.defaultEthereum
-        case (.ethereumEcdsa, _):
-            predicate = NSPredicate.deriviationPathHard
-            placeholder = DerivationPathConstants.defaultEthereum
-        case (_, .mnemonic):
-            predicate = NSPredicate.deriviationPathHardPassword
-            placeholder = DerivationPathConstants.hardPasswordPlaceholder
-        case (_, _):
-            predicate = NSPredicate.deriviationPathHard
-            placeholder = DerivationPathConstants.hardPasswordPlaceholder
+        } else {
+            switch (cryptoType, sourceType) {
+            case (.sr25519, .mnemonic):
+                predicate = NSPredicate.deriviationPathHardSoftPassword
+                placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
+            case (.sr25519, _):
+                predicate = NSPredicate.deriviationPathHardSoft
+                placeholder = DerivationPathConstants.hardSoftPlaceholder
+            case (_, .mnemonic):
+                predicate = NSPredicate.deriviationPathHardPassword
+                placeholder = DerivationPathConstants.hardPasswordPlaceholder
+            case (_, _):
+                predicate = NSPredicate.deriviationPathHard
+                placeholder = DerivationPathConstants.hardPasswordPlaceholder
+            }
         }
 
-        let inputHandling = InputHandler(required: false, predicate: predicate)
+        let inputHandling = InputHandler(
+            required: false,
+            maxLength: maxLength ?? Int.max,
+            predicate: predicate,
+            processor: processor
+        )
         return InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
     }
 
     private func presentDerivationPathError(
         sourceType: AccountImportSource,
-        cryptoType: MultiassetCryptoType
+        cryptoType: CryptoType,
+        isEthereum: Bool
     ) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let error: AccountCreationError
 
-        switch cryptoType {
-        case .sr25519:
-            error = sourceType == .mnemonic ?
-                .invalidDerivationHardSoftPassword : .invalidDerivationHardSoft
-
-        case .ed25519, .substrateEcdsa:
-            error = sourceType == .mnemonic ?
-                .invalidDerivationHardPassword : .invalidDerivationHard
-
-        case .ethereumEcdsa:
+        if isEthereum {
             error = sourceType == .mnemonic ?
                 .invalidDerivationHardSoftNumericPassword : .invalidDerivationHardSoftNumeric
+        } else {
+            switch cryptoType {
+            case .sr25519:
+                error = sourceType == .mnemonic ?
+                    .invalidDerivationHardSoftPassword : .invalidDerivationHardSoft
+
+            case .ed25519, .ecdsa:
+                error = sourceType == .mnemonic ?
+                    .invalidDerivationHardPassword : .invalidDerivationHard
+            }
         }
 
         _ = wireframe.present(error: error, from: view, locale: locale)
@@ -398,7 +418,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             view?.didValidateSubstrateDerivationPath(.valid)
         } else {
             view?.didValidateSubstrateDerivationPath(.invalid)
-            presentDerivationPathError(sourceType: sourceType, cryptoType: cryptoType)
+            presentDerivationPathError(
+                sourceType: sourceType,
+                cryptoType: cryptoType,
+                isEthereum: false
+            )
         }
     }
 
@@ -413,7 +437,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             view?.didValidateEthereumDerivationPath(.valid)
         } else {
             view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(sourceType: sourceType, cryptoType: .ethereumEcdsa)
+            presentDerivationPathError(
+                sourceType: sourceType,
+                cryptoType: .ecdsa,
+                isEthereum: true
+            )
         }
     }
 
@@ -440,7 +468,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let substrateDerivationPathViewModel = substrateDerivationPathViewModel,
             !substrateDerivationPathViewModel.inputHandler.completed {
             view?.didValidateSubstrateDerivationPath(.invalid)
-            presentDerivationPathError(sourceType: selectedSourceType, cryptoType: selectedCryptoType)
+            presentDerivationPathError(
+                sourceType: selectedSourceType,
+                cryptoType: selectedCryptoType,
+                isEthereum: false
+            )
             return
         }
 
@@ -448,14 +480,19 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let ethereumDerivationPathViewModel = ethereumDerivationPathViewModel,
             !ethereumDerivationPathViewModel.inputHandler.completed {
             view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(sourceType: selectedSourceType, cryptoType: selectedCryptoType)
+            presentDerivationPathError(
+                sourceType: selectedSourceType,
+                cryptoType: selectedCryptoType,
+                isEthereum: true
+            )
             return
         }
 
         let username = usernameViewModel.inputHandler.value
         let password = passwordViewModel?.inputHandler.value ?? ""
-        let substrateDerivationPath = substrateDerivationPathViewModel?.inputHandler.value ?? ""
-        let ethereumDerivationPath = ethereumDerivationPathViewModel?.inputHandler.value ?? ""
+        let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
+        let ethereumDerivationPath =
+            (ethereumDerivationPathViewModel?.inputHandler.value).nonEmpty(or: DerivationPathConstants.defaultEthereum)
 
         switch selectedSourceType {
         case .mnemonic:
@@ -490,6 +527,16 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
             interactor.importAccountWithKeystore(request: request)
         }
+    }
+}
+
+private extension Optional where Wrapped == String {
+    func nonEmpty(or defaultValue: String) -> String {
+        guard let self = self, !self.isEmpty else {
+            return defaultValue
+        }
+
+        return self
     }
 }
 

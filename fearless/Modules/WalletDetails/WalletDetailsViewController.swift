@@ -124,8 +124,8 @@ extension WalletDetailsViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCellWithType(WalletDetailsTableCell.self) else {
             return UITableViewCell()
         }
-
         cell.bind(to: viewModels[indexPath.row])
+        cell.delegate = self
         return cell
     }
 
@@ -138,6 +138,17 @@ extension WalletDetailsViewController: UITableViewDelegate {
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let chain = chainViewModels?[indexPath.row], let address = chain.address {
             UIPasteboard.general.string = address
+        }
+    }
+}
+
+extension WalletDetailsViewController: WalletDetailsTableCellDelegate {
+    func didTapActions(_ cell: WalletDetailsTableCell) {
+        guard let indexPath = rootView.tableView.indexPath(for: cell) else {
+            return
+        }
+        if let chain = chainViewModels?[indexPath.row].chain {
+            output.showActions(for: chain)
         }
     }
 }

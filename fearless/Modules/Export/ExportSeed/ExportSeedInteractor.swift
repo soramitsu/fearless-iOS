@@ -2,21 +2,23 @@ import UIKit
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 enum ExportSeedInteractorError: Error {
     case missingSeed
+    case missingAccount
 }
 
 final class ExportSeedInteractor {
     weak var presenter: ExportSeedInteractorOutputProtocol!
 
     let keystore: KeystoreProtocol
-    let repository: AnyDataProviderRepository<AccountItem>
+    let repository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
 
     init(
         keystore: KeystoreProtocol,
-        repository: AnyDataProviderRepository<AccountItem>,
+        repository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.keystore = keystore
@@ -26,43 +28,75 @@ final class ExportSeedInteractor {
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
-    func fetchExportDataForAddress(_ address: String) {
-        let accountOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
+    func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
+        guard let metaAccount = SelectedWalletSettings.shared.value else {
+            presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
+            return
+        }
 
-        let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
-            guard let account = try accountOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            else {
-                throw ExportMnemonicInteractorError.missingAccount
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: repository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            switch result {
+            case let .success(chainRespone):
+                guard let response = chainRespone,
+                      let accountId = metaAccount.fetch(for: chain.accountRequest())?.accountId else {
+                    self?.presenter.didReceive(error: ExportSeedInteractorError.missingAccount)
+                    return
+                }
+                self?.fetchExportData(
+                    metaId: metaAccount.metaId,
+                    accountId: response.isChainAccount ? accountId : nil,
+                    cryptoType: response.cryptoType,
+                    chain: chain
+                )
+            case .failure:
+                self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
             }
+        }
+    }
 
-            var optionalSeed: Data? = try self?.keystore.fetchSeedForAddress(address)
+    private func fetchExportData(
+        metaId: String,
+        accountId: AccountId?,
+        cryptoType: CryptoType,
+        chain: ChainModel
+    ) {
+        let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
+            let seedTag = chain.isEthereumBased
+                ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
 
-            if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
-                optionalSeed = try self?.keystore.fetchSecretKeyForAddress(address)
+            var optionalSeed: Data? = try self?.keystore.fetchKey(for: seedTag)
+
+            let keyTag = chain.isEthereumBased
+                ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+
+            if optionalSeed == nil, cryptoType.supportsSeedFromSecretKey {
+                optionalSeed = try self?.keystore.fetchKey(for: keyTag)
             }
 
             guard let seed = optionalSeed else {
                 throw ExportSeedInteractorError.missingSeed
             }
 
-            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(address)
+            let derivationPathTag = chain.isEthereumBased
+                ? KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
 
-            let addressRawType = try SS58AddressFactory().type(fromAddress: address)
-
-            guard let chain = SNAddressType(rawValue: addressRawType.uint8Value)?.chain else {
-                throw AccountExportPasswordInteractorError.unsupportedAddress
-            }
+            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
 
             return ExportSeedData(
-                account: account,
                 seed: seed,
                 derivationPath: derivationPath,
-                networkType: chain
+                chain: chain,
+                cryptoType: cryptoType
             )
         }
-
-        exportOperation.addDependency(accountOperation)
 
         exportOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -77,6 +111,8 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: [accountOperation, exportOperation], in: .transient)
+        operationManager.enqueue(operations: [exportOperation], in: .transient)
     }
 }
+
+extension ExportSeedInteractor: AccountFetching {}

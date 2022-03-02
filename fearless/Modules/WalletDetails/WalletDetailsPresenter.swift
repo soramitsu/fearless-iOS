@@ -67,21 +67,67 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     }
 
     func didReceive(error: Error) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        guard !wireframe.present(error: error, from: view, locale: locale) else {
+        guard !wireframe.present(error: error, from: view, locale: selectedLocale) else {
             return
         }
 
         _ = wireframe.present(
             error: CommonError.undefined,
             from: view,
-            locale: locale
+            locale: selectedLocale
         )
+    }
+
+    func showActions(for chain: ChainModel) {
+        guard let address = chainsWithAccounts[chain]?.toAddress() else {
+            return
+        }
+        interactor.getAvailableExportOptions(for: chain, address: address)
     }
 }
 
 extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
+    func didReceiveExportOptions(options: [ExportOption], for chain: ChainModel) {
+        guard let address = chainsWithAccounts[chain]?.toAddress() else {
+            return
+        }
+        let items: [ChainAction] = createActions(for: chain, address: address)
+        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
+            guard let self = self,
+                  let view = self.view
+            else { return }
+            let action = items[selectedIndex]
+            switch action {
+            case .export:
+                self.wireframe.showExport(
+                    for: address,
+                    chain: chain,
+                    options: options,
+                    locale: self.selectedLocale,
+                    from: self.view
+                )
+            case .switchNode:
+                self.wireframe.presentNodeSelection(
+                    from: self.view,
+                    chain: chain
+                )
+            case .copyAddress:
+                UIPasteboard.general.string = address
+                let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
+                self.wireframe.presentSuccessNotification(title, from: self.view)
+            case let .subscan(url):
+                self.wireframe.present(from: view, url: url)
+            case let .polkascan(url):
+                self.wireframe.present(from: view, url: url)
+            }
+        }
+        wireframe.presentAcions(
+            from: view,
+            items: items,
+            callback: selectionCallback
+        )
+    }
+
     func didReceive(chainsWithAccounts: [ChainModel: ChainAccountResponse]) {
         self.chainsWithAccounts = chainsWithAccounts
         provideViewModel(chainsWithAccounts: chainsWithAccounts)
@@ -108,12 +154,23 @@ private extension WalletDetailsPresenter {
                 }
                 return WalletDetailsCellViewModel(
                     chainImageViewModel: icon,
-                    chainName: $0.key.name,
+                    chain: $0.key,
                     addressImage: addressImage,
                     address: address
                 )
             }
         )
         view?.bind(to: viewModel)
+    }
+
+    func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
+        var actions: [ChainAction] = [.copyAddress, .switchNode, .export]
+        if let polkascanUrl = chain.polkascanAddressURL(address) {
+            actions.append(.polkascan(url: polkascanUrl))
+        }
+        if let subscanUrl = chain.subscanAddressURL(address) {
+            actions.append(.subscan(url: subscanUrl))
+        }
+        return actions
     }
 }

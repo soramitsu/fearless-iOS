@@ -94,17 +94,9 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 
     private func updateLoadingAndEmptyState(animated: Bool) {
         updateEmptyState(animated: animated)
-//
-//        if presenter.isLoading {
-//            pageLoadingView.start()
-//        } else {
-//            pageLoadingView.stop()
-//        }
     }
 
     func applyState(_: WalletTransactionHistoryViewState) {
-//        reloadContent()
-
         switch state {
         case .loading:
             rootView.tableView.isHidden = true
@@ -359,19 +351,12 @@ extension WalletTransactionHistoryViewController: Draggable {
         progress: Double,
         forcesLayoutUpdate: Bool
     ) {
-        let titleFullPosition = rootView.headerView.bounds.midX - rootView.titleLabel.intrinsicContentSize.width / 2.0
-        let titleCompactPosition = Constants.compactTitleLeft
-
         switch draggableState {
         case .compact:
             let adjustedProgress = min(progress / (1.0 - Constants.triggerProgressThreshold), 1.0)
 
-//            rootView.backgroundView.applyFullscreen(progress: CGFloat(adjustedProgress))
             rootView.closeButton.alpha = CGFloat(1.0 - adjustedProgress)
             rootView.panIndicatorView.alpha = CGFloat(adjustedProgress)
-
-            let titleProgress = CGFloat(1.0 - adjustedProgress) * (titleFullPosition - titleCompactPosition)
-//            titleLeft.constant = titleCompactPosition + titleProgress
 
             if progress > 0.0 {
                 rootView.tableView.isScrollEnabled = false
@@ -381,12 +366,8 @@ extension WalletTransactionHistoryViewController: Draggable {
             let adjustedProgress = max(progress - Constants.triggerProgressThreshold, 0.0)
                 / (1.0 - Constants.triggerProgressThreshold)
 
-//            rootView.backgroundView.applyFullscreen(progress: CGFloat(1.0 - adjustedProgress))
             rootView.closeButton.alpha = CGFloat(adjustedProgress)
             rootView.panIndicatorView.alpha = CGFloat(1.0 - adjustedProgress)
-
-            let titleProgress = CGFloat(adjustedProgress) * (titleFullPosition - titleCompactPosition)
-//            rootView.titleLeft.constant = titleCompactPosition + titleProgress
         }
 
         if forcesLayoutUpdate {
@@ -403,7 +384,6 @@ extension WalletTransactionHistoryViewController: Draggable {
         case .compact:
             let adjustedProgress = min(progress / (1.0 - Constants.triggerProgressThreshold), 1.0)
 
-//            rootView.backgroundView.applyFullscreen(progress: CGFloat(adjustedProgress))
             rootView.closeButton.alpha = 0.0
             rootView.headerView.alpha = CGFloat(adjustedProgress)
             rootView.panIndicatorView.alpha = CGFloat(adjustedProgress)
@@ -415,7 +395,6 @@ extension WalletTransactionHistoryViewController: Draggable {
             let adjustedProgress = max(progress - Constants.triggerProgressThreshold, 0.0)
                 / (1.0 - Constants.triggerProgressThreshold)
 
-//            rootView.backgroundView.applyFullscreen(progress: CGFloat(1.0 - adjustedProgress))
             rootView.closeButton.alpha = 0.0
             rootView.headerView.alpha = CGFloat(1.0 - adjustedProgress)
             rootView.panIndicatorView.alpha = CGFloat(1.0 - adjustedProgress)

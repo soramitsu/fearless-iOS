@@ -18,7 +18,7 @@ final class WalletSendConfirmPresenter {
     let selectedAccount: MetaAccountModel
     let chain: ChainModel
     let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
-
+    let transferFinishBlock: WalletTransferFinishBlock?
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var priceData: PriceData?
@@ -39,7 +39,8 @@ final class WalletSendConfirmPresenter {
         selectedAccount: MetaAccountModel,
         chain: ChainModel,
         receiverAddress: String,
-        amount: Decimal
+        amount: Decimal,
+        transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -53,6 +54,7 @@ final class WalletSendConfirmPresenter {
         self.amount = amount
         self.selectedAccount = selectedAccount
         self.chain = chain
+        self.transferFinishBlock = transferFinishBlock
     }
 
     private func provideViewModel() {
@@ -80,10 +82,9 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideSenderAccountViewModel() -> AccountViewModel? {
-        let addressFactory = SS58AddressFactory()
-
         guard let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId,
-              let senderAddress = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) else {
+              let senderAddress = try? AddressFactory.address(for: accountId, chain: chain)
+        else {
             return nil
         }
 
@@ -176,6 +177,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
         switch result {
         case .success:
+            transferFinishBlock?()
+
             let title = R.string.localizable
                 .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
 

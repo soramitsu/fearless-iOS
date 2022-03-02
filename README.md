@@ -4,7 +4,7 @@
 ![logo](/docs/fearlesswallet_promo.png)
 
 ## About
-Fearless Wallet is a mobile wallet designed for the decentralized future on the Kusama network, with support on iOS and Android platforms. The best user experience, fast performance, and secure storage for your accounts. Development of Fearless Wallet is supported by Kusama Treasury grant.
+Fearless Wallet is a mobile wallet designed for the decentralized future on the Kusama and Polkadot network, with support on iOS and Android platforms. The best user experience, fast performance, and secure storage for your accounts. Development of Fearless Wallet is supported by Kusama Treasury grant.
 
 [![](https://img.shields.io/twitter/follow/FearlessWallet?label=Follow&style=social)](https://twitter.com/FearlessWallet)
 

@@ -62,7 +62,7 @@ class BaseAccountImportInteractor {
             defaultSource: .mnemonic,
             availableNetworks: supportedNetworks,
             defaultNetwork: defaultNetwork,
-            availableCryptoTypes: MultiassetCryptoType.allCases,
+            availableCryptoTypes: CryptoType.allCases,
             defaultCryptoType: .sr25519
         )
 

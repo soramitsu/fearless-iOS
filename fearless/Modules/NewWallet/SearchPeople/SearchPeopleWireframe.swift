@@ -5,12 +5,14 @@ final class SearchPeopleWireframe: SearchPeopleWireframeProtocol {
         from view: ControllerBackedProtocol?,
         to receiverAddress: String,
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        transferFinishBlock: WalletTransferFinishBlock?
     ) {
         guard let controller = WalletSendViewFactory.createView(
             receiverAddress: receiverAddress,
             asset: asset,
-            chain: chain
+            chain: chain,
+            transferFinishBlock: transferFinishBlock
         )?.controller else {
             return
         }

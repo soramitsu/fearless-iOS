@@ -1,9 +1,9 @@
 import Foundation
 import IrohaCrypto
+import FearlessUtils
 
 struct ExportMnemonicData {
-    let account: AccountItem
     let mnemonic: IRMnemonicProtocol
     let derivationPath: String?
-    let networkType: Chain
+    let cryptoType: CryptoType
 }

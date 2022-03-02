@@ -2,6 +2,8 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
+typealias ModalPickerSelectionCallback = (Int) -> Void
+
 protocol ModalPickerViewControllerDelegate: AnyObject {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?)
     func modalPickerDidCancel(context: AnyObject?)
@@ -27,6 +29,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
     @IBOutlet private var tableView: UITableView!
 
+    var selectionCallback: ModalPickerSelectionCallback?
     var localizedTitle: LocalizableResource<String>?
     var icon: UIImage?
     var actionType: ModalPickerViewAction = .none
@@ -40,6 +43,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
     var hasCloseItem: Bool = false
     var allowsSelection: Bool = true
+    var showSelection: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
@@ -147,20 +151,20 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if indexPath.row != selectedIndex {
-            if var oldCell = tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0)) as? C {
-                oldCell.checkmarked = false
-            }
-
-            if var newCell = tableView.cellForRow(at: indexPath) as? C {
-                newCell.checkmarked = true
-            }
-
-            selectedIndex = indexPath.row
-
-            presenter?.hide(view: self, animated: true)
-            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
+        if var oldCell = tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0)) as? C {
+            oldCell.checkmarked = false
         }
+
+        if var newCell = tableView.cellForRow(at: indexPath) as? C {
+            newCell.checkmarked = true
+        }
+
+        selectedIndex = indexPath.row
+
+        presenter?.hide(view: self, animated: true)
+        delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
+
+        selectionCallback?(indexPath.row)
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
@@ -180,7 +184,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         cell.bind(model: viewModels[indexPath.row].value(for: locale))
-        cell.checkmarked = (selectedIndex == indexPath.row)
+        cell.checkmarked = (selectedIndex == indexPath.row) && showSelection
 
         return cell
     }

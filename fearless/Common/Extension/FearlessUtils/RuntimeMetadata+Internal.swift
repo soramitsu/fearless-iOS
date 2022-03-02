@@ -6,19 +6,15 @@ extension RuntimeMetadata {
         getStorageMetadata(in: codingPath.moduleName, storageName: codingPath.itemName)
     }
 
-    func createEventCodingPath(from moduleIndex: UInt8, eventIndex: UInt32) -> EventCodingPath? {
-        guard let module = modules.first(where: { $0.index == moduleIndex }) else {
+    func createEventCodingPath(from moduleName: String, eventName: String) -> EventCodingPath? {
+        guard let module = modules.first(where: { $0.name == moduleName }) else {
             return nil
         }
 
-        guard let events = try? module.events(using: schemaResolver), eventIndex < events.count else {
-            return nil
-        }
-
-        return EventCodingPath(moduleName: module.name, eventName: events[Int(eventIndex)].name)
+        return EventCodingPath(moduleName: module.name, eventName: eventName)
     }
 
     func createEventCodingPath(from event: Event) -> EventCodingPath? {
-        createEventCodingPath(from: event.moduleIndex, eventIndex: event.eventIndex)
+        createEventCodingPath(from: event.section, eventName: event.method)
     }
 }

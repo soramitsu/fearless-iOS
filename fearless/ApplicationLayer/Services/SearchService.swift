@@ -103,22 +103,25 @@ extension SearchService {
             let accounts = try accountsOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-            let addressFactory = SS58AddressFactory()
+            func address(accountId: AccountId) -> AccountAddress? {
+                let chainFormat: ChainFormat = chain.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
+                return try? accountId.toAddress(using: chainFormat)
+            }
+
             var existingAddresses = accounts
                 .compactMap { Array($0.chainAccounts) }.reduce([], +)
-                .compactMap { try? addressFactory.address(fromAccountId: $0.accountId, type: chain.addressPrefix) }
+                .compactMap { try? AddressFactory.address(for: $0.accountId, chain: chain) }
 
             if let selectedAccount = SelectedWalletSettings.shared.value,
                let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId,
-               let address = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) {
+               let address = try? AddressFactory.address(for: accountId, chain: chain) {
                 existingAddresses.append(address)
             }
 
             let accountsResult = try accounts.compactMap {
                 try SearchData.createFromChainAccount(
                     chain: chain,
-                    account: $0,
-                    addressFactory: addressFactory
+                    account: $0
                 )
             }
 
@@ -129,8 +132,7 @@ extension SearchService {
             let contactsResult = try contacts.map { contact in
                 try SearchData.createFromContactItem(
                     contact,
-                    addressPrefix: chain.addressPrefix,
-                    addressFactory: addressFactory
+                    chain: chain
                 )
             }
 

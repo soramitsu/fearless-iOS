@@ -52,14 +52,14 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
                 (
-                    balanceByChainAsset[ca1] ?? Decimal.zero,
                     usdBalanceByChainAsset[ca1] ?? Decimal.zero,
+                    balanceByChainAsset[ca1] ?? Decimal.zero,
                     ca2.chain.isTestnet.intValue,
                     ca1.chain.isPolkadotOrKusama.intValue,
                     ca2.chain.name
                 ) > (
-                    balanceByChainAsset[ca2] ?? Decimal.zero,
                     usdBalanceByChainAsset[ca2] ?? Decimal.zero,
+                    balanceByChainAsset[ca2] ?? Decimal.zero,
                     ca1.chain.isTestnet.intValue,
                     ca2.chain.isPolkadotOrKusama.intValue,
                     ca1.chain.name
@@ -142,6 +142,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         return ChainAccountBalanceCellViewModel(
+            chain: chainAsset.chain,
             asset: chainAsset.asset,
             assetName: title,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),

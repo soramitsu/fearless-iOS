@@ -12,8 +12,8 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
-    let chainsUrl: URL
-    let assetsUrl: URL
+    let chainsUrl: URL?
+    let assetsUrl: URL?
     let repository: AnyDataProviderRepository<ChainModel>
     let dataFetchFactory: DataOperationFactoryProtocol
     let eventCenter: EventCenterProtocol
@@ -25,14 +25,11 @@ final class ChainSyncService {
     private(set) var isSyncing: Bool = false
     private let mutex = NSLock()
 
-    private lazy var scheduler: Scheduler = {
-        let scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
-        return scheduler
-    }()
+    private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
     init(
-        chainsUrl: URL,
-        assetsUrl: URL,
+        chainsUrl: URL?,
+        assetsUrl: URL?,
         dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
@@ -68,6 +65,11 @@ final class ChainSyncService {
     }
 
     private func executeSync() {
+        guard let chainsUrl = chainsUrl, let assetsUrl = assetsUrl else {
+            assertionFailure()
+            return
+        }
+
         let remoteFetchAssetsOperation = dataFetchFactory.fetchData(from: assetsUrl)
         let remoteFetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
