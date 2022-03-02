@@ -118,7 +118,7 @@ final class SubstrateStorageMigrator {
     }
 
     private func compatibleVersionForStoreMetadata(_ metadata: [String: Any]) -> SubstrateStorageVersion? {
-        let compatibleVersion = SubstrateStorageVersion.allCases.first {
+        let compatibleVersion = SubstrateStorageVersion.allCases.last {
             let model = createManagedObjectModel(forResource: $0.rawValue)
             return model.isConfiguration(withName: $0.rawValue, compatibleWithStoreMetadata: metadata)
         }

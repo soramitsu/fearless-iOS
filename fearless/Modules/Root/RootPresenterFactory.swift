@@ -14,6 +14,13 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         )
         let networkConnectionsMigrator = NetworkConnectionsMigrator(settings: settings)
 
+        let substrateDbMigrator = SubstrateStorageMigrator(
+            targetVersion: .version2,
+            storeURL: SubstrateStorageParams.storageURL,
+            modelDirectory: SubstrateStorageParams.modelDirectory,
+            fileManager: FileManager.default
+        )
+
         let dbMigrator = UserStorageMigrator(
             targetVersion: .version3,
             storeURL: UserStorageParams.storageURL,
@@ -28,7 +35,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
+            migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator, substrateDbMigrator],
             logger: Logger.shared
         )
 
