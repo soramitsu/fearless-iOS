@@ -23,19 +23,12 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             fileManager: FileManager.default
         )
 
-        let substrateDbMigrator = SubstrateStorageMigrator(
-            targetVersion: .version2,
-            storeURL: SubstrateStorageParams.storageURL,
-            modelDirectory: SubstrateStorageParams.modelDirectory,
-            fileManager: FileManager.default
-        )
-
         let interactor = RootInteractor(
             settings: SelectedWalletSettings.shared,
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator, substrateDbMigrator],
+            migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
             logger: Logger.shared
         )
 
