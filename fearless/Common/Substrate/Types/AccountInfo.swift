@@ -2,6 +2,12 @@ import Foundation
 import FearlessUtils
 import BigInt
 
+struct OrmlAccountInfo: Codable, Equatable {
+    @StringCodable var free: BigUInt
+    @StringCodable var reserved: BigUInt
+    @StringCodable var frozen: BigUInt
+}
+
 struct AccountInfo: Codable, Equatable {
     @StringCodable var nonce: UInt32
     @StringCodable var consumers: UInt32

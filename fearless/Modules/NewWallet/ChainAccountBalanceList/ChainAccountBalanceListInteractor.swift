@@ -14,6 +14,7 @@ final class ChainAccountBalanceListInteractor {
     let eventCenter: EventCenterProtocol
 
     private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
+    private var ormlAccountInfoProviders: [AnyDataProvider<DecodedOrmlAccountInfo>]?
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
 
     init(
@@ -78,12 +79,18 @@ final class ChainAccountBalanceListInteractor {
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
         var providers: [AnyDataProvider<DecodedAccountInfo>] = []
+        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
 
         for chain in chains {
             if
-                let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-                let dataProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                providers.append(dataProvider)
+                let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+                if chain.isOrml, let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
+                    ormlProviders.append(provider)
+                }
+
+                if !chain.isOrml, let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
+                    providers.append(provider)
+                }
             } else {
                 presenter?.didReceiveAccountInfo(
                     result: .failure(ChainAccountFetchingError.accountNotExists),
@@ -93,6 +100,7 @@ final class ChainAccountBalanceListInteractor {
         }
 
         accountInfoProviders = providers
+        ormlAccountInfoProviders = ormlProviders
     }
 
     private func refreshChain(_: ChainModel) {}

@@ -97,7 +97,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func estimateFee(for amount: BigUInt) {
         guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: amount)
+        let call = callFactory.transfer(to: accountId, amount: amount, currencyId: chain.tokenSymbol, chain: chain)
         let identifier = String(amount)
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
@@ -109,7 +109,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func submitExtrinsic(for transferAmount: BigUInt, receiverAddress: String) {
         guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: transferAmount)
+        let call = callFactory.transfer(to: accountId, amount: transferAmount, currencyId: chain.tokenSymbol, chain: chain)
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)

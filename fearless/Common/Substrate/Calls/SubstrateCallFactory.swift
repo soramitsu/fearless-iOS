@@ -4,7 +4,12 @@ import IrohaCrypto
 import BigInt
 
 protocol SubstrateCallFactoryProtocol {
-    func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall>
+    func transfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: TokenSymbol?,
+        chain: ChainModel?
+    ) -> RuntimeCall<TransferCall>
 
     func bond(
         amount: BigUInt,
@@ -108,9 +113,32 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "Staking", callName: "payout_stakers", args: args)
     }
 
-    func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount)
+    func ormlTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: TokenSymbol?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: .token(symbol: currencyId))
+        return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
+    }
+
+    func defaultTransfer(
+        to receiver: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
         return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
+    }
+
+    func transfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: TokenSymbol?,
+        chain: ChainModel?
+    ) -> RuntimeCall<TransferCall> {
+        chain?.isOrml == true
+            ? ormlTransfer(to: receiver, amount: amount, currencyId: currencyId)
+            : defaultTransfer(to: receiver, amount: amount)
     }
 
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall> {

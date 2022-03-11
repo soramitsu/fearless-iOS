@@ -3,7 +3,7 @@ import Foundation
 protocol WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
         of accountId: AccountId,
-        chainId: ChainModel.Id,
+        chain: ChainModel,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) -> UUID?
@@ -20,23 +20,37 @@ protocol WalletRemoteSubscriptionServiceProtocol {
 class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
         of accountId: AccountId,
-        chainId: ChainModel.Id,
+        chain: ChainModel,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) -> UUID? {
         do {
-            let storagePath = StorageCodingPath.account
+            let storagePath = chain.chainId.isOrml ? StorageCodingPath.tokens : StorageCodingPath.account
+
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 storagePath,
                 accountId: accountId,
-                chainId: chainId
+                chainId: chain.chainId,
+                tokenSymbol: chain.tokenSymbol
             )
 
-            let request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) { accountId }
+            var request: SubscriptionRequestProtocol
+
+            if let tokenSymbol = chain.tokenSymbol {
+                let data = CurrencyId.token(symbol: tokenSymbol)
+
+                request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
+                    [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: data)]]
+                })
+            } else {
+                request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                    accountId
+                }
+            }
 
             return attachToSubscription(
                 with: [request],
-                chainId: chainId,
+                chainId: chain.chainId,
                 cacheKey: localKey,
                 queue: queue,
                 closure: closure

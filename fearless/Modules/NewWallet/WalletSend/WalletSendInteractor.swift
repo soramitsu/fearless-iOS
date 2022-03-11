@@ -95,7 +95,7 @@ extension WalletSendInteractor: WalletSendInteractorInputProtocol {
     func estimateFee(for amount: BigUInt) {
         guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: amount)
+        let call = callFactory.transfer(to: accountId, amount: amount, currencyId: chain.tokenSymbol, chain: chain)
         let identifier = String(amount)
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in

@@ -22,12 +22,20 @@ extension LocalStorageKeyFactoryProtocol {
     func createFromStoragePath(
         _ storagePath: StorageCodingPath,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainId: ChainModel.Id,
+        tokenSymbol: TokenSymbol? = nil
     ) throws -> String {
         let data = try StorageKeyFactory().createStorageKey(
             moduleName: storagePath.moduleName,
             storageName: storagePath.itemName
         )
+
+        if let tokenSymbol = tokenSymbol {
+            let currencyId = CurrencyId.token(symbol: tokenSymbol)
+            let encoder = JSONEncoder()
+            let encoded = try encoder.encode(tokenSymbol)
+            return try createKey(from: data + StorageHasher.blake128Concat.hash(data: accountId) + Data(hexString: "56a60a12d72ef524000c"), chainId: chainId)
+        }
 
         return try createKey(from: data + accountId, chainId: chainId)
     }
