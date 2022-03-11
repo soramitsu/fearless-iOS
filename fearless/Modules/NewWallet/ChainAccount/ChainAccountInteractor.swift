@@ -2,6 +2,8 @@ import UIKit
 import RobinHood
 import BigInt
 import FearlessUtils
+import SoraKeystore
+import IrohaCrypto
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
@@ -142,6 +144,35 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             default:
                 self?.presenter?.didReceiveExportOptions(options: [.keystore])
             }
+        }
+    }
+
+    func addBrokenEthereumAccount() {
+        let keystoreMigrator = Keychain()
+
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(selectedMetaAccount.metaId)
+
+        if let entropy = try? keystoreMigrator.fetchKey(for: entropyTag) {
+            let ethereumDPString = DerivationPathConstants.defaultEthereum
+            guard let secrets = try? EthereumAccountImportWrapper().importEntropy(
+                entropy,
+                derivationPath: ethereumDPString
+            ) else {
+                return
+            }
+
+            var publicKey: IRPublicKeyProtocol = secrets.keypair.publicKey()
+
+            let chainAccount = ChainAccountModel(chainId: chain.chainId, accountId: publicKey.rawData(), publicKey: publicKey.rawData(), cryptoType: 0)
+            let updatedMeta = selectedMetaAccount.replacingChainAccount(chainAccount)
+
+            let saveOperation = repository.saveOperation {
+                [updatedMeta]
+            } _: {
+                []
+            }
+
+            operationManager.enqueue(operations: [saveOperation], in: .transient)
         }
     }
 }

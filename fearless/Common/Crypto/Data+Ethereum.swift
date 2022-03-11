@@ -7,10 +7,10 @@ import BigInt
 extension Data {
     func ethereumAddressFromPublicKey() throws -> Data {
         var data = self
-        if count != 64 {
-            // decompress key
-            data = try EthereumUtil.decompress(key: data).suffix(64)
-        }
+        //        if count != 64 {
+        //            // decompress key
+        //            data = try EthereumUtil.decompress(key: data).suffix(64)
+        //        }
 
         return try data.keccak256().suffix(20)
     }

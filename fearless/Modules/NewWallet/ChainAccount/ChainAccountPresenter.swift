@@ -145,6 +145,8 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapOptionsButton() {
+        interactor.addBrokenEthereumAccount()
+
         guard let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() else {
             return
         }

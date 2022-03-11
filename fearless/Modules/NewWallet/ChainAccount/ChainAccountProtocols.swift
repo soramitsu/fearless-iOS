@@ -19,6 +19,8 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
     func getAvailableExportOptions(for address: String)
 
+    func addBrokenEthereumAccount()
+
     var chain: ChainModel { get set }
 }
 

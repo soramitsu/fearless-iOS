@@ -17,15 +17,15 @@ class EthereumAccountImportWrapper: AccountImporting {
     func importEntropy(_ entropy: Data, derivationPath: String?) throws -> MnemonicImportSecrets {
         let junctionResult: JunctionResult?
 
-        if let derivationPath = derivationPath {
-            let junctionFactory = BIP32JunctionFactory()
-            junctionResult = try junctionFactory.parse(path: derivationPath)
-        } else {
-            junctionResult = nil
-        }
+//        if let derivationPath = derivationPath {
+//            let junctionFactory = BIP32JunctionFactory()
+//            junctionResult = try junctionFactory.parse(path: derivationPath)
+//        } else {
+        junctionResult = nil
+//        }
 
         let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
-        let seedFactory = BIP32SeedFactory(mnemonicLanguage: .english)
+        let seedFactory = SeedFactory(mnemonicLanguage: .english)
         let seedResult = try seedFactory.deriveSeed(
             from: mnemonic.toString(),
             password: junctionResult?.password ?? ""
