@@ -1,34 +1,38 @@
 import UIKit
 import IrohaCrypto
 import SoraFoundation
+import FearlessUtils
 
 final class AccountCreatePresenter {
     static let maxEthereumDerivationPathLength: Int = 15
 
-    weak var view: AccountCreateViewProtocol?
-    var wireframe: AccountCreateWireframeProtocol!
-    var interactor: AccountCreateInteractorInputProtocol!
+    weak var view: NewAccountCreateViewProtocol?
+    var wireframe: AccountCreateWireframeProtocol
+    var interactor: AccountCreateInteractorInputProtocol
 
     let usernameSetup: UsernameSetupModel
 
     private var mnemonic: [String]?
     private var selectedCryptoType: CryptoType = .sr25519
+    private let chainType: AccountCreateChainType
+    private var viewModel: InputViewModelProtocol?
 
-    private var substrateDerivationPathViewModel: InputViewModelProtocol?
-    private var ethereumDerivationPathViewModel: InputViewModelProtocol?
-
-    init(usernameSetup: UsernameSetupModel) {
+    init(
+        usernameSetup: UsernameSetupModel,
+        chainType: AccountCreateChainType,
+        wireframe: AccountCreateWireframeProtocol,
+        interactor: AccountCreateInteractorInputProtocol
+    ) {
         self.usernameSetup = usernameSetup
+        self.chainType = chainType
+        selectedCryptoType = chainType.isEthereum ? .ecdsa : .sr25519
+        self.wireframe = wireframe
+        self.interactor = interactor
     }
 
-    private func applySubstrateCryptoTypeViewModel() {
+    private func setSelectedCrypto() {
         let viewModel = createCryptoTypeViewModel(selectedCryptoType)
-        view?.setSelectedSubstrateCrypto(model: viewModel)
-    }
-
-    private func applyEthereumCryptoTypeViewModel() {
-        let viewModel = createCryptoTypeViewModel(.ecdsa)
-        view?.setEthereumCrypto(model: viewModel)
+        view?.setSelectedCrypto(model: viewModel)
     }
 
     private func createCryptoTypeViewModel(_ cryptoType: CryptoType) -> TitleWithSubtitleViewModel {
@@ -40,28 +44,14 @@ final class AccountCreatePresenter {
         )
     }
 
-    private func applySubstrateDerivationPathViewModel() {
+    private func applyDerivationPathViewModel() {
         let viewModel = createViewModel(
             for: selectedCryptoType,
             isEthereum: false
         )
-        substrateDerivationPathViewModel = viewModel
 
-        view?.bind(substrateViewModel: viewModel)
-        view?.didValidateSubstrateDerivationPath(.none)
-    }
-
-    private func applyEthereumDerivationPathViewModel() {
-        let viewModel = createViewModel(
-            for: .ecdsa,
-            isEthereum: true,
-            processor: EthereumDerivationPathProcessor(),
-            maxLength: AccountCreatePresenter.maxEthereumDerivationPathLength
-        )
-        ethereumDerivationPathViewModel = viewModel
-
-        view?.bind(ethereumViewModel: viewModel)
-        view?.didValidateEthereumDerivationPath(.none)
+        view?.bind(viewModel: viewModel)
+        view?.didValidateDerivationPath(.none)
     }
 
     private func createViewModel(
@@ -69,7 +59,7 @@ final class AccountCreatePresenter {
         isEthereum: Bool,
         processor: TextProcessing? = nil,
         maxLength: Int? = nil
-    ) -> InputViewModel {
+    ) -> AccountCreateViewModel {
         let predicate: NSPredicate?
         let placeholder: String
 
@@ -92,7 +82,11 @@ final class AccountCreatePresenter {
             predicate: predicate,
             processor: processor
         )
-        return InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
+        return AccountCreateViewModel(
+            chainType: chainType,
+            inputHandler: inputHandling,
+            placeholder: placeholder
+        )
     }
 
     private func presentDerivationPathError(_ cryptoType: CryptoType) {
@@ -120,10 +114,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
         interactor.setup()
 
-        applySubstrateCryptoTypeViewModel()
-        applyEthereumCryptoTypeViewModel()
-        applySubstrateDerivationPathViewModel()
-        applyEthereumDerivationPathViewModel()
+        setSelectedCrypto()
+        applyDerivationPathViewModel()
     }
 
     func activateInfo() {
@@ -139,29 +131,12 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         )
     }
 
-    func validateSubstrate() {
-        guard let viewModel = substrateDerivationPathViewModel else {
-            return
-        }
-
+    func validateDerivationPath(with viewModel: InputViewModelProtocol) {
         if viewModel.inputHandler.completed {
-            view?.didValidateSubstrateDerivationPath(.valid)
+            view?.didValidateDerivationPath(.valid)
         } else {
-            view?.didValidateSubstrateDerivationPath(.invalid)
+            view?.didValidateDerivationPath(.invalid)
             presentDerivationPathError(selectedCryptoType)
-        }
-    }
-
-    func validateEthereum() {
-        guard let viewModel = ethereumDerivationPathViewModel else {
-            return
-        }
-
-        if viewModel.inputHandler.completed {
-            view?.didValidateEthereumDerivationPath(.valid)
-        } else {
-            view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(.ecdsa)
         }
     }
 
@@ -178,36 +153,29 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func proceed() {
         guard
             let mnemonic = mnemonic,
-            let substrateViewModel = substrateDerivationPathViewModel,
-            let ethereumViewModel = ethereumDerivationPathViewModel
+            let viewModel = viewModel
         else {
             return
         }
 
-        guard substrateViewModel.inputHandler.completed else {
-            view?.didValidateSubstrateDerivationPath(.invalid)
+        guard viewModel.inputHandler.completed else {
+            view?.didValidateDerivationPath(.invalid)
             presentDerivationPathError(selectedCryptoType)
             return
         }
 
-        guard ethereumViewModel.inputHandler.completed else {
-            view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(.ecdsa)
-            return
-        }
-
-        let request = MetaAccountCreationRequest(
-            username: usernameSetup.username,
-            substrateDerivationPath: substrateViewModel.inputHandler.value,
-            substrateCryptoType: selectedCryptoType,
-            ethereumDerivationPath: ethereumViewModel.inputHandler.value
-        )
-
-        wireframe.confirm(
-            from: view,
-            request: request,
-            mnemonic: mnemonic
-        )
+//        let request = MetaAccountCreationRequest(
+//            username: usernameSetup.username,
+//            substrateDerivationPath: substrateViewModel.inputHandler.value,
+//            substrateCryptoType: selectedCryptoType,
+//            ethereumDerivationPath: ethereumViewModel.inputHandler.value
+//        )
+//
+//        wireframe.confirm(
+//            from: view,
+//            request: request,
+//            mnemonic: mnemonic
+//        )
     }
 }
 
@@ -236,8 +204,8 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
         selectedCryptoType = CryptoType.allCases[index]
 
-        applySubstrateCryptoTypeViewModel()
-        applySubstrateDerivationPathViewModel()
+        setSelectedCrypto()
+        applyDerivationPathViewModel()
 
         view?.didCompleteCryptoTypeSelection()
     }
@@ -250,8 +218,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
 extension AccountCreatePresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
-            applySubstrateCryptoTypeViewModel()
-            applyEthereumCryptoTypeViewModel()
+            setSelectedCrypto()
         }
     }
 }

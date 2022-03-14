@@ -1471,6 +1471,10 @@
 		C6264C3C279B008600FCA0DB /* WalletDetailsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C3B279B008600FCA0DB /* WalletDetailsWireframe.swift */; };
 		C6264C3E279E9D5000FCA0DB /* WalletTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C3D279E9D5000FCA0DB /* WalletTableViewCell.swift */; };
 		C63C82FD2769ECCC002EA6A8 /* ChainAssetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63C82FC2769ECCC002EA6A8 /* ChainAssetModel.swift */; };
+		C661B3AD27DF0193005F1F7D /* AccountCreateViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */; };
+		C661B3B027DF75D4005F1F7D /* AccountCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3AF27DF75D4005F1F7D /* AccountCreateViewModel.swift */; };
+		C661B3B227DF99A8005F1F7D /* NewAccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B127DF99A8005F1F7D /* NewAccountCreateViewController.swift */; };
+		C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */; };
 		C6663B20275F20AE00D699AF /* ReceiveAssetViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */; };
 		C6663B22275F5F3500D699AF /* ReceiveAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */; };
 		C6663B24275F609B00D699AF /* ReceiveAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */; };
@@ -3375,6 +3379,10 @@
 		C6264C3B279B008600FCA0DB /* WalletDetailsWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsWireframe.swift; sourceTree = "<group>"; };
 		C6264C3D279E9D5000FCA0DB /* WalletTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTableViewCell.swift; sourceTree = "<group>"; };
 		C63C82FC2769ECCC002EA6A8 /* ChainAssetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetModel.swift; sourceTree = "<group>"; };
+		C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewLayout.swift; sourceTree = "<group>"; };
+		C661B3AF27DF75D4005F1F7D /* AccountCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewModel.swift; sourceTree = "<group>"; };
+		C661B3B127DF99A8005F1F7D /* NewAccountCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAccountCreateViewController.swift; sourceTree = "<group>"; };
+		C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateChainType.swift; sourceTree = "<group>"; };
 		C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewLayout.swift; sourceTree = "<group>"; };
 		C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewController.swift; sourceTree = "<group>"; };
 		C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetProtocols.swift; sourceTree = "<group>"; };
@@ -4278,6 +4286,7 @@
 		4C5888389F25B5C82454F92D /* AccountCreate */ = {
 			isa = PBXGroup;
 			children = (
+				C661B3AE27DF75C4005F1F7D /* ViewModels */,
 				84893BFF24DA8600008F6A3F /* Model */,
 				842D1E9424D2DD5500C30A7A /* View */,
 				48C158C8D1855BCE53636934 /* AccountCreateProtocols.swift */,
@@ -4287,6 +4296,8 @@
 				25EBA536340AA12142068C2D /* AccountCreateViewController.swift */,
 				6AE890B7D082A2CFDB7A9199 /* AccountCreateViewController.xib */,
 				E9636093217ABE05A7FAC9B9 /* AccountCreateViewFactory.swift */,
+				C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */,
+				C661B3B127DF99A8005F1F7D /* NewAccountCreateViewController.swift */,
 			);
 			path = AccountCreate;
 			sourceTree = "<group>";
@@ -5855,6 +5866,7 @@
 				FACACE1027BCF104005422EE /* MetaAccountCreationMetadata.swift */,
 				84893C0224DA8641008F6A3F /* AccountCreationRequest.swift */,
 				84893C0424DA8663008F6A3F /* AccountCreationError.swift */,
+				C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -8382,6 +8394,14 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		C661B3AE27DF75C4005F1F7D /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				C661B3AF27DF75D4005F1F7D /* AccountCreateViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		C6663B1E275F208900D699AF /* ReceiveAsset */ = {
 			isa = PBXGroup;
 			children = (
@@ -10226,6 +10246,7 @@
 				FA2569BD274CE74100875A53 /* NetworkFeeConfirmView+Protocol.swift in Sources */,
 				84E1CD07260DCCE8001E81B5 /* SwitchAccount+AccountCreateWireframe.swift in Sources */,
 				843910B0253ED36C00E3C217 /* ChainStorageItem.swift in Sources */,
+				C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */,
 				AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */,
 				84B71DE5260B90270003A100 /* SubstrateAlias.swift in Sources */,
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
@@ -10430,6 +10451,7 @@
 				84155DF12539DC0300A27058 /* WebSocketServiceProtocol.swift in Sources */,
 				844DD65525EAF32D00B1DA97 /* SelectValidatorsStartViewModel.swift in Sources */,
 				84644A3525672F6D004EAA4B /* ChainStorageIdFactory.swift in Sources */,
+				C661B3AD27DF0193005F1F7D /* AccountCreateViewLayout.swift in Sources */,
 				8470D6D0253E321C009E9A5D /* StorageSubscriptionProtocols.swift in Sources */,
 				84C1B98424F5245700FE5470 /* ManagedAccountViewModel.swift in Sources */,
 				8460E1132541DEDA00826F55 /* TransactionDetailsFormViewModelBinder.swift in Sources */,
@@ -10774,6 +10796,7 @@
 				84C2F27D25E297350050A4AD /* CalculatedReward.swift in Sources */,
 				849E689526AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift in Sources */,
 				8454C26F2632BBAA00657DAD /* ExtrinsicProcessing.swift in Sources */,
+				C661B3B227DF99A8005F1F7D /* NewAccountCreateViewController.swift in Sources */,
 				8461CC8326BC0006007460E4 /* MortalEraOperationFactory.swift in Sources */,
 				8425EA8B25EA7AF200C307C9 /* UnappliedSlashes.swift in Sources */,
 				84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */,
@@ -11264,6 +11287,7 @@
 				800FCAF66DC8A24020D16A9C /* AccountExportPasswordInteractor.swift in Sources */,
 				7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */,
 				FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */,
+				C661B3B027DF75D4005F1F7D /* AccountCreateViewModel.swift in Sources */,
 				61E0DC83C1D60D677274D7CE /* AccountExportPasswordViewFactory.swift in Sources */,
 				1BFC90E1D8646F7429FFD5E6 /* ExportMnemonicProtocols.swift in Sources */,
 				3133215566E418F40844A60E /* ExportMnemonicWireframe.swift in Sources */,

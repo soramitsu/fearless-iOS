@@ -4,42 +4,59 @@ import SoraFoundation
 import SoraKeystore
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
-    static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
+    static func createViewForOnboarding(
+        model: UsernameSetupModel,
+        chainType: AccountCreateChainType
+    ) -> NewAccountCreateViewProtocol? {
         let wireframe = AccountCreateWireframe()
 
         return createViewForUsername(
             model: model,
+            chainType: chainType,
             wireframe: wireframe
         )
     }
 
-    static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
+    static func createViewForAdding(
+        model: UsernameSetupModel,
+        chainType: AccountCreateChainType
+    ) -> NewAccountCreateViewProtocol? {
         let wireframe = AddAccount.AccountCreateWireframe()
 
         return createViewForUsername(
             model: model,
+            chainType: chainType,
             wireframe: wireframe
         )
     }
 
-    static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
+    static func createViewForSwitch(
+        model: UsernameSetupModel,
+        chainType: AccountCreateChainType
+    ) -> NewAccountCreateViewProtocol? {
         let wireframe = SwitchAccount.AccountCreateWireframe()
-        return createViewForUsername(model: model, wireframe: wireframe)
+        return createViewForUsername(
+            model: model,
+            chainType: chainType,
+            wireframe: wireframe
+        )
     }
 
     static func createViewForUsername(
         model: UsernameSetupModel,
+        chainType: AccountCreateChainType,
         wireframe: AccountCreateWireframeProtocol
-    ) -> AccountCreateViewProtocol? {
-        let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
-        let presenter = AccountCreatePresenter(usernameSetup: model)
-
+    ) -> NewAccountCreateViewProtocol? {
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let presenter = AccountCreatePresenter(
+            usernameSetup: model,
+            chainType: chainType,
+            wireframe: wireframe,
+            interactor: interactor
+        )
+        let view = NewAccountCreateViewController(presenter: presenter)
 
-        view.presenter = presenter
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         let localizationManager = LocalizationManager.shared

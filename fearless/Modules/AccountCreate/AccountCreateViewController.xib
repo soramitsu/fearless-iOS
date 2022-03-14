@@ -18,7 +18,6 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountCreateViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="advancedContainerView" destination="ufd-ci-pPo" id="gPp-JR-knR"/>
-                <outlet property="advancedControl" destination="oE5-fi-Ix8" id="oAe-gj-wwV"/>
                 <outlet property="detailsLabel" destination="Ihh-eg-GQw" id="F0e-x4-ZTp"/>
                 <outlet property="ethereumCryptoTypeView" destination="WjL-Hp-ytC" id="20K-8x-A5x"/>
                 <outlet property="ethereumDerivationPathField" destination="TRu-BJ-oMw" id="qHD-tk-3hR"/>
@@ -45,12 +44,12 @@
                     <rect key="frame" x="0.0" y="44" width="375" height="642"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="nt2-2c-HuT">
-                            <rect key="frame" x="16" y="0.0" width="343" height="471"/>
+                            <rect key="frame" x="16" y="0.0" width="343" height="476.66666666666669"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="43P-Ll-Had">
                                     <rect key="frame" x="0.0" y="0.0" width="343" height="100"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw" userLabel="Details label">
                                             <rect key="frame" x="16" y="16" width="327" height="68"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
@@ -114,10 +113,10 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ufd-ci-pPo">
-                                    <rect key="frame" x="0.0" y="150" width="343" height="321"/>
+                                    <rect key="frame" x="0.0" y="150.00000000000003" width="343" height="326.66666666666674"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" userLabel="Substrate Bordered Subtitle Action View" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="341" height="50"/>
+                                            <rect key="frame" x="1" y="16" width="341" height="56"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -161,7 +160,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" userLabel="Substrate Triangulared View" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="65" width="341" height="52"/>
+                                            <rect key="frame" x="1" y="88" width="341" height="52"/>
                                             <subviews>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Example: //hard/soft///password" textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="rzy-lG-JEs">
                                                     <rect key="frame" x="16" y="8" width="280" height="36"/>
@@ -213,7 +212,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Substrate secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AR2-ZI-5xE">
-                                            <rect key="frame" x="1" y="125" width="341" height="15.333333333333314"/>
+                                            <rect key="frame" x="1" y="152" width="341" height="15.333333333333343"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="15.333333333333314" id="fGM-37-qXd"/>
                                             </constraints>
@@ -222,7 +221,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WjL-Hp-ytC" userLabel="Ethereum two label view" customClass="TriangularedTwoLabelView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="148" width="341" height="52"/>
+                                            <rect key="frame" x="1" y="183.33333333333331" width="341" height="48"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -262,7 +261,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="39l-sb-TY4" userLabel="Ethereum Triangulared View" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="208" width="341" height="52"/>
+                                            <rect key="frame" x="1" y="247.33333333333331" width="341" height="52"/>
                                             <subviews>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Example: 44'/0'/0'/0" textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="TRu-BJ-oMw">
                                                     <rect key="frame" x="8" y="2" width="288" height="36"/>
@@ -314,7 +313,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Ethereum secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zw0-Yv-jkd">
-                                            <rect key="frame" x="1" y="268" width="341" height="15.333333333333314"/>
+                                            <rect key="frame" x="1" y="311.33333333333337" width="341" height="15.333333333333314"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="15.333333333333314" id="OrS-Ni-jca"/>
                                             </constraints>
