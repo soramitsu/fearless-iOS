@@ -31,6 +31,8 @@ extension TransactionHistoryItem {
         }
 
         let callPath = CallCodingPath.transfer
+
+        // Not used anymore
         let callArgs = TransferCall(dest: .accoundId(receiverAccountId), value: amount, currencyId: nil)
         let call = RuntimeCall<TransferCall>(
             moduleName: callPath.moduleName,

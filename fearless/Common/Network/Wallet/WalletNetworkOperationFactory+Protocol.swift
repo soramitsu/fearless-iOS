@@ -51,6 +51,7 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
         let compoundReceiver = createAccountInfoFetchOperation(receiver)
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
+            // NOT USED
             let call = SubstrateCallFactory().transfer(to: receiver, amount: amount, currencyId: nil, chain: nil)
             return try builder.adding(call: call)
         }
@@ -129,6 +130,7 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
         }
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
+            // NOT USED
             let call = SubstrateCallFactory().transfer(to: receiver, amount: amount, currencyId: nil, chain: nil)
             return try builder.adding(call: call)
         }

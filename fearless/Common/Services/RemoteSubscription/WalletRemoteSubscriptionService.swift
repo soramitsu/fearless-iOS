@@ -30,8 +30,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 storagePath,
                 accountId: accountId,
-                chainId: chain.chainId,
-                tokenSymbol: chain.tokenSymbol
+                chainId: chain.chainId
             )
 
             var request: SubscriptionRequestProtocol

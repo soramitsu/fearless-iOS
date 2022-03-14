@@ -126,6 +126,10 @@ class ChainModel: Codable {
         return TokenSymbol(rawValue: assetName)
     }
 
+    var currencyId: CurrencyId? {
+        CurrencyId.token(symbol: tokenSymbol)
+    }
+
     var erasPerDay: UInt32 {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {

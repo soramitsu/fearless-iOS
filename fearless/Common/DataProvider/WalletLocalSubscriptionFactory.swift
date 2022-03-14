@@ -51,8 +51,7 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
             accountId: accountId,
-            chainId: chain.chainId,
-            tokenSymbol: chain.tokenSymbol
+            chainId: chain.chainId
         )
 
         return try getDataProvider(

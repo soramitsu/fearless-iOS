@@ -7,7 +7,7 @@ protocol SubstrateCallFactoryProtocol {
     func transfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: TokenSymbol?,
+        currencyId: CurrencyId?,
         chain: ChainModel?
     ) -> RuntimeCall<TransferCall>
 
@@ -116,9 +116,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func ormlTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: TokenSymbol?
+        currencyId: CurrencyId?
     ) -> RuntimeCall<TransferCall> {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: .token(symbol: currencyId))
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
         return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
     }
 
@@ -133,7 +133,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func transfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: TokenSymbol?,
+        currencyId: CurrencyId?,
         chain: ChainModel?
     ) -> RuntimeCall<TransferCall> {
         chain?.isOrml == true

@@ -396,7 +396,7 @@ extension AssetTransactionData {
             if let encodedCall = item.call,
                let call = try? JSONDecoder.scaleCompatible()
                .decode(RuntimeCall<TransferCall>.self, from: encodedCall) {
-                return Decimal.fromSubstrateAmount(call.args.value ?? BigUInt.zero, precision: Int16(asset.precision)) ?? .zero
+                return Decimal.fromSubstrateAmount(call.args.value, precision: Int16(asset.precision)) ?? .zero
             } else {
                 return .zero
             }
