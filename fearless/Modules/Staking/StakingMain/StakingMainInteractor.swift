@@ -22,7 +22,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let chainRegistry: ChainRegistryProtocol
     let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
     let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingServiceFactory: StakingServiceFactoryProtocol
     let accountProviderFactory: AccountProviderFactoryProtocol
@@ -60,7 +60,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         chainRegistry: ChainRegistryProtocol,
         stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol,
         stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingServiceFactory: StakingServiceFactoryProtocol,
         accountProviderFactory: AccountProviderFactoryProtocol,
@@ -77,7 +77,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.chainRegistry = chainRegistry
         self.stakingRemoteSubscriptionService = stakingRemoteSubscriptionService
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingServiceFactory = stakingServiceFactory
         self.accountProviderFactory = accountProviderFactory

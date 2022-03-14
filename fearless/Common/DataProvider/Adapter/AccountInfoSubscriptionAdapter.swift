@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-protocol AccountInfoSubscriptionAdapterHandler {
+protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
@@ -9,33 +9,105 @@ protocol AccountInfoSubscriptionAdapterHandler {
     )
 }
 
-class AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber {
-    var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
-    
+protocol AccountInfoSubscriptionAdapterProtocol {
+    func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?)
+    func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?)
+
+    func reset()
+}
+
+class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
+    private weak var handler: AccountInfoSubscriptionAdapterHandler?
+    internal var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
     private var ormlAccountInfoProviders: [AnyDataProvider<DecodedOrmlAccountInfo>]?
-    
-    init(walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol) {
+    private var selectedMetaAccount: MetaAccountModel
+
+    init(
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        selectedMetaAccount: MetaAccountModel
+    ) {
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.selectedMetaAccount = selectedMetaAccount
     }
-  
-    func subscribe(chains: [ChainModel], accountId: AccountId) {
-        chains.forEach { chain in
-            if chain.isOrml {
-                if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain)
+
+    func reset() {
+        if let providers = ormlAccountInfoProviders {
+            for provider in providers {
+                provider.removeObserver(self)
+            }
+        }
+
+        if let providers = accountInfoProviders {
+            for provider in providers {
+                provider.removeObserver(self)
             }
         }
     }
-}
 
-extension AccountInfoSubscriptionAdapter: WalletLocalSubscriptionHandler {
-    
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainId: ChainModel.Id
-    ) {
-//        presenter?.didReceiveAccountInfo(result: result, for: chainId)
+    func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?) {
+        reset()
+
+        self.handler = handler
+
+        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
+        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
+
+        if chain.chainId.isOrml {
+            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
+                ormlProviders.append(provider)
+            }
+        }
+
+        if !chain.chainId.isOrml {
+            if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
+                defaultProviders.append(provider)
+            }
+        }
+
+        ormlAccountInfoProviders = ormlProviders
+        accountInfoProviders = defaultProviders
+    }
+
+    func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?) {
+        reset()
+
+        self.handler = handler
+
+        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
+        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
+
+        chains.forEach { chain in
+            if chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+                if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
+                    ormlProviders.append(provider)
+                }
+            }
+
+            if !chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+                if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
+                    defaultProviders.append(provider)
+                }
+            }
+        }
+
+        ormlAccountInfoProviders = ormlProviders
+        accountInfoProviders = defaultProviders
     }
 }
 
+extension AccountInfoSubscriptionAdapter: AnyProviderAutoCleaning {}
+
+extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId: AccountId,
+        chainId: ChainModel.Id
+    ) {
+        handler?.handleAccountInfo(
+            result: result,
+            accountId: accountId,
+            chainId: chainId
+        )
+    }
+}

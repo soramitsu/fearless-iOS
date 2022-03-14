@@ -11,7 +11,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     let runtimeService: RuntimeCodingServiceProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
     let receiverAddress: String
@@ -30,7 +30,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signingWrapper: SigningWrapperProtocol
@@ -41,7 +41,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.receiverAddress = receiverAddress
         self.operationManager = operationManager
@@ -57,12 +57,16 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             self?.presenter?.didReceiveBlockDuration(result: result)
         }
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
-            self?.presenter?.didReceiveMinimumBalance(result: result)
+        if chain.isOrml {
+            presenter?.didReceiveMinimumBalance(result: .success(BigUInt.zero))
+        } else {
+            fetchConstant(
+                for: .existentialDeposit,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Result<BigUInt, Error>) in
+                self?.presenter?.didReceiveMinimumBalance(result: result)
+            }
         }
     }
 
@@ -72,7 +76,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             return
         }
 
-        balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
     }
 
     private func subscribeToPrice() {
@@ -127,7 +131,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     }
 }
 
-extension WalletSendConfirmInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

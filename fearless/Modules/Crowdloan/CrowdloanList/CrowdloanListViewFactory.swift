@@ -80,7 +80,10 @@ struct CrowdloanListViewFactory {
             crowdloanOperationFactory: crowdloanOperationFactory,
             crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: selectedMetaAccount
+            ),
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,
             logger: logger

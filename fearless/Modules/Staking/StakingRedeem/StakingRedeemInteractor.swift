@@ -8,7 +8,7 @@ import IrohaCrypto
 final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRedeemInteractorOutputProtocol!
 
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
@@ -34,7 +34,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     private lazy var callFactory = SubstrateCallFactory()
 
     init(
-        walletLocalSubscriptionHandler: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         asset: AssetModel,
@@ -49,7 +49,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         keystore: KeystoreProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
-        walletLocalSubscriptionFactory = walletLocalSubscriptionHandler
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.feeProxy = feeProxy
@@ -174,12 +174,16 @@ extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
 
         activeEraProvider = subscribeActiveEra(for: chain.chainId)
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
-            self?.presenter.didReceiveExistentialDeposit(result: result)
+        if chain.isOrml {
+            presenter?.didReceiveExistentialDeposit(result: .success(BigUInt.zero))
+        } else {
+            fetchConstant(
+                for: .existentialDeposit,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Result<BigUInt, Error>) in
+                self?.presenter?.didReceiveExistentialDeposit(result: result)
+            }
         }
 
         feeProxy.delegate = self
@@ -216,7 +220,7 @@ extension StakingRedeemInteractor: PriceLocalStorageSubscriber, PriceLocalSubscr
     }
 }
 
-extension StakingRedeemInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingRedeemInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -227,7 +231,7 @@ extension StakingRedeemInteractor: StakingLocalStorageSubscriber, StakingLocalSu
         do {
             let maybeStashItem = try result.get()
 
-            clear(dataProvider: &accountInfoProvider)
+            accountInfoSubscriptionAdapter.reset()
             clear(dataProvider: &ledgerProvider)
 
             presenter.didReceiveStashItem(result: result)
@@ -238,7 +242,7 @@ extension StakingRedeemInteractor: StakingLocalStorageSubscriber, StakingLocalSu
                let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
                 ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
 
                 fetchChainAccount(
                     chain: chain,

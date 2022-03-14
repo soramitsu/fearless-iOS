@@ -115,7 +115,10 @@ struct CrowdloanContributionSetupViewFactory {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedMetaAccount
+            ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager

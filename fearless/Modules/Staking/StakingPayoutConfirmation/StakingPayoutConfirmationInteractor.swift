@@ -14,7 +14,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     private let signer: SigningWrapperProtocol
 
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -39,7 +39,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
 
     init(
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol,
@@ -55,7 +55,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     ) {
         self.extrinsicOperationFactory = extrinsicOperationFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
@@ -288,7 +288,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
         }
 
         if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
-            balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
         }
 
         if let priceId = asset.priceId {
@@ -350,7 +350,7 @@ extension StakingPayoutConfirmationInteractor: PriceLocalStorageSubscriber, Pric
     }
 }
 
-extension StakingPayoutConfirmationInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingPayoutConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
