@@ -19,9 +19,14 @@ protocol AccountInfoSubscriptionAdapterProtocol {
 class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
     private weak var handler: AccountInfoSubscriptionAdapterHandler?
     internal var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
-    private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
-    private var ormlAccountInfoProviders: [AnyDataProvider<DecodedOrmlAccountInfo>]?
+    private var subscriptions: [AccountInfoSubscriptionProviderWrapper.Subscription] = []
+//    private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
+//    private var ormlAccountInfoProviders: [AnyDataProvider<DecodedOrmlAccountInfo>]?
     private var selectedMetaAccount: MetaAccountModel
+    
+    private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
+        AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
+    }()
 
     init(
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
@@ -32,17 +37,26 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
     }
 
     func reset() {
-        if let providers = ormlAccountInfoProviders {
-            for provider in providers {
+        subscriptions.forEach { subscription in
+            switch subscription {
+            case let .usual(provider):
+                provider.removeObserver(self)
+            case let .orml(provider):
                 provider.removeObserver(self)
             }
         }
 
-        if let providers = accountInfoProviders {
-            for provider in providers {
-                provider.removeObserver(self)
-            }
-        }
+//        if let providers = ormlAccountInfoProviders {
+//            for provider in providers {
+//                provider.removeObserver(self)
+//            }
+//        }
+//
+//        if let providers = accountInfoProviders {
+//            for provider in providers {
+//                provider.removeObserver(self)
+//            }
+//        }
     }
 
     func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?) {
@@ -50,23 +64,26 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
 
         self.handler = handler
 
-        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
-        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
+//        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
+//        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
 
-        if chain.chainId.isOrml {
-            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
-                ormlProviders.append(provider)
-            }
+        if let subscription = wrapper.subscribeAccountProvider(for: accountId, chain: chain) {
+            subscriptions.append(subscription)
         }
+//        if chain.chainId.isOrml {
+//            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
+//                ormlProviders.append(provider)
+//            }
+//        }
+//
+//        if !chain.chainId.isOrml {
+//            if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
+//                defaultProviders.append(provider)
+//            }
+//        }
 
-        if !chain.chainId.isOrml {
-            if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                defaultProviders.append(provider)
-            }
-        }
-
-        ormlAccountInfoProviders = ormlProviders
-        accountInfoProviders = defaultProviders
+//        ormlAccountInfoProviders = ormlProviders
+//        accountInfoProviders = defaultProviders
     }
 
     func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?) {
@@ -74,25 +91,29 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
 
         self.handler = handler
 
-        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
-        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
+//        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
+//        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
 
         chains.forEach { chain in
-            if chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-                if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
-                    ormlProviders.append(provider)
-                }
-            }
-
-            if !chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-                if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                    defaultProviders.append(provider)
-                }
+            if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
+               let subscription = wrapper.subscribeAccountProvider(for: accountId, chain: chain) {
+                subscriptions.append(subscription)
             }
         }
+//            if chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+//                if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
+//                    ormlProviders.append(provider)
+//                }
+//            }
+//
+//            if !chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+//                if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
+//                    defaultProviders.append(provider)
+//                }
+//            }
 
-        ormlAccountInfoProviders = ormlProviders
-        accountInfoProviders = defaultProviders
+//        ormlAccountInfoProviders = ormlProviders
+//        accountInfoProviders = defaultProviders
     }
 }
 
