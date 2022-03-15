@@ -118,7 +118,11 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     // MARK: - GitHub
 
     var chainListURL: URL? {
+        #if F_DEV
+        GitHubUrl.url(suffix: "chains/chains_dev.json")
+        #else
         GitHubUrl.url(suffix: "chains/chains.json")
+        #endif
     }
 
     var assetListURL: URL? {
