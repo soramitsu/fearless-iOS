@@ -25,7 +25,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
         closure: RemoteSubscriptionClosure?
     ) -> UUID? {
         do {
-            let storagePath = chain.chainId.isOrml ? StorageCodingPath.tokens : StorageCodingPath.account
+            let storagePath = chain.isOrml ? StorageCodingPath.tokens : StorageCodingPath.account
 
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 storagePath,

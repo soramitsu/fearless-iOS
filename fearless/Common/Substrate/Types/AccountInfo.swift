@@ -13,6 +13,26 @@ struct AccountInfo: Codable, Equatable {
     @StringCodable var consumers: UInt32
     @StringCodable var providers: UInt32
     let data: AccountData
+
+    init(nonce: UInt32, consumers: UInt32, providers: UInt32, data: AccountData) {
+        self.nonce = nonce
+        self.consumers = consumers
+        self.providers = providers
+        self.data = data
+    }
+
+    init(ormlAccountInfo: OrmlAccountInfo) {
+        nonce = 0
+        consumers = 0
+        providers = 0
+
+        data = AccountData(
+            free: ormlAccountInfo.free,
+            reserved: ormlAccountInfo.reserved,
+            miscFrozen: ormlAccountInfo.frozen,
+            feeFrozen: BigUInt.zero
+        )
+    }
 }
 
 struct AccountData: Codable, Equatable {

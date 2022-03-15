@@ -1,12 +1,6 @@
 import Foundation
 import RobinHood
 
-extension ChainModel.Id {
-    var isOrml: Bool {
-        self == "9af9a64e6e4da8e3073901c3ff0cc4c3aad9563786d89daf6ad820b6e14a0b8b"
-    }
-}
-
 class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
@@ -83,7 +77,7 @@ class ChainModel: Codable {
     }
 
     var isOrml: Bool {
-        name.lowercased() == "kintsugi" || name.lowercased() == "interlay"
+        options?.contains(.orml) ?? false
     }
 
     var isPolkadotOrKusama: Bool {
@@ -205,6 +199,7 @@ enum ChainOptions: String, Codable {
     case ethereumBased
     case testnet
     case crowdloans
+    case orml
 }
 
 extension ChainModel {
