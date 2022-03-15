@@ -70,16 +70,12 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             self?.presenter.didReceiveLeasingPeriod(result: result)
         }
 
-        if chainAsset.chain.isOrml {
-            presenter?.didReceiveMinimumBalance(result: .success(BigUInt.zero))
-        } else {
-            fetchConstant(
-                for: .existentialDeposit,
-                runtimeCodingService: runtimeService,
-                operationManager: operationManager
-            ) { [weak self] (result: Result<BigUInt, Error>) in
-                self?.presenter?.didReceiveMinimumBalance(result: result)
-            }
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter?.didReceiveMinimumBalance(result: result)
         }
 
         fetchConstant(

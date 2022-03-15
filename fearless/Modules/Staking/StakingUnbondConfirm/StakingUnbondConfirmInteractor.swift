@@ -119,16 +119,12 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
 
         minBondedProvider = subscribeToMinNominatorBond(for: chain.chainId)
 
-        if chain.isOrml {
-            presenter?.didReceiveExistentialDeposit(result: .success(BigUInt.zero))
-        } else {
-            fetchConstant(
-                for: .existentialDeposit,
-                runtimeCodingService: runtimeService,
-                operationManager: operationManager
-            ) { [weak self] (result: Result<BigUInt, Error>) in
-                self?.presenter?.didReceiveExistentialDeposit(result: result)
-            }
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter?.didReceiveExistentialDeposit(result: result)
         }
 
         feeProxy.delegate = self

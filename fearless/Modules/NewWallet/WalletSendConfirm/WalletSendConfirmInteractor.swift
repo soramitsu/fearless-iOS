@@ -57,16 +57,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             self?.presenter?.didReceiveBlockDuration(result: result)
         }
 
-        if chain.isOrml {
-            presenter?.didReceiveMinimumBalance(result: .success(BigUInt.zero))
-        } else {
-            fetchConstant(
-                for: .existentialDeposit,
-                runtimeCodingService: runtimeService,
-                operationManager: operationManager
-            ) { [weak self] (result: Result<BigUInt, Error>) in
-                self?.presenter?.didReceiveMinimumBalance(result: result)
-            }
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter?.didReceiveMinimumBalance(result: result)
         }
     }
 

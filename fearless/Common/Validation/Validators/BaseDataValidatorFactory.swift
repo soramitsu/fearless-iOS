@@ -25,7 +25,8 @@ protocol BaseDataValidatingFactoryProtocol: AnyObject {
         spendingAmount: BigUInt?,
         totalAmount: BigUInt?,
         minimumBalance: BigUInt?,
-        locale: Locale
+        locale: Locale,
+        chain: ChainModel
     ) -> DataValidating
 }
 
@@ -95,7 +96,8 @@ extension BaseDataValidatingFactoryProtocol {
         spendingAmount: BigUInt?,
         totalAmount: BigUInt?,
         minimumBalance: BigUInt?,
-        locale: Locale
+        locale: Locale,
+        chain: ChainModel
     ) -> DataValidating {
         WarningConditionViolation(onWarning: { [weak self] delegate in
             guard let view = self?.view else {
@@ -112,6 +114,10 @@ extension BaseDataValidatingFactoryProtocol {
 
         }, preservesCondition: {
             guard let spendingAmount = spendingAmount else {
+                return true
+            }
+
+            if chain.isOrml {
                 return true
             }
 

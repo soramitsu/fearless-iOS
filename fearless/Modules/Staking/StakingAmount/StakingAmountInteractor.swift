@@ -92,20 +92,16 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
 
         provideRewardCalculator()
 
-        if chain.isOrml {
-            presenter.didReceive(minimalBalance: BigUInt.zero)
-        } else {
-            fetchConstant(
-                for: .existentialDeposit,
-                runtimeCodingService: runtimeService,
-                operationManager: operationManager
-            ) { [weak self] (result: Result<BigUInt, Error>) in
-                switch result {
-                case let .success(amount):
-                    self?.presenter.didReceive(minimalBalance: amount)
-                case let .failure(error):
-                    self?.presenter.didReceive(error: error)
-                }
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            switch result {
+            case let .success(amount):
+                self?.presenter.didReceive(minimalBalance: amount)
+            case let .failure(error):
+                self?.presenter.didReceive(error: error)
             }
         }
 

@@ -10,6 +10,11 @@ protocol SubstrateCallFactoryProtocol {
         currencyId: CurrencyId?,
         chain: ChainModel?
     ) -> RuntimeCall<TransferCall>
+    
+    func transfer(
+        to receiver: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<TransferCall>
 
     func bond(
         amount: BigUInt,
@@ -139,6 +144,11 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         chain?.isOrml == true
             ? ormlTransfer(to: receiver, amount: amount, currencyId: currencyId)
             : defaultTransfer(to: receiver, amount: amount)
+    }
+    
+    func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
+        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
     }
 
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall> {

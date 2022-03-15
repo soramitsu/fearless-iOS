@@ -20,10 +20,8 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
     private weak var handler: AccountInfoSubscriptionAdapterHandler?
     internal var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     private var subscriptions: [AccountInfoSubscriptionProviderWrapper.Subscription] = []
-//    private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
-//    private var ormlAccountInfoProviders: [AnyDataProvider<DecodedOrmlAccountInfo>]?
     private var selectedMetaAccount: MetaAccountModel
-    
+
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
         AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
     }()
@@ -45,45 +43,15 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
                 provider.removeObserver(self)
             }
         }
-
-//        if let providers = ormlAccountInfoProviders {
-//            for provider in providers {
-//                provider.removeObserver(self)
-//            }
-//        }
-//
-//        if let providers = accountInfoProviders {
-//            for provider in providers {
-//                provider.removeObserver(self)
-//            }
-//        }
     }
 
     func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?) {
         reset()
 
         self.handler = handler
-
-//        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
-//        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
-
         if let subscription = wrapper.subscribeAccountProvider(for: accountId, chain: chain) {
             subscriptions.append(subscription)
         }
-//        if chain.chainId.isOrml {
-//            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
-//                ormlProviders.append(provider)
-//            }
-//        }
-//
-//        if !chain.chainId.isOrml {
-//            if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-//                defaultProviders.append(provider)
-//            }
-//        }
-
-//        ormlAccountInfoProviders = ormlProviders
-//        accountInfoProviders = defaultProviders
     }
 
     func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?) {
@@ -91,29 +59,12 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
 
         self.handler = handler
 
-//        var ormlProviders: [AnyDataProvider<DecodedOrmlAccountInfo>] = []
-//        var defaultProviders: [AnyDataProvider<DecodedAccountInfo>] = []
-
         chains.forEach { chain in
             if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
                let subscription = wrapper.subscribeAccountProvider(for: accountId, chain: chain) {
                 subscriptions.append(subscription)
             }
         }
-//            if chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-//                if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
-//                    ormlProviders.append(provider)
-//                }
-//            }
-//
-//            if !chain.chainId.isOrml, let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-//                if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-//                    defaultProviders.append(provider)
-//                }
-//            }
-
-//        ormlAccountInfoProviders = ormlProviders
-//        accountInfoProviders = defaultProviders
     }
 }
 
