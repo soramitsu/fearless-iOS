@@ -32,7 +32,7 @@ extension TransactionHistoryItem {
 
         let callPath = CallCodingPath.transfer
 
-        let callArgs = TransferCall(dest: .accoundId(receiverAccountId), value: amount)
+        let callArgs = TransferCall(dest: .accoundId(receiverAccountId), value: amount, currencyId: nil)
         let call = RuntimeCall<TransferCall>(
             moduleName: callPath.moduleName,
             callName: callPath.callName,

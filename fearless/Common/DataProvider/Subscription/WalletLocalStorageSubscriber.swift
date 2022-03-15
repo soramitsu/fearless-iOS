@@ -79,17 +79,8 @@ extension WalletLocalStorageSubscriber {
             guard let ormlAccountInfo = changes.reduceToLastChange()?.item else {
                 return
             }
-            let accountInfo = AccountInfo(
-                nonce: 0,
-                consumers: 0,
-                providers: 0,
-                data: AccountData(
-                    free: ormlAccountInfo.free,
-                    reserved: ormlAccountInfo.reserved,
-                    miscFrozen: ormlAccountInfo.frozen,
-                    feeFrozen: ormlAccountInfo.frozen
-                )
-            )
+
+            let accountInfo = AccountInfo(ormlAccountInfo: ormlAccountInfo)
             self?.walletLocalSubscriptionHandler.handleAccountInfo(
                 result: .success(accountInfo),
                 accountId: accountId,
