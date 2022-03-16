@@ -44,7 +44,8 @@ struct CrowdloanContributionSetupViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             assetInfo: assetInfo,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            chainAsset: ChainAsset(chain: chain, asset: asset.asset)
         )
 
         let view = CrowdloanContributionSetupViewController(
@@ -115,7 +116,10 @@ struct CrowdloanContributionSetupViewFactory {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedMetaAccount
+            ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager

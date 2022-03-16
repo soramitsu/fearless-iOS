@@ -114,7 +114,10 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             operationManager: operationManager,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             connection: connection,
             accountRepository: AnyDataProviderRepository(accountRepository)
         )

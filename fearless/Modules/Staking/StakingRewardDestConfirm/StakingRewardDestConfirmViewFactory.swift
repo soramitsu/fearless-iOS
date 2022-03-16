@@ -120,7 +120,10 @@ struct StakingRewardDestConfirmViewFactory {
         return StakingRewardDestConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             extrinsicService: extrinsicService,
             substrateProviderFactory: substrateProviderFactory,
             runtimeService: runtimeService,

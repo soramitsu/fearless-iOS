@@ -10,6 +10,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Account")
     }
 
+    static var tokens: StorageCodingPath {
+        StorageCodingPath(moduleName: "Tokens", itemName: "Accounts")
+    }
+
     static var events: StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Events")
     }

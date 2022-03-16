@@ -8,7 +8,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     var extrinsicService: ExtrinsicServiceProtocol?
@@ -39,7 +39,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         calculatorService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -52,7 +52,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.substrateProviderFactory = substrateProviderFactory
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
@@ -154,7 +154,7 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
     }
 }
 
-extension StakingRewardDestSetupInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingRewardDestSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -171,9 +171,9 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
         do {
             stashItem = try result.get()
 
+            accountInfoSubscriptionAdapter.reset()
             clear(dataProvider: &ledgerProvider)
             clear(dataProvider: &payeeProvider)
-            clear(dataProvider: &accountInfoProvider)
             clear(dataProvider: &nominationProvider)
 
             presenter.didReceiveStashItem(result: result)
@@ -187,7 +187,7 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
 
                 nominationProvider = subscribeNomination(for: stashAccountId, chainId: chain.chainId)
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: controllerAccountId, chainId: chain.chainId)
+                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: controllerAccountId, handler: self)
 
                 if let rewardDestination = rewardDestination {
                     estimateFee(rewardDestination: rewardDestination)

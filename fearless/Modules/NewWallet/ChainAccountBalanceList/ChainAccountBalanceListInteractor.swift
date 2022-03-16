@@ -8,25 +8,24 @@ final class ChainAccountBalanceListInteractor {
 
     let selectedMetaAccount: MetaAccountModel
     let repository: AnyDataProviderRepository<ChainModel>
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let operationQueue: OperationQueue
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let eventCenter: EventCenterProtocol
 
-    private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
 
     init(
         selectedMetaAccount: MetaAccountModel,
         repository: AnyDataProviderRepository<ChainModel>,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         operationQueue: OperationQueue,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.repository = repository
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.eventCenter = eventCenter
@@ -77,22 +76,7 @@ final class ChainAccountBalanceListInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        var providers: [AnyDataProvider<DecodedAccountInfo>] = []
-
-        for chain in chains {
-            if
-                let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-                let dataProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                providers.append(dataProvider)
-            } else {
-                presenter?.didReceiveAccountInfo(
-                    result: .failure(ChainAccountFetchingError.accountNotExists),
-                    for: chain.chainId
-                )
-            }
-        }
-
-        accountInfoProviders = providers
+        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
     }
 
     private func refreshChain(_: ChainModel) {}
@@ -114,23 +98,11 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
     }
 
     func refresh() {
-        if let accountInfoProviders = accountInfoProviders {
-            for accountInfoProvider in accountInfoProviders {
-                accountInfoProvider.removeObserver(self)
-            }
-        }
-
-        if let priceProviders = priceProviders {
-            for priceProvider in priceProviders {
-                priceProvider.removeObserver(self)
-            }
-        }
-
         fetchChainsAndSubscribeBalance()
     }
 }
 
-extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

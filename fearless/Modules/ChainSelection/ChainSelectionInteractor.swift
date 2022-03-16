@@ -6,7 +6,7 @@ final class ChainSelectionInteractor {
 
     let selectedMetaAccount: MetaAccountModel
     let repository: AnyDataProviderRepository<ChainModel>
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let operationQueue: OperationQueue
 
     private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
@@ -14,12 +14,12 @@ final class ChainSelectionInteractor {
     init(
         selectedMetaAccount: MetaAccountModel,
         repository: AnyDataProviderRepository<ChainModel>,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         operationQueue: OperationQueue
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.repository = repository
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
     }
 
@@ -48,22 +48,7 @@ final class ChainSelectionInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        var providers: [AnyDataProvider<DecodedAccountInfo>] = []
-
-        for chain in chains {
-            if
-                let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-                let dataProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                providers.append(dataProvider)
-            } else {
-                presenter.didReceiveAccountInfo(
-                    result: .failure(ChainAccountFetchingError.accountNotExists),
-                    for: chain.chainId
-                )
-            }
-        }
-
-        accountInfoProviders = providers
+        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
     }
 }
 
@@ -73,7 +58,7 @@ extension ChainSelectionInteractor: ChainSelectionInteractorInputProtocol {
     }
 }
 
-extension ChainSelectionInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension ChainSelectionInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

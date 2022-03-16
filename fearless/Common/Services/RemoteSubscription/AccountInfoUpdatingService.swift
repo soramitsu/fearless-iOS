@@ -82,7 +82,7 @@ final class AccountInfoUpdatingService {
 
         let maybeSubscriptionId = remoteSubscriptionService.attachToAccountInfo(
             of: accountId,
-            chainId: chain.chainId,
+            chain: chain,
             queue: nil,
             closure: nil
         )
