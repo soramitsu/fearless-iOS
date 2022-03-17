@@ -23,19 +23,13 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             fileManager: FileManager.default
         )
 
-        let appVersionObserver = AppVersionObserver(
-            jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
-            currentAppVersion: AppVersion.stringValue
-        )
-
         let interactor = RootInteractor(
             settings: SelectedWalletSettings.shared,
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
             migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
-            logger: Logger.shared,
-            appVersionObserver: appVersionObserver
+            logger: Logger.shared
         )
 
         presenter.view = view

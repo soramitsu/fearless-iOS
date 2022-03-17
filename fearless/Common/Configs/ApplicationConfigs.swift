@@ -120,7 +120,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains.json")
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -135,7 +135,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var appVersionURL: URL? {
-        GitHubUrl.url(suffix: "minimum_ios_app_version")
+        GitHubUrl.url(suffix: "minimum_ios_app_version.json")
     }
 }
 

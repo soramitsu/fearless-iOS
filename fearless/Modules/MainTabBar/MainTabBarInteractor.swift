@@ -9,6 +9,7 @@ final class MainTabBarInteractor {
     let eventCenter: EventCenterProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let serviceCoordinator: ServiceCoordinatorProtocol
+    let appVersionObserver: AppVersionObserverProtocol
 
     deinit {
         stopServices()
@@ -17,11 +18,13 @@ final class MainTabBarInteractor {
     init(
         eventCenter: EventCenterProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        appVersionObserver: AppVersionObserverProtocol
     ) {
         self.eventCenter = eventCenter
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
+        self.appVersionObserver = appVersionObserver
 
         startServices()
     }
@@ -33,10 +36,21 @@ final class MainTabBarInteractor {
     private func stopServices() {
         serviceCoordinator.throttle()
     }
+
+    func checkAppVersion() {
+        appVersionObserver.checkVersion { [weak self] versionSupported, _ in
+            guard versionSupported else {
+                self?.presenter?.handleAppVersionUnsupported()
+                return
+            }
+        }
+    }
 }
 
 extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
     func setup() {
+        checkAppVersion()
+
         eventCenter.add(observer: self, dispatchIn: .main)
         keystoreImportService.add(observer: self)
 

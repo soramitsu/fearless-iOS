@@ -13,7 +13,7 @@ protocol RootWireframeProtocol: AnyObject {
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
-    func checkAppVersion()
+    func decideModuleSynchroniously()
     func setup(runMigrations: Bool)
 }
 
