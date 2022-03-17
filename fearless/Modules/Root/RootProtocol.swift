@@ -13,8 +13,8 @@ protocol RootWireframeProtocol: AnyObject {
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
+    func checkAppVersion()
     func setup(runMigrations: Bool)
-    func decideModuleSynchroniously()
 }
 
 protocol RootInteractorOutputProtocol: AnyObject {
@@ -22,6 +22,7 @@ protocol RootInteractorOutputProtocol: AnyObject {
     func didDecideLocalAuthentication()
     func didDecidePincodeSetup()
     func didDecideBroken()
+    func didDecideVersionUnsupported()
 }
 
 protocol RootPresenterFactoryProtocol: AnyObject {

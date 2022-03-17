@@ -12,6 +12,7 @@ final class RootInteractor {
     let eventCenter: EventCenterProtocol
     let migrators: [Migrating]
     let logger: LoggerProtocol?
+    let appVersionObserver: AppVersionObserverProtocol
 
     init(
         settings: SelectedWalletSettings,
@@ -19,7 +20,8 @@ final class RootInteractor {
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        appVersionObserver: AppVersionObserverProtocol
     ) {
         self.settings = settings
         self.keystore = keystore
@@ -27,6 +29,7 @@ final class RootInteractor {
         self.eventCenter = eventCenter
         self.migrators = migrators
         self.logger = logger
+        self.appVersionObserver = appVersionObserver
     }
 
     private func setupURLHandlingService() {
@@ -53,6 +56,17 @@ final class RootInteractor {
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
+    func checkAppVersion() {
+        appVersionObserver.checkVersion { [weak self] versionSupported, _ in
+            guard versionSupported else {
+                self?.presenter?.didDecideVersionUnsupported()
+                return
+            }
+
+            self?.decideModuleSynchroniously()
+        }
+    }
+
     func decideModuleSynchroniously() {
         do {
             if !settings.hasValue {

@@ -1,27 +1,39 @@
 import Foundation
 import RobinHood
 
-protocol AppVersionObserverDelegate: AnyObject {
-    func handleAppVersionUnsupported()
-}
+typealias AppVersionObserverResult = ((Bool, Error?) -> Void)
 
 protocol AppVersionObserverProtocol {
-    func checkVersion(_ version: String)
+    func checkVersion(callback: @escaping AppVersionObserverResult)
 }
 
 class AppVersionObserver {
-    weak var delegate: AppVersionObserverDelegate?
-    private var currentAppVersion: String
+    private var currentAppVersion: String?
     private var jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
+    var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
 
-    init(jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
-         currentAppVersion: String) {
+    init(
+        jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
+        currentAppVersion: String?
+    ) {
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
         self.currentAppVersion = currentAppVersion
     }
 
-    func checkVersion(_ version: String) {
-        guard let url = ApplicationConfig.shared.appVersionURL else {
+    private func isVersionUnsupported(minimalVersion: String) -> Bool {
+        currentAppVersion?.versionLowerThan(minimalVersion) ?? false
+    }
+
+    private func isVersionExcluded(excludedVersions: [String]) -> Bool {
+        excludedVersions.contains(where: { $0 == currentAppVersion })
+    }
+}
+
+extension AppVersionObserver: AppVersionObserverProtocol {
+    func checkVersion(callback: @escaping AppVersionObserverResult) {
+        guard let url = ApplicationConfig.shared.appVersionURL,
+              let _ = currentAppVersion else {
+            callback(true, nil)
             return
         }
 
@@ -30,18 +42,29 @@ class AppVersionObserver {
 
         let updateClosure: ([DataProviderChange<AppSupportConfig>]) -> Void = { [weak self] changes in
             let result = changes.reduceToLastChange()
-    
-            guard let strongSelf = self,
-                    let minSupportedVersion = result?.minSupportedVersion else {
+
+            guard let strongSelf = self else {
                 return
             }
-            
-            if strongSelf.currentVersionLowerThan(version: minSupportedVersion) {
-                strongSelf.delegate?.handleAppVersionUnsupported()
+
+            var currentVersionSupported: Bool = true
+
+            if let minSupportedVersion = result?.minSupportedVersion,
+               strongSelf.isVersionUnsupported(minimalVersion: minSupportedVersion) {
+                currentVersionSupported = false
             }
+
+            if let excludedVersions = result?.excludedVersions,
+               strongSelf.isVersionExcluded(excludedVersions: excludedVersions) {
+                currentVersionSupported = false
+            }
+
+            callback(currentVersionSupported, nil)
         }
 
-        let failureClosure: (Error) -> Void = { _ in }
+        let failureClosure: (Error) -> Void = { error in
+            callback(true, error)
+        }
 
         let options = DataProviderObserverOptions(
             alwaysNotifyOnRefresh: false,
@@ -55,11 +78,7 @@ class AppVersionObserver {
             failing: failureClosure,
             options: options
         )
-    }
-    
-    private func currentVersionLowerThan(version: String) -> Bool {
-        let comparator = AppVersionComparator()
-        return comparator.isCurrentVersionLowerThanMinimal(currentVersion: currentAppVersion,
-                                                           minimalVersion: version)
+
+        self.displayInfoProvider = displayInfoProvider
     }
 }

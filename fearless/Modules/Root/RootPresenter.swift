@@ -9,12 +9,12 @@ final class RootPresenter {
 extension RootPresenter: RootPresenterProtocol {
     func loadOnLaunch() {
         interactor.setup(runMigrations: true)
-        interactor.decideModuleSynchroniously()
+        interactor.checkAppVersion()
     }
 
     func reload() {
         interactor.setup(runMigrations: false)
-        interactor.decideModuleSynchroniously()
+        interactor.checkAppVersion()
     }
 }
 
@@ -32,6 +32,10 @@ extension RootPresenter: RootInteractorOutputProtocol {
     }
 
     func didDecideBroken() {
+        wireframe.showBroken(on: view)
+    }
+
+    func didDecideVersionUnsupported() {
         wireframe.showBroken(on: view)
     }
 }
