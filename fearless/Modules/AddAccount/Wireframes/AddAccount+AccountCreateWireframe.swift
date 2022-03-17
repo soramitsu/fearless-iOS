@@ -4,7 +4,7 @@ import IrohaCrypto
 extension AddAccount {
     final class AccountCreateWireframe: AccountCreateWireframeProtocol {
         func confirm(
-            from view: NewAccountCreateViewProtocol?,
+            from view: AccountCreateViewProtocol?,
             request: MetaAccountCreationRequest,
             mnemonic: [String]
         ) {
@@ -20,7 +20,7 @@ extension AddAccount {
         }
 
         func presentCryptoTypeSelection(
-            from view: NewAccountCreateViewProtocol?,
+            from view: AccountCreateViewProtocol?,
             availableTypes: [CryptoType],
             selectedType: CryptoType,
             delegate: ModalPickerViewControllerDelegate?,

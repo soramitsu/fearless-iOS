@@ -37,13 +37,19 @@ final class AccountCreateViewLayout: UIView {
         return button
     }()
 
-    let derivationPathImage: UIImageView = {
+    let substrateDerivationPathImage: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFit
         return view
     }()
 
-    let cryptoTypeView: BorderedSubtitleActionView = {
+    let ethereumDerivationPathImage: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFit
+        return view
+    }()
+
+    let substrateCryptoTypeView: BorderedSubtitleActionView = {
         let view = BorderedSubtitleActionView()
         view.fillColor = .clear
         view.highlightedFillColor = .clear
@@ -60,7 +66,23 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    let derivationPathField: UITextField = {
+    let ethereumCryptoTypeView: TriangularedTwoLabelView = {
+        let view = TriangularedTwoLabelView()
+        view.fillColor = .clear
+        view.highlightedFillColor = .clear
+        view.strokeColor = R.color.colorGray()!
+        view.highlightedStrokeColor = R.color.colorGray()!
+        view.strokeWidth = Constants.strokeWidth
+        view.shadowOpacity = Constants.shadowOpacity
+        view.twoVerticalLabelView.titleLabel.textColor = R.color.colorLightGray()
+        view.twoVerticalLabelView.titleLabel.font = .p2Paragraph
+        view.twoVerticalLabelView.subtitleLabelView.textColor = R.color.colorWhite()
+        view.twoVerticalLabelView.subtitleLabelView.font = .p1Paragraph
+        view.applyDisabledStyle()
+        return view
+    }()
+
+    let substrateDerivationPathField: UITextField = {
         let view = UITextField()
         view.tintColor = .white
         view.font = .p1Paragraph
@@ -69,7 +91,24 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    let derivationPathLabel: UILabel = {
+    let ethereumDerivationPathField: UITextField = {
+        let view = UITextField()
+        view.tintColor = .white
+        view.font = .p1Paragraph
+        view.textColor = .white
+        view.clearButtonMode = .whileEditing
+        return view
+    }()
+
+    let substrateDerivationPathLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorLightGray()
+        label.textAlignment = .left
+        return label
+    }()
+
+    let ethereumDerivationPathLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorLightGray()
@@ -106,7 +145,7 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    private let derivationContainerView: TriangularedView = {
+    private let substrateDerivationContainerView: TriangularedView = {
         let view = TriangularedView()
         view.shadowOpacity = Constants.shadowOpacity
         view.fillColor = UIColor.clear
@@ -116,10 +155,21 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    private let advancedContainerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorBlack()
+    private let ethereumDerivationContainerView: TriangularedView = {
+        let view = TriangularedView()
+        view.shadowOpacity = Constants.shadowOpacity
+        view.fillColor = UIColor.clear
+        view.highlightedFillColor = UIColor.clear
+        view.strokeColor = R.color.colorGray()!
+        view.strokeWidth = Constants.strokeWidth
         return view
+    }()
+
+    private let advancedContainerView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = UIConstants.bigOffset
+        return stackView
     }()
 
     private let advancedAppearanceAnimator = TransitionAnimator(
@@ -135,6 +185,13 @@ final class AccountCreateViewLayout: UIView {
         subtype: .fromTop,
         curve: .easeIn
     )
+
+    private var chainType: AccountCreateChainType = .both
+
+    init(chainType: AccountCreateChainType) {
+        self.chainType = chainType
+        super.init(frame: .zero)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -173,7 +230,8 @@ private extension AccountCreateViewLayout {
         if expandableControl.isActivated {
             advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
         } else {
-            derivationPathField.resignFirstResponder()
+            substrateDerivationPathField.resignFirstResponder()
+            ethereumDerivationPathField.resignFirstResponder()
 
             advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
         }
@@ -205,41 +263,60 @@ private extension AccountCreateViewLayout {
 
         contentView.stackView.addArrangedSubview(expandableControlContainerView)
 
-        advancedContainerView.addSubview(cryptoTypeView)
-        cryptoTypeView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(Constants.subviewToContainerOffset)
-            make.trailing.equalToSuperview().inset(Constants.subviewToContainerOffset)
-            make.top.equalToSuperview().offset(UIConstants.bigOffset)
+        advancedContainerView.addArrangedSubview(substrateCryptoTypeView)
+        substrateCryptoTypeView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
         }
-        advancedContainerView.bringSubviewToFront(cryptoTypeView)
 
-        derivationContainerView.addSubview(derivationPathField)
-        derivationPathField.snp.makeConstraints { make in
+        substrateDerivationContainerView.addSubview(substrateDerivationPathField)
+        substrateDerivationPathField.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
         }
-        derivationContainerView.addSubview(derivationPathImage)
-        derivationPathImage.snp.makeConstraints { make in
+        substrateDerivationContainerView.addSubview(substrateDerivationPathImage)
+        substrateDerivationPathImage.snp.makeConstraints { make in
             make.size.equalTo(Constants.derivationImageSize)
-            make.leading.equalTo(derivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
+            make.leading.equalTo(substrateDerivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        advancedContainerView.addSubview(derivationContainerView)
-        derivationContainerView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(Constants.subviewToContainerOffset)
-            make.trailing.equalToSuperview().inset(Constants.subviewToContainerOffset)
-            make.top.equalTo(cryptoTypeView.snp.bottom).offset(UIConstants.bigOffset)
+        advancedContainerView.addArrangedSubview(substrateDerivationContainerView)
+        substrateDerivationContainerView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        advancedContainerView.addSubview(derivationPathLabel)
-        derivationPathLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(Constants.subviewToContainerOffset)
-            make.trailing.equalToSuperview().inset(Constants.subviewToContainerOffset)
+        advancedContainerView.addArrangedSubview(substrateDerivationPathLabel)
+        substrateDerivationPathLabel.snp.makeConstraints { make in
             make.height.equalTo(Constants.derivationPathLabelHeight)
-            make.top.equalTo(derivationContainerView.snp.bottom).offset(Constants.derivationPathViewToLabelSpacing)
+        }
+
+        advancedContainerView.addArrangedSubview(ethereumCryptoTypeView)
+        ethereumCryptoTypeView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        ethereumDerivationContainerView.addSubview(ethereumDerivationPathField)
+        ethereumDerivationPathField.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+        }
+        ethereumDerivationContainerView.addSubview(ethereumDerivationPathImage)
+        ethereumDerivationPathImage.snp.makeConstraints { make in
+            make.size.equalTo(Constants.derivationImageSize)
+            make.leading.equalTo(ethereumDerivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+
+        advancedContainerView.addArrangedSubview(ethereumDerivationContainerView)
+        ethereumDerivationContainerView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        advancedContainerView.addArrangedSubview(ethereumDerivationPathLabel)
+        ethereumDerivationPathLabel.snp.makeConstraints { make in
+            make.height.equalTo(Constants.derivationPathLabelHeight)
         }
 
         contentView.stackView.addArrangedSubview(advancedContainerView)
@@ -253,6 +330,7 @@ private extension AccountCreateViewLayout {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
+        
 
     private func applyLocalization() {
         detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)

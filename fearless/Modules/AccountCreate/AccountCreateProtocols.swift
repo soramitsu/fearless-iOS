@@ -1,32 +1,24 @@
 import IrohaCrypto
 import SoraFoundation
 
-// protocol AccountCreateViewProtocol: ControllerBackedProtocol {
-//    func set(mnemonic: [String])
-//    func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel)
-//    func setEthereumCrypto(model: TitleWithSubtitleViewModel)
-//    func bind(substrateViewModel: InputViewModelProtocol)
-//    func bind(ethereumViewModel: InputViewModelProtocol)
-//
-//    func didCompleteCryptoTypeSelection()
-//    func didValidateSubstrateDerivationPath(_ status: FieldStatus)
-//    func didValidateEthereumDerivationPath(_ status: FieldStatus)
-// }
-
-protocol NewAccountCreateViewProtocol: ControllerBackedProtocol {
+protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
-    func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func bind(viewModel: AccountCreateViewModel)
+    func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel)
+    func setEthereumCrypto(model: TitleWithSubtitleViewModel)
+    func bind(substrateViewModel: InputViewModelProtocol)
+    func bind(ethereumViewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()
-    func didValidateDerivationPath(_ status: FieldStatus)
+    func didValidateSubstrateDerivationPath(_ status: FieldStatus)
+    func didValidateEthereumDerivationPath(_ status: FieldStatus)
 }
 
 protocol AccountCreatePresenterProtocol: AnyObject {
     func setup()
     func selectSubstrateCryptoType()
     func activateInfo()
-    func validateDerivationPath(with viewModel: InputViewModelProtocol)
+    func validateSubstrate()
+    func validateEthereum()
     func proceed()
 }
 
@@ -41,13 +33,13 @@ protocol AccountCreateInteractorOutputProtocol: AnyObject {
 
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func confirm(
-        from view: NewAccountCreateViewProtocol?,
+        from view: AccountCreateViewProtocol?,
         request: MetaAccountCreationRequest,
         mnemonic: [String]
     )
 
     func presentCryptoTypeSelection(
-        from view: NewAccountCreateViewProtocol?,
+        from view: AccountCreateViewProtocol?,
         availableTypes: [CryptoType],
         selectedType: CryptoType,
         delegate: ModalPickerViewControllerDelegate?,
@@ -59,13 +51,13 @@ protocol AccountCreateViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(
         model: UsernameSetupModel,
         chainType: AccountCreateChainType
-    ) -> NewAccountCreateViewProtocol?
+    ) -> AccountCreateViewProtocol?
     static func createViewForAdding(
         model: UsernameSetupModel,
         chainType: AccountCreateChainType
-    ) -> NewAccountCreateViewProtocol?
+    ) -> AccountCreateViewProtocol?
     static func createViewForSwitch(
         model: UsernameSetupModel,
         chainType: AccountCreateChainType
-    ) -> NewAccountCreateViewProtocol?
+    ) -> AccountCreateViewProtocol?
 }

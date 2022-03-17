@@ -3,7 +3,7 @@ import IrohaCrypto
 
 final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     func confirm(
-        from view: NewAccountCreateViewProtocol?,
+        from view: AccountCreateViewProtocol?,
         request: MetaAccountCreationRequest,
         mnemonic: [String]
     ) {
@@ -19,7 +19,7 @@ final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     }
 
     func presentCryptoTypeSelection(
-        from view: NewAccountCreateViewProtocol?,
+        from view: AccountCreateViewProtocol?,
         availableTypes: [CryptoType],
         selectedType: CryptoType,
         delegate: ModalPickerViewControllerDelegate?,

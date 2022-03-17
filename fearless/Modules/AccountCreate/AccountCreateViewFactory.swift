@@ -7,7 +7,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     static func createViewForOnboarding(
         model: UsernameSetupModel,
         chainType: AccountCreateChainType
-    ) -> NewAccountCreateViewProtocol? {
+    ) -> AccountCreateViewProtocol? {
         let wireframe = AccountCreateWireframe()
 
         return createViewForUsername(
@@ -20,7 +20,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     static func createViewForAdding(
         model: UsernameSetupModel,
         chainType: AccountCreateChainType
-    ) -> NewAccountCreateViewProtocol? {
+    ) -> AccountCreateViewProtocol? {
         let wireframe = AddAccount.AccountCreateWireframe()
 
         return createViewForUsername(
@@ -33,7 +33,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     static func createViewForSwitch(
         model: UsernameSetupModel,
         chainType: AccountCreateChainType
-    ) -> NewAccountCreateViewProtocol? {
+    ) -> AccountCreateViewProtocol? {
         let wireframe = SwitchAccount.AccountCreateWireframe()
         return createViewForUsername(
             model: model,
@@ -46,7 +46,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         model: UsernameSetupModel,
         chainType: AccountCreateChainType,
         wireframe: AccountCreateWireframeProtocol
-    ) -> NewAccountCreateViewProtocol? {
+    ) -> AccountCreateViewProtocol? {
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
         let presenter = AccountCreatePresenter(
             usernameSetup: model,
@@ -54,7 +54,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
             wireframe: wireframe,
             interactor: interactor
         )
-        let view = NewAccountCreateViewController(presenter: presenter)
+        let view = AccountCreateViewController(presenter: presenter)
 
         presenter.view = view
         interactor.presenter = presenter
