@@ -23,16 +23,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             with: selectedMetaAccount
         )
 
-        let appVersionObserver = AppVersionObserver(
-            jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
-            currentAppVersion: AppVersion.stringValue
-        )
-
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
             serviceCoordinator: serviceCoordinator,
-            keystoreImportService: keystoreImportService,
-            appVersionObserver: appVersionObserver
+            keystoreImportService: keystoreImportService
         )
 
         let presenter = MainTabBarPresenter()

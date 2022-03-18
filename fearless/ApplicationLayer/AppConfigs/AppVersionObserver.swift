@@ -32,7 +32,7 @@ class AppVersionObserver {
 extension AppVersionObserver: AppVersionObserverProtocol {
     func checkVersion(callback: @escaping AppVersionObserverResult) {
         guard let url = ApplicationConfig.shared.appVersionURL,
-              let _ = currentAppVersion else {
+              currentAppVersion != nil else {
             callback(true, nil)
             return
         }

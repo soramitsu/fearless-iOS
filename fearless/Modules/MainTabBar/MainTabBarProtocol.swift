@@ -19,8 +19,6 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func didReloadSelectedNetwork()
     func didUpdateWalletInfo()
     func didRequestImportAccount()
-
-    func handleAppVersionUnsupported()
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
@@ -29,8 +27,6 @@ protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible 
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
 
     func presentAccountImport(on view: MainTabBarViewProtocol?)
-
-    func presentAppUpdateAlert(from view: ControllerBackedProtocol?)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {

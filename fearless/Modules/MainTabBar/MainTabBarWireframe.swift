@@ -69,16 +69,4 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
             }
         } ?? false
     }
-
-    func presentAppUpdateAlert(from view: ControllerBackedProtocol?) {
-        let alert = UIAlertController(title: "Please update app", message: "This version is unsupported", preferredStyle: .alert)
-        let updateAction = UIAlertAction(title: "Go appstore", style: .default) { _ in
-            if let url = URL(string: "itms-apps://apple.com/app/id1537251089") {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
-        }
-        alert.addAction(updateAction)
-
-        view?.controller.present(alert, animated: true, completion: nil)
-    }
 }

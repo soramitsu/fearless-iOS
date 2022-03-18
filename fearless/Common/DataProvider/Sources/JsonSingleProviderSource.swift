@@ -19,7 +19,7 @@ extension JsonSingleProviderSource: SingleValueProviderSourceProtocol {
 
         let mapOperation = ClosureOperation<Model?> {
             let data = try dataOperation.extractNoCancellableResultData()
-            return try GithubJSONDecoder().decode(T.self, from: data)
+            return try JSONDecoder().decode(T.self, from: data)
         }
 
         mapOperation.addDependency(dataOperation)

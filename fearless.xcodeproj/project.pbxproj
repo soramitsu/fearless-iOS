@@ -1887,6 +1887,10 @@
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAF5E9B627E37D3A005A3448 /* GithubJSONDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9B527E37D3A005A3448 /* GithubJSONDecoder.swift */; };
+		FAF5E9BB27E43246005A3448 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9BA27E43246005A3448 /* RootViewController.swift */; };
+		FAF5E9BD27E432BC005A3448 /* RootViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9BC27E432BC005A3448 /* RootViewLayout.swift */; };
+		FAF5E9C127E44297005A3448 /* AppVersionObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9C027E44297005A3448 /* AppVersionObserverTests.swift */; };
+		FAF5E9C427E446B0005A3448 /* AppVersionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9C327E446B0005A3448 /* AppVersionError.swift */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
 		FEB21960BEBE9863BEC63F50 /* FiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDED6FBACD36C077521CB24D /* FiltersViewController.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
@@ -3825,6 +3829,10 @@
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
 		FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModelFactory.swift; sourceTree = "<group>"; };
 		FAF5E9B527E37D3A005A3448 /* GithubJSONDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GithubJSONDecoder.swift; sourceTree = "<group>"; };
+		FAF5E9BA27E43246005A3448 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		FAF5E9BC27E432BC005A3448 /* RootViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewLayout.swift; sourceTree = "<group>"; };
+		FAF5E9C027E44297005A3448 /* AppVersionObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionObserverTests.swift; sourceTree = "<group>"; };
+		FAF5E9C327E446B0005A3448 /* AppVersionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionError.swift; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
 		FBFDF844248CD43AAD13139F /* StakingPayoutConfirmationInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationInteractor.swift; sourceTree = "<group>"; };
 		FDB9F89C75C25F6BDD8492DC /* WalletSendPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendPresenter.swift; sourceTree = "<group>"; };
@@ -5959,6 +5967,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				FAF5E9BE27E44271005A3448 /* ApplicationLayer */,
 				84FACB2B25F562CB00F32ED4 /* Resources */,
 				8467FD3724EACDF8005D486C /* Helper */,
 				8467FD0324E5E07D005D486C /* KeystoreDefinition */,
@@ -6085,6 +6094,7 @@
 		849013E024A9287F008F705E /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				FAF5E9C227E4469F005A3448 /* Errors */,
 				FA256983274CE5A500875A53 /* BalanceLocks+Sort.swift */,
 				FA256982274CE5A400875A53 /* BalanceLockType.swift */,
 				84D1110F26B932300016D962 /* ChainRegistry */,
@@ -6354,6 +6364,8 @@
 				8490147124A94A37008F705E /* RootInteractor.swift */,
 				8490147224A94A37008F705E /* RootPresenter.swift */,
 				8490147324A94A37008F705E /* RootPresenterFactory.swift */,
+				FAF5E9BA27E43246005A3448 /* RootViewController.swift */,
+				FAF5E9BC27E432BC005A3448 /* RootViewLayout.swift */,
 			);
 			path = Root;
 			sourceTree = "<group>";
@@ -9561,6 +9573,30 @@
 			path = GithubCodable;
 			sourceTree = "<group>";
 		};
+		FAF5E9BE27E44271005A3448 /* ApplicationLayer */ = {
+			isa = PBXGroup;
+			children = (
+				FAF5E9BF27E4427C005A3448 /* AppConfigs */,
+			);
+			path = ApplicationLayer;
+			sourceTree = "<group>";
+		};
+		FAF5E9BF27E4427C005A3448 /* AppConfigs */ = {
+			isa = PBXGroup;
+			children = (
+				FAF5E9C027E44297005A3448 /* AppVersionObserverTests.swift */,
+			);
+			path = AppConfigs;
+			sourceTree = "<group>";
+		};
+		FAF5E9C227E4469F005A3448 /* Errors */ = {
+			isa = PBXGroup;
+			children = (
+				FAF5E9C327E446B0005A3448 /* AppVersionError.swift */,
+			);
+			path = Errors;
+			sourceTree = "<group>";
+		};
 		FDE858484C32A17DA1E55997 /* WalletHistoryFilter */ = {
 			isa = PBXGroup;
 			children = (
@@ -10333,6 +10369,7 @@
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
 				84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */,
 				849ABE63262785F200011A2A /* ControllerMapper.swift in Sources */,
+				FAF5E9BD27E432BC005A3448 /* RootViewLayout.swift in Sources */,
 				8467FD0224E5D2D9005D486C /* OnboardingMainInteractor.swift in Sources */,
 				F4C086BD26D114F700716AEC /* SubqueryEraValidatorInfo.swift in Sources */,
 				8467FD5824EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift in Sources */,
@@ -10536,6 +10573,7 @@
 				AEF507F72625A3280098574D /* ValidatorState+Status.swift in Sources */,
 				843910D9253F8DFB00E3C217 /* StatusPresentable.swift in Sources */,
 				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
+				FAF5E9C427E446B0005A3448 /* AppVersionError.swift in Sources */,
 				847C963D255351BB002D288F /* ScrollableContainerView.swift in Sources */,
 				8463A71A25E3116A003B8160 /* BalanceViewModel.swift in Sources */,
 				FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */,
@@ -11472,6 +11510,7 @@
 				84DBEA4E265ED5B600FDF73C /* CrowdloanDataValidatorFactory.swift in Sources */,
 				8401AEC22642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift in Sources */,
 				846B32A726DD241C00250E89 /* WalletEventOpenCommand.swift in Sources */,
+				FAF5E9BB27E43246005A3448 /* RootViewController.swift in Sources */,
 				FA256A22274CE7D600875A53 /* MoonbeamMakeSignatureInfo.swift in Sources */,
 				1550A6E8789263C0D734091A /* StakingUnbondSetupWireframe.swift in Sources */,
 				F4FDA0FD26A57860003D753B /* EraCountdown.swift in Sources */,
@@ -11712,6 +11751,7 @@
 				84563D0324EFE6D70055591D /* NetworkItemMapperTests.swift in Sources */,
 				F47F6403263BD90000FF67E9 /* StubBalanceViewModelFactory.swift in Sources */,
 				84BEE63026CBFDBC00757009 /* ChainRegistryTests.swift in Sources */,
+				FAF5E9C127E44297005A3448 /* AppVersionObserverTests.swift in Sources */,
 				84F13F1426F20AA2006725FF /* StakingSettingsTests.swift in Sources */,
 				84EAC2F82642EA52003CC2ED /* StakingRebondConfirmationTests.swift in Sources */,
 				84300B2F26C1112300D64514 /* ConnectionPoolTests.swift in Sources */,
@@ -12124,7 +12164,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.8;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12150,7 +12190,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -12286,7 +12326,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.8;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";

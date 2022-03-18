@@ -16,10 +16,6 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 }
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
-    func handleAppVersionUnsupported() {
-        wireframe.presentAppUpdateAlert(from: view)
-    }
-
     func didReloadSelectedAccount() {
         wireframe.showNewWalletView(on: view)
         crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
