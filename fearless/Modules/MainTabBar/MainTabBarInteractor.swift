@@ -7,12 +7,12 @@ import SoraFoundation
 final class MainTabBarInteractor {
     weak var presenter: MainTabBarInteractorOutputProtocol?
 
-    let eventCenter: EventCenterProtocol
-    let keystoreImportService: KeystoreImportServiceProtocol
-    let serviceCoordinator: ServiceCoordinatorProtocol
-    let applicationHandler: ApplicationHandlerProtocol
+    private let eventCenter: EventCenterProtocol
+    private let keystoreImportService: KeystoreImportServiceProtocol
+    private let serviceCoordinator: ServiceCoordinatorProtocol
+    private let applicationHandler: ApplicationHandlerProtocol
 
-    var goneBackgroundTimestamp: TimeInterval?
+    private var goneBackgroundTimestamp: TimeInterval?
 
     deinit {
         stopServices()
@@ -89,7 +89,7 @@ extension MainTabBarInteractor: ApplicationHandlerDelegate {
 
     func didReceiveWillEnterForeground(notification _: Notification) {
         if let goneBackgroundTimestamp = goneBackgroundTimestamp,
-           Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTime {
+           Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
             presenter?.handleLongInactivity()
         }
     }

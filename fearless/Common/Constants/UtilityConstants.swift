@@ -1,5 +1,5 @@
 import Foundation
 
 enum UtilityConstants {
-    static let inactiveSessionDropTime: TimeInterval = 300
+    static let inactiveSessionDropTimeInSeconds: TimeInterval = 1200
 }
