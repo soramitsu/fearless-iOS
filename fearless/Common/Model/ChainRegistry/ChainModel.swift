@@ -76,6 +76,10 @@ class ChainModel: Codable {
         options?.contains(.testnet) ?? false
     }
 
+    var isOrml: Bool {
+        options?.contains(.orml) ?? false
+    }
+
     var isPolkadotOrKusama: Bool {
         name.lowercased() == "polkadot" || name.lowercased() == "kusama"
     }
@@ -102,6 +106,22 @@ class ChainModel: Codable {
         } else {
             return .onlyCommon
         }
+    }
+
+    var tokenSymbol: TokenSymbol? {
+        guard isOrml else {
+            return nil
+        }
+
+        guard let assetName = assets.first?.assetId else {
+            return nil
+        }
+
+        return TokenSymbol(rawValue: assetName)
+    }
+
+    var currencyId: CurrencyId? {
+        CurrencyId.token(symbol: tokenSymbol)
     }
 
     var erasPerDay: UInt32 {
@@ -179,6 +199,7 @@ enum ChainOptions: String, Codable {
     case ethereumBased
     case testnet
     case crowdloans
+    case orml
 }
 
 extension ChainModel {

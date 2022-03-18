@@ -6,7 +6,7 @@ import FearlessUtils
 final class ControllerAccountConfirmationInteractor {
     weak var presenter: ControllerAccountConfirmationInteractorOutputProtocol!
 
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
@@ -30,7 +30,7 @@ final class ControllerAccountConfirmationInteractor {
     private var extrinsicService: ExtrinsicServiceProtocol?
 
     init(
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -46,7 +46,7 @@ final class ControllerAccountConfirmationInteractor {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.runtimeService = runtimeService
@@ -193,9 +193,10 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             switch result {
             case let .success(accountItem):
                 if let accountItem = accountItem {
-                    self.accountInfoProvider = self.subscribeToAccountInfoProvider(
-                        for: accountItem.accountId,
-                        chainId: self.chain.chainId
+                    self.accountInfoSubscriptionAdapter.subscribe(
+                        chain: self.chain,
+                        accountId: accountItem.accountId,
+                        handler: self
                     )
 
                     self.extrinsicService = ExtrinsicService(
@@ -223,7 +224,7 @@ extension ControllerAccountConfirmationInteractor: PriceLocalStorageSubscriber, 
     }
 }
 
-extension ControllerAccountConfirmationInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension ControllerAccountConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }

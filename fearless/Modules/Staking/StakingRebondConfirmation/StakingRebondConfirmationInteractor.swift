@@ -9,7 +9,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     weak var presenter: StakingRebondConfirmationInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
@@ -34,7 +34,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
@@ -48,7 +48,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
@@ -142,7 +142,7 @@ extension StakingRebondConfirmationInteractor: PriceLocalStorageSubscriber, Pric
     }
 }
 
-extension StakingRebondConfirmationInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingRebondConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -172,7 +172,7 @@ extension StakingRebondConfirmationInteractor: StakingLocalStorageSubscriber, St
                let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
                 ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
 
                 fetchChainAccount(
                     chain: chain,

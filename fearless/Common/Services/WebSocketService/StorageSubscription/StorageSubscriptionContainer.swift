@@ -58,7 +58,9 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
         let updateData = StorageUpdateData(update: update)
 
         for change in updateData.changes {
-            let childrenToNotify = children.filter { $0.remoteStorageKey == change.key }
+            let childrenToNotify = children.filter {
+                $0.remoteStorageKey == change.key
+            }
 
             childrenToNotify.forEach {
                 $0.processUpdate(change.value, blockHash: updateData.blockHash)

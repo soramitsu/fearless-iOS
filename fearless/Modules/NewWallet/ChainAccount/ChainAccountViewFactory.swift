@@ -93,7 +93,10 @@ enum ChainAccountViewFactory {
             selectedMetaAccount: selectedMetaAccount,
             chain: chain,
             asset: asset,
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: selectedMetaAccount
+            ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             storageRequestFactory: storageRequestFactory,
             connection: connection,

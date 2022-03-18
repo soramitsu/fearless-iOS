@@ -12,13 +12,14 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var ormlBalanceProvider: AnyDataProvider<DecodedOrmlAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var crowdloanProvider: AnyDataProvider<DecodedCrowdloanFunds>?
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
@@ -33,7 +34,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
@@ -45,7 +46,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
         self.crowdloanLocalSubscriptionFactory = crowdloanLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
 
@@ -74,7 +75,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] (result: Result<BigUInt, Error>) in
-            self?.presenter.didReceiveMinimumBalance(result: result)
+            self?.presenter?.didReceiveMinimumBalance(result: result)
         }
 
         fetchConstant(
@@ -107,7 +108,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             return
         }
 
-        balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chainAsset.chain.chainId)
+        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
     }
 
     private func subscribeToPrice() {
@@ -168,7 +169,7 @@ extension CrowdloanContributionInteractor: CrowdloanLocalStorageSubscriber,
     }
 }
 
-extension CrowdloanContributionInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension CrowdloanContributionInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

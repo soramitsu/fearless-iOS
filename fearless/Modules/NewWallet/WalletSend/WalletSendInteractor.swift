@@ -12,7 +12,7 @@ final class WalletSendInteractor: RuntimeConstantFetching {
     let runtimeService: RuntimeCodingServiceProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
     let receiverAddress: String
@@ -30,7 +30,7 @@ final class WalletSendInteractor: RuntimeConstantFetching {
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
@@ -40,7 +40,7 @@ final class WalletSendInteractor: RuntimeConstantFetching {
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.receiverAddress = receiverAddress
         self.operationManager = operationManager
@@ -70,7 +70,7 @@ final class WalletSendInteractor: RuntimeConstantFetching {
             return
         }
 
-        balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
     }
 
     private func subscribeToPrice() {
@@ -95,7 +95,7 @@ extension WalletSendInteractor: WalletSendInteractorInputProtocol {
     func estimateFee(for amount: BigUInt) {
         guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: amount)
+        let call = callFactory.transfer(to: accountId, amount: amount, currencyId: chain.currencyId, chain: chain)
         let identifier = String(amount)
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
@@ -105,7 +105,7 @@ extension WalletSendInteractor: WalletSendInteractorInputProtocol {
     }
 }
 
-extension WalletSendInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension WalletSendInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

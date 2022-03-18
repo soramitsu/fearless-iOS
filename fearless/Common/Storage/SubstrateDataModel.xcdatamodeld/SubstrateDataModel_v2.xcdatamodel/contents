@@ -17,6 +17,7 @@
         <attribute name="historyApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="icon" attributeType="URI"/>
         <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isOrml" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
@@ -98,7 +99,7 @@
     </entity>
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="104"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="329"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="344"/>
         <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="104"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>

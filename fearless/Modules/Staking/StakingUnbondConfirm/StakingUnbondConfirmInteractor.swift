@@ -9,7 +9,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     weak var presenter: StakingUnbondConfirmInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
@@ -36,7 +36,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
@@ -50,7 +50,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
@@ -124,7 +124,7 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] (result: Result<BigUInt, Error>) in
-            self?.presenter.didReceiveExistentialDeposit(result: result)
+            self?.presenter?.didReceiveExistentialDeposit(result: result)
         }
 
         feeProxy.delegate = self
@@ -193,7 +193,7 @@ extension StakingUnbondConfirmInteractor: PriceLocalStorageSubscriber, PriceLoca
     }
 }
 
-extension StakingUnbondConfirmInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingUnbondConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -236,7 +236,7 @@ extension StakingUnbondConfirmInteractor: StakingLocalStorageSubscriber, Staking
                     chainId: chain.chainId
                 )
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
 
                 payeeProvider = subscribePayee(for: accountId, chainId: chain.chainId)
 

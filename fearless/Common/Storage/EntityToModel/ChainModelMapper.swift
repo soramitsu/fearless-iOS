@@ -329,6 +329,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options.append(.crowdloans)
         }
 
+        if entity.isOrml {
+            options.append(.orml)
+        }
+
         let externalApiSet = createExternalApi(from: entity)
 
         let chainModel = ChainModel(
@@ -375,6 +379,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isEthereumBased = model.isEthereumBased
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
+        entity.isOrml = model.isOrml
 
         updateEntityChainAssets(for: entity, from: model, context: context)
 
