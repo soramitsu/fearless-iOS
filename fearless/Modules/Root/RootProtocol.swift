@@ -1,10 +1,13 @@
 import UIKit
 
-protocol RootViewProtocol: ControllerBackedProtocol {}
+protocol RootViewProtocol: ControllerBackedProtocol {
+    func didReceive(state: RootViewState)
+}
 
 protocol RootPresenterProtocol: AnyObject {
     func loadOnLaunch()
     func reload()
+    func didTapRetryButton(from state: RootViewState)
 }
 
 protocol RootWireframeProtocol: AnyObject {
@@ -27,6 +30,7 @@ protocol RootInteractorOutputProtocol: AnyObject {
     func didDecidePincodeSetup()
     func didDecideBroken()
     func didDecideVersionUnsupported()
+    func didFailCheckAppVersion()
 }
 
 protocol RootPresenterFactoryProtocol: AnyObject {

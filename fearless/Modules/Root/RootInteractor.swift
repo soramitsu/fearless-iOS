@@ -63,7 +63,12 @@ final class RootInteractor {
 
 extension RootInteractor: RootInteractorInputProtocol {
     func checkAppVersion() {
-        appVersionObserver.checkVersion { [weak self] versionSupported, _ in
+        appVersionObserver.checkVersion { [weak self] versionSupported, error in
+            guard error == nil else {
+                self?.presenter?.didFailCheckAppVersion()
+                return
+            }
+
             guard versionSupported else {
                 self?.presenter?.didDecideVersionUnsupported()
                 return

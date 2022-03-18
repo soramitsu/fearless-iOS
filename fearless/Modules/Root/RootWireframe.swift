@@ -35,22 +35,9 @@ final class RootWireframe: RootWireframeProtocol {
         window.backgroundColor = .red
     }
 
-    func showVersionUnsupported(from view: ControllerBackedProtocol?, locale: Locale) {
-        let alert = UIAlertController(
-            title: R.string.localizable.appVersionUnsupportedText(preferredLanguages: locale.rLanguages),
-            message: nil,
-            preferredStyle: .alert
-        )
-        let updateAction = UIAlertAction(
-            title: R.string.localizable.commonUpdate(preferredLanguages: locale.rLanguages),
-            style: .default
-        ) { _ in
-            if let url = URL(string: URLConstants.appstoreLink) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
+    func showVersionUnsupported(from _: ControllerBackedProtocol?, locale _: Locale) {
+        if let url = URL(string: URLConstants.appstoreLink) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
-        alert.addAction(updateAction)
-
-        view?.controller.present(alert, animated: true, completion: nil)
     }
 }

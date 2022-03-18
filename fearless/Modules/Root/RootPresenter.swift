@@ -24,6 +24,19 @@ extension RootPresenter: RootPresenterProtocol {
         interactor.setup(runMigrations: false)
         interactor.checkAppVersion()
     }
+
+    func didTapRetryButton(from state: RootViewState) {
+        view?.didReceive(state: .plain)
+
+        switch state {
+        case .plain:
+            break
+        case .retry:
+            interactor.checkAppVersion()
+        case .update:
+            wireframe.showVersionUnsupported(from: view, locale: selectedLocale)
+        }
+    }
 }
 
 extension RootPresenter: RootInteractorOutputProtocol {
@@ -44,7 +57,21 @@ extension RootPresenter: RootInteractorOutputProtocol {
     }
 
     func didDecideVersionUnsupported() {
-        wireframe.showVersionUnsupported(from: view, locale: selectedLocale)
+        let viewModel = RootViewModel(
+            infoText: R.string.localizable.appVersionUnsupportedText(preferredLanguages: selectedLocale.rLanguages),
+            buttonTitle: R.string.localizable.commonUpdate(preferredLanguages: selectedLocale.rLanguages)
+        )
+
+        view?.didReceive(state: .update(viewModel: viewModel))
+    }
+
+    func didFailCheckAppVersion() {
+        let viewModel = RootViewModel(
+            infoText: R.string.localizable.appVersionJsonLoadingFailed(preferredLanguages: selectedLocale.rLanguages),
+            buttonTitle: R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages)
+        )
+
+        view?.didReceive(state: .retry(viewModel: viewModel))
     }
 }
 

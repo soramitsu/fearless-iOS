@@ -621,3 +621,4 @@ This is the hash of your transaction:";
 "json.export.text.title" = "Export as text";
 "app.version.unsupported.text" = "The current version of the application is no longer supported and must be updated";
 "chain.unsupported.text" = "This chain isn't available in the current version of the Application. Please update it to the latest version";
+"app.version.json.loading.failed" = "Failed to load necessary data to launch app. Please check your internet connection and try again.";

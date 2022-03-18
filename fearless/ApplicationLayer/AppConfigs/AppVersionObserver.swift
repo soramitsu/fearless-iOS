@@ -7,7 +7,7 @@ protocol AppVersionObserverProtocol {
     func checkVersion(callback: @escaping AppVersionObserverResult)
 }
 
-class AppVersionObserver {
+final class AppVersionObserver {
     private var currentAppVersion: String?
     private var jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
     var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
@@ -20,17 +20,34 @@ class AppVersionObserver {
         self.currentAppVersion = currentAppVersion
     }
 
-    private func isVersionUnsupported(minimalVersion: String) -> Bool {
-        currentAppVersion?.versionLowerThan(minimalVersion) ?? false
+    private func validateVersion(config: AppSupportConfig?) -> Bool {
+        !checkVersionExcluded(excludedVersions: config?.excludedVersions)
+            && !checkVersionUnsupported(minimalVersion: config?.minSupportedVersion)
     }
 
-    private func isVersionExcluded(excludedVersions: [String]) -> Bool {
-        excludedVersions.contains(where: { $0 == currentAppVersion })
+    private func checkVersionUnsupported(minimalVersion: String?) -> Bool {
+        guard let minimalVersion = minimalVersion else {
+            return false
+        }
+
+        return currentAppVersion?.versionLowerThan(minimalVersion) ?? false
+    }
+
+    private func checkVersionExcluded(excludedVersions: [String]?) -> Bool {
+        guard let excludedVersions = excludedVersions else {
+            return false
+        }
+
+        return excludedVersions.contains(where: { $0 == currentAppVersion })
     }
 }
 
+extension AppVersionObserver: AnyProviderAutoCleaning {}
+
 extension AppVersionObserver: AppVersionObserverProtocol {
     func checkVersion(callback: @escaping AppVersionObserverResult) {
+        clear(singleValueProvider: &displayInfoProvider)
+
         guard let url = ApplicationConfig.shared.appVersionURL,
               currentAppVersion != nil else {
             callback(true, nil)
@@ -47,19 +64,7 @@ extension AppVersionObserver: AppVersionObserverProtocol {
                 return
             }
 
-            var currentVersionSupported: Bool = true
-
-            if let minSupportedVersion = result?.minSupportedVersion,
-               strongSelf.isVersionUnsupported(minimalVersion: minSupportedVersion) {
-                currentVersionSupported = false
-            }
-
-            if let excludedVersions = result?.excludedVersions,
-               strongSelf.isVersionExcluded(excludedVersions: excludedVersions) {
-                currentVersionSupported = false
-            }
-
-            callback(currentVersionSupported, nil)
+            callback(strongSelf.validateVersion(config: result), nil)
         }
 
         let failureClosure: (Error) -> Void = { error in
