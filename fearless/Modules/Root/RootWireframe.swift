@@ -35,10 +35,17 @@ final class RootWireframe: RootWireframeProtocol {
         window.backgroundColor = .red
     }
 
-    func showVersionUnsupported(from view: ControllerBackedProtocol?) {
-        let alert = UIAlertController(title: "Please update app", message: "This version is unsupported", preferredStyle: .alert)
-        let updateAction = UIAlertAction(title: "Go appstore", style: .default) { _ in
-            if let url = URL(string: "itms-apps://apple.com/app/id1537251089") {
+    func showVersionUnsupported(from view: ControllerBackedProtocol?, locale: Locale) {
+        let alert = UIAlertController(
+            title: R.string.localizable.appVersionUnsupportedText(preferredLanguages: locale.rLanguages),
+            message: nil,
+            preferredStyle: .alert
+        )
+        let updateAction = UIAlertAction(
+            title: R.string.localizable.commonUpdate(preferredLanguages: locale.rLanguages),
+            style: .default
+        ) { _ in
+            if let url = URL(string: URLConstants.appstoreLink) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }

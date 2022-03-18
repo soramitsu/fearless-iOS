@@ -13,7 +13,7 @@ protocol RootWireframeProtocol: AnyObject {
     func showOnboarding(on window: UIWindow)
     func showPincodeSetup(on window: UIWindow)
     func showBroken(on window: UIWindow)
-    func showVersionUnsupported(from view: ControllerBackedProtocol?)
+    func showVersionUnsupported(from view: ControllerBackedProtocol?, locale: Locale)
 }
 
 protocol RootInteractorInputProtocol: AnyObject {

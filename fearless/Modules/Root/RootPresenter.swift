@@ -1,10 +1,15 @@
 import UIKit
+import SoraFoundation
 
 final class RootPresenter {
     var view: RootViewProtocol?
     var window: UIWindow!
     var wireframe: RootWireframeProtocol!
     var interactor: RootInteractorInputProtocol!
+
+    init(localizationManager: LocalizationManagerProtocol) {
+        self.localizationManager = localizationManager
+    }
 }
 
 extension RootPresenter: RootPresenterProtocol {
@@ -39,6 +44,10 @@ extension RootPresenter: RootInteractorOutputProtocol {
     }
 
     func didDecideVersionUnsupported() {
-        wireframe.showVersionUnsupported(from: view)
+        wireframe.showVersionUnsupported(from: view, locale: selectedLocale)
     }
+}
+
+extension RootPresenter: Localizable {
+    func applyLocalization() {}
 }
