@@ -3,8 +3,8 @@ import SoraKeystore
 import SoraFoundation
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
-    static func createPresenter(with view: UIWindow) -> RootPresenterProtocol {
-        let presenter = RootPresenter()
+    static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
+        let presenter = RootPresenter(localizationManager: LocalizationManager.shared)
         let wireframe = RootWireframe()
         let settings = SettingsManager.shared
         let keychain = Keychain()
@@ -23,18 +23,36 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             fileManager: FileManager.default
         )
 
+        let jsonDataProviderFactory = JsonDataProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            useCache: false
+        )
+
+        let appVersionObserver = AppVersionObserver(
+            jsonLocalSubscriptionFactory: jsonDataProviderFactory,
+            currentAppVersion: AppVersion.stringValue
+        )
+
         let interactor = RootInteractor(
             settings: SelectedWalletSettings.shared,
             keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
             migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
-            logger: Logger.shared
+            logger: Logger.shared,
+            appVersionObserver: appVersionObserver,
+            applicationHandler: ApplicationHandler()
         )
 
-        presenter.view = view
+        let view = RootViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+
+        presenter.window = window
         presenter.wireframe = wireframe
         presenter.interactor = interactor
+        presenter.view = view
 
         interactor.presenter = presenter
 
