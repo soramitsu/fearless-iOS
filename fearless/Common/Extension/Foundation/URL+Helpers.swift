@@ -8,4 +8,8 @@ extension URL {
     static func riotAddress(for name: String) -> URL? {
         URL(string: "https://matrix.to/#/\(name)")
     }
+
+    func removeHttpsScheme() -> String {
+        absoluteString.replacingOccurrences(of: "https://", with: "")
+    }
 }

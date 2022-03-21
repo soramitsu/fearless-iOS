@@ -1,16 +1,15 @@
+import CommonWallet
+
 protocol AboutViewProtocol: ControllerBackedProtocol {
-    func didReceive(viewModel: AboutViewModel)
+    func didReceive(viewModel: [AboutViewModel])
+    func didReceive(locale: Locale)
 }
 
 protocol AboutPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: AboutViewProtocol)
 
-    func activateWebsite()
-    func activateOpensource()
-    func activateSocial()
     func activateWriteUs()
-    func activateTerms()
-    func activatePrivacyPolicy()
+    func activate(url: URL)
 }
 
 protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, AlertPresentable {}
