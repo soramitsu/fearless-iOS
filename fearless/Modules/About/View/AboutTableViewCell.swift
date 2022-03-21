@@ -4,9 +4,9 @@ import SnapKit
 final class AboutTableViewCell: UITableViewCell {
     // MARK: - UI
 
-    private let titleLabel: UILabel! = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = R.color.colorLightGray()
+        label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
         return label
     }()

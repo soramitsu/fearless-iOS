@@ -36,10 +36,12 @@ final class AboutViewFactory: AboutViewFactoryProtocol {
 
         let wireframe = AboutWireframe()
         let localizationManager = LocalizationManager.shared
+        let aboutViewModelFactory = AboutViewModelFactory(about: about)
 
         let presenter = AboutPresenter(
             about: about,
             wireframe: wireframe,
+            aboutViewModelFactory: aboutViewModelFactory,
             localizationManager: localizationManager
         )
         let view = AboutViewController(locale: locale, presenter: presenter)

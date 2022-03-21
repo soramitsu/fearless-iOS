@@ -15,7 +15,10 @@ final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolde
 
     private var locale = Locale.current
     private var presenter: AboutPresenterProtocol
-    private var viewModel: [AboutViewModel]?
+
+    // MARK: - State
+
+    private var state: AboutViewState = .loading
 
     // MARK: - Constructors
 
@@ -61,19 +64,34 @@ final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolde
         cell.bind(viewModel: viewModel)
         return cell
     }
+
+    // MARK: - Private methods
+
+    private func applyState(_ state: AboutViewState) {
+        switch state {
+        case .loading:
+            break
+        case .loaded:
+            rootView.tableView.reloadData()
+        }
+    }
 }
 
 extension AboutViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int { 1 }
 
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        viewModel?.count ?? 0
+        guard case let .loaded(rows) = state else {
+            return 0
+        }
+        return rows.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let viewModel = viewModel?[indexPath.row] else { return UITableViewCell() }
-
-        return prepareCell(for: tableView, indexPath: indexPath, viewModel: viewModel)
+        guard case let .loaded(rows) = state else {
+            return UITableViewCell()
+        }
+        return prepareCell(for: tableView, indexPath: indexPath, viewModel: rows[indexPath.row])
     }
 }
 
@@ -85,7 +103,11 @@ extension AboutViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if let url = viewModel?[indexPath.row].url {
+        guard case let .loaded(rows) = state else {
+            return
+        }
+
+        if let url = rows[indexPath.row].url {
             presenter.activate(url: url)
         } else {
             presenter.activateWriteUs()
@@ -99,8 +121,8 @@ extension AboutViewController: AboutViewProtocol {
         rootView.locale = locale
     }
 
-    func didReceive(viewModel: [AboutViewModel]) {
-        self.viewModel = viewModel
-        rootView.tableView.reloadData()
+    func didReceive(state: AboutViewState) {
+        self.state = state
+        applyState(state)
     }
 }

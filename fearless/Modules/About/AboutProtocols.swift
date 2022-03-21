@@ -1,7 +1,7 @@
 import CommonWallet
 
 protocol AboutViewProtocol: ControllerBackedProtocol {
-    func didReceive(viewModel: [AboutViewModel])
+    func didReceive(state: AboutViewState)
     func didReceive(locale: Locale)
 }
 
