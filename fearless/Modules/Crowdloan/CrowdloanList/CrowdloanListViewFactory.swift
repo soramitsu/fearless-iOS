@@ -25,12 +25,15 @@ struct CrowdloanListViewFactory {
             amountFormatterFactory: AssetBalanceFormatterFactory()
         )
 
+        let config: ApplicationConfigProtocol = ApplicationConfig.shared
+
         let presenter = CrowdloanListPresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            crowdloanWiki: config.crowdloanWiki
         )
 
         let view = CrowdloanListViewController(

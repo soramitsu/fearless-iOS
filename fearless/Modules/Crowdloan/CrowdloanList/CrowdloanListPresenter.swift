@@ -18,18 +18,21 @@ final class CrowdloanListPresenter {
     private var leasingPeriodResult: Result<LeasingPeriod, Error>?
     private var contributionsResult: Result<CrowdloanContributionDict, Error>?
     private var leaseInfoResult: Result<ParachainLeaseInfoDict, Error>?
+    private let crowdloanWiki: URL
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
         wireframe: CrowdloanListWireframeProtocol,
         viewModelFactory: CrowdloansViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        crowdloanWiki: URL
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
+        self.crowdloanWiki = crowdloanWiki
         self.localizationManager = localizationManager
     }
 
@@ -59,6 +62,14 @@ final class CrowdloanListPresenter {
             balance = nil
         }
 
+        let wikiCrowdloan = LearnMoreViewModel(
+            iconViewModel: BundleImageViewModel(image: R.image.iconAboutWiki()),
+            title: R.string.localizable
+                .learnMoreAboutCrowdloans(preferredLanguages: selectedLocale.rLanguages),
+            subtitle: crowdloanWiki.host,
+            subtitleUnderLined: true
+        )
+
         let viewModel = viewModelFactory.createChainViewModel(
             from: chain,
             asset: asset.asset,
@@ -66,7 +77,7 @@ final class CrowdloanListPresenter {
             locale: selectedLocale
         )
 
-        view?.didReceive(chainInfo: viewModel)
+        view?.didReceive(chainInfo: viewModel, wikiCrowdloan: wikiCrowdloan)
     }
 
     private func createMetadataResult() -> Result<CrowdloanMetadata, Error>? {
@@ -204,6 +215,15 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
             from: view,
             delegate: self,
             selectedChainId: chainId
+        )
+    }
+
+    func selectWiki() {
+        guard let view = view else { return }
+        wireframe.showWeb(
+            url: crowdloanWiki,
+            from: view,
+            style: .automatic
         )
     }
 }
