@@ -25,6 +25,7 @@ protocol ApplicationConfigProtocol {
     var chainListURL: URL? { get }
     var assetListURL: URL? { get }
     var commonTypesURL: URL? { get }
+    var appVersionURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -119,9 +120,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-        GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains.json")
         #else
-        GitHubUrl.url(suffix: "chains/chains.json")
+            GitHubUrl.url(suffix: "chains/chains.json")
         #endif
     }
 
@@ -132,6 +133,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var commonTypesURL: URL? {
         GitHubUrl.url(suffix: "type_registry/default.json")
     }
+
+    var appVersionURL: URL? {
+        GitHubUrl.url(suffix: "minimum_ios_app_version.json")
+    }
 }
 
 private enum GitHubUrl {
@@ -139,7 +144,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "ios/2.0.6"
+    private static let defaultBranch = "feature/appversion"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

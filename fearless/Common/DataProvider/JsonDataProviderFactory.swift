@@ -10,16 +10,18 @@ class JsonDataProviderFactory: JsonDataProviderFactoryProtocol {
 
     private var providers: [String: WeakWrapper] = [:]
 
+    let useCache: Bool
     let storageFacade: StorageFacadeProtocol
 
-    init(storageFacade: StorageFacadeProtocol) {
+    init(storageFacade: StorageFacadeProtocol, useCache: Bool = true) {
         self.storageFacade = storageFacade
+        self.useCache = useCache
     }
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T> {
         let localKey = url.absoluteString
 
-        if let provider = providers[localKey]?.target as? SingleValueProvider<T> {
+        if let provider = providers[localKey]?.target as? SingleValueProvider<T>, useCache {
             return AnySingleValueProvider(provider)
         }
 
