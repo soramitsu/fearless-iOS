@@ -50,6 +50,10 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
     }
+
+    func handleLongInactivity() {
+        wireframe.logout(from: view)
+    }
 }
 
 extension MainTabBarPresenter: Localizable {

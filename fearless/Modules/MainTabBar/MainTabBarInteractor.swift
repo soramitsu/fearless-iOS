@@ -7,9 +7,12 @@ import SoraFoundation
 final class MainTabBarInteractor {
     weak var presenter: MainTabBarInteractorOutputProtocol?
 
-    let eventCenter: EventCenterProtocol
-    let keystoreImportService: KeystoreImportServiceProtocol
-    let serviceCoordinator: ServiceCoordinatorProtocol
+    private let eventCenter: EventCenterProtocol
+    private let keystoreImportService: KeystoreImportServiceProtocol
+    private let serviceCoordinator: ServiceCoordinatorProtocol
+    private let applicationHandler: ApplicationHandlerProtocol
+
+    private var goneBackgroundTimestamp: TimeInterval?
 
     deinit {
         stopServices()
@@ -18,11 +21,13 @@ final class MainTabBarInteractor {
     init(
         eventCenter: EventCenterProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        applicationHandler: ApplicationHandlerProtocol
     ) {
         self.eventCenter = eventCenter
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
+        self.applicationHandler = applicationHandler
 
         startServices()
     }
@@ -38,6 +43,7 @@ final class MainTabBarInteractor {
 
 extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
     func setup() {
+        applicationHandler.delegate = self
         eventCenter.add(observer: self, dispatchIn: .main)
         keystoreImportService.add(observer: self)
 
@@ -64,6 +70,10 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     func processNewTransaction(event _: WalletNewTransactionInserted) {
         presenter?.didUpdateWalletInfo()
     }
+
+    func processUserInactive(event _: UserInactiveEvent) {
+        presenter?.handleLongInactivity()
+    }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
@@ -73,5 +83,18 @@ extension MainTabBarInteractor: KeystoreImportObserver {
         }
 
         presenter?.didRequestImportAccount()
+    }
+}
+
+extension MainTabBarInteractor: ApplicationHandlerDelegate {
+    func didReceiveDidEnterBackground(notification _: Notification) {
+        goneBackgroundTimestamp = Date().timeIntervalSince1970
+    }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        if let goneBackgroundTimestamp = goneBackgroundTimestamp,
+           Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+            presenter?.handleLongInactivity()
+        }
     }
 }

@@ -40,7 +40,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
             serviceCoordinator: serviceCoordinator,
-            keystoreImportService: keystoreImportService
+            keystoreImportService: keystoreImportService,
+            applicationHandler: ApplicationHandler()
         )
 
         let presenter = MainTabBarPresenter(
