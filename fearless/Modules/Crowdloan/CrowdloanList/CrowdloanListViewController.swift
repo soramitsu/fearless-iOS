@@ -8,6 +8,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     let presenter: CrowdloanListPresenterProtocol
 
     private var chainInfo: CrowdloansChainViewModel?
+    private var wikiCrowdloan: LearnMoreViewModel?
     private var state: CrowdloanListState = .loading
 
     private var shouldUpdateOnAppearance: Bool = false
@@ -65,6 +66,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(YourCrowdloansTableViewCell.self)
         rootView.tableView.registerClassForCell(ActiveCrowdloanTableViewCell.self)
         rootView.tableView.registerClassForCell(CompletedCrowdloanTableViewCell.self)
+        rootView.tableView.registerClassForCell(CrowdloanWikiTableViewCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CrowdloanStatusSectionView.self)
 
         rootView.tableView.tableFooterView = UIView()
@@ -115,6 +117,10 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     @objc func actionSelectChain() {
         presenter.selectChain()
     }
+
+    @objc func actionSelectWiki() {
+        presenter.selectWiki()
+    }
 }
 
 extension CrowdloanListViewController: UITableViewDataSource {
@@ -139,7 +145,7 @@ extension CrowdloanListViewController: UITableViewDataSource {
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return 2
         } else {
             guard case let .loaded(viewModel) = state else {
                 return 0
@@ -155,19 +161,39 @@ extension CrowdloanListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let chainInfoCell = tableView.dequeueReusableCellWithType(CrowdloanChainTableViewCell.self)!
+            if indexPath.row == 0 {
+                guard let chainInfoCell = tableView.dequeueReusableCellWithType(CrowdloanChainTableViewCell.self) else {
+                    return UITableViewCell()
+                }
 
-            if let viewModel = chainInfo {
-                chainInfoCell.bind(viewModel: viewModel)
+                if let viewModel = chainInfo {
+                    chainInfoCell.bind(viewModel: viewModel)
+                }
+
+                chainInfoCell.chainSelectionView.addTarget(
+                    self,
+                    action: #selector(actionSelectChain),
+                    for: .touchUpInside
+                )
+
+                return chainInfoCell
+            } else if indexPath.row == 1 {
+                guard let wikiCell = tableView.dequeueReusableCellWithType(CrowdloanWikiTableViewCell.self) else {
+                    return UITableViewCell()
+                }
+
+                if let viewModel = wikiCrowdloan {
+                    wikiCell.bind(viewModel: viewModel)
+                }
+
+                wikiCell.wikiCrowdloansView.addTarget(
+                    self,
+                    action: #selector(actionSelectWiki),
+                    for: .touchUpInside
+                )
+
+                return wikiCell
             }
-
-            chainInfoCell.chainSelectionView.addTarget(
-                self,
-                action: #selector(actionSelectChain),
-                for: .touchUpInside
-            )
-
-            return chainInfoCell
         }
 
         guard case let .loaded(viewModel) = state else {
@@ -245,8 +271,9 @@ extension CrowdloanListViewController: UITableViewDelegate {
 }
 
 extension CrowdloanListViewController: CrowdloanListViewProtocol {
-    func didReceive(chainInfo: CrowdloansChainViewModel) {
+    func didReceive(chainInfo: CrowdloansChainViewModel, wikiCrowdloan: LearnMoreViewModel) {
         self.chainInfo = chainInfo
+        self.wikiCrowdloan = wikiCrowdloan
 
         rootView.tableView.reloadData()
     }
