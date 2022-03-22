@@ -3,7 +3,7 @@ import UIKit
 final class WarningAlertViewController: UIViewController, ViewHolder {
     typealias RootViewType = WarningAlertViewLayout
 
-    let presenter: WarningAlertPresenterProtocol
+    private let presenter: WarningAlertPresenterProtocol
 
     init(presenter: WarningAlertPresenterProtocol) {
         self.presenter = presenter
@@ -25,7 +25,7 @@ final class WarningAlertViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        presenter.setup()
+        presenter.didLoad(view: self)
 
         view.translatesAutoresizingMaskIntoConstraints = false
 

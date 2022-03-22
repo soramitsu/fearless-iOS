@@ -92,8 +92,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         view.presenter = presenter
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         return view

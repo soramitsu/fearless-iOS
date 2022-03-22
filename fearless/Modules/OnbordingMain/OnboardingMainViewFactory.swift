@@ -60,18 +60,18 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
             locale: localizationManager.selectedLocale
         )
 
+        let interactor = OnboardingMainInteractor(keystoreImportService: kestoreImportService)
+
         let presenter = OnboardingMainPresenter(
             legalData: legalData,
             locale: locale,
-            appVersionObserver: appVersionObserver
+            appVersionObserver: appVersionObserver,
+            wireframe: wireframe,
+            interactor: interactor
         )
-
-        let interactor = OnboardingMainInteractor(keystoreImportService: kestoreImportService)
 
         view.presenter = presenter
         presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
 
         interactor.presenter = presenter
 

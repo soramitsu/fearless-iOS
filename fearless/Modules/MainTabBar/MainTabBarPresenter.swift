@@ -4,10 +4,10 @@ import SoraFoundation
 
 final class MainTabBarPresenter {
     weak var view: MainTabBarViewProtocol?
-    var interactor: MainTabBarInteractorInputProtocol
-    var wireframe: MainTabBarWireframeProtocol
-    let appVersionObserver: AppVersionObserver
-    let applicationHandler: ApplicationHandler
+    private let interactor: MainTabBarInteractorInputProtocol
+    private let wireframe: MainTabBarWireframeProtocol
+    private let appVersionObserver: AppVersionObserver
+    private let applicationHandler: ApplicationHandler
 
     private var crowdloanListView: UINavigationController?
 

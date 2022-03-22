@@ -9,11 +9,11 @@ protocol AppVersionObserverProtocol {
 }
 
 final class AppVersionObserver {
-    private var locale: Locale
-    private var wireframe: AppVersionWireframe
-    private var currentAppVersion: String?
-    private var jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
-    var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
+    private let locale: Locale
+    private let wireframe: AppVersionWireframe
+    private let currentAppVersion: String?
+    private let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
+    private var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
 
     init(
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,

@@ -1,9 +1,9 @@
-protocol WarningAlertViewProtocol: AnyObject, ControllerBackedProtocol {
+protocol WarningAlertViewProtocol: ControllerBackedProtocol {
     func didReceive(config: WarningAlertConfig)
 }
 
 protocol WarningAlertPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: WarningAlertViewProtocol)
     func didTapActionButton()
     func didTapCloseButton()
 }

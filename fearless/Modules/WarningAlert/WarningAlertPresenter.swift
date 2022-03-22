@@ -2,10 +2,10 @@ import Foundation
 
 final class WarningAlertPresenter {
     weak var view: WarningAlertViewProtocol?
-    let wireframe: WarningAlertWireframeProtocol
-    let interactor: WarningAlertInteractorInputProtocol
-    let alertConfig: WarningAlertConfig
-    let buttonHandler: WarningAlertButtonHandler
+    private let wireframe: WarningAlertWireframeProtocol
+    private let interactor: WarningAlertInteractorInputProtocol
+    private let alertConfig: WarningAlertConfig
+    private let buttonHandler: WarningAlertButtonHandler
 
     init(
         interactor: WarningAlertInteractorInputProtocol,
@@ -21,8 +21,10 @@ final class WarningAlertPresenter {
 }
 
 extension WarningAlertPresenter: WarningAlertPresenterProtocol {
-    func setup() {
-        view?.didReceive(config: alertConfig)
+    func didLoad(view: WarningAlertViewProtocol) {
+        self.view = view
+
+        view.didReceive(config: alertConfig)
     }
 
     func didTapActionButton() {
