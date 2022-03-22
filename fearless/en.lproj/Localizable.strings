@@ -636,6 +636,6 @@ This is the hash of your transaction:";
 "about.terms.and.conditions" = "Terms and Conditions";
 "about.privacy.policy" = "Privacy Policy";
 "update.needed.text" = "Update Needed";
-"connection.problems.text" = "Connections Problems";
+"connection.problems.text" = "Connection Problems";
 "learn.more.about.crowdloans" = "Learn more about Crowdloans";
 "navigation.title.crowdloan" = "Parachain Crowdloans";
