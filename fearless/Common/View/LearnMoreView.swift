@@ -67,8 +67,8 @@ final class LearnMoreView: BackgroundedContentControl {
         let iconSize = CGSize(width: Constants.iconSize, height: Constants.iconSize)
         viewModel?.iconViewModel?.loadImage(on: iconView, targetSize: iconSize, animated: true)
         titleLabel.text = viewModel?.title
-        if let subtitleUnderLined = viewModel?.subtitleUnderLined, subtitleUnderLined {
-            subtitleLabel.attributedText = viewModel?.subtitle?.underLined
+        if let subtitleUnderlined = viewModel?.subtitleUnderlined, subtitleUnderlined {
+            subtitleLabel.attributedText = viewModel?.subtitle?.underlined
         } else {
             subtitleLabel.text = viewModel?.subtitle
         }

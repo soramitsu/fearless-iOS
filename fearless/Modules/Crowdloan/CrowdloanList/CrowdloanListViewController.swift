@@ -118,7 +118,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         presenter.selectChain()
     }
 
-    @objc func actionWiki() {
+    @objc func actionSelectWiki() {
         presenter.selectWiki()
     }
 }
@@ -162,7 +162,9 @@ extension CrowdloanListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                let chainInfoCell = tableView.dequeueReusableCellWithType(CrowdloanChainTableViewCell.self)!
+                guard let chainInfoCell = tableView.dequeueReusableCellWithType(CrowdloanChainTableViewCell.self) else {
+                    return UITableViewCell()
+                }
 
                 if let viewModel = chainInfo {
                     chainInfoCell.bind(viewModel: viewModel)
@@ -176,7 +178,9 @@ extension CrowdloanListViewController: UITableViewDataSource {
 
                 return chainInfoCell
             } else if indexPath.row == 1 {
-                let wikiCell = tableView.dequeueReusableCellWithType(CrowdloanWikiTableViewCell.self)!
+                guard let wikiCell = tableView.dequeueReusableCellWithType(CrowdloanWikiTableViewCell.self) else {
+                    return UITableViewCell()
+                }
 
                 if let viewModel = wikiCrowdloan {
                     wikiCell.bind(viewModel: viewModel)
@@ -184,7 +188,7 @@ extension CrowdloanListViewController: UITableViewDataSource {
 
                 wikiCell.wikiCrowdloansView.addTarget(
                     self,
-                    action: #selector(actionWiki),
+                    action: #selector(actionSelectWiki),
                     for: .touchUpInside
                 )
 

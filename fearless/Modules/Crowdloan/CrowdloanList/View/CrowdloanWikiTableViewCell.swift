@@ -1,10 +1,7 @@
 import UIKit
 
 final class CrowdloanWikiTableViewCell: UITableViewCell {
-    let wikiCrowdloansView: LearnMoreView = {
-        let view = UIFactory.default.createLearnMoreView()
-        return view
-    }()
+    let wikiCrowdloansView = UIFactory.default.createLearnMoreView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

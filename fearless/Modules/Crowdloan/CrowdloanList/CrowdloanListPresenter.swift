@@ -67,7 +67,7 @@ final class CrowdloanListPresenter {
             title: R.string.localizable
                 .learnMoreAboutCrowdloans(preferredLanguages: selectedLocale.rLanguages),
             subtitle: crowdloanWiki.host,
-            subtitleUnderLined: true
+            subtitleUnderlined: true
         )
 
         let viewModel = viewModelFactory.createChainViewModel(
