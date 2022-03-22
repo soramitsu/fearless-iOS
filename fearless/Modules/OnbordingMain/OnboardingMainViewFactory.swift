@@ -42,18 +42,36 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
             privacyPolicyUrl: applicationConfig.privacyPolicyURL
         )
 
+        let localizationManager = LocalizationManager.shared
+
         let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
         view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-        view.localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
 
-        let presenter = OnboardingMainPresenter(legalData: legalData, locale: locale)
+        let jsonDataProviderFactory = JsonDataProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            useCache: false
+        )
+
+        let appVersionObserver = AppVersionObserver(
+            jsonLocalSubscriptionFactory: jsonDataProviderFactory,
+            currentAppVersion: AppVersion.stringValue,
+            wireframe: wireframe,
+            locale: localizationManager.selectedLocale
+        )
 
         let interactor = OnboardingMainInteractor(keystoreImportService: kestoreImportService)
 
+        let presenter = OnboardingMainPresenter(
+            legalData: legalData,
+            locale: locale,
+            appVersionObserver: appVersionObserver,
+            wireframe: wireframe,
+            interactor: interactor
+        )
+
         view.presenter = presenter
         presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
 
         interactor.presenter = presenter
 

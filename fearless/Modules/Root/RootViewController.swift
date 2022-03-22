@@ -24,28 +24,12 @@ class RootViewController: UIViewController, ViewHolder {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        rootView.actionButton.addTarget(
-            self,
-            action: #selector(retryButtonClicked),
-            for: .touchUpInside
-        )
-    }
-
-    @objc private func retryButtonClicked() {
-        presenter.didTapRetryButton(from: state)
     }
 
     private func applyState() {
         switch state {
         case .plain:
-            rootView.infoView.isHidden = true
-        case let .retry(viewModel):
-            rootView.infoView.isHidden = false
-            rootView.bind(viewModel: viewModel)
-        case let .update(viewModel):
-            rootView.infoView.isHidden = false
-            rootView.bind(viewModel: viewModel)
+            break
         }
     }
 }
