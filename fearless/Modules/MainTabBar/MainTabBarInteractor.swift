@@ -70,6 +70,10 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     func processNewTransaction(event _: WalletNewTransactionInserted) {
         presenter?.didUpdateWalletInfo()
     }
+
+    func processUserInactive(event _: UserInactiveEvent) {
+        presenter?.handleLongInactivity()
+    }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
