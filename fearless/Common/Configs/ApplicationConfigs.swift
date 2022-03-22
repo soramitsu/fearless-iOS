@@ -19,6 +19,7 @@ protocol ApplicationConfigProtocol {
     var phishingListURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
+    var crowdloanWiki: URL { get }
 
     // MARK: - GitHub
 
@@ -114,6 +115,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var learnControllerAccountURL: URL {
         // swiftlint:disable:next line_length
         URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
+    }
+
+    var crowdloanWiki: URL {
+        URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
     }
 
     // MARK: - GitHub
