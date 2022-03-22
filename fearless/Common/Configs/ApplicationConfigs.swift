@@ -26,6 +26,7 @@ protocol ApplicationConfigProtocol {
     var fearlessWallet: URL { get }
     var fearlessAnnouncements: URL { get }
     var fearlessHappiness: URL { get }
+    var crowdloanWiki: URL { get }
 
     // MARK: - GitHub
 
@@ -149,6 +150,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var fearlessHappiness: URL {
         URL(string: "https://t.me/fearlesshappiness")!
+    }
+
+    var crowdloanWiki: URL {
+        URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
     }
 
     // MARK: - GitHub
