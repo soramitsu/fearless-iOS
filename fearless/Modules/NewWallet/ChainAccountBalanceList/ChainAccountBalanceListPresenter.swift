@@ -50,7 +50,13 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
+        if viewModel.chain.isSupported {
+            wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
+        } else {
+            wireframe.presentWarningAlert(from: view, config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)) { [weak self] in
+                self?.wireframe.showAppstoreUpdatePage()
+            }
+        }
     }
 }
 

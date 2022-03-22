@@ -19,6 +19,7 @@
         <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isOrml" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="minimalAppVersion" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
         <attribute name="stakingApiType" optional="YES" attributeType="String"/>
@@ -99,7 +100,7 @@
     </entity>
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="104"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="344"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="359"/>
         <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="104"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>

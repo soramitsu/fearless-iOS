@@ -7,16 +7,14 @@ protocol RootViewProtocol: ControllerBackedProtocol {
 protocol RootPresenterProtocol: AnyObject {
     func loadOnLaunch()
     func reload()
-    func didTapRetryButton(from state: RootViewState)
 }
 
-protocol RootWireframeProtocol: AnyObject {
+protocol RootWireframeProtocol: AnyObject, AppUpdatePresentable, WarningPresentable {
     func showSplash(splashView: ControllerBackedProtocol?, on window: UIWindow)
     func showLocalAuthentication(on window: UIWindow)
     func showOnboarding(on window: UIWindow)
     func showPincodeSetup(on window: UIWindow)
     func showBroken(on window: UIWindow)
-    func showVersionUnsupported(from view: ControllerBackedProtocol?, locale: Locale)
 }
 
 protocol RootInteractorInputProtocol: AnyObject {

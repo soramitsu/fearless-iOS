@@ -120,7 +120,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -144,7 +144,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "feature/appversion"
+    private static let defaultBranch = "ios/2.0.6"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

@@ -34,10 +34,4 @@ final class RootWireframe: RootWireframeProtocol {
         // normally user must not see this but on malicious devices it is possible
         window.backgroundColor = .red
     }
-
-    func showVersionUnsupported(from _: ControllerBackedProtocol?, locale _: Locale) {
-        if let url = URL(string: URLConstants.appstoreLink) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
-    }
 }
