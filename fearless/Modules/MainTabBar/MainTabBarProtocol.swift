@@ -21,7 +21,7 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func didRequestImportAccount()
 }
 
-protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
+protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
     func showNewWalletView(on view: MainTabBarViewProtocol?)
 
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?

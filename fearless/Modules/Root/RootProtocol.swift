@@ -9,7 +9,7 @@ protocol RootPresenterProtocol: AnyObject {
     func reload()
 }
 
-protocol RootWireframeProtocol: AnyObject, AppUpdatePresentable, WarningPresentable {
+protocol RootWireframeProtocol: AnyObject {
     func showSplash(splashView: ControllerBackedProtocol?, on window: UIWindow)
     func showLocalAuthentication(on window: UIWindow)
     func showOnboarding(on window: UIWindow)
@@ -18,7 +18,7 @@ protocol RootWireframeProtocol: AnyObject, AppUpdatePresentable, WarningPresenta
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
-    func checkAppVersion()
+    func decideModuleSynchroniously()
     func setup(runMigrations: Bool)
 }
 
@@ -27,8 +27,6 @@ protocol RootInteractorOutputProtocol: AnyObject {
     func didDecideLocalAuthentication()
     func didDecidePincodeSetup()
     func didDecideBroken()
-    func didDecideVersionUnsupported()
-    func didFailCheckAppVersion()
 }
 
 protocol RootPresenterFactoryProtocol: AnyObject {

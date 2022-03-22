@@ -17,12 +17,12 @@ extension RootPresenter: RootPresenterProtocol {
         wireframe.showSplash(splashView: view, on: window)
 
         interactor.setup(runMigrations: true)
-        interactor.checkAppVersion()
+        interactor.decideModuleSynchroniously()
     }
 
     func reload() {
         interactor.setup(runMigrations: false)
-        interactor.checkAppVersion()
+        interactor.decideModuleSynchroniously()
     }
 }
 
@@ -41,24 +41,6 @@ extension RootPresenter: RootInteractorOutputProtocol {
 
     func didDecideBroken() {
         wireframe.showBroken(on: window)
-    }
-
-    func didDecideVersionUnsupported() {
-        wireframe.presentWarningAlert(
-            from: view,
-            config: WarningAlertConfig.unsupportedAppVersionConfig(with: selectedLocale)
-        ) { [weak self] in
-            self?.wireframe.showAppstoreUpdatePage()
-        }
-    }
-
-    func didFailCheckAppVersion() {
-        wireframe.presentWarningAlert(
-            from: view,
-            config: WarningAlertConfig.connectionProblemAlertConfig(with: selectedLocale)
-        ) { [weak self] in
-            self?.interactor.checkAppVersion()
-        }
     }
 }
 

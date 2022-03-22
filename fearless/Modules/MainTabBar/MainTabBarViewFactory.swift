@@ -23,13 +23,33 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             with: selectedMetaAccount
         )
 
+        let jsonDataProviderFactory = JsonDataProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            useCache: false
+        )
+
+        let wireframe = MainTabBarWireframe()
+
+        let appVersionObserver = AppVersionObserver(
+            jsonLocalSubscriptionFactory: jsonDataProviderFactory,
+            currentAppVersion: AppVersion.stringValue,
+            wireframe: wireframe,
+            locale: localizationManager.selectedLocale
+        )
+
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
             serviceCoordinator: serviceCoordinator,
             keystoreImportService: keystoreImportService
         )
 
-        let presenter = MainTabBarPresenter()
+        let presenter = MainTabBarPresenter(
+            wireframe: wireframe,
+            interactor: interactor,
+            appVersionObserver: appVersionObserver,
+            applicationHandler: ApplicationHandler(),
+            localizationManager: LocalizationManager.shared
+        )
 
         guard
             let walletController = createWalletController(
@@ -68,8 +88,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             stakingController,
             settingsController
         ]
-
-        let wireframe = MainTabBarWireframe()
 
         view.presenter = presenter
         presenter.view = view
