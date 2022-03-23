@@ -7,18 +7,18 @@ import FearlessUtils
 
 class CalculatorServiceTests: XCTestCase {
     func testWestendCalculatorSetupWithoutCache() throws {
-        measure {
-            do {
-                let storageFacade = SubstrateStorageTestFacade()
-                try performServiceTest(
-                    for: Chain.westend.genesisHash,
-                    storageFacade: storageFacade,
-                    assetPrecision: 12
-                )
-            } catch {
-                XCTFail("unexpected error \(error)")
-            }
-        }
+//        measure {
+//            do {
+//                let storageFacade = SubstrateStorageTestFacade()
+//                try performServiceTest(
+//                    for: Chain.westend.genesisHash,
+//                    storageFacade: storageFacade,
+//                    assetPrecision: 12
+//                )
+//            } catch {
+//                XCTFail("unexpected error \(error)")
+//            }
+//        }
     }
 
     func testSingleWestend() throws {
@@ -51,18 +51,18 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testKusamaCalculatorSetupWithoutCache() throws {
-        measure {
-            do {
-                let storageFacade = SubstrateStorageTestFacade()
-                try performServiceTest(
-                    for: Chain.kusama.genesisHash,
-                    storageFacade: storageFacade,
-                    assetPrecision: 12
-                )
-            } catch {
-                XCTFail("unexpected error \(error)")
-            }
-        }
+//        measure {
+//            do {
+//                let storageFacade = SubstrateStorageTestFacade()
+//                try performServiceTest(
+//                    for: Chain.kusama.genesisHash,
+//                    storageFacade: storageFacade,
+//                    assetPrecision: 12
+//                )
+//            } catch {
+//                XCTFail("unexpected error \(error)")
+//            }
+//        }
     }
 
     func testSingleKusama() throws {
