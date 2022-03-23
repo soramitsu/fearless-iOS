@@ -175,7 +175,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var appVersionURL: URL? {
-        GitHubUrl.url(suffix: "minimum_ios_app_version.json")
+        GitHubUrl.url(suffix: "ios_app_support.json")
     }
 }
 
