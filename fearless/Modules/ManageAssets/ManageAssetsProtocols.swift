@@ -1,11 +1,14 @@
-protocol ManageAssetsViewProtocol: class {}
+protocol ManageAssetsViewProtocol: AnyObject {}
 
-protocol ManageAssetsPresenterProtocol: class {
+protocol ManageAssetsPresenterProtocol: AnyObject {
     func setup()
 }
 
-protocol ManageAssetsInteractorInputProtocol: class {}
+protocol ManageAssetsInteractorInputProtocol: AnyObject {}
 
-protocol ManageAssetsInteractorOutputProtocol: class {}
+protocol ManageAssetsInteractorOutputProtocol: AnyObject {
+    func didReceiveChains(result: Result<[ChainModel], Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
+}
 
-protocol ManageAssetsWireframeProtocol: class {}
+protocol ManageAssetsWireframeProtocol: AnyObject {}
