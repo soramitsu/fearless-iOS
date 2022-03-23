@@ -1,23 +1,30 @@
 import Foundation
 import RobinHood
 
-typealias AppVersionObserverResult = ((Bool, Error?) -> Void)
+typealias AppVersionObserverResult = ((Bool?, Error?) -> Void)
+typealias AppVersionWireframe = (WarningPresentable & AppUpdatePresentable & PresentDismissable)
 
 protocol AppVersionObserverProtocol {
-    func checkVersion(callback: @escaping AppVersionObserverResult)
+    func checkVersion(from view: ControllerBackedProtocol?, callback: AppVersionObserverResult?)
 }
 
 final class AppVersionObserver {
-    private var currentAppVersion: String?
-    private var jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
-    var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
+    private let locale: Locale
+    private let wireframe: AppVersionWireframe
+    private let currentAppVersion: String?
+    private let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
+    private var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
 
     init(
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
-        currentAppVersion: String?
+        currentAppVersion: String?,
+        wireframe: AppVersionWireframe,
+        locale: Locale
     ) {
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
         self.currentAppVersion = currentAppVersion
+        self.wireframe = wireframe
+        self.locale = locale
     }
 
     private func validateVersion(config: AppSupportConfig?) -> Bool {
@@ -45,12 +52,14 @@ final class AppVersionObserver {
 extension AppVersionObserver: AnyProviderAutoCleaning {}
 
 extension AppVersionObserver: AppVersionObserverProtocol {
-    func checkVersion(callback: @escaping AppVersionObserverResult) {
+    func checkVersion(
+        from view: ControllerBackedProtocol?,
+        callback: AppVersionObserverResult?
+    ) {
         clear(singleValueProvider: &displayInfoProvider)
 
         guard let url = ApplicationConfig.shared.appVersionURL,
               currentAppVersion != nil else {
-            callback(true, nil)
             return
         }
 
@@ -64,11 +73,34 @@ extension AppVersionObserver: AppVersionObserverProtocol {
                 return
             }
 
-            callback(strongSelf.validateVersion(config: result), nil)
+            let supported = strongSelf.validateVersion(config: result)
+            if !supported {
+                strongSelf.wireframe.presentWarningAlert(
+                    from: view,
+                    config: WarningAlertConfig.unsupportedAppVersionConfig(with: strongSelf.locale)
+                ) {
+                    strongSelf.wireframe.showAppstoreUpdatePage()
+                }
+            }
+
+            callback?(supported, nil)
         }
 
-        let failureClosure: (Error) -> Void = { error in
-            callback(true, error)
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            guard let strongSelf = self else {
+                return
+            }
+
+            strongSelf.wireframe.presentWarningAlert(
+                from: view,
+                config: WarningAlertConfig.connectionProblemAlertConfig(with: strongSelf.locale)
+            ) {
+                strongSelf.wireframe.dismiss(view: view)
+
+                strongSelf.checkVersion(from: view, callback: callback)
+            }
+
+            callback?(nil, error)
         }
 
         let options = DataProviderObserverOptions(

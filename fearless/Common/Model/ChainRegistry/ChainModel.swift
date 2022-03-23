@@ -39,6 +39,7 @@ class ChainModel: Codable {
     let externalApi: ExternalApiSet?
     let selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
+    let iosMinAppVersion: String?
 
     init(
         chainId: Id,
@@ -52,7 +53,8 @@ class ChainModel: Codable {
         options: [ChainOptions]? = nil,
         externalApi: ExternalApiSet? = nil,
         selectedNode: ChainNodeModel? = nil,
-        customNodes: Set<ChainNodeModel>? = nil
+        customNodes: Set<ChainNodeModel>? = nil,
+        iosMinAppVersion: String?
     ) {
         self.chainId = chainId
         self.parentId = parentId
@@ -66,6 +68,7 @@ class ChainModel: Codable {
         self.externalApi = externalApi
         self.selectedNode = selectedNode
         self.customNodes = customNodes
+        self.iosMinAppVersion = iosMinAppVersion
     }
 
     var isEthereumBased: Bool {
@@ -94,6 +97,10 @@ class ChainModel: Codable {
 
     var hasCrowdloans: Bool {
         options?.contains(.crowdloans) ?? false
+    }
+
+    var isSupported: Bool {
+        AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
     }
 
     func utilityAssets() -> Set<ChainAssetModel> {
@@ -150,7 +157,8 @@ class ChainModel: Codable {
             options: options,
             externalApi: externalApi,
             selectedNode: node,
-            customNodes: customNodes
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion
         )
     }
 
@@ -167,7 +175,8 @@ class ChainModel: Codable {
             options: options,
             externalApi: externalApi,
             selectedNode: selectedNode,
-            customNodes: Set(newCustomNodes)
+            customNodes: Set(newCustomNodes),
+            iosMinAppVersion: iosMinAppVersion
         )
     }
 }
@@ -184,6 +193,7 @@ extension ChainModel: Hashable {
             && lhs.addressPrefix == rhs.addressPrefix
             && lhs.selectedNode == rhs.selectedNode
             && lhs.nodes == rhs.nodes
+            && lhs.iosMinAppVersion == rhs.iosMinAppVersion
     }
 
     func hash(into hasher: inout Hasher) {

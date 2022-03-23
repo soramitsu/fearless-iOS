@@ -1,7 +1,11 @@
 import Foundation
 
 extension String {
-    func versionLowerThan(_ minimalVersion: String) -> Bool {
+    func versionLowerThan(_ minimalVersion: String?) -> Bool {
+        guard let minimalVersion = minimalVersion else {
+            return false
+        }
+
         let currentVersion = self
 
         let currentVersionComponents = currentVersion.components(separatedBy: ".")

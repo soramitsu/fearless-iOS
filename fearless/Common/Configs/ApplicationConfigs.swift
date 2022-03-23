@@ -8,7 +8,6 @@ protocol ApplicationConfigProtocol {
     var roadmapURL: URL { get }
     var supportEmail: String { get }
     var websiteURL: URL { get }
-    var socialURL: URL { get }
     var version: String { get }
     var opensourceURL: URL { get }
     var appName: String { get }
@@ -19,6 +18,15 @@ protocol ApplicationConfigProtocol {
     var phishingListURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
+    var twitter: URL { get }
+    var youTube: URL { get }
+    var instagram: URL { get }
+    var medium: URL { get }
+    var wiki: URL { get }
+    var fearlessWallet: URL { get }
+    var fearlessAnnouncements: URL { get }
+    var fearlessHappiness: URL { get }
+    var crowdloanWiki: URL { get }
 
     // MARK: - GitHub
 
@@ -55,10 +63,6 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var websiteURL: URL {
         URL(string: "https://fearlesswallet.io")!
-    }
-
-    var socialURL: URL {
-        URL(string: "https://t.me/fearlesswallet")!
     }
 
     // swiftlint:disable force_cast
@@ -116,11 +120,47 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
     }
 
+    var twitter: URL {
+        URL(string: "https://twitter.com/fearlesswallet")!
+    }
+
+    var youTube: URL {
+        URL(string: "https://youtube.com/fearlesswallet")!
+    }
+
+    var instagram: URL {
+        URL(string: "https://instagram.com/fearless_wallet")!
+    }
+
+    var medium: URL {
+        URL(string: "https://medium.com/fearlesswallet")!
+    }
+
+    var wiki: URL {
+        URL(string: "https://wiki.fearlesswallet.io")!
+    }
+
+    var fearlessWallet: URL {
+        URL(string: "https://t.me/fearlesswallet")!
+    }
+
+    var fearlessAnnouncements: URL {
+        URL(string: "https://t.me/fearless_announcements")!
+    }
+
+    var fearlessHappiness: URL {
+        URL(string: "https://t.me/fearlesshappiness")!
+    }
+
+    var crowdloanWiki: URL {
+        URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
+    }
+
     // MARK: - GitHub
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -135,7 +175,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var appVersionURL: URL? {
-        GitHubUrl.url(suffix: "minimum_ios_app_version.json")
+        GitHubUrl.url(suffix: "ios_app_support.json")
     }
 }
 
@@ -144,7 +184,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "feature/appversion"
+    private static let defaultBranch = "ios/2.0.6"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

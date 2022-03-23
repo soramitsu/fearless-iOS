@@ -1,10 +1,21 @@
 import Foundation
 
 struct AboutData {
-    let version: String
-    let opensourceUrl: URL
     let websiteUrl: URL
-    let socialUrl: URL
-    let legal: LegalData
+    let opensourceUrl: URL
+    let twitter: URL
+    let youTube: URL
+    let instagram: URL
+    let medium: URL
+    let wiki: URL
+    let telegram: TelegramData
     let writeUs: SupportData
+    let version: String
+    let legal: LegalData
+}
+
+struct TelegramData {
+    let fearlessWallet: URL
+    let fearlessAnnouncements: URL
+    let fearlessHappiness: URL
 }

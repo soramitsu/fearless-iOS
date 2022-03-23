@@ -196,5 +196,13 @@ class ChainAccountBalanceTableCell: UITableViewCell {
                 chainOptionsView.stackView.addArrangedSubview(view)
             }
         }
+
+        setDeactivated(!viewModel.chain.isSupported)
+    }
+}
+
+extension ChainAccountBalanceTableCell: DeactivatableView {
+    var deactivatableViews: [UIView] {
+        [assetIconImageView, chainNameLabel, balanceView, priceView]
     }
 }
