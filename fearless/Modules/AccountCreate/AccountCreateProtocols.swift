@@ -49,15 +49,12 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 
 protocol AccountCreateViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(
-        model: UsernameSetupModel,
-        chainType: AccountCreateChainType
+        model: UsernameSetupModel
     ) -> AccountCreateViewProtocol?
     static func createViewForAdding(
-        model: UsernameSetupModel,
-        chainType: AccountCreateChainType
+        model: UsernameSetupModel
     ) -> AccountCreateViewProtocol?
     static func createViewForSwitch(
-        model: UsernameSetupModel,
-        chainType: AccountCreateChainType
+        model: UsernameSetupModel
     ) -> AccountCreateViewProtocol?
 }

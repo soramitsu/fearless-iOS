@@ -1,6 +1,7 @@
+import Rswift
 enum AccountCreateChainType {
+    case substrate
     case ethereum
-    case substrate(choosable: Bool)
     case both
 }
 
@@ -21,5 +22,19 @@ extension AccountCreateChainType {
         case .substrate:
             return false
         }
+    }
+}
+
+enum AccountCreationStep {
+    case first
+    case second(data: FirstStepData)
+
+    struct FirstStepData {
+        let sourceType: AccountImportSource
+        let source: String
+        let username: String
+        let password: String
+        let cryptoType: CryptoType
+        let derivationPath: String
     }
 }

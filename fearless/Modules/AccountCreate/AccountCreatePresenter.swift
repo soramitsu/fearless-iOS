@@ -16,16 +16,13 @@ final class AccountCreatePresenter {
     private var selectedCryptoType: CryptoType = .sr25519
     private var substrateDerivationPathViewModel: InputViewModelProtocol?
     private var ethereumDerivationPathViewModel: InputViewModelProtocol?
-    private let chainType: AccountCreateChainType
 
     init(
         usernameSetup: UsernameSetupModel,
-        chainType: AccountCreateChainType,
         wireframe: AccountCreateWireframeProtocol,
         interactor: AccountCreateInteractorInputProtocol
     ) {
         self.usernameSetup = usernameSetup
-        self.chainType = chainType
         self.wireframe = wireframe
         self.interactor = interactor
     }
@@ -102,7 +99,6 @@ final class AccountCreatePresenter {
             processor: processor
         )
         return AccountCreateViewModel(
-            chainType: chainType,
             inputHandler: inputHandling,
             placeholder: placeholder
         )

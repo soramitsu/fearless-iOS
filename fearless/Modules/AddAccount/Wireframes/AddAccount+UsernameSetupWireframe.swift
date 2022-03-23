@@ -3,7 +3,7 @@ import Foundation
 extension AddAccount {
     final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
         func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel) {
-            guard let accountCreation = AccountCreateViewFactory.createViewForAdding(model: model, chainType: .substrate(choosable: true)) else {
+            guard let accountCreation = AccountCreateViewFactory.createViewForAdding(model: model) else {
                 return
             }
 

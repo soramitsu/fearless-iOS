@@ -75,10 +75,14 @@
 "import.source.picker.title" = "Тип источника";
 "import.raw.seed" = "Сид";
 "import.recovery.json" = "JSON для восстановления";
+"import.substrate.recovery.json" = "JSON для восстановления сабстрейт аккаунта";
+"import.ethereum.recovery.json" = "JSON для восстановления эфир аккаунта";
 "account.import.password.placeholder" = "Пароль";
 "recover.json.hint" = "Вставьте json строку или загрузите файл…";
 "account.import.recovery.json.placeholder" = "Вставьте json";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
+"account.import.substrate.raw.seed.placeholder" = "Сабстрейт аккаунт бинарный сид: (64 шестнадцатиричных символа)";
+"account.import.ethereum.raw.seed.placeholder" = "ETH аккаунт бинарный сид: (64 шестнадцатиричных символа)";
 "import.mnemonic" = "Мнемоническая фраза";
 "account.import.invalid.seed" = "Seed неверный. Пожалуйста, убедитесь, что введенные данные содержат 64 hex символа.";
 "account.import.invalid.keystore" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
@@ -623,3 +627,7 @@
 "already.have.account" = "У меня уже есть аккаунт";
 "json.export.file.title" = "Экспорт в файл";
 "json.export.text.title" = "Экспортировать как текст";
+"common.yes" = "Да";
+"common.no" = "Нет";
+"alert.add.ethereum.title" = "ETH аккаунты";
+"alert.add.ethereum.message" = "Добавить Moonbeam и Moonriver аккаунты?";

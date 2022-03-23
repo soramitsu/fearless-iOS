@@ -11,6 +11,7 @@ final class AccountCreateViewLayout: UIView {
         static let derivationImageSize: Int = 24
         static let derivationPathLabelHeight: CGFloat = 15
         static let derivationPathViewToLabelSpacing: CGFloat = 12
+        static let contentBottomOffset: CGFloat = 92
     }
 
     var locale = Locale.current {
@@ -97,6 +98,7 @@ final class AccountCreateViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.keyboardType = .decimalPad
         return view
     }()
 
@@ -119,6 +121,9 @@ final class AccountCreateViewLayout: UIView {
     private let expandableControlContainerView: BorderedContainerView = {
         let view = UIFactory().createBorderedContainerView()
         view.backgroundColor = R.color.colorBlack()
+        view.borderType = .bottom
+        view.strokeWidth = 1.0
+        view.strokeColor = R.color.colorGray()!
         return view
     }()
 
@@ -186,13 +191,6 @@ final class AccountCreateViewLayout: UIView {
         curve: .easeIn
     )
 
-    private var chainType: AccountCreateChainType = .both
-
-    init(chainType: AccountCreateChainType) {
-        self.chainType = chainType
-        super.init(frame: .zero)
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -241,7 +239,9 @@ private extension AccountCreateViewLayout {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
         }
 
         detailsLabelView.addSubview(detailsLabel)
@@ -326,14 +326,15 @@ private extension AccountCreateViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.greaterThanOrEqualTo(UIConstants.hugeOffset)
+            make.top.greaterThanOrEqualTo(contentView.snp.bottom).offset(UIConstants.hugeOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
-        
 
     private func applyLocalization() {
         detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
+        expandableControl.titleLabel.text = R.string.localizable
+            .commonAdvanced(preferredLanguages: locale.rLanguages)
 
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
