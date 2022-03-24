@@ -1,9 +1,24 @@
 import Foundation
 import RobinHood
+import SoraFoundation
 
 struct ManageAssetsViewFactory {
     static func createView(selectedMetaAccount: MetaAccountModel) -> ManageAssetsViewProtocol? {
-        let repository = ChainRepositoryFactory().createRepository(
+        guard let account = SelectedWalletSettings.shared.value else {
+            return nil
+        }
+
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -13,10 +28,12 @@ struct ManageAssetsViewFactory {
         )
 
         let interactor = ManageAssetsInteractor(
-            selectedMetaAccount: selectedMetaAccount,
-            repository: AnyDataProviderRepository(repository),
+            selectedMetaAccount: account,
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            eventCenter: EventCenter.shared
         )
 
         let wireframe = ManageAssetsWireframe()
@@ -27,7 +44,9 @@ struct ManageAssetsViewFactory {
         let presenter = ManageAssetsPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            selectedMetaAccount: selectedMetaAccount,
+            localizationManager: LocalizationManager.shared
         )
 
         let view = ManageAssetsViewController(presenter: presenter)

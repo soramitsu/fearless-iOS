@@ -8,6 +8,7 @@ protocol ChainAccountBalanceListPresenterProtocol: AnyObject {
     func didPullToRefreshOnAssetsTable()
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAccountButton()
+    func didTapManageAssetsButton()
 }
 
 protocol ChainAccountBalanceListInteractorInputProtocol: AnyObject {
@@ -28,6 +29,8 @@ protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresen
         chain: ChainModel,
         asset: AssetModel
     )
+
+    func showManageAssets(from view: ChainAccountBalanceListViewProtocol?)
 
     func showWalletSelection(from view: ChainAccountBalanceListViewProtocol?)
 }

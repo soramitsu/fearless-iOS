@@ -4,25 +4,31 @@ import RobinHood
 final class ManageAssetsInteractor {
     weak var presenter: ManageAssetsInteractorOutputProtocol?
 
-    private let selectedMetaAccount: MetaAccountModel
-    private let repository: AnyDataProviderRepository<ChainModel>
+    private var selectedMetaAccount: MetaAccountModel
+    private let chainRepository: AnyDataProviderRepository<ChainModel>
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationQueue: OperationQueue
+    private let eventCenter: EventCenterProtocol
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        repository: AnyDataProviderRepository<ChainModel>,
+        chainRepository: AnyDataProviderRepository<ChainModel>,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.repository = repository
+        self.chainRepository = chainRepository
+        self.accountRepository = accountRepository
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
+        self.eventCenter = eventCenter
     }
 
     private func fetchChainsAndSubscribeBalance() {
-        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         fetchOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -56,6 +62,41 @@ final class ManageAssetsInteractor {
 extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
     func setup() {
         fetchChainsAndSubscribeBalance()
+
+        presenter?.didReceiveSortOrder(sortedKeys: selectedMetaAccount.assetKeysOrder)
+    }
+
+    func saveAssetsOrder(assets: [AssetModel]) {
+        let keys = assets.map { $0.sortKey(accountId: selectedMetaAccount.substrateAccountId) }
+        let updatedAccount = selectedMetaAccount.replacingAssetKeysOrder(keys)
+
+        let saveOperation = accountRepository.saveOperation {
+            [updatedAccount]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                self?.selectedMetaAccount = updatedAccount
+                self?.presenter?.didReceiveSortOrder(sortedKeys: updatedAccount.assetKeysOrder)
+
+                SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                    switch result {
+                    case let .success(account):
+                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                    case .failure:
+                        break
+                    }
+                }
+            }
+        }
+
+        operationQueue.addOperation(saveOperation)
+    }
+    
+    func switchAssetEnabledState(_ asset: AssetModel) {
+        
     }
 }
 

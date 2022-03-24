@@ -252,7 +252,9 @@ private extension MetaAccountOperationFactory {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: []
+            chainAccounts: [],
+            assetKeysOrder: nil,
+            assetIdsEnabled: nil
         )
     }
 }
@@ -392,7 +394,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey: substratePublicKey.rawData(),
                 ethereumAddress: ethereumAddress,
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
-                chainAccounts: []
+                chainAccounts: [],
+                assetKeysOrder: nil,
+                assetIdsEnabled: nil
             )
         }
     }

@@ -29,4 +29,13 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
             animated: true
         )
     }
+
+    func showManageAssets(from view: ChainAccountBalanceListViewProtocol?) {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let manageAssets = ManageAssetsViewFactory.createView(selectedMetaAccount: selectedMetaAccount)?.controller else {
+            return
+        }
+
+        view?.controller.present(manageAssets, animated: true, completion: nil)
+    }
 }

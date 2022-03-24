@@ -1,8 +1,16 @@
 import UIKit
 
+protocol ManageAssetsTableViewCellDelegate: AnyObject {
+    func assetEnabledSwitcherValueChanged()
+}
+
 class ManageAssetsTableViewCell: UITableViewCell {
+    private weak var delegate: ManageAssetsTableViewCellDelegate?
+
     private enum LayoutConstants {
         static let iconSize: CGFloat = 24
+        static let switcherHeight: CGFloat = 21
+        static let switcherWidth: CGFloat = 36
     }
 
     let chainIconImageView: UIImageView = {
@@ -32,6 +40,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
 
     let dragButton: UIButton = {
         let button = UIButton()
+        button.setImage(R.image.iconDrag(), for: .normal)
         return button
     }()
 
@@ -78,15 +87,25 @@ class ManageAssetsTableViewCell: UITableViewCell {
         )
 
         selectionStyle = .none
+
+        switcher.addTarget(
+            self,
+            action: #selector(switcherValueChanged),
+            for: .valueChanged
+        )
+    }
+
+    @objc private func switcherValueChanged() {
+        delegate?.assetEnabledSwitcherValueChanged()
     }
 
     private func setupLayout() {
-        addSubview(chainIconImageView)
-        addSubview(chainNameLabel)
-        addSubview(chainOptionsView)
-        addSubview(tokenBalanceLabel)
-        addSubview(switcher)
-        addSubview(dragButton)
+        contentView.addSubview(chainIconImageView)
+        contentView.addSubview(chainNameLabel)
+        contentView.addSubview(chainOptionsView)
+        contentView.addSubview(tokenBalanceLabel)
+        contentView.addSubview(switcher)
+        contentView.addSubview(dragButton)
 
         chainIconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
@@ -98,10 +117,11 @@ class ManageAssetsTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
             make.top.bottom.equalToSuperview()
+            make.size.equalTo(LayoutConstants.iconSize)
         }
 
         switcher.snp.makeConstraints { make in
-            make.trailing.equalTo(dragButton.snp.leading).inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset + UIConstants.defaultOffset + LayoutConstants.iconSize)
             make.centerY.equalToSuperview()
         }
 
@@ -121,5 +141,46 @@ class ManageAssetsTableViewCell: UITableViewCell {
             make.top.equalTo(chainNameLabel.snp.bottom).offset(UIConstants.minimalOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
+
+        switcher.set(
+            width: LayoutConstants.switcherWidth,
+            height: LayoutConstants.switcherHeight
+        )
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        switcher.set(
+            width: LayoutConstants.switcherWidth,
+            height: LayoutConstants.switcherHeight
+        )
+    }
+
+    func bind(to viewModel: ManageAssetsTableViewCellModel) {
+        delegate = viewModel
+        viewModel.imageViewModel?.cancel(on: chainIconImageView)
+
+        chainNameLabel.text = viewModel.assetName?.uppercased()
+        tokenBalanceLabel.text = viewModel.balanceString
+
+        viewModel.imageViewModel?.loadBalanceListIcon(
+            on: chainIconImageView,
+            animated: false
+        )
+
+        if let options = viewModel.options {
+            options.forEach { option in
+                let view = ChainOptionsView()
+                view.bind(to: option)
+
+                chainOptionsView.stackView.addArrangedSubview(view)
+            }
+        }
+
+        switcher.set(
+            width: LayoutConstants.switcherWidth,
+            height: LayoutConstants.switcherHeight
+        )
     }
 }

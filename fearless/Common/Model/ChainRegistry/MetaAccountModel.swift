@@ -10,6 +10,8 @@ struct MetaAccountModel: Equatable, Codable {
     let ethereumAddress: Data?
     let ethereumPublicKey: Data?
     let chainAccounts: Set<ChainAccountModel>
+    let assetKeysOrder: [String]?
+    let assetIdsEnabled: [String]?
 }
 
 extension MetaAccountModel: Identifiable {
@@ -32,7 +34,9 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: newChainAccounts
+            chainAccounts: newChainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled
         )
     }
 
@@ -45,7 +49,9 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: newEthereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled
         )
     }
 
@@ -58,7 +64,9 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: newEthereumPublicKey,
-            chainAccounts: chainAccounts
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled
         )
     }
 
@@ -71,7 +79,39 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled
+        )
+    }
+
+    func replacingAssetKeysOrder(_ newAssetKeysOrder: [String]) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: newAssetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled
+        )
+    }
+
+    func replacingAssetIdsEnabled(_ newAssetIdsEnabled: [String]) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: newAssetIdsEnabled
         )
     }
 }

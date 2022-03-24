@@ -17,6 +17,10 @@ struct AssetModel: Equatable, Codable, Hashable {
         id.uppercased()
     }
 
+    func sortKey(accountId: AccountId) -> String {
+        id + chainId + accountId.toHex()
+    }
+
     static func == (lhs: AssetModel, rhs: AssetModel) -> Bool {
         lhs.id == rhs.id &&
             lhs.chainId == rhs.chainId &&

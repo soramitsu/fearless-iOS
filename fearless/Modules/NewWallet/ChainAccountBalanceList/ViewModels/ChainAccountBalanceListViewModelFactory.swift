@@ -7,7 +7,8 @@ protocol ChainAccountBalanceListViewModelFactoryProtocol {
         chains: [ChainModel],
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
-        prices: [AssetModel.PriceId: PriceData]?
+        prices: [AssetModel.PriceId: PriceData]?,
+        sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel
 }
 
@@ -17,13 +18,14 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         chains: [ChainModel],
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
-        prices: [AssetModel.PriceId: PriceData]?
+        prices: [AssetModel.PriceId: PriceData]?,
+        sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
         let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        var chainAssets = chains.map { chain in
+        let chainAssets = chains.map { chain in
             chain.assets.compactMap { asset in
                 ChainAsset(chain: chain, asset: asset.asset)
             }
@@ -51,19 +53,28 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
-                (
-                    usdBalanceByChainAsset[ca1] ?? Decimal.zero,
-                    balanceByChainAsset[ca1] ?? Decimal.zero,
-                    ca2.chain.isTestnet.intValue,
-                    ca1.chain.isPolkadotOrKusama.intValue,
-                    ca2.chain.name
-                ) > (
-                    usdBalanceByChainAsset[ca2] ?? Decimal.zero,
-                    balanceByChainAsset[ca2] ?? Decimal.zero,
-                    ca1.chain.isTestnet.intValue,
-                    ca2.chain.isPolkadotOrKusama.intValue,
-                    ca1.chain.name
-                )
+                if let sortedKeys = sortedKeys, let accountId = selectedMetaAccount?.substrateAccountId {
+                    var orderByKey: [String: Int] = [:]
+                    for (index, key) in sortedKeys.enumerated() {
+                        orderByKey[key] = index
+                    }
+
+                    return orderByKey[ca1.asset.sortKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.asset.sortKey(accountId: accountId)] ?? Int.max
+                } else {
+                    return (
+                        usdBalanceByChainAsset[ca1] ?? Decimal.zero,
+                        balanceByChainAsset[ca1] ?? Decimal.zero,
+                        ca2.chain.isTestnet.intValue,
+                        ca1.chain.isPolkadotOrKusama.intValue,
+                        ca2.chain.name
+                    ) > (
+                        usdBalanceByChainAsset[ca2] ?? Decimal.zero,
+                        balanceByChainAsset[ca2] ?? Decimal.zero,
+                        ca1.chain.isTestnet.intValue,
+                        ca2.chain.isPolkadotOrKusama.intValue,
+                        ca1.chain.name
+                    )
+                }
             }
 
         let totalWalletBalance: Decimal = chains.compactMap { chainModel in

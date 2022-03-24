@@ -5,7 +5,7 @@ import CoreData
 enum UserStorageParams {
     static let modelVersion: UserStorageVersion = .version3
     static let modelDirectory: String = "UserDataModel.momd"
-    static let databaseName = "UserDataModel.sqlite"
+    static let databaseName = "MultiassetUserDataModel_v2.sqlite"
 
     static let storageDirectoryURL: URL = {
         let baseURL = FileManager.default.urls(

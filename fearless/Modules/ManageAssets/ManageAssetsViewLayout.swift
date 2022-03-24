@@ -16,6 +16,7 @@ final class ManageAssetsViewLayout: UIView {
 
     let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
+        searchBar.searchBarStyle = .minimal
         return searchBar
     }()
 
@@ -52,6 +53,8 @@ final class ManageAssetsViewLayout: UIView {
 
         backgroundColor = .black
         setupLayout()
+
+        applyLocalization()
     }
 
     @available(*, unavailable)

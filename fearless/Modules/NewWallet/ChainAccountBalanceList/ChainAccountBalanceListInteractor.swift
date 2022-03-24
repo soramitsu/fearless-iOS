@@ -6,7 +6,7 @@ import SoraFoundation
 final class ChainAccountBalanceListInteractor {
     weak var presenter: ChainAccountBalanceListInteractorOutputProtocol?
 
-    let selectedMetaAccount: MetaAccountModel
+    var selectedMetaAccount: MetaAccountModel
     let chainRepository: AnyDataProviderRepository<ChainModel>
     let assetRepository: AnyDataProviderRepository<AssetModel>
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -153,6 +153,12 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
 
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         refresh()
+    }
+
+    func processAssetsListChanged(event: AssetsListChangedEvent) {
+        selectedMetaAccount = event.account
+
+        presenter?.didReceiveSelectedAccount(selectedMetaAccount)
     }
 }
 
