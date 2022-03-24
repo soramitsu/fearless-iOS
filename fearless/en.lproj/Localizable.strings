@@ -646,4 +646,7 @@ This is the hash of your transaction:";
 "common.no" = "No";
 "alert.add.ethereum.title" = "ETH accounts";
 "alert.add.ethereum.message" = "Add Moonbeam and Moonriver accounts?";
-
+"min.staking.warning.text" = "The bonded amount is less than the current active minimum nominated amount of %s\
+and depending on the network state, may not be selected to participate";
+"staking.inactive.bond" = "Inactive Bond";
+"min.staking.calculating.text" = "Calculating active minimum nominated amount. Please try again in few seconds.";

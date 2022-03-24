@@ -178,7 +178,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
+            eraValidatorService: eraValidatorService
         )
     }
 }
