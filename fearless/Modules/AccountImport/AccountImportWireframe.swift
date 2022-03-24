@@ -4,6 +4,16 @@ import IrohaCrypto
 final class AccountImportWireframe: AccountImportWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
+    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
+        guard let secondStep = AccountImportViewFactory.createViewForOnboarding(.second(data: data)) else {
+            return
+        }
+
+        if let navigationController = view?.controller.navigationController {
+            navigationController.pushViewController(secondStep.controller, animated: true)
+        }
+    }
+
     func proceed(from _: AccountImportViewProtocol?) {
         guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
             return

@@ -1,55 +1,11 @@
 import UIKit
-import SoraKeystore
-import SoraFoundation
 import SoraUI
+import SoraFoundation
 
-final class AccountImportViewController: UIViewController {
-    private enum Constants {
-        static let advancedFullHeight: CGFloat = 321.0
-        static let advancedTruncHeight: CGFloat = 84.0
-        static let verticalSpacing: CGFloat = 16.0
-        static let nextButtonBottomInset: CGFloat = 16
-    }
+final class AccountImportViewController: UIViewController, ViewHolder {
+    typealias RootViewType = AccountImportViewLayout
 
-    var presenter: AccountImportPresenterProtocol!
-
-    @IBOutlet private var scrollView: UIScrollView!
-    @IBOutlet private var stackView: UIStackView!
-    @IBOutlet private var sourceTypeView: BorderedSubtitleActionView!
-    @IBOutlet private var usernameView: UIView!
-    @IBOutlet private var usernameTextField: AnimatedTextField!
-    @IBOutlet private var usernameFooterLabel: UILabel!
-    @IBOutlet private var passwordView: TriangularedView!
-    @IBOutlet private var passwordTextField: AnimatedTextField!
-    @IBOutlet private var textPlaceholderLabel: UILabel!
-    @IBOutlet private var textView: UITextView!
-    @IBOutlet private var nextButton: TriangularedButton!
-
-    @IBOutlet private var textContainerView: UIView!
-
-    @IBOutlet private var uploadView: DetailsTriangularedView!
-
-    @IBOutlet private var warningView: UIView!
-    @IBOutlet private var warningLabel: UILabel!
-    @IBOutlet private var nextButtonBottom: NSLayoutConstraint!
-
-    @IBOutlet var substrateCryptoTypeView: BorderedSubtitleActionView!
-
-    @IBOutlet var ethereumCryptoTypeView: TriangularedTwoLabelView!
-
-    @IBOutlet var substrateDerivationPathLabel: UILabel!
-    @IBOutlet var substrateDerivationPathField: UITextField!
-    @IBOutlet var substrateDerivationPathImageView: UIImageView!
-
-    @IBOutlet var ethereumDerivationPathImageView: UIImageView!
-    @IBOutlet var ethereumDerivationPathField: UITextField!
-    @IBOutlet var ethereumDerivationPathLabel: UILabel!
-
-    @IBOutlet var advancedContainerView: UIView!
-    @IBOutlet var advancedControl: ExpandableActionControl!
-
-    @IBOutlet var advancedContainerHeight: NSLayoutConstraint!
-
+    private let presenter: AccountImportPresenterProtocol
     private var substrateDerivationPathModel: InputViewModelProtocol?
     private var ethereumDerivationPathModel: InputViewModelProtocol?
     private var usernameViewModel: InputViewModelProtocol?
@@ -61,41 +17,37 @@ final class AccountImportViewController: UIViewController {
         localizationManager?.selectedLocale ?? Locale.current
     }()
 
-    var advancedAppearanceAnimator = TransitionAnimator(
-        type: .push,
-        duration: 0.35,
-        subtype: .fromBottom,
-        curve: .easeOut
-    )
+    init(presenter: AccountImportPresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
 
-    var advancedDismissalAnimator = TransitionAnimator(
-        type: .push,
-        duration: 0.35,
-        subtype: .fromTop,
-        curve: .easeIn
-    )
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = AccountImportViewLayout()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configure()
+        setupActions()
         setupLocalization()
-        updateTextViewPlaceholder()
+        setupActions()
 
         presenter.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        if keyboardHandler == nil {
-            setupKeyboardHandler()
-        }
+        setupKeyboardHandler()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-
         clearKeyboardHandler()
     }
 
@@ -103,293 +55,200 @@ final class AccountImportViewController: UIViewController {
         super.viewDidLayoutSubviews()
         isFirstLayoutCompleted = true
     }
+}
 
-    private func configure() {
-        stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
+private extension AccountImportViewController {
+    func setupActions() {
+        rootView.usernameTextField.animatedInputField.delegate = self
+        rootView.passwordTextField.animatedInputField.delegate = self
+        rootView.substrateDerivationPathField.delegate = self
+        rootView.ethereumDerivationPathField.delegate = self
+        rootView.textView.delegate = self
 
-        stackView.setCustomSpacing(Constants.verticalSpacing, after: sourceTypeView)
-        stackView.setCustomSpacing(Constants.verticalSpacing, after: uploadView)
+        rootView.usernameTextField.animatedInputField.addTarget(self, action: #selector(actionNameTextFieldChanged), for: .editingChanged)
+        rootView.passwordTextField.animatedInputField.addTarget(self, action: #selector(actionPasswordTextFieldChanged), for: .editingChanged)
+        rootView.substrateDerivationPathField.addTarget(self, action: #selector(substrateTextFieldEditingChanged), for: .editingChanged)
+        rootView.ethereumDerivationPathField.addTarget(self, action: #selector(ethereumTextFieldEditingChanged), for: .editingChanged)
 
-        advancedContainerView.isHidden = !advancedControl.isActivated
-
-        textView.tintColor = R.color.colorWhite()
-
-        sourceTypeView.actionControl.addTarget(
+        rootView.sourceTypeView.actionControl.addTarget(
             self,
             action: #selector(actionOpenSourceType),
             for: .valueChanged
         )
 
-        substrateCryptoTypeView.actionControl.addTarget(
+        rootView.substrateCryptoTypeView.actionControl.addTarget(
             self,
             action: #selector(actionOpenCryptoType),
             for: .valueChanged
         )
 
-        ethereumCryptoTypeView.applyDisabledStyle()
-
-        usernameTextField.textField.returnKeyType = .done
-        usernameTextField.textField.textContentType = .nickname
-        usernameTextField.textField.autocapitalizationType = .none
-        usernameTextField.textField.autocorrectionType = .no
-        usernameTextField.textField.spellCheckingType = .no
-
-        passwordTextField.textField.returnKeyType = .done
-        passwordTextField.textField.textContentType = .password
-        passwordTextField.textField.autocapitalizationType = .none
-        passwordTextField.textField.autocorrectionType = .no
-        passwordTextField.textField.spellCheckingType = .no
-        passwordTextField.textField.isSecureTextEntry = true
-
-        usernameTextField.delegate = self
-        passwordTextField.delegate = self
-
-        uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
-
-        ethereumDerivationPathField.keyboardType = .decimalPad
+        rootView.uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
+        rootView.nextButton.addTarget(self, action: #selector(actionNext), for: .touchUpInside)
     }
 
-    private func setupLocalization() {
-        title = R.string.localizable
-            .importWallet(preferredLanguages: locale.rLanguages)
-        sourceTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
-            .importSourcePickerTitle(preferredLanguages: locale.rLanguages)
+    func setupLocalization() {
+        if isViewLoaded {
+            rootView.locale = locale
+            view.setNeedsLayout()
+        }
 
-        setupUsernamePlaceholder()
+        title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
 
-        usernameFooterLabel.text = R.string.localizable
-            .usernameSetupHint(preferredLanguages: locale.rLanguages)
-
-        setupPasswordPlaceholder()
-
-        advancedControl.titleLabel.text = R.string.localizable
-            .commonAdvanced(preferredLanguages: locale.rLanguages)
-        advancedControl.invalidateLayout()
-
-        substrateCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
-            .substrateCryptoType(preferredLanguages: locale.rLanguages)
-        substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoVerticalLabelView.titleLabel.text = R.string.localizable
-            .ethereumCryptoType(preferredLanguages: locale.rLanguages)
-        ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text =
-            R.string.localizable
-                .ecdsaSelectionSubtitle(preferredLanguages: locale.rLanguages)
-        substrateCryptoTypeView.actionControl.invalidateLayout()
-
-        substrateDerivationPathLabel.text = R.string.localizable
-            .substrateSecretDerivationPath(preferredLanguages: locale.rLanguages)
-        ethereumDerivationPathLabel.text = R.string.localizable
-            .ethereumSecretDerivationPath(preferredLanguages: locale.rLanguages)
-
-        nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: locale.rLanguages)
-        nextButton.invalidateLayout()
-
-        uploadView.title = R.string.localizable.importRecoveryJson(preferredLanguages: locale.rLanguages)
-
-        if !uploadView.isHidden {
+        if !rootView.uploadView.isHidden {
             updateUploadView()
         }
     }
 
-    private func setupUsernamePlaceholder() {
-        usernameTextField.title = R.string.localizable
-            .accountInfoNameTitle(preferredLanguages: locale.rLanguages)
-    }
-
-    private func setupPasswordPlaceholder() {
-        passwordTextField.title = R.string.localizable
-            .accountImportPasswordPlaceholder(preferredLanguages: locale.rLanguages)
-    }
-
-    private func updateNextButton() {
+    func updateNextButton() {
         var isEnabled: Bool = true
 
         if let viewModel = sourceViewModel, viewModel.inputHandler.required {
-            let uploadViewActive = !uploadView.isHidden && !(uploadView.subtitle?.isEmpty ?? false)
-            let textViewActive = !textContainerView.isHidden && !textView.text.isEmpty
+            let uploadViewActive = !rootView.uploadView.isHidden && !(rootView.uploadView.subtitle?.isEmpty ?? false)
+            let textViewActive = !rootView.textContainerView.isHidden && !rootView.textView.text.isEmpty
             isEnabled = isEnabled && (uploadViewActive || textViewActive)
         }
 
         if let viewModel = usernameViewModel, viewModel.inputHandler.required {
-            isEnabled = isEnabled && !(usernameTextField.text?.isEmpty ?? true)
+            isEnabled = isEnabled && !(rootView.usernameTextField.text?.isEmpty ?? true)
         }
 
         if let viewModel = passwordViewModel, viewModel.inputHandler.required {
-            isEnabled = isEnabled && !(passwordTextField.text?.isEmpty ?? true)
+            isEnabled = isEnabled && !(rootView.passwordTextField.text?.isEmpty ?? true)
         }
 
         if let viewModel = substrateDerivationPathModel, viewModel.inputHandler.required {
-            isEnabled = isEnabled && !(substrateDerivationPathField.text?.isEmpty ?? true)
+            isEnabled = isEnabled && !(rootView.substrateDerivationPathField.text?.isEmpty ?? true)
         }
 
         if let viewModel = ethereumDerivationPathModel, viewModel.inputHandler.required {
-            isEnabled = isEnabled && !(ethereumDerivationPathField.text?.isEmpty ?? true)
+            isEnabled = isEnabled && !(rootView.ethereumDerivationPathField.text?.isEmpty ?? true)
         }
 
-        nextButton?.set(enabled: isEnabled)
+        rootView.nextButton.set(enabled: isEnabled)
     }
 
-    private func updateTextViewPlaceholder() {
-        textPlaceholderLabel.isHidden = !textView.text.isEmpty
-    }
-
-    private func updateUploadView() {
+    func updateUploadView() {
         if let viewModel = sourceViewModel, !viewModel.inputHandler.normalizedValue.isEmpty {
-            uploadView.subtitleLabel?.textColor = R.color.colorWhite()
-            uploadView.subtitle = viewModel.inputHandler.normalizedValue
+            rootView.uploadView.subtitleLabel?.textColor = R.color.colorWhite()
+            rootView.uploadView.subtitle = viewModel.inputHandler.normalizedValue
         } else {
-            uploadView.subtitleLabel?.textColor = R.color.colorLightGray()
+            rootView.uploadView.subtitleLabel?.textColor = R.color.colorLightGray()
 
-            uploadView.subtitle = R.string.localizable.recoverJsonHint(preferredLanguages: locale.rLanguages)
+            rootView.uploadView.subtitle = R.string.localizable.recoverJsonHint(preferredLanguages: locale.rLanguages)
         }
     }
 
-    @IBAction private func actionExpand() {
-        stackView.sendSubviewToBack(advancedContainerView)
-
-        advancedContainerView.isHidden = !advancedControl.isActivated
-
-        if advancedControl.isActivated {
-            advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
-        } else {
-            substrateDerivationPathField.resignFirstResponder()
-            ethereumDerivationPathField.resignFirstResponder()
-
-            advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
-        }
-    }
-
-    @IBAction private func actionNameTextFieldChanged() {
-        if usernameViewModel?.inputHandler.value != usernameTextField.text {
-            usernameTextField.text = usernameViewModel?.inputHandler.value
+    @objc func actionNameTextFieldChanged() {
+        if usernameViewModel?.inputHandler.value != rootView.usernameTextField.text {
+            rootView.usernameTextField.text = usernameViewModel?.inputHandler.value
         }
 
         updateNextButton()
     }
 
-    @IBAction private func actionPasswordTextFieldChanged() {
-        if passwordViewModel?.inputHandler.value != passwordTextField.text {
-            passwordTextField.text = passwordViewModel?.inputHandler.value
+    @objc func actionPasswordTextFieldChanged() {
+        if passwordViewModel?.inputHandler.value != rootView.passwordTextField.text {
+            rootView.passwordTextField.text = passwordViewModel?.inputHandler.value
         }
 
         updateNextButton()
     }
 
-    @IBAction private func substrateTextFieldEditingChanged() {
-        if substrateDerivationPathModel?.inputHandler.value != substrateDerivationPathField.text {
-            substrateDerivationPathField.text = substrateDerivationPathModel?.inputHandler.value
+    @objc func substrateTextFieldEditingChanged() {
+        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text {
+            rootView.substrateDerivationPathField.text = substrateDerivationPathModel?.inputHandler.value
         }
 
         updateNextButton()
     }
 
-    @IBAction func ethereumTextFieldEditingChanged() {
-        if ethereumDerivationPathModel?.inputHandler.value != ethereumDerivationPathField.text {
-            ethereumDerivationPathField.text = ethereumDerivationPathModel?.inputHandler.value
+    @objc func ethereumTextFieldEditingChanged() {
+        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text {
+            rootView.ethereumDerivationPathField.text = ethereumDerivationPathModel?.inputHandler.value
         }
 
         updateNextButton()
     }
 
-    @objc private func actionUpload() {
+    @objc func actionUpload() {
         presenter.activateUpload()
     }
 
-    @objc private func actionOpenSourceType() {
-        if sourceTypeView.actionControl.isActivated {
+    @objc func actionOpenSourceType() {
+        if rootView.sourceTypeView.actionControl.isActivated {
             presenter.selectSourceType()
         }
     }
 
-    @objc private func actionOpenCryptoType() {
-        if substrateCryptoTypeView.actionControl.isActivated {
+    @objc func actionOpenCryptoType() {
+        if rootView.substrateCryptoTypeView.actionControl.isActivated {
             presenter.selectCryptoType()
         }
     }
 
-    @IBAction private func actionNext() {
+    @objc func actionNext() {
         presenter.proceed()
     }
 }
 
 extension AccountImportViewController: AccountImportViewProtocol {
-    func setSource(type: AccountImportSource) {
+    func show(chainType: AccountCreateChainType) {
+        rootView.set(chainType: chainType)
+    }
+
+    func setSource(type: AccountImportSource, selectable: Bool) {
         switch type {
-        case .mnemonic:
-            passwordView.isHidden = true
-            passwordTextField.text = nil
+        case .mnemonic, .seed:
             passwordViewModel = nil
 
-            advancedContainerView.subviews.forEach { $0.isHidden = false }
-            advancedContainerHeight.constant = Constants.advancedFullHeight
-
-            uploadView.isHidden = true
-
-            textContainerView.isHidden = false
-
-        case .seed:
-            passwordView.isHidden = true
-            passwordTextField.text = nil
-            passwordViewModel = nil
-
-            advancedContainerView.subviews.forEach { $0.isHidden = false }
-            advancedContainerHeight.constant = Constants.advancedFullHeight
-
-            uploadView.isHidden = true
-
-            textContainerView.isHidden = false
-
+            rootView.setup(isJson: false)
         case .keystore:
-            passwordView.isHidden = false
-
-            advancedContainerView.subviews.forEach { $0.isHidden = true }
-            advancedContainerHeight.constant = Constants.advancedTruncHeight
-
-            uploadView.isHidden = false
-
-            textContainerView.isHidden = true
-            textView.text = nil
+            rootView.setup(isJson: true)
         }
 
-        warningView.isHidden = true
+        rootView.warningView.isHidden = true
 
-        advancedControl.deactivate(animated: false)
-        advancedContainerView.isHidden = true
+        rootView.expandableControl.deactivate(animated: false)
+        rootView.advancedContainerView.isHidden = true
 
-        sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
+        rootView.sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
+        rootView.sourceTypeView.isUserInteractionEnabled = selectable
+        rootView.uploadView.title =
+            selectable ? R.string.localizable.importSubstrateRecoveryJson(preferredLanguages: locale.rLanguages) :
+            R.string.localizable.importEthereumRecoveryJson(preferredLanguages: locale.rLanguages)
 
-        substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
-        substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.invalidateLayout()
+        rootView.ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
     }
 
     func setSource(viewModel: InputViewModelProtocol) {
         sourceViewModel = viewModel
 
-        if !uploadView.isHidden {
+        if !rootView.uploadView.isHidden {
             updateUploadView()
         } else {
-            textPlaceholderLabel.text = viewModel.placeholder
-            textView.text = viewModel.inputHandler.value
+            rootView.textView.text = viewModel.inputHandler.value
+            rootView.textPlaceholderLabel.text = viewModel.placeholder
         }
 
-        updateTextViewPlaceholder()
+        rootView.updateTextViewPlaceholder()
         updateNextButton()
     }
 
     func setName(viewModel: InputViewModelProtocol) {
         usernameViewModel = viewModel
 
-        usernameTextField.text = viewModel.inputHandler.value
-
+        rootView.usernameTextField.text = viewModel.inputHandler.value
+        rootView.usernameTextField.isUserInteractionEnabled = viewModel.inputHandler.value.isEmpty
         updateNextButton()
     }
 
     func setPassword(viewModel: InputViewModelProtocol) {
         passwordViewModel = viewModel
 
-        passwordTextField.text = viewModel.inputHandler.value
+        rootView.passwordTextField.text = viewModel.inputHandler.value
+        rootView.passwordTextField.isUserInteractionEnabled = viewModel.inputHandler.value.isEmpty
 
         updateNextButton()
     }
@@ -397,87 +256,89 @@ extension AccountImportViewController: AccountImportViewProtocol {
     func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>) {
         let title = "\(model.underlyingViewModel.title) | \(model.underlyingViewModel.subtitle)"
 
-        substrateCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
+        rootView.substrateCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
 
-        substrateCryptoTypeView.actionControl.showsImageIndicator = model.selectable
-        substrateCryptoTypeView.isUserInteractionEnabled = model.selectable
+        rootView.substrateCryptoTypeView.actionControl.showsImageIndicator = model.selectable
+        rootView.substrateCryptoTypeView.isUserInteractionEnabled = model.selectable
 
         if model.selectable {
-            substrateCryptoTypeView.applyEnabledStyle()
+            rootView.substrateCryptoTypeView.applyEnabledStyle()
         } else {
-            substrateCryptoTypeView.applyDisabledStyle()
+            rootView.substrateCryptoTypeView.applyDisabledStyle()
         }
 
-        substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
-        substrateCryptoTypeView.actionControl.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.invalidateLayout()
     }
 
     func bind(substrateViewModel: InputViewModelProtocol) {
         substrateDerivationPathModel = substrateViewModel
 
-        substrateDerivationPathField.text = substrateViewModel.inputHandler.value
+        rootView.substrateDerivationPathField.text = substrateViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
-            string: R.string.localizable.example(
-                substrateViewModel.placeholder,
+            string: R.string.localizable.substrateSecretDerivationPath(
                 preferredLanguages: locale.rLanguages
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
         )
-        substrateDerivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.substrateDerivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.substrateDerivationPathLabel.text = R.string.localizable
+            .example(substrateViewModel.placeholder, preferredLanguages: locale.rLanguages)
     }
 
     func bind(ethereumViewModel: InputViewModelProtocol) {
         ethereumDerivationPathModel = ethereumViewModel
 
-        ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
+        rootView.ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
-            string: R.string.localizable.example(
-                ethereumViewModel.placeholder,
+            string: R.string.localizable.ethereumSecretDerivationPath(
                 preferredLanguages: locale.rLanguages
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
         )
-        ethereumDerivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.ethereumDerivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.ethereumDerivationPathLabel.text = R.string.localizable
+            .example(ethereumViewModel.placeholder, preferredLanguages: locale.rLanguages)
     }
 
     func setUploadWarning(message: String) {
-        warningLabel.text = message
-        warningView.isHidden = false
+        rootView.warningLabel.text = message
+        rootView.warningView.isHidden = false
     }
 
     func didCompleteSourceTypeSelection() {
-        sourceTypeView.actionControl.deactivate(animated: true)
+        rootView.sourceTypeView.actionControl.deactivate(animated: true)
     }
 
     func didCompleteCryptoTypeSelection() {
-        substrateCryptoTypeView.actionControl.deactivate(animated: true)
+        rootView.substrateCryptoTypeView.actionControl.deactivate(animated: true)
     }
 
     func didValidateSubstrateDerivationPath(_ status: FieldStatus) {
-        substrateDerivationPathImageView.image = status.icon
+        rootView.substrateDerivationPathImage.image = status.icon
     }
 
     func didValidateEthereumDerivationPath(_ status: FieldStatus) {
-        ethereumDerivationPathImageView.image = status.icon
+        rootView.ethereumDerivationPathImage.image = status.icon
     }
 }
 
 extension AccountImportViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if textField == substrateDerivationPathField {
+        if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
-        } else if textField == ethereumDerivationPathField {
+        } else if textField == rootView.ethereumDerivationPathField {
             presenter.validateEthereumDerivationPath()
         }
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         resignFirstResponder()
-        if textField == substrateDerivationPathField {
+        if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
-        } else if textField == ethereumDerivationPathField {
+        } else if textField == rootView.ethereumDerivationPathField {
             presenter.validateEthereumDerivationPath()
         }
         return false
@@ -513,11 +374,11 @@ extension AccountImportViewController: AnimatedTextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        let viewModel: InputViewModelProtocol?
+        var viewModel: InputViewModelProtocol?
 
-        if textField === usernameTextField {
+        if textField === rootView.usernameTextField.animatedInputField {
             viewModel = usernameViewModel
-        } else {
+        } else if textField === rootView.passwordTextField.animatedInputField {
             viewModel = passwordViewModel
         }
 
@@ -541,7 +402,7 @@ extension AccountImportViewController: UITextViewDelegate {
             textView.text = sourceViewModel?.inputHandler.value
         }
 
-        updateTextViewPlaceholder()
+        rootView.updateTextViewPlaceholder()
         updateNextButton()
     }
 
@@ -570,16 +431,20 @@ extension AccountImportViewController: UITextViewDelegate {
 }
 
 extension AccountImportViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { nextButtonBottom }
+    var targetBottomConstraint: NSLayoutConstraint? { nil }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
         if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + Constants.nextButtonBottomInset
+            return -view.safeAreaInsets.bottom + UIConstants.bigOffset
         } else {
-            return Constants.nextButtonBottomInset
+            return UIConstants.bigOffset
         }
+    }
+
+    func updateWhileKeyboardFrameChanging(frame: CGRect) {
+        rootView.handleKeyboard(frame: frame)
     }
 }
 
@@ -594,9 +459,9 @@ extension AccountImportViewController: Localizable {
 
 private extension AccountImportViewController {
     func viewModel(for field: UITextField) -> InputViewModelProtocol? {
-        if field == substrateDerivationPathField {
+        if field == rootView.substrateDerivationPathField {
             return substrateDerivationPathModel
-        } else if field == ethereumDerivationPathField {
+        } else if field == rootView.ethereumDerivationPathField {
             return ethereumDerivationPathModel
         }
         return nil

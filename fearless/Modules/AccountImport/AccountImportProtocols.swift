@@ -2,7 +2,8 @@ import IrohaCrypto
 import SoraFoundation
 
 protocol AccountImportViewProtocol: ControllerBackedProtocol {
-    func setSource(type: AccountImportSource)
+    func show(chainType: AccountCreateChainType)
+    func setSource(type: AccountImportSource, selectable: Bool)
     func setSource(viewModel: InputViewModelProtocol)
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
@@ -44,6 +45,8 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
 }
 
 protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
+    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
+
     func proceed(from view: AccountImportViewProtocol?)
 
     func presentSourceTypeSelection(
@@ -61,18 +64,16 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
-
-    func presentNetworkTypeSelection(
-        from view: AccountImportViewProtocol?,
-        availableTypes: [Chain],
-        selectedType: Chain,
-        delegate: ModalPickerViewControllerDelegate?,
-        context: AnyObject?
-    )
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding() -> AccountImportViewProtocol?
+    static func createViewForOnboarding(_ step: AccountCreationStep) -> AccountImportViewProtocol?
     static func createViewForAdding() -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
+}
+
+extension AccountImportViewFactoryProtocol {
+    static func createViewForOnboarding() -> AccountImportViewProtocol? {
+        Self.createViewForOnboarding(.first)
+    }
 }
