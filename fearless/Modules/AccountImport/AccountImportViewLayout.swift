@@ -47,10 +47,7 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    let sourceTypeViewContainer: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let sourceTypeViewContainer = UIView()
 
     let usernameTextField: CommonInputView = {
         let inputView = CommonInputView()
@@ -61,10 +58,7 @@ final class AccountImportViewLayout: UIView {
         return inputView
     }()
 
-    let usernameTextFieldContainer: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let usernameTextFieldContainer = UIView()
 
     let usernameFooterLabel: UILabel = {
         let label = UILabel()
@@ -74,10 +68,7 @@ final class AccountImportViewLayout: UIView {
         return label
     }()
 
-    let usernameLabelContainer: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let usernameLabelContainer = UIView()
 
     let passwordTextField: CommonInputView = {
         let inputView = CommonInputView()
@@ -89,10 +80,7 @@ final class AccountImportViewLayout: UIView {
         return inputView
     }()
 
-    let passwordContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let passwordContainerView = UIView()
 
     let textPlaceholderLabel: UILabel = {
         let label = UILabel()
@@ -121,10 +109,7 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    let textViewContainer: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let textViewContainer = UIView()
 
     let uploadView: DetailsTriangularedView = {
         let detailsView = UIFactory().createDetailsView(with: .largeIconTitleSubtitle, filled: false)
@@ -148,10 +133,7 @@ final class AccountImportViewLayout: UIView {
         return detailsView
     }()
 
-    let uploadViewContainer: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let uploadViewContainer = UIView()
 
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -159,10 +141,7 @@ final class AccountImportViewLayout: UIView {
         return button
     }()
 
-    let warningContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let warningContainerView = UIView()
 
     let warningLabel: UILabel = {
         let label = UILabel()
@@ -264,10 +243,7 @@ final class AccountImportViewLayout: UIView {
         return stackView
     }()
 
-    let advancedContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    let advancedContainerView = UIView()
 
     let expandableControl: ExpandableActionControl = {
         let view = UIFactory().createExpandableActionControl()
@@ -305,10 +281,7 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    private let expandableControlContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private let expandableControlContainerView = UIView()
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
