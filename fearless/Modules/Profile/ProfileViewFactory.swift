@@ -7,19 +7,17 @@ import FearlessUtils
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
     static func createView() -> ProfileViewProtocol? {
         let localizationManager = LocalizationManager.shared
-
-        let profileViewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
-
-        let view = ProfileViewController(nib: R.nib.profileViewController)
-        view.iconGenerating = PolkadotIconGenerator()
-
-        let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
-
         let repository = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
             .createManagedMetaAccountRepository(
                 for: nil,
                 sortDescriptors: [NSSortDescriptor.accountsByOrder]
             )
+        let settings = SettingsManager.shared
+        let profileViewModelFactory = ProfileViewModelFactory(
+            iconGenerator: PolkadotIconGenerator(),
+            biometry: BiometryAuth(),
+            settings: settings
+        )
 
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
@@ -28,17 +26,20 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let wireframe = ProfileWireframe()
+        let presenter = ProfilePresenter(
+            viewModelFactory: profileViewModelFactory,
+            interactor: interactor,
+            wireframe: ProfileWireframe(),
+            logger: Logger.shared,
+            settings: settings,
+            localizationManager: localizationManager
+        )
 
-        view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
-        interactor.presenter = presenter
-
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
-        presenter.logger = Logger.shared
+        let view = ProfileViewController(
+            presenter: presenter,
+            iconGenerating: PolkadotIconGenerator(),
+            localizationManager: localizationManager
+        )
 
         return view
     }

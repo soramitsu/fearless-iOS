@@ -8,12 +8,15 @@ enum ProfileInteractorError: Error {
 }
 
 final class ProfileInteractor {
-    weak var presenter: ProfileInteractorOutputProtocol?
+    // MARK: - Private properties
 
-    let selectedWalletSettings: SelectedWalletSettings
-    let eventCenter: EventCenterProtocol
-    let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
-    let operationQueue: OperationQueue
+    private weak var presenter: ProfileInteractorOutputProtocol?
+    private let selectedWalletSettings: SelectedWalletSettings
+    private let eventCenter: EventCenterProtocol
+    private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
+    private let operationQueue: OperationQueue
+
+    // MARK: - Constructors
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -26,6 +29,8 @@ final class ProfileInteractor {
         self.repository = repository
         self.operationQueue = operationQueue
     }
+
+    // MARK: - Private methods
 
     private func provideUserSettings() {
         do {
@@ -50,8 +55,11 @@ final class ProfileInteractor {
     }
 }
 
+// MARK: - ProfileInteractorInputProtocol
+
 extension ProfileInteractor: ProfileInteractorInputProtocol {
-    func setup() {
+    func setup(with output: ProfileInteractorOutputProtocol) {
+        presenter = output
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
     }
@@ -69,6 +77,8 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         operationQueue.addOperation(operation)
     }
 }
+
+// MARK: - EventVisitorProtocol
 
 extension ProfileInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {

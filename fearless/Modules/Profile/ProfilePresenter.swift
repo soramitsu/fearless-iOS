@@ -1,27 +1,53 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
 
 final class ProfilePresenter {
-    weak var view: ProfileViewProtocol?
-    var interactor: ProfileInteractorInputProtocol!
-    var wireframe: ProfileWireframeProtocol!
+    private weak var view: ProfileViewProtocol?
+    private var interactor: ProfileInteractorInputProtocol
+    private var wireframe: ProfileWireframeProtocol
+    private let logger: LoggerProtocol
+    private let settings: SettingsManagerProtocol
+    private let viewModelFactory: ProfileViewModelFactoryProtocol
 
-    var logger: LoggerProtocol?
+    private var selectedWallet: MetaAccountModel?
 
-    private(set) var viewModelFactory: ProfileViewModelFactoryProtocol
-
-    private(set) var selectedWallet: MetaAccountModel?
-
-    init(viewModelFactory: ProfileViewModelFactoryProtocol) {
+    init(
+        viewModelFactory: ProfileViewModelFactoryProtocol,
+        interactor: ProfileInteractorInputProtocol,
+        wireframe: ProfileWireframeProtocol,
+        logger: LoggerProtocol,
+        settings: SettingsManagerProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.viewModelFactory = viewModelFactory
+        self.interactor = interactor
+        self.wireframe = wireframe
+        self.logger = logger
+        self.settings = settings
+        self.localizationManager = localizationManager
+    }
+
+    private func receiveState() {
+        guard
+            let wallet = selectedWallet,
+            let language = localizationManager?.selectedLanguage
+        else { return }
+
+        let viewModel = viewModelFactory.createProfileViewModel(
+            from: wallet,
+            locale: selectedLocale,
+            language: language
+        )
+        let state = ProfileViewState.loaded(viewModel)
+        view?.didReceive(state: state)
     }
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
-    func setup() {
-        updateOptionsViewModel()
-
-        interactor.setup()
+    func didLoad(view: ProfileViewProtocol) {
+        self.view = view
+        interactor.setup(with: self)
     }
 
     func activateAccountDetails() {
@@ -45,7 +71,13 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showLanguageSelection(from: view)
         case .about:
             wireframe.showAbout(from: view)
+        case .biometry:
+            break
         }
+    }
+
+    func switcherValueChanged(isOn: Bool) {
+        settings.biometryEnabled = isOn
     }
 
     func logout() {
@@ -95,12 +127,11 @@ extension ProfilePresenter: CheckPincodeModuleOutput {
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
     func didReceive(wallet: MetaAccountModel) {
         selectedWallet = wallet
-        updateAccountViewModel()
-        updateOptionsViewModel()
+        receiveState()
     }
 
     func didReceiveUserDataProvider(error: Error) {
-        logger?.debug("Did receive user data provider \(error)")
+        logger.debug("Did receive user data provider \(error)")
 
         if !wireframe.present(error: error, from: view, locale: selectedLocale) {
             _ = wireframe.present(
@@ -115,36 +146,7 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
 extension ProfilePresenter: Localizable {
     func applyLocalization() {
         if view?.isSetup == true {
-            updateAccountViewModel()
-            updateOptionsViewModel()
+            receiveState()
         }
-    }
-}
-
-private extension ProfilePresenter {
-    func updateAccountViewModel() {
-        guard let wallet = selectedWallet else {
-            return
-        }
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(
-            from: wallet,
-            locale: selectedLocale
-        )
-        view?.didLoad(userViewModel: userDetailsViewModel)
-    }
-
-    func updateOptionsViewModel() {
-        guard
-            let language = localizationManager?.selectedLanguage
-        else {
-            return
-        }
-
-        let optionViewModels = viewModelFactory.createOptionViewModels(
-            language: language,
-            locale: selectedLocale
-        )
-        let logoutViewModel = viewModelFactory.createLogoutViewModel(locale: selectedLocale)
-        view?.didLoad(optionViewModels: optionViewModels, logoutViewModel: logoutViewModel)
     }
 }

@@ -2,6 +2,8 @@ import Foundation
 
 extension SwitchAccount {
     final class AccountImportWireframe: AccountImportWireframeProtocol {
+        func showSecondStep(from _: AccountImportViewProtocol?, with _: AccountCreationStep.FirstStepData) {}
+
         func proceed(from view: AccountImportViewProtocol?) {
             guard let navigationController = view?.controller.navigationController else {
                 return

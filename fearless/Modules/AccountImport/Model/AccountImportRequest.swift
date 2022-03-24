@@ -9,16 +9,19 @@ struct MetaAccountImportMnemonicRequest {
 }
 
 struct MetaAccountImportSeedRequest {
-    let seed: String
+    let substrateSeed: String
+    let ethereumSeed: String?
     let username: String
     let substrateDerivationPath: String
-    let ethereumDerivationPath: String
+    let ethereumDerivationPath: String?
     let cryptoType: CryptoType
 }
 
 struct MetaAccountImportKeystoreRequest {
-    let keystore: String
-    let password: String
+    let substrateKeystore: String
+    let ethereumKeystore: String?
+    let substratePassword: String
+    let ethereumPassword: String?
     let username: String
     let cryptoType: CryptoType
 }

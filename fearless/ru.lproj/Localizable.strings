@@ -75,10 +75,14 @@
 "import.source.picker.title" = "Тип источника";
 "import.raw.seed" = "Сид";
 "import.recovery.json" = "JSON для восстановления";
+"import.substrate.recovery.json" = "JSON для восстановления сабстрейт аккаунта";
+"import.ethereum.recovery.json" = "JSON для восстановления эфир аккаунта";
 "account.import.password.placeholder" = "Пароль";
 "recover.json.hint" = "Вставьте json строку или загрузите файл…";
 "account.import.recovery.json.placeholder" = "Вставьте json";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
+"account.import.substrate.raw.seed.placeholder" = "Сабстрейт аккаунт бинарный сид: (64 шестнадцатиричных символа)";
+"account.import.ethereum.raw.seed.placeholder" = "ETH аккаунт бинарный сид: (64 шестнадцатиричных символа)";
 "import.mnemonic" = "Мнемоническая фраза";
 "account.import.invalid.seed" = "Seed неверный. Пожалуйста, убедитесь, что введенные данные содержат 64 hex символа.";
 "account.import.invalid.keystore" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
@@ -554,8 +558,7 @@
 "substrate.secret.derivation.path" = "Путь деривации секрета substrate\
 ";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
-"example" = "Пример:\
-";
+"example" = "Пример: %@";
 "pincode.setup.top.title" = "Установить пин-код\
 ";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
@@ -644,12 +647,12 @@
 "connection.problems.text" = "Проблемы с подключением";
 "learn.more.about.crowdloans" = "Узнайте больше о Crowdloans";
 "navigation.title.crowdloan" = "Краудлоны парачейна";
-"common.yes" = "";
-"common.no" = "";
-"alert.add.ethereum.title" = "";
-"alert.add.ethereum.message" = "";
 "account.import.substrate.raw.seed.placeholder" = "";
 "account.import.ethereum.raw.seed.placeholder" = "";
 "import.substrate.recovery.json" = "";
 "import.ethereum.recovery.json" = "";
 "common.unsupported" = "Не поддерживается";
+"common.yes" = "Да";
+"common.no" = "Нет";
+"alert.add.ethereum.title" = "ETH аккаунты";
+"alert.add.ethereum.message" = "Добавить Moonbeam и Moonriver аккаунты?";
