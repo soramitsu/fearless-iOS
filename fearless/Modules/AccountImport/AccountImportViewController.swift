@@ -219,7 +219,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
         rootView.substrateCryptoTypeView.actionControl.invalidateLayout()
-        rootView.ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
     }
 
     func setSource(viewModel: InputViewModelProtocol) {
@@ -258,13 +258,10 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         rootView.substrateCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
 
-        rootView.substrateCryptoTypeView.actionControl.showsImageIndicator = model.selectable
-        rootView.substrateCryptoTypeView.isUserInteractionEnabled = model.selectable
-
         if model.selectable {
-            rootView.substrateCryptoTypeView.applyEnabledStyle()
+            rootView.substrateCryptoTypeView.enable()
         } else {
-            rootView.substrateCryptoTypeView.applyDisabledStyle()
+            rootView.substrateCryptoTypeView.disable()
         }
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
