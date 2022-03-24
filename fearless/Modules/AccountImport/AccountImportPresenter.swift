@@ -493,7 +493,7 @@ final class AccountImportPresenter {
                     substratePassword: data.password,
                     ethereumPassword: password,
                     username: username,
-                    cryptoType: selectedCryptoType
+                    cryptoType: data.cryptoType
                 )
 
                 interactor.importAccountWithKeystore(request: request)
