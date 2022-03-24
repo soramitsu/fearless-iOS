@@ -644,3 +644,12 @@
 "connection.problems.text" = "Проблемы с подключением";
 "learn.more.about.crowdloans" = "Узнайте больше о Crowdloans";
 "navigation.title.crowdloan" = "Краудлоны парачейна";
+"common.yes" = "";
+"common.no" = "";
+"alert.add.ethereum.title" = "";
+"alert.add.ethereum.message" = "";
+"account.import.substrate.raw.seed.placeholder" = "";
+"account.import.ethereum.raw.seed.placeholder" = "";
+"import.substrate.recovery.json" = "";
+"import.ethereum.recovery.json" = "";
+"common.unsupported" = "Не поддерживается";
