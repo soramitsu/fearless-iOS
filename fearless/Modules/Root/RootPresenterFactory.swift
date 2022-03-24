@@ -3,8 +3,8 @@ import SoraKeystore
 import SoraFoundation
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
-    static func createPresenter(with view: UIWindow) -> RootPresenterProtocol {
-        let presenter = RootPresenter()
+    static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
+        let presenter = RootPresenter(localizationManager: LocalizationManager.shared)
         let wireframe = RootWireframe()
         let settings = SettingsManager.shared
         let keychain = Keychain()
@@ -32,9 +32,15 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             logger: Logger.shared
         )
 
-        presenter.view = view
+        let view = RootViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+
+        presenter.window = window
         presenter.wireframe = wireframe
         presenter.interactor = interactor
+        presenter.view = view
 
         interactor.presenter = presenter
 

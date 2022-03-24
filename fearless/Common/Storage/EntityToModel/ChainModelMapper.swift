@@ -329,6 +329,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options.append(.crowdloans)
         }
 
+        if entity.isOrml {
+            options.append(.orml)
+        }
+
         let externalApiSet = createExternalApi(from: entity)
 
         let chainModel = ChainModel(
@@ -342,7 +346,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: Set(customNodes)
+            customNodes: Set(customNodes),
+            iosMinAppVersion: entity.minimalAppVersion
         )
 
         let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
@@ -375,6 +380,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isEthereumBased = model.isEthereumBased
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
+        entity.isOrml = model.isOrml
+        entity.minimalAppVersion = model.iosMinAppVersion
 
         updateEntityChainAssets(for: entity, from: model, context: context)
 

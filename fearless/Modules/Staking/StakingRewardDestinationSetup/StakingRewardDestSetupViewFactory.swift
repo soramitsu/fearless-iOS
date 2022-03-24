@@ -157,7 +157,10 @@ struct StakingRewardDestSetupViewFactory {
             accountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             substrateProviderFactory: substrateProviderFactory,
             calculatorService: rewardCalculatorService,
             runtimeService: runtimeService,

@@ -23,6 +23,8 @@ protocol EventVisitorProtocol: AnyObject {
 
     func processRuntimeCoderReady(event: RuntimeCoderCreated)
     func processRuntimeCoderCreationFailed(event: RuntimeCoderCreationFailed)
+
+    func processUserInactive(event: UserInactiveEvent)
 }
 
 extension EventVisitorProtocol {
@@ -48,4 +50,6 @@ extension EventVisitorProtocol {
 
     func processRuntimeCoderReady(event _: RuntimeCoderCreated) {}
     func processRuntimeCoderCreationFailed(event _: RuntimeCoderCreationFailed) {}
+
+    func processUserInactive(event _: UserInactiveEvent) {}
 }

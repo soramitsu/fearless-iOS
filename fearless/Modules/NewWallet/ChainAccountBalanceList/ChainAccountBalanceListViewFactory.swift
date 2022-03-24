@@ -15,7 +15,10 @@ struct ChainAccountBalanceListViewFactory {
         let interactor = ChainAccountBalanceListInteractor(
             selectedMetaAccount: selectedMetaAccount,
             repository: AnyDataProviderRepository(repository),
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: selectedMetaAccount
+            ),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             eventCenter: EventCenter.shared

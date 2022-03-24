@@ -10,7 +10,7 @@ final class StakingAmountInteractor {
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let rewardService: RewardCalculatorServiceProtocol
@@ -29,7 +29,7 @@ final class StakingAmountInteractor {
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -41,7 +41,7 @@ final class StakingAmountInteractor {
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.extrinsicService = extrinsicService
         self.rewardService = rewardService
         self.runtimeService = runtimeService
@@ -81,7 +81,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
         }
 
         if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
-            balanceProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
         }
 
         minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
@@ -174,7 +174,7 @@ extension StakingAmountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscr
     }
 }
 
-extension StakingAmountInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingAmountInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         switch result {
         case let .success(accountInfo):

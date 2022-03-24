@@ -125,7 +125,10 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
 
         return StakingUnbondConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             asset: asset,
             chain: chain,

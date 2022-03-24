@@ -1,33 +1,37 @@
 import UIKit
 
 final class RootWireframe: RootWireframeProtocol {
-    func showOnboarding(on view: UIWindow) {
+    func showSplash(splashView: ControllerBackedProtocol?, on window: UIWindow) {
+        window.rootViewController = splashView?.controller
+    }
+
+    func showOnboarding(on window: UIWindow) {
         let onboardingView = OnboardingMainViewFactory.createViewForOnboarding()
         let onboardingController = onboardingView?.controller ?? UIViewController()
 
         let navigationController = FearlessNavigationController()
         navigationController.viewControllers = [onboardingController]
 
-        view.rootViewController = navigationController
+        window.rootViewController = navigationController
     }
 
-    func showLocalAuthentication(on view: UIWindow) {
+    func showLocalAuthentication(on window: UIWindow) {
         let pincodeView = PinViewFactory.createSecuredPinView()
         let pincodeController = pincodeView?.controller ?? UIViewController()
 
-        view.rootViewController = pincodeController
+        window.rootViewController = pincodeController
     }
 
-    func showPincodeSetup(on view: UIWindow) {
+    func showPincodeSetup(on window: UIWindow) {
         guard let controller = PinViewFactory.createPinSetupView()?.controller else {
             return
         }
 
-        view.rootViewController = controller
+        window.rootViewController = controller
     }
 
-    func showBroken(on view: UIWindow) {
+    func showBroken(on window: UIWindow) {
         // normally user must not see this but on malicious devices it is possible
-        view.backgroundColor = .red
+        window.backgroundColor = .red
     }
 }

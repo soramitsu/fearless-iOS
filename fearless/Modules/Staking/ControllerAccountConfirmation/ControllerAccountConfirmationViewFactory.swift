@@ -122,7 +122,10 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         return ControllerAccountConfirmationInteractor(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             runtimeService: runtimeService,

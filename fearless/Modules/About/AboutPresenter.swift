@@ -1,15 +1,22 @@
 import Foundation
+import SoraFoundation
 
 final class AboutPresenter {
-    weak var view: AboutViewProtocol?
-    var wireframe: AboutWireframeProtocol!
+    private weak var view: AboutViewProtocol?
+    private let wireframe: AboutWireframeProtocol
+    private let aboutViewModelFactory: AboutViewModelFactoryProtocol
+    private let about: AboutData
 
-    let about: AboutData
-    let locale: Locale
-
-    init(locale: Locale, about: AboutData) {
-        self.locale = locale
+    init(
+        about: AboutData,
+        wireframe: AboutWireframeProtocol,
+        aboutViewModelFactory: AboutViewModelFactoryProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.wireframe = wireframe
         self.about = about
+        self.aboutViewModelFactory = aboutViewModelFactory
+        self.localizationManager = localizationManager
     }
 
     private func show(url: URL) {
@@ -20,34 +27,18 @@ final class AboutPresenter {
 }
 
 extension AboutPresenter: AboutPresenterProtocol {
-    func setup() {
-        let viewModel = AboutViewModel(
-            website: about.websiteUrl.absoluteString,
-            version: about.version,
-            social: about.socialUrl.absoluteString,
-            email: about.writeUs.email
-        )
-        view?.didReceive(viewModel: viewModel)
+    func didLoad(view: AboutViewProtocol) {
+        self.view = view
+
+        let aboutItemViewModels = aboutViewModelFactory.createAboutItemViewModels(locale: selectedLocale)
+        let state = AboutViewState.loaded(aboutItemViewModels)
+
+        view.didReceive(state: state)
+        view.didReceive(locale: selectedLocale)
     }
 
-    func activateWebsite() {
-        show(url: about.websiteUrl)
-    }
-
-    func activateSocial() {
-        show(url: about.socialUrl)
-    }
-
-    func activateOpensource() {
-        show(url: about.opensourceUrl)
-    }
-
-    func activateTerms() {
-        show(url: about.legal.termsUrl)
-    }
-
-    func activatePrivacyPolicy() {
-        show(url: about.legal.privacyPolicyUrl)
+    func activate(url: URL) {
+        show(url: url)
     }
 
     func activateWriteUs() {
@@ -60,14 +51,23 @@ extension AboutPresenter: AboutPresenterProtocol {
             if !wireframe.writeEmail(with: message, from: view, completionHandler: nil) {
                 wireframe.present(
                     message: R.string.localizable
-                        .noEmailBoundErrorMessage(preferredLanguages: locale.rLanguages),
+                        .noEmailBoundErrorMessage(preferredLanguages: selectedLocale.rLanguages),
                     title: R.string.localizable
-                        .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
+                        .commonErrorGeneralTitle(preferredLanguages: selectedLocale.rLanguages),
                     closeAction: R.string.localizable
-                        .commonClose(preferredLanguages: locale.rLanguages),
+                        .commonClose(preferredLanguages: selectedLocale.rLanguages),
                     from: view
                 )
             }
         }
+    }
+}
+
+extension AboutPresenter: Localizable {
+    func applyLocalization() {
+        view?.didReceive(locale: selectedLocale)
+        let aboutItemViewModels = aboutViewModelFactory.createAboutItemViewModels(locale: selectedLocale)
+        let state = AboutViewState.loaded(aboutItemViewModels)
+        view?.didReceive(state: state)
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SoraFoundation
 
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?

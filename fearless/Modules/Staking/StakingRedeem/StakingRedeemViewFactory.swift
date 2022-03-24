@@ -129,7 +129,10 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
 
         return StakingRedeemInteractor(
-            walletLocalSubscriptionHandler: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             asset: asset,
