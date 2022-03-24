@@ -94,7 +94,7 @@ private extension AccountImportViewController {
 
         title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
 
-        if !rootView.uploadView.isHidden {
+        if !rootView.uploadViewContainer.isHidden {
             updateUploadView()
         }
     }
@@ -103,8 +103,8 @@ private extension AccountImportViewController {
         var isEnabled: Bool = true
 
         if let viewModel = sourceViewModel, viewModel.inputHandler.required {
-            let uploadViewActive = !rootView.uploadView.isHidden && !(rootView.uploadView.subtitle?.isEmpty ?? false)
-            let textViewActive = !rootView.textContainerView.isHidden && !rootView.textView.text.isEmpty
+            let uploadViewActive = !rootView.uploadViewContainer.isHidden && !(rootView.uploadView.subtitle?.isEmpty ?? false)
+            let textViewActive = !rootView.textViewContainer.isHidden && !rootView.textView.text.isEmpty
             isEnabled = isEnabled && (uploadViewActive || textViewActive)
         }
 
@@ -206,7 +206,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
             rootView.setup(isJson: true)
         }
 
-        rootView.warningView.isHidden = true
+        rootView.warningContainerView.isHidden = true
 
         rootView.expandableControl.deactivate(animated: false)
         rootView.advancedContainerView.isHidden = true
@@ -225,7 +225,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
     func setSource(viewModel: InputViewModelProtocol) {
         sourceViewModel = viewModel
 
-        if !rootView.uploadView.isHidden {
+        if !rootView.uploadViewContainer.isHidden {
             updateUploadView()
         } else {
             rootView.textView.text = viewModel.inputHandler.value
@@ -305,7 +305,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func setUploadWarning(message: String) {
         rootView.warningLabel.text = message
-        rootView.warningView.isHidden = false
+        rootView.warningContainerView.isHidden = false
     }
 
     func didCompleteSourceTypeSelection() {
