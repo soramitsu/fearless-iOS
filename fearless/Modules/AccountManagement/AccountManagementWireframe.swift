@@ -18,6 +18,7 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
         guard let onboarding = OnboardingMainViewFactory.createViewForAdding() else {
             return
         }
+        view?.controller.hidesBottomBarWhenPushed = true
 
         if let navigationController = view?.controller.navigationController {
             navigationController.pushViewController(onboarding.controller, animated: true)
