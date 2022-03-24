@@ -31,7 +31,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let wireframe = MainTabBarWireframe()
 
         let appVersionObserver = AppVersionObserver(
-            jsonLocalSubscriptionFactory: jsonDataProviderFactory,
+            operationManager: OperationManagerFacade.sharedManager,
             currentAppVersion: AppVersion.stringValue,
             wireframe: wireframe,
             locale: localizationManager.selectedLocale
