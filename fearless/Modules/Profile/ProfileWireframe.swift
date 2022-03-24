@@ -16,7 +16,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {
-        authorize(animated: true, cancellable: true) { [weak self] completed in
+        authorize(animated: true, cancellable: true, from: view) { [weak self] completed in
             if completed {
                 self?.showPinSetup(from: view)
             }
