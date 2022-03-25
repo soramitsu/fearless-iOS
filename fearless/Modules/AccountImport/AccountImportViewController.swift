@@ -212,7 +212,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
         rootView.advancedContainerView.isHidden = true
 
         rootView.sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
-        rootView.sourceTypeView.isUserInteractionEnabled = selectable
+        selectable ? rootView.sourceTypeView.enable() : rootView.sourceTypeView.disable()
         rootView.uploadView.title =
             selectable ? R.string.localizable.importSubstrateRecoveryJson(preferredLanguages: locale.rLanguages) :
             R.string.localizable.importEthereumRecoveryJson(preferredLanguages: locale.rLanguages)
@@ -240,7 +240,8 @@ extension AccountImportViewController: AccountImportViewProtocol {
         usernameViewModel = viewModel
 
         rootView.usernameTextField.text = viewModel.inputHandler.value
-        rootView.usernameTextField.isUserInteractionEnabled = viewModel.inputHandler.value.isEmpty
+        viewModel.inputHandler.value.isEmpty ?
+            rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
         updateNextButton()
     }
 
