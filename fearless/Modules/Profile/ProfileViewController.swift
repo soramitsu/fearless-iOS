@@ -139,6 +139,19 @@ extension ProfileViewController: UITableViewDataSource {
         2
     }
 
+    func tableView(_ tableView: UITableView, viewForFooterInSection _: Int) -> UIView? {
+        let footerView = UIView(
+            frame: CGRect(
+                x: 0,
+                y: 0,
+                width: tableView.frame.size.width,
+                height: Constants.tableViewFooterHeight
+            )
+        )
+        footerView.backgroundColor = R.color.colorBlack()
+        return footerView
+    }
+
     func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
         Constants.tableViewFooterHeight
     }

@@ -4,13 +4,14 @@ import SoraUI
 final class ProfileViewLayout: UIView {
     let tableView: UITableView = {
         let view = UITableView()
-        view.backgroundColor = .black
+        view.backgroundColor = R.color.colorBlack()
+        view.separatorStyle = .none
         return view
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .black
+        backgroundColor = R.color.colorBlack()
         setupLayout()
         configureTableView()
     }
