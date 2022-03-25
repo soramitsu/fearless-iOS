@@ -1,6 +1,6 @@
 import Foundation
 
-protocol StakingErrorPresentable: BaseErrorPresentable {
+protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, PresentDismissable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
 
     func presentMissingController(
@@ -47,6 +47,7 @@ protocol StakingErrorPresentable: BaseErrorPresentable {
     )
 
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?)
+    func presentMissingMinNominatorBond(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
@@ -201,6 +202,19 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
 
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?) {
         let message = R.string.localizable.stakingMaxNominatorsReachedMessage(
+            preferredLanguages: locale?.rLanguages
+        )
+
+        let title = R.string.localizable.stakingMaxNominatorsReachedTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentMissingMinNominatorBond(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable.minStakingCalculatingText(
             preferredLanguages: locale?.rLanguages
         )
 

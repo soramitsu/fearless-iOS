@@ -54,7 +54,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         )
 
         let appVersionObserver = AppVersionObserver(
-            jsonLocalSubscriptionFactory: jsonDataProviderFactory,
+            operationManager: OperationManagerFacade.sharedManager,
             currentAppVersion: AppVersion.stringValue,
             wireframe: wireframe,
             locale: localizationManager.selectedLocale
