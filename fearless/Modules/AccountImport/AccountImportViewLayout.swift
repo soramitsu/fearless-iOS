@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class AccountImportViewLayout: UIView {
     private enum Constants {
@@ -198,6 +199,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.returnKeyType = .done
         return view
     }()
 
@@ -207,6 +209,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.returnKeyType = .done
         return view
     }()
 
@@ -298,6 +301,8 @@ final class AccountImportViewLayout: UIView {
         subtype: .fromTop,
         curve: .easeIn
     )
+
+    var nextButtonBottomConstraint: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -558,8 +563,7 @@ private extension AccountImportViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.greaterThanOrEqualTo(contentView.snp.bottom).offset(UIConstants.hugeOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            nextButtonBottomConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
     }
 }

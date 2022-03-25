@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class AddCustomNodeViewController: UIViewController, ViewHolder {
     typealias RootViewType = AddCustomNodeViewLayout
@@ -122,7 +123,7 @@ extension AddCustomNodeViewController: AnimatedTextFieldDelegate {
 }
 
 extension AddCustomNodeViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { nil }
+    var targetBottomConstraint: Constraint? { nil }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
