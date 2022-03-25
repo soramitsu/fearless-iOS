@@ -1,0 +1,38 @@
+import Foundation
+import SoraFoundation
+
+final class {{ module_info.name }}Presenter {
+    // MARK: Private properties
+    private weak var view: {{ module_info.name }}ViewProtocol?
+    private let router: {{ module_info.name }}RouterProtocol
+    private let interactor: {{ module_info.name }}InteractorInputProtocol
+
+    // MARK: - Constructors
+    init(
+        interactor: {{ module_info.name }}InteractorInputProtocol,
+        router: {{ module_info.name }}RouterProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.interactor = interactor
+        self.router = router
+        self.localizationManager = localizationManager
+    }
+    
+    // MARK: - Private methods
+}
+
+// MARK: - {{ module_info.name }}PresenterProtocol
+extension {{ module_info.name }}Presenter: {{ module_info.name }}PresenterProtocol {
+    func didLoad(view: {{ module_info.name }}ViewProtocol) {
+        self.view = view
+        interactor.setup(with: self)
+    }
+}
+
+// MARK: - {{ module_info.name }}InteractorOutputProtocol
+extension {{ module_info.name }}Presenter: {{ module_info.name }}InteractorOutputProtocol {}
+
+// MARK: - Localizable
+extension {{ module_info.name }}Presenter: Localizable {
+    func applyLocalization() {}
+}

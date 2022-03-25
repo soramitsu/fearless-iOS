@@ -1,0 +1,13 @@
+protocol {{ module_info.name }}ViewProtocol: AnyObject {}
+
+protocol {{ module_info.name }}PresenterProtocol: AnyObject {
+    func didLoad(view: {{ module_info.name }}ViewProtocol)
+}
+
+protocol {{ module_info.name }}InteractorInputProtocol: AnyObject {
+    func setup(with output: {{ module_info.name }}InteractorOutputProtocol)
+}
+
+protocol {{ module_info.name }}InteractorOutputProtocol: AnyObject {}
+
+protocol {{ module_info.name }}RouterProtocol: AnyObject {}

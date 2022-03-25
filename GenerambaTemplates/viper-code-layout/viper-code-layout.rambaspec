@@ -1,0 +1,20 @@
+# Template information section
+name: fearless-viper
+summary: Viper pattern implementation for Fearless
+author: DRadmir
+version: 1.0.0
+license: MIT
+
+# The declarations for code files
+code_files:
+- {name: Protocols.swift, path: Code/protocol.swift.liquid}
+- {name: Router.swift, path: Code/router.swift.liquid}
+- {name: Presenter.swift, path: Code/presenter.swift.liquid}
+- {name: Interactor.swift, path: Code/interactor.swift.liquid}
+- {name: ViewController.swift, path: Code/view.swift.liquid}
+- {name: ViewLayout.swift, path: Code/viewlayout.swift.liquid}
+- {name: Assembly.swift, path: Code/assembly.swift.liquid}
+
+# The declarations for test files
+test_files:
+- {name: Tests.swift, path: Tests/tests.swift.liquid}
