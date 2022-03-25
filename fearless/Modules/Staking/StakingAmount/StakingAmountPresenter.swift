@@ -223,18 +223,18 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.scheduleFeeEstimation()
             },
-//            dataValidatingFactory.canPayFeeAndAmount(
-//                balance: balance,
-//                fee: fee,
-//                spendingAmount: amount,
-//                locale: locale
-//            ),
-//            dataValidatingFactory.canNominate(
-//                amount: amount,
-//                minimalBalance: minimalBalance,
-//                minNominatorBond: minBondAmount,
-//                locale: locale
-//            ),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            ),
+            dataValidatingFactory.canNominate(
+                amount: amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minBondAmount,
+                locale: locale
+            ),
             dataValidatingFactory.bondAtLeastMinStaking(
                 asset: asset,
                 amount: amount,
