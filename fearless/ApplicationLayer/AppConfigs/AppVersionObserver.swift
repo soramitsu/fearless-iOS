@@ -12,16 +12,16 @@ final class AppVersionObserver {
     private let locale: Locale
     private let wireframe: AppVersionWireframe
     private let currentAppVersion: String?
-    private let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
+    private let operationManager: OperationManagerProtocol
     private var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
 
     init(
-        jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
+        operationManager: OperationManagerProtocol,
         currentAppVersion: String?,
         wireframe: AppVersionWireframe,
         locale: Locale
     ) {
-        self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
+        self.operationManager = operationManager
         self.currentAppVersion = currentAppVersion
         self.wireframe = wireframe
         self.locale = locale
@@ -63,59 +63,45 @@ extension AppVersionObserver: AppVersionObserverProtocol {
             return
         }
 
-        let displayInfoProvider: AnySingleValueProvider<AppSupportConfig> =
-            jsonLocalSubscriptionFactory.getJson(for: url)
+        let source = JsonSingleProviderSource<AppSupportConfig>(url: url)
 
-        let updateClosure: ([DataProviderChange<AppSupportConfig>]) -> Void = { [weak self] changes in
-            let result = changes.reduceToLastChange()
-
-            guard let strongSelf = self else {
+        let operation = source.fetchOperation().targetOperation
+        operation.completionBlock = { [weak self] in
+            guard let strongSelf = self, let result = operation.result else {
                 return
             }
 
-            let supported = strongSelf.validateVersion(config: result)
-            if !supported {
-                strongSelf.wireframe.presentWarningAlert(
-                    from: view,
-                    config: WarningAlertConfig.unsupportedAppVersionConfig(with: strongSelf.locale)
-                ) {
-                    strongSelf.wireframe.showAppstoreUpdatePage()
+            switch result {
+            case let .success(config):
+                DispatchQueue.main.async {
+                    let supported = strongSelf.validateVersion(config: config)
+                    if !supported {
+                        strongSelf.wireframe.presentWarningAlert(
+                            from: view,
+                            config: WarningAlertConfig.unsupportedAppVersionConfig(with: strongSelf.locale)
+                        ) {
+                            strongSelf.wireframe.showAppstoreUpdatePage()
+                        }
+                    }
+
+                    callback?(supported, nil)
+                }
+            case let .failure(error):
+                DispatchQueue.main.async {
+                    strongSelf.wireframe.presentWarningAlert(
+                        from: view,
+                        config: WarningAlertConfig.connectionProblemAlertConfig(with: strongSelf.locale)
+                    ) {
+                        strongSelf.wireframe.dismiss(view: view)
+
+                        strongSelf.checkVersion(from: view, callback: callback)
+                    }
+
+                    callback?(nil, nil)
                 }
             }
-
-            callback?(supported, nil)
         }
 
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            guard let strongSelf = self else {
-                return
-            }
-
-            strongSelf.wireframe.presentWarningAlert(
-                from: view,
-                config: WarningAlertConfig.connectionProblemAlertConfig(with: strongSelf.locale)
-            ) {
-                strongSelf.wireframe.dismiss(view: view)
-
-                strongSelf.checkVersion(from: view, callback: callback)
-            }
-
-            callback?(nil, error)
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-
-        displayInfoProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-
-        self.displayInfoProvider = displayInfoProvider
+        operationManager.enqueue(operations: [operation] + operation.dependencies, in: .transient)
     }
 }
