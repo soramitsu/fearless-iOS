@@ -19,7 +19,6 @@
             <connections>
                 <outlet property="hintLabel" destination="aza-85-hKb" id="HWt-R8-abD"/>
                 <outlet property="inputField" destination="uF4-Wx-nXk" id="vFA-Q8-dZe"/>
-                <outlet property="nextBottom" destination="q4s-He-5WG" id="UiF-4l-eht"/>
                 <outlet property="nextButton" destination="21e-dk-cnQ" id="wS2-jY-vlv"/>
                 <outlet property="view" destination="iN0-l3-epB" id="XUN-6R-GIy"/>
             </connections>

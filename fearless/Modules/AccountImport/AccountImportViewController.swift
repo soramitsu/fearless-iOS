@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class AccountImportViewController: UIViewController, ViewHolder {
     typealias RootViewType = AccountImportViewLayout
@@ -452,16 +453,12 @@ extension AccountImportViewController: UITextViewDelegate {
 }
 
 extension AccountImportViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { nil }
+    var targetBottomConstraint: Constraint? { rootView.nextButtonBottomConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
-    func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
-        if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + UIConstants.bigOffset
-        } else {
-            return UIConstants.bigOffset
-        }
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
     }
 
     func updateWhileKeyboardFrameChanging(frame: CGRect) {
