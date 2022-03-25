@@ -174,19 +174,21 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    let ethereumCryptoTypeView: TriangularedTwoLabelView = {
-        let view = TriangularedTwoLabelView()
+    let ethereumCryptoTypeView: BorderedSubtitleActionView = {
+        let view = BorderedSubtitleActionView()
         view.fillColor = .clear
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorGray()!
         view.highlightedStrokeColor = R.color.colorGray()!
         view.strokeWidth = Constants.strokeWidth
         view.shadowOpacity = Constants.shadowOpacity
-        view.twoVerticalLabelView.titleLabel.textColor = R.color.colorLightGray()
-        view.twoVerticalLabelView.titleLabel.font = .p2Paragraph
-        view.twoVerticalLabelView.subtitleLabelView.textColor = R.color.colorWhite()
-        view.twoVerticalLabelView.subtitleLabelView.font = .p1Paragraph
-        view.applyDisabledStyle()
+        view.actionControl.contentView.titleLabel.textColor = R.color.colorLightGray()
+        view.actionControl.layoutType = BaseActionControl.LayoutType.flexible
+        view.actionControl.contentView.titleLabel.font = .p2Paragraph
+        view.actionControl.contentView.subtitleLabelView.textColor = R.color.colorWhite()
+        view.actionControl.contentView.subtitleLabelView.font = .p1Paragraph
+        view.actionControl.imageIndicator.image = R.image.iconDropDown()
+        view.disable()
         return view
     }()
 
@@ -281,7 +283,7 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    private let expandableControlContainerView = UIView()
+    let expandableControlContainerView = UIView()
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
@@ -359,12 +361,12 @@ private extension AccountImportViewLayout {
         substrateCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .substrateCryptoType(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoVerticalLabelView.titleLabel.text = R.string.localizable
+        ethereumCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .ethereumCryptoType(preferredLanguages: locale.rLanguages)
-        ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text =
+        ethereumCryptoTypeView.actionControl.contentView.subtitleLabelView.text =
             R.string.localizable
                 .ecdsaSelectionSubtitle(preferredLanguages: locale.rLanguages)
-        ethereumCryptoTypeView.invalidateLayout()
+        ethereumCryptoTypeView.actionControl.invalidateLayout()
 
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: locale.rLanguages)
@@ -566,20 +568,6 @@ extension AccountImportViewLayout {
     func handleKeyboard(frame: CGRect) {
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
-        }
-    }
-
-    func setup(isJson: Bool) {
-        expandableControlContainerView.isHidden = isJson
-        expandableControl.isHidden = isJson
-        advancedContainerView.isHidden = isJson
-        textViewContainer.isHidden = isJson
-
-        passwordContainerView.isHidden = !isJson
-        uploadViewContainer.isHidden = !isJson
-        if !isJson {
-            passwordTextField.text = nil
-            textView.text = nil
         }
     }
 }

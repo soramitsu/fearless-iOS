@@ -6,10 +6,10 @@ class ChainAssetModel: Codable {
     let assetId: String
     let staking: StakingType?
     let purchaseProviders: [PurchaseProvider]?
-    var asset: AssetModel!
-    var chain: ChainModel!
+    var asset: AssetModel
+    weak var chain: ChainModel?
 
-    var isUtility: Bool { asset.chainId == chain.identifier }
+    var isUtility: Bool { asset.chainId == chain?.identifier }
 
     init(
         assetId: String,

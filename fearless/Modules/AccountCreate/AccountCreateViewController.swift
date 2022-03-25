@@ -157,9 +157,9 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     func setEthereumCrypto(model: TitleWithSubtitleViewModel) {
         let title = "\(model.title) | \(model.subtitle)"
 
-        rootView.ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text = title
+        rootView.ethereumCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
 
-        rootView.ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
+        rootView.ethereumCryptoTypeView.actionControl.contentView.invalidateLayout()
         rootView.ethereumCryptoTypeView.invalidateLayout()
     }
 

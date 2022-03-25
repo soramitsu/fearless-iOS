@@ -67,19 +67,21 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    let ethereumCryptoTypeView: TriangularedTwoLabelView = {
-        let view = TriangularedTwoLabelView()
+    let ethereumCryptoTypeView: BorderedSubtitleActionView = {
+        let view = BorderedSubtitleActionView()
         view.fillColor = .clear
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorGray()!
         view.highlightedStrokeColor = R.color.colorGray()!
         view.strokeWidth = Constants.strokeWidth
         view.shadowOpacity = Constants.shadowOpacity
-        view.twoVerticalLabelView.titleLabel.textColor = R.color.colorLightGray()
-        view.twoVerticalLabelView.titleLabel.font = .p2Paragraph
-        view.twoVerticalLabelView.subtitleLabelView.textColor = R.color.colorWhite()
-        view.twoVerticalLabelView.subtitleLabelView.font = .p1Paragraph
-        view.applyDisabledStyle()
+        view.actionControl.contentView.titleLabel.textColor = R.color.colorLightGray()
+        view.actionControl.layoutType = BaseActionControl.LayoutType.flexible
+        view.actionControl.contentView.titleLabel.font = .p2Paragraph
+        view.actionControl.contentView.subtitleLabelView.textColor = R.color.colorWhite()
+        view.actionControl.contentView.subtitleLabelView.font = .p1Paragraph
+        view.actionControl.imageIndicator.image = R.image.iconDropDown()
+        view.disable()
         return view
     }()
 
