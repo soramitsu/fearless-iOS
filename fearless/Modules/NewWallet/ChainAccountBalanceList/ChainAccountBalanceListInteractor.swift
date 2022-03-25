@@ -117,10 +117,6 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
         refresh()
     }
 
-    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
-        refresh()
-    }
-
     func processChainsUpdated(event _: ChainsUpdatedEvent) {
         refresh()
     }
