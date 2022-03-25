@@ -1,41 +1,41 @@
 import Foundation
 
 protocol ManageAssetsTableViewCellModelDelegate: AnyObject {
-    func switchAssetEnabledState(asset: AssetModel)
+    func switchAssetEnabledState(asset: ChainAsset)
 }
 
 class ManageAssetsTableViewCellModel {
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let assetName: String?
     let assetInfo: AssetBalanceDisplayInfo?
     let imageViewModel: RemoteImageViewModel?
     let balanceString: String?
     let options: [ChainOptionsViewModel]?
+    let assetEnabled: Bool
 
     weak var delegate: ManageAssetsTableViewCellModelDelegate?
 
     internal init(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         assetName: String?,
         assetInfo: AssetBalanceDisplayInfo?,
         imageViewModel: RemoteImageViewModel?,
         balanceString: String?,
-        options: [ChainOptionsViewModel]?
+        options: [ChainOptionsViewModel]?,
+        assetEnabled: Bool
     ) {
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.assetName = assetName
         self.assetInfo = assetInfo
         self.imageViewModel = imageViewModel
         self.balanceString = balanceString
         self.options = options
+        self.assetEnabled = assetEnabled
     }
 }
 
 extension ManageAssetsTableViewCellModel: ManageAssetsTableViewCellDelegate {
     func assetEnabledSwitcherValueChanged() {
-        delegate?.switchAssetEnabledState(asset: asset)
+        delegate?.switchAssetEnabledState(asset: chainAsset)
     }
 }

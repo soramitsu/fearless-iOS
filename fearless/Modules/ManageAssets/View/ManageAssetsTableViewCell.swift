@@ -163,6 +163,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
 
         chainNameLabel.text = viewModel.assetName?.uppercased()
         tokenBalanceLabel.text = viewModel.balanceString
+        switcher.isOn = viewModel.assetEnabled
 
         viewModel.imageViewModel?.loadBalanceListIcon(
             on: chainIconImageView,

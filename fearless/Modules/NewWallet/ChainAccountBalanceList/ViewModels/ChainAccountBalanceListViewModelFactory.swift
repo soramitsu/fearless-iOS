@@ -25,12 +25,16 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        let chainAssets = chains.map { chain in
+        var chainAssets = chains.map { chain in
             chain.assets.compactMap { asset in
                 ChainAsset(chain: chain, asset: asset.asset)
             }
         }
         .reduce([], +)
+
+        if let assetIdsEnabled = selectedMetaAccount?.assetIdsEnabled {
+            chainAssets = chainAssets.filter { assetIdsEnabled.contains($0.asset.id) == true }
+        }
 
         var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
         var balanceByChainAsset: [ChainAsset: Decimal] = [:]
@@ -51,15 +55,20 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             )
         }
 
+        let useSortedKeys: Bool = sortedKeys != nil
+        var orderByKey: [String: Int]?
+
+        if let sortedKeys = sortedKeys {
+            orderByKey = [:]
+            for (index, key) in sortedKeys.enumerated() {
+                orderByKey?[key] = index
+            }
+        }
+
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
-                if let sortedKeys = sortedKeys, let accountId = selectedMetaAccount?.substrateAccountId {
-                    var orderByKey: [String: Int] = [:]
-                    for (index, key) in sortedKeys.enumerated() {
-                        orderByKey[key] = index
-                    }
-
-                    return orderByKey[ca1.asset.sortKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.asset.sortKey(accountId: accountId)] ?? Int.max
+                if let orderByKey = orderByKey, let accountId = selectedMetaAccount?.substrateAccountId {
+                    return orderByKey[ca1.sortKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.sortKey(accountId: accountId)] ?? Int.max
                 } else {
                     return (
                         usdBalanceByChainAsset[ca1] ?? Decimal.zero,

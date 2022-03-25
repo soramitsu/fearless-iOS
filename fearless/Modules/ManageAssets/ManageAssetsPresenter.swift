@@ -11,6 +11,7 @@ final class ManageAssetsPresenter {
     private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
     private var viewModel: ManageAssetsViewModel?
     private var sortedKeys: [String]?
+    private var assetIdsEnabled: [String]?
 
     init(
         interactor: ManageAssetsInteractorInputProtocol,
@@ -34,6 +35,7 @@ final class ManageAssetsPresenter {
             locale: selectedLocale,
             accountInfos: accountInfos,
             sortedKeys: sortedKeys,
+            assetIdsEnabled: assetIdsEnabled,
             cellsDelegate: self
         )
 
@@ -49,7 +51,7 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
     }
 
     func move(viewModel _: ManageAssetsTableViewCellModel, from: Int, to: Int) {
-        if var assets = viewModel?.cellModels.map(\.asset) {
+        if var assets = viewModel?.cellModels.map(\.chainAsset) {
             assets.swapAt(from, to)
             interactor.saveAssetsOrder(assets: assets)
         }
@@ -61,7 +63,12 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 }
 
 extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
-    func didReceiveSortOrder(sortedKeys: [String]?) {
+    func didReceiveAssetIdsEnabled(_ assetIdsEnabled: [String]?) {
+        self.assetIdsEnabled = assetIdsEnabled
+        provideViewModel()
+    }
+
+    func didReceiveSortOrder(_ sortedKeys: [String]?) {
         self.sortedKeys = sortedKeys
         provideViewModel()
     }
@@ -89,6 +96,19 @@ extension ManageAssetsPresenter: Localizable {
 }
 
 extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
-    func switchAssetEnabledState(asset: AssetModel) {
+    func switchAssetEnabledState(asset: ChainAsset) {
+        var assetIdsEnabled: [String] = []
+        if selectedMetaAccount.assetIdsEnabled == nil {
+            assetIdsEnabled = viewModel?.cellModels.map(\.chainAsset.asset.id).filter { $0 != asset.asset.id } ?? []
+        } else {
+            let contains = selectedMetaAccount.assetIdsEnabled?.contains(asset.asset.id) == true
+            if contains {
+                assetIdsEnabled = selectedMetaAccount.assetIdsEnabled?.filter { $0 != asset.asset.id } ?? []
+            } else {
+                assetIdsEnabled = (selectedMetaAccount.assetIdsEnabled ?? []) + [asset.asset.id]
+            }
+        }
+
+        interactor.saveAssetIdsEnabled(assetIdsEnabled)
     }
 }

@@ -13,14 +13,15 @@ protocol ManageAssetsPresenterProtocol: AnyObject {
 
 protocol ManageAssetsInteractorInputProtocol: AnyObject {
     func setup()
-    func saveAssetsOrder(assets: [AssetModel])
-    func switchAssetEnabledState(_ asset: AssetModel)
+    func saveAssetsOrder(assets: [ChainAsset])
+    func saveAssetIdsEnabled(_ assetIdsEnabled: [String])
 }
 
 protocol ManageAssetsInteractorOutputProtocol: AnyObject {
     func didReceiveChains(result: Result<[ChainModel], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
-    func didReceiveSortOrder(sortedKeys: [String]?)
+    func didReceiveSortOrder(_ sortedKeys: [String]?)
+    func didReceiveAssetIdsEnabled(_ assetIdsEnabled: [String]?)
 }
 
 protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, PresentDismissable {}

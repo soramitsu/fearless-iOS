@@ -63,10 +63,11 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
     func setup() {
         fetchChainsAndSubscribeBalance()
 
-        presenter?.didReceiveSortOrder(sortedKeys: selectedMetaAccount.assetKeysOrder)
+        presenter?.didReceiveSortOrder(selectedMetaAccount.assetKeysOrder)
+        presenter?.didReceiveAssetIdsEnabled(selectedMetaAccount.assetIdsEnabled)
     }
 
-    func saveAssetsOrder(assets: [AssetModel]) {
+    func saveAssetsOrder(assets: [ChainAsset]) {
         let keys = assets.map { $0.sortKey(accountId: selectedMetaAccount.substrateAccountId) }
         let updatedAccount = selectedMetaAccount.replacingAssetKeysOrder(keys)
 
@@ -79,7 +80,7 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         saveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 self?.selectedMetaAccount = updatedAccount
-                self?.presenter?.didReceiveSortOrder(sortedKeys: updatedAccount.assetKeysOrder)
+                self?.presenter?.didReceiveSortOrder(updatedAccount.assetKeysOrder)
 
                 SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                     switch result {
@@ -94,9 +95,33 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
 
         operationQueue.addOperation(saveOperation)
     }
-    
-    func switchAssetEnabledState(_ asset: AssetModel) {
-        
+
+    func saveAssetIdsEnabled(_ assetIdsEnabled: [String]) {
+        let updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+
+        let saveOperation = accountRepository.saveOperation {
+            [updatedAccount]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                self?.selectedMetaAccount = updatedAccount
+                self?.presenter?.didReceiveAssetIdsEnabled(assetIdsEnabled)
+
+                SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                    switch result {
+                    case let .success(account):
+                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                    case .failure:
+                        break
+                    }
+                }
+            }
+        }
+
+        operationQueue.addOperation(saveOperation)
     }
 }
 

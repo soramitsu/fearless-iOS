@@ -7,6 +7,7 @@ protocol ManageAssetsViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
+        assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?
     ) -> ManageAssetsViewModel
 }
@@ -22,7 +23,8 @@ final class ManageAssetsViewModelFactory {
         chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
         locale _: Locale,
-        delegate: ManageAssetsTableViewCellModelDelegate?
+        delegate: ManageAssetsTableViewCellModelDelegate?,
+        assetEnabled: Bool
     ) -> ManageAssetsTableViewCellModel {
         let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
         let title = chainAsset.chain.name
@@ -34,17 +36,17 @@ final class ManageAssetsViewModelFactory {
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         let model = ManageAssetsTableViewCellModel(
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
+            chainAsset: chainAsset,
             assetName: title,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: icon,
             balanceString: balance,
-            options: options
+            options: options,
+            assetEnabled: assetEnabled
         )
-        
+
         model.delegate = delegate
-        
+
         return model
     }
 }
@@ -113,6 +115,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
+        assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?
     ) -> ManageAssetsViewModel {
         let chainAssets = chains.map { chain in
@@ -147,7 +150,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                         orderByKey[key] = index
                     }
 
-                    return orderByKey[ca1.asset.sortKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.asset.sortKey(accountId: accountId)] ?? Int.max
+                    return orderByKey[ca1.sortKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.sortKey(accountId: accountId)] ?? Int.max
                 } else {
                     return (
                         usdBalanceByChainAsset[ca1] ?? Decimal.zero,
@@ -166,11 +169,14 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             }
 
         let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.map { chainAsset in
-            buildManageAssetsCellViewModel(
+            let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(chainAsset.asset.id) == true
+
+            return buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
                 accountInfo: accountInfos?[chainAsset.chain.chainId],
                 locale: locale,
-                delegate: cellsDelegate
+                delegate: cellsDelegate,
+                assetEnabled: enabled
             )
         }
 
