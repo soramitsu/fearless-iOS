@@ -43,6 +43,8 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
                 provider.removeObserver(self)
             }
         }
+
+        subscriptions.removeAll()
     }
 
     func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?) {
