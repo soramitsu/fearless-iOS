@@ -281,7 +281,7 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    private let expandableControlContainerView = UIView()
+    let expandableControlContainerView = UIView()
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
@@ -566,20 +566,6 @@ extension AccountImportViewLayout {
     func handleKeyboard(frame: CGRect) {
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
-        }
-    }
-
-    func setup(isJson: Bool) {
-        expandableControlContainerView.isHidden = isJson
-        expandableControl.isHidden = isJson
-        advancedContainerView.isHidden = isJson
-        textViewContainer.isHidden = isJson
-
-        passwordContainerView.isHidden = !isJson
-        uploadViewContainer.isHidden = !isJson
-        if !isJson {
-            passwordTextField.text = nil
-            textView.text = nil
         }
     }
 }

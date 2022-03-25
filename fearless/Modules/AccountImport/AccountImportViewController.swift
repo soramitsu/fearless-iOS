@@ -197,12 +197,36 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func setSource(type: AccountImportSource, selectable: Bool) {
         switch type {
-        case .mnemonic, .seed:
-            passwordViewModel = nil
+        case .mnemonic:
+            rootView.expandableControlContainerView.isHidden = false
+            rootView.expandableControl.isHidden = false
+            rootView.advancedContainerView.isHidden = false
 
-            rootView.setup(isJson: false)
+            rootView.textViewContainer.isHidden = false
+
+            rootView.passwordContainerView.isHidden = true
+            rootView.uploadViewContainer.isHidden = true
+        case .seed:
+            rootView.expandableControlContainerView.isHidden = !selectable
+            rootView.expandableControl.isHidden = !selectable
+            rootView.advancedContainerView.isHidden = !selectable
+
+            rootView.textViewContainer.isHidden = false
+
+            rootView.passwordContainerView.isHidden = true
+            rootView.uploadViewContainer.isHidden = true
         case .keystore:
-            rootView.setup(isJson: true)
+            rootView.expandableControlContainerView.isHidden = true
+            rootView.expandableControl.isHidden = true
+            rootView.advancedContainerView.isHidden = true
+
+            rootView.textViewContainer.isHidden = true
+
+            rootView.passwordContainerView.isHidden = false
+            rootView.uploadViewContainer.isHidden = false
+
+            rootView.passwordTextField.text = nil
+            rootView.textView.text = nil
         }
 
         rootView.warningContainerView.isHidden = true
