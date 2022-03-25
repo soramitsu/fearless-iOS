@@ -3,7 +3,15 @@ import IrohaCrypto
 
 extension AddAccount {
     final class AccountImportWireframe: AccountImportWireframeProtocol {
-        func showSecondStep(from _: AccountImportViewProtocol?, with _: AccountCreationStep.FirstStepData) {}
+        func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
+            guard let secondStep = AccountImportViewFactory.createViewForOnboarding(.second(data: data)) else {
+                return
+            }
+
+            if let navigationController = view?.controller.navigationController {
+                navigationController.pushViewController(secondStep.controller, animated: true)
+            }
+        }
 
         func proceed(from view: AccountImportViewProtocol?) {
             guard let navigationController = view?.controller.navigationController else {

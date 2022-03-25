@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class AccountCreateViewLayout: UIView {
     private enum Constants {
@@ -21,6 +22,8 @@ final class AccountCreateViewLayout: UIView {
             }
         }
     }
+
+    var nextButtonBottomConstraint: Constraint?
 
     var mnemonicView: MnemonicDisplayView?
 
@@ -91,6 +94,7 @@ final class AccountCreateViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.returnKeyType = .done
         return view
     }()
 
@@ -101,6 +105,7 @@ final class AccountCreateViewLayout: UIView {
         view.textColor = .white
         view.clearButtonMode = .whileEditing
         view.keyboardType = .decimalPad
+        view.returnKeyType = .done
         return view
     }()
 
@@ -328,8 +333,7 @@ private extension AccountCreateViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.greaterThanOrEqualTo(contentView.snp.bottom).offset(UIConstants.hugeOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            nextButtonBottomConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
     }
 

@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 protocol KeyboardAdoptable: AnyObject {
     var keyboardHandler: KeyboardHandler? { get set }
@@ -25,7 +26,7 @@ extension KeyboardAdoptable {
 }
 
 protocol KeyboardViewAdoptable: KeyboardAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { get }
+    var targetBottomConstraint: Constraint? { get }
     var currentKeyboardFrame: CGRect? { get set }
     var shouldApplyKeyboardFrame: Bool { get }
 
@@ -108,10 +109,10 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         }
     }
 
-    private func apply(keyboardFrame: CGRect, to constraint: NSLayoutConstraint) {
+    private func apply(keyboardFrame: CGRect, to constraint: Constraint) {
         let localKeyboardFrame = view.convert(keyboardFrame, from: nil)
         let bottomInset = view.bounds.height - localKeyboardFrame.minY
 
-        constraint.constant = bottomInset + offsetFromKeyboardWithInset(bottomInset)
+        constraint.update(inset: bottomInset + offsetFromKeyboardWithInset(bottomInset))
     }
 }
