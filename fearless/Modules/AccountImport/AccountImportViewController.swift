@@ -36,7 +36,6 @@ final class AccountImportViewController: UIViewController, ViewHolder {
 
         setupActions()
         setupLocalization()
-        setupActions()
 
         presenter.setup()
     }

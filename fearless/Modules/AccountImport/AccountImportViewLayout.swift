@@ -364,7 +364,7 @@ private extension AccountImportViewLayout {
         ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text =
             R.string.localizable
                 .ecdsaSelectionSubtitle(preferredLanguages: locale.rLanguages)
-        substrateCryptoTypeView.actionControl.invalidateLayout()
+        ethereumCryptoTypeView.invalidateLayout()
 
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: locale.rLanguages)
