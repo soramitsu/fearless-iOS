@@ -44,6 +44,13 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
         hasExistingNomination: Bool,
         locale: Locale
     ) -> DataValidating
+
+    func bondAtLeastMinStaking(
+        asset: AssetModel,
+        amount: Decimal?,
+        minNominatorBond: Decimal?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -287,6 +294,34 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
                 return counterForNominators < maxNominatorsCount
             } else {
                 return true
+            }
+        })
+    }
+
+    func bondAtLeastMinStaking(asset: AssetModel, amount: Decimal?, minNominatorBond: Decimal?, locale: Locale) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] delegate in
+            guard let view = self?.view else {
+                return
+            }
+
+            if minNominatorBond == nil {
+                self?.presentable.presentMissingMinNominatorBond(from: view, locale: locale)
+                return
+            }
+
+            let amountString = (minNominatorBond ?? Decimal.zero).stringWithPointSeparator
+            let amountWithSymbolString = [amountString, asset.id.uppercased()].joined(separator: " ")
+
+            self?.presentable.presentWarningAlert(from: view, config: WarningAlertConfig.inactiveAlertConfig(bondAmount: amountWithSymbolString, with: locale), buttonHandler: {
+                self?.presentable.dismiss(view: view)
+
+                delegate.didCompleteWarningHandling()
+            })
+        }, preservesCondition: {
+            if let amount = amount, let minNominatorBond = minNominatorBond {
+                return amount >= minNominatorBond
+            } else {
+                return false
             }
         })
     }
