@@ -129,7 +129,7 @@ extension UsernameSetupViewController: AnimatedTextFieldDelegate {
 }
 
 extension UsernameSetupViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: Constraint? { nextBottom }
+    var target: UIView? { nextButton }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

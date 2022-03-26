@@ -4,7 +4,7 @@ import IrohaCrypto
 extension AddAccount {
     final class AccountImportWireframe: AccountImportWireframeProtocol {
         func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
-            guard let secondStep = AccountImportViewFactory.createViewForOnboarding(.second(data: data)) else {
+            guard let secondStep = AccountImportViewFactory.createViewForAdding(.second(data: data)) else {
                 return
             }
 
@@ -17,7 +17,6 @@ extension AddAccount {
             guard let navigationController = view?.controller.navigationController else {
                 return
             }
-
             MainTransitionHelper.transitToMainTabBarController(
                 closing: navigationController,
                 animated: true
