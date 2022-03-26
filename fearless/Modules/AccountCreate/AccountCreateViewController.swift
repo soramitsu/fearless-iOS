@@ -209,10 +209,6 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
 }
 
 extension AccountCreateViewController: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_: UITextField) {
-        rootView.contentView.scrollView.scrollRectToVisible(CGRect(x: 0, y: 400, width: 0, height: 100), animated: true)
-    }
-
     func textFieldDidEndEditing(_ textField: UITextField) {
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrate()
