@@ -227,11 +227,12 @@ private extension AccountCreateViewLayout {
 
     private func setupEthereumDerivationPathTextField() {
         let bar = UIToolbar()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let close = UIBarButtonItem(
             title: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
-            style: .plain, target: self, action: #selector(close)
+            style: .done, target: self, action: #selector(close)
         )
-        bar.items = [close]
+        bar.items = [flexibleSpace, close]
         bar.sizeToFit()
         ethereumDerivationPathField.inputAccessoryView = bar
     }
