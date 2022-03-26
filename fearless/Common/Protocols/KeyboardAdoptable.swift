@@ -15,8 +15,8 @@ extension KeyboardAdoptable {
         }
 
         keyboardHandler = KeyboardHandler(with: nil)
-        keyboardHandler?.animateOnFrameChange = { [weak self] keyboardFrame in
-            self?.updateWhileKeyboardFrameChanging(keyboardFrame)
+        keyboardHandler?.animateOnFrameChange = { [weak self] _ in
+//            self?.updateWhileKeyboardFrameChanging(keyboardFrame)
         }
     }
 
@@ -26,7 +26,7 @@ extension KeyboardAdoptable {
 }
 
 protocol KeyboardViewAdoptable: KeyboardAdoptable {
-    var targetBottomConstraint: Constraint? { get }
+    var target: UIView? { get }
     var currentKeyboardFrame: CGRect? { get set }
     var shouldApplyKeyboardFrame: Bool { get }
 
@@ -98,21 +98,21 @@ extension KeyboardViewAdoptable where Self: UIViewController {
             return
         }
 
-        if let constraint = targetBottomConstraint {
+        if let target = target {
             if shouldApplyKeyboardFrame {
-                apply(keyboardFrame: keyboardFrame, to: constraint)
-
+                apply(keyboardFrame: keyboardFrame, to: target)
                 view.layoutIfNeeded()
             }
-        } else {
-            updateWhileKeyboardFrameChanging(keyboardFrame)
         }
+        updateWhileKeyboardFrameChanging(keyboardFrame)
     }
 
-    private func apply(keyboardFrame: CGRect, to constraint: Constraint) {
+    private func apply(keyboardFrame: CGRect, to target: UIView) {
         let localKeyboardFrame = view.convert(keyboardFrame, from: nil)
         let bottomInset = view.bounds.height - localKeyboardFrame.minY
 
-        constraint.update(inset: bottomInset + offsetFromKeyboardWithInset(bottomInset))
+        target.snp.updateConstraints { make in
+            make.bottom.equalToSuperview().inset(bottomInset + offsetFromKeyboardWithInset(bottomInset))
+        }
     }
 }

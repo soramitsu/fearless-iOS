@@ -23,8 +23,6 @@ final class AccountCreateViewLayout: UIView {
         }
     }
 
-    var nextButtonBottomConstraint: Constraint?
-
     var mnemonicView: MnemonicDisplayView?
 
     let contentView: ScrollableContainerView = {
@@ -333,7 +331,7 @@ private extension AccountCreateViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            nextButtonBottomConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
 
