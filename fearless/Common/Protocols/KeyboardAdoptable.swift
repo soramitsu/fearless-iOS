@@ -15,8 +15,8 @@ extension KeyboardAdoptable {
         }
 
         keyboardHandler = KeyboardHandler(with: nil)
-        keyboardHandler?.animateOnFrameChange = { [weak self] _ in
-//            self?.updateWhileKeyboardFrameChanging(keyboardFrame)
+        keyboardHandler?.animateOnFrameChange = { [weak self] keyboardFrame in
+            self?.updateWhileKeyboardFrameChanging(keyboardFrame)
         }
     }
 

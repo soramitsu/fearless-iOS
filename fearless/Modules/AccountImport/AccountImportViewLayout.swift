@@ -342,6 +342,22 @@ private extension AccountImportViewLayout {
 
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
+        setupEthereumDerivationPathTextField()
+    }
+
+    private func setupEthereumDerivationPathTextField() {
+        let bar = UIToolbar()
+        let close = UIBarButtonItem(
+            title: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            style: .plain, target: self, action: #selector(close)
+        )
+        bar.items = [close]
+        bar.sizeToFit()
+        ethereumDerivationPathField.inputAccessoryView = bar
+    }
+
+    @objc private func close() {
+        ethereumDerivationPathField.resignFirstResponder()
     }
 
     func setupLocalization() {
