@@ -97,18 +97,18 @@ extension ManageAssetsPresenter: Localizable {
 
 extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
     func switchAssetEnabledState(asset: ChainAsset) {
-        var assetIdsEnabled: [String] = []
-        if selectedMetaAccount.assetIdsEnabled == nil {
-            assetIdsEnabled = viewModel?.cellModels.map(\.chainAsset.asset.id).filter { $0 != asset.asset.id } ?? []
+        var modifiedAssetIdsEnabled: [String] = []
+        if assetIdsEnabled == nil {
+            modifiedAssetIdsEnabled = viewModel?.cellModels.map(\.chainAsset.asset.id).filter { $0 != asset.asset.id } ?? []
         } else {
-            let contains = selectedMetaAccount.assetIdsEnabled?.contains(asset.asset.id) == true
+            let contains = assetIdsEnabled?.contains(asset.asset.id) == true
             if contains {
-                assetIdsEnabled = selectedMetaAccount.assetIdsEnabled?.filter { $0 != asset.asset.id } ?? []
+                modifiedAssetIdsEnabled = assetIdsEnabled?.filter { $0 != asset.asset.id } ?? []
             } else {
-                assetIdsEnabled = (selectedMetaAccount.assetIdsEnabled ?? []) + [asset.asset.id]
+                modifiedAssetIdsEnabled = (assetIdsEnabled ?? []) + [asset.asset.id]
             }
         }
 
-        interactor.saveAssetIdsEnabled(assetIdsEnabled)
+        interactor.saveAssetIdsEnabled(modifiedAssetIdsEnabled)
     }
 }
