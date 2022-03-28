@@ -45,8 +45,29 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         let secretKeyTag = chainAccount.isEthereumBased
             ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
             : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+        var secretKey = try keystore.fetchKey(for: secretKeyTag)
 
-        let secretKey = try keystore.fetchKey(for: secretKeyTag)
+        let derivationPathTag = chainAccount.isEthereumBased
+            ? KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId)
+            : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
+
+        let seedTag = chainAccount.isEthereumBased
+            ? KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: accountId)
+            : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
+
+        if let derivationPath = try keystore.fetchDeriviationForAddress(derivationPathTag),
+           let seed = try keystore.fetchSeedForAddress(seedTag) {
+            let junctionFactory = chainAccount.isEthereumBased ?
+                BIP32JunctionFactory() : SubstrateJunctionFactory()
+            let junctionResult = try junctionFactory.parse(path: derivationPath)
+            let keypair = try generateKeypair(
+                from: seed,
+                chaincodes: junctionResult.chaincodes,
+                cryptoType: chainAccount.cryptoType,
+                isEthereum: chainAccount.isEthereumBased
+            )
+            secretKey = keypair.secretKey
+        }
 
         var builder = KeystoreBuilder().with(name: chainAccount.name)
 
@@ -72,5 +93,60 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         )
 
         return try jsonEncoder.encode(definition)
+    }
+}
+
+private extension KeystoreExportWrapper {
+    func generateKeypair(
+        from seed: Data,
+        chaincodes: [Chaincode],
+        cryptoType: CryptoType,
+        isEthereum: Bool
+    ) throws -> (publicKey: Data, secretKey: Data) {
+        let keypairFactory = createKeypairFactory(cryptoType, isEthereumBased: isEthereum)
+
+        let keypair = try keypairFactory.createKeypairFromSeed(
+            seed,
+            chaincodeList: chaincodes
+        )
+
+        if isEthereum {
+            let privateKey = try SECPrivateKey(rawData: seed)
+
+            return (
+                publicKey: try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey().rawData(),
+                secretKey: seed
+            )
+
+        } else if cryptoType == .sr25519 {
+            return (
+                publicKey: keypair.publicKey().rawData(),
+                secretKey: keypair.privateKey().rawData()
+            )
+        } else {
+            guard let factory = keypairFactory as? DerivableSeedFactoryProtocol else {
+                throw AccountOperationFactoryError.keypairFactoryFailure
+            }
+
+            let secretKey = try factory.deriveChildSeedFromParent(seed, chaincodeList: chaincodes)
+            return (
+                publicKey: keypair.publicKey().rawData(),
+                secretKey: secretKey
+            )
+        }
+    }
+
+    func createKeypairFactory(_ cryptoType: CryptoType, isEthereumBased: Bool) -> KeypairFactoryProtocol {
+        switch cryptoType {
+        case .sr25519:
+            return SR25519KeypairFactory()
+        case .ed25519:
+            return Ed25519KeypairFactory()
+        case .ecdsa:
+            if isEthereumBased {
+                return BIP32KeypairFactory()
+            }
+            return EcdsaKeypairFactory()
+        }
     }
 }
