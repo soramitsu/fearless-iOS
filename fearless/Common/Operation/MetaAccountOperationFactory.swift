@@ -239,10 +239,10 @@ private extension MetaAccountOperationFactory {
         name: String,
         substratePublicKey: Data,
         substrateCryptoType: CryptoType,
-        ethereumPublicKey: Data
+        ethereumPublicKey: Data?
     ) throws -> MetaAccountModel {
         let substrateAccountId = try substratePublicKey.publicKeyToAccountId()
-        let ethereumAddress = try ethereumPublicKey.ethereumAddressFromPublicKey()
+        let ethereumAddress = try ethereumPublicKey?.ethereumAddressFromPublicKey()
 
         return MetaAccountModel(
             metaId: UUID().uuidString,
@@ -307,26 +307,31 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
     func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let seed = try Data(hexString: request.seed)
+            let substrateSeed = try Data(hexString: request.substrateSeed)
             let substrateQuery = try getQuery(
-                seedSource: .seed(seed),
+                seedSource: .seed(substrateSeed),
                 derivationPath: request.substrateDerivationPath,
                 cryptoType: request.cryptoType,
                 ethereumBased: false
             )
 
-            let ethereumQuery = try getQuery(
-                seedSource: .seed(seed),
-                derivationPath: request.ethereumDerivationPath,
-                cryptoType: .ecdsa,
-                ethereumBased: true
-            )
+            var ethereumQuery: AccountQuery?
+            if let ethereumSeedString = request.ethereumSeed,
+               let ethereumSeed = try? Data(hexString: ethereumSeedString),
+               let ethereumDerivationPath = request.ethereumDerivationPath {
+                ethereumQuery = try getQuery(
+                    seedSource: .seed(ethereumSeed),
+                    derivationPath: ethereumDerivationPath,
+                    cryptoType: .ecdsa,
+                    ethereumBased: true
+                )
+            }
 
             let metaAccount = try createMetaAccount(
                 name: request.username,
                 substratePublicKey: substrateQuery.publicKey,
                 substrateCryptoType: request.cryptoType,
-                ethereumPublicKey: ethereumQuery.publicKey
+                ethereumPublicKey: ethereumQuery?.publicKey
             )
 
             let metaId = metaAccount.metaId
@@ -335,9 +340,11 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
             try saveSeed(substrateQuery.seed, metaId: metaId, ethereumBased: false)
 
-            try saveSecretKey(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
-            try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
-            try saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
+            if let query = ethereumQuery, let derivationPath = request.ethereumDerivationPath {
+                try saveSecretKey(query.privateKey, metaId: metaId, ethereumBased: true)
+                try saveDerivationPath(derivationPath, metaId: metaId, ethereumBased: true)
+                try saveSeed(query.privateKey, metaId: metaId, ethereumBased: true)
+            }
 
             return metaAccount
         }
@@ -347,17 +354,17 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
 
-            guard let data = request.keystore.data(using: .utf8) else {
+            guard let substrateData = request.substrateKeystore.data(using: .utf8) else {
                 throw AccountOperationFactoryError.invalidKeystore
             }
 
-            let keystoreDefinition = try JSONDecoder().decode(
+            let substrateKeystoreDefinition = try JSONDecoder().decode(
                 KeystoreDefinition.self,
-                from: data
+                from: substrateData
             )
 
-            guard let keystore = try? keystoreExtractor
-                .extractFromDefinition(keystoreDefinition, password: request.password)
+            guard let substrateKeystore = try? keystoreExtractor
+                .extractFromDefinition(substrateKeystoreDefinition, password: request.substratePassword)
             else {
                 throw AccountOperationFactoryError.decryption
             }
@@ -366,25 +373,42 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             switch request.cryptoType {
             case .sr25519:
-                substratePublicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try SNPublicKey(rawData: substrateKeystore.publicKeyData)
             case .ed25519:
-                substratePublicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try EDPublicKey(rawData: substrateKeystore.publicKeyData)
             case .ecdsa:
-                substratePublicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try SECPublicKey(rawData: substrateKeystore.publicKeyData)
             }
 
+            var ethereumKeystore: KeystoreData?
             var ethereumPublicKey: IRPublicKeyProtocol?
             var ethereumAddress: Data?
+            if let ethereumDataString = request.ethereumKeystore,
+               let ethereumData = ethereumDataString.data(using: .utf8) {
+                let ethereumKeystoreDefinition = try JSONDecoder().decode(
+                    KeystoreDefinition.self,
+                    from: ethereumData
+                )
 
-            if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
-                ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
-                ethereumAddress = try ethereumPublicKey?.rawData().ethereumAddressFromPublicKey()
+                guard let ethereumKeystore = try? keystoreExtractor
+                    .extractFromDefinition(ethereumKeystoreDefinition, password: request.ethereumPassword)
+                else {
+                    throw AccountOperationFactoryError.decryption
+                }
+
+                if let privateKey = try? SECPrivateKey(rawData: ethereumKeystore.secretKeyData) {
+                    ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+                    ethereumAddress = try ethereumPublicKey?.rawData().ethereumAddressFromPublicKey()
+                }
             }
 
             let metaId = UUID().uuidString
             let accountId = try substratePublicKey.rawData().publicKeyToAccountId()
 
-            try saveSecretKey(keystore.secretKeyData, metaId: metaId, ethereumBased: false)
+            try saveSecretKey(substrateKeystore.secretKeyData, metaId: metaId, ethereumBased: false)
+            if let ethereumKeystore = ethereumKeystore {
+                try saveSecretKey(ethereumKeystore.secretKeyData, metaId: metaId, ethereumBased: true)
+            }
 
             return MetaAccountModel(
                 metaId: metaId,

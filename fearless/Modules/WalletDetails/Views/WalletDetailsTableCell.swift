@@ -75,6 +75,18 @@ class WalletDetailsTableCell: UITableViewCell {
         return imageView
     }()
 
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    private var chainUnsupportedView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.iconView.image = R.image.iconWarning()
+        return view
+    }()
+
     weak var delegate: WalletDetailsTableCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -82,6 +94,8 @@ class WalletDetailsTableCell: UITableViewCell {
 
         configure()
         setupLayout()
+
+        applyLocalization()
     }
 
     override func prepareForReuse() {
@@ -92,6 +106,10 @@ class WalletDetailsTableCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func applyLocalization() {
+        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported()
     }
 
     func bind(to viewModel: WalletDetailsCellViewModel) {
@@ -110,6 +128,13 @@ class WalletDetailsTableCell: UITableViewCell {
         } else {
             addressImageView.isHidden = true
         }
+
+        let chainSupported: Bool = viewModel.chain.isSupported
+        addressStackView.isHidden = !chainSupported
+        chainUnsupportedView.isHidden = chainSupported
+        actionImageView.isHidden = !chainSupported
+
+        setDeactivated(!chainSupported)
     }
 }
 
@@ -161,10 +186,21 @@ private extension WalletDetailsTableCell {
             make.size.equalTo(LayoutConstants.addressImageSize)
         }
         addressStackView.addArrangedSubview(addressLabel)
+        infoStackView.addArrangedSubview(chainUnsupportedView)
     }
 
     @objc
     private func showActions() {
         delegate?.didTapActions(self)
+    }
+}
+
+extension WalletDetailsTableCell: DeactivatableView {
+    var deactivatableViews: [UIView] {
+        [chainImageView, chainLabel, addressLabel, addressImageView, chainUnsupportedView]
+    }
+
+    var deactivatedAlpha: CGFloat {
+        0.5
     }
 }

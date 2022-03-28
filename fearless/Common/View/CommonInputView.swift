@@ -22,6 +22,24 @@ class CommonInputView: UIView {
         return field
     }()
 
+    var text: String? {
+        get {
+            animatedInputField.text
+        }
+        set {
+            animatedInputField.text = newValue
+        }
+    }
+
+    var title: String? {
+        get {
+            animatedInputField.title
+        }
+        set {
+            animatedInputField.title = newValue
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -45,5 +63,25 @@ class CommonInputView: UIView {
             make.leading.trailing.equalToSuperview().inset(16)
             make.top.bottom.equalToSuperview().inset(4.0)
         }
+    }
+}
+
+extension CommonInputView {
+    func defaultSetup() {
+        animatedInputField.textField.returnKeyType = .done
+        animatedInputField.textField.textContentType = .nickname
+        animatedInputField.textField.autocapitalizationType = .none
+        animatedInputField.textField.autocorrectionType = .no
+        animatedInputField.textField.spellCheckingType = .no
+    }
+
+    func disable() {
+        backgroundView.applyDisabledStyle()
+        isUserInteractionEnabled = false
+    }
+
+    func enable() {
+        backgroundView.applyEnabledStyle()
+        isUserInteractionEnabled = true
     }
 }

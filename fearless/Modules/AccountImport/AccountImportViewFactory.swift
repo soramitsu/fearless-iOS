@@ -5,23 +5,23 @@ import RobinHood
 import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
-    static func createViewForOnboarding() -> AccountImportViewProtocol? {
+    static func createViewForOnboarding(_ step: AccountCreationStep = .first) -> AccountImportViewProtocol? {
         guard let interactor = createAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AccountImportWireframe()
-        return createView(for: interactor, wireframe: wireframe)
+        return createView(for: interactor, wireframe: wireframe, step: step)
     }
 
-    static func createViewForAdding() -> AccountImportViewProtocol? {
+    static func createViewForAdding(_ step: AccountCreationStep = .first) -> AccountImportViewProtocol? {
         guard let interactor = createAddAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AddAccount.AccountImportWireframe()
 
-        return createView(for: interactor, wireframe: wireframe)
+        return createView(for: interactor, wireframe: wireframe, step: step)
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {
@@ -35,15 +35,17 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
     private static func createView(
         for interactor: BaseAccountImportInteractor,
-        wireframe: AccountImportWireframeProtocol
+        wireframe: AccountImportWireframeProtocol,
+        step: AccountCreationStep = .first
     ) -> AccountImportViewProtocol? {
-        let view = AccountImportViewController(nib: R.nib.accountImportViewController)
-        let presenter = AccountImportPresenter()
+        let presenter = AccountImportPresenter(
+            wireframe: wireframe,
+            interactor: interactor,
+            step: step
+        )
+        let view = AccountImportViewController(presenter: presenter)
 
-        view.presenter = presenter
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         let localizationManager = LocalizationManager.shared

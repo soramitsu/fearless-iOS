@@ -1,24 +1,30 @@
 import UIKit
 import IrohaCrypto
 import SoraFoundation
+import FearlessUtils
 
 final class AccountCreatePresenter {
     static let maxEthereumDerivationPathLength: Int = 15
 
     weak var view: AccountCreateViewProtocol?
-    var wireframe: AccountCreateWireframeProtocol!
-    var interactor: AccountCreateInteractorInputProtocol!
+    var wireframe: AccountCreateWireframeProtocol
+    var interactor: AccountCreateInteractorInputProtocol
 
     let usernameSetup: UsernameSetupModel
 
     private var mnemonic: [String]?
     private var selectedCryptoType: CryptoType = .sr25519
-
     private var substrateDerivationPathViewModel: InputViewModelProtocol?
     private var ethereumDerivationPathViewModel: InputViewModelProtocol?
 
-    init(usernameSetup: UsernameSetupModel) {
+    init(
+        usernameSetup: UsernameSetupModel,
+        wireframe: AccountCreateWireframeProtocol,
+        interactor: AccountCreateInteractorInputProtocol
+    ) {
         self.usernameSetup = usernameSetup
+        self.wireframe = wireframe
+        self.interactor = interactor
     }
 
     private func applySubstrateCryptoTypeViewModel() {
@@ -69,7 +75,7 @@ final class AccountCreatePresenter {
         isEthereum: Bool,
         processor: TextProcessing? = nil,
         maxLength: Int? = nil
-    ) -> InputViewModel {
+    ) -> AccountCreateViewModel {
         let predicate: NSPredicate?
         let placeholder: String
 
@@ -92,7 +98,10 @@ final class AccountCreatePresenter {
             predicate: predicate,
             processor: processor
         )
-        return InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
+        return AccountCreateViewModel(
+            inputHandler: inputHandling,
+            placeholder: placeholder
+        )
     }
 
     private func presentDerivationPathError(_ cryptoType: CryptoType) {
@@ -195,7 +204,6 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             presentDerivationPathError(.ecdsa)
             return
         }
-
         let request = MetaAccountCreationRequest(
             username: usernameSetup.username,
             substrateDerivationPath: substrateViewModel.inputHandler.value,
