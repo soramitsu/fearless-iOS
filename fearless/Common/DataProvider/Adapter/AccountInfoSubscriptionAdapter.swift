@@ -38,9 +38,9 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
         subscriptions.forEach { subscription in
             switch subscription {
             case let .usual(provider):
-                provider.removeObserver(self)
+                provider.removeObserver(wrapper)
             case let .orml(provider):
-                provider.removeObserver(self)
+                provider.removeObserver(wrapper)
             }
         }
 

@@ -6,12 +6,12 @@ import SoraFoundation
 final class ChainAccountBalanceListInteractor {
     weak var presenter: ChainAccountBalanceListInteractorOutputProtocol?
 
-    let selectedMetaAccount: MetaAccountModel
-    let repository: AnyDataProviderRepository<ChainModel>
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let operationQueue: OperationQueue
+    private let selectedMetaAccount: MetaAccountModel
+    private let repository: AnyDataProviderRepository<ChainModel>
+    private var accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let operationQueue: OperationQueue
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let eventCenter: EventCenterProtocol
+    private let eventCenter: EventCenterProtocol
 
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
 
@@ -80,6 +80,15 @@ final class ChainAccountBalanceListInteractor {
     }
 
     private func refreshChain(_: ChainModel) {}
+
+    private func replaceAccountInfoSubscriptionAdapter() {
+        if let account = SelectedWalletSettings.shared.value {
+            accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: account
+            )
+        }
+    }
 }
 
 extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
@@ -114,6 +123,7 @@ extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandl
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        replaceAccountInfoSubscriptionAdapter()
         refresh()
     }
 
