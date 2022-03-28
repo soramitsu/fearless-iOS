@@ -218,7 +218,7 @@ extension AccountCreateViewController: UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        resignFirstResponder()
+        textField.resignFirstResponder()
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrate()
         } else if textField == rootView.ethereumDerivationPathField {
@@ -256,7 +256,7 @@ extension AccountCreateViewController: Localizable {
 }
 
 extension AccountCreateViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: Constraint? { rootView.nextButtonBottomConstraint }
+    var target: UIView? { rootView.nextButton }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
@@ -264,7 +264,20 @@ extension AccountCreateViewController: KeyboardViewAdoptable {
         UIConstants.bigOffset
     }
 
-    func updateWhileKeyboardFrameChanging(frame: CGRect) {
-        rootView.handleKeyboard(frame: frame)
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if let responder = rootView.firstResponder {
+            var inset = rootView.contentView.scrollView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: rootView.contentView.scrollView)
+
+            if frame.height == 0 {
+                inset.bottom = 0
+                rootView.contentView.scrollView.contentInset = inset
+            } else {
+                inset.bottom = frame.height
+                rootView.contentView.scrollView.contentInset = inset
+            }
+            rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)
+        }
     }
 }

@@ -13,6 +13,7 @@ final class AccountImportViewController: UIViewController, ViewHolder {
     private var passwordViewModel: InputViewModelProtocol?
     private var sourceViewModel: InputViewModelProtocol?
     private var isFirstLayoutCompleted: Bool = false
+    var keyboardHandler: KeyboardHandler?
 
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
@@ -349,6 +350,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
 extension AccountImportViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
+        rootView.contentView.scrollView.scrollRectToVisible(textField.frame, animated: true)
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
         } else if textField == rootView.ethereumDerivationPathField {
@@ -357,7 +359,7 @@ extension AccountImportViewController: UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        resignFirstResponder()
+        textField.resignFirstResponder()
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
         } else if textField == rootView.ethereumDerivationPathField {
@@ -453,7 +455,7 @@ extension AccountImportViewController: UITextViewDelegate {
 }
 
 extension AccountImportViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: Constraint? { rootView.nextButtonBottomConstraint }
+    var target: UIView? { rootView.nextButton }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
@@ -461,8 +463,21 @@ extension AccountImportViewController: KeyboardViewAdoptable {
         UIConstants.bigOffset
     }
 
-    func updateWhileKeyboardFrameChanging(frame: CGRect) {
-        rootView.handleKeyboard(frame: frame)
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if let responder = rootView.firstResponder {
+            var inset = rootView.contentView.scrollView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: rootView.contentView.scrollView)
+
+            if frame.height == 0 {
+                inset.bottom = 0
+                rootView.contentView.scrollView.contentInset = inset
+            } else {
+                inset.bottom = frame.height
+                rootView.contentView.scrollView.contentInset = inset
+            }
+            rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)
+        }
     }
 }
 

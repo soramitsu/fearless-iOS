@@ -21,6 +21,7 @@ struct MainTransitionHelper {
 
         guard tabBarController.selectedIndex != selectingIndex else {
             navigationController?.popToRootViewController(animated: animated)
+            controller.hidesBottomBarWhenPushed = false
             return
         }
 

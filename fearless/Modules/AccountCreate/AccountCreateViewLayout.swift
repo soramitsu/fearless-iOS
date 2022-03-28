@@ -23,8 +23,6 @@ final class AccountCreateViewLayout: UIView {
         }
     }
 
-    var nextButtonBottomConstraint: Constraint?
-
     var mnemonicView: MnemonicDisplayView?
 
     let contentView: ScrollableContainerView = {
@@ -224,6 +222,23 @@ private extension AccountCreateViewLayout {
         contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
+        setupEthereumDerivationPathTextField()
+    }
+
+    private func setupEthereumDerivationPathTextField() {
+        let bar = UIToolbar()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let close = UIBarButtonItem(
+            title: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            style: .done, target: self, action: #selector(close)
+        )
+        bar.items = [flexibleSpace, close]
+        bar.sizeToFit()
+        ethereumDerivationPathField.inputAccessoryView = bar
+    }
+
+    @objc private func close() {
+        ethereumDerivationPathField.resignFirstResponder()
     }
 
     @objc
@@ -333,7 +348,7 @@ private extension AccountCreateViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            nextButtonBottomConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
 

@@ -132,6 +132,7 @@ class WalletDetailsTableCell: UITableViewCell {
         let chainSupported: Bool = viewModel.chain.isSupported
         addressStackView.isHidden = !chainSupported
         chainUnsupportedView.isHidden = chainSupported
+        actionImageView.isHidden = !chainSupported
 
         setDeactivated(!chainSupported)
     }
