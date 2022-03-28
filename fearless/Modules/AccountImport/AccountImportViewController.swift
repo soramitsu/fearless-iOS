@@ -469,12 +469,10 @@ extension AccountImportViewController: KeyboardViewAdoptable {
             var responderFrame: CGRect
             responderFrame = responder.convert(responder.frame, to: rootView.contentView.scrollView)
 
-            let targetInset = (target != nil) ? target!.frame.height + 2 * offsetFromKeyboardWithInset(0) : 0
-
-            if responderFrame.minY < 0 {
+            if frame.height == 0 {
                 inset.bottom = 0
                 rootView.contentView.scrollView.contentInset = inset
-            } else if responderFrame.maxY > (rootView.bounds.height - frame.height - targetInset) {
+            } else {
                 inset.bottom = frame.height
                 rootView.contentView.scrollView.contentInset = inset
             }
