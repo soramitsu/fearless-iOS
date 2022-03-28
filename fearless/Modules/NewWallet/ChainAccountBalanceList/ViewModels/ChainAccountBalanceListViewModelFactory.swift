@@ -126,7 +126,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         return ChainAccountBalanceListViewModel(
             accountName: selectedMetaAccount?.name,
             balance: usdTokenFormatterValue.stringFromDecimal(totalWalletBalance),
-            accountViewModels: viewModels
+            accountViewModels: viewModels,
+            ethAccountMissed: selectedMetaAccount?.ethereumPublicKey == nil
         )
     }
 

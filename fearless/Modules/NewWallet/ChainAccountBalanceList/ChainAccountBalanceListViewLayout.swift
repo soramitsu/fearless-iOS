@@ -8,6 +8,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
     enum LayoutConstants {
         static let accountButtonSize: CGFloat = 40
         static let manageAssetsIconSize: CGFloat = 24
+        static let warningImageSize: CGFloat = 14
     }
 
     let backgroundImageView: UIImageView = {
@@ -38,6 +39,12 @@ final class ChainAccountBalanceListViewLayout: UIView {
     let manageAssetsButton: UIButton = {
         let button = UIButton()
         return button
+    }()
+
+    let ethAccountMissingIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconWarning()
+        return imageView
     }()
 
     let accountNameLabel: UILabel = {
@@ -124,6 +131,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
         addSubview(manageAssetsView)
         manageAssetsView.addSubview(manageAssetsLabel)
         manageAssetsView.addSubview(manageAssetsIconImageView)
+        manageAssetsView.addSubview(ethAccountMissingIconImageView)
         manageAssetsView.addSubview(manageAssetsButton)
 
         manageAssetsView.snp.makeConstraints { make in
@@ -142,6 +150,12 @@ final class ChainAccountBalanceListViewLayout: UIView {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
             make.size.equalTo(LayoutConstants.manageAssetsIconSize)
+            make.leading.equalTo(ethAccountMissingIconImageView.snp.trailing).offset(UIConstants.bigOffset)
+        }
+
+        ethAccountMissingIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.warningImageSize)
+            make.centerY.equalToSuperview()
         }
 
         manageAssetsButton.snp.makeConstraints { make in
@@ -168,5 +182,6 @@ final class ChainAccountBalanceListViewLayout: UIView {
     func bind(to viewModel: ChainAccountBalanceListViewModel) {
         accountNameLabel.text = viewModel.accountName
         totalBalanceLabel.text = viewModel.balance
+        ethAccountMissingIconImageView.isHidden = !viewModel.ethAccountMissed
     }
 }
