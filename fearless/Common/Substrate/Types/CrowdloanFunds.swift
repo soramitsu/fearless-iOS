@@ -61,7 +61,7 @@ enum TrieOrFundIndex: Codable, ScaleEncodable, Equatable, Hashable {
     }
 }
 
-private struct CrowdloanFundsNotIndexed: Decodable, Equatable {
+private struct CrowdloanFundsNotIndexed: Codable, Equatable {
     let depositor: AccountId
     var verifier: MultiSigner?
     @StringCodable var deposit: BigUInt
@@ -98,5 +98,22 @@ struct CrowdloanFunds: Codable, Equatable {
         lastPeriod = funds.lastPeriod
 
         trieOrFundIndex = try TrieOrFundIndex(from: decoder)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        let funds = CrowdloanFundsNotIndexed(
+            depositor: depositor,
+            verifier: verifier,
+            deposit: deposit,
+            raised: raised,
+            end: end,
+            cap: cap,
+            lastContribution: lastContribution,
+            firstPeriod: firstPeriod,
+            lastPeriod: lastPeriod
+        )
+
+        try funds.encode(to: encoder)
+        try trieOrFundIndex.encode(to: encoder)
     }
 }
