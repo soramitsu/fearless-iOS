@@ -23,6 +23,8 @@ final class MainTabBarPresenter {
         self.appVersionObserver = appVersionObserver
         self.applicationHandler = applicationHandler
         self.localizationManager = localizationManager
+
+        applicationHandler.delegate = self
     }
 }
 

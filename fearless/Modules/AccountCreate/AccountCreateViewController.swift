@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class AccountCreateViewController: UIViewController, ViewHolder {
     typealias RootViewType = AccountCreateViewLayout
@@ -157,9 +158,9 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     func setEthereumCrypto(model: TitleWithSubtitleViewModel) {
         let title = "\(model.title) | \(model.subtitle)"
 
-        rootView.ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text = title
+        rootView.ethereumCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
 
-        rootView.ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
+        rootView.ethereumCryptoTypeView.actionControl.contentView.invalidateLayout()
         rootView.ethereumCryptoTypeView.invalidateLayout()
     }
 
@@ -217,7 +218,7 @@ extension AccountCreateViewController: UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        resignFirstResponder()
+        textField.resignFirstResponder()
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrate()
         } else if textField == rootView.ethereumDerivationPathField {
@@ -255,19 +256,28 @@ extension AccountCreateViewController: Localizable {
 }
 
 extension AccountCreateViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { nil }
+    var target: UIView? { rootView.nextButton }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
-    func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
-        if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + UIConstants.bigOffset
-        } else {
-            return UIConstants.bigOffset
-        }
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
     }
 
-    func updateWhileKeyboardFrameChanging(frame: CGRect) {
-        rootView.handleKeyboard(frame: frame)
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if let responder = rootView.firstResponder {
+            var inset = rootView.contentView.scrollView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: rootView.contentView.scrollView)
+
+            if frame.height == 0 {
+                inset.bottom = 0
+                rootView.contentView.scrollView.contentInset = inset
+            } else {
+                inset.bottom = frame.height
+                rootView.contentView.scrollView.contentInset = inset
+            }
+            rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)
+        }
     }
 }

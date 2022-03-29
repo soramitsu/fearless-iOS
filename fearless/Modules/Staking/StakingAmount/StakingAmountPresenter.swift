@@ -27,8 +27,11 @@ final class StakingAmountPresenter {
     private var loadingPayouts: Bool = false
     private var minimalBalance: Decimal?
     private var minBondAmount: Decimal?
+    private var minStake: Decimal?
+
     private var counterForNominators: UInt32?
     private var maxNominatorsCount: UInt32?
+    private var networkStakingInfo: NetworkStakingInfo?
 
     init(
         amount: Decimal?,
@@ -232,6 +235,12 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 minNominatorBond: minBondAmount,
                 locale: locale
             ),
+            dataValidatingFactory.bondAtLeastMinStaking(
+                asset: asset,
+                amount: amount,
+                minNominatorBond: minStake,
+                locale: locale
+            ),
             dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,
@@ -350,6 +359,15 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
             logger.error("Did receive error: \(calculatorError)")
         }
     }
+
+    func didReceive(networkStakingInfo: NetworkStakingInfo) {
+        self.networkStakingInfo = networkStakingInfo
+
+        let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: minBondAmount?.toSubstrateAmount(precision: Int16(asset.precision)))
+        minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(asset.precision))
+    }
+
+    func didReceive(networkStakingInfoError _: Error) {}
 
     func didReceive(minimalBalance: BigUInt) {
         if let amount = Decimal.fromSubstrateAmount(minimalBalance, precision: Int16(asset.precision)) {

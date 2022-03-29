@@ -45,7 +45,7 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     private func setupLocalization() {
         signUpButton.imageWithTitleView?.title = R.string.localizable
-            .onboardingCreateWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+            .usernameSetupTitle20(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
             .onboardingRestoreWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
 

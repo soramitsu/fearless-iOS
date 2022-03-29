@@ -14,14 +14,14 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe, step: step)
     }
 
-    static func createViewForAdding() -> AccountImportViewProtocol? {
+    static func createViewForAdding(_ step: AccountCreationStep = .first) -> AccountImportViewProtocol? {
         guard let interactor = createAddAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AddAccount.AccountImportWireframe()
 
-        return createView(for: interactor, wireframe: wireframe)
+        return createView(for: interactor, wireframe: wireframe, step: step)
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {

@@ -74,4 +74,14 @@ extension CommonInputView {
         animatedInputField.textField.autocorrectionType = .no
         animatedInputField.textField.spellCheckingType = .no
     }
+
+    func disable() {
+        backgroundView.applyDisabledStyle()
+        isUserInteractionEnabled = false
+    }
+
+    func enable() {
+        backgroundView.applyEnabledStyle()
+        isUserInteractionEnabled = true
+    }
 }
