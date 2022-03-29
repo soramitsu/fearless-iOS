@@ -111,7 +111,7 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
 
         interactor.saveAssetIdsEnabled(modifiedAssetIdsEnabled)
     }
-    
-    func showMissingAccountOptions(chainAsset: ChainAsset) {
+
+    func showMissingAccountOptions(chainAsset _: ChainAsset) {
     }
 }

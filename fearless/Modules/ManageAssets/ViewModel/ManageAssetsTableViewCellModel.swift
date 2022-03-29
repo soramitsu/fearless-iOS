@@ -42,7 +42,7 @@ extension ManageAssetsTableViewCellModel: ManageAssetsTableViewCellDelegate {
     func assetEnabledSwitcherValueChanged() {
         delegate?.switchAssetEnabledState(asset: chainAsset)
     }
-    
+
     func addAccountButtonClicked() {
         delegate?.showMissingAccountOptions(chainAsset: chainAsset)
     }

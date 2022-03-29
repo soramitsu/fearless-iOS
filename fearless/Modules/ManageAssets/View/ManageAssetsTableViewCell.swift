@@ -115,16 +115,18 @@ class ManageAssetsTableViewCell: UITableViewCell {
             action: #selector(switcherValueChanged),
             for: .valueChanged
         )
-        
-        addMissingAccountButton.addTarget(self,
-                                          action: #selector(addMissingAccountButtonClicked()),
-                                          for: .touchUpInside)
+
+        addMissingAccountButton.addTarget(
+            self,
+            action: #selector(addMissingAccountButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     @objc private func switcherValueChanged() {
         delegate?.assetEnabledSwitcherValueChanged()
     }
-    
+
     @objc private func addMissingAccountButtonClicked() {
         delegate?.addAccountButtonClicked()
     }
