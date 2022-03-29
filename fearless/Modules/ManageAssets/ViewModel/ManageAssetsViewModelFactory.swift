@@ -24,7 +24,8 @@ final class ManageAssetsViewModelFactory {
         accountInfo: AccountInfo?,
         locale _: Locale,
         delegate: ManageAssetsTableViewCellModelDelegate?,
-        assetEnabled: Bool
+        assetEnabled: Bool,
+        selectedMetaAccount: MetaAccountModel?
     ) -> ManageAssetsTableViewCellModel {
         let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
         let title = chainAsset.chain.name
@@ -42,7 +43,8 @@ final class ManageAssetsViewModelFactory {
             imageViewModel: icon,
             balanceString: balance,
             options: options,
-            assetEnabled: assetEnabled
+            assetEnabled: assetEnabled,
+            accountMissing: selectedMetaAccount?.fetch(for: chainAsset.chain.accountRequest())?.accountId == nil
         )
 
         model.delegate = delegate
@@ -176,7 +178,8 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 accountInfo: accountInfos?[chainAsset.chain.chainId],
                 locale: locale,
                 delegate: cellsDelegate,
-                assetEnabled: enabled
+                assetEnabled: enabled,
+                selectedMetaAccount: selectedMetaAccount
             )
         }
 

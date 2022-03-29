@@ -156,7 +156,8 @@ private extension WalletDetailsPresenter {
                     chainImageViewModel: icon,
                     chain: $0.key,
                     addressImage: addressImage,
-                    address: address
+                    address: address,
+                    accountMissing: false
                 )
             }
         )

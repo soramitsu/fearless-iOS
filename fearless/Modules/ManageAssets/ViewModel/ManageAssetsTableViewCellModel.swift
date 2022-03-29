@@ -2,6 +2,7 @@ import Foundation
 
 protocol ManageAssetsTableViewCellModelDelegate: AnyObject {
     func switchAssetEnabledState(asset: ChainAsset)
+    func showMissingAccountOptions(chainAsset: ChainAsset)
 }
 
 class ManageAssetsTableViewCellModel {
@@ -12,6 +13,7 @@ class ManageAssetsTableViewCellModel {
     let balanceString: String?
     let options: [ChainOptionsViewModel]?
     let assetEnabled: Bool
+    let accountMissing: Bool
 
     weak var delegate: ManageAssetsTableViewCellModelDelegate?
 
@@ -22,7 +24,8 @@ class ManageAssetsTableViewCellModel {
         imageViewModel: RemoteImageViewModel?,
         balanceString: String?,
         options: [ChainOptionsViewModel]?,
-        assetEnabled: Bool
+        assetEnabled: Bool,
+        accountMissing: Bool
     ) {
         self.chainAsset = chainAsset
         self.assetName = assetName
@@ -31,11 +34,16 @@ class ManageAssetsTableViewCellModel {
         self.balanceString = balanceString
         self.options = options
         self.assetEnabled = assetEnabled
+        self.accountMissing = accountMissing
     }
 }
 
 extension ManageAssetsTableViewCellModel: ManageAssetsTableViewCellDelegate {
     func assetEnabledSwitcherValueChanged() {
         delegate?.switchAssetEnabledState(asset: chainAsset)
+    }
+    
+    func addAccountButtonClicked() {
+        delegate?.showMissingAccountOptions(chainAsset: chainAsset)
     }
 }

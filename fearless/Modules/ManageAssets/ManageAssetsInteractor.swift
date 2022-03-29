@@ -45,7 +45,7 @@ final class ManageAssetsInteractor {
             let accountSupportsEthereum = SelectedWalletSettings.shared.value?.ethereumPublicKey != nil
 
             let filteredChains: [ChainModel] = accountSupportsEthereum ? chains : chains.filter { $0.isEthereumBased == false }
-            presenter?.didReceiveChains(result: .success(filteredChains))
+            presenter?.didReceiveChains(result: .success(chains))
             subscribeToAccountInfo(for: filteredChains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))

@@ -2,6 +2,7 @@ import UIKit
 
 protocol ManageAssetsTableViewCellDelegate: AnyObject {
     func assetEnabledSwitcherValueChanged()
+    func addAccountButtonClicked()
 }
 
 class ManageAssetsTableViewCell: UITableViewCell {
@@ -53,11 +54,27 @@ class ManageAssetsTableViewCell: UITableViewCell {
         return containerView
     }()
 
+    private var accountMissingHintView = UIFactory.default.createHintView()
+
+    private var addMissingAccountButton: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.font = .p1Paragraph
+        button.setTitleColor(R.color.colorAccent(), for: .normal)
+        return button
+    }()
+
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         configure()
         setupLayout()
+        applyLocalization()
     }
 
     override func prepareForReuse() {
@@ -74,6 +91,11 @@ class ManageAssetsTableViewCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func applyLocalization() {
+        accountMissingHintView.titleLabel.text = R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
+        addMissingAccountButton.setTitle(R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages), for: .normal)
     }
 
     private func configure() {
@@ -93,10 +115,18 @@ class ManageAssetsTableViewCell: UITableViewCell {
             action: #selector(switcherValueChanged),
             for: .valueChanged
         )
+        
+        addMissingAccountButton.addTarget(self,
+                                          action: #selector(addMissingAccountButtonClicked()),
+                                          for: .touchUpInside)
     }
 
     @objc private func switcherValueChanged() {
         delegate?.assetEnabledSwitcherValueChanged()
+    }
+    
+    @objc private func addMissingAccountButtonClicked() {
+        delegate?.addAccountButtonClicked()
     }
 
     private func setupLayout() {
@@ -106,6 +136,8 @@ class ManageAssetsTableViewCell: UITableViewCell {
         contentView.addSubview(tokenBalanceLabel)
         contentView.addSubview(switcher)
         contentView.addSubview(dragButton)
+        contentView.addSubview(addMissingAccountButton)
+        contentView.addSubview(accountMissingHintView)
 
         chainIconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
@@ -137,6 +169,18 @@ class ManageAssetsTableViewCell: UITableViewCell {
         }
 
         tokenBalanceLabel.snp.makeConstraints { make in
+            make.leading.equalTo(chainNameLabel.snp.leading)
+            make.top.equalTo(chainNameLabel.snp.bottom).offset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        addMissingAccountButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.centerY.equalToSuperview()
+            make.top.bottom.equalToSuperview()
+        }
+
+        accountMissingHintView.snp.makeConstraints { make in
             make.leading.equalTo(chainNameLabel.snp.leading)
             make.top.equalTo(chainNameLabel.snp.bottom).offset(UIConstants.minimalOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
@@ -183,5 +227,11 @@ class ManageAssetsTableViewCell: UITableViewCell {
             width: LayoutConstants.switcherWidth,
             height: LayoutConstants.switcherHeight
         )
+
+        tokenBalanceLabel.isHidden = viewModel.accountMissing
+        dragButton.isHidden = viewModel.accountMissing
+        switcher.isHidden = viewModel.accountMissing
+        accountMissingHintView.isHidden = !viewModel.accountMissing
+        addMissingAccountButton.isHidden = !viewModel.accountMissing
     }
 }
