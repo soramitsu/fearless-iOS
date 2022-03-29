@@ -23,7 +23,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
 //            lastContribution: .never,
 //            firstPeriod: 100,
 //            lastPeriod: 101,
-//            fundIndex: 1)
+//            trieOrFundIndex: .trieIndex(1))
 //    )
 //
 //    func testContributionConfirmation() throws {

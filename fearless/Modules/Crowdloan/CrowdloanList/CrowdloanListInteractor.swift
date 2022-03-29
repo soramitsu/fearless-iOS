@@ -79,7 +79,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                         connection: connection,
                         runtimeService: runtimeService,
                         accountId: accountResponse.accountId,
-                        fundIndex: crowdloan.fundInfo.fundIndex
+                        trieOrFundIndex: crowdloan.fundInfo.trieOrFundIndex
                     )
                 }
             }.longrunOperation()
