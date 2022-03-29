@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
+import SnapKit
 
 final class UsernameSetupViewController: UIViewController {
     private enum Constants {
@@ -13,7 +14,7 @@ final class UsernameSetupViewController: UIViewController {
     @IBOutlet private var hintLabel: UILabel!
     @IBOutlet private var nextButton: TriangularedButton!
 
-    @IBOutlet private var nextBottom: NSLayoutConstraint!
+    private var nextBottom: Constraint?
 
     private var isFirstLayoutCompleted: Bool = false
 
@@ -24,6 +25,7 @@ final class UsernameSetupViewController: UIViewController {
 
         configureTextField()
         setupLocalization()
+        createBottomConstraint()
 
         presenter.setup()
     }
@@ -92,6 +94,12 @@ final class UsernameSetupViewController: UIViewController {
 
         presenter.proceed()
     }
+
+    private func createBottomConstraint() {
+        nextButton.snp.makeConstraints { make in
+            nextBottom = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+        }
+    }
 }
 
 extension UsernameSetupViewController: AnimatedTextFieldDelegate {
@@ -121,16 +129,12 @@ extension UsernameSetupViewController: AnimatedTextFieldDelegate {
 }
 
 extension UsernameSetupViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { nextBottom }
+    var target: UIView? { nextButton }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
-    func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
-        if bottomInset > 0.0 {
-            return 0
-        } else {
-            return Constants.nextButtonBottomInset
-        }
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        Constants.nextButtonBottomInset
     }
 }
 

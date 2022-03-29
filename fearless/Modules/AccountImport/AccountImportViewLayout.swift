@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class AccountImportViewLayout: UIView {
     private enum Constants {
@@ -198,6 +199,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.returnKeyType = .done
         return view
     }()
 
@@ -207,6 +209,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.keyboardType = .decimalPad
         return view
     }()
 
@@ -339,6 +342,23 @@ private extension AccountImportViewLayout {
 
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
+        setupEthereumDerivationPathTextField()
+    }
+
+    private func setupEthereumDerivationPathTextField() {
+        let bar = UIToolbar()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let close = UIBarButtonItem(
+            title: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            style: .done, target: self, action: #selector(close)
+        )
+        bar.items = [flexibleSpace, close]
+        bar.sizeToFit()
+        ethereumDerivationPathField.inputAccessoryView = bar
+    }
+
+    @objc private func close() {
+        ethereumDerivationPathField.resignFirstResponder()
     }
 
     func setupLocalization() {
@@ -558,7 +578,6 @@ private extension AccountImportViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.greaterThanOrEqualTo(contentView.snp.bottom).offset(UIConstants.hugeOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
