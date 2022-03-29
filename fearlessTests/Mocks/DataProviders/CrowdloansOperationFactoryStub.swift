@@ -23,10 +23,10 @@ final class CrowdloansOperationFactoryStub: CrowdloanOperationFactoryProtocol {
         connection: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         accountId: AccountId,
-        trieIndex: UInt32
+        fundIndex: FundIndex
     ) -> CompoundOperationWrapper<CrowdloanContributionResponse> {
         CompoundOperationWrapper.createWithResult(
-            CrowdloanContributionResponse(accountId: accountId, trieIndex: trieIndex, contribution: nil)
+            CrowdloanContributionResponse(accountId: accountId, fundIndex: fundIndex, contribution: nil)
         )
     }
 

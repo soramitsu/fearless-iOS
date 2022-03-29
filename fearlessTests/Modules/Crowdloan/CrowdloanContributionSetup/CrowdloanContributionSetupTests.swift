@@ -22,7 +22,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
             lastContribution: .never,
             firstPeriod: 100,
             lastPeriod: 101,
-            trieIndex: 1)
+            fundIndex: 1)
     )
 
     func testContributionSetupAndContinue() throws {

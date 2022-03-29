@@ -12,5 +12,5 @@ struct CrowdloanFunds: Codable, Equatable {
     let lastContribution: CrowdloanLastContribution
     @StringCodable var firstPeriod: UInt32
     @StringCodable var lastPeriod: UInt32
-    @StringCodable var trieIndex: UInt32
+    @StringCodable var fundIndex: FundIndex
 }

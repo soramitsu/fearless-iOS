@@ -58,7 +58,7 @@ class CrowdloanTests: XCTestCase {
                             connection: connection,
                             runtimeService: runtimeService,
                             accountId: selectedAccountId,
-                            trieIndex: crowdloan.fundInfo.trieIndex
+                            fundIndex: crowdloan.fundInfo.fundIndex
                         )
                     }
                 }.longrunOperation()
