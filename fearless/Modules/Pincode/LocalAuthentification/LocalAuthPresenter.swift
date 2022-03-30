@@ -1,22 +1,36 @@
 import Foundation
+import SoraKeystore
 
 class LocalAuthPresenter: PinSetupPresenterProtocol {
-    weak var view: PinSetupViewProtocol?
-    var wireframe: PinSetupWireframeProtocol!
-    var interactor: LocalAuthInteractorInputProtocol!
+    private weak var view: PinSetupViewProtocol?
+    private let wireframe: PinSetupWireframeProtocol
+    private let interactor: LocalAuthInteractorInputProtocol
+    private let userDefaultsStorage: SettingsManagerProtocol
 
-    func start() {
-        view?.didChangeAccessoryState(
+    init(
+        wireframe: PinSetupWireframeProtocol,
+        interactor: LocalAuthInteractorInputProtocol,
+        userDefaultsStorage: SettingsManagerProtocol
+    ) {
+        self.wireframe = wireframe
+        self.interactor = interactor
+        self.userDefaultsStorage = userDefaultsStorage
+    }
+
+    func didLoad(view: PinSetupViewProtocol) {
+        self.view = view
+
+        self.view?.didChangeAccessoryState(
             enabled: interactor.allowManualBiometryAuth,
             availableBiometryType: interactor.availableBiometryType
         )
-        interactor.startAuth()
+        interactor.startAuth(with: self)
     }
 
     func cancel() {}
 
     func activateBiometricAuth() {
-        interactor.startAuth()
+        interactor.startAuth(with: self)
     }
 
     func submit(pin: String) {
@@ -35,7 +49,11 @@ extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
 
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in
-            self?.wireframe.showMain(from: self?.view)
+            if self?.userDefaultsStorage.bool(for: EducationStoriesKeys.newsVersion2.rawValue) == nil {
+                self?.wireframe.showStories()
+            } else {
+                self?.wireframe.showMain(from: self?.view)
+            }
         }
     }
 

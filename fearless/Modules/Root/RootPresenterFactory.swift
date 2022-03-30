@@ -8,6 +8,10 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let wireframe = RootWireframe()
         let settings = SettingsManager.shared
         let keychain = Keychain()
+        let startViewHelper = StartViewHelper(
+            keystore: keychain,
+            selectedWallerSettings: SelectedWalletSettings.shared
+        )
 
         let languageMigrator = SelectedLanguageMigrator(
             localizationManager: LocalizationManager.shared
@@ -25,11 +29,11 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
 
         let interactor = RootInteractor(
             settings: SelectedWalletSettings.shared,
-            keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
             migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
-            logger: Logger.shared
+            logger: Logger.shared,
+            startViewHelper: startViewHelper
         )
 
         let view = RootViewController(
