@@ -84,11 +84,14 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                 throw ExportSeedInteractorError.missingSeed
             }
 
+            //  We shouldn't show derivation path for ethereum seed. So just provide nil to hide it
             let derivationPathTag = chain.isEthereumBased
-                ? KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId)
-                : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
+                ? nil : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
 
-            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
+            var derivationPath: String?
+            if let tag = derivationPathTag {
+                derivationPath = try self?.keystore.fetchDeriviationForAddress(tag)
+            }
 
             return ExportSeedData(
                 seed: seed,
