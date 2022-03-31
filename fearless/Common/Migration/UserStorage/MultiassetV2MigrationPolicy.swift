@@ -47,7 +47,14 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
         let entropyTag = KeystoreTagV2.entropyTagForMetaId(metaId)
 
         if let entropy = keystoreMigrator.fetchKey(for: entropyTag) {
-            let ethereumDPString = DerivationPathConstants.defaultEthereum
+            var ethereumDPString: String
+            let pathTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
+            if let pathData = keystoreMigrator.fetchKey(for: pathTag),
+               let dpString = String(data: pathData, encoding: .utf8) {
+                ethereumDPString = dpString
+            } else {
+                ethereumDPString = DerivationPathConstants.defaultEthereum
+            }
             let secrets = try EthereumAccountImportWrapper().importEntropy(
                 entropy,
                 derivationPath: ethereumDPString
@@ -60,15 +67,21 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             keystoreMigrator.save(key: secrets.keypair.privateKey().rawData(), for: ethSecretKeyTag)
 
             if let ethereumDP = ethereumDPString.data(using: .utf8) {
-                let ethDPTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
-                keystoreMigrator.save(key: ethereumDP, for: ethDPTag)
+                keystoreMigrator.save(key: ethereumDP, for: pathTag)
             }
 
             publicKey = secrets.keypair.publicKey()
         }
 
         if let seed = keystoreMigrator.fetchKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: nil)), seed.count == 32 {
-            let ethereumDPString = DerivationPathConstants.defaultEthereum
+            var ethereumDPString: String
+            let pathTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
+            if let pathData = keystoreMigrator.fetchKey(for: pathTag),
+               let dpString = String(data: pathData, encoding: .utf8) {
+                ethereumDPString = dpString
+            } else {
+                ethereumDPString = DerivationPathConstants.defaultEthereum
+            }
 
             let ethSecretKeyTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)
             keystoreMigrator.save(key: seed, for: ethSecretKeyTag)
@@ -76,8 +89,7 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             let privateKey = try SECPrivateKey(rawData: seed)
 
             if let ethereumDP = ethereumDPString.data(using: .utf8) {
-                let ethDPTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
-                keystoreMigrator.save(key: ethereumDP, for: ethDPTag)
+                keystoreMigrator.save(key: ethereumDP, for: pathTag)
             }
 
             publicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
