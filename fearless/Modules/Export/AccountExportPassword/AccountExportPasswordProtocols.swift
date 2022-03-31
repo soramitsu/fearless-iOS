@@ -17,12 +17,12 @@ protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
 }
 
 protocol AccountExportPasswordInteractorOutputProtocol: AnyObject {
-    func didExport(json: RestoreJson)
+    func didExport(jsons: [RestoreJson])
     func didReceive(error: Error)
 }
 
 protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, AlertPresentable {
-    func showJSONExport(_ json: RestoreJson, from view: AccountExportPasswordViewProtocol?)
+    func showJSONExport(_ jsons: [RestoreJson], from view: AccountExportPasswordViewProtocol?)
 }
 
 protocol AccountExportPasswordViewFactoryProtocol: AnyObject {

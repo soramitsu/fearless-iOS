@@ -92,7 +92,9 @@ extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
 
         exportViewModel = viewModel
 
-        view?.set(viewModel: viewModel)
+        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+
+        view?.set(viewModel: multipleExportViewModel)
     }
 
     func didReceive(error: Error) {

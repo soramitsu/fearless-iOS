@@ -15,15 +15,22 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     let binder: ExportGenericViewModelBinding
     let uiFactory: UIFactoryProtocol
 
+    private var buttonsStackView: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+
     private var mainActionButton: TriangularedButton?
     private var accessoryActionButton: TriangularedButton?
+
     private var containerView: ScrollableContainerView!
     private var sourceTypeView: DetailsTriangularedView!
     private var expandableControl: ExpandableActionControl!
-    private var advancedContainerView: UIView?
-    private var optionView: UIView?
+    private var advancedContainerViews: [UIView]?
+    private var optionViews: [UIView]?
 
-    private var viewModel: ExportGenericViewModelProtocol?
+    private var viewModel: MultipleExportGenericViewModelProtocol?
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
@@ -70,6 +77,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             setupAccessoryButton()
         }
 
+        setupButtonsContainerView()
         setupContainerView()
 
         setupSourceTypeView()
@@ -107,34 +115,41 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             return
         }
 
-        sourceTypeView.subtitle = viewModel.option.titleForLocale(locale)
-
-        if let optionView = optionView {
-            containerView.stackView.removeArrangedSubview(optionView)
-            optionView.removeFromSuperview()
+        optionViews?.forEach { view in
+            containerView.stackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
         }
 
-        let newOptionView = viewModel.accept(binder: binder, locale: locale)
-        newOptionView.backgroundColor = R.color.colorBlack()!
-        newOptionView.translatesAutoresizingMaskIntoConstraints = false
+        advancedContainerViews?.forEach { view in
+            containerView.stackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
 
-        insert(subview: newOptionView, after: sourceTypeView)
+        var views: [UIView] = []
+        viewModel.viewModels.forEach { exportViewModel in
+            sourceTypeView.subtitle = exportViewModel.option.titleForLocale(locale)
 
-        newOptionView.widthAnchor.constraint(
-            equalTo: view.widthAnchor,
-            constant: -2.0 * UIConstants.horizontalInset
-        ).isActive = true
+            let newOptionView = exportViewModel.accept(binder: binder, locale: locale)
+            newOptionView.backgroundColor = R.color.colorBlack()!
+            newOptionView.translatesAutoresizingMaskIntoConstraints = false
 
-        optionView = newOptionView
+            insert(subview: newOptionView, after: sourceTypeView)
 
-        if let advancedContainerView = advancedContainerView {
-            containerView.stackView.removeArrangedSubview(advancedContainerView)
-            advancedContainerView.removeFromSuperview()
+            newOptionView.widthAnchor.constraint(
+                equalTo: view.widthAnchor,
+                constant: -2.0 * UIConstants.horizontalInset
+            ).isActive = true
+
+            views.append(newOptionView)
         }
 
         setupAdvancedContainerView(with: viewModel, locale: locale)
 
-        advancedContainerView?.isHidden = !expandableControl.isActivated
+        optionViews = views
+
+        advancedContainerViews?.forEach { view in
+            view.isHidden = !expandableControl.isActivated
+        }
     }
 
     @objc private func actionMain() {
@@ -146,44 +161,38 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     }
 
     @objc private func actionToggleExpandableControl() {
-        guard let advancedContainerView = advancedContainerView else {
-            return
-        }
+        advancedContainerViews?.forEach { advancedContainerView in
+            containerView.stackView.sendSubviewToBack(advancedContainerView)
 
-        containerView.stackView.sendSubviewToBack(advancedContainerView)
+            advancedContainerView.isHidden = !expandableControl.isActivated
 
-        advancedContainerView.isHidden = !expandableControl.isActivated
-
-        if expandableControl.isActivated {
-            advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
-        } else {
-            advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
+            if expandableControl.isActivated {
+                advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
+            } else {
+                advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
+            }
         }
     }
 }
 
 extension ExportGenericViewController {
+    private func setupButtonsContainerView() {
+        view.addSubview(buttonsStackView)
+
+        buttonsStackView.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+        }
+    }
+
     private func setupMainActionButton() {
         let button = uiFactory.createMainActionButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(button)
+        buttonsStackView.addArrangedSubview(button)
 
-        button.leadingAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-            constant: UIConstants.horizontalInset
-        ).isActive = true
-
-        button.trailingAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.trailingAnchor,
-            constant: -UIConstants.horizontalInset
-        ).isActive = true
-
-        button.bottomAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-            constant: -UIConstants.actionBottomInset
-        ).isActive = true
-
-        button.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight).isActive = true
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
 
         button.addTarget(
             self,
@@ -208,32 +217,10 @@ extension ExportGenericViewController {
 
     private func setupAccessoryButton() {
         let button = uiFactory.createAccessoryButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(button)
-
-        button.leadingAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-            constant: UIConstants.horizontalInset
-        ).isActive = true
-
-        button.trailingAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.trailingAnchor,
-            constant: -UIConstants.horizontalInset
-        ).isActive = true
-
-        if let mainButton = mainActionButton {
-            button.bottomAnchor.constraint(
-                equalTo: mainButton.topAnchor,
-                constant: -UIConstants.mainAccessoryActionsSpacing
-            ).isActive = true
-        } else {
-            button.bottomAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                constant: -UIConstants.actionBottomInset
-            ).isActive = true
+        buttonsStackView.addArrangedSubview(button)
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
         }
-
-        button.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight).isActive = true
 
         button.addTarget(
             self,
@@ -251,35 +238,15 @@ extension ExportGenericViewController {
 
         containerView.stackView.spacing = Constants.verticalSpacing
 
-        containerView.topAnchor
-            .constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-
-        containerView.leadingAnchor
-            .constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-
-        containerView.trailingAnchor
-            .constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+        containerView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(buttonsStackView.snp.top)
+        }
 
         var inset = containerView.scrollView.contentInset
         inset.top = Constants.topInset
         containerView.scrollView.contentInset = inset
-
-        if let accessoryButton = accessoryActionButton {
-            containerView.bottomAnchor
-                .constraint(
-                    equalTo: accessoryButton.topAnchor,
-                    constant: -UIConstants.mainAccessoryActionsSpacing
-                ).isActive = true
-        } else if let mainButton = mainActionButton {
-            containerView.bottomAnchor
-                .constraint(
-                    equalTo: mainButton.topAnchor,
-                    constant: -UIConstants.mainAccessoryActionsSpacing
-                ).isActive = true
-        } else {
-            containerView.bottomAnchor
-                .constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-        }
     }
 
     private func setupSourceTypeView() {
@@ -334,72 +301,78 @@ extension ExportGenericViewController {
     }
 
     private func setupAdvancedContainerView(
-        with viewModel: ExportGenericViewModelProtocol,
+        with viewModel: MultipleExportGenericViewModelProtocol,
         locale: Locale
     ) {
-        let containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
+        var views: [UIView] = []
 
-        self.containerView.stackView.addArrangedSubview(containerView)
+        viewModel.viewModels.forEach { exportViewModel in
+            let containerView = UIView()
+            containerView.translatesAutoresizingMaskIntoConstraints = false
 
-        containerView.widthAnchor.constraint(
-            equalTo: view.widthAnchor,
-            constant: -2.0 * UIConstants.horizontalInset
-        ).isActive = true
+            self.containerView.stackView.addArrangedSubview(containerView)
 
-        let cryptoTypeView = setupCryptoTypeView(
-            cryptoType: viewModel.cryptoType,
-            advancedContainerView: containerView,
-            locale: locale
-        )
+            containerView.widthAnchor.constraint(
+                equalTo: view.widthAnchor,
+                constant: -2.0 * UIConstants.horizontalInset
+            ).isActive = true
 
-        var subviews = [cryptoTypeView]
-
-        if let derivationPath = viewModel.derivationPath {
-            let derivationPathView = setupDerivationView(
-                derivationPath,
+            let cryptoTypeView = setupCryptoTypeView(
+                cryptoType: exportViewModel.cryptoType,
                 advancedContainerView: containerView,
                 locale: locale
             )
-            subviews.append(derivationPathView)
-        }
 
-        let networkTypeView = setupNetworkView(
-            chain: viewModel.chain,
-            advancedContainerView: containerView,
-            locale: locale
-        )
+            var subviews = [cryptoTypeView]
 
-        subviews.append(networkTypeView)
-
-        advancedContainerView = containerView
-
-        _ = subviews.reduce(nil) { (anchorView: UIView?, subview: UIView) in
-            subview.leadingAnchor
-                .constraint(equalTo: containerView.leadingAnchor, constant: 0.0).isActive = true
-            subview.trailingAnchor
-                .constraint(equalTo: containerView.trailingAnchor, constant: 0.0).isActive = true
-            subview.heightAnchor
-                .constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true
-
-            if let anchorView = anchorView {
-                subview.topAnchor
-                    .constraint(
-                        equalTo: anchorView.bottomAnchor,
-                        constant: Constants.verticalSpacing
-                    ).isActive = true
-            } else {
-                subview.topAnchor
-                    .constraint(equalTo: containerView.topAnchor).isActive = true
+            if let derivationPath = exportViewModel.derivationPath {
+                let derivationPathView = setupDerivationView(
+                    derivationPath,
+                    advancedContainerView: containerView,
+                    locale: locale
+                )
+                subviews.append(derivationPathView)
             }
 
-            return subview
+            let networkTypeView = setupNetworkView(
+                chain: exportViewModel.chain,
+                advancedContainerView: containerView,
+                locale: locale
+            )
+
+            subviews.append(networkTypeView)
+
+            views.append(containerView)
+
+            _ = subviews.reduce(nil) { (anchorView: UIView?, subview: UIView) in
+                subview.leadingAnchor
+                    .constraint(equalTo: containerView.leadingAnchor, constant: 0.0).isActive = true
+                subview.trailingAnchor
+                    .constraint(equalTo: containerView.trailingAnchor, constant: 0.0).isActive = true
+                subview.heightAnchor
+                    .constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true
+
+                if let anchorView = anchorView {
+                    subview.topAnchor
+                        .constraint(
+                            equalTo: anchorView.bottomAnchor,
+                            constant: Constants.verticalSpacing
+                        ).isActive = true
+                } else {
+                    subview.topAnchor
+                        .constraint(equalTo: containerView.topAnchor).isActive = true
+                }
+
+                return subview
+            }
+
+            containerView.bottomAnchor.constraint(
+                equalTo: networkTypeView.bottomAnchor,
+                constant: Constants.verticalSpacing
+            ).isActive = true
         }
 
-        containerView.bottomAnchor.constraint(
-            equalTo: networkTypeView.bottomAnchor,
-            constant: Constants.verticalSpacing
-        ).isActive = true
+        advancedContainerViews = views
     }
 
     private func setupCryptoTypeView(
@@ -479,7 +452,7 @@ extension ExportGenericViewController: Localizable {
 }
 
 extension ExportGenericViewController: ExportGenericViewProtocol {
-    func set(viewModel: ExportGenericViewModelProtocol) {
+    func set(viewModel: MultipleExportGenericViewModelProtocol) {
         self.viewModel = viewModel
 
         guard let locale = localizationManager?.selectedLocale else {

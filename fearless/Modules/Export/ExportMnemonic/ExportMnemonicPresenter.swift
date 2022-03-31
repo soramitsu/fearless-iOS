@@ -99,7 +99,9 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
             derivationPath: exportData.derivationPath,
             mnemonic: exportData.mnemonic.allWords()
         )
-        view?.set(viewModel: viewModel)
+
+        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+        view?.set(viewModel: multipleExportViewModel)
     }
 
     func didReceive(error: Error) {

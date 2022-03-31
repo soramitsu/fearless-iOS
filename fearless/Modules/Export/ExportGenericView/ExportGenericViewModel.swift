@@ -6,6 +6,10 @@ protocol ExportGenericViewModelBinding {
     func bind(mnemonicViewModel: ExportMnemonicViewModel, locale: Locale) -> UIView
 }
 
+protocol MultipleExportGenericViewModelProtocol {
+    var viewModels: [ExportGenericViewModelProtocol] { get }
+}
+
 protocol ExportGenericViewModelProtocol {
     var option: ExportOption { get }
     var chain: ChainModel { get }
@@ -13,6 +17,10 @@ protocol ExportGenericViewModelProtocol {
     var derivationPath: String? { get }
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView
+}
+
+struct MultiExportViewModel: MultipleExportGenericViewModelProtocol {
+    let viewModels: [ExportGenericViewModelProtocol]
 }
 
 struct ExportStringViewModel: ExportGenericViewModelProtocol {
