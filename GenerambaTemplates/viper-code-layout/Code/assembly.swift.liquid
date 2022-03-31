@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 
 final class {{ module_info.name }}Assembly {
-    static func configureModule() -> {{ module_info.name }}ViewProtocol? {
+    static func configureModule() -> {{ module_info.name }}ModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
             
         let interactor = {{ module_info.name }}Interactor()
@@ -15,10 +15,10 @@ final class {{ module_info.name }}Assembly {
         )
         
         let view = {{ module_info.name }}ViewController(
-            presenter: presenter,
+            output: presenter,
             localizationManager: localizationManager
         )
 
-        return view
+        return (view, presenter)
     }
 }

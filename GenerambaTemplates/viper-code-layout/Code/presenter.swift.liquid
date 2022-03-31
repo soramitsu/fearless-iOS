@@ -3,14 +3,14 @@ import SoraFoundation
 
 final class {{ module_info.name }}Presenter {
     // MARK: Private properties
-    private weak var view: {{ module_info.name }}ViewProtocol?
-    private let router: {{ module_info.name }}RouterProtocol
-    private let interactor: {{ module_info.name }}InteractorInputProtocol
+    private weak var view: {{ module_info.name }}ViewInput?
+    private let router: {{ module_info.name }}RouterInput
+    private let interactor: {{ module_info.name }}InteractorInput
 
     // MARK: - Constructors
     init(
-        interactor: {{ module_info.name }}InteractorInputProtocol,
-        router: {{ module_info.name }}RouterProtocol,
+        interactor: {{ module_info.name }}InteractorInput,
+        router: {{ module_info.name }}RouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
@@ -21,18 +21,20 @@ final class {{ module_info.name }}Presenter {
     // MARK: - Private methods
 }
 
-// MARK: - {{ module_info.name }}PresenterProtocol
-extension {{ module_info.name }}Presenter: {{ module_info.name }}PresenterProtocol {
-    func didLoad(view: {{ module_info.name }}ViewProtocol) {
+// MARK: - {{ module_info.name }}ViewOutput
+extension {{ module_info.name }}Presenter: {{ module_info.name }}ViewOutput {
+    func didLoad(view: {{ module_info.name }}ViewInput) {
         self.view = view
         interactor.setup(with: self)
     }
 }
 
-// MARK: - {{ module_info.name }}InteractorOutputProtocol
-extension {{ module_info.name }}Presenter: {{ module_info.name }}InteractorOutputProtocol {}
+// MARK: - {{ module_info.name }}InteractorOutput
+extension {{ module_info.name }}Presenter: {{ module_info.name }}InteractorOutput {}
 
 // MARK: - Localizable
 extension {{ module_info.name }}Presenter: Localizable {
     func applyLocalization() {}
 }
+
+extension {{ module_info.name }}Presenter: {{ module_info.name }}ModuleInput {}

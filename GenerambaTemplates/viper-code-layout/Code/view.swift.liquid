@@ -5,14 +5,14 @@ final class {{ module_info.name }}ViewController: UIViewController, ViewHolder {
     typealias RootViewType = {{ module_info.name }}ViewLayout
 
     // MARK: Private properties
-    private let presenter: {{ module_info.name }}PresenterProtocol
+    private let output: {{ module_info.name }}ViewOutput
 
     // MARK: - Constructor
     init(
-        presenter: {{ module_info.name }}PresenterProtocol,
+        output: {{ module_info.name }}ViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
-        self.presenter = presenter
+        self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -29,14 +29,14 @@ final class {{ module_info.name }}ViewController: UIViewController, ViewHolder {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.didLoad(view: self)
+        output.didLoad(view: self)
     }
     
     // MARK: - Private methods
 }
 
-// MARK: - {{ module_info.name }}ViewProtocol
-extension {{ module_info.name }}ViewController: {{ module_info.name }}ViewProtocol {}
+// MARK: - {{ module_info.name }}ViewInput
+extension {{ module_info.name }}ViewController: {{ module_info.name }}ViewInput {}
 
 // MARK: - Localizable
 extension {{ module_info.name }}ViewController: Localizable {
