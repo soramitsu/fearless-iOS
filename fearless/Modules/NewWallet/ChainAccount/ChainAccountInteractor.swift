@@ -136,7 +136,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
                 let options = self.availableExportOptionsProvider
                     .getAvailableExportOptions(
                         for: self.selectedMetaAccount.metaId,
-                        accountId: accountId
+                        accountId: accountId,
+                        isEthereum: response.isEthereumBased
                     )
                 self.presenter?.didReceiveExportOptions(options: options)
             default:
