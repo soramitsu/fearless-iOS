@@ -41,10 +41,21 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         fetchOperation.completionBlock = { [weak self] in
             switch fetchOperation.result {
             case let .success(chains):
-                let substrateChain = chains.first(where: { $0.isEthereumBased == false })
-                let ethereumChain = chains.first(where: { $0.isEthereumBased == true })
-                
-                self?.exportAccounts(chains: [substrateChain, ethereumChain], wallet: account, password: password)
+                var chainsToExport: [ChainModel] = []
+                if let substrateChain = chains.first(where: { $0.isEthereumBased == false }) {
+                    chainsToExport.append(substrateChain)
+                }
+
+                if let ethereumChain = chains.first(where: { $0.isEthereumBased == true }) {
+                    chainsToExport.append(ethereumChain)
+                }
+
+                guard !chainsToExport.isEmpty else {
+                    self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+                    return
+                }
+
+                self?.exportAccounts(chains: chainsToExport, wallet: account, password: password)
             case .failure:
                 self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
             case .none:
@@ -54,22 +65,36 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
 
         operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
-    
+
     func exportAccounts(chains: [ChainModel], wallet: MetaAccountModel, password: String) {
         var jsons: [RestoreJson] = []
-        
-        chains.forEach { chain in
-            guard let chainAccount = wallet.fetch(for: chain.accountRequest()), let data = try? exportJsonWrapper.export(
+
+        for chain in chains {
+            if let chainAccount = wallet.fetch(for: chain.accountRequest()), let data = try? exportJsonWrapper.export(
                 chainAccount: chainAccount,
                 password: password,
                 address: AddressFactory.address(for: chainAccount.accountId, chain: chain),
                 metaId: wallet.metaId,
                 accountId: chainAccount.isChainAccount ? chainAccount.accountId : nil,
                 genesisHash: ""
-            )
-            else {
-                throw BaseOperationError.parentOperationCancelled
+            ), let result = String(data: data, encoding: .utf8) {
+                do {
+                    let fileUrl = try URL(fileURLWithPath: NSTemporaryDirectory() + "/\(AddressFactory.address(for: chainAccount.accountId, chain: chain)).json")
+                    try result.write(toFile: fileUrl.path, atomically: true, encoding: .utf8)
+                    let json = RestoreJson(
+                        data: result,
+                        chain: chain,
+                        cryptoType: chainAccount.cryptoType,
+                        fileURL: fileUrl
+                    )
+
+                    jsons.append(json)
+                } catch {}
             }
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter.didExport(jsons: jsons)
         }
     }
 
@@ -156,7 +181,6 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
             let content = try exportOperation.extractNoCancellableResultData()
             let fileUrl = URL(fileURLWithPath: NSTemporaryDirectory() + "/\(address).json")
             try content.write(toFile: fileUrl.path, atomically: true, encoding: .utf8)
-
             return RestoreJson(
                 data: content,
                 chain: chain,

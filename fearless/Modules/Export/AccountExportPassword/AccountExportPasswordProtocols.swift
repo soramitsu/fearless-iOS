@@ -13,7 +13,7 @@ protocol AccountExportPasswordPresenterProtocol: AnyObject {
 }
 
 protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
-    func exportWallet(_ account: MetaAccountModel)
+    func exportWallet(_ account: MetaAccountModel, password: String)
     func exportAccount(address: String, password: String, chain: ChainModel)
 }
 

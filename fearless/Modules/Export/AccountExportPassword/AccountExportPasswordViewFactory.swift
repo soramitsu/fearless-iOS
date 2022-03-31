@@ -15,7 +15,7 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
 
         let exportJsonWrapper = KeystoreExportWrapper(keystore: Keychain())
 
-        let repository = AccountRepositoryFactory.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -35,11 +35,16 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
             )
         }
 
+        let repository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
         let interactor = AccountExportPasswordInteractor(
             exportJsonWrapper: exportJsonWrapper,
-            repository: repository,
+            accountRepository: accountRepository,
             operationManager: OperationManagerFacade.sharedManager,
-            extrinsicOperationFactory: extrinsicOperationFactory
+            extrinsicOperationFactory: extrinsicOperationFactory,
+            chainRepository: AnyDataProviderRepository(repository)
         )
         let wireframe = AccountExportPasswordWireframe()
 

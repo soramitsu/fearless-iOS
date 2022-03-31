@@ -42,7 +42,7 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
         case let .single(chain, address):
             interactor.exportAccount(address: address, password: password, chain: chain)
         case let .multiple(account):
-            interactor.exportWallet(account)
+            interactor.exportWallet(account, password: password)
         }
     }
 }

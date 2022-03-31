@@ -213,12 +213,12 @@ private extension ChainAccountWireframe {
     }
 
     func showKeystoreExport(
-        for address: String,
-        chain: ChainModel,
+        for _: String,
+        chain _: ChainModel,
         from view: ControllerBackedProtocol?
     ) {
         guard let passwordView = AccountExportPasswordViewFactory.createView(
-            flow: .single(chain: chain, address: address)
+            flow: .multiple(account: SelectedWalletSettings.shared.value!)
         ) else {
             return
         }

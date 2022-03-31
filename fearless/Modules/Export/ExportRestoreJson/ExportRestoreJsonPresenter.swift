@@ -9,6 +9,42 @@ final class ExportRestoreJsonPresenter {
     init(models: [RestoreJson]) {
         self.models = models
     }
+
+    private func activateExport(model: RestoreJson) {
+        let items: [JsonExportAction] = [.file, .text]
+        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
+            guard let self = self else { return }
+            let action = items[selectedIndex]
+            switch action {
+            case .file:
+                self.wireframe.share(
+                    sources: [model.fileURL],
+                    from: self.view
+                ) { [weak self] completed in
+                    if completed {
+                        self?.wireframe.close(view: self?.view)
+                    }
+                }
+            case .text:
+                self.wireframe.share(
+                    sources: [model.data],
+                    from: self.view
+                ) { [weak self] completed in
+                    if completed {
+                        self?.wireframe.close(view: self?.view)
+                    }
+                }
+            default:
+                break
+            }
+        }
+
+        wireframe.presentExportActionsFlow(
+            from: view,
+            items: items,
+            callback: selectionCallback
+        )
+    }
 }
 
 extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
@@ -28,45 +64,19 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
         view?.set(viewModel: multipleExportViewModel)
     }
 
-    func activateExport() {
-//        let items: [JsonExportAction] = [.file, .text]
-//        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
-//            guard let self = self else { return }
-//            let action = items[selectedIndex]
-//            switch action {
-//            case .file:
-//                self.wireframe.share(
-//                    sources: [self.model.fileURL],
-//                    from: self.view
-//                ) { [weak self] completed in
-//                    if completed {
-//                        self?.wireframe.close(view: self?.view)
-//                    }
-//                }
-//            case .text:
-//                self.wireframe.share(
-//                    sources: [self.model.data],
-//                    from: self.view
-//                ) { [weak self] completed in
-//                    if completed {
-//                        self?.wireframe.close(view: self?.view)
-//                    }
-//                }
-//            default:
-//                break
-//            }
-//        }
-//
-//        wireframe.presentExportActionsFlow(
-//            from: view,
-//            items: items,
-//            callback: selectionCallback
-//        )
+    func activateExport() {}
+
+    func didTapExportEthereumButton() {
+        if let model = models.first(where: { $0.chain.isEthereumBased }) {
+            activateExport(model: model)
+        }
     }
 
-    func didTapExportEthereumButton() {}
-
-    func didTapExportSubstrateButton() {}
+    func didTapExportSubstrateButton() {
+        if let model = models.first(where: { !$0.chain.isEthereumBased }) {
+            activateExport(model: model)
+        }
+    }
 
     func activateAccessoryOption() {
         wireframe.showChangePassword(from: view)
