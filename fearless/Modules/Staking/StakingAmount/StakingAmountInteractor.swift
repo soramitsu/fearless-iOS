@@ -19,6 +19,8 @@ final class StakingAmountInteractor {
     let chain: ChainModel
     let selectedAccount: MetaAccountModel
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
+    let eraValidatorService: EraValidatorServiceProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -37,7 +39,9 @@ final class StakingAmountInteractor {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
+        eraValidatorService: EraValidatorServiceProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -50,6 +54,8 @@ final class StakingAmountInteractor {
         self.asset = asset
         self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
+        self.eraInfoOperationFactory = eraInfoOperationFactory
+        self.eraValidatorService = eraValidatorService
     }
 
     private func provideRewardCalculator() {
@@ -71,6 +77,26 @@ final class StakingAmountInteractor {
             in: .transient
         )
     }
+
+    func provideNetworkStakingInfo() {
+        let wrapper = eraInfoOperationFactory.networkStakingOperation(
+            for: eraValidatorService,
+            runtimeService: runtimeService
+        )
+
+        wrapper.targetOperation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try wrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(networkStakingInfo: info)
+                } catch {
+                    self?.presenter.didReceive(networkStakingInfoError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
 }
 
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
@@ -91,6 +117,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chain.chainId)
 
         provideRewardCalculator()
+        provideNetworkStakingInfo()
 
         fetchConstant(
             for: .existentialDeposit,

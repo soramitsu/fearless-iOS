@@ -57,10 +57,8 @@ extension KeystoreProtocol {
         try saveKey(data, with: tag)
     }
 
-    func fetchDeriviationForAddress(_ address: String) throws -> String? {
-        let tag = KeystoreTag.deriviationTagForAddress(address)
-
-        guard let data = try loadIfKeyExists(tag) else {
+    func fetchDeriviationForAddress(_ path: String) throws -> String? {
+        guard let data = try loadIfKeyExists(path) else {
             return nil
         }
 

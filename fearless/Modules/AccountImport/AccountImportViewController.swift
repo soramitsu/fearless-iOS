@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class AccountImportViewController: UIViewController, ViewHolder {
     typealias RootViewType = AccountImportViewLayout
@@ -12,6 +13,7 @@ final class AccountImportViewController: UIViewController, ViewHolder {
     private var passwordViewModel: InputViewModelProtocol?
     private var sourceViewModel: InputViewModelProtocol?
     private var isFirstLayoutCompleted: Bool = false
+    var keyboardHandler: KeyboardHandler?
 
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
@@ -36,7 +38,6 @@ final class AccountImportViewController: UIViewController, ViewHolder {
 
         setupActions()
         setupLocalization()
-        setupActions()
 
         presenter.setup()
     }
@@ -94,7 +95,7 @@ private extension AccountImportViewController {
 
         title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
 
-        if !rootView.uploadView.isHidden {
+        if !rootView.uploadViewContainer.isHidden {
             updateUploadView()
         }
     }
@@ -103,8 +104,8 @@ private extension AccountImportViewController {
         var isEnabled: Bool = true
 
         if let viewModel = sourceViewModel, viewModel.inputHandler.required {
-            let uploadViewActive = !rootView.uploadView.isHidden && !(rootView.uploadView.subtitle?.isEmpty ?? false)
-            let textViewActive = !rootView.textContainerView.isHidden && !rootView.textView.text.isEmpty
+            let uploadViewActive = !rootView.uploadViewContainer.isHidden && !(rootView.uploadView.subtitle?.isEmpty ?? false)
+            let textViewActive = !rootView.textViewContainer.isHidden && !rootView.textView.text.isEmpty
             isEnabled = isEnabled && (uploadViewActive || textViewActive)
         }
 
@@ -198,34 +199,58 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func setSource(type: AccountImportSource, selectable: Bool) {
         switch type {
-        case .mnemonic, .seed:
-            passwordViewModel = nil
+        case .mnemonic:
+            rootView.expandableControlContainerView.isHidden = false
+            rootView.expandableControl.isHidden = false
+            rootView.advancedContainerView.isHidden = false
 
-            rootView.setup(isJson: false)
+            rootView.textViewContainer.isHidden = false
+
+            rootView.passwordContainerView.isHidden = true
+            rootView.uploadViewContainer.isHidden = true
+        case .seed:
+            rootView.expandableControlContainerView.isHidden = !selectable
+            rootView.expandableControl.isHidden = !selectable
+            rootView.advancedContainerView.isHidden = !selectable
+
+            rootView.textViewContainer.isHidden = false
+
+            rootView.passwordContainerView.isHidden = true
+            rootView.uploadViewContainer.isHidden = true
         case .keystore:
-            rootView.setup(isJson: true)
+            rootView.expandableControlContainerView.isHidden = true
+            rootView.expandableControl.isHidden = true
+            rootView.advancedContainerView.isHidden = true
+
+            rootView.textViewContainer.isHidden = true
+
+            rootView.passwordContainerView.isHidden = false
+            rootView.uploadViewContainer.isHidden = false
+
+            rootView.passwordTextField.text = nil
+            rootView.textView.text = nil
         }
 
-        rootView.warningView.isHidden = true
+        rootView.warningContainerView.isHidden = true
 
         rootView.expandableControl.deactivate(animated: false)
         rootView.advancedContainerView.isHidden = true
 
         rootView.sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
-        rootView.sourceTypeView.isUserInteractionEnabled = selectable
+        selectable ? rootView.sourceTypeView.enable() : rootView.sourceTypeView.disable()
         rootView.uploadView.title =
             selectable ? R.string.localizable.importSubstrateRecoveryJson(preferredLanguages: locale.rLanguages) :
             R.string.localizable.importEthereumRecoveryJson(preferredLanguages: locale.rLanguages)
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
         rootView.substrateCryptoTypeView.actionControl.invalidateLayout()
-        rootView.ethereumCryptoTypeView.twoVerticalLabelView.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
     }
 
     func setSource(viewModel: InputViewModelProtocol) {
         sourceViewModel = viewModel
 
-        if !rootView.uploadView.isHidden {
+        if !rootView.uploadViewContainer.isHidden {
             updateUploadView()
         } else {
             rootView.textView.text = viewModel.inputHandler.value
@@ -240,7 +265,8 @@ extension AccountImportViewController: AccountImportViewProtocol {
         usernameViewModel = viewModel
 
         rootView.usernameTextField.text = viewModel.inputHandler.value
-        rootView.usernameTextField.isUserInteractionEnabled = viewModel.inputHandler.value.isEmpty
+        viewModel.inputHandler.value.isEmpty ?
+            rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
         updateNextButton()
     }
 
@@ -258,13 +284,10 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         rootView.substrateCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
 
-        rootView.substrateCryptoTypeView.actionControl.showsImageIndicator = model.selectable
-        rootView.substrateCryptoTypeView.isUserInteractionEnabled = model.selectable
-
         if model.selectable {
-            rootView.substrateCryptoTypeView.applyEnabledStyle()
+            rootView.substrateCryptoTypeView.enable()
         } else {
-            rootView.substrateCryptoTypeView.applyDisabledStyle()
+            rootView.substrateCryptoTypeView.disable()
         }
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
@@ -305,7 +328,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func setUploadWarning(message: String) {
         rootView.warningLabel.text = message
-        rootView.warningView.isHidden = false
+        rootView.warningContainerView.isHidden = false
     }
 
     func didCompleteSourceTypeSelection() {
@@ -327,6 +350,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
 extension AccountImportViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
+        rootView.contentView.scrollView.scrollRectToVisible(textField.frame, animated: true)
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
         } else if textField == rootView.ethereumDerivationPathField {
@@ -335,7 +359,7 @@ extension AccountImportViewController: UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        resignFirstResponder()
+        textField.resignFirstResponder()
         if textField == rootView.substrateDerivationPathField {
             presenter.validateSubstrateDerivationPath()
         } else if textField == rootView.ethereumDerivationPathField {
@@ -431,20 +455,29 @@ extension AccountImportViewController: UITextViewDelegate {
 }
 
 extension AccountImportViewController: KeyboardViewAdoptable {
-    var targetBottomConstraint: NSLayoutConstraint? { nil }
+    var target: UIView? { rootView.nextButton }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
-    func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
-        if bottomInset > 0.0 {
-            return -view.safeAreaInsets.bottom + UIConstants.bigOffset
-        } else {
-            return UIConstants.bigOffset
-        }
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
     }
 
-    func updateWhileKeyboardFrameChanging(frame: CGRect) {
-        rootView.handleKeyboard(frame: frame)
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if let responder = rootView.firstResponder {
+            var inset = rootView.contentView.scrollView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: rootView.contentView.scrollView)
+
+            if frame.height == 0 {
+                inset.bottom = 0
+                rootView.contentView.scrollView.contentInset = inset
+            } else {
+                inset.bottom = frame.height
+                rootView.contentView.scrollView.contentInset = inset
+            }
+            rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)
+        }
     }
 }
 

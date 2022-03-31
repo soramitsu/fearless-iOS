@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class AccountImportViewLayout: UIView {
     private enum Constants {
@@ -26,7 +27,6 @@ final class AccountImportViewLayout: UIView {
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
         view.stackView.alignment = .fill
-        view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
 
@@ -48,6 +48,8 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
+    let sourceTypeViewContainer = UIView()
+
     let usernameTextField: CommonInputView = {
         let inputView = CommonInputView()
         inputView.backgroundView.strokeColor = R.color.colorGray()!
@@ -57,6 +59,8 @@ final class AccountImportViewLayout: UIView {
         return inputView
     }()
 
+    let usernameTextFieldContainer = UIView()
+
     let usernameFooterLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
@@ -64,6 +68,8 @@ final class AccountImportViewLayout: UIView {
         label.numberOfLines = 0
         return label
     }()
+
+    let usernameLabelContainer = UIView()
 
     let passwordTextField: CommonInputView = {
         let inputView = CommonInputView()
@@ -75,6 +81,8 @@ final class AccountImportViewLayout: UIView {
         return inputView
     }()
 
+    let passwordContainerView = UIView()
+
     let textPlaceholderLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
@@ -85,13 +93,14 @@ final class AccountImportViewLayout: UIView {
     let textView: UITextView = {
         let view = UITextView()
         view.textColor = R.color.colorWhite()
+        view.font = .p1Paragraph
         view.tintColor = R.color.colorWhite()
         view.keyboardType = .default
         view.autocapitalizationType = .none
         return view
     }()
 
-    let textContainerView: TriangularedView = {
+    let textTriangularedView: TriangularedView = {
         let view = TriangularedView()
         view.shadowOpacity = Constants.shadowOpacity
         view.fillColor = R.color.colorBlack()!
@@ -100,6 +109,8 @@ final class AccountImportViewLayout: UIView {
         view.strokeWidth = Constants.strokeWidth
         return view
     }()
+
+    let textViewContainer = UIView()
 
     let uploadView: DetailsTriangularedView = {
         let detailsView = UIFactory().createDetailsView(with: .largeIconTitleSubtitle, filled: false)
@@ -123,17 +134,15 @@ final class AccountImportViewLayout: UIView {
         return detailsView
     }()
 
+    let uploadViewContainer = UIView()
+
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
         return button
     }()
 
-    let warningView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorBlack()
-        return view
-    }()
+    let warningContainerView = UIView()
 
     let warningLabel: UILabel = {
         let label = UILabel()
@@ -166,19 +175,21 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    let ethereumCryptoTypeView: TriangularedTwoLabelView = {
-        let view = TriangularedTwoLabelView()
+    let ethereumCryptoTypeView: BorderedSubtitleActionView = {
+        let view = BorderedSubtitleActionView()
         view.fillColor = .clear
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorGray()!
         view.highlightedStrokeColor = R.color.colorGray()!
         view.strokeWidth = Constants.strokeWidth
         view.shadowOpacity = Constants.shadowOpacity
-        view.twoVerticalLabelView.titleLabel.textColor = R.color.colorLightGray()
-        view.twoVerticalLabelView.titleLabel.font = .p2Paragraph
-        view.twoVerticalLabelView.subtitleLabelView.textColor = R.color.colorWhite()
-        view.twoVerticalLabelView.subtitleLabelView.font = .p1Paragraph
-        view.applyDisabledStyle()
+        view.actionControl.contentView.titleLabel.textColor = R.color.colorLightGray()
+        view.actionControl.layoutType = BaseActionControl.LayoutType.flexible
+        view.actionControl.contentView.titleLabel.font = .p2Paragraph
+        view.actionControl.contentView.subtitleLabelView.textColor = R.color.colorWhite()
+        view.actionControl.contentView.subtitleLabelView.font = .p1Paragraph
+        view.actionControl.imageIndicator.image = R.image.iconDropDown()
+        view.disable()
         return view
     }()
 
@@ -188,6 +199,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.returnKeyType = .done
         return view
     }()
 
@@ -197,6 +209,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.keyboardType = .decimalPad
         return view
     }()
 
@@ -228,12 +241,14 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    let advancedContainerView: UIStackView = {
+    let advancedStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.spacing = UIConstants.bigOffset
         return stackView
     }()
+
+    let advancedContainerView = UIView()
 
     let expandableControl: ExpandableActionControl = {
         let view = UIFactory().createExpandableActionControl()
@@ -262,7 +277,7 @@ final class AccountImportViewLayout: UIView {
         return view
     }()
 
-    private let expandableControlContainerView: BorderedContainerView = {
+    private let expandableControlBorderedView: BorderedContainerView = {
         let view = UIFactory().createBorderedContainerView()
         view.backgroundColor = R.color.colorBlack()
         view.borderType = .bottom
@@ -270,6 +285,8 @@ final class AccountImportViewLayout: UIView {
         view.strokeColor = R.color.colorGray()!
         return view
     }()
+
+    let expandableControlContainerView = UIView()
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
@@ -290,6 +307,7 @@ final class AccountImportViewLayout: UIView {
 
         setupLayout()
         configure()
+        backgroundColor = R.color.colorBlack()
     }
 
     @available(*, unavailable)
@@ -324,6 +342,23 @@ private extension AccountImportViewLayout {
 
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
+        setupEthereumDerivationPathTextField()
+    }
+
+    private func setupEthereumDerivationPathTextField() {
+        let bar = UIToolbar()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let close = UIBarButtonItem(
+            title: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            style: .done, target: self, action: #selector(close)
+        )
+        bar.items = [flexibleSpace, close]
+        bar.sizeToFit()
+        ethereumDerivationPathField.inputAccessoryView = bar
+    }
+
+    @objc private func close() {
+        ethereumDerivationPathField.resignFirstResponder()
     }
 
     func setupLocalization() {
@@ -346,12 +381,12 @@ private extension AccountImportViewLayout {
         substrateCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .substrateCryptoType(preferredLanguages: locale.rLanguages)
         substrateCryptoTypeView.actionControl.invalidateLayout()
-        ethereumCryptoTypeView.twoVerticalLabelView.titleLabel.text = R.string.localizable
+        ethereumCryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .ethereumCryptoType(preferredLanguages: locale.rLanguages)
-        ethereumCryptoTypeView.twoVerticalLabelView.subtitleLabelView.text =
+        ethereumCryptoTypeView.actionControl.contentView.subtitleLabelView.text =
             R.string.localizable
                 .ecdsaSelectionSubtitle(preferredLanguages: locale.rLanguages)
-        substrateCryptoTypeView.actionControl.invalidateLayout()
+        ethereumCryptoTypeView.actionControl.invalidateLayout()
 
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: locale.rLanguages)
@@ -373,6 +408,7 @@ private extension AccountImportViewLayout {
         }
     }
 
+    // swiftlint:disable function_body_length
     func setupLayout() {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
@@ -382,15 +418,25 @@ private extension AccountImportViewLayout {
             make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
         }
 
-        contentView.stackView.addArrangedSubview(sourceTypeView)
+        sourceTypeViewContainer.addSubview(sourceTypeView)
+        sourceTypeView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        contentView.stackView.addArrangedSubview(sourceTypeViewContainer)
 
+        uploadViewContainer.addSubview(uploadView)
         uploadView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.actionHeight)
         }
-        contentView.stackView.addArrangedSubview(uploadView)
+        contentView.stackView.addArrangedSubview(uploadViewContainer)
 
-        warningView.addSubview(warningImage)
-        warningView.addSubview(warningLabel)
+        warningContainerView.addSubview(warningImage)
+        warningContainerView.addSubview(warningLabel)
 
         warningImage.snp.makeConstraints { make in
             make.leading.equalToSuperview()
@@ -399,41 +445,71 @@ private extension AccountImportViewLayout {
 
         warningLabel.snp.makeConstraints { make in
             make.leading.equalTo(warningImage.snp.trailing).offset(UIConstants.defaultOffset)
-            make.trailing.top.bottom.equalToSuperview()
+            make.trailing.equalToSuperview()
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
-        contentView.stackView.addArrangedSubview(warningView)
+        contentView.stackView.addArrangedSubview(warningContainerView)
 
-        contentView.stackView.addArrangedSubview(usernameTextField)
-        contentView.stackView.addArrangedSubview(usernameFooterLabel)
+        usernameTextFieldContainer.addSubview(usernameTextField)
+        usernameTextField.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        contentView.stackView.addArrangedSubview(usernameTextFieldContainer)
+        usernameLabelContainer.addSubview(usernameFooterLabel)
+        usernameFooterLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        contentView.stackView.addArrangedSubview(usernameLabelContainer)
 
-        textContainerView.addSubview(textView)
+        textViewContainer.addSubview(textTriangularedView)
+        textTriangularedView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        textTriangularedView.addSubview(textView)
         textView.snp.makeConstraints { make in
             make.height.greaterThanOrEqualTo(Constants.textViewHeight)
             make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.trailing.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        textContainerView.addSubview(textPlaceholderLabel)
+        textTriangularedView.addSubview(textPlaceholderLabel)
         textPlaceholderLabel.snp.makeConstraints { make in
             make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
-        contentView.stackView.addArrangedSubview(textContainerView)
+        contentView.stackView.addArrangedSubview(textViewContainer)
 
-        contentView.stackView.addArrangedSubview(passwordTextField)
+        passwordContainerView.addSubview(passwordTextField)
+        passwordTextField.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        contentView.stackView.addArrangedSubview(passwordContainerView)
 
         expandableControlContainerView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.expandableViewHeight)
         }
-        expandableControlContainerView.addSubview(expandableControl)
+        expandableControlContainerView.addSubview(expandableControlBorderedView)
+        expandableControlBorderedView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        expandableControlBorderedView.addSubview(expandableControl)
         expandableControl.snp.makeConstraints { make in
             make.edges.equalTo(expandableControlContainerView)
         }
         contentView.stackView.addArrangedSubview(expandableControlContainerView)
 
-        contentView.stackView.addArrangedSubview(advancedContainerView)
-
-        advancedContainerView.addArrangedSubview(substrateCryptoTypeView)
+        advancedStackView.addArrangedSubview(substrateCryptoTypeView)
         substrateCryptoTypeView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
         }
@@ -451,17 +527,17 @@ private extension AccountImportViewLayout {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        advancedContainerView.addArrangedSubview(substrateDerivationContainerView)
+        advancedStackView.addArrangedSubview(substrateDerivationContainerView)
         substrateDerivationContainerView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        advancedContainerView.addArrangedSubview(substrateDerivationPathLabel)
+        advancedStackView.addArrangedSubview(substrateDerivationPathLabel)
         substrateDerivationPathLabel.snp.makeConstraints { make in
             make.height.equalTo(Constants.derivationPathLabelHeight)
         }
 
-        advancedContainerView.addArrangedSubview(ethereumCryptoTypeView)
+        advancedStackView.addArrangedSubview(ethereumCryptoTypeView)
         ethereumCryptoTypeView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
         }
@@ -479,16 +555,22 @@ private extension AccountImportViewLayout {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        advancedContainerView.addArrangedSubview(ethereumDerivationContainerView)
+        advancedStackView.addArrangedSubview(ethereumDerivationContainerView)
         ethereumDerivationContainerView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        advancedContainerView.addArrangedSubview(ethereumDerivationPathLabel)
+        advancedStackView.addArrangedSubview(ethereumDerivationPathLabel)
         ethereumDerivationPathLabel.snp.makeConstraints { make in
             make.height.equalTo(Constants.derivationPathLabelHeight)
         }
 
+        advancedContainerView.addSubview(advancedStackView)
+        advancedStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
         contentView.stackView.addArrangedSubview(advancedContainerView)
 
         addSubview(nextButton)
@@ -496,7 +578,6 @@ private extension AccountImportViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.greaterThanOrEqualTo(contentView.snp.bottom).offset(UIConstants.hugeOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
@@ -506,20 +587,6 @@ extension AccountImportViewLayout {
     func handleKeyboard(frame: CGRect) {
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
-        }
-    }
-
-    func setup(isJson: Bool) {
-        expandableControlContainerView.isHidden = isJson
-        expandableControl.isHidden = isJson
-        advancedContainerView.isHidden = isJson
-        textContainerView.isHidden = isJson
-
-        passwordTextField.isHidden = !isJson
-        uploadView.isHidden = !isJson
-        if !isJson {
-            passwordTextField.text = nil
-            textView.text = nil
         }
     }
 }

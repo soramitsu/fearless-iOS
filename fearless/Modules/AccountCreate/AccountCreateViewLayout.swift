@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class AccountCreateViewLayout: UIView {
     private enum Constants {
@@ -67,19 +68,21 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    let ethereumCryptoTypeView: TriangularedTwoLabelView = {
-        let view = TriangularedTwoLabelView()
+    let ethereumCryptoTypeView: BorderedSubtitleActionView = {
+        let view = BorderedSubtitleActionView()
         view.fillColor = .clear
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorGray()!
         view.highlightedStrokeColor = R.color.colorGray()!
         view.strokeWidth = Constants.strokeWidth
         view.shadowOpacity = Constants.shadowOpacity
-        view.twoVerticalLabelView.titleLabel.textColor = R.color.colorLightGray()
-        view.twoVerticalLabelView.titleLabel.font = .p2Paragraph
-        view.twoVerticalLabelView.subtitleLabelView.textColor = R.color.colorWhite()
-        view.twoVerticalLabelView.subtitleLabelView.font = .p1Paragraph
-        view.applyDisabledStyle()
+        view.actionControl.contentView.titleLabel.textColor = R.color.colorLightGray()
+        view.actionControl.layoutType = BaseActionControl.LayoutType.flexible
+        view.actionControl.contentView.titleLabel.font = .p2Paragraph
+        view.actionControl.contentView.subtitleLabelView.textColor = R.color.colorWhite()
+        view.actionControl.contentView.subtitleLabelView.font = .p1Paragraph
+        view.actionControl.imageIndicator.image = R.image.iconDropDown()
+        view.disable()
         return view
     }()
 
@@ -89,6 +92,7 @@ final class AccountCreateViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.clearButtonMode = .whileEditing
+        view.returnKeyType = .done
         return view
     }()
 
@@ -99,6 +103,7 @@ final class AccountCreateViewLayout: UIView {
         view.textColor = .white
         view.clearButtonMode = .whileEditing
         view.keyboardType = .decimalPad
+        view.returnKeyType = .done
         return view
     }()
 
@@ -217,6 +222,23 @@ private extension AccountCreateViewLayout {
         contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
+        setupEthereumDerivationPathTextField()
+    }
+
+    private func setupEthereumDerivationPathTextField() {
+        let bar = UIToolbar()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let close = UIBarButtonItem(
+            title: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            style: .done, target: self, action: #selector(close)
+        )
+        bar.items = [flexibleSpace, close]
+        bar.sizeToFit()
+        ethereumDerivationPathField.inputAccessoryView = bar
+    }
+
+    @objc private func close() {
+        ethereumDerivationPathField.resignFirstResponder()
     }
 
     @objc
@@ -326,7 +348,6 @@ private extension AccountCreateViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.greaterThanOrEqualTo(contentView.snp.bottom).offset(UIConstants.hugeOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
