@@ -14,29 +14,70 @@ final class AccountExportPasswordInteractor {
     weak var presenter: AccountExportPasswordInteractorOutputProtocol!
 
     private let exportJsonWrapper: KeystoreExportWrapperProtocol
-    private let repository: AnyDataProviderRepository<MetaAccountModel>
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
-    private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
+    private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol?
 
     init(
         exportJsonWrapper: KeystoreExportWrapperProtocol,
-        repository: AnyDataProviderRepository<MetaAccountModel>,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
-        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
+        extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol?,
+        chainRepository: AnyDataProviderRepository<ChainModel>
     ) {
         self.exportJsonWrapper = exportJsonWrapper
-        self.repository = repository
+        self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.extrinsicOperationFactory = extrinsicOperationFactory
+        self.chainRepository = chainRepository
     }
 }
 
 extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputProtocol {
+    func exportWallet(_ account: MetaAccountModel, password: String) {
+        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+        fetchOperation.completionBlock = { [weak self] in
+            switch fetchOperation.result {
+            case let .success(chains):
+                let substrateChain = chains.first(where: { $0.isEthereumBased == false })
+                let ethereumChain = chains.first(where: { $0.isEthereumBased == true })
+                
+                self?.exportAccounts(chains: [substrateChain, ethereumChain], wallet: account, password: password)
+            case .failure:
+                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+            case .none:
+                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+            }
+        }
+
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
+    }
+    
+    func exportAccounts(chains: [ChainModel], wallet: MetaAccountModel, password: String) {
+        var jsons: [RestoreJson] = []
+        
+        chains.forEach { chain in
+            guard let chainAccount = wallet.fetch(for: chain.accountRequest()), let data = try? exportJsonWrapper.export(
+                chainAccount: chainAccount,
+                password: password,
+                address: AddressFactory.address(for: chainAccount.accountId, chain: chain),
+                metaId: wallet.metaId,
+                accountId: chainAccount.isChainAccount ? chainAccount.accountId : nil,
+                genesisHash: ""
+            )
+            else {
+                throw BaseOperationError.parentOperationCancelled
+            }
+        }
+    }
+
     func exportAccount(address: String, password: String, chain: ChainModel) {
         fetchChainAccount(
             chain: chain,
             address: address,
-            from: repository,
+            from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
             switch result {
@@ -48,25 +89,35 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                     return
                 }
 
-                let genesisOperation = self.extrinsicOperationFactory.createGenesisBlockHashOperation()
-                genesisOperation.completionBlock = { [weak self] in
-                    do {
-                        guard let genesisHash = try genesisOperation.extractResultData() else {
-                            throw AccountExportPasswordInteractorError.missingGenesisHash
+                if let genesisOperation = self.extrinsicOperationFactory?.createGenesisBlockHashOperation() {
+                    genesisOperation.completionBlock = { [weak self] in
+                        do {
+                            guard let genesisHash = try genesisOperation.extractResultData() else {
+                                throw AccountExportPasswordInteractorError.missingGenesisHash
+                            }
+                            self?.createExportOperation(
+                                address: address,
+                                password: password,
+                                chain: chain,
+                                chainAccount: response,
+                                metaId: metaAccount.metaId,
+                                genesisHash: genesisHash
+                            )
+                        } catch {
+                            self?.presenter.didReceive(error: error)
                         }
-                        self?.createExportOperation(
-                            address: address,
-                            password: password,
-                            chain: chain,
-                            chainAccount: response,
-                            metaId: metaAccount.metaId,
-                            genesisHash: genesisHash
-                        )
-                    } catch {
-                        self?.presenter.didReceive(error: error)
                     }
+                    self.operationManager.enqueue(operations: [genesisOperation], in: .transient)
+                } else {
+                    self.createExportOperation(
+                        address: address,
+                        password: password,
+                        chain: chain,
+                        chainAccount: response,
+                        metaId: metaAccount.metaId,
+                        genesisHash: ""
+                    )
                 }
-                self.operationManager.enqueue(operations: [genesisOperation], in: .transient)
             case .failure:
                 self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
             }

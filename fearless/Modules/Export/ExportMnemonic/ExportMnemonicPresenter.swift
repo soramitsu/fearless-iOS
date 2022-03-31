@@ -7,55 +7,62 @@ final class ExportMnemonicPresenter {
     var wireframe: ExportMnemonicWireframeProtocol!
     var interactor: ExportMnemonicInteractorInputProtocol!
 
-    let address: String
-    let chain: ChainModel
+    let flow: ExportFlow
     let localizationManager: LocalizationManager
 
     private(set) var exportData: ExportMnemonicData?
 
-    init(address: String, chain: ChainModel, localizationManager: LocalizationManager) {
-        self.address = address
-        self.chain = chain
+    init(flow: ExportFlow, localizationManager: LocalizationManager) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 
     private func share() {
-        guard let data = exportData else {
-            return
-        }
-
-        let text: String
-
-        let locale = localizationManager.selectedLocale
-
-        if let derivationPath = exportData?.derivationPath {
-            text = R.string.localizable
-                .exportMnemonicWithDpTemplate(
-                    chain.name,
-                    data.mnemonic.toString(),
-                    derivationPath,
-                    preferredLanguages: locale.rLanguages
-                )
-        } else {
-            text = R.string.localizable
-                .exportMnemonicWithoutDpTemplate(
-                    chain.name,
-                    data.mnemonic.toString(),
-                    preferredLanguages: locale.rLanguages
-                )
-        }
-
-        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
-            if completed {
-                self?.wireframe.close(view: self?.view)
-            }
-        }
+//        guard let data = exportData else {
+//            return
+//        }
+//
+//        let text: String
+//
+//        let locale = localizationManager.selectedLocale
+//
+//        if let derivationPath = exportData?.derivationPath {
+//            text = R.string.localizable
+//                .exportMnemonicWithDpTemplate(
+//                    chain.name,
+//                    data.mnemonic.toString(),
+//                    derivationPath,
+//                    preferredLanguages: locale.rLanguages
+//                )
+//        } else {
+//            text = R.string.localizable
+//                .exportMnemonicWithoutDpTemplate(
+//                    chain.name,
+//                    data.mnemonic.toString(),
+//                    preferredLanguages: locale.rLanguages
+//                )
+//        }
+//
+//        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
+//            if completed {
+//                self?.wireframe.close(view: self?.view)
+//            }
+//        }
     }
 }
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
+    func didTapExportSubstrateButton() {}
+
+    func didTapExportEthereumButton() {}
+
     func setup() {
-        interactor.fetchExportDataForAddress(address, chain: chain)
+        switch flow {
+        case let .single(chain, address):
+            interactor.fetchExportDataForAddress(address, chain: chain)
+        case let .multiple(account):
+            break
+        }
     }
 
     func activateExport() {
@@ -90,18 +97,18 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
-    func didReceive(exportData: ExportMnemonicData) {
-        self.exportData = exportData
-        let viewModel = ExportMnemonicViewModel(
-            option: .mnemonic,
-            chain: chain,
-            cryptoType: exportData.cryptoType,
-            derivationPath: exportData.derivationPath,
-            mnemonic: exportData.mnemonic.allWords()
-        )
-
-        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
-        view?.set(viewModel: multipleExportViewModel)
+    func didReceive(exportData _: ExportMnemonicData) {
+//        self.exportData = exportData
+//        let viewModel = ExportMnemonicViewModel(
+//            option: .mnemonic,
+//            chain: chain,
+//            cryptoType: exportData.cryptoType,
+//            derivationPath: exportData.derivationPath,
+//            mnemonic: exportData.mnemonic.allWords()
+//        )
+//
+//        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+//        view?.set(viewModel: multipleExportViewModel)
     }
 
     func didReceive(error: Error) {

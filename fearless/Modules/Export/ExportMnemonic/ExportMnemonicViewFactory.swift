@@ -4,7 +4,7 @@ import SoraKeystore
 import RobinHood
 
 final class ExportMnemonicViewFactory: ExportMnemonicViewFactoryProtocol {
-    static func createViewForAddress(_ address: String, chain: ChainModel) -> ExportGenericViewProtocol? {
+    static func createViewForAddress(flow: ExportFlow) -> ExportGenericViewProtocol? {
         let accessoryActionTitle = LocalizableResource { locale in
             R.string.localizable.accountConfirmationTitle(preferredLanguages: locale.rLanguages)
         }
@@ -20,8 +20,7 @@ final class ExportMnemonicViewFactory: ExportMnemonicViewFactoryProtocol {
         let localizationManager = LocalizationManager.shared
 
         let presenter = ExportMnemonicPresenter(
-            address: address,
-            chain: chain,
+            flow: flow,
             localizationManager: localizationManager
         )
 

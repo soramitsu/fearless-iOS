@@ -655,3 +655,23 @@ and depending on the network state, may not be selected to participate";
 "import.substrate.recovery.json" = "Restore JSON for Substrate accounts";
 "import.ethereum.recovery.json" = "Restore JSON for ETH-based accounts";
 "common.unsupported" = "Unsupported";
+"min.staking.warning.text" = "The bonded amount is less than the current active minimum nominated amount of %s\
+and depending on the network state, may not be selected to participate";
+"staking.inactive.bond" = "Inactive Bond";
+"min.staking.calculating.text" = "Calculating active minimum nominated amount. Please try again in few seconds.";
+"manage.assets.account.missing.text" = "Add an account...";
+"stories.version2.slide1.title" = "More networks, More tokens";
+"stories.version2.slide2.title" = "Accounts upgraded to Wallets";
+"stories.version2.slide3.title" = "Wallet is now more powerful";
+"stories.version2.slide4.title" = "Customize your Wallets";
+"stories.version2.slide5.title" = "Harmony with the ecosystem";
+"stories.version2.slide1.subtitle" = "Fearless Wallet now supports more networks and tokens: Polkadot (DOT), Kusama (KSM), Moonriver (MOVR), Karura (KAR), Shiden (SDN), SORA (XOR), Bifrost (BNC), KILT (KILT) and others...";
+"stories.version2.slide2.subtitle" = "All your accounts remain in the app! Each wallet now contains many accounts on different networks. Each wallet has a new, colorful icon to help you differentiate between them.";
+"stories.version2.slide3.subtitle" = "Different tokens of the Polkadot and Kusama ecosystem are on the same screen now.";
+"stories.version2.slide4.subtitle" = "By default, wallets use the same key for all of the accounts contained. You can replace the accounts inside a wallet with any existing ones or create new ones.";
+"stories.version2.slide5.subtitle" = "You can still import and export your accounts from other apps in the ecosystem.\
+\
+Remember to make a backup of your key and keep it in a safe and private place (e.g., on a piece of paper).";
+"stories.bottom.close.button" = "Great news!";
+"export.substrate.title" = "Export Substrate";
+"export.ethereum.title" = "Export Ethereum";

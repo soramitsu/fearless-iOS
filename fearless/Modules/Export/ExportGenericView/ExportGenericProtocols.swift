@@ -9,6 +9,8 @@ protocol ExportGenericPresenterProtocol {
     func setup()
     func activateExport()
     func activateAccessoryOption()
+    func didTapExportSubstrateButton()
+    func didTapExportEthereumButton()
 }
 
 extension ExportGenericPresenterProtocol {

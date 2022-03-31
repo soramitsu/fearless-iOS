@@ -15,5 +15,5 @@ protocol ExportMnemonicWireframeProtocol: ExportGenericWireframeProtocol {
 }
 
 protocol ExportMnemonicViewFactoryProtocol: AnyObject {
-    static func createViewForAddress(_ address: String, chain: ChainModel) -> ExportGenericViewProtocol?
+    static func createViewForAddress(flow: ExportFlow) -> ExportGenericViewProtocol?
 }

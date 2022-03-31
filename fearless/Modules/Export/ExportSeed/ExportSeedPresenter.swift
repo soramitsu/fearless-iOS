@@ -6,15 +6,13 @@ final class ExportSeedPresenter {
     var wireframe: ExportSeedWireframeProtocol!
     var interactor: ExportSeedInteractorInputProtocol!
 
-    let address: String
-    let chain: ChainModel
+    let flow: ExportFlow
     let localizationManager: LocalizationManager
 
     private(set) var exportViewModel: ExportStringViewModel?
 
-    init(address: String, chain: ChainModel, localizationManager: LocalizationManager) {
-        self.address = address
-        self.chain = chain
+    init(flow: ExportFlow, localizationManager: LocalizationManager) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 
@@ -53,8 +51,17 @@ final class ExportSeedPresenter {
 }
 
 extension ExportSeedPresenter: ExportGenericPresenterProtocol {
+    func didTapExportSubstrateButton() {}
+
+    func didTapExportEthereumButton() {}
+
     func setup() {
-        interactor.fetchExportDataForAddress(address, chain: chain)
+        switch flow {
+        case let .single(chain, address):
+            interactor.fetchExportDataForAddress(address, chain: chain)
+        case let .multiple(account):
+            break
+        }
     }
 
     func activateExport() {

@@ -64,6 +64,10 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
 //        )
     }
 
+    func didTapExportEthereumButton() {}
+
+    func didTapExportSubstrateButton() {}
+
     func activateAccessoryOption() {
         wireframe.showChangePassword(from: view)
     }

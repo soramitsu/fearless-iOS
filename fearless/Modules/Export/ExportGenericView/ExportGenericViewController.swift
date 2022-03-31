@@ -22,6 +22,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     }()
 
     private var mainActionButton: TriangularedButton?
+    private var secondaryActionButton: TriangularedButton?
     private var accessoryActionButton: TriangularedButton?
 
     private var containerView: ScrollableContainerView!
@@ -68,10 +69,6 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     override func loadView() {
         view = UIView()
         view.backgroundColor = R.color.colorBlack()
-
-        if mainOptionTitle != nil {
-            setupMainActionButton()
-        }
 
         if accessoryOptionTitle != nil {
             setupAccessoryButton()
@@ -141,6 +138,18 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             ).isActive = true
 
             views.append(newOptionView)
+
+            if exportViewModel.option == .keystore {
+                if exportViewModel.chain.isEthereumBased {
+                    setupExportEthereumButton()
+                } else {
+                    setupExportSubstrateButton()
+                }
+            } else {
+                if mainOptionTitle != nil {
+                    setupMainActionButton()
+                }
+            }
         }
 
         setupAdvancedContainerView(with: viewModel, locale: locale)
@@ -173,6 +182,14 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             }
         }
     }
+
+    @objc private func exportSubstrateButtonClicked() {
+        presenter.didTapExportSubstrateButton()
+    }
+
+    @objc private func exportEthereumButtonClicked() {
+        presenter.didTapExportEthereumButton()
+    }
 }
 
 extension ExportGenericViewController {
@@ -201,6 +218,40 @@ extension ExportGenericViewController {
         )
 
         mainActionButton = button
+    }
+
+    private func setupExportSubstrateButton() {
+        let button = uiFactory.createMainActionButton()
+        buttonsStackView.addArrangedSubview(button)
+
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        button.addTarget(
+            self,
+            action: #selector(exportSubstrateButtonClicked),
+            for: .touchUpInside
+        )
+
+        button.imageWithTitleView?.title = R.string.localizable.exportSubstrateTitle(preferredLanguages: selectedLocale.rLanguages)
+    }
+
+    private func setupExportEthereumButton() {
+        let button = uiFactory.createMainActionButton()
+        buttonsStackView.addArrangedSubview(button)
+
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        button.addTarget(
+            self,
+            action: #selector(exportEthereumButtonClicked),
+            for: .touchUpInside
+        )
+
+        button.imageWithTitleView?.title = R.string.localizable.exportEthereumTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupAnimatingView() {
