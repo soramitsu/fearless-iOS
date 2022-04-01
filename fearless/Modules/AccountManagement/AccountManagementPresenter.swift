@@ -22,8 +22,12 @@ final class AccountManagementPresenter {
         return calculator
     }()
 
-    init(viewModelFactory: ManagedAccountViewModelFactoryProtocol) {
+    init(
+        viewModelFactory: ManagedAccountViewModelFactoryProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.viewModelFactory = viewModelFactory
+        self.localizationManager = localizationManager
     }
 
     private func updateViewModels() {
@@ -47,17 +51,42 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         interactor.setup()
     }
 
-    func activateDetails(at index: Int) {
+    func activateWalletDetails(at index: Int) {
         let viewModel = viewModels[index]
 
-        if let item = listCalculator.allItems.first(
-            where: { $0.identifier == viewModel.identifier }
-        ) {
-            wireframe.showAccountDetails(
-                from: view,
-                metaAccount: item.info
-            )
+        let items = IconWithTitleViewModelFactory().crateWalletSettingsRows(
+            for: selectedLocale
+        )
+
+        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
+            guard let strongSelf = self,
+                  let view = strongSelf.view
+            else { return }
+
+            if let managedMetaAccountModel = strongSelf.listCalculator.allItems.first(
+                where: { $0.identifier == viewModel.identifier }
+            ) {
+                
+                switch items[selectedIndex] {
+                case .view:
+                    strongSelf.wireframe.showAccountDetails(
+                        from: view,
+                        metaAccount: managedMetaAccountModel.info
+                    )
+                case .export:
+                    strongSelf.wireframe.showSelectAccounts(
+                        from: view,
+                        metaAccount: managedMetaAccountModel.info
+                    )
+                }
+            }
         }
+
+        wireframe.showWalletSettings(
+            from: view,
+            items: items,
+            callback: selectionCallback
+        )
     }
 
     func activateAddAccount() {

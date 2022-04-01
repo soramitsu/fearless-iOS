@@ -35,4 +35,28 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
             animated: true
         )
     }
+
+    func showWalletSettings(
+        from view: AccountManagementViewProtocol?,
+        items: [WalletSettingsRow],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        guard let pickerView = ModalPickerFactory.createPickerForIconWithTitle(
+            items,
+            callback: callback,
+            context: nil
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.present(pickerView, animated: true)
+    }
+
+    func showSelectAccounts(
+        from view: AccountManagementViewProtocol?,
+        metaAccount _: MetaAccountModel
+    ) {
+        guard let module = SelectExportAccountAssembly.configureModule() else { return }
+        view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
+    }
 }
