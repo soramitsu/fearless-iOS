@@ -28,6 +28,8 @@ final class ExportMnemonicInteractor {
 }
 
 extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
+    func fetchExportDataForWallet(_: MetaAccountModel) {}
+
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
         guard let metaAccount = SelectedWalletSettings.shared.value else {
             presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -51,7 +53,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                     metaId: metaAccount.metaId,
                     accountId: response.isChainAccount ? accountId : nil,
                     cryptoType: response.cryptoType,
-                    isEthereum: response.isEthereumBased
+                    chain: chain
                 )
             case .failure:
                 self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -63,7 +65,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
         metaId: String,
         accountId: AccountId?,
         cryptoType: CryptoType,
-        isEthereum: Bool
+        chain: ChainModel
     ) {
         let exportOperation: BaseOperation<ExportMnemonicData> = ClosureOperation { [weak self] in
             let entropyTag = KeystoreTagV2.entropyTagForMetaId(metaId, accountId: accountId)
@@ -72,7 +74,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
             }
 
             let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
-            let derivationPathTag = isEthereum ?
+            let derivationPathTag = chain.isEthereumBased ?
                 KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId) :
                 KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
             let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
@@ -80,7 +82,8 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
             return ExportMnemonicData(
                 mnemonic: mnemonic,
                 derivationPath: derivationPath,
-                cryptoType: cryptoType
+                cryptoType: cryptoType,
+                chain: chain
             )
         }
 

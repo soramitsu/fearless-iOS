@@ -124,7 +124,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
 
         var views: [UIView] = []
         viewModel.viewModels.forEach { exportViewModel in
-            sourceTypeView.subtitle = exportViewModel.option.titleForLocale(locale)
+            sourceTypeView.subtitle = exportViewModel.option.titleForLocale(locale, ethereumBased: nil)
 
             let newOptionView = exportViewModel.accept(binder: binder, locale: locale)
             newOptionView.backgroundColor = R.color.colorBlack()!
@@ -140,7 +140,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             views.append(newOptionView)
 
             if exportViewModel.option == .keystore {
-                if exportViewModel.chain.isEthereumBased {
+                if exportViewModel.ethereumBased {
                     setupExportEthereumButton()
                 } else {
                     setupExportSubstrateButton()
@@ -358,6 +358,10 @@ extension ExportGenericViewController {
         var views: [UIView] = []
 
         viewModel.viewModels.forEach { exportViewModel in
+            guard let cryptoType = exportViewModel.cryptoType else {
+                return
+            }
+
             let containerView = UIView()
             containerView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -369,7 +373,7 @@ extension ExportGenericViewController {
             ).isActive = true
 
             let cryptoTypeView = setupCryptoTypeView(
-                cryptoType: exportViewModel.cryptoType,
+                cryptoType: cryptoType,
                 advancedContainerView: containerView,
                 locale: locale
             )
@@ -384,14 +388,6 @@ extension ExportGenericViewController {
                 )
                 subviews.append(derivationPathView)
             }
-
-            let networkTypeView = setupNetworkView(
-                chain: exportViewModel.chain,
-                advancedContainerView: containerView,
-                locale: locale
-            )
-
-            subviews.append(networkTypeView)
 
             views.append(containerView)
 
@@ -417,13 +413,24 @@ extension ExportGenericViewController {
                 return subview
             }
 
-            containerView.bottomAnchor.constraint(
-                equalTo: networkTypeView.bottomAnchor,
-                constant: Constants.verticalSpacing
-            ).isActive = true
+            if let chain = exportViewModel.chain {
+                let networkTypeView = setupNetworkView(
+                    chain: chain,
+                    advancedContainerView: containerView,
+                    locale: locale
+                )
+
+                subviews.append(networkTypeView)
+
+                containerView.bottomAnchor.constraint(
+                    equalTo: networkTypeView.bottomAnchor,
+                    constant: Constants.verticalSpacing
+                ).isActive = true
+            }
         }
 
         advancedContainerViews = views
+        expandableControl.isHidden = advancedContainerViews?.isEmpty == true
     }
 
     private func setupCryptoTypeView(

@@ -97,18 +97,19 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
-    func didReceive(exportData _: ExportMnemonicData) {
-//        self.exportData = exportData
-//        let viewModel = ExportMnemonicViewModel(
-//            option: .mnemonic,
-//            chain: chain,
-//            cryptoType: exportData.cryptoType,
-//            derivationPath: exportData.derivationPath,
-//            mnemonic: exportData.mnemonic.allWords()
-//        )
-//
-//        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
-//        view?.set(viewModel: multipleExportViewModel)
+    func didReceive(exportData: ExportMnemonicData) {
+        self.exportData = exportData
+        let viewModel = ExportMnemonicViewModel(
+            option: .mnemonic,
+            chain: exportData.chain,
+            cryptoType: exportData.cryptoType,
+            derivationPath: exportData.derivationPath,
+            mnemonic: exportData.mnemonic.allWords(),
+            ethereumBased: exportData.chain.isEthereumBased
+        )
+
+        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+        view?.set(viewModel: multipleExportViewModel)
     }
 
     func didReceive(error: Error) {

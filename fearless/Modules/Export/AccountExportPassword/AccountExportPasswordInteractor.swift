@@ -84,7 +84,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                     let json = RestoreJson(
                         data: result,
                         chain: chain,
-                        cryptoType: chainAccount.cryptoType,
+                        cryptoType: nil,
                         fileURL: fileUrl
                     )
 
@@ -195,7 +195,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                     let model = try fileSaveOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    self?.presenter.didExport(jsons: [model, model])
+                    self?.presenter.didExport(jsons: [model])
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

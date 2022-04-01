@@ -55,7 +55,8 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
                 chain: model.chain,
                 cryptoType: model.cryptoType,
                 derivationPath: nil,
-                data: model.data
+                data: model.data,
+                ethereumBased: model.chain.isEthereumBased
             )
         }
 

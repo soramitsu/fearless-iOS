@@ -23,10 +23,15 @@ final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
         let keychain = Keychain()
         let repository = AccountRepositoryFactory.createRepository()
 
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
         let interactor = ExportSeedInteractor(
             keystore: keychain,
-            repository: AnyDataProviderRepository(repository),
-            operationManager: OperationManagerFacade.sharedManager
+            accountRepository: AnyDataProviderRepository(repository),
+            operationManager: OperationManagerFacade.sharedManager,
+            chainRepository: AnyDataProviderRepository(chainRepository)
         )
         let wireframe = ExportSeedWireframe()
 

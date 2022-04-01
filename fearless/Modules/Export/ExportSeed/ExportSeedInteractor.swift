@@ -13,21 +13,109 @@ final class ExportSeedInteractor {
     weak var presenter: ExportSeedInteractorOutputProtocol!
 
     let keystore: KeystoreProtocol
-    let repository: AnyDataProviderRepository<MetaAccountModel>
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    let chainRepository: AnyDataProviderRepository<ChainModel>
     let operationManager: OperationManagerProtocol
 
     init(
         keystore: KeystoreProtocol,
-        repository: AnyDataProviderRepository<MetaAccountModel>,
-        operationManager: OperationManagerProtocol
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        operationManager: OperationManagerProtocol,
+        chainRepository: AnyDataProviderRepository<ChainModel>
     ) {
         self.keystore = keystore
-        self.repository = repository
+        self.accountRepository = accountRepository
         self.operationManager = operationManager
+        self.chainRepository = chainRepository
     }
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
+    func fetchExportDataForWallet(_ wallet: MetaAccountModel) {
+        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+        fetchOperation.completionBlock = { [weak self] in
+            switch fetchOperation.result {
+            case let .success(chains):
+                var chainsToExport: [ChainModel] = []
+                if let substrateChain = chains.first(where: { $0.isEthereumBased == false }) {
+                    chainsToExport.append(substrateChain)
+                }
+
+                if let ethereumChain = chains.first(where: { $0.isEthereumBased == true }) {
+                    chainsToExport.append(ethereumChain)
+                }
+
+                guard !chainsToExport.isEmpty else {
+                    self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+                    return
+                }
+
+                self?.exportAccounts(chains: chainsToExport, wallet: wallet)
+            case .failure:
+                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+            case .none:
+                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
+            }
+        }
+
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
+    }
+
+    func exportAccounts(chains: [ChainModel], wallet: MetaAccountModel) {
+        var seeds: [ExportSeedData] = []
+
+        for chain in chains {
+            if let chainAccount = wallet.fetch(for: chain.accountRequest()) {
+                let accountId = chainAccount.isChainAccount ? chainAccount.accountId : nil
+
+                do {
+                    let seedTag = chain.isEthereumBased
+                        ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+                        : KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId, accountId: accountId)
+
+                    var optionalSeed: Data? = try keystore.fetchKey(for: seedTag)
+
+                    let keyTag = chain.isEthereumBased
+                        ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+                        : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+
+                    if optionalSeed == nil, chainAccount.cryptoType.supportsSeedFromSecretKey {
+                        optionalSeed = try keystore.fetchKey(for: keyTag)
+                    }
+
+                    guard let seed = optionalSeed else {
+                        throw ExportSeedInteractorError.missingSeed
+                    }
+
+                    //  We shouldn't show derivation path for ethereum seed. So just provide nil to hide it
+                    let derivationPathTag = chain.isEthereumBased
+                        ? nil : KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
+
+                    var derivationPath: String?
+                    if let tag = derivationPathTag {
+                        derivationPath = try keystore.fetchDeriviationForAddress(tag)
+                    }
+
+                    let seedData = ExportSeedData(
+                        seed: seed,
+                        derivationPath: derivationPath,
+                        chain: chain,
+                        cryptoType: chainAccount.cryptoType
+                    )
+
+                    seeds.append(seedData)
+                } catch {
+                    print("Seed creation error:", error)
+                }
+            }
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter.didReceive(exportData: seeds)
+        }
+    }
+
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
         guard let metaAccount = SelectedWalletSettings.shared.value else {
             presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -37,7 +125,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
         fetchChainAccount(
             chain: chain,
             address: address,
-            from: repository,
+            from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
             switch result {
@@ -107,7 +195,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                     let model = try exportOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    self?.presenter.didReceive(exportData: model)
+                    self?.presenter.didReceive(exportData: [model])
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

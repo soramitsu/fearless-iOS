@@ -1,6 +1,7 @@
 import IrohaCrypto
 
 protocol ExportMnemonicInteractorInputProtocol: AnyObject {
+    func fetchExportDataForWallet(_ wallet: MetaAccountModel)
     func fetchExportDataForAddress(_ address: String, chain: ChainModel)
 }
 

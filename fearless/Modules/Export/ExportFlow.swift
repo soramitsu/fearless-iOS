@@ -1,6 +1,6 @@
 import Foundation
 
 enum ExportFlow {
-    case multiple(account: MetaAccountModel)
+    case multiple(wallet: MetaAccountModel, accounts: [ChainAccountResponse])
     case single(chain: ChainModel, address: String)
 }

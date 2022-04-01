@@ -9,7 +9,7 @@ final class ExportSeedPresenter {
     let flow: ExportFlow
     let localizationManager: LocalizationManager
 
-    private(set) var exportViewModel: ExportStringViewModel?
+    private(set) var exportViewModels: [ExportStringViewModel]?
 
     init(flow: ExportFlow, localizationManager: LocalizationManager) {
         self.flow = flow
@@ -17,36 +17,36 @@ final class ExportSeedPresenter {
     }
 
     private func share() {
-        guard let viewModel = exportViewModel else {
-            return
-        }
-
-        let text: String
-
-        let locale = localizationManager.selectedLocale
-
-        if let derivationPath = viewModel.derivationPath {
-            text = R.string.localizable
-                .exportSeedWithDpTemplate(
-                    viewModel.chain.name,
-                    viewModel.data,
-                    derivationPath,
-                    preferredLanguages: locale.rLanguages
-                )
-        } else {
-            text = R.string.localizable
-                .exportSeedWithoutDpTemplate(
-                    viewModel.chain.name,
-                    viewModel.data,
-                    preferredLanguages: locale.rLanguages
-                )
-        }
-
-        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
-            if completed {
-                self?.wireframe.close(view: self?.view)
-            }
-        }
+//        guard let viewModel = exportViewModel else {
+//            return
+//        }
+//
+//        let text: String
+//
+//        let locale = localizationManager.selectedLocale
+//
+//        if let derivationPath = viewModel.derivationPath {
+//            text = R.string.localizable
+//                .exportSeedWithDpTemplate(
+//                    viewModel.chain.name,
+//                    viewModel.data,
+//                    derivationPath,
+//                    preferredLanguages: locale.rLanguages
+//                )
+//        } else {
+//            text = R.string.localizable
+//                .exportSeedWithoutDpTemplate(
+//                    viewModel.chain.name,
+//                    viewModel.data,
+//                    preferredLanguages: locale.rLanguages
+//                )
+//        }
+//
+//        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
+//            if completed {
+//                self?.wireframe.close(view: self?.view)
+//            }
+//        }
     }
 }
 
@@ -59,8 +59,8 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
         switch flow {
         case let .single(chain, address):
             interactor.fetchExportDataForAddress(address, chain: chain)
-        case let .multiple(account):
-            break
+        case let .multiple(wallet, accounts):
+            interactor.fetchExportDataForWallet(wallet)
         }
     }
 
@@ -88,18 +88,21 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
 }
 
 extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
-    func didReceive(exportData: ExportSeedData) {
-        let viewModel = ExportStringViewModel(
-            option: .seed,
-            chain: exportData.chain,
-            cryptoType: exportData.cryptoType,
-            derivationPath: exportData.derivationPath,
-            data: exportData.seed.toHex(includePrefix: true)
-        )
+    func didReceive(exportData: [ExportSeedData]) {
+        let viewModels = exportData.compactMap { seedData in
+            ExportStringViewModel(
+                option: .seed,
+                chain: seedData.chain,
+                cryptoType: seedData.chain.isEthereumBased ? nil : seedData.cryptoType,
+                derivationPath: seedData.derivationPath,
+                data: seedData.seed.toHex(includePrefix: true),
+                ethereumBased: seedData.chain.isEthereumBased
+            )
+        }
 
-        exportViewModel = viewModel
+        exportViewModels = viewModels
 
-        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+        let multipleExportViewModel = MultiExportViewModel(viewModels: viewModels)
 
         view?.set(viewModel: multipleExportViewModel)
     }
