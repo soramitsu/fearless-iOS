@@ -35,7 +35,11 @@ final class AccountExportPasswordInteractor {
 }
 
 extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputProtocol {
-    func exportWallet(_ account: MetaAccountModel, password: String) {
+    func exportWallet(
+        _ account: MetaAccountModel,
+        accounts: [ChainAccountResponse],
+        password: String
+    ) {
         let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         fetchOperation.completionBlock = { [weak self] in
@@ -55,7 +59,12 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                     return
                 }
 
-                self?.exportAccounts(chains: chainsToExport, wallet: account, password: password)
+                self?.exportAccounts(
+                    accounts: accounts,
+                    chains: chainsToExport,
+                    wallet: account,
+                    password: password
+                )
             case .failure:
                 self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
             case .none:
@@ -66,11 +75,20 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 
-    func exportAccounts(chains: [ChainModel], wallet: MetaAccountModel, password: String) {
+    func exportAccounts(
+        accounts: [ChainAccountResponse],
+        chains: [ChainModel],
+        wallet: MetaAccountModel,
+        password: String
+    ) {
         var jsons: [RestoreJson] = []
 
-        for chain in chains {
-            if let chainAccount = wallet.fetch(for: chain.accountRequest()), let data = try? exportJsonWrapper.export(
+        for chainAccount in accounts {
+            guard let chain = chains.first(where: { $0.chainId == chainAccount.chainId }) else {
+                return
+            }
+
+            if let data = try? exportJsonWrapper.export(
                 chainAccount: chainAccount,
                 password: password,
                 address: AddressFactory.address(for: chainAccount.accountId, chain: chain),

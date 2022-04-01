@@ -1,6 +1,6 @@
 protocol ExportSeedInteractorInputProtocol: AnyObject {
     func fetchExportDataForAddress(_ address: String, chain: ChainModel)
-    func fetchExportDataForWallet(_ wallet: MetaAccountModel)
+    func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountResponse])
 }
 
 protocol ExportSeedInteractorOutputProtocol: AnyObject {

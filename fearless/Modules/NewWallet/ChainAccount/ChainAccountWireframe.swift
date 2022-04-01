@@ -230,7 +230,10 @@ private extension ChainAccountWireframe {
     }
 
     func showSeedExport(for _: String, chain _: ChainModel, from view: ControllerBackedProtocol?) {
-        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .multiple(wallet: SelectedWalletSettings.shared.value!, accounts: [])) else {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .multiple(
+            wallet: SelectedWalletSettings.shared.value!,
+            accounts: []
+        )) else {
             return
         }
 
