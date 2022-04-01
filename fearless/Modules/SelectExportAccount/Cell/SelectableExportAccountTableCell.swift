@@ -1,10 +1,11 @@
 import Foundation
 import UIKit
 
-struct ExportAccoutInfo {
-    let chainName = "Polkadot"
-    let chainImage = R.image.iconPolkadotAsset()
-    let chainCount = "+ 18 others"
+struct SelectExportAccountCellViewModel {
+    let title: String
+    let subtitle: String
+    let hint: String
+    let imageViewModel: RemoteImageViewModel?
 }
 
 final class SelectableExportAccountTableCell: UITableViewCell {
@@ -45,7 +46,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
 
     private let chainImageView = UIImageView()
 
-    private let chainNameLabel: UILabel = {
+    private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite()
@@ -75,11 +76,11 @@ final class SelectableExportAccountTableCell: UITableViewCell {
 
     // MARK: - Public methods
 
-    func bind(viewModel: ExportAccoutInfo) {
-        titleLabel.text = "Accounts with one key"
-        chainNameLabel.text = viewModel.chainName
-        chainImageView.image = viewModel.chainImage
-        chainCountLabel.text = viewModel.chainCount
+    func bind(viewModel: SelectExportAccountCellViewModel) {
+        titleLabel.text = viewModel.title
+        subtitleLabel.text = viewModel.subtitle
+        viewModel.imageViewModel?.loadImage(on: chainImageView, targetSize: chainImageView.frame.size, animated: true)
+        chainCountLabel.text = viewModel.hint
     }
 
     // MARK: - Private methods
@@ -119,11 +120,11 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         }
 
         chainStackView.addArrangedSubview(chainImageView)
-        chainStackView.addArrangedSubview(chainNameLabel)
+        chainStackView.addArrangedSubview(subtitleLabel)
         chainStackView.addArrangedSubview(createChainCountView())
 
         chainStackView.setCustomSpacing(11, after: chainImageView)
-        chainStackView.setCustomSpacing(8, after: chainNameLabel)
+        chainStackView.setCustomSpacing(8, after: subtitleLabel)
     }
 
     private func createChainCountView() -> UIView {

@@ -12,15 +12,20 @@ final class SelectExportAccountAssembly {
 
         let interactor = SelectExportAccountInteractor(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            metaAccount: metaAccount
+            metaAccount: metaAccount,
+            operationManager: OperationManagerFacade.sharedManager
         )
-        
+
         let router = SelectExportAccountRouter()
+
+        let viewModelFactory: SelectExportAccountViewModelFactoryProtocol = SelectExportAccountViewModelFactory()
 
         let presenter = SelectExportAccountPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            viewModelFactory: viewModelFactory,
+            metaAccount: metaAccount
         )
 
         let view = SelectExportAccountViewController(

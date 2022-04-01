@@ -66,7 +66,6 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
             if let managedMetaAccountModel = strongSelf.listCalculator.allItems.first(
                 where: { $0.identifier == viewModel.identifier }
             ) {
-                
                 switch items[selectedIndex] {
                 case .view:
                     strongSelf.wireframe.showAccountDetails(

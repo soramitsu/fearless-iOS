@@ -1721,6 +1721,9 @@
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 		F7EB8F835CFA7FC949EF4C22 /* YourValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 906C55FC079AF6112AF0745B /* YourValidatorListWireframe.swift */; };
 		F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101339CC1292531CC4DB0AC /* StakingUnbondSetupInteractor.swift */; };
+		FA03202F27F6EF2400DFD5F0 /* SelectExportAccountViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA03202E27F6EF2400DFD5F0 /* SelectExportAccountViewModelFactory.swift */; };
+		FA03203127F6EF9F00DFD5F0 /* SelectExportAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA03203027F6EF9F00DFD5F0 /* SelectExportAccountViewModel.swift */; };
+		FA03203327F6F87C00DFD5F0 /* SelectExportAccountViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA03203227F6F87C00DFD5F0 /* SelectExportAccountViewState.swift */; };
 		FA072C14277AE2FE00731718 /* QRCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C13277AE2FE00731718 /* QRCaptureService.swift */; };
 		FA072C16277B023D00731718 /* QRExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C15277B023D00731718 /* QRExtractionService.swift */; };
 		FA072C19277B030200731718 /* QRCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C18277B030200731718 /* QRCoder.swift */; };
@@ -3694,6 +3697,9 @@
 		F61D8973ADEB461DE2AD3E13 /* RecommendedValidatorListViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewController.swift; sourceTree = "<group>"; };
 		F829E7F8B39EE7D977001510 /* ControllerAccountProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountProtocols.swift; sourceTree = "<group>"; };
 		F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
+		FA03202E27F6EF2400DFD5F0 /* SelectExportAccountViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectExportAccountViewModelFactory.swift; sourceTree = "<group>"; };
+		FA03203027F6EF9F00DFD5F0 /* SelectExportAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectExportAccountViewModel.swift; sourceTree = "<group>"; };
+		FA03203227F6F87C00DFD5F0 /* SelectExportAccountViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectExportAccountViewState.swift; sourceTree = "<group>"; };
 		FA072C13277AE2FE00731718 /* QRCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCaptureService.swift; sourceTree = "<group>"; };
 		FA072C15277B023D00731718 /* QRExtractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRExtractionService.swift; sourceTree = "<group>"; };
 		FA072C18277B030200731718 /* QRCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCoder.swift; sourceTree = "<group>"; };
@@ -4103,6 +4109,7 @@
 		100AB4EC1C97A3D94520909B /* SelectExportAccount */ = {
 			isa = PBXGroup;
 			children = (
+				FA03202D27F6EF1400DFD5F0 /* ViewModel */,
 				07B05B1E27F6B88B00F4F36D /* Cell */,
 				5D3E6429CCD0801BD07F6A3B /* SelectExportAccountProtocols.swift */,
 				0CF7D8676E28272B6797F3AD /* SelectExportAccountRouter.swift */,
@@ -9220,6 +9227,16 @@
 			path = EraCountdownOperationFactory;
 			sourceTree = "<group>";
 		};
+		FA03202D27F6EF1400DFD5F0 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				FA03202E27F6EF2400DFD5F0 /* SelectExportAccountViewModelFactory.swift */,
+				FA03203027F6EF9F00DFD5F0 /* SelectExportAccountViewModel.swift */,
+				FA03203227F6F87C00DFD5F0 /* SelectExportAccountViewState.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		FA072C17277B02D900731718 /* QRService */ = {
 			isa = PBXGroup;
 			children = (
@@ -10883,6 +10900,7 @@
 				F43A8A95265B9CF400A8A5A8 /* CustomValidatorCell.swift in Sources */,
 				84FB1F672526920B00E0242B /* SubscanTransferData.swift in Sources */,
 				84D97EBB251FE5B500F07405 /* TransferViewModelFactory.swift in Sources */,
+				FA03203327F6F87C00DFD5F0 /* SelectExportAccountViewState.swift in Sources */,
 				84FB298426393D0900BE0FCD /* YourValidatorListViewModelFactory.swift in Sources */,
 				8406B5AB26FBD9EB00635B61 /* AccountInfoUpdatingService.swift in Sources */,
 				FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */,
@@ -11373,11 +11391,13 @@
 				F47BBD4C2630B78E0087DA11 /* StakingBalanceWireframe.swift in Sources */,
 				843910B6253EE62B00E3C217 /* DataProviderChange+Result.swift in Sources */,
 				8436EDE725895846004D9E97 /* PurchaseProvider.swift in Sources */,
+				FA03203127F6EF9F00DFD5F0 /* SelectExportAccountViewModel.swift in Sources */,
 				AEF50556261A04AD0098574D /* MoonpayProvider.swift in Sources */,
 				84FB29942639ABD700BE0FCD /* YourValidatorList+SelectionStart.swift in Sources */,
 				84DB9E8A26409E8200F23DD3 /* StakingRedeemLayout.swift in Sources */,
 				84644A2B2567222A004EAA4B /* TriangularedBlurButton.swift in Sources */,
 				844D22A325EE7E4600C022F7 /* AnySingleValueProvider.swift in Sources */,
+				FA03202F27F6EF2400DFD5F0 /* SelectExportAccountViewModelFactory.swift in Sources */,
 				84754C982511FC1F00854599 /* ManagedConnectionViewModelFactory.swift in Sources */,
 				84CEAAF726D7B8010021B881 /* SettingsMigrator.swift in Sources */,
 				844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */,
