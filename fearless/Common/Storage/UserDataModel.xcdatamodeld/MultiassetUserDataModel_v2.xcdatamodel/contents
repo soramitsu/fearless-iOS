@@ -16,7 +16,7 @@
         <attribute name="url" attributeType="URI"/>
     </entity>
     <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
-        <attribute name="canExportEthereumMnemonic" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="canExportEthereumMnemonic" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="ethereumAddress" optional="YES" attributeType="String"/>
         <attribute name="ethereumPublicKey" optional="YES" attributeType="Binary"/>
         <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>

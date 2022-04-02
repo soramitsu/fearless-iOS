@@ -8,7 +8,6 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
         in mapping: NSEntityMapping,
         manager: NSMigrationManager
     ) throws {
-        return
         guard let keystoreMigrator = manager
             .userInfo?[UserStorageMigratorKeys.keystoreMigrator] as? KeystoreMigrating else {
             fatalError("No keystore migrator found in context")

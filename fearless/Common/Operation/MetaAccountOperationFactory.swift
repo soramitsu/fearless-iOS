@@ -252,7 +252,8 @@ private extension MetaAccountOperationFactory {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: []
+            chainAccounts: [],
+            canExportEthereumMnemonic: true
         )
     }
 }
@@ -416,7 +417,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey: substratePublicKey.rawData(),
                 ethereumAddress: ethereumAddress,
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
-                chainAccounts: []
+                chainAccounts: [],
+                canExportEthereumMnemonic: true
             )
         }
     }
