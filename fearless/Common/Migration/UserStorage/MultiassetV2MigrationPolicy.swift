@@ -47,13 +47,10 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
         let entropyTag = KeystoreTagV2.entropyTagForMetaId(metaId)
 
         if let entropy = keystoreMigrator.fetchKey(for: entropyTag) {
-            var ethereumDPString: String
+            var ethereumDPString: String?
             let pathTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
-            if let pathData = keystoreMigrator.fetchKey(for: pathTag),
-               let dpString = String(data: pathData, encoding: .utf8) {
-                ethereumDPString = dpString
-            } else {
-                ethereumDPString = DerivationPathConstants.defaultEthereum
+            if let pathData = keystoreMigrator.fetchKey(for: pathTag) {
+                ethereumDPString = String(data: pathData, encoding: .utf8)
             }
             let secrets = try EthereumAccountImportWrapper().importEntropy(
                 entropy,
@@ -67,18 +64,9 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
             keystoreMigrator.save(key: secrets.keypair.privateKey().rawData(), for: ethSecretKeyTag)
 
             publicKey = secrets.keypair.publicKey()
-        }
-
-        if let seed = keystoreMigrator.fetchKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: nil)), seed.count == 32 {
-            var ethereumDPString: String
-            let pathTag = KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
-            if let pathData = keystoreMigrator.fetchKey(for: pathTag),
-               let dpString = String(data: pathData, encoding: .utf8) {
-                ethereumDPString = dpString
-            } else {
-                ethereumDPString = DerivationPathConstants.defaultEthereum
-            }
-
+        } else if let seed = keystoreMigrator.fetchKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId,
+                                                                                            accountId: nil)),
+            seed.count == 32 {
             let ethSecretKeyTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId)
             keystoreMigrator.save(key: seed, for: ethSecretKeyTag)
 
