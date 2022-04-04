@@ -41,7 +41,7 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
         items: [WalletSettingsRow],
         callback: @escaping ModalPickerSelectionCallback
     ) {
-        guard let pickerView = ModalPickerFactory.createPickerForIconWithTitle(
+        guard let pickerView = ModalPickerFactory.createPickerForWalletActions(
             items,
             callback: callback,
             context: nil

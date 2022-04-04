@@ -459,7 +459,7 @@ enum ModalPickerFactory {
         return viewController
     }
 
-    static func createPickerForIconWithTitle(
+    static func createPickerForWalletActions(
         _ items: [WalletSettingsRow],
         callback: ModalPickerSelectionCallback?,
         context: AnyObject?

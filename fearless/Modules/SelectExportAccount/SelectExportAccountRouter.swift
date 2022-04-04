@@ -8,7 +8,7 @@ struct ChainAccountInfo {
 final class SelectExportAccountRouter: SelectExportAccountRouterInput {
     func showWalletDetails(
         selectedWallet: MetaAccountModel,
-        accountInfo _: [ChainAccountInfo],
+        accountsInfo _: [ChainAccountInfo],
         from view: ControllerBackedProtocol?
     ) {
         let viewController = WalletDetailsViewFactory.createView(with: selectedWallet).controller
