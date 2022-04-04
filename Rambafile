@@ -29,7 +29,5 @@ test_group_path: fearlessTests/Modules/
 podfile_path: Podfile
 
 ### Templates
-catalogs:
-- 'https://github.com/ERussel/GenerambaTemplates'
 templates:
-- {name: viper-code-layout}
+- {name: viper-code-layout, local: 'GenerambaTemplates/viper-code-layout/'}
