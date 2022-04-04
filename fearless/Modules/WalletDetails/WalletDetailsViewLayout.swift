@@ -4,6 +4,7 @@ final class WalletDetailsViewLayout: UIView {
     var walletView: CommonInputView = {
         let view = CommonInputView()
         view.animatedInputField.textField.returnKeyType = .done
+        view.isHidden = true
         return view
     }()
 
@@ -31,6 +32,13 @@ final class WalletDetailsViewLayout: UIView {
         return navBar
     }()
 
+    let exportButton: TriangularedButton = {
+        let button = UIFactory.default.createMainActionButton()
+        button.applyDefaultStyle()
+        button.isHidden = true
+        return button
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -45,6 +53,19 @@ final class WalletDetailsViewLayout: UIView {
 
     func bind(to viewModel: WalletDetailsViewModel) {
         navigationLabel.text = viewModel.navigationTitle
+        walletView.isHidden = false
+    }
+
+    func bind(to viewModel: WalletExportViewModel) {
+        navigationLabel.text = viewModel.navigationTitle
+
+        exportButton.isHidden = false
+        tableView.contentInset = UIEdgeInsets(
+            top: tableView.contentInset.top,
+            left: tableView.contentInset.left,
+            bottom: safeAreaLayoutGuide.layoutFrame.size.height + UIConstants.bigOffset,
+            right: tableView.contentInset.right
+        )
     }
 }
 
@@ -81,6 +102,14 @@ private extension WalletDetailsViewLayout {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
+        }
+
+        addSubview(exportButton)
+        exportButton.snp.makeConstraints { make in
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(UIConstants.actionHeight)
+            make.width.equalToSuperview().offset(UIConstants.bigOffset * 2)
         }
     }
 }

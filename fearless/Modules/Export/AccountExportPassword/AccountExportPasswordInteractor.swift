@@ -45,23 +45,9 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         fetchOperation.completionBlock = { [weak self] in
             switch fetchOperation.result {
             case let .success(chains):
-                var chainsToExport: [ChainModel] = []
-                if let substrateChain = chains.first(where: { $0.isEthereumBased == false }) {
-                    chainsToExport.append(substrateChain)
-                }
-
-                if let ethereumChain = chains.first(where: { $0.isEthereumBased == true }) {
-                    chainsToExport.append(ethereumChain)
-                }
-
-                guard !chainsToExport.isEmpty else {
-                    self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
-                    return
-                }
-
                 self?.exportAccounts(
                     accounts: accounts,
-                    chains: chainsToExport,
+                    chains: chains,
                     wallet: account,
                     password: password
                 )

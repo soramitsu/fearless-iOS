@@ -7,7 +7,7 @@ extension SwitchAccount {
             metaAccount: MetaAccountModel
         ) {
             let walletDetails = WalletDetailsViewFactory.createView(
-                with: metaAccount
+                flow: .normal(wallet: metaAccount)
             )
             if let navigationController = view?.controller.navigationController {
                 navigationController.present(walletDetails.controller, animated: true)

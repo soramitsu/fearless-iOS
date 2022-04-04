@@ -6,7 +6,7 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
         metaAccount: MetaAccountModel
     ) {
         let walletDetails = WalletDetailsViewFactory.createView(
-            with: metaAccount
+            flow: .normal(wallet: metaAccount)
         )
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller

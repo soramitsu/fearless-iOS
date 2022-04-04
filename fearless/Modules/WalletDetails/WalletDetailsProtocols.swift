@@ -4,24 +4,25 @@ protocol WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol)
     func updateData()
     func didTapCloseButton()
+    func didTapExportButton()
     func willDisappear()
-    func showActions(for chain: ChainModel)
+    func showActions(for chainAccount: ChainAccountInfo)
 }
 
 protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
+    func didReceive(state: WalletDetailsViewState)
     func setInput(viewModel: InputViewModelProtocol)
-    func bind(to viewModel: WalletDetailsViewModel)
 }
 
 protocol WalletDetailsInteractorInputProtocol: AnyObject {
     func setup()
     func update(walletName: String)
-    func getAvailableExportOptions(for chain: ChainModel, address: String)
+    func getAvailableExportOptions(for chainAccount: ChainAccountInfo, address: String)
 }
 
 protocol WalletDetailsInteractorOutputProtocol: AnyObject {
-    func didReceive(chainsWithAccounts: [ChainModel: ChainAccountResponse])
-    func didReceiveExportOptions(options: [ExportOption], for chain: ChainModel)
+    func didReceive(chainAccounts: [ChainAccountInfo])
+    func didReceiveExportOptions(options: [ExportOption], for chainAccount: ChainAccountInfo)
     func didReceive(error: Error)
 }
 
