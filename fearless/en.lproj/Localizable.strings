@@ -655,3 +655,4 @@ and depending on the network state, may not be selected to participate";
 "import.substrate.recovery.json" = "Restore JSON for Substrate accounts";
 "import.ethereum.recovery.json" = "Restore JSON for ETH-based accounts";
 "common.unsupported" = "Unsupported";
+"export.wallet.chains.count" = "+ %d OTHERS";

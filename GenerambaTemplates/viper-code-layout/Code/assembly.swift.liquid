@@ -1,0 +1,24 @@
+import UIKit
+import SoraFoundation
+
+final class {{ module_info.name }}Assembly {
+    static func configureModule() -> {{ module_info.name }}ModuleCreationResult? {
+        let localizationManager = LocalizationManager.shared
+            
+        let interactor = {{ module_info.name }}Interactor()
+        let router = {{ module_info.name }}Router()
+        
+        let presenter = {{ module_info.name }}Presenter(
+            interactor: interactor,
+            router: router,
+            localizationManager: localizationManager
+        )
+        
+        let view = {{ module_info.name }}ViewController(
+            output: presenter,
+            localizationManager: localizationManager
+        )
+
+        return (view, presenter)
+    }
+}

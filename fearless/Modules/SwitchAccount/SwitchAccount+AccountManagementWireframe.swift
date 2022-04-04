@@ -31,5 +31,23 @@ extension SwitchAccount {
 
             navigationController.popToRootViewController(animated: true)
         }
+
+        func showWalletSettings(
+            from view: AccountManagementViewProtocol?,
+            items: [WalletSettingsRow],
+            callback: @escaping ModalPickerSelectionCallback
+        ) {
+            guard let pickerView = ModalPickerFactory.createPickerForIconWithTitle(
+                items,
+                callback: callback,
+                context: nil
+            ) else {
+                return
+            }
+
+            view?.controller.navigationController?.present(pickerView, animated: true)
+        }
+
+        func showSelectAccounts(from _: AccountManagementViewProtocol?, metaAccount _: MetaAccountModel) {}
     }
 }

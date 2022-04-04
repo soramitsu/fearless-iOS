@@ -1,0 +1,13 @@
+import UIKit
+
+final class {{ module_info.name }}Interactor {
+    // MARK: - Private properties
+    private weak var output: {{ module_info.name }}InteractorOutput?
+}
+
+// MARK: - {{ module_info.name }}InteractorInput
+extension {{ module_info.name }}Interactor: {{ module_info.name }}InteractorInput {
+    func setup(with output: {{ module_info.name }}InteractorOutput) {
+        self.output = output
+    }
+}
