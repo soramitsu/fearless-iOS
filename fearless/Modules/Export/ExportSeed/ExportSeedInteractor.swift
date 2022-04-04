@@ -66,19 +66,11 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
         chain: ChainModel
     ) {
         let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
-            let seedTag = chain.isEthereumBased
-                ? KeystoreTagV2.ethereumSeedTagForMetaId(metaId, accountId: accountId)
-                : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
-
-            var optionalSeed: Data? = try self?.keystore.fetchKey(for: seedTag)
-
             let keyTag = chain.isEthereumBased
                 ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-                : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+                : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
 
-            if optionalSeed == nil, cryptoType.supportsSeedFromSecretKey {
-                optionalSeed = try self?.keystore.fetchKey(for: keyTag)
-            }
+            var optionalSeed = try self?.keystore.fetchKey(for: keyTag)
 
             guard let seed = optionalSeed else {
                 throw ExportSeedInteractorError.missingSeed

@@ -10,6 +10,7 @@ struct MetaAccountModel: Equatable, Codable {
     let ethereumAddress: Data?
     let ethereumPublicKey: Data?
     let chainAccounts: Set<ChainAccountModel>
+    let canExportEthereumMnemonic: Bool
 }
 
 extension MetaAccountModel: Identifiable {
@@ -32,7 +33,8 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: newChainAccounts
+            chainAccounts: newChainAccounts,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -45,7 +47,8 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: newEthereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts
+            chainAccounts: chainAccounts,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -58,7 +61,8 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: newEthereumPublicKey,
-            chainAccounts: chainAccounts
+            chainAccounts: chainAccounts,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -71,7 +75,8 @@ extension MetaAccountModel {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts
+            chainAccounts: chainAccounts,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 }

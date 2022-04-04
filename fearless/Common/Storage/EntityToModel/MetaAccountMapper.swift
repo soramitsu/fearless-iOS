@@ -36,7 +36,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             substratePublicKey: entity.substratePublicKey!,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: entity.ethereumPublicKey,
-            chainAccounts: Set(chainAccounts)
+            chainAccounts: Set(chainAccounts),
+            canExportEthereumMnemonic: entity.canExportEthereumMnemonic
         )
     }
 
@@ -52,6 +53,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.substratePublicKey = model.substratePublicKey
         entity.ethereumPublicKey = model.ethereumPublicKey
         entity.ethereumAddress = model.ethereumAddress?.toHex()
+        entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {
