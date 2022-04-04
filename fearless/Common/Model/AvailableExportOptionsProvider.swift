@@ -45,9 +45,9 @@ private extension AvailableExportOptionsProvider {
         return entropy != nil
     }
 
-    func seedAvailable(for metaId: String, accountId: AccountId?) -> Bool {
+    func seedAvailable(for account: MetaAccountModel, accountId: AccountId?) -> Bool {
         let ethereumTag = KeystoreTagV2.ethereumSeedTagForMetaId(
-            metaId,
+            account.metaId,
             accountId: accountId
         )
         let ethereumSeed = try? keystore.fetchKey(for: ethereumTag)
