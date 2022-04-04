@@ -43,7 +43,7 @@ private extension AvailableExportOptionsProvider {
     }
 
     func seedAvailable(for metaId: String, accountId: AccountId?) -> Bool {
-        let ethereumTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(
+        let ethereumTag = KeystoreTagV2.ethereumSeedTagForMetaId(
             metaId,
             accountId: accountId
         )
