@@ -67,6 +67,25 @@ extension SelectExportAccountPresenter: SelectExportAccountViewOutput {
 
         provideEmptyViewModel()
     }
+
+    func exportNativeAccounts() {
+        let chainAccountsInfo = chains?.compactMap { chain -> ChainAccountInfo? in
+            guard let accountResponse = metaAccount.fetch(for: chain.accountRequest()) else {
+                return nil
+            }
+            return ChainAccountInfo(
+                chain: chain,
+                account: accountResponse
+            )
+        }.compactMap { $0 }
+
+        guard let chainAccountsInfo = chainAccountsInfo else { return }
+        router.showWalletDetails(
+            selectedWallet: metaAccount,
+            accountInfo: chainAccountsInfo,
+            from: view
+        )
+    }
 }
 
 // MARK: - SelectExportAccountInteractorOutput

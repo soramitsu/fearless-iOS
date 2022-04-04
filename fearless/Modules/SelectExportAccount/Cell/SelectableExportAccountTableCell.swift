@@ -6,6 +6,7 @@ struct SelectExportAccountCellViewModel {
     let subtitle: String
     let hint: String
     let imageViewModel: RemoteImageViewModel?
+    var isSelected: Bool
 }
 
 final class SelectableExportAccountTableCell: UITableViewCell {
@@ -17,6 +18,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
             right: UIConstants.horizontalInset
         )
         static let corderRadius: CGFloat = 3
+        static let chainImageViewSize = CGSize(width: 18, height: 18)
     }
 
     // MARK: - UI
@@ -30,11 +32,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         return view
     }()
 
-    private let checkMarkImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.iconCheckMark()
-        return imageView
-    }()
+    private let checkMarkImageView = UIImageView()
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -66,6 +64,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        selectionStyle = .none
         setupLayout()
     }
 
@@ -74,13 +73,32 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Life cycle
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        chainImageView.kf.cancelDownloadTask()
+    }
+
+    override var isSelected: Bool {
+        didSet {
+            checkMarkImageView.image = isSelected ? R.image.iconCheckMark() : nil
+        }
+    }
+
     // MARK: - Public methods
 
     func bind(viewModel: SelectExportAccountCellViewModel) {
+        isSelected = viewModel.isSelected
+
         titleLabel.text = viewModel.title
         subtitleLabel.text = viewModel.subtitle
-        viewModel.imageViewModel?.loadImage(on: chainImageView, targetSize: chainImageView.frame.size, animated: true)
         chainCountLabel.text = viewModel.hint
+        viewModel.imageViewModel?.loadImage(
+            on: chainImageView,
+            targetSize: Constants.chainImageViewSize,
+            animated: true
+        )
     }
 
     // MARK: - Private methods
@@ -116,7 +134,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         }
 
         chainImageView.snp.makeConstraints { make in
-            make.width.height.equalTo(18)
+            make.size.equalTo(Constants.chainImageViewSize)
         }
 
         chainStackView.addArrangedSubview(chainImageView)

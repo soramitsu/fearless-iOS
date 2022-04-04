@@ -15,7 +15,6 @@ protocol SelectExportAccountViewModelFactoryProtocol {
 class SelectExportAccountViewModelFactory {
     private func buildNativeAccountsCellViewModel(
         nativeAccounts: [ChainAccountResponse]?,
-        metaAccount _: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale
     ) -> SelectExportAccountCellViewModel? {
@@ -23,8 +22,26 @@ class SelectExportAccountViewModelFactory {
             return nil
         }
 
-        let chainName = chains.first(where: { $0.isPolkadotOrKusama })?.name ?? ""
-        return SelectExportAccountCellViewModel(title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages), subtitle: chainName, hint: "", imageViewModel: nil)
+        let hint = R.string.localizable
+            .exportWalletChainsCount(
+                nativeAccounts.count,
+                preferredLanguages: locale.rLanguages
+            )
+
+        let polkadotOrKusama = chains.first(where: { $0.isPolkadotOrKusama })
+        let chainName = polkadotOrKusama?.name ?? ""
+        let imageViewModel = polkadotOrKusama?.icon.map {
+            RemoteImageViewModel(url: $0)
+        }
+
+        return SelectExportAccountCellViewModel(
+            title: R.string.localizable
+                .accountsWithOneKey(preferredLanguages: locale.rLanguages),
+            subtitle: chainName,
+            hint: hint,
+            imageViewModel: imageViewModel,
+            isSelected: true
+        )
     }
 
     private func buildAddedAccountCellViewModels(
@@ -43,6 +60,7 @@ class SelectExportAccountViewModelFactory {
             }
         }
 
+        // TODO: - Make when finish disign and flow for export added accounts
         return []
     }
 }
@@ -56,11 +74,20 @@ extension SelectExportAccountViewModelFactory: SelectExportAccountViewModelFacto
         locale: Locale
     ) -> SelectExportAccountViewModel {
         SelectExportAccountViewModel(
-            title: R.string.localizable.whatAccountsForExport(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable
+                .whatAccountsForExport(preferredLanguages: locale.rLanguages),
             metaAccountName: metaAccount.name,
             metaAccountBalanceString: nil,
-            nativeAccountCellViewModel: buildNativeAccountsCellViewModel(nativeAccounts: nativeAccounts, metaAccount: metaAccount, chains: chains, locale: locale),
-            addedAccountsCellViewModels: buildAddedAccountCellViewModels(addedAccounts: addedAccounts, chains: chains, locale: locale)
+            nativeAccountCellViewModel: buildNativeAccountsCellViewModel(
+                nativeAccounts: nativeAccounts,
+                chains: chains,
+                locale: locale
+            ),
+            addedAccountsCellViewModels: buildAddedAccountCellViewModels(
+                addedAccounts: addedAccounts,
+                chains: chains,
+                locale: locale
+            )
         )
     }
 

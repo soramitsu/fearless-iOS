@@ -6,6 +6,7 @@ protocol SelectExportAccountViewInput: ControllerBackedProtocol {
 
 protocol SelectExportAccountViewOutput: AnyObject {
     func didLoad(view: SelectExportAccountViewInput)
+    func exportNativeAccounts()
 }
 
 protocol SelectExportAccountInteractorInput: AnyObject {
@@ -16,7 +17,13 @@ protocol SelectExportAccountInteractorOutput: AnyObject {
     func didReceive(chains: [ChainModel])
 }
 
-protocol SelectExportAccountRouterInput: AnyObject {}
+protocol SelectExportAccountRouterInput: AnyObject {
+    func showWalletDetails(
+        selectedWallet: MetaAccountModel,
+        accountInfo: [ChainAccountInfo],
+        from view: ControllerBackedProtocol?
+    )
+}
 
 protocol SelectExportAccountModuleInput: AnyObject {}
 

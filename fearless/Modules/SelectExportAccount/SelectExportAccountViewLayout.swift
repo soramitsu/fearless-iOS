@@ -18,6 +18,7 @@ final class SelectExportAccountViewLayout: UIView {
         view.titleLabel.textColor = R.color.colorWhite()
         view.subtitleLabel?.font = .p2Paragraph
         view.subtitleLabel?.textColor = R.color.colorLightGray()
+        view.iconView.image = R.image.iconBirdGreen()
         return view
     }()
 
@@ -65,12 +66,10 @@ final class SelectExportAccountViewLayout: UIView {
 
     func configureProfileInfo(
         title: String,
-        subtitle: String,
-        icon: UIImage?
+        subtitle: String
     ) {
         profileInfoView.title = title
         profileInfoView.subtitle = subtitle
-        profileInfoView.iconView.image = icon
     }
 
     // MARK: - Private methods

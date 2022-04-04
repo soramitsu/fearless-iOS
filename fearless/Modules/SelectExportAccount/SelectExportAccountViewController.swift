@@ -8,7 +8,11 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
 
     private let output: SelectExportAccountViewOutput
 
-    private var state: SelectExportAccountViewState?
+    private var state: SelectExportAccountViewState? {
+        didSet {
+            applyState()
+        }
+    }
 
     // MARK: - Constructor
 
@@ -36,6 +40,7 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
         configureTableView()
+        configure()
     }
 
     // MARK: - Private methods
@@ -45,6 +50,10 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
         rootView.tableView.dataSource = self
     }
 
+    private func configure() {
+        rootView.continueButton.addTarget(self, action: #selector(continueDidTap), for: .touchUpInside)
+    }
+
     private func applyState() {
         guard let state = state else {
             return
@@ -52,10 +61,26 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
 
         switch state {
         case let .loading(viewModel):
-            rootView.configureProfileInfo(title: viewModel.metaAccountName, subtitle: "BALANCE HERE", icon: nil)
-        case let .loaded(viewModel):
+            rootView.configureProfileInfo(
+                title: viewModel.metaAccountName,
+                subtitle: "BALANCE HERE"
+            )
+        case .loaded:
             rootView.tableView.reloadData()
         }
+    }
+
+    @objc private func continueDidTap() {
+        guard case let .loaded(viewModel) = state else { return }
+    }
+
+    private func viewModelWasSelected() -> Bool {
+        guard case let .loaded(viewModel) = state else { return false }
+
+        let addedAccountsWasSelected = viewModel.addedAccountsCellViewModels?.first(where: {
+            $0.isSelected == true
+        }).map(\.isSelected)
+        return (addedAccountsWasSelected ?? viewModel.nativeAccountCellViewModel?.isSelected) ?? false
     }
 }
 
@@ -65,7 +90,8 @@ extension SelectExportAccountViewController: UITableViewDataSource {
             return 0
         }
 
-        return (viewModel.nativeAccountCellViewModel != nil).intValue + (viewModel.addedAccountsCellViewModels != nil).intValue
+        return (viewModel.nativeAccountCellViewModel != nil).intValue
+            + (viewModel.addedAccountsCellViewModels != nil).intValue
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -86,7 +112,11 @@ extension SelectExportAccountViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        if let cellModel: SelectExportAccountCellViewModel = (indexPath.section == 0 ? viewModel.nativeAccountCellViewModel : viewModel.addedAccountsCellViewModels?[indexPath.row]) {
+        if let cellModel: SelectExportAccountCellViewModel = (
+            indexPath.section == 0
+                ? viewModel.nativeAccountCellViewModel
+                : viewModel.addedAccountsCellViewModels?[indexPath.row]
+        ) {
             cell.bind(viewModel: cellModel)
         }
 
@@ -94,7 +124,13 @@ extension SelectExportAccountViewController: UITableViewDataSource {
     }
 }
 
-extension SelectExportAccountViewController: UITableViewDelegate {}
+extension SelectExportAccountViewController: UITableViewDelegate {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            output.exportNativeAccounts()
+        }
+    }
+}
 
 // MARK: - SelectExportAccountViewInput
 
