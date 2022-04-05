@@ -7,11 +7,19 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
     private let interactor: LocalAuthInteractorInputProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
 
-    private lazy var isNeedShowStories: Bool = {
-        userDefaultsStorage.bool(
-            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
-        ) ?? true
-    }()
+    private var isNeedShowStories: Bool {
+        get {
+            userDefaultsStorage.bool(
+                for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+            ) ?? true
+        }
+        set {
+            userDefaultsStorage.set(
+                value: newValue,
+                for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+            )
+        }
+    }
 
     init(
         wireframe: PinSetupWireframeProtocol,
@@ -56,10 +64,8 @@ extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-
-            strongSelf.isNeedShowStories
-                ? strongSelf.wireframe.showStories()
-                : strongSelf.wireframe.showMain(from: strongSelf.view)
+            strongSelf.isNeedShowStories = false
+            strongSelf.wireframe.showMain(from: strongSelf.view)
         }
     }
 
