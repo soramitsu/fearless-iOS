@@ -82,7 +82,7 @@ extension SelectExportAccountPresenter: SelectExportAccountViewOutput {
         guard let chainAccountsInfo = chainAccountsInfo else { return }
         router.showWalletDetails(
             selectedWallet: metaAccount,
-            accountInfo: chainAccountsInfo,
+            accountsInfo: chainAccountsInfo,
             from: view
         )
     }

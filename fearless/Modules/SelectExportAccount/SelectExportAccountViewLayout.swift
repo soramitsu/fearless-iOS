@@ -38,7 +38,6 @@ final class SelectExportAccountViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        configure()
         setupLayout()
     }
 
@@ -73,11 +72,6 @@ final class SelectExportAccountViewLayout: UIView {
     }
 
     // MARK: - Private methods
-
-    private func configure() {
-        tableView.separatorStyle = .none
-        tableView.registerClassForCell(SelectableExportAccountTableCell.self)
-    }
 
     private func setupLayout() {
         backgroundColor = R.color.colorBlack()

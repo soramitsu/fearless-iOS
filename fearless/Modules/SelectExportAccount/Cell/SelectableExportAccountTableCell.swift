@@ -19,6 +19,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         )
         static let corderRadius: CGFloat = 3
         static let chainImageViewSize = CGSize(width: 18, height: 18)
+        static let checkMarkImageViewSize = CGSize(width: 16, height: 12)
     }
 
     // MARK: - UI
@@ -113,8 +114,7 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         checkMarkImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(14)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo(16)
-            make.height.equalTo(12)
+            make.size.equalTo(Constants.checkMarkImageViewSize)
         }
 
         backgroundTriangularedView.addSubview(titleLabel)

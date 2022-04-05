@@ -20,7 +20,7 @@ protocol SelectExportAccountInteractorOutput: AnyObject {
 protocol SelectExportAccountRouterInput: AnyObject {
     func showWalletDetails(
         selectedWallet: MetaAccountModel,
-        accountInfo: [ChainAccountInfo],
+        accountsInfo: [ChainAccountInfo],
         from view: ControllerBackedProtocol?
     )
 }

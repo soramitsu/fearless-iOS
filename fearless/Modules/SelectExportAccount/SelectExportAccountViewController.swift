@@ -48,6 +48,8 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
     private func configureTableView() {
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
+        rootView.tableView.separatorStyle = .none
+        rootView.tableView.registerClassForCell(SelectableExportAccountTableCell.self)
     }
 
     private func configure() {
