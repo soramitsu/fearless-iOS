@@ -36,58 +36,27 @@ final class AccountExportPasswordInteractor {
 
 extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputProtocol {
     func exportWallet(
-        _ account: MetaAccountModel,
-        accounts: [ChainAccountResponse],
-        password: String
-    ) {
-        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            switch fetchOperation.result {
-            case let .success(chains):
-                self?.exportAccounts(
-                    accounts: accounts,
-                    chains: chains,
-                    wallet: account,
-                    password: password
-                )
-            case .failure:
-                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
-            case .none:
-                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
-            }
-        }
-
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
-    }
-
-    func exportAccounts(
-        accounts: [ChainAccountResponse],
-        chains: [ChainModel],
         wallet: MetaAccountModel,
+        accounts: [ChainAccountInfo],
         password: String
     ) {
         var jsons: [RestoreJson] = []
 
         for chainAccount in accounts {
-            guard let chain = chains.first(where: { $0.chainId == chainAccount.chainId }) else {
-                return
-            }
-
             if let data = try? exportJsonWrapper.export(
-                chainAccount: chainAccount,
+                chainAccount: chainAccount.account,
                 password: password,
-                address: AddressFactory.address(for: chainAccount.accountId, chain: chain),
+                address: AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain),
                 metaId: wallet.metaId,
-                accountId: chainAccount.isChainAccount ? chainAccount.accountId : nil,
+                accountId: chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil,
                 genesisHash: ""
             ), let result = String(data: data, encoding: .utf8) {
                 do {
-                    let fileUrl = try URL(fileURLWithPath: NSTemporaryDirectory() + "/\(AddressFactory.address(for: chainAccount.accountId, chain: chain)).json")
+                    let fileUrl = try URL(fileURLWithPath: NSTemporaryDirectory() + "/\(AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain)).json")
                     try result.write(toFile: fileUrl.path, atomically: true, encoding: .utf8)
                     let json = RestoreJson(
                         data: result,
-                        chain: chain,
+                        chain: chainAccount.chain,
                         cryptoType: nil,
                         fileURL: fileUrl
                     )

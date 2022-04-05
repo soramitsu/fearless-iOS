@@ -675,3 +675,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "stories.bottom.close.button" = "Great news!";
 "export.substrate.title" = "Export Substrate";
 "export.ethereum.title" = "Export Ethereum";
+"export.wallet.chains.count" = "+ %d OTHERS";

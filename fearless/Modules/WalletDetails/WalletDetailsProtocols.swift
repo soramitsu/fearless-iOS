@@ -36,13 +36,14 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
         items: [ChainAction],
         callback: @escaping ModalPickerSelectionCallback
     )
+
     func showExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         options: [ExportOption],
         locale: Locale?,
         from view: ControllerBackedProtocol?
     )
+
     func presentNodeSelection(
         from view: ControllerBackedProtocol?,
         chain: ChainModel

@@ -458,4 +458,55 @@ enum ModalPickerFactory {
 
         return viewController
     }
+
+    static func createPickerForWalletActions(
+        _ items: [WalletSettingsRow],
+        callback: ModalPickerSelectionCallback?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !items.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.walletSettings(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+        viewController.separatorStyle = .singleLine
+        viewController.separatorColor = R.color.colorLightGray()
+        viewController.separatorInset = UIEdgeInsets(
+            top: 0,
+            left: UIConstants.bigOffset,
+            bottom: 0,
+            right: UIConstants.bigOffset
+        )
+
+        viewController.viewModels = items.map { item in
+            LocalizableResource { _ in
+                IconWithTitleViewModel(
+                    icon: item.row.icon,
+                    title: item.row.title
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
 }

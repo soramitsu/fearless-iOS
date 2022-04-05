@@ -31,32 +31,13 @@ final class ExportSeedInteractor {
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
-    func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountResponse]) {
-        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            switch fetchOperation.result {
-            case let .success(chains):
-                self?.exportAccounts(accounts: accounts, chains: chains, wallet: wallet)
-            case .failure:
-                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
-            case .none:
-                self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
-            }
-        }
-
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
-    }
-
-    func exportAccounts(accounts: [ChainAccountResponse], chains: [ChainModel], wallet: MetaAccountModel) {
+    func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
         var seeds: [ExportSeedData] = []
 
         for chainAccount in accounts {
-            guard let chain = chains.first(where: { $0.chainId == chainAccount.chainId }) else {
-                return
-            }
-
-            let accountId = chainAccount.isChainAccount ? chainAccount.accountId : nil
+            let chain = chainAccount.chain
+            let account = chainAccount.account
+            let accountId = account.isChainAccount ? account.accountId : nil
 
             do {
                 let seedTag = chain.isEthereumBased
@@ -69,7 +50,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                     ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
                     : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
 
-                if optionalSeed == nil, chainAccount.cryptoType.supportsSeedFromSecretKey {
+                if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
                     optionalSeed = try keystore.fetchKey(for: keyTag)
                 }
 
@@ -90,7 +71,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                     seed: seed,
                     derivationPath: derivationPath,
                     chain: chain,
-                    cryptoType: chainAccount.cryptoType
+                    cryptoType: account.cryptoType
                 )
 
                 seeds.append(seedData)

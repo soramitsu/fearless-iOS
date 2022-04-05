@@ -81,7 +81,7 @@ extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
     ) -> WalletExportViewModel {
         let sections = buildSections(flow: flow, chainAccounts: chainAccounts, locale: locale)
         return WalletExportViewModel(
-            navigationTitle: R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages),
+            navigationTitle: R.string.localizable.accountsForExport(preferredLanguages: locale.rLanguages),
             sections: sections
         )
     }

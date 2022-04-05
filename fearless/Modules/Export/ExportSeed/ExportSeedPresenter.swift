@@ -60,7 +60,7 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
         case let .single(chain, address):
             interactor.fetchExportDataForAddress(address, chain: chain)
         case let .multiple(wallet, accounts):
-            interactor.fetchExportDataForWallet(wallet, accounts: accounts)
+            interactor.fetchExportDataForWallet(wallet, accounts: flow.exportingAccounts)
         }
     }
 

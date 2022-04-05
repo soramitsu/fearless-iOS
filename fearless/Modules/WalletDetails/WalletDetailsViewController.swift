@@ -56,9 +56,11 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
         }
 
         switch state {
-        case .normal:
+        case let .normal(viewModel):
             rootView.tableView.reloadData()
-        case .export:
+            rootView.bind(to: viewModel)
+        case let .export(viewModel):
+            rootView.bind(to: viewModel)
             rootView.tableView.reloadData()
         }
     }

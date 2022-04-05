@@ -213,12 +213,12 @@ private extension ChainAccountWireframe {
     }
 
     func showKeystoreExport(
-        for _: String,
-        chain _: ChainModel,
+        for address: String,
+        chain: ChainModel,
         from view: ControllerBackedProtocol?
     ) {
         guard let passwordView = AccountExportPasswordViewFactory.createView(
-            flow: .multiple(wallet: SelectedWalletSettings.shared.value!, accounts: [])
+            flow: .single(chain: chain, address: address)
         ) else {
             return
         }
@@ -229,11 +229,8 @@ private extension ChainAccountWireframe {
         )
     }
 
-    func showSeedExport(for _: String, chain _: ChainModel, from view: ControllerBackedProtocol?) {
-        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .multiple(
-            wallet: SelectedWalletSettings.shared.value!,
-            accounts: []
-        )) else {
+    func showSeedExport(for address: String, chain: ChainModel, from view: ControllerBackedProtocol?) {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .single(chain: chain, address: address)) else {
             return
         }
 

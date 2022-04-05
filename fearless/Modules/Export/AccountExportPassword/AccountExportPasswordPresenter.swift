@@ -45,10 +45,10 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
                 password: password,
                 chain: chain
             )
-        case let .multiple(wallet, accounts):
+        case let .multiple(wallet, _):
             interactor.exportWallet(
-                wallet,
-                accounts: accounts,
+                wallet: wallet,
+                accounts: flow.exportingAccounts,
                 password: password
             )
         }

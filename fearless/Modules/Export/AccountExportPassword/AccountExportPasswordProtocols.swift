@@ -14,8 +14,8 @@ protocol AccountExportPasswordPresenterProtocol: AnyObject {
 
 protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
     func exportWallet(
-        _ account: MetaAccountModel,
-        accounts: [ChainAccountResponse],
+        wallet: MetaAccountModel,
+        accounts: [ChainAccountInfo],
         password: String
     )
 

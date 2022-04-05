@@ -63,7 +63,18 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         }
     }
 
-    func didTapExportButton() {}
+    func didTapExportButton() {
+        guard case let .export(wallet, accounts) = flow else {
+            return
+        }
+
+        wireframe.showExport(
+            flow: .multiple(wallet: wallet, accounts: accounts),
+            options: [.mnemonic, .seed, .keystore],
+            locale: selectedLocale,
+            from: view
+        )
+    }
 
     func willDisappear() {
         if inputViewModel.inputHandler.value != flow.wallet.name {
@@ -87,6 +98,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         guard let address = chainAccount.account.toAddress() else {
             return
         }
+
         interactor.getAvailableExportOptions(for: chainAccount, address: address)
     }
 }
@@ -105,8 +117,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             switch action {
             case .export:
                 self.wireframe.showExport(
-                    for: address,
-                    chain: chainAccount.chain,
+                    flow: .single(chain: chainAccount.chain, address: address),
                     options: options,
                     locale: self.selectedLocale,
                     from: self.view
