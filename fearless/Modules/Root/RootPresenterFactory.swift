@@ -4,7 +4,6 @@ import SoraFoundation
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
-        let presenter = RootPresenter(localizationManager: LocalizationManager.shared)
         let wireframe = RootWireframe()
         let settings = SettingsManager.shared
         let keychain = Keychain()
@@ -27,13 +26,17 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             fileManager: FileManager.default
         )
 
+        let presenter = RootPresenter(
+            localizationManager: LocalizationManager.shared,
+            startViewHelper: startViewHelper
+        )
+
         let interactor = RootInteractor(
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
             migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
-            logger: Logger.shared,
-            startViewHelper: startViewHelper
+            logger: Logger.shared
         )
 
         let view = RootViewController(

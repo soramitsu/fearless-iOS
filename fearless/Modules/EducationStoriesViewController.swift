@@ -50,7 +50,7 @@ final class EducationStoriesViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(slides):
-            
+
             rootView.startStories(
                 stories: slides,
                 locale: selectedLocale

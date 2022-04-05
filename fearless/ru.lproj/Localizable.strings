@@ -554,10 +554,8 @@
 "substrate.secret.derivation.path" = "Путь деривации секрета substrate\
 ";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
-"example" = "Пример:\
-";
-"pincode.setup.top.title" = "Установить пин-код\
-";
+"example" = "Example: %@";
+"pincode.setup.top.title" = "Установить пин-код";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
 "share.referral.code" = "Поделиться реферальным кодом";
 "copy.referral.code" = "Копировать реферальный код";
@@ -644,19 +642,7 @@
 "connection.problems.text" = "Проблемы с подключением";
 "learn.more.about.crowdloans" = "Узнайте больше о Crowdloans";
 "navigation.title.crowdloan" = "Краудлоны парачейна";
-"common.yes" = "";
-"common.no" = "";
-"alert.add.ethereum.title" = "";
-"alert.add.ethereum.message" = "";
-"account.import.substrate.raw.seed.placeholder" = "";
-"account.import.ethereum.raw.seed.placeholder" = "";
-"import.substrate.recovery.json" = "";
-"import.ethereum.recovery.json" = "";
 "common.unsupported" = "Не поддерживается";
-"min.staking.warning.text" = "";
-"staking.inactive.bond" = "";
-"min.staking.calculating.text" = "";
-"manage.assets.account.missing.text" = "";
 "stories.version2.slide1.title" = "Больше сетей — больше токенов";
 "stories.version2.slide2.title" = "Аккаунты улучшились до кошельков";
 "stories.version2.slide3.title" = "Кошелёк стал мощнее";

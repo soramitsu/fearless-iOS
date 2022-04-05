@@ -12,6 +12,8 @@ final class EducationStoriesProgressView: UIStackView {
 
     private enum Constants {
         static let duration: TimeInterval = 10.0
+        static let animationDelayLong: TimeInterval = 0.2
+        static let animationDelayShort: TimeInterval = 0.1
     }
 
     // MARK: - Private properties
@@ -58,9 +60,7 @@ final class EducationStoriesProgressView: UIStackView {
     func skip() {
         if currentAnimationIndex <= arrangedSubviews.count, currentAnimationIndex > 0 {
             if let currentSegment = arrangedSubviews[currentAnimationIndex - 1] as? UIProgressView {
-                animator.stopAnimation(true)
-                currentSegment.setProgress(1, animated: false)
-                currentSegment.layer.removeAllAnimations()
+                stopAnimation(for: currentSegment, progress: 1)
                 next()
             }
         } else {
@@ -73,9 +73,7 @@ final class EducationStoriesProgressView: UIStackView {
             currentAnimationIndex -= 1
 
             if let currentSegment = arrangedSubviews[currentAnimationIndex] as? UIProgressView {
-                animator.stopAnimation(true)
-                currentSegment.setProgress(0, animated: false)
-                currentSegment.layer.removeAllAnimations()
+                stopAnimation(for: currentSegment, progress: 0)
             }
         }
 
@@ -83,14 +81,14 @@ final class EducationStoriesProgressView: UIStackView {
             currentAnimationIndex -= 1
 
             if let currentSegment = arrangedSubviews[currentAnimationIndex] as? UIProgressView {
-                animator.stopAnimation(true)
-                currentSegment.setProgress(0, animated: false)
-                currentSegment.layer.removeAllAnimations()
+                stopAnimation(for: currentSegment, progress: 0)
             }
         }
 
         let catchedIndex = currentAnimationIndex
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + Constants.animationDelayLong
+        ) { [weak self] in
             guard let self = self else { return }
             if catchedIndex == self.currentAnimationIndex {
                 self.next()
@@ -100,9 +98,20 @@ final class EducationStoriesProgressView: UIStackView {
 
     // MARK: - Private methods
 
+    private func stopAnimation(
+        for currentSegment: UIProgressView,
+        progress: Float
+    ) {
+        animator.stopAnimation(true)
+        currentSegment.setProgress(progress, animated: false)
+        currentSegment.layer.removeAllAnimations()
+    }
+
     private func handleProgress(_ progressView: UIProgressView) {
         let catchedIndex = currentAnimationIndex
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + Constants.animationDelayShort
+        ) { [weak self] in
             guard let strongSelf = self else { return }
             if catchedIndex == strongSelf.currentAnimationIndex {
                 strongSelf.currentAnimationIndex += 1

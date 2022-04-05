@@ -12,22 +12,19 @@ final class RootInteractor {
     private let eventCenter: EventCenterProtocol
     private let migrators: [Migrating]
     private let logger: LoggerProtocol?
-    private let startViewHelper: StartViewHelperProtocol
 
     init(
         settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
-        logger: LoggerProtocol? = nil,
-        startViewHelper: StartViewHelperProtocol
+        logger: LoggerProtocol? = nil
     ) {
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
         self.migrators = migrators
         self.logger = logger
-        self.startViewHelper = startViewHelper
     }
 
     private func setupURLHandlingService() {
@@ -54,20 +51,6 @@ final class RootInteractor {
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
-    func decideModuleSynchroniously() {
-        let startView = startViewHelper.startView()
-        switch startView {
-        case .pin:
-            presenter?.didDecideLocalAuthentication()
-        case .pinSetup:
-            presenter?.didDecidePincodeSetup()
-        case .login:
-            presenter?.didDecideOnboarding()
-        case .broken:
-            presenter?.didDecideBroken()
-        }
-    }
-
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
 

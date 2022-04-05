@@ -114,7 +114,7 @@ final class BaseEducationStoriesView: UIView {
         bottomCloseButton.isHidden = true
         addSubview(bottomCloseButton)
         bottomCloseButton.snp.makeConstraints { make in
-            make.height.equalTo(52)
+            make.height.equalTo(UIConstants.actionHeight)
             make.leading.trailing.bottom.equalToSuperview().inset(16)
         }
     }

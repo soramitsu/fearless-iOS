@@ -47,7 +47,10 @@ extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
     }
 
     func didCloseStories() {
-        userDefaultsStorage.set(value: true, for: EducationStoriesKeys.newsVersion2.rawValue)
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
         router.showMain()
     }
 }

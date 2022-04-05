@@ -7,6 +7,12 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
     private var wireframe: PinSetupWireframeProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
 
+    private lazy var isNeedShowStories: Bool = {
+        userDefaultsStorage.bool(
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        ) ?? true
+    }()
+
     init(
         interactor: PinSetupInteractorInputProtocol,
         wireframe: PinSetupWireframeProtocol,
@@ -44,11 +50,11 @@ extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
 
     func didSavePin() {
         DispatchQueue.main.async { [weak self] in
-            if self?.userDefaultsStorage.bool(for: EducationStoriesKeys.newsVersion2.rawValue) == nil {
-                self?.wireframe.showStories()
-            } else {
-                self?.wireframe.showMain(from: self?.view)
-            }
+            guard let strongSelf = self else { return }
+
+            strongSelf.isNeedShowStories
+                ? strongSelf.wireframe.showStories()
+                : strongSelf.wireframe.showMain(from: strongSelf.view)
         }
     }
 

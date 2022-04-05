@@ -6,7 +6,7 @@ final class EducationStoriesSlideView: UIView, EducationSlideView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h1Title.dynamicSize()
+        label.font = .h1Title.dynamicSize(fromSize: 30)
         label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         label.setContentHuggingPriority(.defaultHigh, for: .vertical)
@@ -15,7 +15,7 @@ final class EducationStoriesSlideView: UIView, EducationSlideView {
 
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .h4Title.dynamicSize()
+        label.font = .h4Title.dynamicSize(fromSize: 16)
         label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         label.setContentHuggingPriority(.defaultHigh, for: .vertical)
