@@ -10,6 +10,7 @@ final class EducationStoriesPresenter {
 
     private let storiesFactory: EducationStoriesFactory
     private let userDefaultsStorage: SettingsManagerProtocol
+    private let startViewHelper: StartViewHelperProtocol
 
     // MARK: - Constructors
 
@@ -17,11 +18,13 @@ final class EducationStoriesPresenter {
         userDefaultsStorage: SettingsManagerProtocol,
         storiesFactory: EducationStoriesFactory,
         router: EducationStoriesRouterProtocol,
+        startViewHelper: StartViewHelperProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.userDefaultsStorage = userDefaultsStorage
         self.storiesFactory = storiesFactory
         self.router = router
+        self.startViewHelper = startViewHelper
         self.localizationManager = localizationManager
     }
 
@@ -51,7 +54,16 @@ extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
             value: false,
             for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
         )
-        router.showMain()
+        switch startViewHelper.startView() {
+        case .pin:
+            router.showLocalAuthentication()
+        case .pinSetup:
+            router.showPincodeSetup()
+        case .login:
+            router.showOnboarding()
+        case .educationStories, .broken:
+            break
+        }
     }
 }
 

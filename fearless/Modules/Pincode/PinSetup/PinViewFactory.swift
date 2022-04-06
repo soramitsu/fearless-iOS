@@ -21,8 +21,7 @@ class PinViewFactory: PinViewFactoryProtocol {
 
         let presenter = PinSetupPresenter(
             interactor: interactor,
-            wireframe: wireframe,
-            userDefaultsStorage: SettingsManager.shared
+            wireframe: wireframe
         )
 
         pinSetupView.presenter = presenter
@@ -46,8 +45,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         let wireframe = PinChangeWireframe(localizationManager: LocalizationManager.shared)
         let presenter = PinSetupPresenter(
             interactor: interactor,
-            wireframe: wireframe,
-            userDefaultsStorage: SettingsManager.shared
+            wireframe: wireframe
         )
 
         pinChangeView.presenter = presenter

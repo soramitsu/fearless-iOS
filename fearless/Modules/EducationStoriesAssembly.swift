@@ -7,11 +7,18 @@ final class EducationStoriesAssembly {
         let localizationManager = LocalizationManager.shared
         let router = EducationStoriesRouter()
         let userDefaultsStorage = SettingsManager.shared
+        let keychain = Keychain()
+        let startViewHelper = StartViewHelper(
+            keystore: keychain,
+            selectedWallerSettings: SelectedWalletSettings.shared,
+            userDefaultsStorage: SettingsManager.shared
+        )
 
         let presenter = EducationStoriesPresenter(
             userDefaultsStorage: userDefaultsStorage,
             storiesFactory: EducationStoriesFactoryImpl(),
             router: router,
+            startViewHelper: startViewHelper,
             localizationManager: localizationManager
         )
 

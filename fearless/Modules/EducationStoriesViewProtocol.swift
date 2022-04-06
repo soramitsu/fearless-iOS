@@ -1,3 +1,5 @@
+import UIKit
+
 protocol EducationStoriesViewProtocol: ControllerBackedProtocol {
     func didReceive(state: EducationStoriesViewState)
 }
@@ -9,4 +11,7 @@ protocol EducationStoriesPresenterProtocol: AnyObject {
 
 protocol EducationStoriesRouterProtocol: AnyObject {
     func showMain()
+    func showLocalAuthentication()
+    func showOnboarding()
+    func showPincodeSetup()
 }
