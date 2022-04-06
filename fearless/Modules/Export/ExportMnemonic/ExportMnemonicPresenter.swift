@@ -10,7 +10,7 @@ final class ExportMnemonicPresenter {
     let flow: ExportFlow
     let localizationManager: LocalizationManager
 
-    private(set) var exportData: ExportMnemonicData?
+    private(set) var exportDatas: [ExportMnemonicData]?
 
     init(flow: ExportFlow, localizationManager: LocalizationManager) {
         self.flow = flow
@@ -18,36 +18,37 @@ final class ExportMnemonicPresenter {
     }
 
     private func share() {
-//        guard let data = exportData else {
-//            return
-//        }
-//
-//        let text: String
-//
-//        let locale = localizationManager.selectedLocale
-//
-//        if let derivationPath = exportData?.derivationPath {
-//            text = R.string.localizable
-//                .exportMnemonicWithDpTemplate(
-//                    chain.name,
-//                    data.mnemonic.toString(),
-//                    derivationPath,
-//                    preferredLanguages: locale.rLanguages
-//                )
-//        } else {
-//            text = R.string.localizable
-//                .exportMnemonicWithoutDpTemplate(
-//                    chain.name,
-//                    data.mnemonic.toString(),
-//                    preferredLanguages: locale.rLanguages
-//                )
-//        }
-//
-//        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
-//            if completed {
-//                self?.wireframe.close(view: self?.view)
-//            }
-//        }
+        // TODO: Support custom accounts
+        guard let exportData = exportDatas?.first else {
+            return
+        }
+
+        let text: String
+
+        let locale = localizationManager.selectedLocale
+
+        if let derivationPath = exportData.derivationPath {
+            text = R.string.localizable
+                .exportMnemonicWithDpTemplate(
+                    exportData.chain.name,
+                    exportData.mnemonic.toString(),
+                    derivationPath,
+                    preferredLanguages: locale.rLanguages
+                )
+        } else {
+            text = R.string.localizable
+                .exportMnemonicWithoutDpTemplate(
+                    exportData.chain.name,
+                    exportData.mnemonic.toString(),
+                    preferredLanguages: locale.rLanguages
+                )
+        }
+
+        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
+            if completed {
+                self?.wireframe.close(view: self?.view)
+            }
+        }
     }
 }
 
@@ -88,7 +89,8 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     }
 
     func activateAccessoryOption() {
-        guard let exportData = exportData else {
+        // TODO: Support custom accounts
+        guard let exportData = exportDatas?.first else {
             return
         }
 
@@ -98,6 +100,8 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
     func didReceive(exportDatas: [ExportMnemonicData]) {
+        self.exportDatas = exportDatas
+
         let viewModels = exportDatas.compactMap { exportData in
             ExportMnemonicViewModel(
                 option: .mnemonic,

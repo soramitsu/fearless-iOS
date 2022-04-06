@@ -111,6 +111,8 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     }
 
     private func updateFromViewModel(_ locale: Locale) {
+        alreadyDisplayedMnemonics = nil
+
         guard let viewModel = viewModel else {
             return
         }
@@ -139,10 +141,8 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
                 } else {
                     setupExportSubstrateButton()
                 }
-            } else {
-                if mainOptionTitle != nil {
-                    setupMainActionButton()
-                }
+            } else if mainOptionTitle != nil {
+                setupMainActionButton()
             }
         }
 
@@ -433,7 +433,7 @@ extension ExportGenericViewController {
 
                 subviews.append(networkTypeView)
             }
-            
+
             _ = subviews.reduce(nil) { (_: UIView?, subview: UIView) in
                 subview.heightAnchor
                     .constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true

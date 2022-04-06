@@ -49,7 +49,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                 address: AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain),
                 metaId: wallet.metaId,
                 accountId: chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil,
-                genesisHash: ""
+                genesisHash: nil
             ), let result = String(data: data, encoding: .utf8) {
                 do {
                     let fileUrl = try URL(fileURLWithPath: NSTemporaryDirectory() + "/\(AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain)).json")
@@ -113,7 +113,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                         chain: chain,
                         chainAccount: response,
                         metaId: metaAccount.metaId,
-                        genesisHash: ""
+                        genesisHash: nil
                     )
                 }
             case .failure:
@@ -128,7 +128,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         chain: ChainModel,
         chainAccount: ChainAccountResponse,
         metaId: String,
-        genesisHash: String
+        genesisHash: String?
     ) {
         let exportOperation: BaseOperation<String> = ClosureOperation { [weak self] in
             guard let data = try self?.exportJsonWrapper.export(
