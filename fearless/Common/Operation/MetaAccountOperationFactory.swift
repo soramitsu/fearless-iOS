@@ -477,7 +477,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 seedSource: .seed(seed),
                 derivationPath: request.derivationPath,
                 cryptoType: request.cryptoType,
-                ethereumBased: false
+                ethereumBased: request.isEthereum
             )
             let accountId = request.isEthereum ?
                 try query.publicKey.ethereumAddressFromPublicKey() : try query.publicKey.publicKeyToAccountId()
