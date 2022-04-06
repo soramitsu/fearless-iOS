@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 protocol IconWithTitleViewModelFactoryProtocol {
-    func crateWalletSettingsRows(for locale: Locale) -> [WalletSettingsRow]
+    func createWalletSettingsRows(for locale: Locale) -> [WalletSettingsRow]
 }
 
 enum WalletSettingsRow {
@@ -26,7 +26,7 @@ enum WalletSettingsRow {
 }
 
 final class IconWithTitleViewModelFactory: IconWithTitleViewModelFactoryProtocol {
-    func crateWalletSettingsRows(for locale: Locale) -> [WalletSettingsRow] {
+    func createWalletSettingsRows(for locale: Locale) -> [WalletSettingsRow] {
         [
             WalletSettingsRow.view(locale),
             WalletSettingsRow.export(locale)
