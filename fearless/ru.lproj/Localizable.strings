@@ -656,3 +656,10 @@
 \
 Не забудьте сделать резервную копию и хранить её в безопасном и приватном месте (например, на листе бумаге)";
 "stories.bottom.close.button" = "Отличные новости!";
+"common.yes" = "Да";
+"common.no" = "Нет";
+"alert.add.ethereum.title" = "ETH аккаунты";
+"alert.add.ethereum.message" = "Добавить Moonbeam и Moonriver аккаунты?";
+"import.empty.derivation.message" = "Вы можете задать нулевой путь (//00//00//0/0/0) или оставить путь деривации пустым. Пустой путь не позволит вам экспортировать аккаунт. Пожалуйста, выберите, какой путь вы хотите задать";
+"import.empty.derivation.confirm" = "Пустой";
+"import.empty.derivation.cancel" = "Оставить как есть";
