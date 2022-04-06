@@ -16,55 +16,11 @@ final class ExportSeedPresenter {
         self.localizationManager = localizationManager
     }
 
-    private func share() {
-//        guard let viewModel = exportViewModel else {
-//            return
-//        }
-//
-//        let text: String
-//
-//        let locale = localizationManager.selectedLocale
-//
-//        if let derivationPath = viewModel.derivationPath {
-//            text = R.string.localizable
-//                .exportSeedWithDpTemplate(
-//                    viewModel.chain.name,
-//                    viewModel.data,
-//                    derivationPath,
-//                    preferredLanguages: locale.rLanguages
-//                )
-//        } else {
-//            text = R.string.localizable
-//                .exportSeedWithoutDpTemplate(
-//                    viewModel.chain.name,
-//                    viewModel.data,
-//                    preferredLanguages: locale.rLanguages
-//                )
-//        }
-//
-//        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
-//            if completed {
-//                self?.wireframe.close(view: self?.view)
-//            }
-//        }
-    }
-}
-
-extension ExportSeedPresenter: ExportGenericPresenterProtocol {
-    func didTapExportSubstrateButton() {}
-
-    func didTapExportEthereumButton() {}
-
-    func setup() {
-        switch flow {
-        case let .single(chain, address):
-            interactor.fetchExportDataForAddress(address, chain: chain)
-        case let .multiple(wallet, accounts):
-            interactor.fetchExportDataForWallet(wallet, accounts: flow.exportingAccounts)
+    func didTapStringExport(_ value: String?) {
+        guard let value = value else {
+            return
         }
-    }
 
-    func activateExport() {
         let locale = localizationManager.selectedLocale
 
         let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
@@ -72,7 +28,7 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
 
         let exportTitle = R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
         let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
-            self?.share()
+            self?.share(value)
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
@@ -84,6 +40,25 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
         )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+
+    func share(_ value: String) {
+        wireframe.share(source: TextSharingSource(message: value), from: view) { [weak self] completed in
+            if completed {
+                self?.wireframe.close(view: self?.view)
+            }
+        }
+    }
+}
+
+extension ExportSeedPresenter: ExportGenericPresenterProtocol {
+    func setup() {
+        switch flow {
+        case let .single(chain, address):
+            interactor.fetchExportDataForAddress(address, chain: chain)
+        case let .multiple(wallet, _):
+            interactor.fetchExportDataForWallet(wallet, accounts: flow.exportingAccounts)
+        }
     }
 }
 

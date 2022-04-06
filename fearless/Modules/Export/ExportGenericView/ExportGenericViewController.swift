@@ -188,6 +188,12 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     @objc private func backButtonClicked() {
         navigationController?.popToRootViewController(animated: true)
     }
+
+    @objc private func exportGestureHandler(_ sender: UITapGestureRecognizer) {
+        if let view = sender.view as? MultilineTriangularedView {
+            presenter.didTapStringExport(view.subtitleLabel.text)
+        }
+    }
 }
 
 extension ExportGenericViewController {
@@ -307,6 +313,13 @@ extension ExportGenericViewController {
         let newOptionView = exportViewModel.accept(binder: binder, locale: selectedLocale)
         newOptionView.backgroundColor = R.color.colorBlack()!
         newOptionView.translatesAutoresizingMaskIntoConstraints = false
+
+        #if DEBUG
+            if let _ = exportViewModel as? ExportStringViewModel {
+                let gesture = UITapGestureRecognizer(target: self, action: #selector(exportGestureHandler(_:)))
+                newOptionView.addGestureRecognizer(gesture)
+            }
+        #endif
 
         insert(subview: newOptionView, after: sourceTypeView)
 

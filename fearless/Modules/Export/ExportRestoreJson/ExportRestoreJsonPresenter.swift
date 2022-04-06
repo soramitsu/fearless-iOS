@@ -49,8 +49,6 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
         view?.set(viewModel: multipleExportViewModel)
     }
 
-    func activateExport() {}
-
     func didTapExportEthereumButton() {
         if let model = models.first(where: { $0.chain.isEthereumBased }) {
             activateExport(model: model)

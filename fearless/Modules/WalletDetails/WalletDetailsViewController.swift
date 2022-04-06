@@ -152,21 +152,17 @@ extension WalletDetailsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCellWithType(WalletDetailsTableCell.self) else {
+            return UITableViewCell()
+        }
+        
         switch state {
         case let .normal(viewModel):
-            guard let cell = tableView.dequeueReusableCellWithType(WalletDetailsTableCell.self) else {
-                return UITableViewCell()
-            }
-
             let cellModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]
             cell.bind(to: cellModel)
             cell.delegate = self
             return cell
         case let .export(viewModel):
-            guard let cell = tableView.dequeueReusableCellWithType(WalletDetailsTableCell.self) else {
-                return UITableViewCell()
-            }
-
             let cellModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]
             cell.bind(to: cellModel)
             cell.delegate = self

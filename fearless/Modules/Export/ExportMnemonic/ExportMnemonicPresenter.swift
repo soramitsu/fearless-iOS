@@ -53,10 +53,6 @@ final class ExportMnemonicPresenter {
 }
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
-    func didTapExportSubstrateButton() {}
-
-    func didTapExportEthereumButton() {}
-
     func setup() {
         switch flow {
         case let .single(chain, address):
