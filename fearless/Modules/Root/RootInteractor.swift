@@ -7,23 +7,20 @@ import SoraFoundation
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    let settings: SelectedWalletSettings
-    let keystore: KeystoreProtocol
-    let applicationConfig: ApplicationConfigProtocol
-    let eventCenter: EventCenterProtocol
-    let migrators: [Migrating]
-    let logger: LoggerProtocol?
+    private let settings: SelectedWalletSettings
+    private let applicationConfig: ApplicationConfigProtocol
+    private let eventCenter: EventCenterProtocol
+    private let migrators: [Migrating]
+    private let logger: LoggerProtocol?
 
     init(
         settings: SelectedWalletSettings,
-        keystore: KeystoreProtocol,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
         logger: LoggerProtocol? = nil
     ) {
         self.settings = settings
-        self.keystore = keystore
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
         self.migrators = migrators
@@ -54,28 +51,6 @@ final class RootInteractor {
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
-    func decideModuleSynchroniously() {
-        do {
-            if !settings.hasValue {
-                try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
-
-                presenter?.didDecideOnboarding()
-                return
-            }
-
-            let pincodeExists = try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
-
-            if pincodeExists {
-                presenter?.didDecideLocalAuthentication()
-            } else {
-                presenter?.didDecidePincodeSetup()
-            }
-
-        } catch {
-            presenter?.didDecideBroken()
-        }
-    }
-
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
 

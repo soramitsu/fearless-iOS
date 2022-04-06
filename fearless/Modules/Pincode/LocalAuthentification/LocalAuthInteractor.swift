@@ -10,7 +10,7 @@ class LocalAuthInteractor {
         case unexpectedFail
     }
 
-    weak var presenter: LocalAuthInteractorOutputProtocol?
+    private weak var presenter: LocalAuthInteractorOutputProtocol?
     private(set) var secretManager: SecretStoreManagerProtocol
     private(set) var settingsManager: SettingsManagerProtocol
     private(set) var biometryAuth: BiometryAuthProtocol
@@ -103,7 +103,8 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
         return settingsManager.biometryEnabled == true && touchOrFaceId
     }
 
-    func startAuth() {
+    func startAuth(with output: LocalAuthInteractorOutputProtocol) {
+        presenter = output
         guard state == .waitingPincode else { return }
 
         state = .checkingBiometry

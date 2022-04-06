@@ -18,16 +18,10 @@ protocol RootWireframeProtocol: AnyObject {
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
-    func decideModuleSynchroniously()
     func setup(runMigrations: Bool)
 }
 
-protocol RootInteractorOutputProtocol: AnyObject {
-    func didDecideOnboarding()
-    func didDecideLocalAuthentication()
-    func didDecidePincodeSetup()
-    func didDecideBroken()
-}
+protocol RootInteractorOutputProtocol: AnyObject {}
 
 protocol RootPresenterFactoryProtocol: AnyObject {
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol
