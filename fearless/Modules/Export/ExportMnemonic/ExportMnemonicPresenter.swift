@@ -60,8 +60,8 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
         switch flow {
         case let .single(chain, address):
             interactor.fetchExportDataForAddress(address, chain: chain)
-        case let .multiple(account):
-            break
+        case let .multiple(wallet, accounts):
+            interactor.fetchExportDataForWallet(wallet: wallet, accounts: flow.exportingAccounts)
         }
     }
 
@@ -97,18 +97,19 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
-    func didReceive(exportData: ExportMnemonicData) {
-        self.exportData = exportData
-        let viewModel = ExportMnemonicViewModel(
-            option: .mnemonic,
-            chain: exportData.chain,
-            cryptoType: exportData.cryptoType,
-            derivationPath: exportData.derivationPath,
-            mnemonic: exportData.mnemonic.allWords(),
-            ethereumBased: exportData.chain.isEthereumBased
-        )
+    func didReceive(exportDatas: [ExportMnemonicData]) {
+        let viewModels = exportDatas.compactMap { exportData in
+            ExportMnemonicViewModel(
+                option: .mnemonic,
+                chain: exportData.chain,
+                cryptoType: exportData.cryptoType,
+                derivationPath: exportData.derivationPath,
+                mnemonic: exportData.mnemonic.allWords(),
+                ethereumBased: exportData.chain.isEthereumBased
+            )
+        }
 
-        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+        let multipleExportViewModel = MultiExportViewModel(viewModels: viewModels)
         view?.set(viewModel: multipleExportViewModel)
     }
 

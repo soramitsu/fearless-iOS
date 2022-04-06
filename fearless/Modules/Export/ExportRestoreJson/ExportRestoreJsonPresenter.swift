@@ -17,25 +17,9 @@ final class ExportRestoreJsonPresenter {
             let action = items[selectedIndex]
             switch action {
             case .file:
-                self.wireframe.share(
-                    sources: [model.fileURL],
-                    from: self.view
-                ) { [weak self] completed in
-                    if completed {
-                        self?.wireframe.close(view: self?.view)
-                    }
-                }
+                self.wireframe.share(sources: [model.fileURL], from: self.view, with: nil)
             case .text:
-                self.wireframe.share(
-                    sources: [model.data],
-                    from: self.view
-                ) { [weak self] completed in
-                    if completed {
-                        self?.wireframe.close(view: self?.view)
-                    }
-                }
-            default:
-                break
+                self.wireframe.share(sources: [model.data], from: self.view, with: nil)
             }
         }
 

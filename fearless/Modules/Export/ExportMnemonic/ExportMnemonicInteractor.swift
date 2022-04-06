@@ -28,7 +28,33 @@ final class ExportMnemonicInteractor {
 }
 
 extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
-    func fetchExportDataForWallet(_: MetaAccountModel) {}
+    func fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
+        var models: [ExportMnemonicData] = []
+        for chainAccount in accounts {
+            do {
+                let accountId = chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil
+                let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)
+                let entropy = try keystore.fetchKey(for: entropyTag)
+
+                let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                let derivationPathTag = chainAccount.chain.isEthereumBased ?
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId, accountId: accountId) :
+                    KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
+                let derivationPath: String? = try keystore.fetchDeriviationForAddress(derivationPathTag)
+
+                let data = ExportMnemonicData(
+                    mnemonic: mnemonic,
+                    derivationPath: derivationPath,
+                    cryptoType: chainAccount.account.isEthereumBased ? nil : chainAccount.account.cryptoType,
+                    chain: chainAccount.chain
+                )
+
+                models.append(data)
+            } catch {}
+        }
+
+        presenter.didReceive(exportDatas: models)
+    }
 
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
         guard let metaAccount = SelectedWalletSettings.shared.value else {
@@ -93,7 +119,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                     let model = try exportOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    self?.presenter.didReceive(exportData: model)
+                    self?.presenter.didReceive(exportDatas: [model])
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

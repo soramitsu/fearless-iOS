@@ -1,12 +1,12 @@
 import IrohaCrypto
 
 protocol ExportMnemonicInteractorInputProtocol: AnyObject {
-    func fetchExportDataForWallet(_ wallet: MetaAccountModel)
+    func fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])
     func fetchExportDataForAddress(_ address: String, chain: ChainModel)
 }
 
 protocol ExportMnemonicInteractorOutputProtocol: AnyObject {
-    func didReceive(exportData: ExportMnemonicData)
+    func didReceive(exportDatas: [ExportMnemonicData])
     func didReceive(error: Error)
 }
 
