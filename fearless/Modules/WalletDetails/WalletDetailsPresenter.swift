@@ -119,6 +119,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case let .polkascan(url):
                 self.wireframe.present(from: view, url: url)
+            case .replace:
+                
             }
         }
         wireframe.presentAcions(
@@ -164,7 +166,7 @@ private extension WalletDetailsPresenter {
     }
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
-        var actions: [ChainAction] = [.copyAddress, .switchNode, .export]
+        var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
         if let polkascanUrl = chain.polkascanAddressURL(address) {
             actions.append(.polkascan(url: polkascanUrl))
         }
