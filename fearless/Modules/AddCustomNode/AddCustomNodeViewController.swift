@@ -58,6 +58,13 @@ final class AddCustomNodeViewController: UIViewController, ViewHolder {
         isFirstLayoutCompleted = true
     }
 
+    private func updateAddNodeButton() {
+        let isEnabled = nameInputViewModel?.inputHandler.completed ?? false
+            && urlAddressInputViewModel?.inputHandler.completed ?? false
+            && URL(string: urlAddressInputViewModel?.inputHandler.normalizedValue ?? "") != nil
+        rootView.addNodeButton.isEnabled = isEnabled
+    }
+
     @objc private func addNodeButtonClicked() {
         rootView.nodeNameInputView.animatedInputField.resignFirstResponder()
         rootView.nodeAddressInputView.animatedInputField.resignFirstResponder()
@@ -79,12 +86,14 @@ extension AddCustomNodeViewController: AddCustomNodeViewProtocol {
         nameInputViewModel = nameViewModel
 
         rootView.nodeNameInputView.animatedInputField.text = nameViewModel.inputHandler.value
+        updateAddNodeButton()
     }
 
     func didReceive(nodeViewModel: InputViewModelProtocol) {
         urlAddressInputViewModel = nodeViewModel
 
         rootView.nodeAddressInputView.animatedInputField.text = nodeViewModel.inputHandler.value
+        updateAddNodeButton()
     }
 }
 
@@ -111,7 +120,7 @@ extension AddCustomNodeViewController: AnimatedTextFieldDelegate {
         if !shouldApply, textField.text != currentViewModel.inputHandler.value {
             textField.text = currentViewModel.inputHandler.value
         }
-
+        updateAddNodeButton()
         return shouldApply
     }
 

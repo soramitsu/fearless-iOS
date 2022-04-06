@@ -155,7 +155,7 @@ extension WalletDetailsViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCellWithType(WalletDetailsTableCell.self) else {
             return UITableViewCell()
         }
-        
+
         switch state {
         case let .normal(viewModel):
             let cellModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]

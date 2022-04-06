@@ -29,4 +29,6 @@ final class PinChangeWireframe: PinSetupWireframeProtocol, ModalAlertPresenting 
 
         rootAnimator.animateTransition(to: signupViewController)
     }
+
+    func showStories() {}
 }
