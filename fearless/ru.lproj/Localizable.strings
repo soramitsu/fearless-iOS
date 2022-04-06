@@ -75,14 +75,10 @@
 "import.source.picker.title" = "Тип источника";
 "import.raw.seed" = "Сид";
 "import.recovery.json" = "JSON для восстановления";
-"import.substrate.recovery.json" = "JSON для восстановления сабстрейт аккаунта";
-"import.ethereum.recovery.json" = "JSON для восстановления эфир аккаунта";
 "account.import.password.placeholder" = "Пароль";
 "recover.json.hint" = "Вставьте json строку или загрузите файл…";
 "account.import.recovery.json.placeholder" = "Вставьте json";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
-"account.import.substrate.raw.seed.placeholder" = "Сабстрейт аккаунт бинарный сид: (64 шестнадцатиричных символа)";
-"account.import.ethereum.raw.seed.placeholder" = "ETH аккаунт бинарный сид: (64 шестнадцатиричных символа)";
 "import.mnemonic" = "Мнемоническая фраза";
 "account.import.invalid.seed" = "Seed неверный. Пожалуйста, убедитесь, что введенные данные содержат 64 hex символа.";
 "account.import.invalid.keystore" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
@@ -558,9 +554,8 @@
 "substrate.secret.derivation.path" = "Путь деривации секрета substrate\
 ";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
-"example" = "Пример: %@";
-"pincode.setup.top.title" = "Установить пин-код\
-";
+"example" = "Example: %@";
+"pincode.setup.top.title" = "Установить пин-код";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
 "share.referral.code" = "Поделиться реферальным кодом";
 "copy.referral.code" = "Копировать реферальный код";
@@ -648,7 +643,16 @@
 "learn.more.about.crowdloans" = "Узнайте больше о Crowdloans";
 "navigation.title.crowdloan" = "Краудлоны парачейна";
 "common.unsupported" = "Не поддерживается";
-"common.yes" = "Да";
-"common.no" = "Нет";
-"alert.add.ethereum.title" = "ETH аккаунты";
-"alert.add.ethereum.message" = "Добавить Moonbeam и Moonriver аккаунты?";
+"stories.version2.slide1.title" = "Больше сетей — больше токенов";
+"stories.version2.slide2.title" = "Аккаунты улучшились до кошельков";
+"stories.version2.slide3.title" = "Кошелёк стал мощнее";
+"stories.version2.slide4.title" = "Кастомизируйте свои кошельки";
+"stories.version2.slide5.title" = "Гармония с экосистемой";
+"stories.version2.slide1.subtitle" = "Теперь Fearless Wallet поддерживает больше сетей и токенов: Polkadot (DOT), Kusama (KSM), Moonriver (MOVR), Karura (KAR), Shiden (SDN), SORA (XOR), Bifrost (BNC), KILT (KILT) и другие...";
+"stories.version2.slide2.subtitle" = "Все ваши аккаунты остались в приложении! Каждый кошелёк теперь содержит множество аккаутов в разных сетях. У каждого кошелька новая, красочная иконка, которая помогает лучше их различать. ";
+"stories.version2.slide3.subtitle" = "Теперь разные токены экосистемы Polkadot и Kusama находятся на одном экране. ";
+"stories.version2.slide4.subtitle" = "По умолчанию кошелёк использует один ключ во всех аккаунтах. Теперь можно заменить аккаунт внутри кошелька на любой существующий или создать новый.";
+"stories.version2.slide5.subtitle" = "Вы все так же можете импортировать и экспортировать свои аккаунты в Fearless Wallet из других приложений экосистемы.\
+\
+Не забудьте сделать резервную копию и хранить её в безопасном и приватном месте (например, на листе бумаге)";
+"stories.bottom.close.button" = "Отличные новости!";

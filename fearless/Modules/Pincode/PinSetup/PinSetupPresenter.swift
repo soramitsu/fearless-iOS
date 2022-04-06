@@ -1,12 +1,32 @@
 import Foundation
+import SoraKeystore
 
 class PinSetupPresenter: PinSetupPresenterProtocol {
-    weak var view: PinSetupViewProtocol?
-    var interactor: PinSetupInteractorInputProtocol!
-    var wireframe: PinSetupWireframeProtocol!
+    private weak var view: PinSetupViewProtocol?
+    private var interactor: PinSetupInteractorInputProtocol
+    private var wireframe: PinSetupWireframeProtocol
+    private let userDefaultsStorage: SettingsManagerProtocol
 
-    func start() {
-        view?.didChangeAccessoryState(enabled: false, availableBiometryType: .none)
+    private lazy var isNeedShowStories: Bool = {
+        userDefaultsStorage.bool(
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        ) ?? true
+    }()
+
+    init(
+        interactor: PinSetupInteractorInputProtocol,
+        wireframe: PinSetupWireframeProtocol,
+        userDefaultsStorage: SettingsManagerProtocol
+    ) {
+        self.interactor = interactor
+        self.wireframe = wireframe
+        self.userDefaultsStorage = userDefaultsStorage
+    }
+
+    func didLoad(view: PinSetupViewProtocol) {
+        self.view = view
+
+        self.view?.didChangeAccessoryState(enabled: false, availableBiometryType: .none)
     }
 
     func activateBiometricAuth() {}
@@ -30,7 +50,11 @@ extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
 
     func didSavePin() {
         DispatchQueue.main.async { [weak self] in
-            self?.wireframe.showMain(from: self?.view)
+            guard let strongSelf = self else { return }
+
+            strongSelf.isNeedShowStories
+                ? strongSelf.wireframe.showStories()
+                : strongSelf.wireframe.showMain(from: strongSelf.view)
         }
     }
 

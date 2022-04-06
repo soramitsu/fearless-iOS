@@ -65,7 +65,7 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
         case let .loading(viewModel):
             rootView.configureProfileInfo(
                 title: viewModel.metaAccountName,
-                subtitle: "BALANCE HERE"
+                subtitle: ""
             )
         case .loaded:
             rootView.tableView.reloadData()
@@ -74,6 +74,7 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
 
     @objc private func continueDidTap() {
         guard case let .loaded(viewModel) = state else { return }
+        output.exportNativeAccounts()
     }
 
     private func viewModelWasSelected() -> Bool {

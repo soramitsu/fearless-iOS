@@ -2,7 +2,7 @@ import RobinHood
 final class WalletDetailsInteractor {
     weak var presenter: WalletDetailsInteractorOutputProtocol!
 
-    private let selectedMetaAccount: MetaAccountModel
+    private let flow: WalletDetailsFlow
     private let chainsRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
@@ -10,14 +10,14 @@ final class WalletDetailsInteractor {
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
 
     init(
-        selectedMetaAccount: MetaAccountModel,
+        flow: WalletDetailsFlow,
         chainsRepository: AnyDataProviderRepository<ChainModel>,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<MetaAccountModel>,
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     ) {
-        self.selectedMetaAccount = selectedMetaAccount
+        self.flow = flow
         self.chainsRepository = chainsRepository
         self.operationManager = operationManager
         self.eventCenter = eventCenter
@@ -30,12 +30,17 @@ extension WalletDetailsInteractor: AccountFetching {}
 
 extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
     func setup() {
-        fetchChainsWithAccounts()
+        switch flow {
+        case .normal:
+            fetchChainsWithAccounts()
+        case let .export(_, accounts):
+            presenter.didReceive(chainAccounts: accounts)
+        }
     }
 
     func update(walletName: String) {
         let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
-            selectedMetaAccount.replacingName(walletName)
+            self.flow.wallet.replacingName(walletName)
         }
         let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try updateOperation
@@ -60,9 +65,9 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         operationManager.enqueue(operations: [updateOperation, saveOperation], in: .transient)
     }
 
-    func getAvailableExportOptions(for chain: ChainModel, address: String) {
+    func getAvailableExportOptions(for chainAccount: ChainAccountInfo, address: String) {
         fetchChainAccount(
-            chain: chain,
+            chain: chainAccount.chain,
             address: address,
             from: repository,
             operationManager: operationManager
@@ -70,18 +75,18 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
             switch result {
             case let .success(chainResponse):
                 guard let self = self, let response = chainResponse else {
-                    self?.presenter?.didReceiveExportOptions(options: [.keystore], for: chain)
+                    self?.presenter?.didReceiveExportOptions(options: [.keystore], for: chainAccount)
                     return
                 }
                 let accountId = response.isChainAccount ? response.accountId : nil
                 let options = self.availableExportOptionsProvider
                     .getAvailableExportOptions(
-                        for: self.selectedMetaAccount.metaId,
+                        for: self.flow.wallet.metaId,
                         accountId: accountId
                     )
-                self.presenter?.didReceiveExportOptions(options: options, for: chain)
+                self.presenter?.didReceiveExportOptions(options: options, for: chainAccount)
             default:
-                self?.presenter?.didReceiveExportOptions(options: [.keystore], for: chain)
+                self?.presenter?.didReceiveExportOptions(options: [.keystore], for: chainAccount)
             }
         }
     }
@@ -103,13 +108,15 @@ private extension WalletDetailsInteractor {
     func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            var chainsWithAccounts: [ChainModel: ChainAccountResponse] = [:]
-            chains.forEach { chain in
-                if let chainAccount = selectedMetaAccount.fetch(for: chain.accountRequest()) {
-                    chainsWithAccounts[chain] = chainAccount
+            let chainAccounts: [ChainAccountInfo] = chains.compactMap { chain in
+                if let chainAccount = self.flow.wallet.fetch(for: chain.accountRequest()) {
+                    return ChainAccountInfo(chain: chain, account: chainAccount)
                 }
+
+                return nil
             }
-            presenter.didReceive(chainsWithAccounts: chainsWithAccounts)
+
+            presenter.didReceive(chainAccounts: chainAccounts)
         case .failure, .none:
             return
         }

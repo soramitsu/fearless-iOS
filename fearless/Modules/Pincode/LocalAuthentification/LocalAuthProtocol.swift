@@ -4,7 +4,7 @@ protocol LocalAuthInteractorInputProtocol: AnyObject {
     var allowManualBiometryAuth: Bool { get }
     var availableBiometryType: AvailableBiometryType { get }
 
-    func startAuth()
+    func startAuth(with output: LocalAuthInteractorOutputProtocol)
     func process(pin: String)
 }
 
