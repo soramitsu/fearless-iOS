@@ -15,6 +15,7 @@ final class CheckPincodeViewController: UIViewController, ViewHolder, Localizabl
 
         self.localizationManager = localizationManager
         applyLocalization()
+        presenter.didLoad(view: self)
     }
 
     override func loadView() {
