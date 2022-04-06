@@ -13,21 +13,76 @@ final class ExportSeedInteractor {
     weak var presenter: ExportSeedInteractorOutputProtocol!
 
     let keystore: KeystoreProtocol
-    let repository: AnyDataProviderRepository<MetaAccountModel>
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    let chainRepository: AnyDataProviderRepository<ChainModel>
     let operationManager: OperationManagerProtocol
 
     init(
         keystore: KeystoreProtocol,
-        repository: AnyDataProviderRepository<MetaAccountModel>,
-        operationManager: OperationManagerProtocol
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        operationManager: OperationManagerProtocol,
+        chainRepository: AnyDataProviderRepository<ChainModel>
     ) {
         self.keystore = keystore
-        self.repository = repository
+        self.accountRepository = accountRepository
         self.operationManager = operationManager
+        self.chainRepository = chainRepository
     }
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
+    func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
+        var seeds: [ExportSeedData] = []
+
+        for chainAccount in accounts {
+            let chain = chainAccount.chain
+            let account = chainAccount.account
+            let accountId = account.isChainAccount ? account.accountId : nil
+
+            do {
+                let seedTag = chain.isEthereumBased
+                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+                    : KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId, accountId: accountId)
+
+                var optionalSeed: Data? = try keystore.fetchKey(for: seedTag)
+
+                let keyTag = chain.isEthereumBased
+                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+                    : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+
+                if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
+                    optionalSeed = try keystore.fetchKey(for: keyTag)
+                }
+
+                guard let seed = optionalSeed else {
+                    throw ExportSeedInteractorError.missingSeed
+                }
+
+                //  We shouldn't show derivation path for ethereum seed. So just provide nil to hide it
+                let derivationPathTag = chain.isEthereumBased
+                    ? nil : KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
+
+                var derivationPath: String?
+                if let tag = derivationPathTag {
+                    derivationPath = try keystore.fetchDeriviationForAddress(tag)
+                }
+
+                let seedData = ExportSeedData(
+                    seed: seed,
+                    derivationPath: derivationPath,
+                    chain: chain,
+                    cryptoType: account.cryptoType
+                )
+
+                seeds.append(seedData)
+            } catch {}
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter.didReceive(exportData: seeds)
+        }
+    }
+
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
         guard let metaAccount = SelectedWalletSettings.shared.value else {
             presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -37,7 +92,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
         fetchChainAccount(
             chain: chain,
             address: address,
-            from: repository,
+            from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
             switch result {
@@ -107,7 +162,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                     let model = try exportOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    self?.presenter.didReceive(exportData: model)
+                    self?.presenter.didReceive(exportData: [model])
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

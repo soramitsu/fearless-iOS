@@ -1,17 +1,15 @@
 import Foundation
 
-struct ChainAccountInfo {
-    let chain: ChainModel
-    let account: ChainAccountResponse
-}
-
 final class SelectExportAccountRouter: SelectExportAccountRouterInput {
     func showWalletDetails(
         selectedWallet: MetaAccountModel,
-        accountsInfo _: [ChainAccountInfo],
+        accountsInfo: [ChainAccountInfo],
         from view: ControllerBackedProtocol?
     ) {
-        let viewController = WalletDetailsViewFactory.createView(with: selectedWallet).controller
+        let viewController = WalletDetailsViewFactory.createView(flow: .export(
+            wallet: selectedWallet,
+            accounts: accountsInfo
+        )).controller
         view?.controller.navigationController?.pushViewController(viewController, animated: true)
     }
 }

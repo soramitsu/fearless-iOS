@@ -8,7 +8,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     ) {
-        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
+        let walletDetails = WalletDetailsViewFactory.createView(flow: .normal(wallet: metaAccount))
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller
         )
