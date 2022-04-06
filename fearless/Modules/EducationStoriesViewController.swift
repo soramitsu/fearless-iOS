@@ -51,7 +51,7 @@ final class EducationStoriesViewController: UIViewController, ViewHolder {
             break
         case let .loaded(slides):
 
-            rootView.startStories(
+            rootView.startShow(
                 stories: slides,
                 locale: selectedLocale
             ) { [weak self] in

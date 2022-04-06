@@ -37,6 +37,7 @@ final class BaseEducationStoriesView: UIView {
     private lazy var bottomCloseButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
+        button.isHidden = true
         button.imageWithTitleView?.title = R.string.localizable
             .storiesBottomCloseButton(preferredLanguages: locale?.rLanguages)
         return button
@@ -50,7 +51,7 @@ final class BaseEducationStoriesView: UIView {
 
     // MARK: - Constructors
 
-    func startStories(
+    func startShow(
         stories: [EducationSlideView],
         locale: Locale,
         onClose: @escaping () -> Void
@@ -111,7 +112,6 @@ final class BaseEducationStoriesView: UIView {
             make.leading.trailing.bottom.equalToSuperview()
         }
 
-        bottomCloseButton.isHidden = true
         addSubview(bottomCloseButton)
         bottomCloseButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)

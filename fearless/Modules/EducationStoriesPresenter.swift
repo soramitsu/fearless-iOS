@@ -25,7 +25,7 @@ final class EducationStoriesPresenter {
         self.localizationManager = localizationManager
     }
 
-    private func receiveLoadedState() {
+    private func loadSlides() {
         let slides = createNewsVersion2Stories()
         let state = EducationStoriesViewState.loaded(slides)
         view?.didReceive(state: state)
@@ -43,7 +43,7 @@ extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
     func didLoad(view: EducationStoriesViewProtocol) {
         self.view = view
 
-        receiveLoadedState()
+        loadSlides()
     }
 
     func didCloseStories() {
@@ -59,6 +59,6 @@ extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
 
 extension EducationStoriesPresenter: Localizable {
     func applyLocalization() {
-        receiveLoadedState()
+        loadSlides()
     }
 }

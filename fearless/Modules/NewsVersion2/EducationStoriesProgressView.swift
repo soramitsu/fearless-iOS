@@ -69,21 +69,8 @@ final class EducationStoriesProgressView: UIStackView {
     }
 
     func back() {
-        if currentAnimationIndex > 0 {
-            currentAnimationIndex -= 1
-
-            if let currentSegment = arrangedSubviews[currentAnimationIndex] as? UIProgressView {
-                stopAnimation(for: currentSegment, progress: 0)
-            }
-        }
-
-        if currentAnimationIndex > 0 {
-            currentAnimationIndex -= 1
-
-            if let currentSegment = arrangedSubviews[currentAnimationIndex] as? UIProgressView {
-                stopAnimation(for: currentSegment, progress: 0)
-            }
-        }
+        stopPreviusSegmentAnimation()
+        stopPreviusSegmentAnimation()
 
         let catchedIndex = currentAnimationIndex
         DispatchQueue.main.asyncAfter(
@@ -97,6 +84,16 @@ final class EducationStoriesProgressView: UIStackView {
     }
 
     // MARK: - Private methods
+    
+    private func stopPreviusSegmentAnimation() {
+        if currentAnimationIndex > 0 {
+            currentAnimationIndex -= 1
+
+            if let currentSegment = arrangedSubviews[currentAnimationIndex] as? UIProgressView {
+                stopAnimation(for: currentSegment, progress: 0)
+            }
+        }
+    }
 
     private func stopAnimation(
         for currentSegment: UIProgressView,
