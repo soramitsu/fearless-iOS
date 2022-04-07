@@ -7,8 +7,30 @@ final class RootPresenter {
     var wireframe: RootWireframeProtocol!
     var interactor: RootInteractorInputProtocol!
 
-    init(localizationManager: LocalizationManagerProtocol) {
+    private let startViewHelper: StartViewHelperProtocol
+
+    init(
+        localizationManager: LocalizationManagerProtocol,
+        startViewHelper: StartViewHelperProtocol
+    ) {
+        self.startViewHelper = startViewHelper
         self.localizationManager = localizationManager
+    }
+
+    private func decideModuleSynchroniously() {
+        let startView = startViewHelper.startView()
+        switch startView {
+        case .pin:
+            wireframe.showLocalAuthentication(on: window)
+        case .pinSetup:
+            wireframe.showPincodeSetup(on: window)
+        case .login:
+            wireframe.showOnboarding(on: window)
+        case .broken:
+            wireframe.showBroken(on: window)
+        case .educationStories:
+            wireframe.showEducationStories(on: window)
+        }
     }
 }
 
@@ -17,32 +39,16 @@ extension RootPresenter: RootPresenterProtocol {
         wireframe.showSplash(splashView: view, on: window)
 
         interactor.setup(runMigrations: true)
-        interactor.decideModuleSynchroniously()
+        decideModuleSynchroniously()
     }
 
     func reload() {
         interactor.setup(runMigrations: false)
-        interactor.decideModuleSynchroniously()
+        decideModuleSynchroniously()
     }
 }
 
-extension RootPresenter: RootInteractorOutputProtocol {
-    func didDecideOnboarding() {
-        wireframe.showOnboarding(on: window)
-    }
-
-    func didDecideLocalAuthentication() {
-        wireframe.showLocalAuthentication(on: window)
-    }
-
-    func didDecidePincodeSetup() {
-        wireframe.showPincodeSetup(on: window)
-    }
-
-    func didDecideBroken() {
-        wireframe.showBroken(on: window)
-    }
-}
+extension RootPresenter: RootInteractorOutputProtocol {}
 
 extension RootPresenter: Localizable {
     func applyLocalization() {}

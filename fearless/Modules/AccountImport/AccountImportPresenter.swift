@@ -711,6 +711,40 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
     }
 
+    func resolveEmptyDerivationPath(data: AccountImportRequestData) {
+        let message = "R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
+        let replaceActionTitle = "R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
+        let cancelActionTitle = "R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
+        let replaceAction = AlertPresentableAction(title: replaceActionTitle) { [weak self] in
+            self?.view?.didValidateEthereumDerivationPath(.valid)
+            let updatedData = AccountImportRequestData(
+                selectedSourceType: data.selectedSourceType,
+                source: data.source,
+                username: data.username,
+                ethereumDerivationPath: data.ethereumDerivationPath,
+                substrateDerivationPath: data.substrateDerivationPath,
+                selectedCryptoType: data.selectedCryptoType,
+                password: data.password
+            )
+            self?.createAccount(data: updatedData)
+        }
+        let cancelAction = AlertPresentableAction(title: cancelActionTitle, style: .cancel) { [weak self] in
+            self?.view?.didValidateEthereumDerivationPath(.valid)
+            self?.createAccount(data: data)
+        }
+        let alertViewModel = AlertPresentableViewModel(
+            title: nil,
+            message: message,
+            actions: [replaceAction, cancelAction],
+            closeAction: nil
+        )
+        wireframe.present(
+            viewModel: alertViewModel,
+            style: .alert,
+            from: view
+        )
+    }
+
     func proceed() {
         guard
             let selectedSourceType = selectedSourceType,
@@ -763,6 +797,10 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             selectedCryptoType: selectedCryptoType,
             password: passwordViewModel?.inputHandler.value ?? ""
         )
+        if ethereumDerivationPathViewModel?.inputHandler.value == DerivationPathConstants.zerosEthereum {
+            resolveEmptyDerivationPath(data: data)
+            return
+        }
         createAccount(data: data)
     }
 }

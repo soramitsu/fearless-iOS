@@ -212,7 +212,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             mnemonic: mnemonic,
             username: usernameSetup.username,
             substrateDerivationPath: substrateViewModel.inputHandler.value,
-            ethereumDerivationPath: ethereumViewModel.inputHandler.value,
+            ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
+                .nonEmpty(or: DerivationPathConstants.defaultEthereum),
             cryptoType: selectedCryptoType
         )
 
@@ -266,5 +267,15 @@ extension AccountCreatePresenter: Localizable {
             applySubstrateCryptoTypeViewModel()
             applyEthereumCryptoTypeViewModel()
         }
+    }
+}
+
+private extension Optional where Wrapped == String {
+    func nonEmpty(or defaultValue: String) -> String {
+        guard let self = self, !self.isEmpty else {
+            return defaultValue
+        }
+
+        return self
     }
 }

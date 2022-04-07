@@ -15,19 +15,14 @@ protocol RootWireframeProtocol: AnyObject {
     func showOnboarding(on window: UIWindow)
     func showPincodeSetup(on window: UIWindow)
     func showBroken(on window: UIWindow)
+    func showEducationStories(on window: UIWindow)
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
-    func decideModuleSynchroniously()
     func setup(runMigrations: Bool)
 }
 
-protocol RootInteractorOutputProtocol: AnyObject {
-    func didDecideOnboarding()
-    func didDecideLocalAuthentication()
-    func didDecidePincodeSetup()
-    func didDecideBroken()
-}
+protocol RootInteractorOutputProtocol: AnyObject {}
 
 protocol RootPresenterFactoryProtocol: AnyObject {
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol

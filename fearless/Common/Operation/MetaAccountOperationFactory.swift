@@ -237,7 +237,8 @@ private extension MetaAccountOperationFactory {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: []
+            chainAccounts: [],
+            canExportEthereumMnemonic: true
         )
     }
 }
@@ -372,13 +373,13 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                     from: ethereumData
                 )
 
-                guard let ethereumKeystore = try? keystoreExtractor
+                ethereumKeystore = try? keystoreExtractor
                     .extractFromDefinition(ethereumKeystoreDefinition, password: request.ethereumPassword)
-                else {
+                guard let keystore = ethereumKeystore else {
                     throw AccountOperationFactoryError.decryption
                 }
 
-                if let privateKey = try? SECPrivateKey(rawData: ethereumKeystore.secretKeyData) {
+                if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
                     ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
                     ethereumAddress = try ethereumPublicKey?.rawData().ethereumAddressFromPublicKey()
                 }
@@ -400,7 +401,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey: substratePublicKey.rawData(),
                 ethereumAddress: ethereumAddress,
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
-                chainAccounts: []
+                chainAccounts: [],
+                canExportEthereumMnemonic: true
             )
         }
     }

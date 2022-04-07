@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19461" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDChainAccount" representedClassName="CDChainAccount" syncable="YES" codeGenerationType="class">
         <attribute name="accountId" attributeType="String"/>
         <attribute name="chainId" attributeType="String"/>
@@ -16,6 +16,7 @@
         <attribute name="url" attributeType="URI"/>
     </entity>
     <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
+        <attribute name="canExportEthereumMnemonic" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="ethereumAddress" optional="YES" attributeType="String"/>
         <attribute name="ethereumPublicKey" optional="YES" attributeType="Binary"/>
         <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -31,6 +32,6 @@
         <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="104"/>
         <element name="CDChainSettings" positionX="-54" positionY="45" width="128" height="59"/>
         <element name="CDCustomChainNode" positionX="-45" positionY="54" width="128" height="59"/>
-        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="179"/>
+        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="194"/>
     </elements>
 </model>
