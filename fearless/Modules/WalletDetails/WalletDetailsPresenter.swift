@@ -7,6 +7,7 @@ final class WalletDetailsPresenter {
     private let wireframe: WalletDetailsWireframeProtocol
     private let viewModelFactory: WalletDetailsViewModelFactoryProtocol
     private var flow: WalletDetailsFlow
+    private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
     private var chainAccounts: [ChainAccountInfo] = []
     private lazy var inputViewModel: InputViewModelProtocol = {
@@ -70,7 +71,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
 
         wireframe.showExport(
             flow: .multiple(wallet: wallet, accounts: accounts),
-            options: [.mnemonic, .seed, .keystore],
+            options: availableExportOptionsProvider.getAvailableExportOptions(for: wallet, accountId: nil),
             locale: selectedLocale,
             from: view
         )

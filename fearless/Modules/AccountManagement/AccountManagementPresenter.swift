@@ -54,7 +54,7 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
     func activateWalletDetails(at index: Int) {
         let viewModel = viewModels[index]
 
-        let items = IconWithTitleViewModelFactory().crateWalletSettingsRows(
+        let items = IconWithTitleViewModelFactory().createWalletSettingsRows(
             for: selectedLocale
         )
 

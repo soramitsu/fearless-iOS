@@ -102,7 +102,9 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                                 genesisHash: genesisHash
                             )
                         } catch {
-                            self?.presenter.didReceive(error: error)
+                            DispatchQueue.main.async {
+                                self?.presenter.didReceive(error: error)
+                            }
                         }
                     }
                     self.operationManager.enqueue(operations: [genesisOperation], in: .transient)
