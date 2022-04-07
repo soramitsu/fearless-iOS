@@ -1490,6 +1490,7 @@
 		C68130E72761BC0C007B573A /* ReceiveAssetViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E62761BC0C007B573A /* ReceiveAssetViewFactory.swift */; };
 		C6A8D6BD27EF0CF40080F81C /* UIView + FirstResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */; };
 		C6A8D6C127FC318A0080F81C /* ImportChainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C027FC318A0080F81C /* ImportChainViewModel.swift */; };
+		C6A8D6C727FEEE700080F81C /* ReplaceOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
@@ -3429,6 +3430,7 @@
 		C68130E62761BC0C007B573A /* ReceiveAssetViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewFactory.swift; sourceTree = "<group>"; };
 		C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + FirstResponder.swift"; sourceTree = "<group>"; };
 		C6A8D6C027FC318A0080F81C /* ImportChainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportChainViewModel.swift; sourceTree = "<group>"; };
+		C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceOption.swift; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
@@ -6217,6 +6219,7 @@
 				FA1109EA27A92D56003C2158 /* ChainAction.swift */,
 				FA402F2E27C7C646008CF986 /* ExportAction.swift */,
 				C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */,
+				C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -11049,6 +11052,7 @@
 				F40966CB26B297D6008CD244 /* AnalyticsStakeViewController.swift in Sources */,
 				FA2E9B93279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift in Sources */,
 				8494D860252470F400614D8F /* WalletFearlessFormDefining.swift in Sources */,
+				C6A8D6C727FEEE700080F81C /* ReplaceOption.swift in Sources */,
 				FA25698B274CE61000875A53 /* MultiSignature+CryptoType.swift in Sources */,
 				AEA0C8AE267B818900F9666F /* SelectedValidatorListViewLayout.swift in Sources */,
 				84D8F15524D80CA100AF43E9 /* ModalPickerViewController.swift in Sources */,

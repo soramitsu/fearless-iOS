@@ -753,37 +753,17 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             )
             return
         }
-
-        switch flow {
-        case let .wallet(step):
-            let data = AccountImportRequestData(
-                selectedSourceType: selectedSourceType,
-                source: sourceViewModel.inputHandler.normalizedValue,
-                username: usernameViewModel.inputHandler.value,
-                ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
-                    .nonEmpty(or: DerivationPathConstants.defaultEthereum),
-                substrateDerivationPath: (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
-                selectedCryptoType: selectedCryptoType,
-                password: passwordViewModel?.inputHandler.value ?? ""
-            )
-            importMetaAccount(data: data, step: step)
-        case let .chain(model):
-            let ethereumDerivationPath = (ethereumDerivationPathViewModel?.inputHandler.value)
-                .nonEmpty(or: DerivationPathConstants.defaultEthereum)
-            let substrateDerivarionPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
-            let derivationPath = model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivarionPath
-            let data = UniqueChainImportRequestData(
-                selectedSourceType: selectedSourceType,
-                source: sourceViewModel.inputHandler.normalizedValue,
-                username: usernameViewModel.inputHandler.value,
-                derivationPath: derivationPath,
-                selectedCryptoType: selectedCryptoType,
-                password: passwordViewModel?.inputHandler.value ?? "",
-                meta: model.meta,
-                chain: model.chain
-            )
-            importUniqueChain(data: data)
-        }
+        let data = AccountImportRequestData(
+            selectedSourceType: selectedSourceType,
+            source: sourceViewModel.inputHandler.normalizedValue,
+            username: usernameViewModel.inputHandler.value,
+            ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
+                .nonEmpty(or: DerivationPathConstants.defaultEthereum),
+            substrateDerivationPath: (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
+            selectedCryptoType: selectedCryptoType,
+            password: passwordViewModel?.inputHandler.value ?? ""
+        )
+        createAccount(data: data)
     }
 }
 
