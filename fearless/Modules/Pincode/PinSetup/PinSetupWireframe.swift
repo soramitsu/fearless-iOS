@@ -18,12 +18,4 @@ class PinSetupWireframe: PinSetupWireframeProtocol {
 
         rootAnimator.animateTransition(to: signupViewController)
     }
-
-    func showStories() {
-        guard let viewController = EducationStoriesAssembly.configureModule()?.controller else {
-            return
-        }
-
-        rootAnimator.animateTransition(to: viewController)
-    }
 }

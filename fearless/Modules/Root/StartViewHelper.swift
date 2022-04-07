@@ -6,6 +6,7 @@ enum StartView {
     case pinSetup
     case login
     case broken
+    case educationStories
 }
 
 protocol StartViewHelperProtocol {
@@ -14,19 +15,32 @@ protocol StartViewHelperProtocol {
 
 final class StartViewHelper: StartViewHelperProtocol {
     private let keystore: KeystoreProtocol
-    private let selectedWallerSettings: SelectedWalletSettings
+    private let selectedWalletSettings: SelectedWalletSettings
+    private let userDefaultsStorage: SettingsManagerProtocol
+
+    private lazy var isNeedShowStories: Bool = {
+        userDefaultsStorage.bool(
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        ) ?? true
+    }()
 
     init(
         keystore: KeystoreProtocol,
-        selectedWallerSettings: SelectedWalletSettings
+        selectedWallerSettings: SelectedWalletSettings,
+        userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.keystore = keystore
-        self.selectedWallerSettings = selectedWallerSettings
+        selectedWalletSettings = selectedWallerSettings
+        self.userDefaultsStorage = userDefaultsStorage
     }
 
     func startView() -> StartView {
         do {
-            if !selectedWallerSettings.hasValue {
+            if isNeedShowStories, !selectedWalletSettings.hasValue {
+                return StartView.educationStories
+            }
+
+            if !selectedWalletSettings.hasValue {
                 try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
 
                 return StartView.login
