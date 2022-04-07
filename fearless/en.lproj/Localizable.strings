@@ -648,6 +648,9 @@ This is the hash of your transaction:";
 "import.substrate.recovery.json" = "Restore JSON for Substrate accounts";
 "import.ethereum.recovery.json" = "Restore JSON for ETH-based accounts";
 "common.unsupported" = "Unsupported";
+"import.empty.derivation.message" = "There is an option to set up a zero path (//00//00//0/0/0), or put an empty derivation path. If you choose an empty derivation path, you will not be able to export your account. Please choose, which derivation path you would like to use";
+"import.empty.derivation.confirm" = "Empty";
+"import.empty.derivation.cancel" = "Zero";
 "min.staking.warning.text" = "The bonded amount is less than the current active minimum nominated amount of %s\
 and depending on the network state, may not be selected to participate";
 "staking.inactive.bond" = "Inactive Bond";
