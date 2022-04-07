@@ -22,7 +22,7 @@ enum UserStorageVersion: String, CaseIterable {
             return .version3
         case .version3:
             return .version4
-        default:
+        case .version4:
             return nil
         }
     }
