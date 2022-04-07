@@ -16,6 +16,8 @@
         <attribute name="url" attributeType="URI"/>
     </entity>
     <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
+        <attribute name="assetIdsEnabled" optional="YES" attributeType="Transformable" customClassName="NSArray"/>
+        <attribute name="assetKeysOrder" optional="YES" attributeType="Transformable" customClassName="NSArray"/>
         <attribute name="canExportEthereumMnemonic" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="ethereumAddress" optional="YES" attributeType="String"/>
         <attribute name="ethereumPublicKey" optional="YES" attributeType="Binary"/>
@@ -32,6 +34,6 @@
         <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="104"/>
         <element name="CDChainSettings" positionX="-54" positionY="45" width="128" height="59"/>
         <element name="CDCustomChainNode" positionX="-45" positionY="54" width="128" height="59"/>
-        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="194"/>
+        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="209"/>
     </elements>
 </model>
