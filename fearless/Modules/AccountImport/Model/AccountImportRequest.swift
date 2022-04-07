@@ -1,4 +1,5 @@
 import Foundation
+import IrohaCrypto
 
 struct MetaAccountImportMnemonicRequest {
     let mnemonic: String
@@ -27,7 +28,7 @@ struct MetaAccountImportKeystoreRequest {
 }
 
 struct ChainAccountImportMnemonicRequest {
-    let mnemonic: String
+    let mnemonic: IRMnemonicProtocol
     let username: String
     let derivationPath: String
     let cryptoType: CryptoType

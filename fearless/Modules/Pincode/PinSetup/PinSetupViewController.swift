@@ -51,7 +51,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         adjustLayoutConstraints()
         setupAccessibilityIdentifiers()
 
-        presenter.start()
+        presenter.didLoad(view: self)
     }
 
     // MARK: Configure

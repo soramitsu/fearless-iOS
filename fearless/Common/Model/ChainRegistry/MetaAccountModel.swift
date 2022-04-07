@@ -18,7 +18,7 @@ extension MetaAccountModel: Identifiable {
 }
 
 extension MetaAccountModel {
-    func replacingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
+    func insertingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
         var newChainAccounts = chainAccounts.filter {
             $0.chainId != newChainAccount.chainId
         }
