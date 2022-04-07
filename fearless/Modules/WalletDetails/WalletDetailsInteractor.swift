@@ -76,8 +76,9 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
                 let accountId = response.isChainAccount ? response.accountId : nil
                 let options = self.availableExportOptionsProvider
                     .getAvailableExportOptions(
-                        for: self.selectedMetaAccount.metaId,
-                        accountId: accountId
+                        for: self.selectedMetaAccount,
+                        accountId: accountId,
+                        isEthereum: response.isEthereumBased
                     )
                 self.presenter?.didReceiveExportOptions(options: options, for: chain)
             default:

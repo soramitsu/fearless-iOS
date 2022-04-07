@@ -22,7 +22,7 @@ class CrowdloanListTests: XCTestCase {
 //                lastContribution: .never,
 //                firstPeriod: 100,
 //                lastPeriod: 101,
-//                trieIndex: 1)
+//                trieOrFundIndex: .trieIndex(1))
 //        )
 //    ]
 //
@@ -39,7 +39,7 @@ class CrowdloanListTests: XCTestCase {
 //                lastContribution: .never,
 //                firstPeriod: 100,
 //                lastPeriod: 101,
-//                trieIndex: 2)
+//                trieOrFundIndex: .trieIndex(2))
 //        )
 //    ]
 //
@@ -56,7 +56,7 @@ class CrowdloanListTests: XCTestCase {
 //                lastContribution: .never,
 //                firstPeriod: 100,
 //                lastPeriod: 101,
-//                trieIndex: 3)
+//                trieOrFundIndex: .trieIndex(3))
 //        )
 //    ]
 //

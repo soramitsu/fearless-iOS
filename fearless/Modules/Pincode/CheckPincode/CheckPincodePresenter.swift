@@ -1,9 +1,9 @@
 import Foundation
 
 class CheckPincodePresenter: PinSetupPresenterProtocol {
-    weak var view: PinSetupViewProtocol?
-    let interactor: LocalAuthInteractorInputProtocol
-    let moduleOutput: CheckPincodeModuleOutput
+    private weak var view: PinSetupViewProtocol?
+    private let interactor: LocalAuthInteractorInputProtocol
+    private let moduleOutput: CheckPincodeModuleOutput
 
     init(
         interactor: LocalAuthInteractorInputProtocol,
@@ -13,12 +13,14 @@ class CheckPincodePresenter: PinSetupPresenterProtocol {
         self.moduleOutput = moduleOutput
     }
 
-    func start() {
-        view?.didChangeAccessoryState(
+    func didLoad(view: PinSetupViewProtocol) {
+        self.view = view
+
+        self.view?.didChangeAccessoryState(
             enabled: interactor.allowManualBiometryAuth,
             availableBiometryType: interactor.availableBiometryType
         )
-        interactor.startAuth()
+        interactor.startAuth(with: self)
     }
 
     func cancel() {
@@ -26,7 +28,7 @@ class CheckPincodePresenter: PinSetupPresenterProtocol {
     }
 
     func activateBiometricAuth() {
-        interactor.startAuth()
+        interactor.startAuth(with: self)
     }
 
     func submit(pin: String) {

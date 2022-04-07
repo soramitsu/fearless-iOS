@@ -20,9 +20,6 @@ final class CheckPincodeViewFactory {
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
-        presenter.view = pinVerifyView
-
-        interactor.presenter = presenter
 
         return pinVerifyView
     }

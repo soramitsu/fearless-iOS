@@ -14,7 +14,7 @@ protocol CrowdloanOperationFactoryProtocol {
         connection: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         accountId: AccountId,
-        trieIndex: UInt32
+        trieOrFundIndex: TrieOrFundIndex
     ) -> CompoundOperationWrapper<CrowdloanContributionResponse>
 
     func fetchLeaseInfoOperation(
@@ -92,18 +92,18 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
         connection: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         accountId: AccountId,
-        trieIndex: UInt32
+        trieOrFundIndex: TrieOrFundIndex
     ) -> CompoundOperationWrapper<CrowdloanContributionResponse> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let storageKeyParam: () throws -> Data = { accountId }
 
         let childKeyParam: () throws -> Data = {
-            let trieIndexEncoder = ScaleEncoder()
-            try trieIndex.encode(scaleEncoder: trieIndexEncoder)
-            let trieIndexData = trieIndexEncoder.encode()
+            let trieOrFundIndexEncoder = ScaleEncoder()
+            try trieOrFundIndex.encode(scaleEncoder: trieOrFundIndexEncoder)
+            let trieOrFundIndexData = trieOrFundIndexEncoder.encode()
 
-            guard let childSuffix = try "crowdloan".data(using: .utf8).map({ $0 + trieIndexData })?.blake2b32() else {
+            guard let childSuffix = try "crowdloan".data(using: .utf8).map({ $0 + trieOrFundIndexData })?.blake2b32() else {
                 throw NetworkBaseError.badSerialization
             }
 
@@ -127,7 +127,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
 
         let mappingOperation = ClosureOperation<CrowdloanContributionResponse> {
             let result = try queryWrapper.targetOperation.extractNoCancellableResultData()
-            return CrowdloanContributionResponse(accountId: accountId, trieIndex: trieIndex, contribution: result.value)
+            return CrowdloanContributionResponse(accountId: accountId, trieOrFundIndex: trieOrFundIndex, contribution: result.value)
         }
 
         mappingOperation.addDependency(queryWrapper.targetOperation)

@@ -12,6 +12,7 @@ struct MetaAccountModel: Equatable, Codable {
     let chainAccounts: Set<ChainAccountModel>
     let assetKeysOrder: [String]?
     let assetIdsEnabled: [String]?
+    let canExportEthereumMnemonic: Bool
 }
 
 extension MetaAccountModel: Identifiable {
@@ -19,7 +20,7 @@ extension MetaAccountModel: Identifiable {
 }
 
 extension MetaAccountModel {
-    func replacingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
+    func insertingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
         var newChainAccounts = chainAccounts.filter {
             $0.chainId != newChainAccount.chainId
         }
@@ -36,7 +37,8 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: newChainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsEnabled: assetIdsEnabled
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -51,7 +53,8 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsEnabled: assetIdsEnabled
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -66,7 +69,8 @@ extension MetaAccountModel {
             ethereumPublicKey: newEthereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsEnabled: assetIdsEnabled
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -81,7 +85,8 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsEnabled: assetIdsEnabled
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -96,7 +101,8 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: newAssetKeysOrder,
-            assetIdsEnabled: assetIdsEnabled
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 
@@ -111,7 +117,8 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsEnabled: newAssetIdsEnabled
+            assetIdsEnabled: newAssetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic
         )
     }
 }

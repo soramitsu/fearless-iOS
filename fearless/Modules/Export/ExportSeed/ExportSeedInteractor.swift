@@ -66,29 +66,24 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
         chain: ChainModel
     ) {
         let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
-            let seedTag = chain.isEthereumBased
+            let keyTag = chain.isEthereumBased
                 ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
                 : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
 
-            var optionalSeed: Data? = try self?.keystore.fetchKey(for: seedTag)
-
-            let keyTag = chain.isEthereumBased
-                ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-                : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
-
-            if optionalSeed == nil, cryptoType.supportsSeedFromSecretKey {
-                optionalSeed = try self?.keystore.fetchKey(for: keyTag)
-            }
+            var optionalSeed = try self?.keystore.fetchKey(for: keyTag)
 
             guard let seed = optionalSeed else {
                 throw ExportSeedInteractorError.missingSeed
             }
 
+            //  We shouldn't show derivation path for ethereum seed. So just provide nil to hide it
             let derivationPathTag = chain.isEthereumBased
-                ? KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId)
-                : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
+                ? nil : KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
 
-            let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
+            var derivationPath: String?
+            if let tag = derivationPathTag {
+                derivationPath = try self?.keystore.fetchDeriviationForAddress(tag)
+            }
 
             return ExportSeedData(
                 seed: seed,
