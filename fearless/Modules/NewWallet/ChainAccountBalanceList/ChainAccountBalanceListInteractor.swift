@@ -53,7 +53,7 @@ final class ChainAccountBalanceListInteractor {
         case let .success(chains):
             self.chains = chains
 
-            let accountSupportsEthereum = SelectedWalletSettings.shared.value?.ethereumPublicKey != nil
+            let accountSupportsEthereum = selectedMetaAccount.ethereumPublicKey != nil
 
             let filteredChains: [ChainModel] = accountSupportsEthereum ? chains : chains.filter { $0.isEthereumBased == false }
             presenter?.didReceiveChains(result: .success(filteredChains))

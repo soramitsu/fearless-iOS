@@ -16,12 +16,15 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
                 return nil
             }
 
+            let ethereumBased = chainAccontEntity.ethereumBased ?? false
+
             let accountId = try Data(hexString: chainAccontEntity.accountId!)
             return ChainAccountModel(
                 chainId: chainAccontEntity.chainId!,
                 accountId: accountId,
                 publicKey: chainAccontEntity.publicKey!,
-                cryptoType: UInt8(bitPattern: Int8(chainAccontEntity.cryptoType))
+                cryptoType: UInt8(bitPattern: Int8(chainAccontEntity.cryptoType)),
+                ethereumBased: ethereumBased
             )
         } ?? []
 
@@ -80,6 +83,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccountEntity?.chainId = chainAccount.chainId
             chainAccountEntity?.cryptoType = Int16(bitPattern: UInt16(chainAccount.cryptoType))
             chainAccountEntity?.publicKey = chainAccount.publicKey
+            chainAccountEntity?.ethereumBased = chainAccount.ethereumBased
         }
     }
 }

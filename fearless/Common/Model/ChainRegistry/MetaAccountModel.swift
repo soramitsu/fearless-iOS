@@ -15,6 +15,12 @@ struct MetaAccountModel: Equatable, Codable {
     let canExportEthereumMnemonic: Bool
 }
 
+extension MetaAccountModel {
+    var supportEthereum: Bool {
+        ethereumPublicKey != nil || chainAccounts.first(where: { $0.ethereumBased == true }) != nil
+    }
+}
+
 extension MetaAccountModel: Identifiable {
     var identifier: String { metaId }
 }
