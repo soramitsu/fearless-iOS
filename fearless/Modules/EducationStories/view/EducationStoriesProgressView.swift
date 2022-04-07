@@ -84,7 +84,7 @@ final class EducationStoriesProgressView: UIStackView {
     }
 
     // MARK: - Private methods
-    
+
     private func stopPreviusSegmentAnimation() {
         if currentAnimationIndex > 0 {
             currentAnimationIndex -= 1

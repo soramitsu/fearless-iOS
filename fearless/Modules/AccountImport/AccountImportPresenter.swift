@@ -604,6 +604,53 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
     }
 
+    func resolveEmptyDerivationPath(
+        sourceViewModel: InputViewModelProtocol,
+        usernameViewModel: InputViewModelProtocol,
+        selectedCryptoType: CryptoType,
+        selectedSourceType: AccountImportSource
+    ) {
+        let message = R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let replaceActionTitle = R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let cancelActionTitle = R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let replaceAction = AlertPresentableAction(title: replaceActionTitle) { [weak self] in
+            self?.view?.didValidateEthereumDerivationPath(.valid)
+            self?.createAccount(
+                sourceViewModel: sourceViewModel,
+                username: usernameViewModel.inputHandler.value,
+                substrateDerivationPath: (self?.substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
+                ethereumDerivationPath: "",
+                selectedCryptoType: selectedCryptoType,
+                password: self?.passwordViewModel?.inputHandler.value ?? "",
+                selectedSourceType: selectedSourceType
+            )
+        }
+        let cancelAction = AlertPresentableAction(title: cancelActionTitle, style: .cancel) { [weak self] in
+            self?.view?.didValidateEthereumDerivationPath(.valid)
+            self?.createAccount(
+                sourceViewModel: sourceViewModel,
+                username: usernameViewModel.inputHandler.value,
+                substrateDerivationPath: (self?.substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
+                ethereumDerivationPath: (self?.ethereumDerivationPathViewModel?.inputHandler.value)
+                    .nonEmpty(or: DerivationPathConstants.defaultEthereum),
+                selectedCryptoType: selectedCryptoType,
+                password: self?.passwordViewModel?.inputHandler.value ?? "",
+                selectedSourceType: selectedSourceType
+            )
+        }
+        let alertViewModel = AlertPresentableViewModel(
+            title: nil,
+            message: message,
+            actions: [replaceAction, cancelAction],
+            closeAction: nil
+        )
+        wireframe.present(
+            viewModel: alertViewModel,
+            style: .alert,
+            from: view
+        )
+    }
+
     func proceed() {
         guard
             let selectedSourceType = selectedSourceType,
@@ -643,6 +690,15 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
                 sourceType: selectedSourceType,
                 cryptoType: selectedCryptoType,
                 isEthereum: true
+            )
+            return
+        }
+        if ethereumDerivationPathViewModel?.inputHandler.value == DerivationPathConstants.zerosEthereum {
+            resolveEmptyDerivationPath(
+                sourceViewModel: sourceViewModel,
+                usernameViewModel: usernameViewModel,
+                selectedCryptoType: selectedCryptoType,
+                selectedSourceType: selectedSourceType
             )
             return
         }

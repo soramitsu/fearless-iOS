@@ -4010,7 +4010,7 @@
 				078FD50C27F1C4AE00F031E6 /* EducationStoriesViewState.swift */,
 				0796039827FE90150028648C /* EducationStoriesInteractor.swift */,
 			);
-			name = EducationStories;
+			path = EducationStories;
 			sourceTree = "<group>";
 		};
 		078FD50E27F2B0F600F031E6 /* view */ = {
@@ -4020,8 +4020,7 @@
 				078FD50527F187A600F031E6 /* BaseEducationStoriesView.swift */,
 				078FD50A27F1AE8E00F031E6 /* EducationStoriesSlideView.swift */,
 			);
-			name = view;
-			path = NewsVersion2;
+			path = view;
 			sourceTree = "<group>";
 		};
 		08D39660D17C5BB0783B7091 /* ChainAccountList */ = {
