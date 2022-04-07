@@ -24,8 +24,8 @@ final class CheckPincodeViewController: UIViewController, ViewHolder, Localizabl
     override func viewDidLoad() {
         super.viewDidLoad()
         configurePinView()
-
         rootView.navigationBar.backButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
+        presenter.didLoad(view: self)
     }
 
     func configurePinView() {
