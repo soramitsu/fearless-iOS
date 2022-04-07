@@ -14,8 +14,12 @@ final class EducationStoriesAssembly {
             userDefaultsStorage: SettingsManager.shared
         )
 
+        let interactor = EducationStoriesInteractor(
+            userDefaultsStorage: userDefaultsStorage
+        )
+
         let presenter = EducationStoriesPresenter(
-            userDefaultsStorage: userDefaultsStorage,
+            interactor: interactor,
             storiesFactory: EducationStoriesFactoryImpl(),
             router: router,
             startViewHelper: startViewHelper,

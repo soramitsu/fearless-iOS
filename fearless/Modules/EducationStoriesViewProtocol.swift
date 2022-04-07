@@ -15,3 +15,10 @@ protocol EducationStoriesRouterProtocol: AnyObject {
     func showOnboarding()
     func showPincodeSetup()
 }
+
+protocol EducationStoriesInteractorInput: AnyObject {
+    func setup(with output: EducationStoriesInteractorOutput)
+    func didCloseStories()
+}
+
+protocol EducationStoriesInteractorOutput: AnyObject {}

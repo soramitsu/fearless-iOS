@@ -15,7 +15,7 @@ protocol StartViewHelperProtocol {
 
 final class StartViewHelper: StartViewHelperProtocol {
     private let keystore: KeystoreProtocol
-    private let selectedWallerSettings: SelectedWalletSettings
+    private let selectedWalletSettings: SelectedWalletSettings
     private let userDefaultsStorage: SettingsManagerProtocol
 
     private lazy var isNeedShowStories: Bool = {
@@ -30,17 +30,17 @@ final class StartViewHelper: StartViewHelperProtocol {
         userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.keystore = keystore
-        self.selectedWallerSettings = selectedWallerSettings
+        selectedWalletSettings = selectedWallerSettings
         self.userDefaultsStorage = userDefaultsStorage
     }
 
     func startView() -> StartView {
         do {
-            if isNeedShowStories, !selectedWallerSettings.hasValue {
+            if isNeedShowStories, !selectedWalletSettings.hasValue {
                 return StartView.educationStories
             }
 
-            if !selectedWallerSettings.hasValue {
+            if !selectedWalletSettings.hasValue {
                 try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
 
                 return StartView.login
