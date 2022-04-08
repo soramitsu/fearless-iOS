@@ -54,9 +54,11 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
 
     func showSelectAccounts(
         from view: AccountManagementViewProtocol?,
-        metaAccount: MetaAccountModel
+        managedMetaAccountModel: ManagedMetaAccountModel
     ) {
-        guard let module = SelectExportAccountAssembly.configureModule(metaAccount: metaAccount) else { return }
+        guard let module = SelectExportAccountAssembly.configureModule(
+            managedMetaAccountModel: managedMetaAccountModel
+        ) else { return }
         view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
     }
 }

@@ -18,6 +18,8 @@
 		06197BBE4299DC971C42DB92 /* WalletSendConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A687FBDA0912F8727CE0D81 /* WalletSendConfirmPresenter.swift */; };
 		06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */; };
 		0678271BE1BA5BBC084F478A /* RecommendedValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C624E71FCE0FFF8EAD5BA9 /* RecommendedValidatorListWireframe.swift */; };
+		0796039527FD61D80028648C /* GetBalanceProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0796039427FD61D80028648C /* GetBalanceProviderProtocol.swift */; };
+		0796039727FDBB5F0028648C /* BalanceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0796039627FDBB5F0028648C /* BalanceBuilder.swift */; };
 		07B05B1727F57D8100F4F36D /* IconWithTitleViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B05B1627F57D8100F4F36D /* IconWithTitleViewModelFactory.swift */; };
 		07B05B2027F6BB1200F4F36D /* SelectableExportAccountTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B05B1F27F6BB1200F4F36D /* SelectableExportAccountTableCell.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
@@ -1980,6 +1982,8 @@
 		04EF69DFE142600FF2708A13 /* ControllerAccountConfirmationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountConfirmationViewController.swift; sourceTree = "<group>"; };
 		0533F9E531CDFB721D697769 /* YourValidatorListPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListPresenter.swift; sourceTree = "<group>"; };
 		06B4E294F237E21F1553091D /* ChainAccountBalanceListInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceListInteractor.swift; sourceTree = "<group>"; };
+		0796039427FD61D80028648C /* GetBalanceProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBalanceProviderProtocol.swift; sourceTree = "<group>"; };
+		0796039627FDBB5F0028648C /* BalanceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceBuilder.swift; sourceTree = "<group>"; };
 		07B05B1627F57D8100F4F36D /* IconWithTitleViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithTitleViewModelFactory.swift; sourceTree = "<group>"; };
 		07B05B1F27F6BB1200F4F36D /* SelectableExportAccountTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableExportAccountTableCell.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
@@ -4025,6 +4029,15 @@
 				84E7D67B26376A0A0037EB23 /* YourValidatorListInteractor+Subscription.swift */,
 			);
 			path = YourValidatorList;
+			sourceTree = "<group>";
+		};
+		0796039327FD61BC0028648C /* GetBalanceProvider */ = {
+			isa = PBXGroup;
+			children = (
+				0796039427FD61D80028648C /* GetBalanceProviderProtocol.swift */,
+				0796039627FDBB5F0028648C /* BalanceBuilder.swift */,
+			);
+			path = GetBalanceProvider;
 			sourceTree = "<group>";
 		};
 		07B05B1E27F6B88B00F4F36D /* Cell */ = {
@@ -9547,6 +9560,7 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0796039327FD61BC0028648C /* GetBalanceProvider */,
 				FA072C17277B02D900731718 /* QRService */,
 				FA38C9A727607213005C5577 /* BaseService.swift */,
 				FA38C9A52760701F005C5577 /* SearchService.swift */,
@@ -10800,6 +10814,7 @@
 				84452F5825D5C30600F47EC5 /* FilesRepository.swift in Sources */,
 				F4871DF326D63E8700D27F23 /* AnalyticsRewardDetailsViewModelFactory.swift in Sources */,
 				84873B0426029B75000A83EE /* StakingEstimationViewModel.swift in Sources */,
+				0796039527FD61D80028648C /* GetBalanceProviderProtocol.swift in Sources */,
 				AE6F7FE32685E812002BBC3E /* ValidatorListFilterViewLayout.swift in Sources */,
 				84038FF026FFBE0600C73F3F /* JsonLocalStorageSubscriber.swift in Sources */,
 				84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */,
@@ -12033,6 +12048,7 @@
 				57A95E76F53CBE2B5019F3F5 /* SelectExportAccountViewController.swift in Sources */,
 				03B78363BAF807F571CA407C /* SelectExportAccountViewLayout.swift in Sources */,
 				C1ADB3D3B95458C373A08DE9 /* SelectExportAccountAssembly.swift in Sources */,
+				0796039727FDBB5F0028648C /* BalanceBuilder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

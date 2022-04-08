@@ -2,14 +2,17 @@ import Foundation
 
 protocol SelectExportAccountViewModelFactoryProtocol {
     func buildViewModel(
-        metaAccount: MetaAccountModel,
+        managedMetaAccountModel: ManagedMetaAccountModel,
         nativeAccounts: [ChainAccountResponse]?,
         addedAccounts: [ChainAccountModel]?,
         chains: [ChainModel],
         locale: Locale
     ) -> SelectExportAccountViewModel
 
-    func buildEmptyViewModel(metaAccount: MetaAccountModel, locale: Locale) -> SelectExportAccountViewModel
+    func buildEmptyViewModel(
+        managedMetaAccountModel: ManagedMetaAccountModel,
+        locale: Locale
+    ) -> SelectExportAccountViewModel
 }
 
 class SelectExportAccountViewModelFactory {
@@ -67,7 +70,7 @@ class SelectExportAccountViewModelFactory {
 
 extension SelectExportAccountViewModelFactory: SelectExportAccountViewModelFactoryProtocol {
     func buildViewModel(
-        metaAccount: MetaAccountModel,
+        managedMetaAccountModel: ManagedMetaAccountModel,
         nativeAccounts: [ChainAccountResponse]?,
         addedAccounts: [ChainAccountModel]?,
         chains: [ChainModel],
@@ -76,7 +79,8 @@ extension SelectExportAccountViewModelFactory: SelectExportAccountViewModelFacto
         SelectExportAccountViewModel(
             title: R.string.localizable
                 .whatAccountsForExport(preferredLanguages: locale.rLanguages),
-            metaAccountName: metaAccount.name,
+            metaAccountName: managedMetaAccountModel.info.name,
+            metaAccountBalance: managedMetaAccountModel.balance,
             metaAccountBalanceString: nil,
             nativeAccountCellViewModel: buildNativeAccountsCellViewModel(
                 nativeAccounts: nativeAccounts,
@@ -91,10 +95,14 @@ extension SelectExportAccountViewModelFactory: SelectExportAccountViewModelFacto
         )
     }
 
-    func buildEmptyViewModel(metaAccount: MetaAccountModel, locale: Locale) -> SelectExportAccountViewModel {
+    func buildEmptyViewModel(
+        managedMetaAccountModel: ManagedMetaAccountModel,
+        locale: Locale
+    ) -> SelectExportAccountViewModel {
         SelectExportAccountViewModel(
             title: R.string.localizable.whatAccountsForExport(preferredLanguages: locale.rLanguages),
-            metaAccountName: metaAccount.name,
+            metaAccountName: managedMetaAccountModel.info.name,
+            metaAccountBalance: managedMetaAccountModel.balance,
             metaAccountBalanceString: nil,
             nativeAccountCellViewModel: nil,
             addedAccountsCellViewModels: nil

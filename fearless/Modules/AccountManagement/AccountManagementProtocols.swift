@@ -53,7 +53,7 @@ protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable 
     )
     func showSelectAccounts(
         from view: AccountManagementViewProtocol?,
-        metaAccount: MetaAccountModel
+        managedMetaAccountModel: ManagedMetaAccountModel
     )
 }
 

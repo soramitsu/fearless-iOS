@@ -75,7 +75,7 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
                 case .export:
                     strongSelf.wireframe.showSelectAccounts(
                         from: view,
-                        metaAccount: managedMetaAccountModel.info
+                        managedMetaAccountModel: managedMetaAccountModel
                     )
                 }
             }

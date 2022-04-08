@@ -48,6 +48,16 @@ extension SwitchAccount {
             view?.controller.navigationController?.present(pickerView, animated: true)
         }
 
-        func showSelectAccounts(from _: AccountManagementViewProtocol?, metaAccount _: MetaAccountModel) {}
+        func showSelectAccounts(
+            from view: AccountManagementViewProtocol?,
+            managedMetaAccountModel: ManagedMetaAccountModel
+        ) {
+            guard let module = SelectExportAccountAssembly.configureModule(
+                managedMetaAccountModel: managedMetaAccountModel
+            ) else {
+                return
+            }
+            view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
+        }
     }
 }

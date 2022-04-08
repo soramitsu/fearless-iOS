@@ -62,6 +62,12 @@ final class WalletTableViewCell: UITableViewCell {
         return label
     }()
 
+    private let totalBalanceActivityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+
     private var infoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -89,6 +95,11 @@ final class WalletTableViewCell: UITableViewCell {
             : nil
         infoImageView.image = R.image.iconHorMore()
         walletLabel.text = viewModel.name
+
+        viewModel.totalBalance == nil
+            ? totalBalanceActivityIndicator.startAnimating()
+            : totalBalanceActivityIndicator.stopAnimating()
+
         totalBalanceLabel.text = viewModel.totalBalance
     }
 
@@ -158,6 +169,8 @@ private extension WalletTableViewCell {
         mainStackView.addArrangedSubview(infoStackView)
 
         infoStackView.addArrangedSubview(walletLabel)
+        infoStackView.addArrangedSubview(totalBalanceLabel)
+        infoStackView.addArrangedSubview(totalBalanceActivityIndicator)
 
         mainStackView.addArrangedSubview(infoImageView)
         infoImageView.snp.makeConstraints { make in
