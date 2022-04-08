@@ -53,12 +53,9 @@ final class ChainAccountBalanceListInteractor {
         case let .success(chains):
             self.chains = chains
 
-            let accountSupportsEthereum = selectedMetaAccount.ethereumPublicKey != nil
-
-            let filteredChains: [ChainModel] = accountSupportsEthereum ? chains : chains.filter { $0.isEthereumBased == false }
-            presenter?.didReceiveChains(result: .success(filteredChains))
-            subscribeToAccountInfo(for: filteredChains)
-            subscribeToPrice(for: filteredChains)
+            presenter?.didReceiveChains(result: .success(chains))
+            subscribeToAccountInfo(for: chains)
+            subscribeToPrice(for: chains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:

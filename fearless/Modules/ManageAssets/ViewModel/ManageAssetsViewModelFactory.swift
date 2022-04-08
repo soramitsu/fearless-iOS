@@ -183,7 +183,16 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             )
         }
 
-        return ManageAssetsViewModel(cellModels: viewModels)
+        let missingSection = ManageAssetsTableSection(cellModels: viewModels.filter {
+            selectedMetaAccount?.fetch(for: $0.chainAsset.chain.accountRequest()) == nil
+                && $0.chainAsset.chain.unused == false
+        })
+        let normalSection = ManageAssetsTableSection(cellModels: viewModels.filter {
+            selectedMetaAccount?.fetch(for: $0.chainAsset.chain.accountRequest()) != nil
+                || $0.chainAsset.chain.unused == true
+        })
+
+        return ManageAssetsViewModel(sections: [missingSection, normalSection])
     }
 }
 

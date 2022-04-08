@@ -7,7 +7,7 @@ protocol ManageAssetsViewProtocol: ControllerBackedProtocol {
 
 protocol ManageAssetsPresenterProtocol: AnyObject {
     func setup()
-    func move(viewModel: ManageAssetsTableViewCellModel, from: Int, to: Int)
+    func move(viewModel: ManageAssetsTableViewCellModel, from: IndexPath, to: IndexPath)
     func didTapCloseButton()
 }
 
@@ -15,6 +15,7 @@ protocol ManageAssetsInteractorInputProtocol: AnyObject {
     func setup()
     func saveAssetsOrder(assets: [ChainAsset])
     func saveAssetIdsEnabled(_ assetIdsEnabled: [String])
+    func markUnused(chain: ChainModel)
 }
 
 protocol ManageAssetsInteractorOutputProtocol: AnyObject {
@@ -24,4 +25,17 @@ protocol ManageAssetsInteractorOutputProtocol: AnyObject {
     func didReceiveAssetIdsEnabled(_ assetIdsEnabled: [String]?)
 }
 
-protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, PresentDismissable {}
+protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, PresentDismissable {
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        options: [MissingAccountOption],
+        uniqueChainModel: UniqueChainModel,
+        skipBlock: @escaping (ChainModel) -> Void
+    )
+
+    func showImport(
+        uniqueChainModel: UniqueChainModel,
+        from view: ControllerBackedProtocol?
+    )
+}

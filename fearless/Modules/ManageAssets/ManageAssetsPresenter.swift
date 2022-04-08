@@ -50,9 +50,9 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
         interactor.setup()
     }
 
-    func move(viewModel _: ManageAssetsTableViewCellModel, from: Int, to: Int) {
-        if var assets = viewModel?.cellModels.map(\.chainAsset) {
-            assets.swapAt(from, to)
+    func move(viewModel _: ManageAssetsTableViewCellModel, from: IndexPath, to: IndexPath) {
+        if var assets = viewModel?.sections[from.section].cellModels.map(\.chainAsset) {
+            assets.swapAt(from.row, to.row)
             interactor.saveAssetsOrder(assets: assets)
         }
     }
@@ -99,7 +99,13 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
     func switchAssetEnabledState(asset: ChainAsset) {
         var modifiedAssetIdsEnabled: [String] = []
         if assetIdsEnabled == nil {
-            modifiedAssetIdsEnabled = viewModel?.cellModels.map(\.chainAsset.asset.id).filter { $0 != asset.asset.id } ?? []
+            modifiedAssetIdsEnabled = viewModel?.sections
+                .compactMap { section in
+                    section.cellModels
+                }
+                .reduce([], +)
+                .map(\.chainAsset.asset.id)
+                .filter { $0 != asset.asset.id } ?? []
         } else {
             let contains = assetIdsEnabled?.contains(asset.asset.id) == true
             if contains {
@@ -112,5 +118,17 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
         interactor.saveAssetIdsEnabled(modifiedAssetIdsEnabled)
     }
 
-    func showMissingAccountOptions(chainAsset _: ChainAsset) {}
+    func showMissingAccountOptions(chainAsset: ChainAsset) {
+        wireframe.presentAccountOptions(
+            from: view,
+            locale: selectedLocale,
+            options: [.import, .skip],
+            uniqueChainModel: UniqueChainModel(
+                meta: selectedMetaAccount,
+                chain: chainAsset.chain
+            )
+        ) { [weak self] chain in
+            self?.interactor.markUnused(chain: chain)
+        }
+    }
 }

@@ -32,10 +32,16 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
 
     func showManageAssets(from view: ChainAccountBalanceListViewProtocol?) {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-              let manageAssets = ManageAssetsViewFactory.createView(selectedMetaAccount: selectedMetaAccount)?.controller else {
+              let manageAssetsController = ManageAssetsViewFactory.createView(selectedMetaAccount: selectedMetaAccount)?.controller else {
             return
         }
 
-        view?.controller.present(manageAssets, animated: true, completion: nil)
+        let navigationController = UINavigationController(rootViewController: manageAssetsController)
+
+        view?.controller.present(
+            navigationController,
+            animated: true,
+            completion: nil
+        )
     }
 }

@@ -25,12 +25,14 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        var chainAssets = chains.map { chain in
-            chain.assets.compactMap { asset in
-                ChainAsset(chain: chain, asset: asset.asset)
+        var chainAssets = chains
+            .filter { selectedMetaAccount?.fetch(for: $0.accountRequest()) != nil }
+            .map { chain in
+                chain.assets.compactMap { asset in
+                    ChainAsset(chain: chain, asset: asset.asset)
+                }
             }
-        }
-        .reduce([], +)
+            .reduce([], +)
 
         if let assetIdsEnabled = selectedMetaAccount?.assetIdsEnabled {
             chainAssets = chainAssets.filter { assetIdsEnabled.contains($0.asset.id) == true }
@@ -123,11 +125,13 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             )
         }
 
+        let haveMissingAccounts = chains.first(where: { selectedMetaAccount?.fetch(for: $0.accountRequest()) == nil && $0.unused == false }) != nil
+
         return ChainAccountBalanceListViewModel(
             accountName: selectedMetaAccount?.name,
             balance: usdTokenFormatterValue.stringFromDecimal(totalWalletBalance),
             accountViewModels: viewModels,
-            ethAccountMissed: selectedMetaAccount?.ethereumPublicKey == nil
+            ethAccountMissed: haveMissingAccounts
         )
     }
 

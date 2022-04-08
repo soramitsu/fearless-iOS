@@ -1918,6 +1918,7 @@
 		FA99422627FE921000D771E5 /* ManageAssetsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99421B27FE921000D771E5 /* ManageAssetsViewController.swift */; };
 		FA99422827FE925000D771E5 /* UISwitch+CustomSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */; };
 		FA99422A27FE927800D771E5 /* AssetModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422927FE927700D771E5 /* AssetModelMapper.swift */; };
+		FA99422D28002BB800D771E5 /* MissingAccountOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */; };
 		FA99549727B255AB00CCC94B /* AddCustomNodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99549627B255AB00CCC94B /* AddCustomNodeViewModel.swift */; };
 		FA99549927B3609700CCC94B /* TableSectionTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99549827B3609700CCC94B /* TableSectionTitleView.swift */; };
 		FA99549B27B3B60700CCC94B /* WalletNameChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99549A27B3B60700CCC94B /* WalletNameChanged.swift */; };
@@ -3915,6 +3916,7 @@
 		FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UISwitch+CustomSize.swift"; sourceTree = "<group>"; };
 		FA99422927FE927700D771E5 /* AssetModelMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetModelMapper.swift; sourceTree = "<group>"; };
 		FA99422B27FEA68D00D771E5 /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountOptions.swift; sourceTree = "<group>"; };
 		FA99549627B255AB00CCC94B /* AddCustomNodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModel.swift; sourceTree = "<group>"; };
 		FA99549827B3609700CCC94B /* TableSectionTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableSectionTitleView.swift; sourceTree = "<group>"; };
 		FA99549A27B3B60700CCC94B /* WalletNameChanged.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletNameChanged.swift; sourceTree = "<group>"; };
@@ -6315,6 +6317,7 @@
 				FA402F2E27C7C646008CF986 /* ExportAction.swift */,
 				C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */,
 				C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */,
+				FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -11018,6 +11021,7 @@
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
 				8490386B262E22DC0016D541 /* NominatorPayoutInfoFactory.swift in Sources */,
 				C6264C362799F69900FCA0DB /* WalletDetailsPresenter.swift in Sources */,
+				FA99422D28002BB800D771E5 /* MissingAccountOptions.swift in Sources */,
 				8430AB1726023D2D005B1066 /* BaseStashNextState.swift in Sources */,
 				841AAC2126F6860B00F0A25E /* AssetBalanceFormatterFactory.swift in Sources */,
 				F47BBD512630B7D80087DA11 /* StakingBalancePresenter.swift in Sources */,

@@ -54,7 +54,11 @@ class ManageAssetsTableViewCell: UITableViewCell {
         return containerView
     }()
 
-    private var accountMissingHintView = UIFactory.default.createHintView()
+    private var accountMissingHintView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.iconView.image = R.image.iconWarning()
+        return view
+    }()
 
     private var addMissingAccountButton: UIButton = {
         let button = UIButton()
@@ -234,6 +238,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         dragButton.isHidden = viewModel.accountMissing
         switcher.isHidden = viewModel.accountMissing
         accountMissingHintView.isHidden = !viewModel.accountMissing
+        accountMissingHintView.iconView.isHidden = viewModel.chainAsset.chain.unused == true
         addMissingAccountButton.isHidden = !viewModel.accountMissing
     }
 }

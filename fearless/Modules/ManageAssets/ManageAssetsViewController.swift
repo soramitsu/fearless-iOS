@@ -30,6 +30,11 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
         configure()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = true
+    }
+
     private func applyState() {
         switch state {
         case .loading:
@@ -78,15 +83,15 @@ extension ManageAssetsViewController: UITableViewDataSource {
             return 0
         }
 
-        return 1
+        return 2
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard case let .loaded(viewModel) = state else {
             return 0
         }
 
-        return viewModel.cellModels.count
+        return viewModel.sections[section].cellModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -99,7 +104,8 @@ extension ManageAssetsViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        cell.bind(to: viewModel.cellModels[indexPath.row])
+        let cellModel = viewModel.sections[indexPath.section].cellModels[indexPath.row]
+        cell.bind(to: cellModel)
         return cell
     }
 
@@ -108,24 +114,16 @@ extension ManageAssetsViewController: UITableViewDataSource {
             return
         }
 
-        let cellModel = viewModel.cellModels[sourceIndexPath.row]
+        let cellModel = viewModel.sections[sourceIndexPath.section].cellModels[sourceIndexPath.row]
         presenter.move(
             viewModel: cellModel,
-            from: sourceIndexPath.row,
-            to: destinationIndexPath.row
+            from: sourceIndexPath,
+            to: destinationIndexPath
         )
     }
 }
 
-extension ManageAssetsViewController: UITableViewDelegate {
-    func tableView(_: UITableView, didSelectRowAt _: IndexPath) {
-        guard case let .loaded(viewModel) = state else {
-            return
-        }
-
-//        presenter.didSelectViewModel(viewModel.accountViewModels[indexPath.row])
-    }
-}
+extension ManageAssetsViewController: UITableViewDelegate {}
 
 extension ManageAssetsViewController: UITableViewDragDelegate {
     func tableView(_: UITableView, itemsForBeginning _: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
@@ -133,8 +131,10 @@ extension ManageAssetsViewController: UITableViewDragDelegate {
             return []
         }
 
+        let cellModel = viewModel.sections[indexPath.section].cellModels[indexPath.row]
+
         let dragItem = UIDragItem(itemProvider: NSItemProvider())
-        dragItem.localObject = viewModel.cellModels[indexPath.row]
+        dragItem.localObject = cellModel
         return [dragItem]
     }
 }

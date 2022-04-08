@@ -42,11 +42,8 @@ final class ManageAssetsInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            let accountSupportsEthereum = SelectedWalletSettings.shared.value?.ethereumPublicKey != nil
-
-            let filteredChains: [ChainModel] = accountSupportsEthereum ? chains : chains.filter { $0.isEthereumBased == false }
             presenter?.didReceiveChains(result: .success(chains))
-            subscribeToAccountInfo(for: filteredChains)
+            subscribeToAccountInfo(for: chains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:
@@ -60,6 +57,23 @@ final class ManageAssetsInteractor {
 }
 
 extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
+    func markUnused(chain: ChainModel) {
+        chain.unused = true
+        let saveOperation = chainRepository.saveOperation {
+            [chain]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            self?.fetchChainsAndSubscribeBalance()
+
+            self?.eventCenter.notify(with: ChainsUpdatedEvent(updatedChains: [chain]))
+        }
+
+        operationQueue.addOperation(saveOperation)
+    }
+
     func setup() {
         fetchChainsAndSubscribeBalance()
 
