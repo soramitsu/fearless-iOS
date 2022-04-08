@@ -23,6 +23,7 @@
 		078FD50B27F1AE8E00F031E6 /* EducationStoriesSlideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50A27F1AE8E00F031E6 /* EducationStoriesSlideView.swift */; };
 		078FD50D27F1C4AE00F031E6 /* EducationStoriesViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50C27F1C4AE00F031E6 /* EducationStoriesViewState.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		0796039927FE90150028648C /* EducationStoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0796039827FE90150028648C /* EducationStoriesInteractor.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
 		0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB887490A8B33890B4E0E4 /* ControllerAccountConfirmationPresenter.swift */; };
@@ -1499,6 +1500,8 @@
 		C68130E3275FD88E007B573A /* ReceiveAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */; };
 		C68130E72761BC0C007B573A /* ReceiveAssetViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68130E62761BC0C007B573A /* ReceiveAssetViewFactory.swift */; };
 		C6A8D6BD27EF0CF40080F81C /* UIView + FirstResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */; };
+		C6A8D6C127FC318A0080F81C /* ImportChainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C027FC318A0080F81C /* ImportChainViewModel.swift */; };
+		C6A8D6C727FEEE700080F81C /* ReplaceOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
@@ -1984,6 +1987,7 @@
 		078FD50A27F1AE8E00F031E6 /* EducationStoriesSlideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationStoriesSlideView.swift; sourceTree = "<group>"; };
 		078FD50C27F1C4AE00F031E6 /* EducationStoriesViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationStoriesViewState.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		0796039827FE90150028648C /* EducationStoriesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationStoriesInteractor.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
 		08EB1FC5907B5165836318C4 /* AnalyticsValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsTests.swift; sourceTree = "<group>"; };
@@ -3464,6 +3468,8 @@
 		C68130E2275FD88E007B573A /* ReceiveAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewModel.swift; sourceTree = "<group>"; };
 		C68130E62761BC0C007B573A /* ReceiveAssetViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewFactory.swift; sourceTree = "<group>"; };
 		C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + FirstResponder.swift"; sourceTree = "<group>"; };
+		C6A8D6C027FC318A0080F81C /* ImportChainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportChainViewModel.swift; sourceTree = "<group>"; };
+		C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceOption.swift; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
@@ -4035,6 +4041,7 @@
 				D1E5EF9951A2523DD156FE15 /* EducationStoriesViewController.swift */,
 				EABD991206E08876860CAD5C /* EducationStoriesAssembly.swift */,
 				078FD50C27F1C4AE00F031E6 /* EducationStoriesViewState.swift */,
+				0796039827FE90150028648C /* EducationStoriesInteractor.swift */,
 			);
 			path = EducationStories;
 			sourceTree = "<group>";
@@ -6307,6 +6314,7 @@
 				FA1109EA27A92D56003C2158 /* ChainAction.swift */,
 				FA402F2E27C7C646008CF986 /* ExportAction.swift */,
 				C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */,
+				C6A8D6C627FEEE700080F81C /* ReplaceOption.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -8494,6 +8502,7 @@
 		BF6F50DD15230CADAC713359 /* AccountImport */ = {
 			isa = PBXGroup;
 			children = (
+				C6A8D6BF27FC31720080F81C /* ViewModel */,
 				843C49D924DF371F00B71DDA /* Model */,
 				B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */,
 				85F45A5C6145F863760F4409 /* AccountImportWireframe.swift */,
@@ -8614,6 +8623,14 @@
 				C67E781D27B4D7870053346B /* PinViewConfigurator.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		C6A8D6BF27FC31720080F81C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C6A8D6C027FC318A0080F81C /* ImportChainViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
@@ -10463,6 +10480,7 @@
 				8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */,
 				8471538D2653B29100CB91D8 /* ChangeRewardDestinationViewModelFactory.swift in Sources */,
 				84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */,
+				C6A8D6C127FC318A0080F81C /* ImportChainViewModel.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
 				F40966B926B297D6008CD244 /* AnalyticsRewardsViewModel.swift in Sources */,
@@ -11175,6 +11193,7 @@
 				F40966CB26B297D6008CD244 /* AnalyticsStakeViewController.swift in Sources */,
 				FA2E9B93279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift in Sources */,
 				8494D860252470F400614D8F /* WalletFearlessFormDefining.swift in Sources */,
+				C6A8D6C727FEEE700080F81C /* ReplaceOption.swift in Sources */,
 				FA25698B274CE61000875A53 /* MultiSignature+CryptoType.swift in Sources */,
 				AEA0C8AE267B818900F9666F /* SelectedValidatorListViewLayout.swift in Sources */,
 				84D8F15524D80CA100AF43E9 /* ModalPickerViewController.swift in Sources */,
@@ -11631,6 +11650,7 @@
 				7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */,
 				FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */,
 				C661B3B027DF75D4005F1F7D /* AccountCreateViewModel.swift in Sources */,
+				0796039927FE90150028648C /* EducationStoriesInteractor.swift in Sources */,
 				61E0DC83C1D60D677274D7CE /* AccountExportPasswordViewFactory.swift in Sources */,
 				1BFC90E1D8646F7429FFD5E6 /* ExportMnemonicProtocols.swift in Sources */,
 				3133215566E418F40844A60E /* ExportMnemonicWireframe.swift in Sources */,
@@ -12465,7 +12485,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.7;
+				MARKETING_VERSION = 2.0.8;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12491,7 +12511,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.7;
+				MARKETING_VERSION = 2.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -12627,7 +12647,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.7;
+				MARKETING_VERSION = 2.0.8;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";

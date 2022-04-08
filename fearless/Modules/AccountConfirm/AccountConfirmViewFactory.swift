@@ -6,7 +6,7 @@ import RobinHood
 
 final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     static func createViewForOnboarding(
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAccountConfirmInteractor(
@@ -22,7 +22,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     static func createViewForAdding(
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
@@ -38,7 +38,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     static func createViewForSwitch(
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
@@ -77,7 +77,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     private static func createAccountConfirmInteractor(
-        for request: MetaAccountCreationRequest,
+        for request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
@@ -107,7 +107,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     private static func createAddAccountConfirmInteractor(
-        for request: MetaAccountCreationRequest,
+        for request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()

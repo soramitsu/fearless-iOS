@@ -34,4 +34,12 @@ final class RootWireframe: RootWireframeProtocol {
         // normally user must not see this but on malicious devices it is possible
         window.backgroundColor = .red
     }
+
+    func showEducationStories(on window: UIWindow) {
+        guard let viewController = EducationStoriesAssembly.configureModule()?.controller else {
+            return
+        }
+
+        window.rootViewController = viewController
+    }
 }

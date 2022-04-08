@@ -31,10 +31,10 @@ protocol AccountImportPresenterProtocol: AnyObject {
 
 protocol AccountImportInteractorInputProtocol: AnyObject {
     func setup()
-    func importAccountWithMnemonic(request: MetaAccountImportMnemonicRequest)
-    func importAccountWithSeed(request: MetaAccountImportSeedRequest)
-    func importAccountWithKeystore(request: MetaAccountImportKeystoreRequest)
+    func importMetaAccount(request: MetaAccountImportRequest)
+    func importUniqueChain(request: UniqueChainImportRequest)
     func deriveMetadataFromKeystore(_ keystore: String)
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol?
 }
 
 protocol AccountImportInteractorOutputProtocol: AnyObject {
@@ -67,13 +67,13 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(_ step: AccountCreationStep) -> AccountImportViewProtocol?
-    static func createViewForAdding(_ step: AccountCreationStep) -> AccountImportViewProtocol?
+    static func createViewForOnboarding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
+    static func createViewForAdding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
 }
 
 extension AccountImportViewFactoryProtocol {
     static func createViewForOnboarding() -> AccountImportViewProtocol? {
-        Self.createViewForOnboarding(.first)
+        Self.createViewForOnboarding(.wallet(step: .first))
     }
 }
