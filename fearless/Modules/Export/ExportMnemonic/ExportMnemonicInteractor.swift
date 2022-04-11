@@ -28,6 +28,34 @@ final class ExportMnemonicInteractor {
 }
 
 extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
+    func fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
+        var models: [ExportMnemonicData] = []
+        for chainAccount in accounts {
+            do {
+                let accountId = chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil
+                let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)
+                let entropy = try keystore.fetchKey(for: entropyTag)
+
+                let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                let derivationPathTag = chainAccount.chain.isEthereumBased ?
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId, accountId: accountId) :
+                    KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
+                let derivationPath: String? = try keystore.fetchDeriviationForAddress(derivationPathTag)
+
+                let data = ExportMnemonicData(
+                    mnemonic: mnemonic,
+                    derivationPath: derivationPath,
+                    cryptoType: chainAccount.account.isEthereumBased ? nil : chainAccount.account.cryptoType,
+                    chain: chainAccount.chain
+                )
+
+                models.append(data)
+            } catch {}
+        }
+
+        presenter.didReceive(exportDatas: models)
+    }
+
     func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
         guard let metaAccount = SelectedWalletSettings.shared.value else {
             presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -51,7 +79,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                     metaId: metaAccount.metaId,
                     accountId: response.isChainAccount ? accountId : nil,
                     cryptoType: response.cryptoType,
-                    isEthereum: response.isEthereumBased
+                    chain: chain
                 )
             case .failure:
                 self?.presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
@@ -63,7 +91,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
         metaId: String,
         accountId: AccountId?,
         cryptoType: CryptoType,
-        isEthereum: Bool
+        chain: ChainModel
     ) {
         let exportOperation: BaseOperation<ExportMnemonicData> = ClosureOperation { [weak self] in
             let entropyTag = KeystoreTagV2.entropyTagForMetaId(metaId, accountId: accountId)
@@ -72,7 +100,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
             }
 
             let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
-            let derivationPathTag = isEthereum ?
+            let derivationPathTag = chain.isEthereumBased ?
                 KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId) :
                 KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
             let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
@@ -80,7 +108,8 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
             return ExportMnemonicData(
                 mnemonic: mnemonic,
                 derivationPath: derivationPath,
-                cryptoType: cryptoType
+                cryptoType: cryptoType,
+                chain: chain
             )
         }
 
@@ -90,7 +119,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                     let model = try exportOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    self?.presenter.didReceive(exportData: model)
+                    self?.presenter.didReceive(exportDatas: [model])
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

@@ -4,6 +4,7 @@ struct ChainAccountRequest {
     let chainId: ChainModel.Id
     let addressPrefix: UInt16
     let isEthereumBased: Bool
+    let accountId: AccountId?
 }
 
 struct ChainAccountResponse: Equatable {
@@ -54,7 +55,7 @@ extension ChainAccountResponse {
 
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
-        if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId }) {
+        if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId && $0.accountId == request.accountId }) {
             guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil
             }
@@ -106,11 +107,12 @@ extension MetaAccountModel {
 }
 
 extension ChainModel {
-    func accountRequest() -> ChainAccountRequest {
+    func accountRequest(_ accountId: AccountId? = nil) -> ChainAccountRequest {
         ChainAccountRequest(
             chainId: chainId,
             addressPrefix: addressPrefix,
-            isEthereumBased: isEthereumBased
+            isEthereumBased: isEthereumBased,
+            accountId: accountId
         )
     }
 }

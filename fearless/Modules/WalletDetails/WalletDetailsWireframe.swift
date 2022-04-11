@@ -2,7 +2,11 @@ import UIKit
 
 final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     func close(_ view: WalletDetailsViewProtocol) {
-        view.controller.navigationController?.dismiss(animated: true)
+        if view.controller.presentingViewController != nil {
+            view.controller.navigationController?.dismiss(animated: true)
+        } else {
+            view.controller.navigationController?.popViewController(animated: true)
+        }
     }
 
     func presentActions(
@@ -24,8 +28,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     }
 
     func showExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         options: [ExportOption],
         locale: Locale?,
         from view: ControllerBackedProtocol?
@@ -37,8 +40,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         ) { [weak self] success in
             if success {
                 self?.performExportPresentation(
-                    for: address,
-                    chain: chain,
+                    flow: flow,
                     options: options,
                     locale: locale,
                     from: view
@@ -81,8 +83,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
 
 private extension WalletDetailsWireframe {
     func performExportPresentation(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         options: [ExportOption],
         locale: Locale?,
         from view: ControllerBackedProtocol?
@@ -95,17 +96,17 @@ private extension WalletDetailsWireframe {
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showMnemonicExport(for: address, chain: chain, from: view)
+                    self?.showMnemonicExport(flow: flow, from: view)
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showKeystoreExport(for: address, chain: chain, from: view)
+                    self?.showKeystoreExport(flow: flow, from: view)
                 }
             case .seed:
                 let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showSeedExport(for: address, chain: chain, from: view)
+                    self?.showSeedExport(flow: flow, from: view)
                 }
             }
         }
@@ -126,13 +127,11 @@ private extension WalletDetailsWireframe {
     }
 
     func showMnemonicExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         from view: ControllerBackedProtocol?
     ) {
         guard let mnemonicView = ExportMnemonicViewFactory.createViewForAddress(
-            address,
-            chain: chain
+            flow: flow
         ) else {
             return
         }
@@ -144,13 +143,11 @@ private extension WalletDetailsWireframe {
     }
 
     func showKeystoreExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         from view: ControllerBackedProtocol?
     ) {
         guard let passwordView = AccountExportPasswordViewFactory.createView(
-            with: address,
-            chain: chain
+            flow: flow
         ) else {
             return
         }
@@ -161,8 +158,11 @@ private extension WalletDetailsWireframe {
         )
     }
 
-    func showSeedExport(for address: String, chain: ChainModel, from view: ControllerBackedProtocol?) {
-        guard let seedView = ExportSeedViewFactory.createViewForAddress(address, chain: chain) else {
+    func showSeedExport(
+        flow: ExportFlow,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: flow) else {
             return
         }
 

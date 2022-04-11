@@ -7,5 +7,7 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
         forSource _: NSManagedObject,
         in _: NSEntityMapping,
         manager _: NSMigrationManager
-    ) throws {}
+    ) throws {
+        // TODO: tech debt
+    }
 }
