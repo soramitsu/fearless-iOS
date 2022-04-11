@@ -11,6 +11,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func bind(substrateViewModel: InputViewModelProtocol)
     func bind(ethereumViewModel: InputViewModelProtocol)
     func setUploadWarning(message: String)
+    func setUniqueChain(viewModel: ImportChainViewModel)
 
     func didCompleteSourceTypeSelection()
     func didCompleteCryptoTypeSelection()
@@ -20,6 +21,8 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
 }
 
 protocol AccountImportPresenterProtocol: AnyObject {
+    var flow: AccountImportFlow { get }
+
     func setup()
     func selectSourceType()
     func selectCryptoType()

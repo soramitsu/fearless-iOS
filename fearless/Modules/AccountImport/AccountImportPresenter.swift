@@ -105,7 +105,7 @@ final class AccountImportPresenter {
     var wireframe: AccountImportWireframeProtocol
     var interactor: AccountImportInteractorInputProtocol
 
-    private let flow: AccountImportFlow
+    let flow: AccountImportFlow
     private(set) var metadata: MetaAccountImportMetadata?
 
     private(set) var selectedSourceType: AccountImportSource?
@@ -149,7 +149,18 @@ private extension AccountImportPresenter {
 
         applySourceTextViewModel(value)
 
-        let username = preferredData?.username ?? ""
+        let username: String
+        switch flow {
+        case let .chain(model):
+            username = model.meta.name
+        case let .wallet(step):
+            switch step {
+            case .first:
+                username = ""
+            case let .second(data):
+                username = data.username
+            }
+        }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
         applyAdvanced(preferredData?.cryptoType)
@@ -618,6 +629,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             applySourceType(preferredData: PreferredData(stepData: data))
             applyCryptoTypeViewModel(data.cryptoType)
         }
+        if case let .chain(model) = flow {
+            let viewModel = ImportChainViewModel(
+                text: model.chain.name,
+                icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
+            )
+            view?.setUniqueChain(viewModel: viewModel)
+        }
     }
 
     func selectSourceType() {
@@ -712,9 +730,9 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func resolveEmptyDerivationPath(data: AccountImportRequestData) {
-        let message = "R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
-        let replaceActionTitle = "R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
-        let cancelActionTitle = "R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
+        let message = R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let replaceActionTitle = R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let cancelActionTitle = R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         let replaceAction = AlertPresentableAction(title: replaceActionTitle) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
             let updatedData = AccountImportRequestData(

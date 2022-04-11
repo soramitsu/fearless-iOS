@@ -7,6 +7,7 @@ enum ChainAction {
     case subscan(url: URL)
     case switchNode
     case export
+    case replace
 
     var icon: UIImage? {
         switch self {
@@ -18,6 +19,8 @@ enum ChainAction {
             return R.image.iconCopy()
         case .polkascan, .subscan:
             return R.image.iconOpenWeb()
+        case .replace:
+            return R.image.iconRetry()
         }
     }
 
@@ -35,6 +38,8 @@ enum ChainAction {
         case .subscan:
             return R.string.localizable
                 .transactionDetailsViewSubscan(preferredLanguages: nil)
+        case .replace:
+            return R.string.localizable.replaceAccount(preferredLanguages: nil)
         }
     }
 }

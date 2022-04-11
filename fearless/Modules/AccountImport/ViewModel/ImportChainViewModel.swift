@@ -1,6 +1,6 @@
 import UIKit
 
 struct ImportChainViewModel {
-    let chainName: String
-    let chainImage: UIImage
+    let text: String
+    let icon: ImageViewModelProtocol?
 }
