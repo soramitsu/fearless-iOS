@@ -46,8 +46,8 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private lazy var chainModels: [ChainModel] = []
     private lazy var prices: [AssetModel.PriceId: PriceData] = [:]
 
-    private lazy var metaAccountInfos: [ChainModel.Id: AccountInfo] = [:]
-    private lazy var managedMetaAccountsInfo: [AccountId: [ChainModel.Id: AccountInfo]] = [:]
+    private lazy var accountInfos: [ChainModel.Id: AccountInfo] = [:]
+    private lazy var accountsInfoForAccountId: [AccountId: [ChainModel.Id: AccountInfo]] = [:]
 
     private var balanceForModel: GetBalanceModelType?
 
@@ -100,7 +100,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private func buildBalance(for metaAccount: MetaAccountModel) {
         guard
             !chainModels.isEmpty,
-            !metaAccountInfos.isEmpty,
+            !accountsInfoForAccountId.isEmpty,
             !prices.isEmpty
         else {
             return
@@ -108,7 +108,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
 
         balanceBuilder.buildBalance(
             chains: chainModels,
-            accountInfos: metaAccountInfos,
+            accountInfos: accountInfos,
             prices: prices
         ) { [weak self] totalBalanceString in
             self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
@@ -122,7 +122,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         guard
             !chainModels.isEmpty,
             !prices.isEmpty,
-            managedMetaAccountsInfo.keys.count == managedMetaAccounts.count
+            accountsInfoForAccountId.keys.count == managedMetaAccounts.count
         else {
             return
         }
@@ -130,7 +130,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         balanceBuilder.buildBalance(
             for: managedMetaAccounts,
             chains: chainModels,
-            accountsInfos: managedMetaAccountsInfo,
+            accountsInfos: accountsInfoForAccountId,
             prices: prices
         ) { [weak self] managedMetaAccounts in
             self?.managedMetaAccountsBalanceHandler?.handleManagedMetaAccountsBalance(
@@ -171,11 +171,23 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            let accountSupportsEthereum = SelectedWalletSettings.shared.value?.ethereumPublicKey != nil
+            guard let balanceForModel = balanceForModel else {
+                return
+            }
 
-            let filteredChains: [ChainModel] = accountSupportsEthereum
-                ? chains
-                : chains.filter { $0.isEthereumBased == false }
+            var filteredChains: [ChainModel]
+            switch balanceForModel {
+            case let .metaAccount(metaAccountModel):
+                filteredChains = chains.filter {
+                    metaAccountModel.fetch(for: $0.accountRequest()) != nil
+                }
+            case let .managedMetaAccounts(managedMetaAccounts):
+                filteredChains = chains.filter { chain in
+                    managedMetaAccounts.contains { managedMetaAccount in
+                        managedMetaAccount.info.fetch(for: chain.accountRequest())?.chainId == chain.chainId
+                    }
+                }
+            }
 
             chainModels = filteredChains
             subscribeToAccountInfo(chains: filteredChains)
@@ -237,10 +249,10 @@ extension GetBalanceProvider: AccountInfoSubscriptionAdapterHandler {
         }
         switch balanceForModel {
         case .metaAccount:
-            metaAccountInfos[chainId] = try? result.get()
+            accountInfos[chainId] = try? result.get()
         case .managedMetaAccounts:
             guard let accountInfo = try? result.get() else { return }
-            managedMetaAccountsInfo[accountId] = [chainId: accountInfo]
+            accountsInfoForAccountId[accountId] = [chainId: accountInfo]
         }
         provideBalance()
     }
