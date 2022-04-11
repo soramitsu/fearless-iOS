@@ -69,12 +69,6 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             completion: nil
         )
     }
-
-    func presentReplaceOptions(
-        from _: ControllerBackedProtocol?,
-        items _: [ChainAction],
-        callback _: @escaping ModalPickerSelectionCallback
-    ) {}
 }
 
 private extension WalletDetailsWireframe {

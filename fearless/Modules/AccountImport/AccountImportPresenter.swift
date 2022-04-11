@@ -712,9 +712,9 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func resolveEmptyDerivationPath(data: AccountImportRequestData) {
-        let message = "R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
-        let replaceActionTitle = "R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
-        let cancelActionTitle = "R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)"
+        let message = R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let replaceActionTitle = R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        let cancelActionTitle = R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         let replaceAction = AlertPresentableAction(title: replaceActionTitle) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
             let updatedData = AccountImportRequestData(

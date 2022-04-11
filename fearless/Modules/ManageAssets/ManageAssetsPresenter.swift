@@ -33,7 +33,6 @@ final class ManageAssetsPresenter {
         let viewModel = viewModelFactory.buildManageAssetsViewModel(
             selectedMetaAccount: selectedMetaAccount,
             chains: chainModels,
-            locale: selectedLocale,
             accountInfos: accountInfos,
             sortedKeys: sortedKeys,
             assetIdsEnabled: assetIdsEnabled,
@@ -51,7 +50,7 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
         interactor.setup()
     }
 
-    func move(viewModel _: ManageAssetsTableViewCellModel, from: IndexPath, to: IndexPath) {
+    func move(from: IndexPath, to: IndexPath) {
         if var assets = viewModel?.sections[from.section].cellModels.map(\.chainAsset) {
             assets.swapAt(from.row, to.row)
             interactor.saveAssetsOrder(assets: assets)
@@ -106,6 +105,7 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
 extension ManageAssetsPresenter: Localizable {
     func applyLocalization() {
         view?.didReceive(locale: selectedLocale)
+        provideViewModel()
     }
 }
 

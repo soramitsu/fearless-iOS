@@ -2,6 +2,10 @@ import UIKit
 import MobileCoreServices
 
 final class ManageAssetsViewController: UIViewController, ViewHolder {
+    private enum LayoutConstants {
+        static let cellHeight: CGFloat = 55
+    }
+
     typealias RootViewType = ManageAssetsViewLayout
 
     let presenter: ManageAssetsPresenterProtocol
@@ -96,7 +100,7 @@ extension ManageAssetsViewController: ManageAssetsViewProtocol {
 
 extension ManageAssetsViewController: UITableViewDataSource {
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        55
+        LayoutConstants.cellHeight
     }
 
     func numberOfSections(in _: UITableView) -> Int {
@@ -137,7 +141,6 @@ extension ManageAssetsViewController: UITableViewDataSource {
 
         let cellModel = viewModel.sections[sourceIndexPath.section].cellModels[sourceIndexPath.row]
         presenter.move(
-            viewModel: cellModel,
             from: sourceIndexPath,
             to: destinationIndexPath
         )

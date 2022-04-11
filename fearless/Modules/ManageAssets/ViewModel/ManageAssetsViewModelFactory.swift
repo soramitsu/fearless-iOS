@@ -4,7 +4,6 @@ protocol ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel?,
         chains: [ChainModel],
-        locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
@@ -23,7 +22,6 @@ final class ManageAssetsViewModelFactory {
     private func buildManageAssetsCellViewModel(
         chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
-        locale _: Locale,
         delegate: ManageAssetsTableViewCellModelDelegate?,
         assetEnabled: Bool,
         selectedMetaAccount: MetaAccountModel?
@@ -86,8 +84,7 @@ extension ManageAssetsViewModelFactory {
 
     private func getUsdBalance(
         for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?,
-        locale _: Locale
+        accountInfo: AccountInfo?
     ) -> Decimal {
         let assetInfo = chainAsset.asset.displayInfo
 
@@ -115,7 +112,6 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel?,
         chains: [ChainModel],
-        locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
@@ -143,8 +139,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
 
             usdBalanceByChainAsset[chainAsset] = getUsdBalance(
                 for: chainAsset,
-                accountInfo: accountInfo,
-                locale: locale
+                accountInfo: accountInfo
             )
 
             balanceByChainAsset[chainAsset] = getBalance(
@@ -185,7 +180,6 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             return buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
                 accountInfo: accountInfos?[chainAsset.chain.chainId],
-                locale: locale,
                 delegate: cellsDelegate,
                 assetEnabled: enabled,
                 selectedMetaAccount: selectedMetaAccount

@@ -6,7 +6,7 @@ enum AssetModelMapperError: Error {
     case requiredFieldsMissing
 }
 
-class AssetModelMapper: CoreDataMapperProtocol {
+final class AssetModelMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { "id" }
 
     func transform(entity: CDAsset) throws -> AssetModel {

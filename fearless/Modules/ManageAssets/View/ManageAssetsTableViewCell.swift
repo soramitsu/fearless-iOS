@@ -14,10 +14,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         static let switcherWidth: CGFloat = 36
     }
 
-    let chainIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        return imageView
-    }()
+    let chainIconImageView = UIImageView()
 
     let chainNameLabel: UILabel = {
         let label = UILabel()

@@ -14,7 +14,7 @@ final class ChainAccountBalanceListInteractor {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let eventCenter: EventCenterProtocol
 
-    var chains: [ChainModel]?
+    private var chains: [ChainModel]?
 
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
 

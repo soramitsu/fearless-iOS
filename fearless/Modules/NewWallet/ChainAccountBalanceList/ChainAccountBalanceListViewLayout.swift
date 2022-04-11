@@ -18,10 +18,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
         return imageView
     }()
 
-    let manageAssetsView: TriangularedBlurView = {
-        let view = TriangularedBlurView()
-        return view
-    }()
+    let manageAssetsView = TriangularedBlurView()
 
     let manageAssetsIconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -36,10 +33,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
         return label
     }()
 
-    let manageAssetsButton: UIButton = {
-        let button = UIButton()
-        return button
-    }()
+    let manageAssetsButton = UIButton()
 
     let ethAccountMissingIconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -86,7 +80,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        manageAssetsLabel.text = R.string.localizable.walletManageAssets()
+        manageAssetsLabel.text = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
     }
 
     override init(frame: CGRect) {
