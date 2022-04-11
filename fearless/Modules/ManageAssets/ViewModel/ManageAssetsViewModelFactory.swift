@@ -201,7 +201,9 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 || $0.chainAsset.chain.unused == true
         })
 
-        return ManageAssetsViewModel(sections: [missingSection, normalSection])
+        let applyEnabled = selectedMetaAccount?.assetIdsEnabled != assetIdsEnabled || selectedMetaAccount?.assetKeysOrder != sortedKeys
+
+        return ManageAssetsViewModel(sections: [missingSection, normalSection], applyEnabled: applyEnabled)
     }
 }
 

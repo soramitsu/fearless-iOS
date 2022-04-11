@@ -63,7 +63,7 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
     }
 
     func didTapApplyButton() {
-        wireframe.dismiss(view: view)
+        interactor.saveAllChanges()
     }
 
     func searchBarTextDidChange(_ text: String) {
@@ -96,6 +96,10 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
         accountInfos[chainId] = try? result.get()
         provideViewModel()
+    }
+
+    func saveDidComplete() {
+        wireframe.dismiss(view: view)
     }
 }
 

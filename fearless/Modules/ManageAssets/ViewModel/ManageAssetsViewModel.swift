@@ -11,4 +11,5 @@ enum ManageAssetsViewState {
 
 struct ManageAssetsViewModel {
     let sections: [ManageAssetsTableSection]
+    let applyEnabled: Bool
 }

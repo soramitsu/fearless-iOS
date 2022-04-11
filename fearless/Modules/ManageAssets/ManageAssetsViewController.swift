@@ -52,7 +52,8 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
         switch state {
         case .loading:
             break
-        case .loaded:
+        case let .loaded(viewModel):
+            rootView.bind(viewModel: viewModel)
             rootView.tableView.reloadData()
         }
     }

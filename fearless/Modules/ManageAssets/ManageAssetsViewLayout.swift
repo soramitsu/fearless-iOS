@@ -64,6 +64,10 @@ final class ManageAssetsViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(viewModel: ManageAssetsViewModel) {
+        applyButton.set(enabled: viewModel.applyEnabled, changeStyle: true)
+    }
+
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(searchBar)

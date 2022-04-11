@@ -11,6 +11,9 @@ final class ManageAssetsInteractor {
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
 
+    private var assetIdsEnabled: [String]?
+    private var sortKeys: [String]?
+
     init(
         selectedMetaAccount: MetaAccountModel,
         chainRepository: AnyDataProviderRepository<ChainModel>,
@@ -83,59 +86,52 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
 
     func saveAssetsOrder(assets: [ChainAsset]) {
         let keys = assets.map { $0.sortKey(accountId: selectedMetaAccount.substrateAccountId) }
-        let updatedAccount = selectedMetaAccount.replacingAssetKeysOrder(keys)
+        sortKeys = keys
 
-        let saveOperation = accountRepository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.selectedMetaAccount = updatedAccount
-                self?.presenter?.didReceiveSortOrder(updatedAccount.assetKeysOrder)
-
-                SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                    switch result {
-                    case let .success(account):
-                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
-                    case .failure:
-                        break
-                    }
-                }
-            }
-        }
-
-        operationQueue.addOperation(saveOperation)
+        presenter?.didReceiveSortOrder(keys)
     }
 
     func saveAssetIdsEnabled(_ assetIdsEnabled: [String]) {
-        let updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+        self.assetIdsEnabled = assetIdsEnabled
 
-        let saveOperation = accountRepository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
+        presenter?.didReceiveAssetIdsEnabled(assetIdsEnabled)
+    }
+
+    func saveAllChanges() {
+        var updatedAccount: MetaAccountModel?
+
+        if let keys = sortKeys, keys != selectedMetaAccount.assetKeysOrder {
+            updatedAccount = selectedMetaAccount.replacingAssetKeysOrder(keys)
         }
 
-        saveOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.selectedMetaAccount = updatedAccount
-                self?.presenter?.didReceiveAssetIdsEnabled(assetIdsEnabled)
+        if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsEnabled {
+            updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+        }
 
-                SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                    switch result {
-                    case let .success(account):
-                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
-                    case .failure:
-                        break
+        if let updatedAccount = updatedAccount {
+            let saveOperation = accountRepository.saveOperation {
+                [updatedAccount]
+            } _: {
+                []
+            }
+
+            saveOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    self?.presenter?.saveDidComplete()
+
+                    SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                        switch result {
+                        case let .success(account):
+                            self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                        case .failure:
+                            break
+                        }
                     }
                 }
             }
-        }
 
-        operationQueue.addOperation(saveOperation)
+            operationQueue.addOperation(saveOperation)
+        }
     }
 }
 

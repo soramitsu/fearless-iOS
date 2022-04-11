@@ -18,6 +18,7 @@ protocol ManageAssetsInteractorInputProtocol: AnyObject {
     func saveAssetsOrder(assets: [ChainAsset])
     func saveAssetIdsEnabled(_ assetIdsEnabled: [String])
     func markUnused(chain: ChainModel)
+    func saveAllChanges()
 }
 
 protocol ManageAssetsInteractorOutputProtocol: AnyObject {
@@ -25,6 +26,7 @@ protocol ManageAssetsInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
     func didReceiveSortOrder(_ sortedKeys: [String]?)
     func didReceiveAssetIdsEnabled(_ assetIdsEnabled: [String]?)
+    func saveDidComplete()
 }
 
 protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, PresentDismissable {
