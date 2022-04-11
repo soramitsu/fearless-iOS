@@ -33,7 +33,7 @@ final class AboutViewLayout: UIView {
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = R.color.colorBlack()
-        view.separatorColor = R.color.colorDarkGray()
+        view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(
             top: 0,
             left: 0,
