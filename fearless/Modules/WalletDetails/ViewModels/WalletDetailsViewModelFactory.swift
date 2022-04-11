@@ -41,6 +41,9 @@ class WalletDetailsViewModelFactory {
                     chainAccount: chainAccount,
                     addressImage: addressImage,
                     address: address,
+                    accountMissing: flow.wallet.fetch(
+                        for: chainAccount.chain.accountRequest()
+                    )?.accountId == nil,
                     actionsAvailable: flow.actionsAvailable
                 )
             }

@@ -170,7 +170,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                     let model = try fileSaveOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    self?.presenter.didExport(jsons: [model])
+                    self?.presenter.didExport(jsons: [model, model])
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

@@ -75,6 +75,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             setupAccessoryButton()
         }
 
+        setupButtonsContainerView()
         setupContainerView()
         setupButtonsContainerView()
 
