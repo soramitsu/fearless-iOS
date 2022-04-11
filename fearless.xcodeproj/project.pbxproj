@@ -29,6 +29,8 @@
 		078E34B82804811300DF187A /* EducationStoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34AD2804811300DF187A /* EducationStoriesViewController.swift */; };
 		078E34B92804811300DF187A /* EducationStoriesAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34AE2804811300DF187A /* EducationStoriesAssembly.swift */; };
 		078E34BA2804811300DF187A /* EducationStoriesViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34AF2804811300DF187A /* EducationStoriesViewState.swift */; };
+		078E34BE2804822000DF187A /* BalanceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34BC2804821F00DF187A /* BalanceBuilder.swift */; };
+		078E34BF2804822000DF187A /* GetBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34BD2804821F00DF187A /* GetBalanceProvider.swift */; };
 		07B05B1727F57D8100F4F36D /* IconWithTitleViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B05B1627F57D8100F4F36D /* IconWithTitleViewModelFactory.swift */; };
 		07B05B2027F6BB1200F4F36D /* SelectableExportAccountTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B05B1F27F6BB1200F4F36D /* SelectableExportAccountTableCell.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
@@ -1995,6 +1997,8 @@
 		078E34AD2804811300DF187A /* EducationStoriesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesViewController.swift; sourceTree = "<group>"; };
 		078E34AE2804811300DF187A /* EducationStoriesAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesAssembly.swift; sourceTree = "<group>"; };
 		078E34AF2804811300DF187A /* EducationStoriesViewState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesViewState.swift; sourceTree = "<group>"; };
+		078E34BC2804821F00DF187A /* BalanceBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceBuilder.swift; sourceTree = "<group>"; };
+		078E34BD2804821F00DF187A /* GetBalanceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetBalanceProvider.swift; sourceTree = "<group>"; };
 		07B05B1627F57D8100F4F36D /* IconWithTitleViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithTitleViewModelFactory.swift; sourceTree = "<group>"; };
 		07B05B1F27F6BB1200F4F36D /* SelectableExportAccountTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableExportAccountTableCell.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
@@ -4059,6 +4063,15 @@
 				078E34AC2804811300DF187A /* EducationStoriesSlideView.swift */,
 			);
 			path = view;
+			sourceTree = "<group>";
+		};
+		078E34BB2804821F00DF187A /* GetBalanceProvider */ = {
+			isa = PBXGroup;
+			children = (
+				078E34BC2804821F00DF187A /* BalanceBuilder.swift */,
+				078E34BD2804821F00DF187A /* GetBalanceProvider.swift */,
+			);
+			path = GetBalanceProvider;
 			sourceTree = "<group>";
 		};
 		07B05B1E27F6B88B00F4F36D /* Cell */ = {
@@ -9585,6 +9598,7 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				078E34BB2804821F00DF187A /* GetBalanceProvider */,
 				FA072C17277B02D900731718 /* QRService */,
 				FA38C9A727607213005C5577 /* BaseService.swift */,
 				FA38C9A52760701F005C5577 /* SearchService.swift */,
@@ -10466,6 +10480,7 @@
 				FA256A4B274CE93800875A53 /* TransferConstants.swift in Sources */,
 				AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */,
 				078E34B62804811300DF187A /* EducationStoriesProgressView.swift in Sources */,
+				078E34BE2804822000DF187A /* BalanceBuilder.swift in Sources */,
 				AEE5FB1826457AC1002B8FDC /* StakingRewardDestSetupViewController.swift in Sources */,
 				846AF8462525C93A00868F37 /* BalanceContext.swift in Sources */,
 				842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */,
@@ -11742,6 +11757,7 @@
 				2E57C70D27E9ED5400AF075A /* ProfileViewModel.swift in Sources */,
 				EC978E6C4FBF39BE9ED10C86 /* SelectValidatorsStartWireframe.swift in Sources */,
 				AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */,
+				078E34BF2804822000DF187A /* GetBalanceProvider.swift in Sources */,
 				FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */,
 				F477CD3A262EE0E7004DF739 /* StakingRewardDetailsViewModelFactory.swift in Sources */,
 				849ABE7C2628116F00011A2A /* NominationsReducer.swift in Sources */,

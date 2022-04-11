@@ -8,7 +8,7 @@ final class SelectExportAccountPresenter {
     private let router: SelectExportAccountRouterInput
     private let interactor: SelectExportAccountInteractorInput
     private let viewModelFactory: SelectExportAccountViewModelFactoryProtocol
-    private let metaAccount: MetaAccountModel
+    private let managedMetaAccountModel: ManagedMetaAccountModel
 
     private var nativeAccounts: [ChainAccountResponse]?
     private var addedAccounts: [ChainAccountModel]?
@@ -21,12 +21,12 @@ final class SelectExportAccountPresenter {
         router: SelectExportAccountRouterInput,
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: SelectExportAccountViewModelFactoryProtocol,
-        metaAccount: MetaAccountModel
+        managedMetaAccountModel: ManagedMetaAccountModel
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
-        self.metaAccount = metaAccount
+        self.managedMetaAccountModel = managedMetaAccountModel
         self.localizationManager = localizationManager
     }
 
@@ -34,7 +34,7 @@ final class SelectExportAccountPresenter {
 
     private func provideEmptyViewModel() {
         let viewModel = viewModelFactory.buildEmptyViewModel(
-            metaAccount: metaAccount,
+            managedMetaAccountModel: managedMetaAccountModel,
             locale: selectedLocale
         )
 
@@ -46,8 +46,9 @@ final class SelectExportAccountPresenter {
             return
         }
 
+        let metaAccount = managedMetaAccountModel.info
         let viewModel = viewModelFactory.buildViewModel(
-            metaAccount: metaAccount,
+            managedMetaAccountModel: managedMetaAccountModel,
             nativeAccounts: chains.compactMap { metaAccount.fetch(for: $0.accountRequest()) },
             addedAccounts: Array(metaAccount.chainAccounts),
             chains: chains,
@@ -69,6 +70,7 @@ extension SelectExportAccountPresenter: SelectExportAccountViewOutput {
     }
 
     func exportNativeAccounts() {
+        let metaAccount = managedMetaAccountModel.info
         let chainAccountsInfo = chains?.compactMap { chain -> ChainAccountInfo? in
             guard let accountResponse = metaAccount.fetch(for: chain.accountRequest()) else {
                 return nil

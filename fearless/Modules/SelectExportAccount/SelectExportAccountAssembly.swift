@@ -3,7 +3,9 @@ import SoraFoundation
 import RobinHood
 
 final class SelectExportAccountAssembly {
-    static func configureModule(metaAccount: MetaAccountModel) -> SelectExportAccountModuleCreationResult? {
+    static func configureModule(
+        managedMetaAccountModel: ManagedMetaAccountModel
+    ) -> SelectExportAccountModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -12,7 +14,6 @@ final class SelectExportAccountAssembly {
 
         let interactor = SelectExportAccountInteractor(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            metaAccount: metaAccount,
             operationManager: OperationManagerFacade.sharedManager
         )
 
@@ -25,7 +26,7 @@ final class SelectExportAccountAssembly {
             router: router,
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
-            metaAccount: metaAccount
+            managedMetaAccountModel: managedMetaAccountModel
         )
 
         let view = SelectExportAccountViewController(

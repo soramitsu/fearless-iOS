@@ -6,16 +6,13 @@ final class SelectExportAccountInteractor {
 
     private weak var output: SelectExportAccountInteractorOutput?
     private let chainRepository: AnyDataProviderRepository<ChainModel>
-    private let metaAccount: MetaAccountModel
     private let operationManager: OperationManagerProtocol
 
     init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        metaAccount: MetaAccountModel,
         operationManager: OperationManagerProtocol
     ) {
         self.chainRepository = chainRepository
-        self.metaAccount = metaAccount
         self.operationManager = operationManager
     }
 

@@ -4,7 +4,7 @@ import FearlessUtils
 struct ManagedAccountViewModelItem: Equatable {
     let identifier: String
     let name: String
-    let totalBalance: String
+    let totalBalance: String?
     let icon: DrawableIcon?
     let isSelected: Bool
 
