@@ -439,9 +439,9 @@ enum ModalPickerFactory {
         viewController.context = context
 
         viewController.viewModels = chainActions.map { action in
-            LocalizableResource { _ in
+            LocalizableResource { locale in
                 TitleWithSubtitleViewModel(
-                    title: action.title,
+                    title: action.localizableTitle(for: locale),
                     subtitle: ""
                 )
             }
