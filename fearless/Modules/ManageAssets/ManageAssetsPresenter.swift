@@ -12,6 +12,7 @@ final class ManageAssetsPresenter {
     private var viewModel: ManageAssetsViewModel?
     private var sortedKeys: [String]?
     private var assetIdsEnabled: [String]?
+    private var filter: String?
 
     init(
         interactor: ManageAssetsInteractorInputProtocol,
@@ -36,7 +37,7 @@ final class ManageAssetsPresenter {
             accountInfos: accountInfos,
             sortedKeys: sortedKeys,
             assetIdsEnabled: assetIdsEnabled,
-            cellsDelegate: self
+            cellsDelegate: self, filter: filter
         )
 
         self.viewModel = viewModel
@@ -59,6 +60,15 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 
     func didTapCloseButton() {
         wireframe.dismiss(view: view)
+    }
+
+    func didTapApplyButton() {
+        wireframe.dismiss(view: view)
+    }
+
+    func searchBarTextDidChange(_ text: String) {
+        filter = text
+        provideViewModel()
     }
 }
 

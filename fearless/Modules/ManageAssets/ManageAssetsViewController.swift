@@ -8,6 +8,8 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
 
     var state: ManageAssetsViewState = .loading
 
+    private var isFirstLayoutCompleted: Bool = false
+
     init(presenter: ManageAssetsPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -32,7 +34,18 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupKeyboardHandler()
         navigationController?.isNavigationBarHidden = true
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        isFirstLayoutCompleted = true
     }
 
     private func applyState() {
@@ -45,6 +58,8 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
     }
 
     private func configure() {
+        rootView.searchBar.delegate = self
+
         rootView.tableView.registerClassForCell(ManageAssetsTableViewCell.self)
 
         rootView.tableView.tableFooterView = UIView()
@@ -55,10 +70,15 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
         rootView.tableView.dragInteractionEnabled = true
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
+        rootView.applyButton.addTarget(self, action: #selector(applyButtonClicked), for: .touchUpInside)
     }
 
     @objc private func backButtonClicked() {
         presenter.didTapCloseButton()
+    }
+
+    @objc private func applyButtonClicked() {
+        presenter.didTapApplyButton()
     }
 }
 
@@ -136,5 +156,42 @@ extension ManageAssetsViewController: UITableViewDragDelegate {
         let dragItem = UIDragItem(itemProvider: NSItemProvider())
         dragItem.localObject = cellModel
         return [dragItem]
+    }
+}
+
+extension ManageAssetsViewController: UISearchBarDelegate {
+    func searchBar(_: UISearchBar, textDidChange searchText: String) {
+        presenter.searchBarTextDidChange(searchText)
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+}
+
+extension ManageAssetsViewController: KeyboardViewAdoptable {
+    var target: UIView? { rootView.applyButton }
+
+    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
+    }
+
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if let responder = rootView.firstResponder {
+            var inset = rootView.tableView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: rootView.tableView)
+
+            if frame.height == 0 {
+                inset.bottom = 0
+                rootView.tableView.contentInset = inset
+            } else {
+                inset.bottom = frame.height + UIConstants.actionHeight
+                rootView.tableView.contentInset = inset
+            }
+            rootView.tableView.scrollRectToVisible(responderFrame, animated: true)
+        }
     }
 }

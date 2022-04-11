@@ -17,6 +17,8 @@ final class ManageAssetsViewLayout: UIView {
     let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
+        searchBar.returnKeyType = .done
+        searchBar.enablesReturnKeyAutomatically = false
         return searchBar
     }()
 

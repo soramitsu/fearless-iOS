@@ -9,6 +9,8 @@ protocol ManageAssetsPresenterProtocol: AnyObject {
     func setup()
     func move(viewModel: ManageAssetsTableViewCellModel, from: IndexPath, to: IndexPath)
     func didTapCloseButton()
+    func didTapApplyButton()
+    func searchBarTextDidChange(_ text: String)
 }
 
 protocol ManageAssetsInteractorInputProtocol: AnyObject {

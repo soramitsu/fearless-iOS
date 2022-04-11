@@ -8,7 +8,8 @@ protocol ManageAssetsViewModelFactoryProtocol {
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
-        cellsDelegate: ManageAssetsTableViewCellModelDelegate?
+        cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
+        filter: String?
     ) -> ManageAssetsViewModel
 }
 
@@ -118,13 +119,21 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
-        cellsDelegate: ManageAssetsTableViewCellModelDelegate?
+        cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
+        filter: String?
     ) -> ManageAssetsViewModel {
-        let chainAssets = chains.map { chain in
+        var chainAssets = chains.map { chain in
             chain.assets.compactMap { asset in
                 ChainAsset(chain: chain, asset: asset.asset)
             }
         }.reduce([], +)
+
+        if let filter = filter?.lowercased(), !filter.isEmpty {
+            chainAssets = chainAssets.filter {
+                $0.asset.name.lowercased().contains(filter)
+                    || $0.chain.name.lowercased().contains(filter)
+            }
+        }
 
         var balanceByChainAsset: [ChainAsset: Decimal] = [:]
         var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
