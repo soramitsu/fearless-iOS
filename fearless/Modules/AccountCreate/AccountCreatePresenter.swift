@@ -192,6 +192,10 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         else {
             return
         }
+        guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
+            didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
+            return
+        }
 
         guard substrateViewModel.inputHandler.completed else {
             view?.didValidateSubstrateDerivationPath(.invalid)
@@ -204,18 +208,19 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             presentDerivationPathError(.ecdsa)
             return
         }
-        let request = MetaAccountCreationRequest(
+        let request = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
             username: usernameSetup.username,
             substrateDerivationPath: substrateViewModel.inputHandler.value,
-            substrateCryptoType: selectedCryptoType,
             ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
-                .nonEmpty(or: DerivationPathConstants.defaultEthereum)
+                .nonEmpty(or: DerivationPathConstants.defaultEthereum),
+            cryptoType: selectedCryptoType
         )
 
         wireframe.confirm(
             from: view,
             request: request,
-            mnemonic: mnemonic
+            mnemonic: mnemonic.allWords()
         )
     }
 }

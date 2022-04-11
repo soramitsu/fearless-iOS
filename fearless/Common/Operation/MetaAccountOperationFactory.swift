@@ -5,28 +5,13 @@ import RobinHood
 import SoraKeystore
 
 protocol MetaAccountOperationFactoryProtocol {
-    func newMetaAccountOperation(request: MetaAccountCreationRequest, mnemonic: IRMnemonicProtocol)
-        -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel>
     func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
     func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
 
-    func importChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportMnemonicRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel>
-
-    func importChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportSeedRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel>
-
-    func importChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportKeystoreRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
 }
 
 final class MetaAccountOperationFactory {
@@ -262,19 +247,18 @@ private extension MetaAccountOperationFactory {
 
 extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(
-        request: MetaAccountCreationRequest,
-        mnemonic: IRMnemonicProtocol
+        request: MetaAccountImportMnemonicRequest
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let substrateQuery = try getQuery(
-                seedSource: .mnemonic(mnemonic),
+                seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.substrateDerivationPath,
-                cryptoType: request.substrateCryptoType,
+                cryptoType: request.cryptoType,
                 ethereumBased: false
             )
 
             let ethereumQuery = try getQuery(
-                seedSource: .mnemonic(mnemonic),
+                seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.ethereumDerivationPath,
                 cryptoType: .ecdsa,
                 ethereumBased: true
@@ -283,7 +267,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             let metaAccount = try createMetaAccount(
                 name: request.username,
                 substratePublicKey: substrateQuery.publicKey,
-                substrateCryptoType: request.substrateCryptoType,
+                substrateCryptoType: request.cryptoType,
                 ethereumPublicKey: ethereumQuery.publicKey
             )
 
@@ -297,7 +281,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
             try saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
 
-            try saveEntropy(mnemonic.entropy(), metaId: metaId)
+            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
 
             return metaAccount
         }
@@ -423,20 +407,16 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         }
     }
 
-    func importChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportMnemonicRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let query = try getQuery(
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,
-                cryptoType: request.cryptoType,
+                cryptoType: request.isEthereum ? .ecdsa : request.cryptoType,
                 ethereumBased: request.isEthereum
             )
 
-            let metaId = metaAccount.metaId
+            let metaId = request.meta.metaId
             let accountId = request.isEthereum ?
                 try query.publicKey.ethereumAddressFromPublicKey() : try query.publicKey.publicKeyToAccountId()
 
@@ -458,32 +438,28 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
 
             let chainAccount = ChainAccountModel(
-                chainId: chainId,
+                chainId: request.chainId,
                 accountId: accountId,
                 publicKey: query.publicKey,
                 cryptoType: request.cryptoType.rawValue
             )
 
-            return metaAccount.insertingChainAccount(chainAccount)
+            return request.meta.insertingChainAccount(chainAccount)
         }
     }
 
-    func importChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportSeedRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let seed = try Data(hexString: request.seed)
             let query = try getQuery(
                 seedSource: .seed(seed),
                 derivationPath: request.derivationPath,
-                cryptoType: request.cryptoType,
+                cryptoType: request.isEthereum ? .ecdsa : request.cryptoType,
                 ethereumBased: request.isEthereum
             )
             let accountId = request.isEthereum ?
                 try query.publicKey.ethereumAddressFromPublicKey() : try query.publicKey.publicKeyToAccountId()
-            let metaId = metaAccount.metaId
+            let metaId = request.meta.metaId
 
             try saveSecretKey(
                 query.privateKey,
@@ -502,21 +478,17 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveSeed(seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
 
             let chainAccount = ChainAccountModel(
-                chainId: chainId,
+                chainId: request.chainId,
                 accountId: accountId,
                 publicKey: query.publicKey,
                 cryptoType: request.cryptoType.rawValue
             )
 
-            return metaAccount.insertingChainAccount(chainAccount)
+            return request.meta.insertingChainAccount(chainAccount)
         }
     }
 
-    func importChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportKeystoreRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
 
@@ -557,19 +529,19 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             try saveSecretKey(
                 keystore.secretKeyData,
-                metaId: metaAccount.metaId,
+                metaId: request.meta.metaId,
                 accountId: accountId,
                 ethereumBased: request.isEthereum
             )
 
             let chainAccount = ChainAccountModel(
-                chainId: chainId,
+                chainId: request.chainId,
                 accountId: accountId,
                 publicKey: publicKey.rawData(),
                 cryptoType: request.cryptoType.rawValue
             )
 
-            return metaAccount.insertingChainAccount(chainAccount)
+            return request.meta.insertingChainAccount(chainAccount)
         }
     }
 }
