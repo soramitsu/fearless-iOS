@@ -75,6 +75,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             setupAccessoryButton()
         }
 
+        setupButtonsContainerView()
         setupContainerView()
         setupButtonsContainerView()
 
@@ -341,6 +342,7 @@ extension ExportGenericViewController {
         containerView.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(buttonsStackView.snp.top)
         }
 
         var inset = containerView.scrollView.contentInset
@@ -406,6 +408,7 @@ extension ExportGenericViewController {
         var views: [UIView] = []
 
         viewModel.viewModels.forEach { exportViewModel in
+
             let containerView = uiFactory.createVerticalStackView(spacing: 8)
 
             self.containerView.stackView.addArrangedSubview(containerView)

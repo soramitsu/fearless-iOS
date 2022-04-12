@@ -5,23 +5,23 @@ import RobinHood
 import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
-    static func createViewForOnboarding(_ step: AccountCreationStep = .first) -> AccountImportViewProtocol? {
+    static func createViewForOnboarding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
         guard let interactor = createAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AccountImportWireframe()
-        return createView(for: interactor, wireframe: wireframe, step: step)
+        return createView(for: interactor, wireframe: wireframe, flow: flow)
     }
 
-    static func createViewForAdding(_ step: AccountCreationStep = .first) -> AccountImportViewProtocol? {
+    static func createViewForAdding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
         guard let interactor = createAddAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AddAccount.AccountImportWireframe()
 
-        return createView(for: interactor, wireframe: wireframe, step: step)
+        return createView(for: interactor, wireframe: wireframe, flow: flow)
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {
@@ -36,12 +36,12 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     private static func createView(
         for interactor: BaseAccountImportInteractor,
         wireframe: AccountImportWireframeProtocol,
-        step: AccountCreationStep = .first
+        flow: AccountImportFlow = .wallet(step: .first)
     ) -> AccountImportViewProtocol? {
         let presenter = AccountImportPresenter(
             wireframe: wireframe,
             interactor: interactor,
-            step: step
+            flow: flow
         )
         let view = AccountImportViewController(presenter: presenter)
 

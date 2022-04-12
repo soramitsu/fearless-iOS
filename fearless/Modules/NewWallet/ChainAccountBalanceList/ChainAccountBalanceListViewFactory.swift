@@ -4,8 +4,14 @@ import SoraFoundation
 
 struct ChainAccountBalanceListViewFactory {
     static func createView(selectedMetaAccount: MetaAccountModel) -> ChainAccountBalanceListViewProtocol? {
-        let repository = ChainRepositoryFactory().createRepository(
+        let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let mapper = AssetModelMapper()
+
+        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
+            mapper: AnyCoreDataMapper(mapper)
         )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
@@ -14,7 +20,8 @@ struct ChainAccountBalanceListViewFactory {
 
         let interactor = ChainAccountBalanceListInteractor(
             selectedMetaAccount: selectedMetaAccount,
-            repository: AnyDataProviderRepository(repository),
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            assetRepository: AnyDataProviderRepository(assetRepository),
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount

@@ -24,6 +24,7 @@ protocol AccountCreatePresenterProtocol: AnyObject {
 
 protocol AccountCreateInteractorInputProtocol: AnyObject {
     func setup()
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol?
 }
 
 protocol AccountCreateInteractorOutputProtocol: AnyObject {
@@ -34,7 +35,7 @@ protocol AccountCreateInteractorOutputProtocol: AnyObject {
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func confirm(
         from view: AccountCreateViewProtocol?,
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     )
 

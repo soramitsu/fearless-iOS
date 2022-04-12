@@ -669,6 +669,7 @@ and depending on the network state, may not be selected to participate";
 \
 Remember to make a backup of your key and keep it in a safe and private place (e.g., on a piece of paper).";
 "stories.bottom.close.button" = "Great news!";
+"missing.account.skip" = "I don't need an account";
 "export.substrate.title" = "Export Substrate";
 "export.ethereum.title" = "Export Ethereum";
 "export.wallet.chains.count" = "+ %d OTHERS";
