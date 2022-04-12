@@ -7,12 +7,37 @@ protocol ChainAccountBalanceListViewDelegate: AnyObject {
 final class ChainAccountBalanceListViewLayout: UIView {
     enum LayoutConstants {
         static let accountButtonSize: CGFloat = 40
+        static let manageAssetsIconSize: CGFloat = 24
+        static let warningImageSize: CGFloat = 14
     }
 
     let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.image = R.image.backgroundImage()
+        return imageView
+    }()
+
+    let manageAssetsView = TriangularedBlurView()
+
+    let manageAssetsIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconManageAssets()
+        return imageView
+    }()
+
+    let manageAssetsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = .white
+        return label
+    }()
+
+    let manageAssetsButton = UIButton()
+
+    let ethAccountMissingIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconWarning()
         return imageView
     }()
 
@@ -48,11 +73,22 @@ final class ChainAccountBalanceListViewLayout: UIView {
 
     weak var delegate: ChainAccountBalanceListViewDelegate?
 
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    private func applyLocalization() {
+        manageAssetsLabel.text = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         configure()
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -86,10 +122,44 @@ final class ChainAccountBalanceListViewLayout: UIView {
             make.size.equalTo(LayoutConstants.accountButtonSize)
         }
 
+        addSubview(manageAssetsView)
+        manageAssetsView.addSubview(manageAssetsLabel)
+        manageAssetsView.addSubview(manageAssetsIconImageView)
+        manageAssetsView.addSubview(ethAccountMissingIconImageView)
+        manageAssetsView.addSubview(manageAssetsButton)
+
+        manageAssetsView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.equalTo(totalBalanceLabel.snp.bottom).offset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        manageAssetsLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.centerY.equalToSuperview()
+        }
+
+        manageAssetsIconImageView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(LayoutConstants.manageAssetsIconSize)
+            make.leading.equalTo(ethAccountMissingIconImageView.snp.trailing).offset(UIConstants.bigOffset)
+        }
+
+        ethAccountMissingIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.warningImageSize)
+            make.centerY.equalToSuperview()
+        }
+
+        manageAssetsButton.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(totalBalanceLabel.snp.bottom).offset(UIConstants.bigOffset)
+            make.top.equalTo(manageAssetsView.snp.bottom).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview()
         }
     }
@@ -106,5 +176,6 @@ final class ChainAccountBalanceListViewLayout: UIView {
     func bind(to viewModel: ChainAccountBalanceListViewModel) {
         accountNameLabel.text = viewModel.accountName
         totalBalanceLabel.text = viewModel.balance
+        ethAccountMissingIconImageView.isHidden = !viewModel.ethAccountMissed
     }
 }

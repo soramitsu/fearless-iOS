@@ -23,9 +23,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,
             operationManager: operationManager,
-            keystoreImportService: keystoreImportService,
-            supportedNetworks: Chain.allCases,
-            defaultNetwork: ConnectionItem.defaultConnection.type.chain
+            keystoreImportService: keystoreImportService
         )
     }
 

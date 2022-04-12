@@ -61,6 +61,14 @@ final class AboutTableViewCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        let separatorView = UIFactory.default.createSeparatorView()
+        contentView.addSubview(separatorView)
+        separatorView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.separatorHeight)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview()
+        }
+
         contentView.addSubview(iconImageView)
         iconImageView.snp.makeConstraints { make in
             make.width.height.equalTo(24)

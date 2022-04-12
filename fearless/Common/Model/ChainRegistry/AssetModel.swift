@@ -11,6 +11,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let precision: UInt16
     let icon: URL?
     let priceId: PriceId?
+    let price: Decimal?
 
     var name: String {
         id.uppercased()
@@ -22,6 +23,17 @@ struct AssetModel: Equatable, Codable, Hashable {
             lhs.precision == rhs.precision &&
             lhs.icon == rhs.icon &&
             lhs.priceId == rhs.priceId
+    }
+
+    func replacingPrice(_ newPrice: Decimal?) -> AssetModel {
+        AssetModel(
+            id: id,
+            chainId: chainId,
+            precision: precision,
+            icon: icon,
+            priceId: priceId,
+            price: newPrice
+        )
     }
 }
 
