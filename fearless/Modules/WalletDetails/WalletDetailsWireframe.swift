@@ -9,7 +9,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         }
     }
 
-    func presentAcions(
+    func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
         callback: @escaping ModalPickerSelectionCallback
@@ -70,6 +70,14 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             animated: true,
             completion: nil
         )
+    }
+
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(.chain(model: uniqueChainModel))?.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(importController, animated: true)
     }
 }
 

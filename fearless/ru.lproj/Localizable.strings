@@ -671,3 +671,5 @@
 "import.empty.derivation.message" = "Вы можете задать нулевой путь (//00//00//0/0/0) или оставить путь деривации пустым. Пустой путь не позволит вам экспортировать аккаунт. Пожалуйста, выберите, какой путь вы хотите задать";
 "import.empty.derivation.confirm" = "Пустой";
 "import.empty.derivation.cancel" = "Оставить как есть";
+"account.import.substrate.raw.seed.placeholder" = "Бинарный сид для сабстрейт аккаунтов (64 шестнадцатиричных символа)";
+"account.import.ethereum.raw.seed.placeholder" = "Бинарный сид для эфир аккаунтов (64 шестнадцатиричных символа)";

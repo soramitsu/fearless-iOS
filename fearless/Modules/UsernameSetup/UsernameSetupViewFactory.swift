@@ -3,9 +3,9 @@ import SoraFoundation
 import SoraKeystore
 
 final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
-    static func createViewForOnboarding() -> UsernameSetupViewProtocol? {
+    static func createViewForOnboarding(flow: AccountCreateFlow = .wallet) -> UsernameSetupViewProtocol? {
         let wireframe = UsernameSetupWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, flow: flow)
     }
 
     static func createViewForAdding() -> UsernameSetupViewProtocol? {
@@ -20,17 +20,15 @@ final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
     }
 
     private static func createView(
-        for wireframe: UsernameSetupWireframeProtocol
+        for wireframe: UsernameSetupWireframeProtocol,
+        flow: AccountCreateFlow = .wallet
     ) -> UsernameSetupViewProtocol? {
-        let view = UsernameSetupViewController(nib: R.nib.usernameSetupViewController)
-        let presenter = UsernameSetupPresenter()
-
-        view.presenter = presenter
-        presenter.view = view
-        presenter.wireframe = wireframe
-
-        view.localizationManager = LocalizationManager.shared
-        presenter.localizationManager = LocalizationManager.shared
+        let presenter = UsernameSetupPresenter(
+            wireframe: wireframe,
+            flow: flow,
+            localizationManager: LocalizationManager.shared
+        )
+        let view = UsernameSetupViewController(presenter: presenter, localizationManager: LocalizationManager.shared)
 
         return view
     }
