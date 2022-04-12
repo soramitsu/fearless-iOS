@@ -94,10 +94,6 @@ struct PreferredData {
     }
 }
 
-// TODO: 1. Create MetaAccountImport scene
-// TODO: 2. Create ChainAccountImport scene
-// Can we inherit from a base?
-
 final class AccountImportPresenter: NSObject {
     static let maxMnemonicLength: Int = 250
     static let maxMnemonicSize: Int = 24
