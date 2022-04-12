@@ -64,6 +64,11 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
+
+    func presentSelectFilePicker(
+        from view: AccountImportViewProtocol?,
+        delegate: UIDocumentPickerDelegate
+    )
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
@@ -75,5 +80,25 @@ protocol AccountImportViewFactoryProtocol: AnyObject {
 extension AccountImportViewFactoryProtocol {
     static func createViewForOnboarding() -> AccountImportViewProtocol? {
         Self.createViewForOnboarding(.first)
+    }
+}
+
+extension AccountImportWireframeProtocol {
+    func presentSelectFilePicker(
+        from view: AccountImportViewProtocol?,
+        delegate: UIDocumentPickerDelegate
+    ) {
+        let controller = UIDocumentPickerViewController(
+            documentTypes: ["public.json"],
+            in: .import
+        )
+        controller.delegate = delegate
+        controller.allowsMultipleSelection = false
+        controller.modalPresentationStyle = .formSheet
+        view?.controller.navigationController?.present(
+            controller,
+            animated: true,
+            completion: nil
+        )
     }
 }

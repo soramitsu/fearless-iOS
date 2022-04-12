@@ -39,7 +39,7 @@ struct PreferredData {
 // TODO: 2. Create ChainAccountImport scene
 // Can we inherit from a base?
 
-final class AccountImportPresenter {
+final class AccountImportPresenter: NSObject {
     static let maxMnemonicLength: Int = 250
     static let maxMnemonicSize: Int = 24
     static let maxRawSeedLength: Int = 66
@@ -552,13 +552,22 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
                 self?.interactor.deriveMetadataFromKeystore(json)
             }
         }
+        let selectFileTitle = R.string.localizable
+            .accountImportRecoverySelectFile(preferredLanguages: locale?.rLanguages)
+        let selectFileAction = AlertPresentableAction(title: selectFileTitle) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.wireframe.presentSelectFilePicker(
+                from: strongSelf.view,
+                delegate: strongSelf
+            )
+        }
 
         let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
         let viewModel = AlertPresentableViewModel(
             title: title,
             message: nil,
-            actions: [pasteAction],
+            actions: [pasteAction, selectFileAction],
             closeAction: closeTitle
         )
 
@@ -805,5 +814,15 @@ extension AccountImportPresenter: Localizable {
         if let view = view, view.isSetup {
             applySourceType()
         }
+    }
+}
+
+extension AccountImportPresenter: UIDocumentPickerDelegate {
+    func documentPicker(_: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+        guard let jsonData = try? Data(contentsOf: url, options: .dataReadingMapped),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            return
+        }
+        interactor.deriveMetadataFromKeystore(jsonString)
     }
 }
