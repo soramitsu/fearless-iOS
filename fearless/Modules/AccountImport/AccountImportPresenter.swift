@@ -105,7 +105,7 @@ final class AccountImportPresenter {
     var wireframe: AccountImportWireframeProtocol
     var interactor: AccountImportInteractorInputProtocol
 
-    private let flow: AccountImportFlow
+    let flow: AccountImportFlow
     private(set) var metadata: MetaAccountImportMetadata?
 
     private(set) var selectedSourceType: AccountImportSource?
@@ -149,7 +149,18 @@ private extension AccountImportPresenter {
 
         applySourceTextViewModel(value)
 
-        let username = preferredData?.username ?? ""
+        let username: String
+        switch flow {
+        case let .chain(model):
+            username = model.meta.name
+        case let .wallet(step):
+            switch step {
+            case .first:
+                username = ""
+            case let .second(data):
+                username = data.username
+            }
+        }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
         applyAdvanced(preferredData?.cryptoType)
@@ -601,7 +612,7 @@ private extension AccountImportPresenter {
         let request = UniqueChainImportRequest(
             source: source,
             username: data.username,
-            cryptoType: data.selectedCryptoType,
+            cryptoType: data.chain.isEthereumBased ? .ecdsa : data.selectedCryptoType,
             meta: data.meta,
             chain: data.chain
         )
@@ -617,6 +628,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             selectedCryptoType = data.cryptoType
             applySourceType(preferredData: PreferredData(stepData: data))
             applyCryptoTypeViewModel(data.cryptoType)
+        }
+        if case let .chain(model) = flow {
+            let viewModel = UniqueChainViewModel(
+                text: model.chain.name,
+                icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
+            )
+            view?.setUniqueChain(viewModel: viewModel)
         }
     }
 
