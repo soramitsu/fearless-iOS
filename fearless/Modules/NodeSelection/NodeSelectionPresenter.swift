@@ -32,6 +32,7 @@ extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
 
     func setup() {
         interactor.setup()
+        view?.didReceive(locale: selectedLocale)
     }
 
     func didSelectNode(_ node: ChainNodeModel) {
@@ -69,7 +70,10 @@ extension NodeSelectionPresenter: AddCustomNodeModuleOutput {
 
 extension NodeSelectionPresenter: NodeSelectionTableCellViewModelDelegate {
     func deleteNode(_ node: ChainNodeModel) {
-        let viewModel = viewModelFactory.buildDeleteNodeAlertViewModel(node: node, locale: selectedLocale) { [weak self] in
+        let viewModel = viewModelFactory.buildDeleteNodeAlertViewModel(
+            node: node,
+            locale: selectedLocale
+        ) { [weak self] in
             self?.interactor.deleteNode(node)
         }
 

@@ -48,6 +48,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
     var separatorColor: UIColor?
+    var separatorInset: UIEdgeInsets = .zero
 
     weak var delegate: ModalPickerViewControllerDelegate?
     weak var presenter: ModalPresenterProtocol?
@@ -70,6 +71,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         tableView.allowsSelection = allowsSelection
         tableView.separatorStyle = separatorStyle
+        tableView.separatorInset = separatorInset
 
         if let separatorColor = separatorColor {
             tableView.separatorColor = separatorColor

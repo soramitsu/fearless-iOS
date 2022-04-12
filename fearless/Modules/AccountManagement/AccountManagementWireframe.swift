@@ -6,7 +6,7 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
         metaAccount: MetaAccountModel
     ) {
         let walletDetails = WalletDetailsViewFactory.createView(
-            with: metaAccount
+            flow: .normal(wallet: metaAccount)
         )
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller
@@ -34,5 +34,31 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
             closing: navigationController,
             animated: true
         )
+    }
+
+    func showWalletSettings(
+        from view: AccountManagementViewProtocol?,
+        items: [WalletSettingsRow],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        guard let pickerView = ModalPickerFactory.createPickerForWalletActions(
+            items,
+            callback: callback,
+            context: nil
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.present(pickerView, animated: true)
+    }
+
+    func showSelectAccounts(
+        from view: AccountManagementViewProtocol?,
+        managedMetaAccountModel: ManagedMetaAccountModel
+    ) {
+        guard let module = SelectExportAccountAssembly.configureModule(
+            managedMetaAccountModel: managedMetaAccountModel
+        ) else { return }
+        view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
     }
 }

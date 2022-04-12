@@ -90,9 +90,10 @@ final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
 
         dependencies.forEach { saveOperation.addDependency($0) }
 
-        saveOperation.completionBlock = {
+        saveOperation.completionBlock = { [weak self] in
             do {
                 _ = try saveOperation.extractNoCancellableResultData()
+                self?.internalValue = value
                 completionClosure(.success(value))
             } catch {
                 completionClosure(.failure(error))

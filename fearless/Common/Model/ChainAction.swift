@@ -24,22 +24,22 @@ enum ChainAction {
         }
     }
 
-    var title: String {
+    func localizableTitle(for locale: Locale) -> String {
         switch self {
         case .export:
-            return R.string.localizable.commonExport(preferredLanguages: nil)
+            return R.string.localizable.commonExport(preferredLanguages: locale.rLanguages)
         case .switchNode:
-            return R.string.localizable.switchNode(preferredLanguages: nil)
+            return R.string.localizable.switchNode(preferredLanguages: locale.rLanguages)
         case .copyAddress:
-            return R.string.localizable.commonCopyAddress(preferredLanguages: nil)
+            return R.string.localizable.commonCopyAddress(preferredLanguages: locale.rLanguages)
         case .polkascan:
             return R.string.localizable
-                .transactionDetailsViewPolkascan(preferredLanguages: nil)
+                .transactionDetailsViewPolkascan(preferredLanguages: locale.rLanguages)
         case .subscan:
             return R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: nil)
+                .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
         case .replace:
-            return R.string.localizable.replaceAccount(preferredLanguages: nil)
+            return R.string.localizable.replaceAccount(preferredLanguages: locale.rLanguages)
         }
     }
 }

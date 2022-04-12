@@ -238,6 +238,8 @@ private extension MetaAccountOperationFactory {
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: [],
+            assetKeysOrder: nil,
+            assetIdsEnabled: nil,
             canExportEthereumMnemonic: true
         )
     }
@@ -402,6 +404,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumAddress: ethereumAddress,
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
                 chainAccounts: [],
+                assetKeysOrder: nil,
+                assetIdsEnabled: nil,
                 canExportEthereumMnemonic: true
             )
         }
@@ -441,7 +445,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainId: request.chainId,
                 accountId: accountId,
                 publicKey: query.publicKey,
-                cryptoType: request.cryptoType.rawValue
+                cryptoType: request.cryptoType.rawValue,
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
@@ -481,7 +486,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainId: request.chainId,
                 accountId: accountId,
                 publicKey: query.publicKey,
-                cryptoType: request.cryptoType.rawValue
+                cryptoType: request.cryptoType.rawValue,
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
@@ -538,7 +544,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainId: request.chainId,
                 accountId: accountId,
                 publicKey: publicKey.rawData(),
-                cryptoType: request.cryptoType.rawValue
+                cryptoType: request.cryptoType.rawValue,
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
