@@ -3,6 +3,10 @@ import Foundation
 struct ChainAsset: Equatable, Hashable {
     let chain: ChainModel
     let asset: AssetModel
+
+    func sortKey(accountId: AccountId) -> String {
+        asset.id + chain.chainId + accountId.toHex()
+    }
 }
 
 struct ChainAssetId: Equatable, Codable {

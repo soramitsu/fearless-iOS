@@ -669,3 +669,10 @@ and depending on the network state, may not be selected to participate";
 \
 Remember to make a backup of your key and keep it in a safe and private place (e.g., on a piece of paper).";
 "stories.bottom.close.button" = "Great news!";
+"missing.account.skip" = "I don't need an account";
+"export.substrate.title" = "Export Substrate";
+"export.ethereum.title" = "Export Ethereum";
+"export.wallet.chains.count" = "+ %d OTHERS";
+"import.empty.derivation.message" = "There is an option to set up a zero path (//00//00//0/0/0), or put an empty derivation path. If you choose an empty derivation path, you will not be able to export your account. Please choose, which derivation path you would like to use";
+"import.empty.derivation.confirm" = "Empty";
+"import.empty.derivation.cancel" = "Zero";

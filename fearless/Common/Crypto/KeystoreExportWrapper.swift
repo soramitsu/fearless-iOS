@@ -10,7 +10,7 @@ protocol KeystoreExportWrapperProtocol {
         address: String,
         metaId: String,
         accountId: AccountId?,
-        genesisHash: String
+        genesisHash: String?
     ) throws -> Data
 }
 
@@ -40,7 +40,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         address: String,
         metaId: String,
         accountId: AccountId?,
-        genesisHash: String
+        genesisHash: String?
     ) throws -> Data {
         let secretKeyTag = chainAccount.isEthereumBased
             ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
@@ -50,7 +50,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
 
         var builder = KeystoreBuilder().with(name: chainAccount.name)
 
-        if let genesisHashData = try? Data(hexString: genesisHash) {
+        if let genesisHash = genesisHash, let genesisHashData = try? Data(hexString: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
 

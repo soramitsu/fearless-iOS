@@ -7,11 +7,18 @@ struct ManagedMetaAccountModel: Equatable {
     let info: MetaAccountModel
     let isSelected: Bool
     let order: UInt32
+    var balance: String?
 
-    init(info: MetaAccountModel, isSelected: Bool = false, order: UInt32 = Self.noOrder) {
+    init(
+        info: MetaAccountModel,
+        isSelected: Bool = false,
+        order: UInt32 = Self.noOrder,
+        balance: String? = nil
+    ) {
         self.info = info
         self.isSelected = isSelected
         self.order = order
+        self.balance = balance
     }
 }
 

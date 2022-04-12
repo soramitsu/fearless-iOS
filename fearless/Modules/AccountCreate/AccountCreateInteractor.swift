@@ -24,4 +24,8 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
             presenter.didReceiveMnemonicGeneration(error: error)
         }
     }
+
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol? {
+        try? mnemonicCreator.mnemonic(fromList: mnemonicString)
+    }
 }

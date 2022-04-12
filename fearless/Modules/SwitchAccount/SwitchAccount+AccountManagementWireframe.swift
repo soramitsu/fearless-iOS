@@ -7,7 +7,7 @@ extension SwitchAccount {
             metaAccount: MetaAccountModel
         ) {
             let walletDetails = WalletDetailsViewFactory.createView(
-                with: metaAccount
+                flow: .normal(wallet: metaAccount)
             )
             if let navigationController = view?.controller.navigationController {
                 navigationController.present(walletDetails.controller, animated: true)
@@ -30,6 +30,34 @@ extension SwitchAccount {
             }
 
             navigationController.popToRootViewController(animated: true)
+        }
+
+        func showWalletSettings(
+            from view: AccountManagementViewProtocol?,
+            items: [WalletSettingsRow],
+            callback: @escaping ModalPickerSelectionCallback
+        ) {
+            guard let pickerView = ModalPickerFactory.createPickerForWalletActions(
+                items,
+                callback: callback,
+                context: nil
+            ) else {
+                return
+            }
+
+            view?.controller.navigationController?.present(pickerView, animated: true)
+        }
+
+        func showSelectAccounts(
+            from view: AccountManagementViewProtocol?,
+            managedMetaAccountModel: ManagedMetaAccountModel
+        ) {
+            guard let module = SelectExportAccountAssembly.configureModule(
+                managedMetaAccountModel: managedMetaAccountModel
+            ) else {
+                return
+            }
+            view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
         }
     }
 }

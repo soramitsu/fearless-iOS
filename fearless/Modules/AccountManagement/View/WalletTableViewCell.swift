@@ -11,6 +11,7 @@ final class WalletTableViewCell: UITableViewCell {
         static let selectionImageSize: CGFloat = 24
         static let walletIconSize: CGFloat = 32
         static let infoButtonSize: CGFloat = 20
+        static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
     }
 
     private var mainStackView: UIStackView = {
@@ -61,6 +62,12 @@ final class WalletTableViewCell: UITableViewCell {
         return label
     }()
 
+    private let totalBalanceActivityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+
     private var infoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -83,14 +90,16 @@ final class WalletTableViewCell: UITableViewCell {
     }
 
     func bind(to viewModel: ManagedAccountViewModelItem) {
-        if viewModel.isSelected {
-            selectionImageView.image = R.image.listCheckmarkIcon()
-            infoImageView.image = R.image.iconInfo()
-        } else {
-            selectionImageView.image = nil
-            infoImageView.image = R.image.iconInfoFilled()
-        }
+        selectionImageView.image = viewModel.isSelected
+            ? R.image.listCheckmarkIcon()
+            : nil
+        infoImageView.image = R.image.iconHorMore()
         walletLabel.text = viewModel.name
+
+        viewModel.totalBalance == nil
+            ? totalBalanceActivityIndicator.startAnimating()
+            : totalBalanceActivityIndicator.stopAnimating()
+
         totalBalanceLabel.text = viewModel.totalBalance
     }
 
@@ -132,10 +141,19 @@ private extension WalletTableViewCell {
     }
 
     func setupLayout() {
+        let separator = UIView.createSeparator()
+        contentView.addSubview(separator)
+        separator.snp.makeConstraints { make in
+            make.height.equalTo(LayoutConstants.separatorHeight)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview()
+        }
+
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(separator.snp.top)
         }
 
         mainStackView.addArrangedSubview(selectionImageView)
@@ -151,6 +169,8 @@ private extension WalletTableViewCell {
         mainStackView.addArrangedSubview(infoStackView)
 
         infoStackView.addArrangedSubview(walletLabel)
+        infoStackView.addArrangedSubview(totalBalanceLabel)
+        infoStackView.addArrangedSubview(totalBalanceActivityIndicator)
 
         mainStackView.addArrangedSubview(infoImageView)
         infoImageView.snp.makeConstraints { make in

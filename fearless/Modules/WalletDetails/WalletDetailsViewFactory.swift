@@ -4,14 +4,14 @@ import SoraFoundation
 
 final class WalletDetailsViewFactory {
     static func createView(
-        with selectedWallet: MetaAccountModel
+        flow: WalletDetailsFlow
     ) -> WalletDetailsViewProtocol {
         let chainsRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
         let interactor = WalletDetailsInteractor(
-            selectedMetaAccount: selectedWallet,
+            flow: flow,
             chainsRepository: AnyDataProviderRepository(chainsRepository),
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared,
@@ -25,7 +25,8 @@ final class WalletDetailsViewFactory {
         let presenter = WalletDetailsPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            selectedWallet: selectedWallet,
+            viewModelFactory: WalletDetailsViewModelFactory(),
+            flow: flow,
             localizationManager: localizationManager
         )
         interactor.presenter = presenter
