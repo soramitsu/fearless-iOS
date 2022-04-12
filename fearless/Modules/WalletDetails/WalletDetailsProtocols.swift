@@ -31,7 +31,7 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
     ModalAlertPresenting,
     AuthorizationPresentable {
     func close(_ view: WalletDetailsViewProtocol)
-    func presentAcions(
+    func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
         callback: @escaping ModalPickerSelectionCallback
@@ -52,4 +52,6 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
         from view: ControllerBackedProtocol,
         url: URL
     )
+
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
 }

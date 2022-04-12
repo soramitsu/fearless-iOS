@@ -131,12 +131,23 @@ private extension WalletDetailsViewController {
 extension WalletDetailsViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
         switch state {
-        case .normal:
-            return 1
+        case let .normal(viewModel):
+            return viewModel.sections.count
         case let .export(viewModel):
             return viewModel.sections.count
         case .none:
             return 0
+        }
+    }
+
+    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch state {
+        case let .normal(viewModel):
+            return viewModel.sections[section].title
+        case let .export(viewModel):
+            return viewModel.sections[section].title
+        case .none:
+            return nil
         }
     }
 

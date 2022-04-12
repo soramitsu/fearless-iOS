@@ -68,10 +68,14 @@ private extension AccountImportViewController {
         rootView.ethereumDerivationPathField.delegate = self
         rootView.textView.delegate = self
 
-        rootView.usernameTextField.animatedInputField.addTarget(self, action: #selector(actionNameTextFieldChanged), for: .editingChanged)
-        rootView.passwordTextField.animatedInputField.addTarget(self, action: #selector(actionPasswordTextFieldChanged), for: .editingChanged)
-        rootView.substrateDerivationPathField.addTarget(self, action: #selector(substrateTextFieldEditingChanged), for: .editingChanged)
-        rootView.ethereumDerivationPathField.addTarget(self, action: #selector(ethereumTextFieldEditingChanged), for: .editingChanged)
+        rootView.usernameTextField.animatedInputField
+            .addTarget(self, action: #selector(actionNameTextFieldChanged), for: .editingChanged)
+        rootView.passwordTextField.animatedInputField
+            .addTarget(self, action: #selector(actionPasswordTextFieldChanged), for: .editingChanged)
+        rootView.substrateDerivationPathField
+            .addTarget(self, action: #selector(substrateTextFieldEditingChanged), for: .editingChanged)
+        rootView.ethereumDerivationPathField
+            .addTarget(self, action: #selector(ethereumTextFieldEditingChanged), for: .editingChanged)
 
         rootView.sourceTypeView.actionControl.addTarget(
             self,
@@ -94,8 +98,12 @@ private extension AccountImportViewController {
             rootView.locale = locale
             view.setNeedsLayout()
         }
-
-        title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
+        switch presenter.flow {
+        case .wallet:
+            title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
+        case .chain:
+            title = R.string.localizable.onboardingRestoreAccount(preferredLanguages: locale.rLanguages)
+        }
 
         if !rootView.uploadViewContainer.isHidden {
             updateUploadView()
@@ -195,9 +203,15 @@ private extension AccountImportViewController {
 }
 
 extension AccountImportViewController: AccountImportViewProtocol {
-    func setUniqueChain(viewModel: ImportChainViewModel) {
-        rootView.chainView.actionControl.contentView.subtitleLabelView.text = viewModel.chainName
-        rootView.chainView.actionControl.contentView.subtitleImageView.image = viewModel.chainImage
+    func setUniqueChain(viewModel: UniqueChainViewModel) {
+        rootView.chainViewContainer.isHidden = false
+        rootView.chainView.actionControl.contentView.subtitleLabelView.text = viewModel.text
+        let imageView = rootView.chainView.actionControl.contentView.subtitleImageView
+        viewModel.icon?.loadImage(
+            on: imageView,
+            targetSize: imageView.frame.size,
+            animated: true
+        )
     }
 
     func show(chainType: AccountCreateChainType) {

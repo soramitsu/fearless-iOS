@@ -55,7 +55,7 @@ extension ChainAccountResponse {
 
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
-        if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId && $0.accountId == request.accountId }) {
+        if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId }) {
             guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil
             }
