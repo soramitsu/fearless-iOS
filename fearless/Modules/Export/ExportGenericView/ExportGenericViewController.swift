@@ -22,6 +22,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     }()
 
     private var mainActionButton: TriangularedButton?
+    private var secondaryActionButton: TriangularedButton?
     private var accessoryActionButton: TriangularedButton?
 
     private var containerView: ScrollableContainerView!
@@ -29,6 +30,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     private var expandableControl: ExpandableActionControl!
     private var advancedContainerViews: [UIView]?
     private var optionViews: [UIView]?
+    private var alreadyDisplayedMnemonics: [[String]]?
 
     private var viewModel: MultipleExportGenericViewModelProtocol?
 
@@ -69,16 +71,13 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         view = UIView()
         view.backgroundColor = R.color.colorBlack()
 
-        if mainOptionTitle != nil {
-            setupMainActionButton()
-        }
-
         if accessoryOptionTitle != nil {
             setupAccessoryButton()
         }
 
         setupButtonsContainerView()
         setupContainerView()
+        setupButtonsContainerView()
 
         setupSourceTypeView()
         setupExpandableActionView()
@@ -91,6 +90,8 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setupLocalization()
 
         presenter.setup()
+
+        setupBackButton()
     }
 
     private func setupLocalization() {
@@ -111,6 +112,8 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     }
 
     private func updateFromViewModel(_ locale: Locale) {
+        alreadyDisplayedMnemonics = nil
+
         guard let viewModel = viewModel else {
             return
         }
@@ -127,20 +130,21 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
 
         var views: [UIView] = []
         viewModel.viewModels.forEach { exportViewModel in
-            sourceTypeView.subtitle = exportViewModel.option.titleForLocale(locale)
+            sourceTypeView.subtitle = exportViewModel.option.titleForLocale(locale, ethereumBased: nil)
 
-            let newOptionView = exportViewModel.accept(binder: binder, locale: locale)
-            newOptionView.backgroundColor = R.color.colorBlack()!
-            newOptionView.translatesAutoresizingMaskIntoConstraints = false
+            if let view = setupExportDataView(exportViewModel) {
+                views.append(view)
+            }
 
-            insert(subview: newOptionView, after: sourceTypeView)
-
-            newOptionView.widthAnchor.constraint(
-                equalTo: view.widthAnchor,
-                constant: -2.0 * UIConstants.horizontalInset
-            ).isActive = true
-
-            views.append(newOptionView)
+            if exportViewModel.option == .keystore {
+                if exportViewModel.ethereumBased {
+                    setupExportEthereumButton()
+                } else {
+                    setupExportSubstrateButton()
+                }
+            } else if mainOptionTitle != nil {
+                setupMainActionButton()
+            }
         }
 
         setupAdvancedContainerView(with: viewModel, locale: locale)
@@ -173,9 +177,37 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             }
         }
     }
+
+    @objc private func exportSubstrateButtonClicked() {
+        presenter.didTapExportSubstrateButton()
+    }
+
+    @objc private func exportEthereumButtonClicked() {
+        presenter.didTapExportEthereumButton()
+    }
+
+    @objc private func backButtonClicked() {
+        navigationController?.popToRootViewController(animated: true)
+    }
+
+    @objc private func exportGestureHandler(_ sender: UITapGestureRecognizer) {
+        if let view = sender.view as? MultilineTriangularedView {
+            presenter.didTapStringExport(view.subtitleLabel.text)
+        }
+    }
 }
 
 extension ExportGenericViewController {
+    private func setupBackButton() {
+        let backButton = UIBarButtonItem(
+            image: R.image.iconBack(),
+            style: .plain,
+            target: self,
+            action: #selector(backButtonClicked)
+        )
+        navigationItem.leftBarButtonItem = backButton
+    }
+
     private func setupButtonsContainerView() {
         view.addSubview(buttonsStackView)
 
@@ -183,6 +215,7 @@ extension ExportGenericViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.top.equalTo(containerView.snp.bottom).offset(UIConstants.bigOffset)
         }
     }
 
@@ -201,6 +234,40 @@ extension ExportGenericViewController {
         )
 
         mainActionButton = button
+    }
+
+    private func setupExportSubstrateButton() {
+        let button = uiFactory.createMainActionButton()
+        buttonsStackView.addArrangedSubview(button)
+
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        button.addTarget(
+            self,
+            action: #selector(exportSubstrateButtonClicked),
+            for: .touchUpInside
+        )
+
+        button.imageWithTitleView?.title = R.string.localizable.exportSubstrateTitle(preferredLanguages: selectedLocale.rLanguages)
+    }
+
+    private func setupExportEthereumButton() {
+        let button = uiFactory.createMainActionButton()
+        buttonsStackView.addArrangedSubview(button)
+
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        button.addTarget(
+            self,
+            action: #selector(exportEthereumButtonClicked),
+            for: .touchUpInside
+        )
+
+        button.imageWithTitleView?.title = R.string.localizable.exportEthereumTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupAnimatingView() {
@@ -229,6 +296,40 @@ extension ExportGenericViewController {
         )
 
         accessoryActionButton = button
+    }
+
+    private func setupExportDataView(_ exportViewModel: ExportGenericViewModelProtocol) -> UIView? {
+        if let mnemonicViewModel = exportViewModel as? ExportMnemonicViewModel {
+            if alreadyDisplayedMnemonics?.contains(mnemonicViewModel.mnemonic) == true {
+                return nil
+            } else {
+                if alreadyDisplayedMnemonics == nil {
+                    alreadyDisplayedMnemonics = []
+                }
+
+                alreadyDisplayedMnemonics?.append(mnemonicViewModel.mnemonic)
+            }
+        }
+
+        let newOptionView = exportViewModel.accept(binder: binder, locale: selectedLocale)
+        newOptionView.backgroundColor = R.color.colorBlack()!
+        newOptionView.translatesAutoresizingMaskIntoConstraints = false
+
+        #if DEBUG
+            if let _ = exportViewModel as? ExportStringViewModel {
+                let gesture = UITapGestureRecognizer(target: self, action: #selector(exportGestureHandler(_:)))
+                newOptionView.addGestureRecognizer(gesture)
+            }
+        #endif
+
+        insert(subview: newOptionView, after: sourceTypeView)
+
+        newOptionView.widthAnchor.constraint(
+            equalTo: view.widthAnchor,
+            constant: -2.0 * UIConstants.horizontalInset
+        ).isActive = true
+
+        return newOptionView
     }
 
     private func setupContainerView() {
@@ -307,8 +408,8 @@ extension ExportGenericViewController {
         var views: [UIView] = []
 
         viewModel.viewModels.forEach { exportViewModel in
-            let containerView = UIView()
-            containerView.translatesAutoresizingMaskIntoConstraints = false
+
+            let containerView = uiFactory.createVerticalStackView(spacing: 8)
 
             self.containerView.stackView.addArrangedSubview(containerView)
 
@@ -317,75 +418,64 @@ extension ExportGenericViewController {
                 constant: -2.0 * UIConstants.horizontalInset
             ).isActive = true
 
-            let cryptoTypeView = setupCryptoTypeView(
-                cryptoType: exportViewModel.cryptoType,
-                advancedContainerView: containerView,
-                locale: locale
-            )
+            var subviews: [UIView] = []
 
-            var subviews = [cryptoTypeView]
+            if let cryptoType = exportViewModel.cryptoType {
+                let cryptoTypeView = setupCryptoTypeView(
+                    cryptoType: cryptoType,
+                    advancedContainerView: containerView,
+                    locale: locale,
+                    isEthereum: exportViewModel.ethereumBased
+                )
+                subviews.append(cryptoTypeView)
+            }
 
             if let derivationPath = exportViewModel.derivationPath {
                 let derivationPathView = setupDerivationView(
                     derivationPath,
                     advancedContainerView: containerView,
-                    locale: locale
+                    locale: locale,
+                    isEthereum: exportViewModel.ethereumBased
                 )
                 subviews.append(derivationPathView)
             }
 
-            let networkTypeView = setupNetworkView(
-                chain: exportViewModel.chain,
-                advancedContainerView: containerView,
-                locale: locale
-            )
+            if let chain = exportViewModel.chain, viewModel.viewModels.count == 1 {
+                let networkTypeView = setupNetworkView(
+                    chain: chain,
+                    advancedContainerView: containerView,
+                    locale: locale
+                )
 
-            subviews.append(networkTypeView)
+                subviews.append(networkTypeView)
+            }
 
-            views.append(containerView)
-
-            _ = subviews.reduce(nil) { (anchorView: UIView?, subview: UIView) in
-                subview.leadingAnchor
-                    .constraint(equalTo: containerView.leadingAnchor, constant: 0.0).isActive = true
-                subview.trailingAnchor
-                    .constraint(equalTo: containerView.trailingAnchor, constant: 0.0).isActive = true
+            _ = subviews.reduce(nil) { (_: UIView?, subview: UIView) in
                 subview.heightAnchor
                     .constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true
-
-                if let anchorView = anchorView {
-                    subview.topAnchor
-                        .constraint(
-                            equalTo: anchorView.bottomAnchor,
-                            constant: Constants.verticalSpacing
-                        ).isActive = true
-                } else {
-                    subview.topAnchor
-                        .constraint(equalTo: containerView.topAnchor).isActive = true
-                }
-
                 return subview
             }
 
-            containerView.bottomAnchor.constraint(
-                equalTo: networkTypeView.bottomAnchor,
-                constant: Constants.verticalSpacing
-            ).isActive = true
+            views.append(containerView)
         }
 
         advancedContainerViews = views
+        expandableControl.isHidden = advancedContainerViews?.isEmpty == true
     }
 
     private func setupCryptoTypeView(
         cryptoType: CryptoType,
-        advancedContainerView: UIView,
-        locale: Locale
+        advancedContainerView: UIStackView,
+        locale: Locale,
+        isEthereum: Bool
     ) -> UIView {
         let cryptoView = uiFactory.createDetailsView(with: .largeIconTitleSubtitle, filled: true)
         cryptoView.translatesAutoresizingMaskIntoConstraints = false
-        advancedContainerView.addSubview(cryptoView)
+        advancedContainerView.addArrangedSubview(cryptoView)
 
-        cryptoView.title = R.string.localizable
-            .commonCryptoType(preferredLanguages: locale.rLanguages)
+        cryptoView.title = isEthereum
+            ? R.string.localizable.ethereumCryptoType(preferredLanguages: locale.rLanguages)
+            : R.string.localizable.substrateCryptoType(preferredLanguages: locale.rLanguages)
 
         cryptoView.subtitle = cryptoType.titleForLocale(locale) + " | " + cryptoType.subtitleForLocale(locale)
 
@@ -394,15 +484,17 @@ extension ExportGenericViewController {
 
     private func setupDerivationView(
         _ path: String,
-        advancedContainerView: UIView,
-        locale: Locale
+        advancedContainerView: UIStackView,
+        locale: Locale,
+        isEthereum: Bool
     ) -> UIView {
         let derivationPathView = uiFactory.createDetailsView(with: .largeIconTitleSubtitle, filled: true)
         derivationPathView.translatesAutoresizingMaskIntoConstraints = false
-        advancedContainerView.addSubview(derivationPathView)
+        advancedContainerView.addArrangedSubview(derivationPathView)
 
-        derivationPathView.title = R.string.localizable
-            .commonSecretDerivationPath(preferredLanguages: locale.rLanguages)
+        derivationPathView.title = isEthereum
+            ? R.string.localizable.ethereumSecretDerivationPath(preferredLanguages: locale.rLanguages)
+            : R.string.localizable.substrateSecretDerivationPath(preferredLanguages: locale.rLanguages)
         derivationPathView.subtitle = path
 
         return derivationPathView
@@ -410,12 +502,12 @@ extension ExportGenericViewController {
 
     private func setupNetworkView(
         chain: ChainModel,
-        advancedContainerView: UIView,
+        advancedContainerView: UIStackView,
         locale: Locale
     ) -> UIView {
         let networkView = uiFactory.createDetailsView(with: .smallIconTitleSubtitle, filled: true)
         networkView.translatesAutoresizingMaskIntoConstraints = false
-        advancedContainerView.addSubview(networkView)
+        advancedContainerView.addArrangedSubview(networkView)
 
         networkView.title = R.string.localizable
             .commonNetwork(preferredLanguages: locale.rLanguages)

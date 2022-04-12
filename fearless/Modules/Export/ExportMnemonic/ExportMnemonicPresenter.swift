@@ -7,20 +7,19 @@ final class ExportMnemonicPresenter {
     var wireframe: ExportMnemonicWireframeProtocol!
     var interactor: ExportMnemonicInteractorInputProtocol!
 
-    let address: String
-    let chain: ChainModel
+    let flow: ExportFlow
     let localizationManager: LocalizationManager
 
-    private(set) var exportData: ExportMnemonicData?
+    private(set) var exportDatas: [ExportMnemonicData]?
 
-    init(address: String, chain: ChainModel, localizationManager: LocalizationManager) {
-        self.address = address
-        self.chain = chain
+    init(flow: ExportFlow, localizationManager: LocalizationManager) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 
     private func share() {
-        guard let data = exportData else {
+        // TODO: Support custom accounts
+        guard let exportData = exportDatas?.first else {
             return
         }
 
@@ -28,19 +27,19 @@ final class ExportMnemonicPresenter {
 
         let locale = localizationManager.selectedLocale
 
-        if let derivationPath = exportData?.derivationPath {
+        if let derivationPath = exportData.derivationPath {
             text = R.string.localizable
                 .exportMnemonicWithDpTemplate(
-                    chain.name,
-                    data.mnemonic.toString(),
+                    exportData.chain.name,
+                    exportData.mnemonic.toString(),
                     derivationPath,
                     preferredLanguages: locale.rLanguages
                 )
         } else {
             text = R.string.localizable
                 .exportMnemonicWithoutDpTemplate(
-                    chain.name,
-                    data.mnemonic.toString(),
+                    exportData.chain.name,
+                    exportData.mnemonic.toString(),
                     preferredLanguages: locale.rLanguages
                 )
         }
@@ -55,7 +54,12 @@ final class ExportMnemonicPresenter {
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     func setup() {
-        interactor.fetchExportDataForAddress(address, chain: chain)
+        switch flow {
+        case let .single(chain, address):
+            interactor.fetchExportDataForAddress(address, chain: chain)
+        case let .multiple(wallet, accounts):
+            interactor.fetchExportDataForWallet(wallet: wallet, accounts: flow.exportingAccounts)
+        }
     }
 
     func activateExport() {
@@ -81,7 +85,8 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     }
 
     func activateAccessoryOption() {
-        guard let exportData = exportData else {
+        // TODO: Support custom accounts
+        guard let exportData = exportDatas?.first else {
             return
         }
 
@@ -90,17 +95,21 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
-    func didReceive(exportData: ExportMnemonicData) {
-        self.exportData = exportData
-        let viewModel = ExportMnemonicViewModel(
-            option: .mnemonic,
-            chain: chain,
-            cryptoType: exportData.cryptoType,
-            derivationPath: exportData.derivationPath,
-            mnemonic: exportData.mnemonic.allWords()
-        )
+    func didReceive(exportDatas: [ExportMnemonicData]) {
+        self.exportDatas = exportDatas
 
-        let multipleExportViewModel = MultiExportViewModel(viewModels: [viewModel])
+        let viewModels = exportDatas.compactMap { exportData in
+            ExportMnemonicViewModel(
+                option: .mnemonic,
+                chain: exportData.chain,
+                cryptoType: exportData.cryptoType,
+                derivationPath: exportData.derivationPath,
+                mnemonic: exportData.mnemonic.allWords(),
+                ethereumBased: exportData.chain.isEthereumBased
+            )
+        }
+
+        let multipleExportViewModel = MultiExportViewModel(viewModels: viewModels)
         view?.set(viewModel: multipleExportViewModel)
     }
 

@@ -5,6 +5,8 @@ protocol AvailableExportOptionsProviderProtocol {
         accountId: AccountId?,
         isEthereum: Bool
     ) -> [ExportOption]
+
+    func getAvailableExportOptions(for wallet: MetaAccountModel, accountId: AccountId?) -> [ExportOption]
 }
 
 final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtocol {
@@ -20,6 +22,18 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
             options.append(.mnemonic)
         }
         if seedAvailable(for: account, accountId: accountId) {
+            options.append(.seed)
+        }
+        return options
+    }
+
+    func getAvailableExportOptions(for wallet: MetaAccountModel, accountId: AccountId?) -> [ExportOption] {
+        var options: [ExportOption] = [.keystore]
+        if mnemonicAvailable(for: wallet, accountId: accountId, isEthereum: true),
+           mnemonicAvailable(for: wallet, accountId: accountId, isEthereum: false) {
+            options.append(.mnemonic)
+        }
+        if seedAvailable(for: wallet, accountId: accountId) {
             options.append(.seed)
         }
         return options

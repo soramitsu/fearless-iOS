@@ -129,7 +129,7 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
                     title: R.string.localizable
                         .aboutTerms(preferredLanguages: rLanguages),
                     subtitle: nil,
-                    icon: R.image.iconAboutTermsPrivacy(),
+                    icon: R.image.iconCheckMark(),
                     url: about.legal.termsUrl
                 )
             case .privacy:
@@ -137,7 +137,7 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
                     title: R.string.localizable
                         .aboutPrivacy(preferredLanguages: rLanguages),
                     subtitle: nil,
-                    icon: R.image.iconAboutTermsPrivacy(),
+                    icon: R.image.iconCheckMark(),
                     url: about.legal.privacyPolicyUrl
                 )
             }

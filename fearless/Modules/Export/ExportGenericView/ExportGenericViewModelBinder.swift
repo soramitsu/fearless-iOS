@@ -15,7 +15,7 @@ final class ExportGenericViewModelBinder: ExportGenericViewModelBinding {
             .constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true
 
         detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
-        detailsView.title = stringViewModel.option.titleForLocale(locale)
+        detailsView.title = stringViewModel.option.titleForLocale(locale, ethereumBased: stringViewModel.ethereumBased)
         detailsView.subtitle = stringViewModel.data
 
         return detailsView
@@ -24,7 +24,7 @@ final class ExportGenericViewModelBinder: ExportGenericViewModelBinding {
     func bind(multilineViewModel: ExportStringViewModel, locale: Locale) -> UIView {
         let detailsView = uiFactory.createMultilinedTriangularedView()
 
-        detailsView.titleLabel.text = multilineViewModel.option.titleForLocale(locale)
+        detailsView.titleLabel.text = multilineViewModel.option.titleForLocale(locale, ethereumBased: multilineViewModel.ethereumBased)
         detailsView.subtitleLabel.text = multilineViewModel.data
 
         return detailsView
