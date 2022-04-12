@@ -16,12 +16,10 @@ final class AccountExportPasswordPresenter {
 
     let localizationManager: LocalizationManagerProtocol
 
-    let address: String
-    let chain: ChainModel
+    let flow: ExportFlow
 
-    init(address: String, chain: ChainModel, localizationManager: LocalizationManagerProtocol) {
-        self.address = address
-        self.chain = chain
+    init(flow: ExportFlow, localizationManager: LocalizationManagerProtocol) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 }
@@ -40,13 +38,26 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
             return
         }
 
-        interactor.exportAccount(address: address, password: password, chain: chain)
+        switch flow {
+        case let .single(chain, address):
+            interactor.exportAccount(
+                address: address,
+                password: password,
+                chain: chain
+            )
+        case let .multiple(wallet, _):
+            interactor.exportWallet(
+                wallet: wallet,
+                accounts: flow.exportingAccounts,
+                password: password
+            )
+        }
     }
 }
 
 extension AccountExportPasswordPresenter: AccountExportPasswordInteractorOutputProtocol {
-    func didExport(json: RestoreJson) {
-        wireframe.showJSONExport(json, from: view)
+    func didExport(jsons: [RestoreJson]) {
+        wireframe.showJSONExport(jsons, from: view)
     }
 
     func didReceive(error: Error) {

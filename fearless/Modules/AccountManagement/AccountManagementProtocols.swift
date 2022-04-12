@@ -14,7 +14,7 @@ protocol AccountManagementPresenterProtocol: AnyObject {
 
     func item(at index: Int) -> ManagedAccountViewModelItem
 
-    func activateDetails(at index: Int)
+    func activateWalletDetails(at index: Int)
     func activateAddAccount()
 
     func selectItem(at index: Int)
@@ -46,6 +46,15 @@ protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable 
     )
     func showAddAccount(from view: AccountManagementViewProtocol?)
     func complete(from view: AccountManagementViewProtocol?)
+    func showWalletSettings(
+        from view: AccountManagementViewProtocol?,
+        items: [WalletSettingsRow],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+    func showSelectAccounts(
+        from view: AccountManagementViewProtocol?,
+        metaAccount: MetaAccountModel
+    )
 }
 
 protocol AccountManagementViewFactoryProtocol: AnyObject {
