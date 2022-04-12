@@ -213,6 +213,6 @@ extension AccountManagementViewController: WalletTableViewCellDelegate {
             return
         }
 
-        presenter.activateDetails(at: indexPath.row)
+        presenter.activateWalletDetails(at: indexPath.row)
     }
 }

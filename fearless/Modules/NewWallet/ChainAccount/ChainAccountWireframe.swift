@@ -201,8 +201,7 @@ private extension ChainAccountWireframe {
         from view: ControllerBackedProtocol?
     ) {
         guard let mnemonicView = ExportMnemonicViewFactory.createViewForAddress(
-            address,
-            chain: chain
+            flow: .single(chain: chain, address: address)
         ) else {
             return
         }
@@ -219,8 +218,7 @@ private extension ChainAccountWireframe {
         from view: ControllerBackedProtocol?
     ) {
         guard let passwordView = AccountExportPasswordViewFactory.createView(
-            with: address,
-            chain: chain
+            flow: .single(chain: chain, address: address)
         ) else {
             return
         }
@@ -232,7 +230,7 @@ private extension ChainAccountWireframe {
     }
 
     func showSeedExport(for address: String, chain: ChainModel, from view: ControllerBackedProtocol?) {
-        guard let seedView = ExportSeedViewFactory.createViewForAddress(address, chain: chain) else {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .single(chain: chain, address: address)) else {
             return
         }
 
