@@ -47,13 +47,28 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
             localizationManager: localizationManager
         )
 
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let getBalanceProvider = GetBalanceProvider(
+            balanceForModel: .managedMetaAccounts,
+            chainModelRepository: AnyDataProviderRepository(chainRepository),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let anyObserver = AnyDataProviderRepositoryObservable(observer)
         let interactor = AccountManagementInteractor(
             repository: AnyDataProviderRepository(repository),
             repositoryObservable: anyObserver,
             settings: SelectedWalletSettings.shared,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            getBalanceProvider: getBalanceProvider
         )
 
         view.presenter = presenter
