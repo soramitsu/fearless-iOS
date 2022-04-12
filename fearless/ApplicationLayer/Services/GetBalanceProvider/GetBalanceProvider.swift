@@ -47,7 +47,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private lazy var prices: [AssetModel.PriceId: PriceData] = [:]
 
     private lazy var accountInfos: [ChainModel.Id: AccountInfo] = [:]
-    private lazy var accountsInfoForAccountId: [AccountId: [ChainModel.Id: AccountInfo]] = [:]
+    private lazy var accountsInfoForAccountId: [String: [ChainModel.Id: AccountInfo]] = [:]
 
     private let balanceForModel: GetBalanceModelType
     private var metaAccount: MetaAccountModel?
@@ -270,14 +270,24 @@ extension GetBalanceProvider: AccountInfoSubscriptionAdapterHandler {
         accountId: AccountId,
         chainId: ChainModel.Id
     ) {
-        switch balanceForModel {
-        case .metaAccount:
-            accountInfos[chainId] = try? result.get()
-        case .managedMetaAccounts:
-            guard let accountInfo = try? result.get() else { return }
-            accountsInfoForAccountId[accountId] = [chainId: accountInfo]
+        switch result {
+        case let .success(accountInfo):
+            switch balanceForModel {
+            case .metaAccount:
+                accountInfos[chainId] = accountInfo
+            case .managedMetaAccounts:
+                guard let accountInfo = accountInfo else {
+                    return
+                }
+
+                let key = accountId.toHex() + chainId
+                accountsInfoForAccountId[key] = [chainId: accountInfo]
+                print("accountsInfoForAccountId: ", accountsInfoForAccountId.map(\.key))
+            }
+            provideBalance()
+        case let .failure(error):
+            print("GetBalanceProvider:handleAccountInfo:error", error)
         }
-        provideBalance()
     }
 }
 
