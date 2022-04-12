@@ -16,6 +16,8 @@
 		06197BBE4299DC971C42DB92 /* WalletSendConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A687FBDA0912F8727CE0D81 /* WalletSendConfirmPresenter.swift */; };
 		06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */; };
 		0678271BE1BA5BBC084F478A /* RecommendedValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C624E71FCE0FFF8EAD5BA9 /* RecommendedValidatorListWireframe.swift */; };
+		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
+		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
@@ -2001,6 +2003,8 @@
 		04EF69DFE142600FF2708A13 /* ControllerAccountConfirmationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountConfirmationViewController.swift; sourceTree = "<group>"; };
 		0533F9E531CDFB721D697769 /* YourValidatorListPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListPresenter.swift; sourceTree = "<group>"; };
 		06B4E294F237E21F1553091D /* ChainAccountBalanceListInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceListInteractor.swift; sourceTree = "<group>"; };
+		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
+		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
@@ -6401,6 +6405,7 @@
 				8490142924A935FE008F705E /* LoadableViewProtocol.swift */,
 				8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */,
 				8490142B24A935FE008F705E /* AlertPresentable.swift */,
+				078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */,
 				842D1E8324D197C900C30A7A /* KeyboardAdoptable.swift */,
 				84754C842510A1A400854599 /* ModalAlertPresenting.swift */,
 				849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */,
@@ -9563,6 +9568,7 @@
 			children = (
 				FA17B4D027E9CF21006E0735 /* FearlessApplication.swift */,
 				FA17B4CF27E9CF21006E0735 /* main.swift */,
+				078E34C028058B9D00DF187A /* DocumentType.swift */,
 				FAF5E9CF27E46D6A005A3448 /* AppConfigs */,
 				FA38C9A32760700B005C5577 /* Services */,
 			);
@@ -11031,6 +11037,7 @@
 				8410DBCB26EA31DE00FE1738 /* AccountProviderFactory.swift in Sources */,
 				AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */,
 				FA256A20274CE7D600875A53 /* AstarBonusService.swift in Sources */,
+				078E34C128058B9D00DF187A /* DocumentType.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
 				84DB9E902640A48E00F23DD3 /* StakingRedeemViewModel.swift in Sources */,
 				84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */,
@@ -11953,6 +11960,7 @@
 				3E1462D9E1C0D490E81FD288 /* StakingUnbondConfirmViewFactory.swift in Sources */,
 				FA402F3C27CCD53D008CF986 /* SubstrateStorageMigrator+Sync.swift in Sources */,
 				9B4BE26140C63E07C256CC97 /* StakingRedeemProtocols.swift in Sources */,
+				078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */,
 				AEE5FB1C264A610C002B8FDC /* StakingRewardDestSetupLayout.swift in Sources */,
 				B7CF31A548C02AD7AAC16A8D /* StakingRedeemWireframe.swift in Sources */,
 				C0B0DDF638915E8259B1CD67 /* StakingRedeemPresenter.swift in Sources */,
