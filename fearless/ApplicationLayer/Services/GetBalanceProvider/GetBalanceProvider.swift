@@ -74,6 +74,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         handler: GetBalanceMetaAccountHandler
     ) {
         guard case .metaAccount = balanceForModel else {
+            assertionFailure("GetBalanceProvider:calledWrongFunc")
             handleFailure()
             return
         }
@@ -88,6 +89,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         handler: GetBalanceManagedMetaAccountsHandler
     ) {
         guard case .managedMetaAccounts = balanceForModel else {
+            assertionFailure("GetBalanceProvider:calledWrongFunc")
             handleFailure()
             return
         }
