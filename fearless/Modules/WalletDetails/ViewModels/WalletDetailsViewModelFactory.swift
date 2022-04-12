@@ -19,10 +19,11 @@ class WalletDetailsViewModelFactory {
     private func buildSection(
         flow: WalletDetailsFlow,
         chainAccounts: [ChainAccountInfo],
-        locale: Locale
+        title: String,
+        locale _: Locale
     ) -> WalletDetailsSection {
         WalletDetailsSection(
-            title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages),
+            title: title,
             viewModels: chainAccounts.compactMap { chainAccount in
                 let icon = chainAccount.chain.icon.map { RemoteImageViewModel(url: $0) }
                 let address = chainAccount.account.toAddress()
@@ -57,10 +58,20 @@ class WalletDetailsViewModelFactory {
     ) -> [WalletDetailsSection] {
         let nativeAccounts = chainAccounts.filter { $0.account.isChainAccount == false }
         let customAccounts = chainAccounts.filter { $0.account.isChainAccount == true }
-        let nativeSection = buildSection(flow: flow, chainAccounts: nativeAccounts, locale: locale)
-        let customSection = buildSection(flow: flow, chainAccounts: customAccounts, locale: locale)
+        let nativeSection = buildSection(
+            flow: flow,
+            chainAccounts: nativeAccounts,
+            title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages),
+            locale: locale
+        )
+        let customSection = buildSection(
+            flow: flow,
+            chainAccounts: customAccounts,
+            title: R.string.localizable.accountsWithChangedKey(preferredLanguages: locale.rLanguages),
+            locale: locale
+        )
 
-        return [nativeSection, customSection]
+        return [customSection, nativeSection]
     }
 }
 
