@@ -6,7 +6,7 @@ import RobinHood
 class BaseAccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
-    let request: MetaAccountCreationRequest
+    let request: MetaAccountImportMnemonicRequest
     let mnemonic: IRMnemonicProtocol
     let shuffledWords: [String]
     let accountOperationFactory: MetaAccountOperationFactoryProtocol
@@ -14,7 +14,7 @@ class BaseAccountConfirmInteractor {
     let operationManager: OperationManagerProtocol
 
     init(
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: IRMnemonicProtocol,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
@@ -47,18 +47,12 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
             return
         }
 
-        let operation = accountOperationFactory.newMetaAccountOperation(
-            request: request,
-            mnemonic: mnemonic
-        )
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
         createAccountUsingOperation(operation)
     }
 
     func skipConfirmation() {
-        let operation = accountOperationFactory.newMetaAccountOperation(
-            request: request,
-            mnemonic: mnemonic
-        )
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
         createAccountUsingOperation(operation)
     }
 }

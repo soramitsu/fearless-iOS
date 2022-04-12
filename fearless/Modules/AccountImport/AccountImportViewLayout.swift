@@ -50,6 +50,31 @@ final class AccountImportViewLayout: UIView {
 
     let sourceTypeViewContainer = UIView()
 
+    let chainView: BorderedSubtitleActionView = {
+        let view = BorderedSubtitleActionView()
+        view.fillColor = .clear
+        view.highlightedFillColor = .clear
+        view.strokeColor = R.color.colorGray()!
+        view.highlightedStrokeColor = R.color.colorGray()!
+        view.strokeWidth = Constants.strokeWidth
+        view.shadowOpacity = Constants.shadowOpacity
+        view.actionControl.contentView.titleLabel.textColor = R.color.colorLightGray()
+        view.actionControl.layoutType = BaseActionControl.LayoutType.flexible
+        view.actionControl.contentView.titleLabel.font = .p2Paragraph
+        view.actionControl.contentView.subtitleLabelView.textColor = R.color.colorWhite()
+        view.actionControl.contentView.subtitleLabelView.font = .p1Paragraph
+        view.actionControl.contentView.subtitleLabelView.numberOfLines = 1
+        view.actionControl.imageIndicator.image = R.image.iconDropDown()
+        view.disable()
+        return view
+    }()
+
+    let chainViewContainer: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
+
     let usernameTextField: CommonInputView = {
         let inputView = CommonInputView()
         inputView.backgroundView.strokeColor = R.color.colorGray()!
@@ -365,6 +390,8 @@ private extension AccountImportViewLayout {
         sourceTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .importSourcePickerTitle(preferredLanguages: locale.rLanguages)
 
+        chainView.actionControl.contentView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+
         usernameTextField.title = R.string.localizable
             .usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
 
@@ -425,6 +452,14 @@ private extension AccountImportViewLayout {
             make.leading.trailing.equalToSuperview()
         }
         contentView.stackView.addArrangedSubview(sourceTypeViewContainer)
+
+        chainViewContainer.addSubview(chainView)
+        chainView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview()
+        }
+        contentView.stackView.addArrangedSubview(chainViewContainer)
 
         uploadViewContainer.addSubview(uploadView)
         uploadView.snp.makeConstraints { make in

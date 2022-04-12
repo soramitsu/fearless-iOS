@@ -12,7 +12,7 @@ extension AddAccount {
         private var currentOperation: Operation?
 
         init(
-            request: MetaAccountCreationRequest,
+            request: MetaAccountImportMnemonicRequest,
             mnemonic: IRMnemonicProtocol,
             accountOperationFactory: MetaAccountOperationFactoryProtocol,
             accountRepository: AnyDataProviderRepository<MetaAccountModel>,

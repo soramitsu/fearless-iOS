@@ -4,7 +4,7 @@ import IrohaCrypto
 final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     func confirm(
         from view: AccountCreateViewProtocol?,
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: [String]
     ) {
         guard let accountConfirmation = AccountConfirmViewFactory
