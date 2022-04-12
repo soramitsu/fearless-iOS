@@ -10,7 +10,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
     let eventCenter: EventCenterProtocol
 
     init(
-        request: MetaAccountCreationRequest,
+        request: MetaAccountImportMnemonicRequest,
         mnemonic: IRMnemonicProtocol,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
