@@ -44,7 +44,7 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?)
 }
 
-protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable, DocumentPickerPresentable {
     func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
 
     func proceed(from view: AccountImportViewProtocol?)
@@ -64,11 +64,6 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
-
-    func presentSelectFilePicker(
-        from view: AccountImportViewProtocol?,
-        delegate: UIDocumentPickerDelegate
-    )
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
@@ -80,25 +75,5 @@ protocol AccountImportViewFactoryProtocol: AnyObject {
 extension AccountImportViewFactoryProtocol {
     static func createViewForOnboarding() -> AccountImportViewProtocol? {
         Self.createViewForOnboarding(.wallet(step: .first))
-    }
-}
-
-extension AccountImportWireframeProtocol {
-    func presentSelectFilePicker(
-        from view: AccountImportViewProtocol?,
-        delegate: UIDocumentPickerDelegate
-    ) {
-        let controller = UIDocumentPickerViewController(
-            documentTypes: ["public.json"],
-            in: .import
-        )
-        controller.delegate = delegate
-        controller.allowsMultipleSelection = false
-        controller.modalPresentationStyle = .formSheet
-        view?.controller.navigationController?.present(
-            controller,
-            animated: true,
-            completion: nil
-        )
     }
 }
