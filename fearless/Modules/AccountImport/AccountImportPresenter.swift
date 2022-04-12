@@ -917,7 +917,7 @@ extension AccountImportPresenter: UIDocumentPickerDelegate {
         interactor.deriveMetadataFromKeystore(jsonString)
     }
 
-    func showInvalidJsonAlert() {
+    private func showInvalidJsonAlert() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let title = R.string.localizable
             .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages)
