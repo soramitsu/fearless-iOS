@@ -75,7 +75,6 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             setupAccessoryButton()
         }
 
-        setupButtonsContainerView()
         setupContainerView()
         setupButtonsContainerView()
 
@@ -342,7 +341,6 @@ extension ExportGenericViewController {
         containerView.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(buttonsStackView.snp.top)
         }
 
         var inset = containerView.scrollView.contentInset
