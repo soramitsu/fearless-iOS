@@ -207,7 +207,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
                 }
                 filteredChains = chains.filter { chain in
                     managedMetaAccounts.contains { managedMetaAccount in
-                        managedMetaAccount.info.fetch(for: chain.accountRequest())?.chainId == chain.chainId
+                        managedMetaAccount.info.fetch(for: chain.accountRequest()) != nil
                     }
                 }
             }
