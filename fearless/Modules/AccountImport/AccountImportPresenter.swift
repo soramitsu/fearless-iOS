@@ -630,7 +630,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             applyCryptoTypeViewModel(data.cryptoType)
         }
         if case let .chain(model) = flow {
-            let viewModel = ImportChainViewModel(
+            let viewModel = UniqueChainViewModel(
                 text: model.chain.name,
                 icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
             )

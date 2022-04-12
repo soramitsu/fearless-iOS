@@ -201,7 +201,7 @@ private extension AccountImportViewController {
 }
 
 extension AccountImportViewController: AccountImportViewProtocol {
-    func setUniqueChain(viewModel: ImportChainViewModel) {
+    func setUniqueChain(viewModel: UniqueChainViewModel) {
         rootView.chainViewContainer.isHidden = false
         rootView.chainView.actionControl.contentView.subtitleLabelView.text = viewModel.text
         let imageView = rootView.chainView.actionControl.contentView.subtitleImageView

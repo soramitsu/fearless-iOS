@@ -2,8 +2,9 @@ import Foundation
 import SoraFoundation
 
 final class UsernameSetupPresenter {
-    weak var view: UsernameSetupViewProtocol?
-    var wireframe: UsernameSetupWireframeProtocol!
+    private weak var view: UsernameSetupViewProtocol?
+    private var wireframe: UsernameSetupWireframeProtocol!
+    private let flow: AccountCreateFlow
 
     private var viewModel: InputViewModelProtocol = {
         let inputHandling = InputHandler(
@@ -12,11 +13,29 @@ final class UsernameSetupPresenter {
         )
         return InputViewModel(inputHandler: inputHandling)
     }()
+
+    init(
+        wireframe: UsernameSetupWireframeProtocol,
+        flow: AccountCreateFlow,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.wireframe = wireframe
+        self.flow = flow
+        self.localizationManager = localizationManager
+    }
 }
 
 extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
-    func setup() {
-        view?.setInput(viewModel: viewModel)
+    func didLoad(view: UsernameSetupViewProtocol) {
+        view.bindUsername(viewModel: viewModel)
+        if case let .chain(model) = flow {
+            let uniqueChainModel = UniqueChainViewModel(
+                text: model.chain.name,
+                icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
+            )
+            view.bindUniqueChain(viewModel: uniqueChainModel)
+        }
+        self.view = view
     }
 
     func proceed() {

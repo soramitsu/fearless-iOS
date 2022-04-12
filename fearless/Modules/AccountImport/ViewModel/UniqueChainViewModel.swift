@@ -1,6 +1,6 @@
 import UIKit
 
-struct ImportChainViewModel {
+struct UniqueChainViewModel {
     let text: String
     let icon: ImageViewModelProtocol?
 }
