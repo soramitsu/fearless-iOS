@@ -11,7 +11,7 @@ protocol BalanceBuilderProtocol {
     func buildBalance(
         for accounts: [ManagedMetaAccountModel],
         chains: [ChainModel],
-        accountsInfos: [AccountId: [ChainModel.Id: AccountInfo]],
+        accountsInfos: [String: [ChainModel.Id: AccountInfo]],
         prices: [AssetModel.PriceId: PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     )
@@ -62,7 +62,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
     func buildBalance(
         for managetMetaAccounts: [ManagedMetaAccountModel],
         chains: [ChainModel],
-        accountsInfos: [AccountId: [ChainModel.Id: AccountInfo]],
+        accountsInfos: [String: [ChainModel.Id: AccountInfo]],
         prices: [AssetModel.PriceId: PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     ) {
@@ -76,7 +76,8 @@ final class BalanceBuilder: BalanceBuilderProtocol {
                 guard let accountId = metaAccount.fetch(for: chainModel.accountRequest())?.accountId else {
                     return .zero
                 }
-                let accountInfo = accountsInfos[accountId]?[chainModel.chainId]
+                let key = accountId.toHex() + chainModel.chainId
+                let accountInfo = accountsInfos[key]?[chainModel.chainId]
 
                 return getBalance(
                     for: chainModel,
