@@ -11,5 +11,5 @@ protocol ExportRestoreJsonWireframeProtocol: ExportGenericWireframeProtocol {
 }
 
 protocol ExportRestoreJsonViewFactoryProtocol {
-    static func createView(with model: RestoreJson) -> ExportGenericViewProtocol?
+    static func createView(with models: [RestoreJson]) -> ExportGenericViewProtocol?
 }

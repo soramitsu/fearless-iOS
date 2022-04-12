@@ -21,6 +21,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
     ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
         let mapper = ManagedMetaAccountMapper()
+        let localizationManager = LocalizationManager.shared
 
         let observer: CoreDataContextObservable<ManagedMetaAccountModel, CDMetaAccount> =
             CoreDataContextObservable(
@@ -42,7 +43,8 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: iconGenerator)
 
         let presenter = AccountManagementPresenter(
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            localizationManager: localizationManager
         )
 
         let anyObserver = AnyDataProviderRepositoryObservable(observer)
@@ -60,7 +62,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         presenter.wireframe = wireframe
         interactor.presenter = presenter
 
-        view.localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
 
         return view
     }

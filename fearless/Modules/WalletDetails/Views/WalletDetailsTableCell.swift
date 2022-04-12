@@ -120,7 +120,7 @@ class WalletDetailsTableCell: UITableViewCell {
             animated: false
         )
 
-        chainLabel.text = viewModel.chain.name
+        chainLabel.text = viewModel.chainAccount.chain.name
         addressLabel.text = viewModel.address
         if let addressImage = viewModel.addressImage {
             addressImageView.isHidden = false
@@ -129,7 +129,7 @@ class WalletDetailsTableCell: UITableViewCell {
             addressImageView.isHidden = true
         }
 
-        let chainSupported: Bool = viewModel.chain.isSupported
+        let chainSupported: Bool = viewModel.chainAccount.chain.isSupported
         addressStackView.isHidden = !chainSupported
         chainUnsupportedView.isHidden = chainSupported
         actionImageView.isHidden = !chainSupported
