@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class UsernameSetupPresenter {
     private weak var view: UsernameSetupViewProtocol?
-    private var wireframe: UsernameSetupWireframeProtocol!
+    private var wireframe: UsernameSetupWireframeProtocol
     private let flow: AccountCreateFlow
 
     private var viewModel: InputViewModelProtocol = {

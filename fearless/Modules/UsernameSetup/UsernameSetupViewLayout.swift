@@ -63,7 +63,7 @@ final class UsernameSetupViewLayout: UIView {
     let hintLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         return label
     }()
