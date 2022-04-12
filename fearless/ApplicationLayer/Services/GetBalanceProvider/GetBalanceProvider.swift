@@ -22,12 +22,12 @@ protocol GetBalanceProviderProtocol {
     )
 }
 
-final class GetBalanceProvider: GetBalanceProviderProtocol {
-    private enum GetBalanceModelType {
-        case metaAccount(MetaAccountModel)
-        case managedMetaAccounts([ManagedMetaAccountModel])
-    }
+enum GetBalanceModelType {
+    case metaAccount
+    case managedMetaAccounts
+}
 
+final class GetBalanceProvider: GetBalanceProviderProtocol {
     // MARK: - Deps
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
@@ -49,15 +49,19 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private lazy var accountInfos: [ChainModel.Id: AccountInfo] = [:]
     private lazy var accountsInfoForAccountId: [AccountId: [ChainModel.Id: AccountInfo]] = [:]
 
-    private var balanceForModel: GetBalanceModelType?
+    private let balanceForModel: GetBalanceModelType
+    private var metaAccount: MetaAccountModel?
+    private var managedMetaAccounts: [ManagedMetaAccountModel]?
 
     // MARK: - Constructor
 
     init(
+        balanceForModel: GetBalanceModelType,
         chainModelRepository: AnyDataProviderRepository<ChainModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationQueue: OperationQueue
     ) {
+        self.balanceForModel = balanceForModel
         self.chainModelRepository = chainModelRepository
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.operationQueue = operationQueue
@@ -69,7 +73,12 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         for metaAccount: MetaAccountModel,
         handler: GetBalanceMetaAccountHandler
     ) {
-        balanceForModel = .metaAccount(metaAccount)
+        guard case .metaAccount = balanceForModel else {
+            handleFailure()
+            return
+        }
+
+        self.metaAccount = metaAccount
         metaAccountBalanceHandler = handler
         fetchChainsAndSubscribeBalance()
     }
@@ -78,7 +87,12 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         for managedAccounts: [ManagedMetaAccountModel],
         handler: GetBalanceManagedMetaAccountsHandler
     ) {
-        balanceForModel = .managedMetaAccounts(managedAccounts)
+        guard case .managedMetaAccounts = balanceForModel else {
+            handleFailure()
+            return
+        }
+
+        managedMetaAccounts = managedAccounts
         managedMetaAccountsBalanceHandler = handler
         fetchChainsAndSubscribeBalance()
     }
@@ -86,13 +100,16 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     // MARK: - Private methods
 
     private func provideBalance() {
-        guard let balanceForModel = balanceForModel else {
-            return
-        }
         switch balanceForModel {
-        case let .metaAccount(metaAccountModel):
+        case .metaAccount:
+            guard let metaAccountModel = metaAccount else {
+                return
+            }
             buildBalance(for: metaAccountModel)
-        case let .managedMetaAccounts(managedMetaAccounts):
+        case .managedMetaAccounts:
+            guard let managedMetaAccounts = managedMetaAccounts else {
+                return
+            }
             buildBalance(for: managedMetaAccounts)
         }
     }
@@ -121,8 +138,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private func buildBalance(for managedMetaAccounts: [ManagedMetaAccountModel]) {
         guard
             !chainModels.isEmpty,
-            !prices.isEmpty,
-            accountsInfoForAccountId.keys.count == managedMetaAccounts.count
+            !prices.isEmpty
         else {
             return
         }
@@ -140,16 +156,19 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     }
 
     private func handleFailure() {
-        guard let balanceForModel = balanceForModel else {
-            return
-        }
         switch balanceForModel {
-        case let .metaAccount(metaAccount):
+        case .metaAccount:
+            guard let metaAccount = metaAccount else {
+                return
+            }
             metaAccountBalanceHandler?.handleMetaAccountBalance(
                 metaAccount: metaAccount,
                 balance: nil
             )
-        case let .managedMetaAccounts(managedMetaAccounts):
+        case .managedMetaAccounts:
+            guard let managedMetaAccounts = managedMetaAccounts else {
+                return
+            }
             managedMetaAccountsBalanceHandler?.handleManagedMetaAccountsBalance(
                 managedMetaAccounts: managedMetaAccounts
             )
@@ -171,17 +190,19 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            guard let balanceForModel = balanceForModel else {
-                return
-            }
-
             var filteredChains: [ChainModel]
             switch balanceForModel {
-            case let .metaAccount(metaAccountModel):
+            case .metaAccount:
+                guard let metaAccountModel = metaAccount else {
+                    return
+                }
                 filteredChains = chains.filter {
                     metaAccountModel.fetch(for: $0.accountRequest()) != nil
                 }
-            case let .managedMetaAccounts(managedMetaAccounts):
+            case .managedMetaAccounts:
+                guard let managedMetaAccounts = managedMetaAccounts else {
+                    return
+                }
                 filteredChains = chains.filter { chain in
                     managedMetaAccounts.contains { managedMetaAccount in
                         managedMetaAccount.info.fetch(for: chain.accountRequest())?.chainId == chain.chainId
@@ -215,18 +236,21 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     }
 
     private func subscribeToAccountInfo(chains: [ChainModel]) {
-        guard let balanceForModel = balanceForModel else {
-            return
-        }
         switch balanceForModel {
-        case let .metaAccount(metaAccountModel):
+        case .metaAccount:
+            guard let metaAccountModel = metaAccount else {
+                return
+            }
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: metaAccountModel
             )
             accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
 
-        case let .managedMetaAccounts(managedMetaAccounts):
+        case .managedMetaAccounts:
+            guard let managedMetaAccounts = managedMetaAccounts else {
+                return
+            }
             managedMetaAccounts.forEach { managedMetaAccount in
                 let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
                     walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -244,9 +268,6 @@ extension GetBalanceProvider: AccountInfoSubscriptionAdapterHandler {
         accountId: AccountId,
         chainId: ChainModel.Id
     ) {
-        guard let balanceForModel = balanceForModel else {
-            return
-        }
         switch balanceForModel {
         case .metaAccount:
             accountInfos[chainId] = try? result.get()

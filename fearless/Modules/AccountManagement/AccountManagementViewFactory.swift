@@ -55,6 +55,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         )
 
         let getBalanceProvider = GetBalanceProvider(
+            balanceForModel: .managedMetaAccounts,
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
