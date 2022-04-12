@@ -1919,6 +1919,7 @@
 		FA99420727FD8CA100D771E5 /* EducationStoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9941FD27FD8CA100D771E5 /* EducationStoriesPresenter.swift */; };
 		FA99420927FD8CEE00D771E5 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99420827FD8CEE00D771E5 /* UIFont+dynamicSize.swift */; };
 		FA99420B27FD8D3200D771E5 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99420A27FD8D3200D771E5 /* StartViewHelper.swift */; };
+		FA994233280435A400D771E5 /* EducationStoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA994232280435A400D771E5 /* EducationStoriesInteractor.swift */; };
 		FA99549727B255AB00CCC94B /* AddCustomNodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99549627B255AB00CCC94B /* AddCustomNodeViewModel.swift */; };
 		FA99549927B3609700CCC94B /* TableSectionTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99549827B3609700CCC94B /* TableSectionTitleView.swift */; };
 		FA99549B27B3B60700CCC94B /* WalletNameChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99549A27B3B60700CCC94B /* WalletNameChanged.swift */; };
@@ -3916,6 +3917,7 @@
 		FA9941FD27FD8CA100D771E5 /* EducationStoriesPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesPresenter.swift; sourceTree = "<group>"; };
 		FA99420827FD8CEE00D771E5 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
 		FA99420A27FD8D3200D771E5 /* StartViewHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		FA994232280435A400D771E5 /* EducationStoriesInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesInteractor.swift; sourceTree = "<group>"; };
 		FA99549627B255AB00CCC94B /* AddCustomNodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModel.swift; sourceTree = "<group>"; };
 		FA99549827B3609700CCC94B /* TableSectionTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableSectionTitleView.swift; sourceTree = "<group>"; };
 		FA99549A27B3B60700CCC94B /* WalletNameChanged.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletNameChanged.swift; sourceTree = "<group>"; };
@@ -6172,6 +6174,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				FA994232280435A400D771E5 /* EducationStoriesInteractor.swift */,
 				FA9941F327FD8C9F00D771E5 /* EducationStoriesAssembly.swift */,
 				FA9941FD27FD8CA100D771E5 /* EducationStoriesPresenter.swift */,
 				FA9941F527FD8CA000D771E5 /* EducationStoriesRouter.swift */,
@@ -12023,6 +12026,7 @@
 				7FC8C78DD68304B05B501F83 /* NodeSelectionProtocols.swift in Sources */,
 				1F6A32CBF7B43390AF412B1A /* NodeSelectionWireframe.swift in Sources */,
 				C3D915637D26E807B85957CF /* NodeSelectionPresenter.swift in Sources */,
+				FA994233280435A400D771E5 /* EducationStoriesInteractor.swift in Sources */,
 				3F56B7F6B2E4A1FDC496C4E5 /* NodeSelectionInteractor.swift in Sources */,
 				7258EEAE786D51F57ECE1E4F /* NodeSelectionViewController.swift in Sources */,
 				8F0B3FE843167777A1D3771C /* NodeSelectionViewLayout.swift in Sources */,

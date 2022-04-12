@@ -28,6 +28,8 @@ final class RootPresenter {
             wireframe.showOnboarding(on: window)
         case .broken:
             wireframe.showBroken(on: window)
+        case .educationStories:
+            wireframe.showEducationStories(on: window)
         }
     }
 }

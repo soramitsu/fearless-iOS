@@ -9,7 +9,8 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let keychain = Keychain()
         let startViewHelper = StartViewHelper(
             keystore: keychain,
-            selectedWallerSettings: SelectedWalletSettings.shared
+            selectedWallerSettings: SelectedWalletSettings.shared,
+            userDefaultsStorage: SettingsManager.shared
         )
 
         let languageMigrator = SelectedLanguageMigrator(

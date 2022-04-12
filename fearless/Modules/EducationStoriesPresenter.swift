@@ -7,21 +7,24 @@ final class EducationStoriesPresenter {
 
     private weak var view: EducationStoriesViewProtocol?
     private let router: EducationStoriesRouterProtocol
+    private let interactor: EducationStoriesInteractorInput
 
     private let storiesFactory: EducationStoriesFactory
-    private let userDefaultsStorage: SettingsManagerProtocol
+    private let startViewHelper: StartViewHelperProtocol
 
     // MARK: - Constructors
 
     init(
-        userDefaultsStorage: SettingsManagerProtocol,
+        interactor: EducationStoriesInteractorInput,
         storiesFactory: EducationStoriesFactory,
         router: EducationStoriesRouterProtocol,
+        startViewHelper: StartViewHelperProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
-        self.userDefaultsStorage = userDefaultsStorage
+        self.interactor = interactor
         self.storiesFactory = storiesFactory
         self.router = router
+        self.startViewHelper = startViewHelper
         self.localizationManager = localizationManager
     }
 
@@ -42,18 +45,28 @@ final class EducationStoriesPresenter {
 extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
     func didLoad(view: EducationStoriesViewProtocol) {
         self.view = view
+        interactor.setup(with: self)
 
         loadSlides()
     }
 
     func didCloseStories() {
-        userDefaultsStorage.set(
-            value: false,
-            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
-        )
-        router.showMain()
+        interactor.didCloseStories()
+
+        switch startViewHelper.startView() {
+        case .pin:
+            router.showLocalAuthentication()
+        case .pinSetup:
+            router.showPincodeSetup()
+        case .login:
+            router.showOnboarding()
+        case .educationStories, .broken:
+            break
+        }
     }
 }
+
+extension EducationStoriesPresenter: EducationStoriesInteractorOutput {}
 
 // MARK: - Localizable
 
