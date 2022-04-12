@@ -612,7 +612,7 @@ private extension AccountImportPresenter {
         let request = UniqueChainImportRequest(
             source: source,
             username: data.username,
-            cryptoType: data.selectedCryptoType,
+            cryptoType: data.chain.isEthereumBased ? .ecdsa : data.selectedCryptoType,
             meta: data.meta,
             chain: data.chain
         )

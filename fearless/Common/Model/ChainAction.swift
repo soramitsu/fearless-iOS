@@ -20,7 +20,7 @@ enum ChainAction {
         case .polkascan, .subscan:
             return R.image.iconOpenWeb()
         case .replace:
-            return R.image.iconRetry()
+            return R.image.iconReplace()
         }
     }
 

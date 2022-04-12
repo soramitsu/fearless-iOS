@@ -416,7 +416,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             let query = try getQuery(
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,
-                cryptoType: request.isEthereum ? .ecdsa : request.cryptoType,
+                cryptoType: request.cryptoType,
                 ethereumBased: request.isEthereum
             )
 
@@ -459,7 +459,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             let query = try getQuery(
                 seedSource: .seed(seed),
                 derivationPath: request.derivationPath,
-                cryptoType: request.isEthereum ? .ecdsa : request.cryptoType,
+                cryptoType: request.cryptoType,
                 ethereumBased: request.isEthereum
             )
             let accountId = request.isEthereum ?
