@@ -18,7 +18,8 @@ final class ChainModelMapper {
             chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
-            priceId: entity.priceId
+            priceId: entity.priceId,
+            price: entity.price as Decimal?
         )
     }
 
@@ -118,6 +119,7 @@ final class ChainModelMapper {
         assetEntity.icon = model.asset.icon
         assetEntity.precision = Int16(bitPattern: model.asset.precision)
         assetEntity.priceId = model.asset.priceId
+        assetEntity.price = model.asset.price as NSDecimalNumber?
 
         entity.asset = assetEntity
     }
@@ -347,7 +349,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: Set(customNodes),
-            iosMinAppVersion: entity.minimalAppVersion
+            iosMinAppVersion: entity.minimalAppVersion,
+            unused: entity.unused
         )
 
         let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
@@ -382,6 +385,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.hasCrowdloans = model.hasCrowdloans
         entity.isOrml = model.isOrml
         entity.minimalAppVersion = model.iosMinAppVersion
+
+        if let unused = model.unused {
+            entity.unused = unused
+        }
 
         updateEntityChainAssets(for: entity, from: model, context: context)
 

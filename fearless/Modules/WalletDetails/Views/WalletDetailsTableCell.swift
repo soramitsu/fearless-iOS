@@ -75,6 +75,14 @@ class WalletDetailsTableCell: UITableViewCell {
         return imageView
     }()
 
+    private var accountMissingHintView = UIFactory.default.createHintView()
+
+    private var addMissingAccountButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(R.color.colorAccent(), for: .normal)
+        return button
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -109,7 +117,9 @@ class WalletDetailsTableCell: UITableViewCell {
     }
 
     private func applyLocalization() {
-        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported()
+        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(preferredLanguages: locale.rLanguages)
+        accountMissingHintView.titleLabel.text = R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
+        addMissingAccountButton.setTitle(R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages), for: .normal)
     }
 
     func bind(to viewModel: WalletDetailsCellViewModel) {
@@ -133,6 +143,9 @@ class WalletDetailsTableCell: UITableViewCell {
         addressStackView.isHidden = !chainSupported
         chainUnsupportedView.isHidden = chainSupported
         actionImageView.isHidden = !chainSupported
+
+        addMissingAccountButton.isHidden = !viewModel.accountMissing
+        accountMissingHintView.isHidden = !viewModel.accountMissing
 
         setDeactivated(!chainSupported)
     }
@@ -174,6 +187,7 @@ private extension WalletDetailsTableCell {
         actionImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.actionImageSize)
         }
+        mainStackView.addArrangedSubview(addMissingAccountButton)
 
         infoStackView.addArrangedSubview(chainLabel)
         infoStackView.addArrangedSubview(addressStackView)
@@ -187,6 +201,8 @@ private extension WalletDetailsTableCell {
         }
         addressStackView.addArrangedSubview(addressLabel)
         infoStackView.addArrangedSubview(chainUnsupportedView)
+
+        infoStackView.addArrangedSubview(accountMissingHintView)
     }
 
     @objc

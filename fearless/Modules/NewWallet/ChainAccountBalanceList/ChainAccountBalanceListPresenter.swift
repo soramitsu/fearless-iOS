@@ -8,6 +8,7 @@ final class ChainAccountBalanceListPresenter {
     let interactor: ChainAccountBalanceListInteractorInputProtocol
     let viewModelFactory: ChainAccountBalanceListViewModelFactoryProtocol
 
+    private var sortedKeys: [String]?
     private var chainModels: [ChainModel] = []
 
     private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
@@ -33,7 +34,8 @@ final class ChainAccountBalanceListPresenter {
             chains: chainModels,
             locale: selectedLocale,
             accountInfos: accountInfos,
-            prices: prices
+            prices: prices,
+            sortedKeys: sortedKeys
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
@@ -47,6 +49,10 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
 
     func didPullToRefreshOnAssetsTable() {
         interactor.refresh()
+    }
+
+    func didTapManageAssetsButton() {
+        wireframe.showManageAssets(from: view)
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
@@ -88,6 +94,9 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {
         selectedMetaAccount = account
+
+        sortedKeys = account.assetKeysOrder
+        provideViewModel()
     }
 
     func didTapAccountButton() {

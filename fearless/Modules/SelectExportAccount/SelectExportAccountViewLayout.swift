@@ -65,7 +65,7 @@ final class SelectExportAccountViewLayout: UIView {
 
     func configureProfileInfo(
         title: String,
-        subtitle: String
+        subtitle: String?
     ) {
         profileInfoView.title = title
         profileInfoView.subtitle = subtitle

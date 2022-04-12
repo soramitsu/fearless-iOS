@@ -8,6 +8,65 @@ enum AccountImportContext: String {
     case cryptoType
 }
 
+struct UniqueChainModel {
+    let meta: MetaAccountModel
+    let chain: ChainModel
+}
+
+enum AccountImportFlow {
+    case chain(model: UniqueChainModel)
+    case wallet(step: AccountCreationStep)
+
+    var isEthereumFlow: Bool {
+        switch self {
+        case let .chain(model):
+            return model.chain.isEthereumBased
+        case let .wallet(step):
+            switch step {
+            case .first:
+                return false
+            case .second:
+                return true
+            }
+        }
+    }
+
+    func provideFirstStepDataIfNeed() -> AccountCreationStep.FirstStepData? {
+        switch self {
+        case let .wallet(step):
+            switch step {
+            case let .second(data):
+                return data
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
+}
+
+struct AccountImportRequestData {
+    let selectedSourceType: AccountImportSource
+    let source: String
+    let username: String
+    let ethereumDerivationPath: String
+    let substrateDerivationPath: String
+    let selectedCryptoType: CryptoType
+    let password: String
+}
+
+struct UniqueChainImportRequestData {
+    let selectedSourceType: AccountImportSource
+    let source: String
+    let username: String
+    let derivationPath: String
+    let selectedCryptoType: CryptoType
+    let password: String
+    let meta: MetaAccountModel
+    let chain: ChainModel
+}
+
 struct PreferredData {
     let sourceType: AccountImportSource?
     let source: String?
@@ -50,7 +109,7 @@ final class AccountImportPresenter: NSObject {
     var wireframe: AccountImportWireframeProtocol
     var interactor: AccountImportInteractorInputProtocol
 
-    private let step: AccountCreationStep
+    private let flow: AccountImportFlow
     private(set) var metadata: MetaAccountImportMetadata?
 
     private(set) var selectedSourceType: AccountImportSource?
@@ -67,13 +126,15 @@ final class AccountImportPresenter: NSObject {
     init(
         wireframe: AccountImportWireframeProtocol,
         interactor: AccountImportInteractorInputProtocol,
-        step: AccountCreationStep = .first
+        flow: AccountImportFlow
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
-        self.step = step
+        self.flow = flow
     }
+}
 
+private extension AccountImportPresenter {
     func applySourceType(
         _ value: String = "",
         preferredData: PreferredData? = nil
@@ -122,13 +183,12 @@ final class AccountImportPresenter: NSObject {
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .seed:
             var placeholder: String
-            switch step {
-            case .first:
-                placeholder = R.string.localizable
-                    .accountImportSubstrateRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
-            case .second:
+            if flow.isEthereumFlow {
                 placeholder = R.string.localizable
                     .accountImportEthereumRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
+            } else {
+                placeholder = R.string.localizable
+                    .accountImportSubstrateRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
             }
             let inputHandler = InputHandler(
                 value: value,
@@ -203,13 +263,12 @@ final class AccountImportPresenter: NSObject {
             view?.show(chainType: .both)
         case .seed:
             applyCryptoTypeViewModel(cryptoType)
-            switch step {
-            case .first:
-                applySubstrateDerivationPathViewModel()
-                view?.show(chainType: .substrate)
-            case .second:
+            if flow.isEthereumFlow {
                 applyEthereumDerivationPathViewModel()
                 view?.show(chainType: .ethereum)
+            } else {
+                applySubstrateDerivationPathViewModel()
+                view?.show(chainType: .substrate)
             }
         case .keystore:
             applyCryptoTypeViewModel(cryptoType)
@@ -398,114 +457,166 @@ final class AccountImportPresenter: NSObject {
         wireframe.present(viewModel: alertViewModel, style: .alert, from: view)
     }
 
-    func createAccount(
-        sourceViewModel: InputViewModelProtocol,
-        username: String,
-        substrateDerivationPath: String,
-        ethereumDerivationPath: String,
-        selectedCryptoType: CryptoType,
-        password: String,
-        selectedSourceType: AccountImportSource
-    ) {
-        switch selectedSourceType {
-        case .mnemonic:
-            let mnemonic = sourceViewModel.inputHandler.normalizedValue
-
-            let request = MetaAccountImportMnemonicRequest(
-                mnemonic: mnemonic,
-                username: username,
-                substrateDerivationPath: substrateDerivationPath,
-                ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+    func createAccount(data: AccountImportRequestData) {
+        switch flow {
+        case let .chain(model):
+            let derivationPath = model.chain.isEthereumBased ? data.ethereumDerivationPath : data.substrateDerivationPath
+            let data = UniqueChainImportRequestData(
+                selectedSourceType: data.selectedSourceType,
+                source: data.source,
+                username: data.username,
+                derivationPath: derivationPath,
+                selectedCryptoType: data.selectedCryptoType,
+                password: data.password,
+                meta: model.meta,
+                chain: model.chain
             )
-            interactor.importAccountWithMnemonic(request: request)
-        case .seed:
-            switch step {
-            case .first:
-                askIfNeedAddEthereum { [weak self] in
-                    guard let self = self else { return }
-                    let data = AccountCreationStep.FirstStepData(
-                        sourceType: .seed,
-                        source: sourceViewModel.inputHandler.value,
-                        username: username,
-                        password: password,
-                        cryptoType: selectedCryptoType,
-                        derivationPath: substrateDerivationPath
-                    )
-                    self.wireframe.showSecondStep(from: self.view, with: data)
-                } closeHandler: { [weak self] in
-                    guard let self = self else { return }
-                    let seed = sourceViewModel.inputHandler.value
-                    let request = MetaAccountImportSeedRequest(
-                        substrateSeed: seed,
-                        ethereumSeed: nil,
-                        username: username,
-                        substrateDerivationPath: substrateDerivationPath,
-                        ethereumDerivationPath: nil,
-                        cryptoType: selectedCryptoType
-                    )
-                    self.interactor.importAccountWithSeed(request: request)
-                }
-            case let .second(data):
-                let seed = sourceViewModel.inputHandler.value
-                let request = MetaAccountImportSeedRequest(
-                    substrateSeed: data.source,
-                    ethereumSeed: seed,
-                    username: username,
-                    substrateDerivationPath: substrateDerivationPath,
-                    ethereumDerivationPath: ethereumDerivationPath,
-                    cryptoType: selectedCryptoType
-                )
-                interactor.importAccountWithSeed(request: request)
-            }
-        case .keystore:
-            switch step {
-            case .first:
-                askIfNeedAddEthereum { [weak self] in
-                    guard let self = self else { return }
-                    let data = AccountCreationStep.FirstStepData(
-                        sourceType: .keystore,
-                        source: sourceViewModel.inputHandler.value,
-                        username: username,
-                        password: password,
-                        cryptoType: selectedCryptoType,
-                        derivationPath: substrateDerivationPath
-                    )
-                    self.wireframe.showSecondStep(from: self.view, with: data)
-                } closeHandler: { [weak self] in
-                    guard let self = self else { return }
-                    let keystore = sourceViewModel.inputHandler.value
-                    let request = MetaAccountImportKeystoreRequest(
-                        substrateKeystore: keystore,
-                        ethereumKeystore: nil,
-                        substratePassword: password,
-                        ethereumPassword: nil,
-                        username: username,
-                        cryptoType: selectedCryptoType
-                    )
-                    self.interactor.importAccountWithKeystore(request: request)
-                }
-            case let .second(data):
-                let keystore = sourceViewModel.inputHandler.value
-                let request = MetaAccountImportKeystoreRequest(
-                    substrateKeystore: data.source,
-                    ethereumKeystore: keystore,
-                    substratePassword: data.password,
-                    ethereumPassword: password,
-                    username: username,
-                    cryptoType: data.cryptoType
-                )
-
-                interactor.importAccountWithKeystore(request: request)
-            }
+            importUniqueChain(data: data)
+        case let .wallet(step):
+            importMetaAccount(data: data, step: step)
         }
+    }
+
+    func importMetaAccount(data: AccountImportRequestData, step: AccountCreationStep) {
+        switch (data.selectedSourceType, step) {
+        case (.mnemonic, _):
+            let mnemonicString = data.source
+            guard let mnemonic = interactor.createMnemonicFromString(mnemonicString) else {
+                didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
+                return
+            }
+            let sourceData = MetaAccountImportRequestSource.MnemonicImportRequestData(
+                mnemonic: mnemonic,
+                substrateDerivationPath: data.substrateDerivationPath,
+                ethereumDerivationPath: data.ethereumDerivationPath
+            )
+            let source = MetaAccountImportRequestSource.mnemonic(data: sourceData)
+            let request = MetaAccountImportRequest(
+                source: source,
+                username: data.username,
+                cryptoType: data.selectedCryptoType
+            )
+            interactor.importMetaAccount(request: request)
+        case (.seed, .first):
+            askIfNeedAddEthereum { [weak self] in
+                self?.showSecondStep(data: data)
+            } closeHandler: { [weak self] in
+                let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
+                    substrateSeed: data.source,
+                    ethereumSeed: nil,
+                    substrateDerivationPath: data.substrateDerivationPath,
+                    ethereumDerivationPath: nil
+                )
+                let source = MetaAccountImportRequestSource.seed(data: sourceData)
+                let request = MetaAccountImportRequest(
+                    source: source,
+                    username: data.username,
+                    cryptoType: data.selectedCryptoType
+                )
+                self?.interactor.importMetaAccount(request: request)
+            }
+        case (.keystore, .first):
+            askIfNeedAddEthereum { [weak self] in
+                self?.showSecondStep(data: data)
+            } closeHandler: { [weak self] in
+                let sourceData = MetaAccountImportRequestSource.KeystoreImportRequestData(
+                    substrateKeystore: data.source,
+                    ethereumKeystore: nil,
+                    substratePassword: data.password,
+                    ethereumPassword: nil
+                )
+                let source = MetaAccountImportRequestSource.keystore(data: sourceData)
+                let request = MetaAccountImportRequest(
+                    source: source,
+                    username: data.username,
+                    cryptoType: data.selectedCryptoType
+                )
+                self?.interactor.importMetaAccount(request: request)
+            }
+        case let (.seed, .second(previousStepData)):
+            let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
+                substrateSeed: previousStepData.source,
+                ethereumSeed: data.source,
+                substrateDerivationPath: previousStepData.derivationPath,
+                ethereumDerivationPath: data.ethereumDerivationPath
+            )
+            let source = MetaAccountImportRequestSource.seed(data: sourceData)
+            let request = MetaAccountImportRequest(
+                source: source,
+                username: previousStepData.username,
+                cryptoType: previousStepData.cryptoType
+            )
+            interactor.importMetaAccount(request: request)
+        case let (.keystore, .second(previousStepData)):
+            let sourceData = MetaAccountImportRequestSource.KeystoreImportRequestData(
+                substrateKeystore: previousStepData.source,
+                ethereumKeystore: data.source,
+                substratePassword: previousStepData.password,
+                ethereumPassword: data.password
+            )
+            let source = MetaAccountImportRequestSource.keystore(data: sourceData)
+            let request = MetaAccountImportRequest(
+                source: source,
+                username: previousStepData.username,
+                cryptoType: previousStepData.cryptoType
+            )
+            interactor.importMetaAccount(request: request)
+        }
+    }
+
+    func showSecondStep(data: AccountImportRequestData) {
+        let data = AccountCreationStep.FirstStepData(
+            sourceType: data.selectedSourceType,
+            source: data.source,
+            username: data.username,
+            password: data.password,
+            cryptoType: data.selectedCryptoType,
+            derivationPath: data.substrateDerivationPath
+        )
+        wireframe.showSecondStep(from: view, with: data)
+    }
+
+    func importUniqueChain(data: UniqueChainImportRequestData) {
+        var source: UniqueChainImportRequestSource
+        switch data.selectedSourceType {
+        case .mnemonic:
+            guard let mnemonic = interactor.createMnemonicFromString(data.source) else {
+                didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
+                return
+            }
+            let sourceData = UniqueChainImportRequestSource.MnemonicImportRequestData(
+                mnemonic: mnemonic,
+                derivationPath: data.derivationPath
+            )
+            source = UniqueChainImportRequestSource.mnemonic(data: sourceData)
+        case .seed:
+            let sourceData = UniqueChainImportRequestSource.SeedImportRequestData(
+                seed: data.source,
+                derivationPath: data.derivationPath
+            )
+            source = UniqueChainImportRequestSource.seed(data: sourceData)
+        case .keystore:
+            let sourceData = UniqueChainImportRequestSource.KeystoreImportRequestData(
+                keystore: data.source,
+                password: data.password
+            )
+            source = UniqueChainImportRequestSource.keystore(data: sourceData)
+        }
+        let request = UniqueChainImportRequest(
+            source: source,
+            username: data.username,
+            cryptoType: data.selectedCryptoType,
+            meta: data.meta,
+            chain: data.chain
+        )
+        interactor.importUniqueChain(request: request)
     }
 }
 
 extension AccountImportPresenter: AccountImportPresenterProtocol {
     func setup() {
         interactor.setup()
-        if case let .second(data) = step {
+        if let data = flow.provideFirstStepDataIfNeed() {
             selectedSourceType = data.sourceType
             selectedCryptoType = data.cryptoType
             applySourceType(preferredData: PreferredData(stepData: data))
@@ -613,39 +724,26 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
     }
 
-    func resolveEmptyDerivationPath(
-        sourceViewModel: InputViewModelProtocol,
-        usernameViewModel: InputViewModelProtocol,
-        selectedCryptoType: CryptoType,
-        selectedSourceType: AccountImportSource
-    ) {
+    func resolveEmptyDerivationPath(data: AccountImportRequestData) {
         let message = R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         let replaceActionTitle = R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         let cancelActionTitle = R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         let replaceAction = AlertPresentableAction(title: replaceActionTitle) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
-            self?.createAccount(
-                sourceViewModel: sourceViewModel,
-                username: usernameViewModel.inputHandler.value,
-                substrateDerivationPath: (self?.substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
-                ethereumDerivationPath: "",
-                selectedCryptoType: selectedCryptoType,
-                password: self?.passwordViewModel?.inputHandler.value ?? "",
-                selectedSourceType: selectedSourceType
+            let updatedData = AccountImportRequestData(
+                selectedSourceType: data.selectedSourceType,
+                source: data.source,
+                username: data.username,
+                ethereumDerivationPath: data.ethereumDerivationPath,
+                substrateDerivationPath: data.substrateDerivationPath,
+                selectedCryptoType: data.selectedCryptoType,
+                password: data.password
             )
+            self?.createAccount(data: updatedData)
         }
         let cancelAction = AlertPresentableAction(title: cancelActionTitle, style: .cancel) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
-            self?.createAccount(
-                sourceViewModel: sourceViewModel,
-                username: usernameViewModel.inputHandler.value,
-                substrateDerivationPath: (self?.substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
-                ethereumDerivationPath: (self?.ethereumDerivationPathViewModel?.inputHandler.value)
-                    .nonEmpty(or: DerivationPathConstants.defaultEthereum),
-                selectedCryptoType: selectedCryptoType,
-                password: self?.passwordViewModel?.inputHandler.value ?? "",
-                selectedSourceType: selectedSourceType
-            )
+            self?.createAccount(data: data)
         }
         let alertViewModel = AlertPresentableViewModel(
             title: nil,
@@ -702,26 +800,21 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             )
             return
         }
-        if ethereumDerivationPathViewModel?.inputHandler.value == DerivationPathConstants.zerosEthereum {
-            resolveEmptyDerivationPath(
-                sourceViewModel: sourceViewModel,
-                usernameViewModel: usernameViewModel,
-                selectedCryptoType: selectedCryptoType,
-                selectedSourceType: selectedSourceType
-            )
-            return
-        }
-
-        createAccount(
-            sourceViewModel: sourceViewModel,
+        let data = AccountImportRequestData(
+            selectedSourceType: selectedSourceType,
+            source: sourceViewModel.inputHandler.normalizedValue,
             username: usernameViewModel.inputHandler.value,
-            substrateDerivationPath: (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
             ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
                 .nonEmpty(or: DerivationPathConstants.defaultEthereum),
+            substrateDerivationPath: (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: ""),
             selectedCryptoType: selectedCryptoType,
-            password: passwordViewModel?.inputHandler.value ?? "",
-            selectedSourceType: selectedSourceType
+            password: passwordViewModel?.inputHandler.value ?? ""
         )
+        if ethereumDerivationPathViewModel?.inputHandler.value == DerivationPathConstants.zerosEthereum {
+            resolveEmptyDerivationPath(data: data)
+            return
+        }
+        createAccount(data: data)
     }
 }
 

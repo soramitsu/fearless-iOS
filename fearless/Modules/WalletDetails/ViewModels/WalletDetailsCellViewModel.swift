@@ -5,5 +5,6 @@ struct WalletDetailsCellViewModel {
     let chainAccount: ChainAccountInfo
     let addressImage: UIImage?
     let address: String?
+    let accountMissing: Bool
     let actionsAvailable: Bool
 }

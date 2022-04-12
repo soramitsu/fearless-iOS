@@ -14,23 +14,17 @@ class BaseAccountImportInteractor {
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
-    let supportedNetworks: [Chain]
-    let defaultNetwork: Chain
 
     init(
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol,
-        supportedNetworks: [Chain],
-        defaultNetwork: Chain
+        keystoreImportService: KeystoreImportServiceProtocol
     ) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
-        self.supportedNetworks = supportedNetworks
-        self.defaultNetwork = defaultNetwork
     }
 
     private func setupKeystoreImportObserver() {
@@ -60,8 +54,6 @@ class BaseAccountImportInteractor {
         let metadata = MetaAccountImportMetadata(
             availableSources: AccountImportSource.allCases,
             defaultSource: .mnemonic,
-            availableNetworks: supportedNetworks,
-            defaultNetwork: defaultNetwork,
             availableCryptoTypes: CryptoType.allCases,
             defaultCryptoType: .sr25519
         )
@@ -78,34 +70,79 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         setupKeystoreImportObserver()
     }
 
-    func importAccountWithMnemonic(request: MetaAccountImportMnemonicRequest) {
-        guard let mnemonic = try? mnemonicCreator.mnemonic(fromList: request.mnemonic) else {
-            presenter.didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
-            return
+    func importMetaAccount(request: MetaAccountImportRequest) {
+        let operation: BaseOperation<MetaAccountModel>
+        switch request.source {
+        case let .mnemonic(data):
+            let request = MetaAccountImportMnemonicRequest(
+                mnemonic: data.mnemonic,
+                username: request.username,
+                substrateDerivationPath: data.substrateDerivationPath,
+                ethereumDerivationPath: data.ethereumDerivationPath,
+                cryptoType: request.cryptoType
+            )
+            operation = accountOperationFactory.newMetaAccountOperation(request: request)
+        case let .seed(data):
+            let request = MetaAccountImportSeedRequest(
+                substrateSeed: data.substrateSeed,
+                ethereumSeed: data.ethereumSeed,
+                username: request.username,
+                substrateDerivationPath: data.substrateDerivationPath,
+                ethereumDerivationPath: data.ethereumDerivationPath,
+                cryptoType: request.cryptoType
+            )
+            operation = accountOperationFactory.newMetaAccountOperation(request: request)
+        case let .keystore(data):
+            let request = MetaAccountImportKeystoreRequest(
+                substrateKeystore: data.substrateKeystore,
+                ethereumKeystore: data.ethereumKeystore,
+                substratePassword: data.substratePassword,
+                ethereumPassword: data.ethereumPassword,
+                username: request.username,
+                cryptoType: request.cryptoType
+            )
+            operation = accountOperationFactory.newMetaAccountOperation(request: request)
         }
-
-        let creationRequest = MetaAccountCreationRequest(
-            username: request.username,
-            substrateDerivationPath: request.substrateDerivationPath,
-            substrateCryptoType: request.cryptoType,
-            ethereumDerivationPath: request.ethereumDerivationPath
-        )
-
-        let accountOperation = accountOperationFactory.newMetaAccountOperation(
-            request: creationRequest,
-            mnemonic: mnemonic
-        )
-
-        importAccountUsingOperation(accountOperation)
-    }
-
-    func importAccountWithSeed(request: MetaAccountImportSeedRequest) {
-        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
         importAccountUsingOperation(operation)
     }
 
-    func importAccountWithKeystore(request: MetaAccountImportKeystoreRequest) {
-        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
+    func importUniqueChain(request: UniqueChainImportRequest) {
+        let operation: BaseOperation<MetaAccountModel>
+        switch request.source {
+        case let .mnemonic(data):
+            let request = ChainAccountImportMnemonicRequest(
+                mnemonic: data.mnemonic,
+                username: request.username,
+                derivationPath: data.derivationPath,
+                cryptoType: request.cryptoType,
+                isEthereum: request.chain.isEthereumBased,
+                meta: request.meta,
+                chainId: request.chain.chainId
+            )
+            operation = accountOperationFactory.importChainAccountOperation(request: request)
+        case let .seed(data):
+            let request = ChainAccountImportSeedRequest(
+                seed: data.seed,
+                username: request.username,
+                derivationPath: data.derivationPath,
+                cryptoType: request.cryptoType,
+                isEthereum: request.chain.isEthereumBased,
+                meta: request.meta,
+                chainId: request.chain.chainId
+            )
+            operation = accountOperationFactory.importChainAccountOperation(request: request)
+        case let .keystore(data):
+            let request = ChainAccountImportKeystoreRequest(
+                keystore: data.keystore,
+                password: data.password,
+                username: request.username,
+                cryptoType: request.cryptoType,
+                isEthereum: request.chain.isEthereumBased,
+                meta: request.meta,
+                chainId: request.chain.chainId
+            )
+            operation = accountOperationFactory.importChainAccountOperation(request: request)
+        }
         importAccountUsingOperation(operation)
     }
 
@@ -116,6 +153,10 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
             let info = try? AccountImportJsonFactory().createInfo(from: definition) {
             presenter.didSuggestKeystore(text: keystore, preferredInfo: info)
         }
+    }
+
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol? {
+        try? mnemonicCreator.mnemonic(fromList: mnemonicString)
     }
 }
 
