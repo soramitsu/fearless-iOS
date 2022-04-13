@@ -36,7 +36,9 @@ final class ManageAssetsPresenter {
             accountInfos: accountInfos,
             sortedKeys: sortedKeys,
             assetIdsEnabled: assetIdsEnabled,
-            cellsDelegate: self, filter: filter
+            cellsDelegate: self,
+            filter: filter,
+            locale: localizationManager?.selectedLocale
         )
 
         self.viewModel = viewModel
