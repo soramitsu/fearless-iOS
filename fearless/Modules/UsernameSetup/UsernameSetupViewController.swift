@@ -69,10 +69,11 @@ private extension UsernameSetupViewController {
     func setupActions() {
         rootView.nextButton.addTarget(self, action: #selector(actionNext), for: .touchUpInside)
         rootView.usernameTextField.animatedInputField.delegate = self
-    }
-
-    @objc func actionNext() {
-        presenter.proceed()
+        rootView.usernameTextField.animatedInputField.addTarget(
+            self,
+            action: #selector(textFieldDidChange),
+            for: .editingChanged
+        )
     }
 
     func updateActionButton() {
@@ -82,6 +83,18 @@ private extension UsernameSetupViewController {
 
         let isEnabled = viewModel.inputHandler.completed
         rootView.nextButton.set(enabled: isEnabled)
+    }
+
+    @objc func actionNext() {
+        presenter.proceed()
+    }
+
+    @objc func textFieldDidChange(_ sender: UITextField) {
+        if viewModel?.inputHandler.value != sender.text {
+            sender.text = viewModel?.inputHandler.value
+        }
+
+        updateActionButton()
     }
 }
 
