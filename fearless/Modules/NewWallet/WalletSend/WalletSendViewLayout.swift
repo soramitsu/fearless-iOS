@@ -102,7 +102,7 @@ final class WalletSendViewLayout: UIView {
         )
 
         addressView.title = accountViewModel.title
-        addressView.iconImage = icon
+        addressView.iconImage = icon ?? R.image.iconBirdGreen()
         addressView.subtitle = accountViewModel.name
     }
 
