@@ -47,7 +47,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         super.viewDidAppear(animated)
 
         if shouldUpdateOnAppearance {
-            presenter.refresh(shouldReset: false)
+            presenter.refresh(shouldReset: true)
         } else {
             shouldUpdateOnAppearance = true
         }
@@ -57,6 +57,8 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+
+        didStopLoading()
 
         presenter.putOffline()
     }
@@ -111,7 +113,9 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     }
 
     @objc func actionRefresh() {
-        presenter.refresh(shouldReset: false)
+        presenter.refresh(shouldReset: true)
+
+        rootView.tableView.refreshControl?.endRefreshing()
     }
 
     @objc func actionSelectChain() {
