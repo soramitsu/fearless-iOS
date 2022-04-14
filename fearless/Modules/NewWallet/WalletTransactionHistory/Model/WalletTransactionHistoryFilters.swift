@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-class WalletTransactionHistoryFilter: SwitchFilterItem {
+struct WalletTransactionHistoryFilter: SwitchFilterItem {
     enum HistoryFilterType: String {
         case transfer
         case reward
@@ -21,21 +21,35 @@ class WalletTransactionHistoryFilter: SwitchFilterItem {
         var title: String {
             switch self {
             case .transfer:
-                return R.string.localizable.transferTitle(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages)
+                return R.string.localizable.transferTitle(
+                    preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                )
             case .reward:
-                return R.string.localizable.walletFiltersRewardsAndSlashes(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages)
+                return R.string.localizable.walletFiltersRewardsAndSlashes(
+                    preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                )
             case .other:
-                return R.string.localizable.walletFiltersExtrinsics(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages)
+                return R.string.localizable.walletFiltersExtrinsics(
+                    preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                )
             }
         }
     }
 
     var type: HistoryFilterType
+    var id: String
+    var title: String
+    var selected: Bool
 
     init(type: HistoryFilterType, selected: Bool = false) {
         self.type = type
+        self.selected = selected
+        id = type.id
+        title = type.title
+    }
 
-        super.init(id: type.id, title: type.title, selected: selected)
+    mutating func reset() {
+        selected = true
     }
 
     static func defaultFilters() -> [WalletTransactionHistoryFilter] {
