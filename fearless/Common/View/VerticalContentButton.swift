@@ -50,6 +50,14 @@ class VerticalContentButton: UIButton {
         return size
     }
 
+    override var isEnabled: Bool {
+        didSet {
+            isEnabled
+                ? setTitleColor(R.color.colorWhite(), for: .normal)
+                : setTitleColor(R.color.colorGray(), for: .normal)
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         centerTitleLabel()
