@@ -1,15 +1,8 @@
 import Foundation
 
-class BaseFilterItem {
-    var id: String
-    var title: String
+protocol BaseFilterItem {
+    var id: String { get }
+    var title: String { get }
 
-    init(id: String, title: String) {
-        self.id = id
-        self.title = title
-    }
-
-    func reset() {
-        assertionFailure("This method MUST be overriden by subclass")
-    }
+    mutating func reset()
 }
