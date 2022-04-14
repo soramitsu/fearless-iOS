@@ -146,10 +146,20 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         rootView.mnemonicView?.bind(words: mnemonic, columnsCount: 2)
     }
 
-    func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel) {
-        let title = "\(model.title) | \(model.subtitle)"
+    func set(chainType: AccountCreateChainType) {
+        rootView.set(chainType: chainType)
+    }
+
+    func setSelectedSubstrateCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>) {
+        let title = "\(model.underlyingViewModel.title) | \(model.underlyingViewModel.subtitle)"
 
         rootView.substrateCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
+
+        if model.selectable {
+            rootView.substrateCryptoTypeView.enable()
+        } else {
+            rootView.substrateCryptoTypeView.disable()
+        }
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
         rootView.substrateCryptoTypeView.actionControl.invalidateLayout()

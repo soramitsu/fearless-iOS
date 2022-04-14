@@ -11,7 +11,7 @@ protocol UsernameSetupPresenterProtocol: AnyObject {
 }
 
 protocol UsernameSetupWireframeProtocol: AlertPresentable, NetworkTypeSelectionPresentable {
-    func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel)
+    func proceed(from view: UsernameSetupViewProtocol?, flow: AccountCreateFlow, model: UsernameSetupModel)
 }
 
 protocol UsernameSetupViewFactoryProtocol: AnyObject {

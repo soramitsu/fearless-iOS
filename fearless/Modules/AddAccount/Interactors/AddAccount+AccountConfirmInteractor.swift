@@ -12,8 +12,7 @@ extension AddAccount {
         private var currentOperation: Operation?
 
         init(
-            request: MetaAccountImportMnemonicRequest,
-            mnemonic: IRMnemonicProtocol,
+            flow: AccountConfirmFlow,
             accountOperationFactory: MetaAccountOperationFactoryProtocol,
             accountRepository: AnyDataProviderRepository<MetaAccountModel>,
             operationManager: OperationManagerProtocol,
@@ -24,8 +23,7 @@ extension AddAccount {
             self.eventCenter = eventCenter
 
             super.init(
-                request: request,
-                mnemonic: mnemonic,
+                flow: flow,
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: operationManager

@@ -210,6 +210,20 @@ final class AccountCreateViewLayout: UIView {
 }
 
 extension AccountCreateViewLayout {
+    func set(chainType: AccountCreateChainType) {
+        substrateDerivationContainerView.isHidden = !chainType.includeSubstrate
+        substrateDerivationPathField.isHidden = !chainType.includeSubstrate
+        substrateDerivationPathImage.isHidden = !chainType.includeSubstrate
+        substrateDerivationPathLabel.isHidden = !chainType.includeSubstrate
+        substrateCryptoTypeView.isHidden = !chainType.includeSubstrate
+
+        ethereumDerivationContainerView.isHidden = !chainType.includeEthereum
+        ethereumDerivationPathField.isHidden = !chainType.includeEthereum
+        ethereumDerivationPathImage.isHidden = !chainType.includeEthereum
+        ethereumDerivationPathLabel.isHidden = !chainType.includeEthereum
+        ethereumCryptoTypeView.isHidden = !chainType.includeEthereum
+    }
+
     func handleKeyboard(frame: CGRect) {
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)

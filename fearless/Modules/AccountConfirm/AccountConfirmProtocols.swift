@@ -27,15 +27,12 @@ protocol AccountConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
 
 protocol AccountConfirmViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(
-        request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol?
     static func createViewForAdding(
-        request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol?
     static func createViewForSwitch(
-        request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol?
 }

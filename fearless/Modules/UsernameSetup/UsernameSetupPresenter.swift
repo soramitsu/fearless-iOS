@@ -44,8 +44,9 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
         let rLanguages = localizationManager?.selectedLocale.rLanguages
         let actionTitle = R.string.localizable.commonOk(preferredLanguages: rLanguages)
         let action = AlertPresentableAction(title: actionTitle) { [weak self] in
+            guard let self = self else { return }
             let model = UsernameSetupModel(username: username)
-            self?.wireframe.proceed(from: self?.view, model: model)
+            self.wireframe.proceed(from: self.view, flow: self.flow, model: model)
         }
 
         let title = R.string.localizable.commonNoScreenshotTitle(preferredLanguages: rLanguages)

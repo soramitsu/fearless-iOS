@@ -6,12 +6,10 @@ import RobinHood
 
 final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     static func createViewForOnboarding(
-        request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAccountConfirmInteractor(
-            for: request,
-            mnemonic: mnemonic
+            flow: flow
         ) else {
             return nil
         }
@@ -22,12 +20,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     static func createViewForAdding(
-        request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
-            for: request,
-            mnemonic: mnemonic
+            flow: flow
         ) else {
             return nil
         }
@@ -38,12 +34,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     static func createViewForSwitch(
-        request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
-            for: request,
-            mnemonic: mnemonic
+            flow: flow
         ) else {
             return nil
         }
@@ -77,15 +71,8 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     private static func createAccountConfirmInteractor(
-        for request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> BaseAccountConfirmInteractor? {
-        guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: mnemonic.joined(separator: " "))
-        else {
-            return nil
-        }
-
         let keychain = Keychain()
         let settings = SelectedWalletSettings.shared
 
@@ -94,8 +81,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let interactor = AccountConfirmInteractor(
-            request: request,
-            mnemonic: mnemonic,
+            flow: flow,
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,
             settings: settings,
@@ -107,15 +93,8 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     private static func createAddAccountConfirmInteractor(
-        for request: MetaAccountImportMnemonicRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     ) -> BaseAccountConfirmInteractor? {
-        guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: mnemonic.joined(separator: " "))
-        else {
-            return nil
-        }
-
         let keychain = Keychain()
 
         let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
@@ -124,8 +103,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
         let interactor = AddAccount
             .AccountConfirmInteractor(
-                request: request,
-                mnemonic: mnemonic,
+                flow: flow,
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,

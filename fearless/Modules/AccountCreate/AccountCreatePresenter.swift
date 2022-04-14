@@ -11,6 +11,7 @@ final class AccountCreatePresenter {
     var interactor: AccountCreateInteractorInputProtocol
 
     let usernameSetup: UsernameSetupModel
+    let flow: AccountCreateFlow
 
     private var mnemonic: [String]?
     private var selectedCryptoType: CryptoType = .sr25519
@@ -20,16 +21,22 @@ final class AccountCreatePresenter {
     init(
         usernameSetup: UsernameSetupModel,
         wireframe: AccountCreateWireframeProtocol,
-        interactor: AccountCreateInteractorInputProtocol
+        interactor: AccountCreateInteractorInputProtocol,
+        flow: AccountCreateFlow
     ) {
         self.usernameSetup = usernameSetup
         self.wireframe = wireframe
         self.interactor = interactor
+        self.flow = flow
     }
 
     private func applySubstrateCryptoTypeViewModel() {
         let viewModel = createCryptoTypeViewModel(selectedCryptoType)
-        view?.setSelectedSubstrateCrypto(model: viewModel)
+        let selectableModel = SelectableViewModel(
+            underlyingViewModel: viewModel,
+            selectable: flow.supportsSelection
+        )
+        view?.setSelectedSubstrateCrypto(model: selectableModel)
     }
 
     private func applyEthereumCryptoTypeViewModel() {
@@ -128,10 +135,16 @@ final class AccountCreatePresenter {
 extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
         interactor.setup()
-
+        switch flow {
+        case .wallet:
+            view?.set(chainType: .both)
+        case let .chain(model):
+            selectedCryptoType = CryptoType(rawValue: UInt8(model.meta.substrateCryptoType)) ?? .sr25519
+            view?.set(chainType: model.chain.isEthereumBased ? .ethereum : .substrate)
+        }
         applySubstrateCryptoTypeViewModel()
-        applyEthereumCryptoTypeViewModel()
         applySubstrateDerivationPathViewModel()
+        applyEthereumCryptoTypeViewModel()
         applyEthereumDerivationPathViewModel()
     }
 
@@ -208,20 +221,35 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             presentDerivationPathError(.ecdsa)
             return
         }
-        let request = MetaAccountImportMnemonicRequest(
-            mnemonic: mnemonic,
-            username: usernameSetup.username,
-            substrateDerivationPath: substrateViewModel.inputHandler.value,
-            ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
-                .nonEmpty(or: DerivationPathConstants.defaultEthereum),
-            cryptoType: selectedCryptoType
-        )
-
-        wireframe.confirm(
-            from: view,
-            request: request,
-            mnemonic: mnemonic.allWords()
-        )
+        let ethereumDerivationPath = (ethereumDerivationPathViewModel?.inputHandler.value)
+            .nonEmpty(or: DerivationPathConstants.defaultEthereum)
+        let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
+        switch flow {
+        case .wallet:
+            let request = MetaAccountImportMnemonicRequest(
+                mnemonic: mnemonic,
+                username: usernameSetup.username,
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: ethereumDerivationPath,
+                cryptoType: selectedCryptoType
+            )
+            wireframe.confirm(
+                from: view,
+                flow: .wallet(request)
+            )
+        case let .chain(model):
+            let derivationPath = model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivationPath
+            let request = ChainAccountImportMnemonicRequest(
+                mnemonic: mnemonic,
+                username: usernameSetup.username,
+                derivationPath: derivationPath,
+                cryptoType: selectedCryptoType,
+                isEthereum: model.chain.isEthereumBased,
+                meta: model.meta,
+                chainId: model.chain.chainId
+            )
+            wireframe.confirm(from: view, flow: .chain(request))
+        }
     }
 }
 
