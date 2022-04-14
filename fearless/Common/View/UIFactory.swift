@@ -418,7 +418,7 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView {
-        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: filled)
+        let view = createDetailsView(with: .largeIconTitleSubtitle, filled: filled)
         view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
 
         switch mode {
