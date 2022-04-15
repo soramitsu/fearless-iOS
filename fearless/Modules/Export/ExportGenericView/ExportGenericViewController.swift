@@ -232,6 +232,8 @@ extension ExportGenericViewController {
             for: .touchUpInside
         )
 
+        button.imageWithTitleView?.title = mainOptionTitle?.value(for: selectedLocale)
+
         mainActionButton = button
     }
 
