@@ -22,4 +22,8 @@ final class ExportRestoreJsonWireframe: ExportRestoreJsonWireframeProtocol {
 
         view?.controller.navigationController?.present(actionsView, animated: true)
     }
+
+    func back(view: ExportGenericViewProtocol?) {
+        view?.controller.navigationController?.popViewController(animated: true)
+    }
 }

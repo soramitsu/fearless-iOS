@@ -142,7 +142,7 @@ class WalletDetailsTableCell: UITableViewCell {
         let chainSupported: Bool = viewModel.chainAccount.chain.isSupported
         addressStackView.isHidden = !chainSupported
         chainUnsupportedView.isHidden = chainSupported
-        actionImageView.isHidden = !chainSupported
+        actionImageView.isHidden = !chainSupported || !viewModel.actionsAvailable
 
         addMissingAccountButton.isHidden = !viewModel.accountMissing
         accountMissingHintView.isHidden = !viewModel.accountMissing
