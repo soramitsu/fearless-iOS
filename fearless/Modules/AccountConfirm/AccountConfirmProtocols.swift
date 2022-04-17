@@ -3,13 +3,15 @@ protocol AccountConfirmViewProtocol: ControllerBackedProtocol {
 }
 
 protocol AccountConfirmPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: AccountConfirmViewProtocol)
     func requestWords()
     func confirm(words: [String])
     func skip()
 }
 
 protocol AccountConfirmInteractorInputProtocol: AnyObject {
+    var flow: AccountConfirmFlow? { get }
+
     func requestWords()
     func confirm(words: [String])
     func skipConfirmation()
@@ -22,7 +24,7 @@ protocol AccountConfirmInteractorOutputProtocol: AnyObject {
 }
 
 protocol AccountConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed(from view: AccountConfirmViewProtocol?)
+    func proceed(from view: AccountConfirmViewProtocol?, flow: AccountConfirmFlow?)
 }
 
 protocol AccountConfirmViewFactoryProtocol: AnyObject {

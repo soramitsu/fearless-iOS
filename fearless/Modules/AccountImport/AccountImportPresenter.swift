@@ -854,7 +854,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didCompleteAccountImport() {
-        wireframe.proceed(from: view)
+        wireframe.proceed(from: view, flow: flow)
     }
 
     func didReceiveAccountImport(error: Error) {

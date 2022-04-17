@@ -50,22 +50,23 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         for interactor: BaseAccountConfirmInteractor,
         wireframe: AccountConfirmWireframeProtocol
     ) -> AccountConfirmViewProtocol? {
+        let localizationManager = LocalizationManager.shared
+
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
         view.skipButtonTitle = LocalizableResource { locale in
             R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
         }
 
-        let presenter = AccountConfirmPresenter()
+        view.localizationManager = localizationManager
+
+        let presenter = AccountConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            localizationManager: localizationManager
+        )
 
         view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
-
-        let localizationManager = LocalizationManager.shared
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
 
         return view
     }

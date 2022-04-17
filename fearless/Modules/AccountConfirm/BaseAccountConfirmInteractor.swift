@@ -6,7 +6,7 @@ import RobinHood
 class BaseAccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
-    let flow: AccountConfirmFlow
+    let flow: AccountConfirmFlow?
     let shuffledWords: [String]
     let accountOperationFactory: MetaAccountOperationFactoryProtocol
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -36,14 +36,14 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
     }
 
     func confirm(words: [String]) {
-        guard words == flow.mnemonic.allWords() else {
+        guard let confirmFlow = flow, words == confirmFlow.mnemonic.allWords() else {
             presenter.didReceive(
                 words: shuffledWords,
                 afterConfirmationFail: true
             )
             return
         }
-        switch flow {
+        switch confirmFlow {
         case let .wallet(request):
             createAccount(request)
         case let .chain(request):
@@ -52,7 +52,10 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
     }
 
     func skipConfirmation() {
-        switch flow {
+        guard let confirmFlow = flow else {
+            return
+        }
+        switch confirmFlow {
         case let .wallet(request):
             createAccount(request)
         case let .chain(request):
