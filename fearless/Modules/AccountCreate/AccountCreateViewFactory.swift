@@ -42,7 +42,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
 
     static func createViewForUsername(
         model: UsernameSetupModel,
-        flow: AccountCreateFlow = .wallet,
+        flow: AccountCreateFlow,
         wireframe: AccountCreateWireframeProtocol
     ) -> AccountCreateViewProtocol? {
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())

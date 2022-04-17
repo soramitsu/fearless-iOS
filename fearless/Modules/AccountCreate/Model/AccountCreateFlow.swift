@@ -28,4 +28,13 @@ enum AccountCreateFlow {
             return false
         }
     }
+
+    var predefinedUsername: String {
+        switch self {
+        case .wallet:
+            return ""
+        case let .chain(model):
+            return model.meta.name
+        }
+    }
 }

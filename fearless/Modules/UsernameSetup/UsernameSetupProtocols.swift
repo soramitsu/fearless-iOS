@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol UsernameSetupViewProtocol: ControllerBackedProtocol {
-    func bindUsername(viewModel: InputViewModelProtocol)
+    func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>)
     func bindUniqueChain(viewModel: UniqueChainViewModel)
 }
 

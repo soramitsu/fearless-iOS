@@ -125,11 +125,10 @@ extension UsernameSetupViewController: AnimatedTextFieldDelegate {
 }
 
 extension UsernameSetupViewController: UsernameSetupViewProtocol {
-    func bindUsername(viewModel: InputViewModelProtocol) {
-        self.viewModel = viewModel
-        rootView.usernameTextField.text = viewModel.inputHandler.value
-        viewModel.inputHandler.value.isEmpty ?
-            rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
+    func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>) {
+        self.viewModel = viewModel.underlyingViewModel
+        rootView.usernameTextField.text = viewModel.underlyingViewModel.inputHandler.value
+        viewModel.selectable ? rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
         updateActionButton()
     }
 
