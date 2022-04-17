@@ -91,14 +91,11 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     }
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let createController = AccountCreateViewFactory.createViewForOnboarding(
-            model: UsernameSetupModel(username: uniqueChainModel.meta.name),
-            flow: .chain(model: uniqueChainModel)
-        )?.controller else {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(createController, animated: true)
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {

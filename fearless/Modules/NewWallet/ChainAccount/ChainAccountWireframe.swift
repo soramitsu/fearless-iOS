@@ -147,6 +147,45 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             }
         }
     }
+
+    func showUniqueChainSourceSelection(
+        from view: ControllerBackedProtocol?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        let actionsView = ModalPickerFactory.createPickerForList(
+            items,
+            callback: callback,
+            context: nil
+        )
+
+        guard let actionsView = actionsView else {
+            return
+        }
+
+        view?.controller.navigationController?.present(actionsView, animated: true)
+    }
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let createController = AccountCreateViewFactory.createViewForOnboarding(
+            model: UsernameSetupModel(username: uniqueChainModel.meta.name),
+            flow: .chain(model: uniqueChainModel)
+        )?.controller else {
+            return
+        }
+        view?.controller.hidesBottomBarWhenPushed = true
+        view?.controller.navigationController?.pushViewController(createController, animated: true)
+    }
+
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(
+            .chain(model: uniqueChainModel)
+        )?.controller else {
+            return
+        }
+        view?.controller.hidesBottomBarWhenPushed = true
+        view?.controller.navigationController?.pushViewController(importController, animated: true)
+    }
 }
 
 private extension ChainAccountWireframe {
