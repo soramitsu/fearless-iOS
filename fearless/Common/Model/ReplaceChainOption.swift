@@ -6,7 +6,12 @@ enum ReplaceChainOption: CaseIterable {
     case `import`
 
     var icon: UIImage? {
-        R.image.iconReplace()
+        switch self {
+        case .create:
+            return R.image.iconAdd()
+        case .import:
+            return R.image.iconReplace()
+        }
     }
 
     func localizableTitle(for locale: Locale) -> String {
