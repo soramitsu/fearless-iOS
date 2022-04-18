@@ -1,6 +1,7 @@
 import SoraFoundation
 protocol ChainAccountBalanceListViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(state: ChainAccountBalanceListViewState)
+    func didReceive(locale: Locale)
 }
 
 protocol ChainAccountBalanceListPresenterProtocol: AnyObject {
