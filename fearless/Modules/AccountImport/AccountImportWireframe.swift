@@ -14,12 +14,20 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
         }
     }
 
-    func proceed(from _: AccountImportViewProtocol?) {
-        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
-            return
-        }
+    func proceed(from _: AccountImportViewProtocol?, flow: AccountImportFlow) {
+        switch flow {
+        case .wallet:
+            guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+                return
+            }
+            rootAnimator.animateTransition(to: pincodeViewController)
+        case .chain:
+            guard let mainViewController = MainTabBarViewFactory.createView()?.controller else {
+                return
+            }
 
-        rootAnimator.animateTransition(to: pincodeViewController)
+            rootAnimator.animateTransition(to: mainViewController)
+        }
     }
 
     func presentSourceTypeSelection(

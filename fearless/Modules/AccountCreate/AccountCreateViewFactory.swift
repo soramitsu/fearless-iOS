@@ -5,12 +5,14 @@ import SoraKeystore
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     static func createViewForOnboarding(
-        model: UsernameSetupModel
+        model: UsernameSetupModel,
+        flow: AccountCreateFlow
     ) -> AccountCreateViewProtocol? {
         let wireframe = AccountCreateWireframe()
 
         return createViewForUsername(
             model: model,
+            flow: flow,
             wireframe: wireframe
         )
     }
@@ -22,6 +24,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
 
         return createViewForUsername(
             model: model,
+            flow: .wallet,
             wireframe: wireframe
         )
     }
@@ -32,19 +35,22 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let wireframe = SwitchAccount.AccountCreateWireframe()
         return createViewForUsername(
             model: model,
+            flow: .wallet,
             wireframe: wireframe
         )
     }
 
     static func createViewForUsername(
         model: UsernameSetupModel,
+        flow: AccountCreateFlow,
         wireframe: AccountCreateWireframeProtocol
     ) -> AccountCreateViewProtocol? {
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
         let presenter = AccountCreatePresenter(
             usernameSetup: model,
             wireframe: wireframe,
-            interactor: interactor
+            interactor: interactor,
+            flow: flow
         )
         let view = AccountCreateViewController(presenter: presenter)
 

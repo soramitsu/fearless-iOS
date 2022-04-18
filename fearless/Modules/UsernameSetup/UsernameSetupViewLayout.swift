@@ -146,5 +146,6 @@ private extension UsernameSetupViewLayout {
         nextButton.invalidateLayout()
         hintLabel.text = R.string.localizable.usernameSetupHint(preferredLanguages: locale.rLanguages)
         usernameTextField.title = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
+        chainView.actionControl.contentView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
     }
 }

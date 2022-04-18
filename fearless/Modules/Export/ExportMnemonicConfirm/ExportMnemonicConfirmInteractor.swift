@@ -14,6 +14,10 @@ final class ExportMnemonicConfirmInteractor {
 }
 
 extension ExportMnemonicConfirmInteractor: AccountConfirmInteractorInputProtocol {
+    var flow: AccountConfirmFlow? {
+        nil
+    }
+
     func requestWords() {
         presenter.didReceive(words: shuffledWords, afterConfirmationFail: false)
     }

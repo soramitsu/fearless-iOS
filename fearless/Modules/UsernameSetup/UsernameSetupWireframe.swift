@@ -1,8 +1,15 @@
 import Foundation
 
 final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
-    func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel) {
-        guard let accountCreation = AccountCreateViewFactory.createViewForOnboarding(model: model) else {
+    func proceed(
+        from view: UsernameSetupViewProtocol?,
+        flow: AccountCreateFlow,
+        model: UsernameSetupModel
+    ) {
+        guard let accountCreation = AccountCreateViewFactory.createViewForOnboarding(
+            model: model,
+            flow: flow
+        ) else {
             return
         }
 
