@@ -201,6 +201,8 @@ final class AccountCreateViewLayout: UIView {
 
         setupLayout()
         configure()
+
+        backgroundColor = .black
     }
 
     @available(*, unavailable)
