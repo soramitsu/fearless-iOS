@@ -29,6 +29,10 @@ final class ChainAccountBalanceListPresenter {
     }
 
     private func provideViewModel() {
+        guard let selectedMetaAccount = selectedMetaAccount else {
+            return
+        }
+
         let viewModel = viewModelFactory.buildChainAccountBalanceListViewModel(
             selectedMetaAccount: selectedMetaAccount,
             chains: chainModels,
