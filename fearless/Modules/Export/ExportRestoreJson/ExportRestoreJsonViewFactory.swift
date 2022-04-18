@@ -19,7 +19,10 @@ final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
             accessoryTitle: accessoryActionTitle
         )
 
-        let presenter = ExportRestoreJsonPresenter(models: models)
+        let presenter = ExportRestoreJsonPresenter(
+            models: models,
+            localizationManager: LocalizationManager.shared
+        )
         presenter.wireframe = ExportRestoreJsonWireframe()
         presenter.view = view
 
