@@ -45,6 +45,8 @@ final class ChainAccountBalanceListPresenter {
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProtocol {
     func setup() {
         interactor.setup()
+
+        view?.didReceive(locale: selectedLocale)
     }
 
     func didPullToRefreshOnAssetsTable() {
@@ -106,6 +108,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
 extension ChainAccountBalanceListPresenter: Localizable {
     func applyLocalization() {
+        view?.didReceive(locale: selectedLocale)
+
         if let view = view, view.isSetup {
             provideViewModel()
         }

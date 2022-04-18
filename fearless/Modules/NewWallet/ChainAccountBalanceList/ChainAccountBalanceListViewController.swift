@@ -85,6 +85,10 @@ extension ChainAccountBalanceListViewController: ChainAccountBalanceListViewProt
 
         applyState(state)
     }
+
+    func didReceive(locale: Locale) {
+        rootView.locale = locale
+    }
 }
 
 extension ChainAccountBalanceListViewController: UITableViewDataSource {
