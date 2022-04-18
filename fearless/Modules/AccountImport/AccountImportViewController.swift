@@ -170,7 +170,8 @@ private extension AccountImportViewController {
     }
 
     @objc func substrateTextFieldEditingChanged() {
-        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text {
+        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text,
+           !(rootView.substrateDerivationPathField.text?.isEmpty ?? true) {
             rootView.substrateDerivationPathField.text = substrateDerivationPathModel?.inputHandler.value
         }
 
@@ -178,7 +179,8 @@ private extension AccountImportViewController {
     }
 
     @objc func ethereumTextFieldEditingChanged() {
-        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text {
+        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text,
+           !(rootView.ethereumDerivationPathField.text?.isEmpty ?? true) {
             rootView.ethereumDerivationPathField.text = ethereumDerivationPathModel?.inputHandler.value
         }
 
