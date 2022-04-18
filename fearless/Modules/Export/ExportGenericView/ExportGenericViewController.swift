@@ -93,6 +93,12 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setupBackButton()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        presenter.didLoadView()
+    }
+
     private func setupLocalization() {
         guard let locale = localizationManager?.selectedLocale else {
             return
@@ -231,6 +237,8 @@ extension ExportGenericViewController {
             action: #selector(actionMain),
             for: .touchUpInside
         )
+
+        button.imageWithTitleView?.title = mainOptionTitle?.value(for: selectedLocale)
 
         mainActionButton = button
     }
