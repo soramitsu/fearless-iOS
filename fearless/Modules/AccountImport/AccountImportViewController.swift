@@ -4,6 +4,10 @@ import SoraFoundation
 import SnapKit
 
 final class AccountImportViewController: UIViewController, ViewHolder {
+    enum Constants {
+        static let imageSize = CGSize(width: 15, height: 15)
+    }
+
     typealias RootViewType = AccountImportViewLayout
 
     private let presenter: AccountImportPresenterProtocol
@@ -209,7 +213,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
         let imageView = rootView.chainView.actionControl.contentView.subtitleImageView
         viewModel.icon?.loadImage(
             on: imageView,
-            targetSize: imageView.frame.size,
+            targetSize: Constants.imageSize,
             animated: true
         )
     }

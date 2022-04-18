@@ -3,6 +3,10 @@ import SoraFoundation
 import SoraUI
 
 final class UsernameSetupViewController: UIViewController, ViewHolder {
+    enum Constants {
+        static let imageSize = CGSize(width: 15, height: 15)
+    }
+
     typealias RootViewType = UsernameSetupViewLayout
 
     private let presenter: UsernameSetupPresenterProtocol
@@ -125,11 +129,10 @@ extension UsernameSetupViewController: AnimatedTextFieldDelegate {
 }
 
 extension UsernameSetupViewController: UsernameSetupViewProtocol {
-    func bindUsername(viewModel: InputViewModelProtocol) {
-        self.viewModel = viewModel
-        rootView.usernameTextField.text = viewModel.inputHandler.value
-        viewModel.inputHandler.value.isEmpty ?
-            rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
+    func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>) {
+        self.viewModel = viewModel.underlyingViewModel
+        rootView.usernameTextField.text = viewModel.underlyingViewModel.inputHandler.value
+        viewModel.selectable ? rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
         updateActionButton()
     }
 
@@ -139,7 +142,7 @@ extension UsernameSetupViewController: UsernameSetupViewProtocol {
         let imageView = rootView.chainView.actionControl.contentView.subtitleImageView
         viewModel.icon?.loadImage(
             on: imageView,
-            targetSize: imageView.frame.size,
+            targetSize: Constants.imageSize,
             animated: true
         )
     }

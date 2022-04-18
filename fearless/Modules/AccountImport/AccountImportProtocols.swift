@@ -50,7 +50,7 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
 protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable, DocumentPickerPresentable {
     func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
 
-    func proceed(from view: AccountImportViewProtocol?)
+    func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow)
 
     func presentSourceTypeSelection(
         from view: AccountImportViewProtocol?,

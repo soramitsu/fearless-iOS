@@ -1,46 +1,35 @@
 import SoraUI
+import SnapKit
 
 final class SubtitleContentView: UIView {
+    enum Constants {
+        static let verticalSpacing: CGFloat = 3.0
+        static let horizontalSubtitleSpacing: CGFloat = 8.0
+        static let imageSize: CGFloat = 15.0
+    }
+
     let titleLabel = UILabel()
     let subtitleImageView = UIImageView()
     let subtitleLabelView = UILabel()
+    let subtitleStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.distribution = .fill
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         configure()
+        setupLayout()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
 
         configure()
-    }
-
-    private func configure() {
-        if titleLabel.superview == nil {
-            addSubview(titleLabel)
-        }
-
-        if subtitleImageView.superview == nil {
-            addSubview(subtitleImageView)
-        }
-
-        if subtitleLabelView.superview == nil {
-            addSubview(subtitleLabelView)
-        }
-    }
-
-    var verticalSpacing: CGFloat = 3.0 {
-        didSet {
-            invalidateLayout()
-        }
-    }
-
-    var horizontalSubtitleSpacing: CGFloat = 8.0 {
-        didSet {
-            invalidateLayout()
-        }
+        setupLayout()
     }
 
     func invalidateLayout() {
@@ -48,65 +37,39 @@ final class SubtitleContentView: UIView {
         setNeedsLayout()
     }
 
-    // MARK: Overriding
-
     override var intrinsicContentSize: CGSize {
         let titleSize = titleLabel.intrinsicContentSize
         var subtitleSize = subtitleLabelView.intrinsicContentSize
 
-        if let image = subtitleImageView.image {
-            subtitleSize.width += image.size.width + horizontalSubtitleSpacing
-            subtitleSize.height = max(image.size.height, subtitleSize.height)
-        }
+        subtitleSize.width += Constants.imageSize + Constants.horizontalSubtitleSpacing
+        subtitleSize.height = max(Constants.imageSize, subtitleSize.height)
 
         let width = max(titleSize.width, subtitleSize.width)
-        let height = titleSize.height + verticalSpacing + subtitleSize.height
+        let height = titleSize.height + Constants.verticalSpacing + subtitleSize.height
 
         return CGSize(width: width, height: height)
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    private func configure() {
+        addSubview(titleLabel)
 
-        let titleSize = titleLabel.intrinsicContentSize
+        subtitleStackView.addArrangedSubview(subtitleImageView)
+        subtitleStackView.addArrangedSubview(subtitleLabelView)
+        addSubview(subtitleStackView)
+    }
 
-        titleLabel.frame = CGRect(
-            x: bounds.minX,
-            y: bounds.minY,
-            width: min(titleSize.width, bounds.width),
-            height: titleSize.height
-        )
-
-        let subtitleLabelSize = subtitleLabelView.intrinsicContentSize
-        var subtitleHeight = subtitleLabelSize.height
-
-        var originX = bounds.minX
-        var availableWidth = bounds.size.width
-
-        if let image = subtitleImageView.image {
-            subtitleHeight = max(image.size.height, subtitleHeight)
-
-            let imageOrigin = titleLabel.frame.maxY + verticalSpacing +
-                subtitleHeight / 2.0 - image.size.height / 2.0
-            subtitleImageView.frame = CGRect(
-                x: originX,
-                y: imageOrigin,
-                width: image.size.width,
-                height: image.size.height
-            )
-
-            originX = subtitleImageView.frame.maxX + horizontalSubtitleSpacing
-            availableWidth -= originX
+    func setupLayout() {
+        subtitleImageView.snp.makeConstraints { make in
+            make.size.equalTo(Constants.imageSize)
         }
 
-        let labelOrigin = titleLabel.frame.maxY + verticalSpacing +
-            subtitleHeight / 2.0 - subtitleLabelSize.height / 2.0
+        titleLabel.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
 
-        subtitleLabelView.frame = CGRect(
-            x: originX,
-            y: labelOrigin,
-            width: availableWidth,
-            height: subtitleLabelSize.height
-        )
+        subtitleStackView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(titleLabel.snp.bottom).offset(Constants.verticalSpacing)
+        }
     }
 }

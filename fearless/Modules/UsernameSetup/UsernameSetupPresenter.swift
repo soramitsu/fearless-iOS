@@ -6,13 +6,7 @@ final class UsernameSetupPresenter {
     private var wireframe: UsernameSetupWireframeProtocol
     private let flow: AccountCreateFlow
 
-    private var viewModel: InputViewModelProtocol = {
-        let inputHandling = InputHandler(
-            predicate: NSPredicate.notEmpty,
-            processor: ByteLengthProcessor.username
-        )
-        return InputViewModel(inputHandler: inputHandling)
-    }()
+    private var viewModel: InputViewModelProtocol
 
     init(
         wireframe: UsernameSetupWireframeProtocol,
@@ -21,14 +15,34 @@ final class UsernameSetupPresenter {
     ) {
         self.wireframe = wireframe
         self.flow = flow
+
+        let inputHandling = InputHandler(
+            value: flow.predefinedUsername,
+            predicate: NSPredicate.notEmpty,
+            processor: ByteLengthProcessor.username
+        )
+        viewModel = InputViewModel(inputHandler: inputHandling)
+
         self.localizationManager = localizationManager
     }
 }
 
 extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
     func didLoad(view: UsernameSetupViewProtocol) {
-        view.bindUsername(viewModel: viewModel)
-        if case let .chain(model) = flow {
+        switch flow {
+        case .wallet:
+            let selectableViewModel = SelectableViewModel(
+                underlyingViewModel: viewModel,
+                selectable: true
+            )
+            view.bindUsername(viewModel: selectableViewModel)
+        case let .chain(model):
+            let selectableViewModel = SelectableViewModel(
+                underlyingViewModel: viewModel,
+                selectable: false
+            )
+            view.bindUsername(viewModel: selectableViewModel)
+
             let uniqueChainModel = UniqueChainViewModel(
                 text: model.chain.name,
                 icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
@@ -44,8 +58,9 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
         let rLanguages = localizationManager?.selectedLocale.rLanguages
         let actionTitle = R.string.localizable.commonOk(preferredLanguages: rLanguages)
         let action = AlertPresentableAction(title: actionTitle) { [weak self] in
+            guard let self = self else { return }
             let model = UsernameSetupModel(username: username)
-            self?.wireframe.proceed(from: self?.view, model: model)
+            self.wireframe.proceed(from: self.view, flow: self.flow, model: model)
         }
 
         let title = R.string.localizable.commonNoScreenshotTitle(preferredLanguages: rLanguages)
