@@ -15,4 +15,8 @@ final class ExportMnemonicWireframe: ExportMnemonicWireframeProtocol {
             animated: true
         )
     }
+
+    func back(view: ExportGenericViewProtocol?) {
+        view?.controller.navigationController?.popViewController(animated: true)
+    }
 }

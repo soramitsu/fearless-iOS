@@ -53,6 +53,29 @@ final class ExportMnemonicPresenter {
 }
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
+    func didLoadView() {
+        let locale = localizationManager.selectedLocale
+
+        let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
+        let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
+
+        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
+            self?.wireframe.back(view: self?.view)
+        }
+
+        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle) {}
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [exportAction, cancelAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+
     func setup() {
         switch flow {
         case let .single(chain, address):
@@ -63,35 +86,14 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     }
 
     func activateExport() {
-        let locale = localizationManager.selectedLocale
-
-        let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
-        let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
-
-        let exportTitle = R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
-        let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
-            self?.share()
-        }
-
-        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let viewModel = AlertPresentableViewModel(
-            title: title,
-            message: message,
-            actions: [exportAction],
-            closeAction: cancelTitle
-        )
-
-        wireframe.present(viewModel: viewModel, style: .alert, from: view)
-    }
-
-    func activateAccessoryOption() {
-        // TODO: Support custom accounts
         guard let exportData = exportDatas?.first else {
             return
         }
 
         wireframe.openConfirmationForMnemonic(exportData.mnemonic, from: view)
     }
+
+    func activateAccessoryOption() {}
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {

@@ -8,7 +8,8 @@ protocol ManageAssetsViewModelFactoryProtocol {
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
-        filter: String?
+        filter: String?,
+        locale: Locale?
     ) -> ManageAssetsViewModel
 }
 
@@ -24,13 +25,15 @@ final class ManageAssetsViewModelFactory {
         accountInfo: AccountInfo?,
         delegate: ManageAssetsTableViewCellModelDelegate?,
         assetEnabled: Bool,
-        selectedMetaAccount: MetaAccountModel?
+        selectedMetaAccount: MetaAccountModel?,
+        locale: Locale?
     ) -> ManageAssetsTableViewCellModel {
         let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
         let title = chainAsset.chain.name
         let balance = getBalanceString(
             for: chainAsset,
-            accountInfo: accountInfo
+            accountInfo: accountInfo,
+            locale: locale
         )
 
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
@@ -55,11 +58,12 @@ final class ManageAssetsViewModelFactory {
 extension ManageAssetsViewModelFactory {
     private func getBalanceString(
         for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?
+        accountInfo: AccountInfo?,
+        locale: Locale?
     ) -> String? {
         let balance = getBalance(for: chainAsset, accountInfo: accountInfo)
         let digits = balance > 0 ? 4 : 0
-        let balanceString = balance.toString(digits: digits) ?? "0"
+        let balanceString = balance.toString(locale: locale, digits: digits) ?? "0"
         let parts: [String] = [balanceString, chainAsset.asset.name]
         return parts.joined(separator: " ")
     }
@@ -116,7 +120,8 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
-        filter: String?
+        filter: String?,
+        locale: Locale?
     ) -> ManageAssetsViewModel {
         var chainAssets = chains.map { chain in
             chain.assets.compactMap { asset in
@@ -182,7 +187,8 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 accountInfo: accountInfos?[chainAsset.chain.chainId],
                 delegate: cellsDelegate,
                 assetEnabled: enabled,
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: selectedMetaAccount,
+                locale: locale
             )
         }
 

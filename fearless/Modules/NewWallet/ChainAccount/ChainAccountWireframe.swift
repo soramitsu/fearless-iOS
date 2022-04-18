@@ -131,21 +131,13 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         locale: Locale?,
         from view: ControllerBackedProtocol?
     ) {
-        authorize(
-            animated: true,
-            cancellable: true,
+        performExportPresentation(
+            for: address,
+            chain: chain,
+            options: options,
+            locale: locale,
             from: view
-        ) { [weak self] success in
-            if success {
-                self?.performExportPresentation(
-                    for: address,
-                    chain: chain,
-                    options: options,
-                    locale: locale,
-                    from: view
-                )
-            }
-        }
+        )
     }
 
     func showUniqueChainSourceSelection(
@@ -204,17 +196,41 @@ private extension ChainAccountWireframe {
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showMnemonicExport(for: address, chain: chain, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showMnemonicExport(for: address, chain: chain, from: view)
+                        }
+                    }
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showKeystoreExport(for: address, chain: chain, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showKeystoreExport(for: address, chain: chain, from: view)
+                        }
+                    }
                 }
             case .seed:
                 let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showSeedExport(for: address, chain: chain, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showSeedExport(for: address, chain: chain, from: view)
+                        }
+                    }
                 }
             }
         }

@@ -151,7 +151,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let title = chainAsset.chain.name
         let balance = getBalanceString(
             for: chainAsset,
-            accountInfo: accountInfo
+            accountInfo: accountInfo, locale: locale
         )
         let totalAmountString = getUsdBalanceString(
             for: chainAsset,
@@ -183,11 +183,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 extension ChainAccountBalanceListViewModelFactory {
     private func getBalanceString(
         for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?
+        accountInfo: AccountInfo?,
+        locale: Locale
     ) -> String? {
         let balance = getBalance(for: chainAsset, accountInfo: accountInfo)
         let digits = balance > 0 ? 4 : 0
-        return balance.toString(digits: digits)
+        return balance.toString(locale: locale, digits: digits)
     }
 
     private func getBalance(

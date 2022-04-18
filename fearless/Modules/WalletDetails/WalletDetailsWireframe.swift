@@ -33,20 +33,12 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         locale: Locale?,
         from view: ControllerBackedProtocol?
     ) {
-        authorize(
-            animated: true,
-            cancellable: true,
+        performExportPresentation(
+            flow: flow,
+            options: options,
+            locale: locale,
             from: view
-        ) { [weak self] success in
-            if success {
-                self?.performExportPresentation(
-                    flow: flow,
-                    options: options,
-                    locale: locale,
-                    from: view
-                )
-            }
-        }
+        )
     }
 
     func presentNodeSelection(
@@ -122,17 +114,41 @@ private extension WalletDetailsWireframe {
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showMnemonicExport(flow: flow, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showMnemonicExport(flow: flow, from: view)
+                        }
+                    }
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showKeystoreExport(flow: flow, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showKeystoreExport(flow: flow, from: view)
+                        }
+                    }
                 }
             case .seed:
                 let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showSeedExport(flow: flow, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showSeedExport(flow: flow, from: view)
+                        }
+                    }
                 }
             }
         }
