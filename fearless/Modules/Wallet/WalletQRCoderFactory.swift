@@ -60,7 +60,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
         let accountId = try info.address.toAccountId()
 
         return ReceiveInfo(
-            accountId: accountId.toHex(includePrefix: true),
+            accountId: accountId.toHex(includePrefix: info.address.hasPrefix("0x")),
             assetId: asset.identifier,
             amount: nil,
             details: nil
