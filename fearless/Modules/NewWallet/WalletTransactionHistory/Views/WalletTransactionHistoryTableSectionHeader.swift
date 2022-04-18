@@ -30,6 +30,6 @@ class WalletTransactionHistoryTableSectionHeader: UIView {
     }
 
     func bind(to viewModel: WalletTransactionHistorySection) {
-        label.text = viewModel.title
+        label.text = viewModel.title.uppercased()
     }
 }

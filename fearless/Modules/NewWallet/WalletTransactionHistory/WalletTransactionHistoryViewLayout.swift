@@ -4,9 +4,17 @@ import SoraUI
 final class WalletTransactionHistoryViewLayout: UIView {
     enum Constants {
         static let buttonSize: CGFloat = 40
+        static let stripeSize = CGSize(width: 35, height: 2)
+        static let stripeTopOffset: CGFloat = 2
     }
 
     let backgroundView = TriangularedBlurView()
+
+    let stripeIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconStripe()
+        return imageView
+    }()
 
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -62,6 +70,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
         addSubview(headerView)
         addSubview(contentView)
         addSubview(tableView)
+        addSubview(stripeIconImageView)
 
         headerView.addSubview(headerStackView)
 
@@ -72,6 +81,12 @@ final class WalletTransactionHistoryViewLayout: UIView {
         headerStackView.snp.makeConstraints { make in
             make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.bottom.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        stripeIconImageView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(Constants.stripeTopOffset)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(Constants.stripeSize)
         }
 
         backgroundView.snp.makeConstraints { make in

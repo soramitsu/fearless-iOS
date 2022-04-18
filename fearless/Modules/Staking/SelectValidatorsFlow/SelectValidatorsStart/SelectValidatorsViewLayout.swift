@@ -64,6 +64,8 @@ final class SelectValidatorsViewLayout: UIView {
         return label
     }()
 
+    let suggestedValidatorsWarningView = UIFactory.default.createHintView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -166,6 +168,13 @@ final class SelectValidatorsViewLayout: UIView {
         customValidatorsCell.rowContentView.addSubview(customValidatorsActivityIndicator)
         customValidatorsActivityIndicator.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
+        }
+
+        addSubview(suggestedValidatorsWarningView)
+        suggestedValidatorsWarningView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset)
         }
     }
 

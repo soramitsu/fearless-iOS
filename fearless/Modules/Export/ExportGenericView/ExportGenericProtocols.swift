@@ -6,6 +6,7 @@ protocol ExportGenericViewProtocol: ControllerBackedProtocol {
 }
 
 protocol ExportGenericPresenterProtocol {
+    func didLoadView()
     func setup()
     func activateExport()
     func activateAccessoryOption()
@@ -24,6 +25,7 @@ extension ExportGenericPresenterProtocol {
 
 protocol ExportGenericWireframeProtocol: ErrorPresentable, AlertPresentable, SharingPresentable {
     func close(view: ExportGenericViewProtocol?)
+    func back(view: ExportGenericViewProtocol?)
 }
 
 extension ExportGenericWireframeProtocol {

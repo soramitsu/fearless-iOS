@@ -1,9 +1,9 @@
 import Foundation
 
 enum TransactionType: String, CaseIterable {
-    case incoming = "INCOMING"
-    case outgoing = "OUTGOING"
-    case reward = "REWARD"
-    case slash = "SLASH"
-    case extrinsic = "EXTRINSIC"
+    case incoming = "Incoming"
+    case outgoing = "Outgoing"
+    case reward = "Reward"
+    case slash = "Slash"
+    case extrinsic = "Extrinsic"
 }
