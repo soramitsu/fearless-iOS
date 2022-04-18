@@ -14,11 +14,11 @@ final class SubstrateQRParser: QRParser {
             .components(separatedBy: separator)
 
         guard fields.count >= 3, fields.count <= 4 else {
-            throw SubstrateQRDecoderError.unexpectedNumberOfFields
+            throw QRDecoderError.unexpectedNumberOfFields
         }
 
         guard fields[0] == prefix else {
-            throw SubstrateQRDecoderError.undefinedPrefix
+            throw QRDecoderError.undefinedPrefix
         }
 
         let address = fields[1]

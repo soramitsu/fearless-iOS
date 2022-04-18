@@ -112,10 +112,12 @@ extension SearchPeoplePresenter: Localizable {
 
 extension SearchPeoplePresenter: WalletScanQRModuleOutput {
     func didFinishWith(payload: TransferPayload) {
-        let addressFactory = SS58AddressFactory()
+        let chainFormat: ChainFormat = chain.isEthereumBased
+            ? .ethereum
+            : .substrate(chain.addressPrefix)
 
         guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
-              let address = try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix) else {
+              let address = try? AddressFactory.address(for: accountId, chainFormat: chainFormat) else {
             return
         }
 

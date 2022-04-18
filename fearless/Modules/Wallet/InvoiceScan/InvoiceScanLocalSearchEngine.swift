@@ -3,12 +3,10 @@ import CommonWallet
 import IrohaCrypto
 
 final class InvoiceScanLocalSearchEngine: InvoiceLocalSearchEngineProtocol {
-    let addressPrefix: UInt16
+    let chainFormat: ChainFormat
 
-    private lazy var addressFactory = SS58AddressFactory()
-
-    init(addressPrefix: UInt16) {
-        self.addressPrefix = addressPrefix
+    init(chainFormat: ChainFormat) {
+        self.chainFormat = chainFormat
     }
 
     func searchByAccountId(_ accountIdHex: String) -> SearchData? {
@@ -16,11 +14,10 @@ final class InvoiceScanLocalSearchEngine: InvoiceLocalSearchEngineProtocol {
             return nil
         }
 
-        guard let address = try? addressFactory
-            .addressFromAccountId(
-                data: accountId,
-                addressPrefix: addressPrefix
-            ) else {
+        guard let address = try? AddressFactory.address(
+            for: accountId,
+            chainFormat: chainFormat
+        ) else {
             return nil
         }
 
