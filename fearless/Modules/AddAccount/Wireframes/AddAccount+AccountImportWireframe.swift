@@ -13,7 +13,7 @@ extension AddAccount {
             }
         }
 
-        func proceed(from view: AccountImportViewProtocol?) {
+        func proceed(from view: AccountImportViewProtocol?, flow _: AccountImportFlow) {
             guard let navigationController = view?.controller.navigationController else {
                 return
             }

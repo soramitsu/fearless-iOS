@@ -53,5 +53,12 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
         url: URL
     )
 
+    func showUniqueChainSourceSelection(
+        from view: ControllerBackedProtocol?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
 }

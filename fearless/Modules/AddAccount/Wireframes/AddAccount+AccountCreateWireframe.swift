@@ -5,11 +5,10 @@ extension AddAccount {
     final class AccountCreateWireframe: AccountCreateWireframeProtocol {
         func confirm(
             from view: AccountCreateViewProtocol?,
-            request: MetaAccountImportMnemonicRequest,
-            mnemonic: [String]
+            flow: AccountConfirmFlow
         ) {
             guard let accountConfirmation = AccountConfirmViewFactory
-                .createViewForAdding(request: request, mnemonic: mnemonic)?.controller
+                .createViewForAdding(flow: flow)?.controller
             else {
                 return
             }

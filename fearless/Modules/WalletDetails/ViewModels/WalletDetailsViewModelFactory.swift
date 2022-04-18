@@ -58,20 +58,30 @@ class WalletDetailsViewModelFactory {
     ) -> [WalletDetailsSection] {
         let nativeAccounts = chainAccounts.filter { $0.account.isChainAccount == false }
         let customAccounts = chainAccounts.filter { $0.account.isChainAccount == true }
-        let nativeSection = buildSection(
-            flow: flow,
-            chainAccounts: nativeAccounts,
-            title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages),
-            locale: locale
-        )
-        let customSection = buildSection(
-            flow: flow,
-            chainAccounts: customAccounts,
-            title: R.string.localizable.accountsWithChangedKey(preferredLanguages: locale.rLanguages),
-            locale: locale
-        )
 
-        return [customSection, nativeSection]
+        var sections: [WalletDetailsSection] = []
+
+        if !customAccounts.isEmpty {
+            let customSection = buildSection(
+                flow: flow,
+                chainAccounts: customAccounts,
+                title: R.string.localizable.accountsWithChangedKey(preferredLanguages: locale.rLanguages),
+                locale: locale
+            )
+            sections.append(customSection)
+        }
+
+        if !nativeAccounts.isEmpty {
+            let nativeSection = buildSection(
+                flow: flow,
+                chainAccounts: nativeAccounts,
+                title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages),
+                locale: locale
+            )
+            sections.append(nativeSection)
+        }
+
+        return sections
     }
 }
 

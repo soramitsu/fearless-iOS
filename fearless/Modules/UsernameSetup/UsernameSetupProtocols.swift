@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol UsernameSetupViewProtocol: ControllerBackedProtocol {
-    func bindUsername(viewModel: InputViewModelProtocol)
+    func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>)
     func bindUniqueChain(viewModel: UniqueChainViewModel)
 }
 
@@ -11,7 +11,7 @@ protocol UsernameSetupPresenterProtocol: AnyObject {
 }
 
 protocol UsernameSetupWireframeProtocol: AlertPresentable, NetworkTypeSelectionPresentable {
-    func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel)
+    func proceed(from view: UsernameSetupViewProtocol?, flow: AccountCreateFlow, model: UsernameSetupModel)
 }
 
 protocol UsernameSetupViewFactoryProtocol: AnyObject {

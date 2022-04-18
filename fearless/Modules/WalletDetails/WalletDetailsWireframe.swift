@@ -64,6 +64,32 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         )
     }
 
+    func showUniqueChainSourceSelection(
+        from view: ControllerBackedProtocol?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        let actionsView = ModalPickerFactory.createPickerForList(
+            items,
+            callback: callback,
+            context: nil
+        )
+
+        guard let actionsView = actionsView else {
+            return
+        }
+
+        view?.controller.navigationController?.present(actionsView, animated: true)
+    }
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
+
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let importController = AccountImportViewFactory.createViewForOnboarding(.chain(model: uniqueChainModel))?.controller else {
             return

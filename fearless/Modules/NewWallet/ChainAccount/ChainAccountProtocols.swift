@@ -86,6 +86,15 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         locale: Locale?,
         from view: ControllerBackedProtocol?
     )
+
+    func showUniqueChainSourceSelection(
+        from view: ControllerBackedProtocol?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
 }
 
 protocol ChainAccountModuleInput: AnyObject {}
