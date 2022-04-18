@@ -85,7 +85,7 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
     }
 
     func saveAssetsOrder(assets: [ChainAsset]) {
-        let keys = assets.map { $0.sortKey(accountId: selectedMetaAccount.substrateAccountId) }
+        let keys = assets.map { $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId) }
         sortKeys = keys
 
         presenter?.didReceiveSortOrder(keys)

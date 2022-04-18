@@ -113,6 +113,9 @@ extension ManageAssetsPresenter: Localizable {
 
 extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
     func switchAssetEnabledState(asset: ChainAsset) {
+        let id = asset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+        let accountId = selectedMetaAccount.substrateAccountId
+
         var modifiedAssetIdsEnabled: [String] = []
         if assetIdsEnabled == nil {
             modifiedAssetIdsEnabled = viewModel?.sections
@@ -120,14 +123,14 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
                     section.cellModels
                 }
                 .reduce([], +)
-                .map(\.chainAsset.asset.id)
-                .filter { $0 != asset.asset.id } ?? []
+                .map { $0.chainAsset.uniqueKey(accountId: accountId) }
+                .filter { $0 != id } ?? []
         } else {
-            let contains = assetIdsEnabled?.contains(asset.asset.id) == true
+            let contains = assetIdsEnabled?.contains(id) == true
             if contains {
-                modifiedAssetIdsEnabled = assetIdsEnabled?.filter { $0 != asset.asset.id } ?? []
+                modifiedAssetIdsEnabled = assetIdsEnabled?.filter { $0 != id } ?? []
             } else {
-                modifiedAssetIdsEnabled = (assetIdsEnabled ?? []) + [asset.asset.id]
+                modifiedAssetIdsEnabled = (assetIdsEnabled ?? []) + [id]
             }
         }
 
