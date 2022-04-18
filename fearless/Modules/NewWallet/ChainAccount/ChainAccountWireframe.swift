@@ -173,7 +173,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         )?.controller else {
             return
         }
-        view?.controller.hidesBottomBarWhenPushed = true
+        createController.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(createController, animated: true)
     }
 
@@ -183,7 +183,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         )?.controller else {
             return
         }
-        view?.controller.hidesBottomBarWhenPushed = true
+        importController.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(importController, animated: true)
     }
 }
