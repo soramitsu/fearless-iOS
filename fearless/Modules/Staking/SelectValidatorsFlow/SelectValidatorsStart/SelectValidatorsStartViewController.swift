@@ -79,6 +79,8 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
             .stakingSelectValidatorsRecommendedTitle(preferredLanguages: languages)
         rootView.algoDetailsLabel.text = R.string.localizable
             .stakingSelectValidatorsRecommendedDesc(preferredLanguages: languages)
+        rootView.suggestedValidatorsWarningView.titleLabel.text = R.string.localizable
+            .selectValidatorsDisclaimer(preferredLanguages: selectedLocale.rLanguages)
 
         rootView.setAlgoSteps(
             [
