@@ -50,6 +50,8 @@ final class ManageAssetsPresenter {
 extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
     func setup() {
         interactor.setup()
+
+        view?.didReceive(locale: selectedLocale)
     }
 
     func move(from: IndexPath, to: IndexPath) {
