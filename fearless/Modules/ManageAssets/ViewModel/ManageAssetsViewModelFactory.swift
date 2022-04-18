@@ -2,7 +2,7 @@ import Foundation
 
 protocol ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
-        selectedMetaAccount: MetaAccountModel?,
+        selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
@@ -114,7 +114,7 @@ extension ManageAssetsViewModelFactory {
 
 extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
-        selectedMetaAccount: MetaAccountModel?,
+        selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo]?,
         sortedKeys: [String]?,
@@ -155,13 +155,14 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
 
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
-                if let sortedKeys = sortedKeys, let accountId = selectedMetaAccount?.substrateAccountId {
+                if let sortedKeys = sortedKeys {
+                    let accountId = selectedMetaAccount.substrateAccountId
                     var orderByKey: [String: Int] = [:]
                     for (index, key) in sortedKeys.enumerated() {
                         orderByKey[key] = index
                     }
 
-                    return orderByKey[ca1.sortKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.sortKey(accountId: accountId)] ?? Int.max
+                    return orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
                 } else {
                     return (
                         usdBalanceByChainAsset[ca1] ?? Decimal.zero,
@@ -180,7 +181,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             }
 
         let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.map { chainAsset in
-            let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(chainAsset.asset.id) == true
+            let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)) == true
 
             return buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
@@ -193,15 +194,15 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         }
 
         let missingSection = ManageAssetsTableSection(cellModels: viewModels.filter {
-            selectedMetaAccount?.fetch(for: $0.chainAsset.chain.accountRequest()) == nil
+            selectedMetaAccount.fetch(for: $0.chainAsset.chain.accountRequest()) == nil
                 && $0.chainAsset.chain.unused == false
         })
         let normalSection = ManageAssetsTableSection(cellModels: viewModels.filter {
-            selectedMetaAccount?.fetch(for: $0.chainAsset.chain.accountRequest()) != nil
+            selectedMetaAccount.fetch(for: $0.chainAsset.chain.accountRequest()) != nil
                 || $0.chainAsset.chain.unused == true
         })
 
-        let applyEnabled = selectedMetaAccount?.assetIdsEnabled != assetIdsEnabled || selectedMetaAccount?.assetKeysOrder != sortedKeys
+        let applyEnabled = selectedMetaAccount.assetIdsEnabled != assetIdsEnabled || selectedMetaAccount.assetKeysOrder != sortedKeys
 
         return ManageAssetsViewModel(sections: [missingSection, normalSection], applyEnabled: applyEnabled)
     }
