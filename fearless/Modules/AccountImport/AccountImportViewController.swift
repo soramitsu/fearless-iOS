@@ -170,8 +170,7 @@ private extension AccountImportViewController {
     }
 
     @objc func substrateTextFieldEditingChanged() {
-        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text,
-           !(rootView.substrateDerivationPathField.text?.isEmpty ?? true) {
+        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text {
             rootView.substrateDerivationPathField.text = substrateDerivationPathModel?.inputHandler.value
         }
 
@@ -179,8 +178,7 @@ private extension AccountImportViewController {
     }
 
     @objc func ethereumTextFieldEditingChanged() {
-        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text,
-           !(rootView.ethereumDerivationPathField.text?.isEmpty ?? true) {
+        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text {
             rootView.ethereumDerivationPathField.text = ethereumDerivationPathModel?.inputHandler.value
         }
 
@@ -411,6 +409,15 @@ extension AccountImportViewController: UITextFieldDelegate {
         }
 
         return shouldApply
+    }
+
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        guard let viewModel = self.viewModel(for: textField) else {
+            return false
+        }
+
+        viewModel.inputHandler.clearValue()
+        return true
     }
 }
 

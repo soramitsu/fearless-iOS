@@ -709,7 +709,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
 
         if viewModel.inputHandler.completed {
-            view?.didValidateSubstrateDerivationPath(.valid)
+            if viewModel.inputHandler.value.isEmpty {
+                view?.didValidateSubstrateDerivationPath(.none)
+            } else {
+                view?.didValidateSubstrateDerivationPath(.valid)
+            }
         } else {
             view?.didValidateSubstrateDerivationPath(.invalid)
             presentDerivationPathError(
@@ -728,7 +732,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
 
         if viewModel.inputHandler.completed {
-            view?.didValidateEthereumDerivationPath(.valid)
+            if viewModel.inputHandler.value.isEmpty {
+                view?.didValidateEthereumDerivationPath(.none)
+            } else {
+                view?.didValidateEthereumDerivationPath(.valid)
+            }
         } else {
             view?.didValidateEthereumDerivationPath(.invalid)
             presentDerivationPathError(
