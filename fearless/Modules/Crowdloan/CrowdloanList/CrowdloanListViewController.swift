@@ -92,22 +92,21 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
             didStartLoading()
 
             rootView.setSeparators(enabled: false)
-            rootView.setFooter(enabled: false)
             rootView.bringSubviewToFront(rootView.tableView)
         case .loaded:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
 
             rootView.setSeparators(enabled: true)
-            rootView.setFooter(enabled: false)
             rootView.bringSubviewToFront(rootView.tableView)
         case .empty, .error:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
 
             rootView.setSeparators(enabled: false)
-            rootView.setFooter(enabled: true)
         }
+
+        rootView.tableView.tableFooterView = shouldDisplayEmptyState ? rootView.statusView : nil
 
         rootView.tableView.reloadData()
 

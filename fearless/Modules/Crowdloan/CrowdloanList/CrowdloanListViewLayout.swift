@@ -36,14 +36,6 @@ final class CrowdloanListViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setFooter(enabled: Bool) {
-        if enabled {
-            tableView.tableFooterView = statusView
-        } else {
-            tableView.tableFooterView = nil
-        }
-    }
-
     func setSeparators(enabled: Bool) {
         tableView.separatorStyle = enabled ? .singleLine : .none
     }
