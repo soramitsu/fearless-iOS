@@ -14,7 +14,16 @@ final class CrowdloanListViewLayout: UIView {
         return view
     }()
 
-    let statusView = UIView()
+    lazy var statusView: UIView = {
+        let view = UIView()
+        view.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: tableView.frame.width,
+            height: Constants.footerHeight
+        )
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -25,6 +34,14 @@ final class CrowdloanListViewLayout: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func setFooter(enabled: Bool) {
+        if enabled {
+            tableView.tableFooterView = statusView
+        } else {
+            tableView.tableFooterView = nil
+        }
     }
 
     func setSeparators(enabled: Bool) {

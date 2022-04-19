@@ -92,19 +92,21 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
             didStartLoading()
 
             rootView.setSeparators(enabled: false)
+            rootView.setFooter(enabled: false)
             rootView.bringSubviewToFront(rootView.tableView)
         case .loaded:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
 
             rootView.setSeparators(enabled: true)
+            rootView.setFooter(enabled: false)
             rootView.bringSubviewToFront(rootView.tableView)
         case .empty, .error:
             rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
 
             rootView.setSeparators(enabled: false)
-            rootView.bringSubviewToFront(rootView.statusView)
+            rootView.setFooter(enabled: true)
         }
 
         rootView.tableView.reloadData()
@@ -251,22 +253,6 @@ extension CrowdloanListViewController: UITableViewDelegate {
         if indexPath.section == 1, let active = viewModel.active {
             presenter.selectViewModel(active.crowdloans[indexPath.row])
         }
-    }
-
-    func tableView(_: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        guard section == 0, case .empty = state else {
-            return nil
-        }
-
-        return rootView.statusView
-    }
-
-    func tableView(_: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        guard section == 0, case .empty = state else {
-            return 0
-        }
-
-        return CrowdloanListViewLayout.Constants.footerHeight
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
