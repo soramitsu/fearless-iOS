@@ -2,7 +2,12 @@ import RobinHood
 final class WalletDetailsInteractor {
     weak var presenter: WalletDetailsInteractorOutputProtocol!
 
-    private let flow: WalletDetailsFlow
+    private var flow: WalletDetailsFlow {
+        didSet {
+            presenter.didReceive(updatedFlow: flow)
+        }
+    }
+
     private let chainsRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
@@ -41,9 +46,21 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         }
 
         saveOperation.completionBlock = { [weak self] in
-            self?.fetchChainsWithAccounts()
+            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                switch result {
+                case let .success(account):
+                    DispatchQueue.main.async {
+                        if case .normal = self?.flow {
+                            self?.flow = .normal(wallet: account)
+                        }
 
-            self?.eventCenter.notify(with: ChainsUpdatedEvent(updatedChains: [chain]))
+                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                    }
+
+                case .failure:
+                    break
+                }
+            }
         }
 
         operationManager.enqueue(operations: [saveOperation], in: .transient)

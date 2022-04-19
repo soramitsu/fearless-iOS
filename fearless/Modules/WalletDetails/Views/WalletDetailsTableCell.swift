@@ -81,12 +81,6 @@ class WalletDetailsTableCell: UITableViewCell {
         return view
     }()
 
-    var locale = Locale.current {
-        didSet {
-            applyLocalization()
-        }
-    }
-
     private var chainUnsupportedView: HintView = {
         let view = UIFactory.default.createHintView()
         view.iconView.image = R.image.iconWarning()
@@ -100,8 +94,6 @@ class WalletDetailsTableCell: UITableViewCell {
 
         configure()
         setupLayout()
-
-        applyLocalization()
     }
 
     override func prepareForReuse() {
@@ -112,15 +104,6 @@ class WalletDetailsTableCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func applyLocalization() {
-        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(
-            preferredLanguages: locale.rLanguages
-        )
-        accountMissingHintView.titleLabel.text = R.string.localizable.noAccountFound(
-            preferredLanguages: locale.rLanguages
-        )
     }
 
     func bind(to viewModel: WalletDetailsCellViewModel) {
@@ -146,8 +129,16 @@ class WalletDetailsTableCell: UITableViewCell {
         actionImageView.isHidden = !chainSupported || !viewModel.actionsAvailable
 
         accountMissingHintView.isHidden = !viewModel.accountMissing
+        accountMissingHintView.setIconHidden(viewModel.chainUnused)
 
-        setDeactivated(!chainSupported)
+        setDeactivated(viewModel.cellInactive)
+
+        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(
+            preferredLanguages: viewModel.locale?.rLanguages
+        )
+        accountMissingHintView.titleLabel.text = R.string.localizable.noAccountFound(
+            preferredLanguages: viewModel.locale?.rLanguages
+        )
     }
 }
 
@@ -213,7 +204,7 @@ private extension WalletDetailsTableCell {
 
 extension WalletDetailsTableCell: DeactivatableView {
     var deactivatableViews: [UIView] {
-        [chainImageView, chainLabel, addressLabel, addressImageView, chainUnsupportedView]
+        [chainImageView, chainLabel, addressLabel, addressImageView, chainUnsupportedView, accountMissingHintView.titleLabel]
     }
 
     var deactivatedAlpha: CGFloat {

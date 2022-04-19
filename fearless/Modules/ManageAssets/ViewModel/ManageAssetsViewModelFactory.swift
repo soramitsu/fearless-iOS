@@ -47,7 +47,8 @@ final class ManageAssetsViewModelFactory {
             options: options,
             assetEnabled: assetEnabled,
             accountMissing: selectedMetaAccount?.fetch(for: chainAsset.chain.accountRequest())?.accountId == nil,
-            chainUnused: selectedMetaAccount?.unusedChainIds?.contains(chainAsset.chain.chainId) == true
+            chainUnused: selectedMetaAccount?.unusedChainIds?.contains(chainAsset.chain.chainId) == true,
+            locale: locale
         )
 
         model.delegate = delegate

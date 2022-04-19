@@ -6,7 +6,7 @@ final class ManageAssetsPresenter {
     private let wireframe: ManageAssetsWireframeProtocol
     private let interactor: ManageAssetsInteractorInputProtocol
     private let viewModelFactory: ManageAssetsViewModelFactoryProtocol
-    private let selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel
     private var chainModels: [ChainModel] = []
     private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
     private var viewModel: ManageAssetsViewModel?
@@ -76,6 +76,11 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 }
 
 extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
+    func didReceiveWallet(_ wallet: MetaAccountModel) {
+        selectedMetaAccount = wallet
+        provideViewModel()
+    }
+
     func didReceiveAssetIdsEnabled(_ assetIdsEnabled: [String]?) {
         self.assetIdsEnabled = assetIdsEnabled
         provideViewModel()
@@ -140,10 +145,13 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
     }
 
     func showMissingAccountOptions(chainAsset: ChainAsset) {
+        let unused = (selectedMetaAccount.unusedChainIds ?? []).contains(chainAsset.chain.chainId)
+        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+
         wireframe.presentAccountOptions(
             from: view,
             locale: selectedLocale,
-            options: [.create, .import, .skip],
+            options: options.compactMap { $0 },
             uniqueChainModel: UniqueChainModel(
                 meta: selectedMetaAccount,
                 chain: chainAsset.chain

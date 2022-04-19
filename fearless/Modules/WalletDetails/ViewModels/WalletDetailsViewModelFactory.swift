@@ -20,7 +20,7 @@ class WalletDetailsViewModelFactory {
         flow: WalletDetailsFlow,
         chains: [ChainModel],
         title: String,
-        locale _: Locale
+        locale: Locale
     ) -> WalletDetailsSection {
         WalletDetailsSection(
             title: title,
@@ -47,7 +47,9 @@ class WalletDetailsViewModelFactory {
                     accountMissing: flow.wallet.fetch(
                         for: chain.accountRequest()
                     )?.accountId == nil,
-                    actionsAvailable: flow.actionsAvailable
+                    actionsAvailable: flow.actionsAvailable,
+                    locale: locale,
+                    chainUnused: (flow.wallet.unusedChainIds ?? []).contains(chain.chainId)
                 )
             }
         )
@@ -58,8 +60,16 @@ class WalletDetailsViewModelFactory {
         chains: [ChainModel],
         locale: Locale
     ) -> [WalletDetailsSection] {
-        let emptyAccounts = chains.filter { flow.wallet.fetch(for: $0.accountRequest()) == nil }
-        let nativeAccounts = chains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false }
+        let emptyAccounts = chains.filter {
+            flow.wallet.fetch(for: $0.accountRequest()) == nil
+                && !(flow.wallet.unusedChainIds ?? []).contains($0.chainId)
+        }
+        let nativeAccounts = chains.filter {
+            flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false
+                || (flow.wallet.fetch(for: $0.accountRequest()) == nil
+                    && (flow.wallet.unusedChainIds ?? []).contains($0.chainId))
+        }
+
         let customAccounts = chains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
 
         var sections: [WalletDetailsSection] = []

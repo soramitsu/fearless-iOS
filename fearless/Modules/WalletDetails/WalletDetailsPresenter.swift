@@ -96,11 +96,14 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     }
 
     func showActions(for chain: ChainModel, account: ChainAccountResponse?) {
+        let unused = (flow.wallet.unusedChainIds ?? []).contains(chain.chainId)
+        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+
         guard let account = account else {
             wireframe.presentAccountOptions(
                 from: view,
                 locale: selectedLocale,
-                options: [.create, .import, .skip],
+                options: options.compactMap { $0 },
                 uniqueChainModel: UniqueChainModel(
                     meta: flow.wallet,
                     chain: chain
@@ -170,6 +173,11 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
 
     func didReceive(chains: [ChainModel]) {
         self.chains = chains
+        provideViewModel(chains: chains)
+    }
+
+    func didReceive(updatedFlow: WalletDetailsFlow) {
+        flow = updatedFlow
         provideViewModel(chains: chains)
     }
 }

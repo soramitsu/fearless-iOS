@@ -25,6 +25,7 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
     func didReceive(chains: [ChainModel])
     func didReceiveExportOptions(options: [ExportOption], for chainAccount: ChainAccountInfo)
     func didReceive(error: Error)
+    func didReceive(updatedFlow: WalletDetailsFlow)
 }
 
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,

@@ -8,12 +8,10 @@ struct WalletDetailsCellViewModel {
     let address: String?
     let accountMissing: Bool
     let actionsAvailable: Bool
+    let locale: Locale?
+    let chainUnused: Bool
 
-    var chainAccount: ChainAccountInfo? {
-        guard let account = account else {
-            return nil
-        }
-
-        return ChainAccountInfo(chain: chain, account: account)
+    var cellInactive: Bool {
+        !chain.isSupported || accountMissing
     }
 }

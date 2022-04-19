@@ -15,6 +15,7 @@ class ManageAssetsTableViewCellModel {
     let assetEnabled: Bool
     let accountMissing: Bool
     let chainUnused: Bool
+    let locale: Locale?
 
     weak var delegate: ManageAssetsTableViewCellModelDelegate?
 
@@ -27,7 +28,8 @@ class ManageAssetsTableViewCellModel {
         options: [ChainOptionsViewModel]?,
         assetEnabled: Bool,
         accountMissing: Bool,
-        chainUnused: Bool
+        chainUnused: Bool,
+        locale: Locale?
     ) {
         self.chainAsset = chainAsset
         self.assetName = assetName
@@ -38,6 +40,11 @@ class ManageAssetsTableViewCellModel {
         self.assetEnabled = assetEnabled
         self.accountMissing = accountMissing
         self.chainUnused = chainUnused
+        self.locale = locale
+    }
+
+    var cellInactive: Bool {
+        !chainAsset.chain.isSupported || accountMissing
     }
 }
 
