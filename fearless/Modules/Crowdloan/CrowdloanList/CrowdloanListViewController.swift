@@ -253,6 +253,22 @@ extension CrowdloanListViewController: UITableViewDelegate {
         }
     }
 
+    func tableView(_: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard section == 0, case .empty = state else {
+            return nil
+        }
+
+        return rootView.statusView
+    }
+
+    func tableView(_: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        guard section == 0, case .empty = state else {
+            return 0
+        }
+
+        return CrowdloanListViewLayout.Constants.footerHeight
+    }
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard section > 0, case let .loaded(viewModel) = state else {
             return nil
