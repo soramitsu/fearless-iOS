@@ -143,7 +143,7 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
         wireframe.presentAccountOptions(
             from: view,
             locale: selectedLocale,
-            options: [.import, .skip],
+            options: [.create, .import, .skip],
             uniqueChainModel: UniqueChainModel(
                 meta: selectedMetaAccount,
                 chain: chainAsset.chain
