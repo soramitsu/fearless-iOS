@@ -235,7 +235,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         dragButton.isHidden = viewModel.accountMissing
         switcher.isHidden = viewModel.accountMissing
         accountMissingHintView.isHidden = !viewModel.accountMissing
-        accountMissingHintView.iconView.isHidden = viewModel.chainAsset.chain.unused == true
+        accountMissingHintView.iconView.isHidden = viewModel.chainUnused
         addMissingAccountButton.isHidden = !viewModel.accountMissing
     }
 }

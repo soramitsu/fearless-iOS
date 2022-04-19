@@ -9,7 +9,7 @@ final class WalletDetailsPresenter {
     private var flow: WalletDetailsFlow
     private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
-    private var chainAccounts: [ChainAccountInfo] = []
+    private var chains: [ChainModel] = []
     private lazy var inputViewModel: InputViewModelProtocol = {
         let inputHandling = InputHandler(
             predicate: NSPredicate.notEmpty,
@@ -43,7 +43,7 @@ final class WalletDetailsPresenter {
 
 extension WalletDetailsPresenter: Localizable {
     func applyLocalization() {
-        provideViewModel(chainAccounts: chainAccounts)
+        provideViewModel(chains: chains)
     }
 }
 
@@ -95,12 +95,23 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         )
     }
 
-    func showActions(for chainAccount: ChainAccountInfo) {
-        guard let address = chainAccount.account.toAddress() else {
+    func showActions(for chain: ChainModel, account: ChainAccountResponse?) {
+        guard let account = account else {
+            wireframe.presentAccountOptions(
+                from: view,
+                locale: selectedLocale,
+                options: [.create, .import, .skip],
+                uniqueChainModel: UniqueChainModel(
+                    meta: flow.wallet,
+                    chain: chain
+                )
+            ) { [weak self] chain in
+                self?.interactor.markUnused(chain: chain)
+            }
             return
         }
 
-        interactor.getAvailableExportOptions(for: chainAccount, address: address)
+        interactor.getAvailableExportOptions(for: ChainAccountInfo(chain: chain, account: account))
     }
 }
 
@@ -157,26 +168,26 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
         )
     }
 
-    func didReceive(chainAccounts: [ChainAccountInfo]) {
-        self.chainAccounts = chainAccounts
-        provideViewModel(chainAccounts: chainAccounts)
+    func didReceive(chains: [ChainModel]) {
+        self.chains = chains
+        provideViewModel(chains: chains)
     }
 }
 
 private extension WalletDetailsPresenter {
-    func provideViewModel(chainAccounts: [ChainAccountInfo]) {
+    func provideViewModel(chains: [ChainModel]) {
         switch flow {
         case .normal:
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
-                chainAccounts: chainAccounts,
+                chains: chains,
                 locale: selectedLocale
             )
             view?.didReceive(state: .normal(viewModel: viewModel))
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
-                chainAccounts: chainAccounts,
+                chains: chains,
                 locale: selectedLocale
             )
             view?.didReceive(state: .export(viewModel: viewModel))

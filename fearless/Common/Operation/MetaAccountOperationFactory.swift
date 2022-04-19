@@ -240,7 +240,8 @@ private extension MetaAccountOperationFactory {
             chainAccounts: [],
             assetKeysOrder: nil,
             assetIdsEnabled: nil,
-            canExportEthereumMnemonic: true
+            canExportEthereumMnemonic: true,
+            unusedChainIds: nil
         )
     }
 }
@@ -406,7 +407,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainAccounts: [],
                 assetKeysOrder: nil,
                 assetIdsEnabled: nil,
-                canExportEthereumMnemonic: true
+                canExportEthereumMnemonic: true,
+                unusedChainIds: nil
             )
         }
     }

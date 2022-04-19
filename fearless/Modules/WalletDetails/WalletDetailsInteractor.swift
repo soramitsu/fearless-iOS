@@ -29,12 +29,32 @@ final class WalletDetailsInteractor {
 extension WalletDetailsInteractor: AccountFetching {}
 
 extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
+    func markUnused(chain: ChainModel) {
+        var unusedChainIds = flow.wallet.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = flow.wallet.replacingUnusedChainIds(unusedChainIds)
+
+        let saveOperation = repository.saveOperation {
+            [updatedAccount]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            self?.fetchChainsWithAccounts()
+
+            self?.eventCenter.notify(with: ChainsUpdatedEvent(updatedChains: [chain]))
+        }
+
+        operationManager.enqueue(operations: [saveOperation], in: .transient)
+    }
+
     func setup() {
         switch flow {
         case .normal:
             fetchChainsWithAccounts()
         case let .export(_, accounts):
-            presenter.didReceive(chainAccounts: accounts)
+            presenter.didReceive(chains: accounts.map(\.chain))
         }
     }
 
@@ -65,7 +85,12 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         operationManager.enqueue(operations: [updateOperation, saveOperation], in: .transient)
     }
 
-    func getAvailableExportOptions(for chainAccount: ChainAccountInfo, address: String) {
+    func getAvailableExportOptions(for chainAccount: ChainAccountInfo) {
+        guard let address = chainAccount.account.toAddress() else {
+            presenter.didReceive(error: ChainAccountFetchingError.accountNotExists)
+            return
+        }
+
         fetchChainAccount(
             chain: chainAccount.chain,
             address: address,
@@ -109,15 +134,7 @@ private extension WalletDetailsInteractor {
     func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            let chainAccounts: [ChainAccountInfo] = chains.compactMap { chain in
-                if let chainAccount = self.flow.wallet.fetch(for: chain.accountRequest()) {
-                    return ChainAccountInfo(chain: chain, account: chainAccount)
-                }
-
-                return nil
-            }
-
-            presenter.didReceive(chainAccounts: chainAccounts)
+            presenter.didReceive(chains: chains)
         case .failure, .none:
             return
         }

@@ -46,7 +46,8 @@ final class ManageAssetsViewModelFactory {
             balanceString: balance,
             options: options,
             assetEnabled: assetEnabled,
-            accountMissing: selectedMetaAccount?.fetch(for: chainAsset.chain.accountRequest())?.accountId == nil
+            accountMissing: selectedMetaAccount?.fetch(for: chainAsset.chain.accountRequest())?.accountId == nil,
+            chainUnused: selectedMetaAccount?.unusedChainIds?.contains(chainAsset.chain.chainId) == true
         )
 
         model.delegate = delegate
@@ -195,11 +196,11 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
 
         let missingSection = ManageAssetsTableSection(cellModels: viewModels.filter {
             selectedMetaAccount.fetch(for: $0.chainAsset.chain.accountRequest()) == nil
-                && $0.chainAsset.chain.unused == false
+                && (selectedMetaAccount.unusedChainIds ?? []).contains($0.chainAsset.chain.chainId) == false
         })
         let normalSection = ManageAssetsTableSection(cellModels: viewModels.filter {
             selectedMetaAccount.fetch(for: $0.chainAsset.chain.accountRequest()) != nil
-                || $0.chainAsset.chain.unused == true
+                || selectedMetaAccount.unusedChainIds?.contains($0.chainAsset.chain.chainId) == true
         })
 
         let applyEnabled = selectedMetaAccount.assetIdsEnabled != assetIdsEnabled || selectedMetaAccount.assetKeysOrder != sortedKeys

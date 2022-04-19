@@ -6,7 +6,7 @@ protocol WalletDetailsViewOutputProtocol {
     func didTapCloseButton()
     func didTapExportButton()
     func willDisappear()
-    func showActions(for chainAccount: ChainAccountInfo)
+    func showActions(for chain: ChainModel, account: ChainAccountResponse?)
 }
 
 protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
@@ -17,11 +17,12 @@ protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
 protocol WalletDetailsInteractorInputProtocol: AnyObject {
     func setup()
     func update(walletName: String)
-    func getAvailableExportOptions(for chainAccount: ChainAccountInfo, address: String)
+    func getAvailableExportOptions(for chainAccount: ChainAccountInfo)
+    func markUnused(chain: ChainModel)
 }
 
 protocol WalletDetailsInteractorOutputProtocol: AnyObject {
-    func didReceive(chainAccounts: [ChainAccountInfo])
+    func didReceive(chains: [ChainModel])
     func didReceiveExportOptions(options: [ExportOption], for chainAccount: ChainAccountInfo)
     func didReceive(error: Error)
 }
@@ -61,4 +62,12 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
+
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        options: [MissingAccountOption],
+        uniqueChainModel: UniqueChainModel,
+        skipBlock: @escaping (ChainModel) -> Void
+    )
 }

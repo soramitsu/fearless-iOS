@@ -75,12 +75,10 @@ class WalletDetailsTableCell: UITableViewCell {
         return imageView
     }()
 
-    private var accountMissingHintView = UIFactory.default.createHintView()
-
-    private var addMissingAccountButton: UIButton = {
-        let button = UIButton()
-        button.setTitleColor(R.color.colorAccent(), for: .normal)
-        return button
+    private var accountMissingHintView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.iconView.image = R.image.iconWarning()
+        return view
     }()
 
     var locale = Locale.current {
@@ -117,9 +115,12 @@ class WalletDetailsTableCell: UITableViewCell {
     }
 
     private func applyLocalization() {
-        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(preferredLanguages: locale.rLanguages)
-        accountMissingHintView.titleLabel.text = R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
-        addMissingAccountButton.setTitle(R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages), for: .normal)
+        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(
+            preferredLanguages: locale.rLanguages
+        )
+        accountMissingHintView.titleLabel.text = R.string.localizable.noAccountFound(
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     func bind(to viewModel: WalletDetailsCellViewModel) {
@@ -130,7 +131,7 @@ class WalletDetailsTableCell: UITableViewCell {
             animated: false
         )
 
-        chainLabel.text = viewModel.chainAccount.chain.name
+        chainLabel.text = viewModel.chain.name
         addressLabel.text = viewModel.address
         if let addressImage = viewModel.addressImage {
             addressImageView.isHidden = false
@@ -139,12 +140,11 @@ class WalletDetailsTableCell: UITableViewCell {
             addressImageView.isHidden = true
         }
 
-        let chainSupported: Bool = viewModel.chainAccount.chain.isSupported
-        addressStackView.isHidden = !chainSupported
+        let chainSupported: Bool = viewModel.chain.isSupported
+        addressStackView.isHidden = !chainSupported || viewModel.accountMissing
         chainUnsupportedView.isHidden = chainSupported
         actionImageView.isHidden = !chainSupported || !viewModel.actionsAvailable
 
-        addMissingAccountButton.isHidden = !viewModel.accountMissing
         accountMissingHintView.isHidden = !viewModel.accountMissing
 
         setDeactivated(!chainSupported)
@@ -172,8 +172,9 @@ private extension WalletDetailsTableCell {
     func setupLayout() {
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalToSuperview()
+            make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
+            make.top.equalToSuperview().offset(UIConstants.minimalOffset)
+            make.leading.trailing.equalToSuperview()
         }
 
         mainStackView.addArrangedSubview(chainImageView)
@@ -187,7 +188,6 @@ private extension WalletDetailsTableCell {
         actionImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.actionImageSize)
         }
-        mainStackView.addArrangedSubview(addMissingAccountButton)
 
         infoStackView.addArrangedSubview(chainLabel)
         infoStackView.addArrangedSubview(addressStackView)

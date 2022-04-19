@@ -9,6 +9,14 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
         view?.controller.navigationController?.pushViewController(importController, animated: true)
     }
 
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
+
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,
         locale: Locale?,
@@ -24,7 +32,7 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
             case .create:
                 let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
+                    self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .import:
                 let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)

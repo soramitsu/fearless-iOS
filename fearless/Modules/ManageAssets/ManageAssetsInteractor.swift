@@ -61,9 +61,12 @@ final class ManageAssetsInteractor {
 
 extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
     func markUnused(chain: ChainModel) {
-        chain.unused = true
-        let saveOperation = chainRepository.saveOperation {
-            [chain]
+        var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = selectedMetaAccount.replacingUnusedChainIds(unusedChainIds)
+
+        let saveOperation = accountRepository.saveOperation {
+            [updatedAccount]
         } _: {
             []
         }
