@@ -5,7 +5,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func show(chainType: AccountCreateChainType)
     func setSource(type: AccountImportSource, chainType: AccountCreateChainType, selectable: Bool)
     func setSource(viewModel: InputViewModelProtocol)
-    func setName(viewModel: InputViewModelProtocol, isHidden: Bool)
+    func setName(viewModel: InputViewModelProtocol, visible: Bool)
     func setPassword(viewModel: InputViewModelProtocol)
     func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
     func bind(substrateViewModel: InputViewModelProtocol)

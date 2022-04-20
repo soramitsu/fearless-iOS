@@ -284,20 +284,14 @@ extension AccountImportViewController: AccountImportViewProtocol {
         updateNextButton()
     }
 
-    func setName(viewModel: InputViewModelProtocol, isHidden: Bool) {
+    func setName(viewModel: InputViewModelProtocol, visible: Bool) {
         usernameViewModel = viewModel
 
         rootView.usernameTextField.text = viewModel.inputHandler.value
         viewModel.inputHandler.value.isEmpty ?
             rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
 
-        if isHidden {
-            rootView.usernameTextFieldContainer.isHidden = true
-            rootView.usernameLabelContainer.isHidden = true
-        } else {
-            rootView.usernameTextFieldContainer.isHidden = false
-            rootView.usernameTextFieldContainer.isHidden = false
-        }
+        rootView.setUsernameVisibility(visible)
 
         updateNextButton()
     }

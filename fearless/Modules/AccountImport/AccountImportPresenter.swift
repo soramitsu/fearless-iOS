@@ -241,15 +241,15 @@ private extension AccountImportPresenter {
         let viewModel = InputViewModel(inputHandler: inputHandler)
         usernameViewModel = viewModel
 
-        var isHidden: Bool
+        var visible: Bool
         switch flow {
         case .wallet:
-            isHidden = false
+            visible = true
         case .chain:
-            isHidden = true
+            visible = false
         }
 
-        view?.setName(viewModel: viewModel, isHidden: isHidden)
+        view?.setName(viewModel: viewModel, visible: visible)
     }
 
     func applyPasswordViewModel() {
