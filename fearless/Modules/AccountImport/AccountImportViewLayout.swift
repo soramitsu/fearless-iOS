@@ -359,6 +359,12 @@ extension AccountImportViewLayout {
         ethereumDerivationPathLabel.isHidden = !chainType.includeEthereum
         ethereumCryptoTypeView.isHidden = !chainType.includeEthereum
     }
+
+    func setAdvancedVisibility(_ visible: Bool) {
+        expandableControlContainerView.isHidden = !visible
+        expandableControl.isHidden = !visible
+        advancedContainerView.isHidden = !visible
+    }
 }
 
 private extension AccountImportViewLayout {
