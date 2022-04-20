@@ -42,7 +42,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccounts: Set(chainAccounts),
             assetKeysOrder: entity.assetKeysOrder as? [String],
             assetIdsEnabled: entity.assetIdsEnabled as? [String],
-            canExportEthereumMnemonic: entity.canExportEthereumMnemonic
+            canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
+            unusedChainIds: entity.unusedChainIds as? [String]
         )
     }
 
@@ -61,6 +62,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.assetIdsEnabled = model.assetIdsEnabled as? NSArray
         entity.assetKeysOrder = model.assetKeysOrder as? NSArray
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
+        entity.unusedChainIds = model.unusedChainIds as? NSArray
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {

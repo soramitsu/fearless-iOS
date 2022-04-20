@@ -446,18 +446,17 @@ private extension AccountImportPresenter {
     }
 
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
         let showAction = AlertPresentableAction(
-            title: R.string.localizable.commonYes(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonYes(),
             handler: showHandler
         )
         let closeAction = AlertPresentableAction(
-            title: R.string.localizable.commonNo(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonNo(preferredLanguages: selectedLocale.rLanguages),
             handler: closeHandler
         )
         let alertViewModel = AlertPresentableViewModel(
-            title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: locale.rLanguages),
-            message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: selectedLocale.rLanguages),
             actions: [showAction, closeAction],
             closeAction: nil
         )

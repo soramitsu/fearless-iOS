@@ -213,8 +213,8 @@ extension WalletDetailsViewController: WalletDetailsTableCellDelegate {
 
         switch state {
         case let .normal(viewModel):
-            let chainAccount = viewModel.sections[indexPath.section].viewModels[indexPath.row].chainAccount
-            output.showActions(for: chainAccount)
+            let cellModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]
+            output.showActions(for: cellModel.chain, account: cellModel.account)
         default:
             break
         }

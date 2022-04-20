@@ -349,8 +349,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: Set(customNodes),
-            iosMinAppVersion: entity.minimalAppVersion,
-            unused: entity.unused
+            iosMinAppVersion: entity.minimalAppVersion
         )
 
         let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
@@ -385,10 +384,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.hasCrowdloans = model.hasCrowdloans
         entity.isOrml = model.isOrml
         entity.minimalAppVersion = model.iosMinAppVersion
-
-        if let unused = model.unused {
-            entity.unused = unused
-        }
 
         updateEntityChainAssets(for: entity, from: model, context: context)
 
