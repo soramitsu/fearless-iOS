@@ -255,7 +255,7 @@ extension ExportGenericViewController {
             buttonsStackView.removeArrangedSubview(exportSubstrateButton)
             exportSubstrateButton.removeFromSuperview()
         }
-        
+
         let button = uiFactory.createMainActionButton()
         buttonsStackView.addArrangedSubview(button)
 
@@ -270,7 +270,7 @@ extension ExportGenericViewController {
         )
 
         button.imageWithTitleView?.title = R.string.localizable.exportSubstrateTitle(preferredLanguages: selectedLocale.rLanguages)
-        
+
         exportSubstrateButton = button
     }
 
@@ -279,7 +279,7 @@ extension ExportGenericViewController {
             buttonsStackView.removeArrangedSubview(exportEthereumButton)
             exportEthereumButton.removeFromSuperview()
         }
-        
+
         let button = uiFactory.createMainActionButton()
         buttonsStackView.addArrangedSubview(button)
 
@@ -294,7 +294,7 @@ extension ExportGenericViewController {
         )
 
         button.imageWithTitleView?.title = R.string.localizable.exportEthereumTitle(preferredLanguages: selectedLocale.rLanguages)
-        
+
         exportEthereumButton = button
     }
 
@@ -315,7 +315,7 @@ extension ExportGenericViewController {
             buttonsStackView.removeArrangedSubview(accessoryActionButton)
             accessoryActionButton.removeFromSuperview()
         }
-        
+
         let button = uiFactory.createAccessoryButton()
         buttonsStackView.addArrangedSubview(button)
         button.snp.makeConstraints { make in

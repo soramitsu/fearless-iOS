@@ -36,7 +36,7 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
 
         let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
         let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
-            self?.wireframe.back(view: self?.view)
+            self?.wireframe.back(from: self?.view)
         }
 
         let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
