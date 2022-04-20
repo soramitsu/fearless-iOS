@@ -24,6 +24,8 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     private var mainActionButton: TriangularedButton?
     private var secondaryActionButton: TriangularedButton?
     private var accessoryActionButton: TriangularedButton?
+    private var exportSubstrateButton: TriangularedButton?
+    private var exportEthereumButton: TriangularedButton?
 
     private var containerView: ScrollableContainerView!
     private var sourceTypeView: DetailsTriangularedView!
@@ -225,6 +227,11 @@ extension ExportGenericViewController {
     }
 
     private func setupMainActionButton() {
+        if let mainActionButton = mainActionButton {
+            buttonsStackView.removeArrangedSubview(mainActionButton)
+            mainActionButton.removeFromSuperview()
+        }
+
         let button = uiFactory.createMainActionButton()
         buttonsStackView.addArrangedSubview(button)
 
@@ -244,6 +251,11 @@ extension ExportGenericViewController {
     }
 
     private func setupExportSubstrateButton() {
+        if let exportSubstrateButton = exportSubstrateButton {
+            buttonsStackView.removeArrangedSubview(exportSubstrateButton)
+            exportSubstrateButton.removeFromSuperview()
+        }
+        
         let button = uiFactory.createMainActionButton()
         buttonsStackView.addArrangedSubview(button)
 
@@ -258,9 +270,16 @@ extension ExportGenericViewController {
         )
 
         button.imageWithTitleView?.title = R.string.localizable.exportSubstrateTitle(preferredLanguages: selectedLocale.rLanguages)
+        
+        exportSubstrateButton = button
     }
 
     private func setupExportEthereumButton() {
+        if let exportEthereumButton = exportEthereumButton {
+            buttonsStackView.removeArrangedSubview(exportEthereumButton)
+            exportEthereumButton.removeFromSuperview()
+        }
+        
         let button = uiFactory.createMainActionButton()
         buttonsStackView.addArrangedSubview(button)
 
@@ -275,6 +294,8 @@ extension ExportGenericViewController {
         )
 
         button.imageWithTitleView?.title = R.string.localizable.exportEthereumTitle(preferredLanguages: selectedLocale.rLanguages)
+        
+        exportEthereumButton = button
     }
 
     private func setupAnimatingView() {
@@ -290,6 +311,11 @@ extension ExportGenericViewController {
     }
 
     private func setupAccessoryButton() {
+        if let accessoryActionButton = accessoryActionButton {
+            buttonsStackView.removeArrangedSubview(accessoryActionButton)
+            accessoryActionButton.removeFromSuperview()
+        }
+        
         let button = uiFactory.createAccessoryButton()
         buttonsStackView.addArrangedSubview(button)
         button.snp.makeConstraints { make in

@@ -28,6 +28,27 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
     func setup() {
         view?.setPasswordInputViewModel(passwordInputViewModel)
         view?.setPasswordConfirmationViewModel(confirmationViewModel)
+
+        let locale = localizationManager.selectedLocale
+
+        let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
+        let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
+
+        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
+            self?.wireframe.back(view: self?.view)
+        }
+
+        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle) {}
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [exportAction, cancelAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
 
     func proceed() {
