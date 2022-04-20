@@ -73,10 +73,6 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         view = UIView()
         view.backgroundColor = R.color.colorBlack()
 
-        if accessoryOptionTitle != nil {
-            setupAccessoryButton()
-        }
-
         setupContainerView()
         setupButtonsContainerView()
 
@@ -152,6 +148,10 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             } else if mainOptionTitle != nil {
                 setupMainActionButton()
             }
+        }
+
+        if accessoryOptionTitle != nil {
+            setupAccessoryButton()
         }
 
         setupAdvancedContainerView(with: viewModel, locale: locale)
@@ -329,6 +329,8 @@ extension ExportGenericViewController {
         )
 
         accessoryActionButton = button
+
+        button.imageWithTitleView?.title = accessoryOptionTitle?.value(for: selectedLocale)
     }
 
     private func setupExportDataView(_ exportViewModel: ExportGenericViewModelProtocol) -> UIView? {

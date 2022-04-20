@@ -146,13 +146,7 @@ private extension WalletDetailsTableCell {
     func configure() {
         backgroundColor = .clear
 
-        separatorInset = UIEdgeInsets(
-            top: 0.0,
-            left: UIConstants.horizontalInset,
-            bottom: 0.0,
-            right: UIConstants.horizontalInset
-        )
-
+        separatorInset = UIEdgeInsets.zero
         selectionStyle = .none
 
         let recognizer = UITapGestureRecognizer()
@@ -163,7 +157,7 @@ private extension WalletDetailsTableCell {
     func setupLayout() {
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.top.equalToSuperview().offset(UIConstants.minimalOffset)
             make.leading.trailing.equalToSuperview()
         }
