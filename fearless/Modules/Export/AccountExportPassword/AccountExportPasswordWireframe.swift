@@ -8,4 +8,8 @@ final class AccountExportPasswordWireframe: AccountExportPasswordWireframeProtoc
 
         view?.controller.navigationController?.pushViewController(exportView.controller, animated: true)
     }
+
+    func back(from view: ControllerBackedProtocol?) {
+        view?.controller.navigationController?.popViewController(animated: true)
+    }
 }

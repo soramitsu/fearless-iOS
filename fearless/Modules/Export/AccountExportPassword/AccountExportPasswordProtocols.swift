@@ -33,6 +33,7 @@ protocol AccountExportPasswordInteractorOutputProtocol: AnyObject {
 
 protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, AlertPresentable {
     func showJSONExport(_ jsons: [RestoreJson], from view: AccountExportPasswordViewProtocol?)
+    func back(from view: ControllerBackedProtocol?)
 }
 
 protocol AccountExportPasswordViewFactoryProtocol: AnyObject {
