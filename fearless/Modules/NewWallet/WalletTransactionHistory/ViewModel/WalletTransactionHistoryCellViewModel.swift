@@ -13,4 +13,5 @@ struct WalletTransactionHistoryCellViewModel {
     let statusIcon: UIImage?
     let status: AssetTransactionStatus
     let incoming: Bool
+    let imageViewModel: RemoteImageViewModel?
 }
