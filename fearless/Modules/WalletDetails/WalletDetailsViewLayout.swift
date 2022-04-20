@@ -19,7 +19,6 @@ final class WalletDetailsViewLayout: UIView {
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
-        view.refreshControl = UIRefreshControl()
         view.separatorColor = R.color.colorDarkGray()
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
 
