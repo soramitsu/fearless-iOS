@@ -48,9 +48,7 @@ final class SubqueryHistoryOperationFactory {
     private func prepareFilter() -> String {
         var filterStrings: [String] = []
 
-        if filters.contains(where: { $0.type == .other && $0.selected }) {
-            filterStrings.append(prepareExtrinsicInclusionFilter())
-        } else {
+        if !filters.contains(where: { $0.type == .other && $0.selected }) {
             filterStrings.append("{extrinsic: { isNull: true }}")
         }
 

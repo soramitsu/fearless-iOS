@@ -5,6 +5,8 @@ import UIKit
 
 private typealias SearchableSection = (section: WalletTransactionHistorySection, index: Int)
 
+let extrinsicFeeCallNames: [String] = ["transfer", "contribute"]
+
 protocol WalletTransactionHistoryViewModelFactoryProtocol {
     func merge(
         newItems: [AssetTransactionData],
@@ -293,11 +295,18 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
 
         let signString = incoming ? "+" : "-"
 
+        let moduleName = data.peerFirstName?.capitalized ?? ""
+        var callName = data.peerLastName?.capitalized ?? ""
+
+        if extrinsicFeeCallNames.contains(callName.lowercased()) {
+            callName.append(" fee")
+        }
+
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
-            address: address,
+            address: moduleName,
             icon: try? iconGenerator.generateFromAddress(data.peerId).imageWithFillColor(UIColor.white, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
-            transactionType: data.type,
+            transactionType: callName,
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,
             statusIcon: icon,

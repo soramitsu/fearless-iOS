@@ -35,7 +35,7 @@ enum WalletTransactionHistoryViewFactory {
 
         let viewModelFactory = WalletTransactionHistoryViewModelFactory(
             balanceFormatterFactory: AssetBalanceFormatterFactory(),
-            includesFeeInAmount: true,
+            includesFeeInAmount: false,
             transactionTypes: [.incoming, .outgoing],
             asset: asset,
             iconGenerator: PolkadotIconGenerator()
