@@ -668,3 +668,4 @@
 "account.import.substrate.raw.seed.placeholder" = "Бинарный сид для сабстрейт аккаунтов (64 шестнадцатиричных символа)";
 "account.import.ethereum.raw.seed.placeholder" = "Бинарный сид для эфир аккаунтов (64 шестнадцатиричных символа)";
 "account.import.recovery.select.file" = "Выбрать файл";
+"common.currency" = "Валюта";

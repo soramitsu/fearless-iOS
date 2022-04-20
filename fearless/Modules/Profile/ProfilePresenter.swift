@@ -11,6 +11,7 @@ final class ProfilePresenter {
     private let viewModelFactory: ProfileViewModelFactoryProtocol
 
     private var selectedWallet: MetaAccountModel?
+    private var selectedCurrency: Currency?
 
     init(
         viewModelFactory: ProfileViewModelFactoryProtocol,
@@ -31,13 +32,15 @@ final class ProfilePresenter {
     private func receiveState() {
         guard
             let wallet = selectedWallet,
-            let language = localizationManager?.selectedLanguage
+            let language = localizationManager?.selectedLanguage,
+            let currency = selectedCurrency
         else { return }
 
         let viewModel = viewModelFactory.createProfileViewModel(
             from: wallet,
             locale: selectedLocale,
-            language: language
+            language: language,
+            currency: currency
         )
         let state = ProfileViewState.loaded(viewModel)
         view?.didReceive(state: state)
@@ -48,6 +51,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     func didLoad(view: ProfileViewProtocol) {
         self.view = view
         interactor.setup(with: self)
+    }
+
+    func viewWillAppear() {
+        interactor.updateCurrencyIfNeeded()
     }
 
     func activateAccountDetails() {
@@ -71,6 +78,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showLanguageSelection(from: view)
         case .about:
             wireframe.showAbout(from: view)
+        case .currency:
+            wireframe.showSelectCurrency(from: view)
         case .biometry:
             break
         }
@@ -140,6 +149,11 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
                 locale: selectedLocale
             )
         }
+    }
+
+    func didRecieve(selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        receiveState()
     }
 }
 

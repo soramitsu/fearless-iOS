@@ -23,7 +23,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
             repository: repository,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            settings: SettingsManager.shared
         )
 
         let presenter = ProfilePresenter(

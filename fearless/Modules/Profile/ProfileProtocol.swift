@@ -6,6 +6,7 @@ protocol ProfileViewProtocol: ControllerBackedProtocol {
 
 protocol ProfilePresenterProtocol: AnyObject {
     func didLoad(view: ProfileViewProtocol)
+    func viewWillAppear()
     func activateAccountDetails()
     func activateOption(at index: UInt)
     func logout()
@@ -16,11 +17,13 @@ protocol ProfileInteractorInputProtocol: AnyObject {
     func setup(with output: ProfileInteractorOutputProtocol)
     func updateWallet(_ wallet: MetaAccountModel)
     func logout(completion: @escaping () -> Void)
+    func updateCurrencyIfNeeded()
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {
     func didReceive(wallet: MetaAccountModel)
     func didReceiveUserDataProvider(error: Error)
+    func didRecieve(selectedCurrency: Currency)
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable,
@@ -42,6 +45,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         from view: ProfileViewProtocol?,
         output: CheckPincodeModuleOutput
     )
+    func showSelectCurrency(from view: ProfileViewProtocol?)
     func close(view: ControllerBackedProtocol?)
 }
 

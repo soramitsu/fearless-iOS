@@ -15,6 +15,11 @@ final class ProfileInteractor {
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
+    private let settings: SettingsManagerProtocol
+
+    private lazy var currentCurrency: Currency = {
+        settings.selectedCurrency
+    }()
 
     // MARK: - Constructors
 
@@ -22,12 +27,14 @@ final class ProfileInteractor {
         selectedWalletSettings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        settings: SettingsManagerProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
         self.repository = repository
         self.operationQueue = operationQueue
+        self.settings = settings
     }
 
     // MARK: - Private methods
@@ -53,6 +60,16 @@ final class ProfileInteractor {
             presenter?.didReceiveUserDataProvider(error: error)
         }
     }
+
+    private func provideSelectedCurrency() {
+        presenter?.didRecieve(selectedCurrency: currentCurrency)
+    }
+    
+    private func updateCurrentCurrencyIfNeeded() {
+        guard currentCurrency != settings.selectedCurrency else { return }
+        currentCurrency = settings.selectedCurrency
+        provideSelectedCurrency()
+    }
 }
 
 // MARK: - ProfileInteractorInputProtocol
@@ -62,6 +79,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         presenter = output
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
+        provideSelectedCurrency()
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
@@ -75,6 +93,10 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         let operation = repository.deleteAllOperation()
         operation.completionBlock = completion
         operationQueue.addOperation(operation)
+    }
+
+    func updateCurrencyIfNeeded() {
+        updateCurrentCurrencyIfNeeded()
     }
 }
 

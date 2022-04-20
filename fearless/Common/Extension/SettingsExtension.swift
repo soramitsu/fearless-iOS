@@ -11,6 +11,7 @@ enum SettingsKey: String {
     case stakingAsset
     case stakingNetworkExpansion
     case referralEthereumAccount
+    case selectedCurrency
 }
 
 extension SettingsManagerProtocol {
@@ -95,6 +96,20 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.stakingNetworkExpansion.rawValue)
+        }
+    }
+
+    var selectedCurrency: Currency {
+        get {
+            if let currency = value(of: Currency.self, for: SettingsKey.selectedCurrency.rawValue) {
+                return currency
+            } else {
+                return .defaultCurrency
+            }
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.selectedCurrency.rawValue)
         }
     }
 
