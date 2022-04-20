@@ -37,7 +37,7 @@ enum WalletTransactionHistoryViewFactory {
             balanceFormatterFactory: AssetBalanceFormatterFactory(),
             includesFeeInAmount: false,
             transactionTypes: [.incoming, .outgoing],
-            asset: asset,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
             iconGenerator: PolkadotIconGenerator()
         )
 

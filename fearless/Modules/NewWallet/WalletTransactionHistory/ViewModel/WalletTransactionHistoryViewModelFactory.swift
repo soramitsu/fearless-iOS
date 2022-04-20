@@ -19,20 +19,20 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
     let balanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     let includesFeeInAmount: Bool
     let transactionTypes: [WalletTransactionType]
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let iconGenerator: IconGenerating
 
     init(
         balanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
         includesFeeInAmount: Bool,
         transactionTypes: [WalletTransactionType],
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         iconGenerator: IconGenerating
     ) {
         self.balanceFormatterFactory = balanceFormatterFactory
         self.includesFeeInAmount = includesFeeInAmount
         self.transactionTypes = transactionTypes
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.iconGenerator = iconGenerator
     }
 
@@ -124,7 +124,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
 
         var totalAmountValue = amountValue
 
-        let optionalTransactionType = transactionTypes.first { $0.backendName == data.type }
+        let optionalTransactionType = transactionTypes.first { $0.backendName.lowercased() == data.type.lowercased() }
 
         if includesFeeInAmount,
            let transactionType = optionalTransactionType,
@@ -140,7 +140,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -180,7 +180,8 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             timeString: dateString,
             statusIcon: icon,
             status: data.status,
-            incoming: incoming
+            incoming: incoming,
+            imageViewModel: nil
         )
         return viewModel
     }
@@ -194,7 +195,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
 
         var totalAmountValue = amountValue
 
-        let optionalTransactionType = transactionTypes.first { $0.backendName == data.type }
+        let optionalTransactionType = transactionTypes.first { $0.backendName.lowercased() == data.type.lowercased() }
 
         if includesFeeInAmount,
            let transactionType = optionalTransactionType,
@@ -210,7 +211,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -234,7 +235,8 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             timeString: dateString,
             statusIcon: nil,
             status: data.status,
-            incoming: true
+            incoming: true,
+            imageViewModel: nil
         )
         return viewModel
     }
@@ -248,7 +250,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
 
         var totalAmountValue = amountValue
 
-        let optionalTransactionType = transactionTypes.first { $0.backendName == data.type }
+        let optionalTransactionType = transactionTypes.first { $0.backendName.lowercased() == data.type.lowercased() }
 
         if includesFeeInAmount,
            let transactionType = optionalTransactionType,
@@ -264,7 +266,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -302,17 +304,24 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             callName.append(" fee")
         }
 
+        var imageViewModel: RemoteImageViewModel?
+        if let assetIconURL = chainAsset.chain.icon {
+            imageViewModel = RemoteImageViewModel(url: assetIconURL)
+        }
+
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
             address: moduleName,
-            icon: try? iconGenerator.generateFromAddress(data.peerId).imageWithFillColor(UIColor.white, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
+            icon: nil,
             transactionType: callName,
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,
             statusIcon: icon,
             status: data.status,
-            incoming: incoming
+            incoming: incoming,
+            imageViewModel: imageViewModel
         )
+
         return viewModel
     }
 }
