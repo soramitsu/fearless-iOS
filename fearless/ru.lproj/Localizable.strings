@@ -554,8 +554,7 @@
 "substrate.secret.derivation.path" = "Путь деривации секрета substrate\
 ";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
-"example" = "Пример:\
-";
+"example" = "Пример: %@";
 "pincode.setup.top.title" = "Установить пин-код\
 ";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
