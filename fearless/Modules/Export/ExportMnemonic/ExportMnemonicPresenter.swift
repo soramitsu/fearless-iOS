@@ -111,7 +111,11 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
             )
         }
 
-        let multipleExportViewModel = MultiExportViewModel(viewModels: viewModels)
+        let multipleExportViewModel = MultiExportViewModel(
+            viewModels: viewModels,
+            option: .mnemonic,
+            flow: flow
+        )
         view?.set(viewModel: multipleExportViewModel)
     }
 

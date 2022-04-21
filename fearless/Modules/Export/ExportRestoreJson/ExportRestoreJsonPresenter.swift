@@ -7,9 +7,15 @@ final class ExportRestoreJsonPresenter {
 
     let localizationManager: LocalizationManager
     let models: [RestoreJson]
+    let flow: ExportFlow
 
-    init(models: [RestoreJson], localizationManager: LocalizationManager) {
+    init(
+        models: [RestoreJson],
+        flow: ExportFlow,
+        localizationManager: LocalizationManager
+    ) {
         self.models = models
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 
@@ -49,7 +55,11 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
             )
         }
 
-        let multipleExportViewModel = MultiExportViewModel(viewModels: viewModels)
+        let multipleExportViewModel = MultiExportViewModel(
+            viewModels: viewModels,
+            option: .keystore,
+            flow: flow
+        )
 
         view?.set(viewModel: multipleExportViewModel)
     }

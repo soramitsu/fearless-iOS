@@ -100,7 +100,11 @@ extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
 
         exportViewModels = viewModels
 
-        let multipleExportViewModel = MultiExportViewModel(viewModels: viewModels)
+        let multipleExportViewModel = MultiExportViewModel(
+            viewModels: viewModels,
+            option: .seed,
+            flow: flow
+        )
 
         view?.set(viewModel: multipleExportViewModel)
     }

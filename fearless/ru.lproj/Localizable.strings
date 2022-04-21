@@ -555,7 +555,8 @@
 ";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
 "example" = "Пример: %@";
-"pincode.setup.top.title" = "Установить пин-код";
+"pincode.setup.top.title" = "Установить пин-код\
+";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
 "share.referral.code" = "Поделиться реферальным кодом";
 "copy.referral.code" = "Копировать реферальный код";
