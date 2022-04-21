@@ -29,12 +29,32 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
 
     private var containerView: ScrollableContainerView!
     private var sourceTypeView: DetailsTriangularedView!
+    private var networkView: DetailsTriangularedView?
     private var expandableControl: ExpandableActionControl!
+    private var separatorView: UIView?
     private var advancedContainerViews: [UIView]?
+    private var advancedContainer: UIStackView?
     private var optionViews: [UIView]?
     private var alreadyDisplayedMnemonics: [[String]]?
 
     private var viewModel: MultipleExportGenericViewModelProtocol?
+
+    private var shouldShowAdvanced: Bool {
+        guard let option = viewModel?.option, let flow = viewModel?.flow else {
+            return true
+        }
+        switch (option, flow) {
+        case (.mnemonic, _):
+            return true
+        case let (.seed, flow):
+            if case let .single(chain, _) = flow, chain.isEthereumBased {
+                return false
+            }
+            return true
+        case (.keystore, _):
+            return false
+        }
+    }
 
     var advancedAppearanceAnimator = TransitionAnimator(
         type: .push,
@@ -76,6 +96,13 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setupContainerView()
         setupButtonsContainerView()
 
+        if case let .single(chain, _) = presenter.flow {
+            let networkView = setupNetworkView(
+                chain: chain,
+                locale: selectedLocale
+            )
+            self.networkView = networkView
+        }
         setupSourceTypeView()
         setupExpandableActionView()
         setupAnimatingView()
@@ -89,6 +116,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         presenter.setup()
 
         setupBackButton()
+        setAdvancedContainer(visibility: shouldShowAdvanced)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -101,8 +129,12 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         guard let locale = localizationManager?.selectedLocale else {
             return
         }
-
-        title = R.string.localizable.commonExport(preferredLanguages: locale.rLanguages)
+        switch presenter.flow {
+        case .single:
+            title = R.string.localizable.commonExport(preferredLanguages: locale.rLanguages)
+        case .multiple:
+            title = R.string.localizable.exportWallet(preferredLanguages: locale.rLanguages)
+        }
         sourceTypeView.title = R.string.localizable
             .importSourcePickerTitle(preferredLanguages: locale.rLanguages)
         expandableControl.titleLabel.text = R.string.localizable
@@ -131,15 +163,14 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             view.removeFromSuperview()
         }
 
+        sourceTypeView.subtitle = viewModel.option.titleForLocale(locale, ethereumBased: nil)
         var views: [UIView] = []
         viewModel.viewModels.forEach { exportViewModel in
-            sourceTypeView.subtitle = exportViewModel.option.titleForLocale(locale, ethereumBased: nil)
-
             if let view = setupExportDataView(exportViewModel) {
                 views.append(view)
             }
 
-            if exportViewModel.option == .keystore {
+            if viewModel.option == .keystore {
                 if exportViewModel.ethereumBased {
                     setupExportEthereumButton()
                 } else {
@@ -154,13 +185,16 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             setupAccessoryButton()
         }
 
-        setupAdvancedContainerView(with: viewModel, locale: locale)
+        if shouldShowAdvanced {
+            setupAdvancedContainerView(with: viewModel, locale: locale)
+        }
 
         optionViews = views
 
         advancedContainerViews?.forEach { view in
             view.isHidden = !expandableControl.isActivated
         }
+        setAdvancedContainer(visibility: shouldShowAdvanced)
     }
 
     @objc private func actionMain() {
@@ -433,6 +467,7 @@ extension ExportGenericViewController {
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
         bottomSeparator.heightAnchor.constraint(equalToConstant: UIConstants.formSeparatorWidth).isActive = true
+        separatorView = bottomSeparator
     }
 
     private func setupAdvancedContainerView(
@@ -472,16 +507,6 @@ extension ExportGenericViewController {
                     isEthereum: exportViewModel.ethereumBased
                 )
                 subviews.append(derivationPathView)
-            }
-
-            if let chain = exportViewModel.chain, viewModel.viewModels.count == 1 {
-                let networkTypeView = setupNetworkView(
-                    chain: chain,
-                    advancedContainerView: containerView,
-                    locale: locale
-                )
-
-                subviews.append(networkTypeView)
             }
 
             _ = subviews.reduce(nil) { (_: UIView?, subview: UIView) in
@@ -536,12 +561,11 @@ extension ExportGenericViewController {
 
     private func setupNetworkView(
         chain: ChainModel,
-        advancedContainerView: UIStackView,
         locale: Locale
-    ) -> UIView {
+    ) -> DetailsTriangularedView {
         let networkView = uiFactory.createDetailsView(with: .smallIconTitleSubtitle, filled: true)
         networkView.translatesAutoresizingMaskIntoConstraints = false
-        advancedContainerView.addArrangedSubview(networkView)
+        containerView.stackView.addArrangedSubview(networkView)
 
         networkView.title = R.string.localizable
             .commonNetwork(preferredLanguages: locale.rLanguages)
@@ -554,6 +578,12 @@ extension ExportGenericViewController {
             )
         }
 
+        networkView.widthAnchor.constraint(
+            equalTo: view.widthAnchor,
+            constant: -2.0 * UIConstants.horizontalInset
+        ).isActive = true
+
+        networkView.heightAnchor.constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true
         return networkView
     }
 
@@ -565,6 +595,12 @@ extension ExportGenericViewController {
         }
 
         containerView.stackView.insertArrangedSubview(subview, at: index + 1)
+    }
+
+    private func setAdvancedContainer(visibility: Bool) {
+        advancedContainer?.isHidden = !visibility
+        expandableControl.isHidden = !visibility
+        separatorView?.isHidden = !visibility
     }
 }
 
