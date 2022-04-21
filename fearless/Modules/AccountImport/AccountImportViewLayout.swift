@@ -365,6 +365,11 @@ extension AccountImportViewLayout {
         expandableControl.isHidden = !visible
         advancedContainerView.isHidden = !visible
     }
+
+    func setUsernameVisibility(_ visible: Bool) {
+        usernameTextFieldContainer.isHidden = !visible
+        usernameLabelContainer.isHidden = !visible
+    }
 }
 
 private extension AccountImportViewLayout {
