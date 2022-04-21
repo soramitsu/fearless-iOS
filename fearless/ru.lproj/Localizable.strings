@@ -692,3 +692,4 @@ and depending on the network state, may not be selected to participate";
 "common.error.missing.crypto.type.message" = "Не получилось определить тип шифрования для этого кошелька";
 "no.account.found" = "Аккаунт не найден";
 "missing.account.skip" = "Мне не нужен аккаунт";
+"create.new.pincode" = "Создайте новый PIN код";
