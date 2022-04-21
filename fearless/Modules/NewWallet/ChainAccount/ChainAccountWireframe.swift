@@ -70,9 +70,11 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     func presentChainActionsFlow(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     ) {
         let actionsView = ModalPickerFactory.createPickerForList(
+            title: chain.name,
             items,
             callback: callback,
             context: nil
