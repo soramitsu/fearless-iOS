@@ -1,18 +1,47 @@
 import Foundation
 import BigInt
 
-struct NetworkStakingInfo {
-    let totalStake: BigUInt
-    let minStakeAmongActiveNominators: BigUInt
+enum NetworkStakingInfo {
+    case relaychain(
+        baseInfo: BaseStakingInfo,
+        relaychainInfo: RelaychainStakingInfo
+    )
+    case parachain(baseInfo: BaseStakingInfo)
+
+    var baseInfo: BaseStakingInfo {
+        switch self {
+        case let .relaychain(baseInfo, _):
+            return baseInfo
+        case let .parachain(baseInfo):
+            return baseInfo
+        }
+    }
+
+    var relaychainInfo: RelaychainStakingInfo? {
+        switch self {
+        case let .relaychain(_, relaychainInfo):
+            return relaychainInfo
+        case .parachain:
+            return nil
+        }
+    }
+}
+
+struct BaseStakingInfo {
+    let stakingDuration: StakingDuration
     let minimalBalance: BigUInt
+    let minStakeAmongActiveNominators: BigUInt
+}
+
+struct RelaychainStakingInfo {
+    let totalStake: BigUInt
     let activeNominatorsCount: Int
     let lockUpPeriod: UInt32
-    let stakingDuration: StakingDuration
 }
 
 extension NetworkStakingInfo {
     func calculateMinimumStake(given minNominatorBond: BigUInt?) -> BigUInt {
-        let minStake = max(minStakeAmongActiveNominators, minimalBalance)
+        let minStake = max(baseInfo.minStakeAmongActiveNominators, baseInfo.minimalBalance)
 
         guard let minNominatorBond = minNominatorBond else {
             return minStake

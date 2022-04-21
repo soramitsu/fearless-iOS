@@ -7,6 +7,11 @@ protocol NetworkStakingInfoOperationFactoryProtocol {
         for eraValidatorService: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<NetworkStakingInfo>
+
+    func parachainStakingOperation(
+        for eraValidatorService: EraValidatorServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<NetworkStakingInfo>
 }
 
 final class NetworkStakingInfoOperationFactory {
@@ -108,13 +113,21 @@ final class NetworkStakingInfoOperationFactory {
 
             let stakingDuration = try durationOperation.extractNoCancellableResultData()
 
-            return NetworkStakingInfo(
-                totalStake: totalStake,
-                minStakeAmongActiveNominators: minimalStake,
+            let baseStakingInfo = BaseStakingInfo(
+                stakingDuration: stakingDuration,
                 minimalBalance: minBalance,
+                minStakeAmongActiveNominators: minimalStake
+            )
+
+            let relaychainStakingInfo = RelaychainStakingInfo(
+                totalStake: totalStake,
                 activeNominatorsCount: activeNominatorsCount,
-                lockUpPeriod: lockUpPeriod,
-                stakingDuration: stakingDuration
+                lockUpPeriod: lockUpPeriod
+            )
+
+            return .relaychain(
+                baseInfo: baseStakingInfo,
+                relaychainInfo: relaychainStakingInfo
             )
         }
     }
@@ -123,6 +136,10 @@ final class NetworkStakingInfoOperationFactory {
 // MARK: - NetworkStakingInfoOperationFactoryProtocol
 
 extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
+    func parachainStakingOperation(for _: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+    }
+
     func networkStakingOperation(
         for eraValidatorService: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol
