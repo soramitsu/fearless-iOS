@@ -110,6 +110,7 @@ private extension WalletDetailsViewController {
         rootView.walletView.animatedInputField.delegate = self
 
         rootView.tableView.registerClassForCell(WalletDetailsTableCell.self)
+        rootView.tableView.registerHeaderFooterView(withClass: WalletDetailsTableHeaderView.self)
 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
@@ -140,12 +141,17 @@ extension WalletDetailsViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view: WalletDetailsTableHeaderView = tableView.dequeueReusableHeaderFooterView()
         switch state {
         case let .normal(viewModel):
-            return viewModel.sections[section].title
+            let title = viewModel.sections[section].title
+            view.setTitle(text: title)
+            return view
         case let .export(viewModel):
-            return viewModel.sections[section].title
+            let title = viewModel.sections[section].title
+            view.setTitle(text: title)
+            return view
         case .none:
             return nil
         }

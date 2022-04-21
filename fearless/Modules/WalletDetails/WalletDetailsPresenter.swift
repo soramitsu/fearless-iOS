@@ -167,6 +167,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
         wireframe.presentActions(
             from: view,
             items: items,
+            chain: chainAccount.chain,
             callback: selectionCallback
         )
     }

@@ -123,6 +123,14 @@ extension StakingMainInteractor: EventVisitorProtocol {
         provideEraStakersInfo(from: sharedState.eraValidatorService)
         provideRewardCalculator(from: sharedState.rewardCalculationService)
     }
+
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        guard event.updatedChains.contains(where: {
+            $0.identifier == selectedChainAsset?.chain.identifier
+        }) else { return }
+        updateAfterChainAssetSave()
+        updateAfterSelectedAccountChange()
+    }
 }
 
 extension StakingMainInteractor: ApplicationHandlerDelegate {

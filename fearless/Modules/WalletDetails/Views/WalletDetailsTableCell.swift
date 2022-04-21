@@ -155,6 +155,13 @@ private extension WalletDetailsTableCell {
     }
 
     func setupLayout() {
+        let separator = UIFactory.default.createSeparatorView()
+        contentView.addSubview(separator)
+        separator.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(UIConstants.separatorHeight)
+        }
+
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
