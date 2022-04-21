@@ -272,6 +272,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         wireframe.presentChainActionsFlow(
             from: view,
             items: items,
+            chain: chain,
             callback: selectionCallback
         )
     }

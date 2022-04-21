@@ -36,6 +36,7 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
     func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     )
 
