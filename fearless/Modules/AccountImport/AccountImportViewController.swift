@@ -411,15 +411,6 @@ extension AccountImportViewController: UITextFieldDelegate {
 
         return shouldApply
     }
-
-    func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        guard let viewModel = self.viewModel(for: textField) else {
-            return false
-        }
-
-        viewModel.inputHandler.clearValue()
-        return true
-    }
 }
 
 extension AccountImportViewController: AnimatedTextFieldDelegate {

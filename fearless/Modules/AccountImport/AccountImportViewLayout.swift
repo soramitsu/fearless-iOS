@@ -223,7 +223,7 @@ final class AccountImportViewLayout: UIView {
         view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
-        view.clearButtonMode = .whileEditing
+        view.clearButtonMode = .never
         view.returnKeyType = .done
         return view
     }()
@@ -233,7 +233,7 @@ final class AccountImportViewLayout: UIView {
         view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
-        view.clearButtonMode = .whileEditing
+        view.clearButtonMode = .never
         view.keyboardType = .decimalPad
         return view
     }()
