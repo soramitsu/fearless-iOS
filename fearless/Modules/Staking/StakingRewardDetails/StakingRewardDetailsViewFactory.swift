@@ -12,7 +12,8 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
     ) -> StakingRewardDetailsViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: SettingsManager.shared
         )
 
         let viewModelFactory = StakingRewardDetailsViewModelFactory(

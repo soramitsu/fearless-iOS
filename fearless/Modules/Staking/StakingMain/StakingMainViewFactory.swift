@@ -4,6 +4,7 @@ import FearlessUtils
 import SoraKeystore
 import RobinHood
 
+// swiftlint:disable function_body_length
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     static func createView() -> StakingMainViewProtocol? {
         let settings = SettingsManager.shared
@@ -45,7 +46,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         // MARK: - Presenter
 
-        let viewModelFacade = StakingViewModelFacade()
+        let viewModelFacade = StakingViewModelFacade(settings: settings)
         let analyticsVMFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
             = { chainAsset, balanceViewModelFactory in
                 AnalyticsRewardsViewModelFactory(
@@ -59,7 +60,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let stateViewModelFactory = StakingStateViewModelFactory(
             analyticsRewardsViewModelFactoryBuilder: analyticsVMFactoryBuilder,
-            logger: logger
+            logger: logger,
+            settings: settings
         )
         let networkInfoViewModelFactory = NetworkInfoViewModelFactory()
 

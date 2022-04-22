@@ -64,7 +64,7 @@ final class ProfileInteractor {
     private func provideSelectedCurrency() {
         presenter?.didRecieve(selectedCurrency: currentCurrency)
     }
-    
+
     private func updateCurrentCurrencyIfNeeded() {
         guard currentCurrency != settings.selectedCurrency else { return }
         currentCurrency = settings.selectedCurrency

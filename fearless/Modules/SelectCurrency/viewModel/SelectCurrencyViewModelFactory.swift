@@ -5,17 +5,28 @@ enum Currency: String, CaseIterable, Codable, Equatable {
     static var defaultCurrency: Currency = .usd
 
     case usd
-    case gbr
+    case gbp
     case eur
 
     var icon: UIImage? {
         switch self {
         case .usd:
             return R.image.flagsUsd()
-        case .gbr:
+        case .gbp:
             return R.image.flagsGrb()
         case .eur:
             return R.image.flagsEur()
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .usd:
+            return "$"
+        case .gbp:
+            return "£"
+        case .eur:
+            return "€"
         }
     }
 }
@@ -34,7 +45,7 @@ final class SelectCurrencyViewModelFactory: SelectCurrencyViewModelFactoryProtoc
                     title: item.rawValue.uppercased(),
                     isSelected: item == currency
                 )
-            case .gbr:
+            case .gbp:
                 return SelectCurrencyCellViewModel(
                     icon: item.icon,
                     title: item.rawValue.uppercased(),

@@ -9,14 +9,14 @@ struct AnalyticsRewardDetailsViewFactory {
 
         let settings = SettingsManager.shared
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let addressType = settings.selectedConnection.type
         let chain = addressType.chain
 
+        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
+            targetAssetInfo: targetAssetInfo,
+            limit: StakingConstants.maxAmount,
+            settings: settings
         )
 
         let viewModelFactory = AnalyticsRewardDetailsViewModelFactory(

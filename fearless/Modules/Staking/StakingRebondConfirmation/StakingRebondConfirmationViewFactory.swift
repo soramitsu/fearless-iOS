@@ -41,6 +41,7 @@ struct StakingRebondConfirmationViewFactory {
         return view
     }
 
+    // swiftlint:disable function_parameter_count
     private static func createPresenter(
         chain: ChainModel,
         asset: AssetModel,
@@ -51,7 +52,8 @@ struct StakingRebondConfirmationViewFactory {
     ) -> StakingRebondConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: SettingsManager.shared
         )
 
         let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(asset: asset)
@@ -69,6 +71,7 @@ struct StakingRebondConfirmationViewFactory {
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createInteractor(
         chain: ChainModel,
         asset: AssetModel,
@@ -113,16 +116,8 @@ struct StakingRebondConfirmationViewFactory {
         )
 
         let keystore = Keychain()
-        let signingWrapper = SigningWrapper(
-            keystore: keystore,
-            metaId: selectedAccount.metaId,
-            accountResponse: accountResponse
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
-
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(

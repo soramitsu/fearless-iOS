@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import IrohaCrypto
 import BigInt
+import SoraKeystore
 
 protocol RewardViewModelFactoryProtocol {
     func createRewardViewModel(
@@ -12,18 +13,18 @@ protocol RewardViewModelFactoryProtocol {
 }
 
 final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
-    let targetAssetInfo: AssetBalanceDisplayInfo
-    let priceAssetInfo: AssetBalanceDisplayInfo
-    let formatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let targetAssetInfo: AssetBalanceDisplayInfo
+    private let formatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let settings: SettingsManagerProtocol
 
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
-        priceAssetInfo: AssetBalanceDisplayInfo = AssetBalanceDisplayInfo.usd(),
-        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
+        settings: SettingsManagerProtocol
     ) {
         self.targetAssetInfo = targetAssetInfo
-        self.priceAssetInfo = priceAssetInfo
         self.formatterFactory = formatterFactory
+        self.settings = settings
     }
 
     func createRewardViewModel(
@@ -32,6 +33,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         priceData: PriceData?
     ) -> LocalizableResource<RewardViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in

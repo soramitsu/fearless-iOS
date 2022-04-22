@@ -47,7 +47,8 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     ) -> StakingRedeemPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: SettingsManager.shared
         )
 
         let confirmationViewModelFactory = StakingRedeemViewModelFactory(asset: asset)

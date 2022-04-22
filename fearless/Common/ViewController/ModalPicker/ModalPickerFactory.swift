@@ -553,4 +553,45 @@ enum ModalPickerFactory {
 
         return viewController
     }
+
+    static func createPickerForSelectCurrency(
+        _ selectedCurrency: Currency,
+        callback: ModalPickerSelectionCallback?
+    ) -> UIViewController? {
+        let actions = Currency.allCases
+
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonCurrency(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = true
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.selectedIndex = actions.firstIndex(where: { $0 == selectedCurrency }) ?? 0
+
+        viewController.viewModels = actions.map { action in
+            LocalizableResource { _ in
+                IconWithTitleViewModel(
+                    icon: action.icon,
+                    title: action.rawValue.uppercased()
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight
+            + CGFloat(actions.count) * viewController.cellHeight
+            + viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
 }

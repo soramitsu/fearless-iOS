@@ -44,4 +44,19 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
             completion: nil
         )
     }
+
+    func presentSelectCurrency(
+        from view: ControllerBackedProtocol?,
+        currency: Currency,
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        guard
+            let pickerView = ModalPickerFactory.createPickerForSelectCurrency(
+                currency,
+                callback: callback
+            )
+        else { return }
+
+        view?.controller.navigationController?.present(pickerView, animated: true)
+    }
 }

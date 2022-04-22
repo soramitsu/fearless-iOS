@@ -33,13 +33,13 @@ struct AnalyticsStakeViewFactory {
         )
         let wireframe = AnalyticsStakeWireframe()
 
+        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
+            targetAssetInfo: targetAssetInfo,
+            settings: settings
         )
         let viewModelFactory = AnalyticsStakeViewModelFactory(
-            chain: chain,
+            assetInfo: targetAssetInfo,
             balanceViewModelFactory: balanceViewModelFactory,
             calendar: Calendar(identifier: .gregorian)
         )

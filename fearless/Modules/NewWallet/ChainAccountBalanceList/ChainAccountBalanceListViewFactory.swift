@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import SoraKeystore
 
 struct ChainAccountBalanceListViewFactory {
     static func createView(selectedMetaAccount: MetaAccountModel) -> ChainAccountBalanceListViewProtocol? {
@@ -28,13 +29,16 @@ struct ChainAccountBalanceListViewFactory {
             ),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            settingsManager: SettingsManager.shared
         )
 
         let wireframe = ChainAccountBalanceListWireframe()
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
-        let viewModelFactory = ChainAccountBalanceListViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
+        let viewModelFactory = ChainAccountBalanceListViewModelFactory(
+            assetBalanceFormatterFactory: assetBalanceFormatterFactory
+        )
 
         let localizationManager = LocalizationManager.shared
 

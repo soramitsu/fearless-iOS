@@ -1,6 +1,7 @@
 import Foundation
 import FearlessUtils
 import SoraFoundation
+import SoraKeystore
 
 struct WalletSendViewFactory {
     static func createView(
@@ -14,10 +15,13 @@ struct WalletSendViewFactory {
         }
 
         let wireframe = WalletSendWireframe()
-
+        let settings = SettingsManager.shared
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            settings: settings
+        )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
 

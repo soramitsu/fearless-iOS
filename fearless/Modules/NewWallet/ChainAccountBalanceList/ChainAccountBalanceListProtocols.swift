@@ -6,15 +6,19 @@ protocol ChainAccountBalanceListViewProtocol: ControllerBackedProtocol, Localiza
 
 protocol ChainAccountBalanceListPresenterProtocol: AnyObject {
     func setup()
+    func viewWillAppear()
     func didPullToRefreshOnAssetsTable()
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAccountButton()
     func didTapManageAssetsButton()
+    func didTapTotalBalanceLabel()
 }
 
 protocol ChainAccountBalanceListInteractorInputProtocol: AnyObject {
     func setup()
     func refresh()
+    func updateIfNeeded()
+    func selected(currency: Currency)
 }
 
 protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
@@ -22,6 +26,7 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
+    func didReceiceCurrency(_ currency: Currency)
 }
 
 protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
@@ -30,8 +35,11 @@ protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresen
         chain: ChainModel,
         asset: AssetModel
     )
-
     func showManageAssets(from view: ChainAccountBalanceListViewProtocol?)
-
     func showWalletSelection(from view: ChainAccountBalanceListViewProtocol?)
+    func presentSelectCurrency(
+        from view: ControllerBackedProtocol?,
+        currency: Currency,
+        callback: @escaping ModalPickerSelectionCallback
+    )
 }

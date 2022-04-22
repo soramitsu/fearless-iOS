@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import SoraKeystore
 
 protocol GetBalanceMetaAccountHandler: AnyObject {
     func handleMetaAccountBalance(metaAccount: MetaAccountModel, balance: String?)
@@ -34,6 +35,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private let operationQueue: OperationQueue
     private let chainModelRepository: AnyDataProviderRepository<ChainModel>
     private lazy var balanceBuilder: BalanceBuilderProtocol = BalanceBuilder()
+    private let settings: SettingsManagerProtocol
 
     // MARK: - Private properties
 
@@ -59,12 +61,14 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         balanceForModel: GetBalanceModelType,
         chainModelRepository: AnyDataProviderRepository<ChainModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        settings: SettingsManagerProtocol
     ) {
         self.balanceForModel = balanceForModel
         self.chainModelRepository = chainModelRepository
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.operationQueue = operationQueue
+        self.settings = settings
     }
 
     // MARK: - GetBalanceService
@@ -128,7 +132,8 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         balanceBuilder.buildBalance(
             chains: chainModels,
             accountInfos: accountInfos,
-            prices: prices
+            prices: prices,
+            currency: settings.selectedCurrency
         ) { [weak self] totalBalanceString in
             self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
                 metaAccount: metaAccount,
@@ -149,7 +154,8 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
             for: managedMetaAccounts,
             chains: chainModels,
             accountsInfos: accountsInfoForAccountId,
-            prices: prices
+            prices: prices,
+            currency: settings.selectedCurrency
         ) { [weak self] managedMetaAccounts in
             self?.managedMetaAccountsBalanceHandler?.handleManagedMetaAccountsBalance(
                 managedMetaAccounts: managedMetaAccounts

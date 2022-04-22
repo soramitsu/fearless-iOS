@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import IrohaCrypto
 import SoraFoundation
+import SoraKeystore
 
 final class ChainAccountBalanceListInteractor {
     weak var presenter: ChainAccountBalanceListInteractorOutputProtocol?
@@ -13,10 +14,12 @@ final class ChainAccountBalanceListInteractor {
     private let operationQueue: OperationQueue
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let eventCenter: EventCenterProtocol
+    private let settingsManager: SettingsManagerProtocol
 
     private var chains: [ChainModel]?
 
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
+    private var currentCurrency: Currency?
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -25,7 +28,8 @@ final class ChainAccountBalanceListInteractor {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         operationQueue: OperationQueue,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        settingsManager: SettingsManagerProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainRepository = chainRepository
@@ -34,6 +38,7 @@ final class ChainAccountBalanceListInteractor {
         self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.eventCenter = eventCenter
+        self.settingsManager = settingsManager
     }
 
     private func fetchChainsAndSubscribeBalance() {
@@ -93,44 +98,70 @@ final class ChainAccountBalanceListInteractor {
             )
         }
     }
+
+    private func provideCurrency() {
+        let currentCurrency = settingsManager.selectedCurrency
+        self.currentCurrency = currentCurrency
+        presenter?.didReceiceCurrency(currentCurrency)
+    }
 }
 
 extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
         switch result {
         case let .success(priceData):
-            let chainAsset = chains?.compactMap { Array($0.assets) }.reduce([], +).first(where: { $0?.asset.priceId == priceId })
-            if let asset = chainAsset?.asset,
-               let price = priceData?.price {
-                let updatedAsset = asset.replacingPrice(Decimal(string: price))
-
-                let saveOperation = assetRepository.saveOperation {
-                    [updatedAsset]
-                } _: {
-                    []
-                }
-
-                operationQueue.addOperation(saveOperation)
-            }
+            updatePrice(with: priceData, priceId: priceId)
         case .failure:
-            break
+            updatePrice(with: nil, priceId: priceId)
         }
 
         presenter?.didReceivePriceData(result: result, for: priceId)
+    }
+
+    private func updatePrice(
+        with priceData: PriceData?,
+        priceId: AssetModel.PriceId
+    ) {
+        let chainAsset = chains?
+            .compactMap { Array($0.assets) }
+            .reduce([], +)
+            .first(where: { $0?.asset.priceId == priceId })
+        if let asset = chainAsset?.asset {
+            let price = priceData?.price ?? ""
+            let updatedAsset = asset.replacingPrice(Decimal(string: price))
+
+            let saveOperation = assetRepository.saveOperation {
+                [updatedAsset]
+            } _: {
+                []
+            }
+
+            operationQueue.addOperation(saveOperation)
+        }
     }
 }
 
 extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
-
         fetchChainsAndSubscribeBalance()
-
         presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+        provideCurrency()
     }
 
     func refresh() {
         fetchChainsAndSubscribeBalance()
+    }
+
+    func updateIfNeeded() {
+        guard currentCurrency != settingsManager.selectedCurrency else { return }
+        provideCurrency()
+        priceProviders?.forEach { $0.refresh() }
+    }
+
+    func selected(currency: Currency) {
+        settingsManager.selectedCurrency = currency
+        updateIfNeeded()
     }
 }
 

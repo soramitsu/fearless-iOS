@@ -22,7 +22,10 @@ enum CustomValidatorListViewFactory {
             asset: asset
         )
 
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: asset.displayInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            settings: SettingsManager.shared
+        )
 
         let viewModelFactory = CustomValidatorListViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory

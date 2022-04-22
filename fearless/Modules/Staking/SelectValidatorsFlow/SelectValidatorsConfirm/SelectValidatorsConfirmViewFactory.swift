@@ -100,17 +100,18 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
     ) -> SelectValidatorsConfirmViewProtocol? {
         let confirmViewModelFactory = SelectValidatorsConfirmViewModelFactory()
 
+        let settings = SettingsManager.shared
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            priceAssetInfo: AssetBalanceDisplayInfo.usd(),
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: settings
         )
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            priceAssetInfo: AssetBalanceDisplayInfo.usd(),
             formatterFactory: AssetBalanceFormatterFactory(),
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: settings
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(

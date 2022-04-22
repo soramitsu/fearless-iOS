@@ -20,6 +20,7 @@ final class ChainAccountPresenter {
     private var priceData: PriceData?
     private var minimumBalance: BigUInt?
     private var balanceLocks: BalanceLocks?
+    private var currency: Currency?
 
     private lazy var rampProvider = RampProvider()
     private lazy var moonpayProvider: PurchaseProviderProtocol = {
@@ -51,18 +52,24 @@ final class ChainAccountPresenter {
     }
 
     func provideViewModel() {
+        guard let currency = currency else {
+            return
+        }
+
         let accountBalanceViewModel = viewModelFactory.buildAccountBalanceViewModel(
             accountInfo: accountInfo,
             priceData: priceData,
             asset: asset,
-            locale: selectedLocale
+            locale: selectedLocale,
+            currency: currency
         )
 
         let assetInfoViewModel = viewModelFactory.buildAssetInfoViewModel(
             chain: chain,
             assetModel: asset,
             priceData: priceData,
-            locale: selectedLocale
+            locale: selectedLocale,
+            currency: currency
         )
 
         let chainOptionsViewModel = viewModelFactory.buildChainOptionsViewModel(chain: chain)
@@ -159,7 +166,8 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
            let feeFrozen = Decimal.fromSubstratePerbill(value: info.data.feeFrozen),
            let minBalance = minimumBalance,
            let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance),
-           let locks = balanceLocks {
+           let locks = balanceLocks,
+           let currency = currency {
             var price: Decimal = 0
             if let priceData = priceData, let decimalPrice = Decimal(string: priceData.price) {
                 price = decimalPrice
@@ -170,14 +178,15 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
                 miscFrozen: miscFrozen,
                 feeFrozen: feeFrozen,
                 price: price,
-                priceChange: priceData?.usdDayChange ?? 0,
+                priceChange: priceData?.fiatDayChange ?? 0,
                 minimalBalance: decimalMinBalance,
                 balanceLocks: locks
             )
             wireframe.presentLockedInfo(
                 from: view,
                 balanceContext: balanceContext,
-                info: asset.displayInfo
+                info: asset.displayInfo,
+                currency: currency
             )
         }
     }
@@ -274,6 +283,11 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             items: items,
             callback: selectionCallback
         )
+    }
+
+    func didRecieve(currency: Currency) {
+        self.currency = currency
+        provideViewModel()
     }
 }
 

@@ -12,14 +12,16 @@ protocol ChainAccountViewModelFactoryProtocol {
         accountInfo: AccountInfo?,
         priceData: PriceData?,
         asset: AssetModel,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> AccountBalanceViewModel
 
     func buildAssetInfoViewModel(
         chain: ChainModel,
         assetModel: AssetModel,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> AssetInfoViewModel
 
     func buildChainOptionsViewModel(chain: ChainModel) -> ChainOptionsViewModel
@@ -50,7 +52,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         accountInfo: AccountInfo?,
         priceData: PriceData?,
         asset: AssetModel,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> AccountBalanceViewModel {
         let totalAssetValues = AssetAmountValues(
             asset: asset,
@@ -70,8 +73,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             priceData: priceData
         )
 
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let fiatFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo).value(for: locale)
+        let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let fiatFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo).value(for: locale)
         let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: asset.displayInfo).value(for: locale)
 
         return AccountBalanceViewModel(
@@ -89,7 +92,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         chain: ChainModel,
         assetModel: AssetModel,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> AssetInfoViewModel {
         AssetInfoViewModel(
             assetInfo: assetModel.displayInfo,
@@ -97,7 +101,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             priceAttributedString: buildPriceViewModel(
                 for: assetModel,
                 priceData: priceData,
-                locale: locale
+                locale: locale,
+                currency: currency
             ), chainViewModel: buildChainOptionsViewModel(chain: chain)
         )
     }

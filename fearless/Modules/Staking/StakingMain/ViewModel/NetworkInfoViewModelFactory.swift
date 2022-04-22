@@ -27,7 +27,10 @@ final class NetworkInfoViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
+        let factory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            settings: SettingsManager.shared
+        )
 
         self.chainAsset = chainAsset
         balanceViewModelFactory = factory

@@ -3,6 +3,7 @@ import CommonWallet
 import SoraFoundation
 import BigInt
 import IrohaCrypto
+import SoraKeystore
 
 protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState
@@ -14,8 +15,9 @@ typealias AnalyticsRewardsViewModelFactoryBuilder = (
 ) -> AnalyticsRewardsViewModelFactoryProtocol
 
 final class StakingStateViewModelFactory {
-    let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
-    let logger: LoggerProtocol?
+    private let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
+    private let logger: LoggerProtocol?
+    private let settings: SettingsManagerProtocol
 
     private var lastViewModel: StakingViewState = .undefined
 
@@ -27,10 +29,12 @@ final class StakingStateViewModelFactory {
 
     init(
         analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        settings: SettingsManagerProtocol
     ) {
         self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
+        self.settings = settings
     }
 
     private func updateCacheForChainAsset(_ newChainAsset: ChainAsset) {
@@ -61,7 +65,10 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
+        let factory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            settings: settings
+        )
 
         balanceViewModelFactory = factory
 
@@ -73,7 +80,10 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = RewardViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
+        let factory = RewardViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            settings: settings
+        )
 
         rewardViewModelFactory = factory
 

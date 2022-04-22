@@ -1,10 +1,14 @@
 import Foundation
 import RobinHood
+import SoraKeystore
 
 final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     typealias Model = PriceData
 
-    let priceId: AssetModel.PriceId?
+    private let priceId: AssetModel.PriceId?
+    private var settings: SettingsManagerProtocol {
+        SettingsManager.shared
+    }
 
     init(assetId: WalletAssetId) {
         priceId = assetId.coingeckoTokenId
@@ -16,7 +20,10 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
 
     func fetchOperation() -> CompoundOperationWrapper<PriceData?> {
         if let priceId = priceId {
-            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [priceId])
+            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
+                for: [priceId],
+                currency: settings.selectedCurrency
+            )
 
             let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
                 try priceOperation.extractNoCancellableResultData().first

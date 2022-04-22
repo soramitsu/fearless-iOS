@@ -13,7 +13,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
     ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: SettingsManager.shared
         )
 
         let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(

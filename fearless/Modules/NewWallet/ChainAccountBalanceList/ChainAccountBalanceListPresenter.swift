@@ -15,6 +15,7 @@ final class ChainAccountBalanceListPresenter {
     private var prices: [AssetModel.PriceId: PriceData] = [:]
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
+    private var currency: Currency?
 
     init(
         interactor: ChainAccountBalanceListInteractorInputProtocol,
@@ -29,7 +30,10 @@ final class ChainAccountBalanceListPresenter {
     }
 
     private func provideViewModel() {
-        guard let selectedMetaAccount = selectedMetaAccount else {
+        guard
+            let selectedMetaAccount = selectedMetaAccount,
+            let currency = currency
+        else {
             return
         }
 
@@ -39,7 +43,8 @@ final class ChainAccountBalanceListPresenter {
             locale: selectedLocale,
             accountInfos: accountInfos,
             prices: prices,
-            sortedKeys: sortedKeys
+            sortedKeys: sortedKeys,
+            currency: currency
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
@@ -69,6 +74,27 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
                 self?.wireframe.showAppstoreUpdatePage()
             }
         }
+    }
+
+    func viewWillAppear() {
+        interactor.updateIfNeeded()
+    }
+
+    func didTapTotalBalanceLabel() {
+        guard let currency = currency else { return }
+
+        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
+            guard let strongSelf = self else { return }
+
+            let selectedCurrency = Currency.allCases[selectedIndex]
+            strongSelf.interactor.selected(currency: selectedCurrency)
+        }
+
+        wireframe.presentSelectCurrency(
+            from: view,
+            currency: currency,
+            callback: selectionCallback
+        )
     }
 }
 
@@ -107,6 +133,10 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didTapAccountButton() {
         wireframe.showWalletSelection(from: view)
+    }
+
+    func didReceiceCurrency(_ currency: Currency) {
+        self.currency = currency
     }
 }
 

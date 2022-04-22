@@ -30,7 +30,8 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            settings: settings
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
@@ -62,6 +63,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         return view
     }
 
+    // swiftlint:disable function_body_length
     private static func createInteractor(
         chain: ChainModel,
         asset: AssetModel,

@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import FearlessUtils
+import SoraKeystore
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
@@ -18,6 +19,7 @@ final class ChainAccountInteractor {
     let transactionSubscription: StorageSubscriptionContainer?
     let repository: AnyDataProviderRepository<MetaAccountModel>
     let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+    private let settingsManager: SettingsManager
 
     var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
@@ -34,7 +36,8 @@ final class ChainAccountInteractor {
         eventCenter: EventCenterProtocol,
         transactionSubscription: StorageSubscriptionContainer?,
         repository: AnyDataProviderRepository<MetaAccountModel>,
-        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
+        settingsManager: SettingsManager
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
@@ -49,6 +52,7 @@ final class ChainAccountInteractor {
         self.transactionSubscription = transactionSubscription
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
+        self.settingsManager = settingsManager
     }
 
     private func subscribeToAccountInfo() {
@@ -104,6 +108,10 @@ final class ChainAccountInteractor {
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
+
+    private func provideSelectedCurrency() {
+        presenter?.didRecieve(currency: settingsManager.selectedCurrency)
+    }
 }
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
@@ -113,6 +121,7 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         subscribeToAccountInfo()
         fetchMinimalBalance()
         fetchBalanceLocks()
+        provideSelectedCurrency()
 
         if let priceId = asset.priceId {
             _ = subscribeToPrice(for: priceId)

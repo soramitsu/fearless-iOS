@@ -25,7 +25,10 @@ struct CrowdloanContributionConfirmViewFactory {
         let wireframe = CrowdloanContributionConfirmWireframe()
 
         let assetInfo = asset.asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            settings: SettingsManager.shared
+        )
 
         let localizationManager = LocalizationManager.shared
 
