@@ -60,11 +60,12 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
         }
 
         switch flow {
-        case let .single(chain, address):
+        case let .single(chain, address, wallet):
             interactor.exportAccount(
                 address: address,
                 password: password,
-                chain: chain
+                chain: chain,
+                wallet: wallet
             )
         case let .multiple(wallet, _):
             interactor.exportWallet(

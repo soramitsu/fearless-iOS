@@ -239,6 +239,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     chain: self.chain,
                     options: options,
                     locale: self.selectedLocale,
+                    wallet: self.selectedMetaAccount,
                     from: self.view
                 )
             case .switchNode:

@@ -47,7 +47,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         case (.mnemonic, _):
             return true
         case let (.seed, flow):
-            if case let .single(chain, _) = flow, chain.isEthereumBased {
+            if case let .single(chain, _, _) = flow, chain.isEthereumBased {
                 return false
             }
             return true
@@ -96,7 +96,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setupContainerView()
         setupButtonsContainerView()
 
-        if case let .single(chain, _) = presenter.flow {
+        if case let .single(chain, _, _) = presenter.flow {
             let networkView = setupNetworkView(
                 chain: chain,
                 locale: selectedLocale
