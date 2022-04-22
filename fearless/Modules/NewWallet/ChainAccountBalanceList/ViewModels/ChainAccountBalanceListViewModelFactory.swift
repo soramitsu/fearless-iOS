@@ -230,7 +230,7 @@ extension ChainAccountBalanceListViewModelFactory {
 
         let changeString: String = priceData.usdDayChange.map {
             let percentValue = $0 / 100
-            return percentValue.percentString() ?? ""
+            return percentValue.percentString(locale: locale) ?? ""
         } ?? ""
 
         let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
