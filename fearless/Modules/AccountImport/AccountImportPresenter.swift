@@ -162,7 +162,7 @@ private extension AccountImportPresenter {
         case let .wallet(step):
             switch step {
             case .first:
-                username = ""
+                username = preferredData?.username ?? ""
             case let .second(data):
                 username = data.username
             }
@@ -261,7 +261,7 @@ private extension AccountImportPresenter {
         case .mnemonic, .seed:
             passwordViewModel = nil
         case .keystore:
-            let viewModel = InputViewModel(inputHandler: InputHandler(required: false))
+            let viewModel = InputViewModel(inputHandler: InputHandler(required: true))
             passwordViewModel = viewModel
 
             view?.setPassword(viewModel: viewModel)
