@@ -2,43 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 
-protocol NetworkStakingInfoOperationFactoryProtocol {
-    func networkStakingOperation(
-        for eraValidatorService: EraValidatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> CompoundOperationWrapper<NetworkStakingInfo>
-
-    func parachainStakingOperation(
-        for eraValidatorService: EraValidatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> CompoundOperationWrapper<NetworkStakingInfo>
-}
-
-final class NetworkStakingInfoOperationFactory {
-    // MARK: - Private functions
-
-    let durationOperationFactory: StakingDurationOperationFactoryProtocol
-    init(durationFactory: StakingDurationOperationFactoryProtocol = StakingDurationOperationFactory()) {
-        durationOperationFactory = durationFactory
-    }
-
-    private func createConstOperation<T>(
-        dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
-        path: ConstantCodingPath
-    ) -> PrimitiveConstantOperation<T> where T: LosslessStringConvertible {
-        let operation = PrimitiveConstantOperation<T>(path: path)
-
-        operation.configurationBlock = {
-            do {
-                operation.codingFactory = try runtime.extractNoCancellableResultData()
-            } catch {
-                operation.result = .failure(error)
-            }
-        }
-
-        return operation
-    }
-
+final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func deriveTotalStake(from eraStakersInfo: EraStakersInfo) -> BigUInt {
         eraStakersInfo.validators
             .map(\.exposure.total)
@@ -135,11 +99,7 @@ final class NetworkStakingInfoOperationFactory {
 
 // MARK: - NetworkStakingInfoOperationFactoryProtocol
 
-extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
-    func parachainStakingOperation(for _: EraValidatorServiceProtocol, runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<NetworkStakingInfo> {
-        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-    }
-
+extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
     func networkStakingOperation(
         for eraValidatorService: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol

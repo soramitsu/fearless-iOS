@@ -66,7 +66,7 @@ final class NetworkInfoViewModelFactory {
             return nil
         }
 
-        createStakeViewModel(
+        return createStakeViewModel(
             stake: totalStake,
             chainAsset: chainAsset,
             priceData: priceData
@@ -89,19 +89,27 @@ final class NetworkInfoViewModelFactory {
     private func createActiveNominatorsViewModel(
         with networkStakingInfo: NetworkStakingInfo
     ) -> LocalizableResource<String>? {
-        LocalizableResource { locale in
+        guard let activeNominatorsCount = networkStakingInfo.relaychainInfo?.activeNominatorsCount else {
+            return nil
+        }
+
+        return LocalizableResource { locale -> String in
             let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
             return quantityFormatter
-                .string(from: networkStakingInfo.relaychainInfo?.activeNominatorsCount as NSNumber) ?? ""
+                .string(from: activeNominatorsCount as NSNumber) ?? ""
         }
     }
 
     private func createLockUpPeriodViewModel(
         with networkStakingInfo: NetworkStakingInfo
-    ) -> LocalizableResource<String> {
+    ) -> LocalizableResource<String>? {
+        guard let lockUpPeriod = networkStakingInfo.relaychainInfo?.lockUpPeriod else {
+            return nil
+        }
+
         let eraPerDay = networkStakingInfo.baseInfo.stakingDuration.era.intervalsInDay
-        let lockUpPeriodInDays = eraPerDay > 0 ? Int(networkStakingInfo.relaychainInfo?.lockUpPeriod) / eraPerDay : 0
+        let lockUpPeriodInDays = eraPerDay > 0 ? Int(lockUpPeriod) / eraPerDay : 0
 
         return LocalizableResource { locale in
             R.string.localizable.commonDaysFormat(
@@ -158,10 +166,10 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
 
         return LocalizableResource { locale in
             NetworkStakingInfoViewModel(
-                totalStake: localizedTotalStake.value(for: locale),
+                totalStake: localizedTotalStake?.value(for: locale),
                 minimalStake: localizedMinimalStake.value(for: locale),
-                activeNominators: nominatorsCount.value(for: locale),
-                lockUpPeriod: localizedLockUpPeriod.value(for: locale)
+                activeNominators: nominatorsCount?.value(for: locale),
+                lockUpPeriod: localizedLockUpPeriod?.value(for: locale)
             )
         }
     }

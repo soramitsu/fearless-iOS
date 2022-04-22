@@ -57,4 +57,12 @@ extension ConstantCodingPath {
     static var blockHashCount: ConstantCodingPath {
         ConstantCodingPath(moduleName: "System", constantName: "BlockHashCount")
     }
+
+    static var revokeDelegationDelay: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "revokeDelegationDelay")
+    }
+
+    static var minDelegation: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "minDelegation")
+    }
 }

@@ -163,7 +163,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             accountProviderFactory: accountProviderFactory,
             eventCenter: EventCenter.shared,
             operationManager: operationManager,
-            eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
+            eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
             applicationHandler: ApplicationHandler(),
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             commonSettings: settings,
