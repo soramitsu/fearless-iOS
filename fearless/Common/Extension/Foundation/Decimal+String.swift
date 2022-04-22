@@ -17,8 +17,9 @@ extension Decimal {
         return formatter.string(from: self as NSDecimalNumber)
     }
 
-    func percentString() -> String? {
+    func percentString(locale: Locale?) -> String? {
         let formatter = NumberFormatter()
+        formatter.locale = locale
         formatter.numberStyle = .percent
         formatter.positivePrefix = formatter.plusSign
         formatter.maximumFractionDigits = 2
