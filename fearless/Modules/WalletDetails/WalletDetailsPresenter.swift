@@ -132,7 +132,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             switch action {
             case .export:
                 self.wireframe.showExport(
-                    flow: .single(chain: chainAccount.chain, address: address),
+                    flow: .single(chain: chainAccount.chain, address: address, wallet: self.flow.wallet),
                     options: options,
                     locale: self.selectedLocale,
                     from: self.view

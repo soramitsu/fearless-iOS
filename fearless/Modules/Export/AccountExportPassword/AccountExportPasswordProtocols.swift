@@ -24,7 +24,8 @@ protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
     func exportAccount(
         address: String,
         password: String,
-        chain: ChainModel
+        chain: ChainModel,
+        wallet: MetaAccountModel
     )
 }
 

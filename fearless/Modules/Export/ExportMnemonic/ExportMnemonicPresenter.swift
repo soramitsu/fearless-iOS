@@ -78,8 +78,8 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 
     func setup() {
         switch flow {
-        case let .single(chain, address):
-            interactor.fetchExportDataForAddress(address, chain: chain)
+        case let .single(chain, address, wallet):
+            interactor.fetchExportDataForAddress(address, chain: chain, wallet: wallet)
         case let .multiple(wallet, accounts):
             interactor.fetchExportDataForWallet(wallet: wallet, accounts: flow.exportingAccounts)
         }

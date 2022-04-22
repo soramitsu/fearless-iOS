@@ -85,6 +85,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         chain: ChainModel,
         options: [ExportOption],
         locale: Locale?,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 
