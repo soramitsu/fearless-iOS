@@ -10,19 +10,22 @@ final class AccountManagementInteractor {
     let settings: SelectedWalletSettings
     let operationQueue: OperationQueue
     let eventCenter: EventCenterProtocol
+    let getBalanceProvider: GetBalanceProviderProtocol
 
     init(
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         repositoryObservable: AnyDataProviderRepositoryObservable<ManagedMetaAccountModel>,
         settings: SelectedWalletSettings,
         operationQueue: OperationQueue,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        getBalanceProvider: GetBalanceProviderProtocol
     ) {
         self.repository = repository
         self.repositoryObservable = repositoryObservable
         self.settings = settings
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
+        self.getBalanceProvider = getBalanceProvider
     }
 
     private func provideInitialList() {
@@ -34,8 +37,8 @@ final class AccountManagementInteractor {
                 do {
                     let items = try operation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    self?.getBalances(for: items)
                     let changes = items.map { DataProviderChange.insert(newItem: $0) }
-
                     self?.presenter?.didReceive(changes: changes)
                 } catch {
                     self?.presenter?.didReceive(error: error)
@@ -44,6 +47,10 @@ final class AccountManagementInteractor {
         }
 
         operationQueue.addOperation(operation)
+    }
+
+    private func getBalances(for items: [ManagedMetaAccountModel]) {
+        getBalanceProvider.getBalances(for: items, handler: self)
     }
 }
 
@@ -117,5 +124,12 @@ extension AccountManagementInteractor: EventVisitorProtocol {
             }
         }
         operationQueue.addOperation(operation)
+    }
+}
+
+extension AccountManagementInteractor: GetBalanceManagedMetaAccountsHandler {
+    func handleManagedMetaAccountsBalance(managedMetaAccounts: [ManagedMetaAccountModel]) {
+        let changes = managedMetaAccounts.map { DataProviderChange.update(newItem: $0) }
+        presenter?.didReceive(changes: changes)
     }
 }

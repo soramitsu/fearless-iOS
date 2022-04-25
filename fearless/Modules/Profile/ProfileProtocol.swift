@@ -1,22 +1,19 @@
 import Foundation
 
 protocol ProfileViewProtocol: ControllerBackedProtocol {
-    func didLoad(userViewModel: ProfileUserViewModelProtocol)
-    func didLoad(
-        optionViewModels: [ProfileOptionViewModelProtocol],
-        logoutViewModel: ProfileOptionViewModelProtocol
-    )
+    func didReceive(state: ProfileViewState)
 }
 
 protocol ProfilePresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: ProfileViewProtocol)
     func activateAccountDetails()
     func activateOption(at index: UInt)
     func logout()
+    func switcherValueChanged(isOn: Bool)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(with output: ProfileInteractorOutputProtocol)
     func updateWallet(_ wallet: MetaAccountModel)
     func logout(completion: @escaping () -> Void)
 }

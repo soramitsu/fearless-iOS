@@ -1,6 +1,7 @@
 import SoraFoundation
 protocol ChainAccountBalanceListViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(state: ChainAccountBalanceListViewState)
+    func didReceive(locale: Locale)
 }
 
 protocol ChainAccountBalanceListPresenterProtocol: AnyObject {
@@ -8,6 +9,7 @@ protocol ChainAccountBalanceListPresenterProtocol: AnyObject {
     func didPullToRefreshOnAssetsTable()
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAccountButton()
+    func didTapManageAssetsButton()
 }
 
 protocol ChainAccountBalanceListInteractorInputProtocol: AnyObject {
@@ -22,12 +24,14 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
 }
 
-protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
     func showChainAccount(
         from view: ChainAccountBalanceListViewProtocol?,
         chain: ChainModel,
         asset: AssetModel
     )
+
+    func showManageAssets(from view: ChainAccountBalanceListViewProtocol?)
 
     func showWalletSelection(from view: ChainAccountBalanceListViewProtocol?)
 }

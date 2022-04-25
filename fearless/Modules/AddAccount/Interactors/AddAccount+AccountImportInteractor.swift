@@ -24,9 +24,7 @@ extension AddAccount {
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: operationManager,
-                keystoreImportService: keystoreImportService,
-                supportedNetworks: Chain.allCases, // TODO: Remove after interactors are done
-                defaultNetwork: Chain.kusama // TODO: Remove after interactors are done
+                keystoreImportService: keystoreImportService
             )
         }
 

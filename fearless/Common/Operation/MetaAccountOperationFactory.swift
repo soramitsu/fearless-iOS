@@ -5,28 +5,13 @@ import RobinHood
 import SoraKeystore
 
 protocol MetaAccountOperationFactoryProtocol {
-    func newMetaAccountOperation(request: MetaAccountCreationRequest, mnemonic: IRMnemonicProtocol)
-        -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel>
     func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
     func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
 
-    func replaceChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportMnemonicRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel>
-
-    func replaceChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportSeedRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel>
-
-    func replaceChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportKeystoreRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
 }
 
 final class MetaAccountOperationFactory {
@@ -53,16 +38,17 @@ private extension MetaAccountOperationFactory {
     // MARK: - Factory functions
 
     func createKeypairFactory(_ cryptoType: CryptoType, isEthereumBased: Bool) -> KeypairFactoryProtocol {
-        switch cryptoType {
-        case .sr25519:
-            return SR25519KeypairFactory()
-        case .ed25519:
-            return Ed25519KeypairFactory()
-        case .ecdsa:
-            if isEthereumBased {
-                return BIP32KeypairFactory()
+        if isEthereumBased {
+            return BIP32KeypairFactory()
+        } else {
+            switch cryptoType {
+            case .sr25519:
+                return SR25519KeypairFactory()
+            case .ed25519:
+                return Ed25519KeypairFactory()
+            case .ecdsa:
+                return EcdsaKeypairFactory()
             }
-            return EcdsaKeypairFactory()
         }
     }
 
@@ -239,10 +225,10 @@ private extension MetaAccountOperationFactory {
         name: String,
         substratePublicKey: Data,
         substrateCryptoType: CryptoType,
-        ethereumPublicKey: Data
+        ethereumPublicKey: Data?
     ) throws -> MetaAccountModel {
         let substrateAccountId = try substratePublicKey.publicKeyToAccountId()
-        let ethereumAddress = try ethereumPublicKey.ethereumAddressFromPublicKey()
+        let ethereumAddress = try ethereumPublicKey?.ethereumAddressFromPublicKey()
 
         return MetaAccountModel(
             metaId: UUID().uuidString,
@@ -252,7 +238,11 @@ private extension MetaAccountOperationFactory {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: []
+            chainAccounts: [],
+            assetKeysOrder: nil,
+            assetIdsEnabled: nil,
+            canExportEthereumMnemonic: true,
+            unusedChainIds: nil
         )
     }
 }
@@ -261,60 +251,18 @@ private extension MetaAccountOperationFactory {
 
 extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(
-        request: MetaAccountCreationRequest,
-        mnemonic: IRMnemonicProtocol
+        request: MetaAccountImportMnemonicRequest
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let substrateQuery = try getQuery(
-                seedSource: .mnemonic(mnemonic),
-                derivationPath: request.substrateDerivationPath,
-                cryptoType: request.substrateCryptoType,
-                ethereumBased: false
-            )
-
-            let ethereumQuery = try getQuery(
-                seedSource: .mnemonic(mnemonic),
-                derivationPath: request.ethereumDerivationPath,
-                cryptoType: .ecdsa,
-                ethereumBased: true
-            )
-
-            let metaAccount = try createMetaAccount(
-                name: request.username,
-                substratePublicKey: substrateQuery.publicKey,
-                substrateCryptoType: request.substrateCryptoType,
-                ethereumPublicKey: ethereumQuery.publicKey
-            )
-
-            let metaId = metaAccount.metaId
-
-            try saveSecretKey(substrateQuery.privateKey, metaId: metaId, ethereumBased: false)
-            try saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
-            try saveSeed(substrateQuery.seed, metaId: metaId, ethereumBased: false)
-
-            try saveSecretKey(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
-            try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
-            try saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
-
-            try saveEntropy(mnemonic.entropy(), metaId: metaId)
-
-            return metaAccount
-        }
-    }
-
-    //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
-    func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
-        ClosureOperation { [self] in
-            let seed = try Data(hexString: request.seed)
-            let substrateQuery = try getQuery(
-                seedSource: .seed(seed),
+                seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.substrateDerivationPath,
                 cryptoType: request.cryptoType,
                 ethereumBased: false
             )
 
             let ethereumQuery = try getQuery(
-                seedSource: .seed(seed),
+                seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.ethereumDerivationPath,
                 cryptoType: .ecdsa,
                 ethereumBased: true
@@ -337,6 +285,54 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
             try saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
 
+            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+
+            return metaAccount
+        }
+    }
+
+    //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
+    func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
+        ClosureOperation { [self] in
+            let substrateSeed = try Data(hexString: request.substrateSeed)
+            let substrateQuery = try getQuery(
+                seedSource: .seed(substrateSeed),
+                derivationPath: request.substrateDerivationPath,
+                cryptoType: request.cryptoType,
+                ethereumBased: false
+            )
+
+            var ethereumQuery: AccountQuery?
+            if let ethereumSeedString = request.ethereumSeed,
+               let ethereumSeed = try? Data(hexString: ethereumSeedString),
+               let ethereumDerivationPath = request.ethereumDerivationPath {
+                ethereumQuery = try getQuery(
+                    seedSource: .seed(ethereumSeed),
+                    derivationPath: ethereumDerivationPath,
+                    cryptoType: .ecdsa,
+                    ethereumBased: true
+                )
+            }
+
+            let metaAccount = try createMetaAccount(
+                name: request.username,
+                substratePublicKey: substrateQuery.publicKey,
+                substrateCryptoType: request.cryptoType,
+                ethereumPublicKey: ethereumQuery?.publicKey
+            )
+
+            let metaId = metaAccount.metaId
+
+            try saveSecretKey(substrateQuery.privateKey, metaId: metaId, ethereumBased: false)
+            try saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
+            try saveSeed(substrateQuery.seed, metaId: metaId, ethereumBased: false)
+
+            if let query = ethereumQuery, let derivationPath = request.ethereumDerivationPath {
+                try saveSecretKey(query.privateKey, metaId: metaId, ethereumBased: true)
+                try saveDerivationPath(derivationPath, metaId: metaId, ethereumBased: true)
+                try saveSeed(query.privateKey, metaId: metaId, ethereumBased: true)
+            }
+
             return metaAccount
         }
     }
@@ -345,17 +341,17 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
 
-            guard let data = request.keystore.data(using: .utf8) else {
+            guard let substrateData = request.substrateKeystore.data(using: .utf8) else {
                 throw AccountOperationFactoryError.invalidKeystore
             }
 
-            let keystoreDefinition = try JSONDecoder().decode(
+            let substrateKeystoreDefinition = try JSONDecoder().decode(
                 KeystoreDefinition.self,
-                from: data
+                from: substrateData
             )
 
-            guard let keystore = try? keystoreExtractor
-                .extractFromDefinition(keystoreDefinition, password: request.password)
+            guard let substrateKeystore = try? keystoreExtractor
+                .extractFromDefinition(substrateKeystoreDefinition, password: request.substratePassword)
             else {
                 throw AccountOperationFactoryError.decryption
             }
@@ -364,25 +360,42 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             switch request.cryptoType {
             case .sr25519:
-                substratePublicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try SNPublicKey(rawData: substrateKeystore.publicKeyData)
             case .ed25519:
-                substratePublicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try EDPublicKey(rawData: substrateKeystore.publicKeyData)
             case .ecdsa:
-                substratePublicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+                substratePublicKey = try SECPublicKey(rawData: substrateKeystore.publicKeyData)
             }
 
+            var ethereumKeystore: KeystoreData?
             var ethereumPublicKey: IRPublicKeyProtocol?
             var ethereumAddress: Data?
+            if let ethereumDataString = request.ethereumKeystore,
+               let ethereumData = ethereumDataString.data(using: .utf8) {
+                let ethereumKeystoreDefinition = try JSONDecoder().decode(
+                    KeystoreDefinition.self,
+                    from: ethereumData
+                )
 
-            if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
-                ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
-                ethereumAddress = try ethereumPublicKey?.rawData().ethereumAddressFromPublicKey()
+                ethereumKeystore = try? keystoreExtractor
+                    .extractFromDefinition(ethereumKeystoreDefinition, password: request.ethereumPassword)
+                guard let keystore = ethereumKeystore else {
+                    throw AccountOperationFactoryError.decryption
+                }
+
+                if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
+                    ethereumPublicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+                    ethereumAddress = try ethereumPublicKey?.rawData().ethereumAddressFromPublicKey()
+                }
             }
 
             let metaId = UUID().uuidString
             let accountId = try substratePublicKey.rawData().publicKeyToAccountId()
 
-            try saveSecretKey(keystore.secretKeyData, metaId: metaId, ethereumBased: false)
+            try saveSecretKey(substrateKeystore.secretKeyData, metaId: metaId, ethereumBased: false)
+            if let ethereumKeystore = ethereumKeystore {
+                try saveSecretKey(ethereumKeystore.secretKeyData, metaId: metaId, ethereumBased: true)
+            }
 
             return MetaAccountModel(
                 metaId: metaId,
@@ -392,46 +405,30 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey: substratePublicKey.rawData(),
                 ethereumAddress: ethereumAddress,
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
-                chainAccounts: []
+                chainAccounts: [],
+                assetKeysOrder: nil,
+                assetIdsEnabled: nil,
+                canExportEthereumMnemonic: true,
+                unusedChainIds: nil
             )
         }
     }
 
-    func replaceChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportMnemonicRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let junctionResult = try getJunctionResult(
-                from: request.derivationPath,
-                ethereumBased: request.isEthereum
-            )
-
-            let password = junctionResult?.password ?? ""
-            let chaincodes = junctionResult?.chaincodes ?? []
-
-            let seedResult = try self.deriveSeed(
-                from: request.mnemonic,
-                password: password,
-                ethereumBased: request.isEthereum
-            )
-
-            let seed = request.isEthereum ? seedResult.seed : seedResult.seed.miniSeed
-            let keypair = try generateKeypair(
-                from: seed,
-                chaincodes: chaincodes,
+            let query = try getQuery(
+                seedSource: .mnemonic(request.mnemonic),
+                derivationPath: request.derivationPath,
                 cryptoType: request.cryptoType,
-                isEthereum: request.isEthereum
+                ethereumBased: request.isEthereum
             )
 
-            let publicKey = keypair.publicKey
-            let accountId = request.isEthereum ? try publicKey.ethereumAddressFromPublicKey() :
-                try publicKey.publicKeyToAccountId()
-            let metaId = metaAccount.metaId
+            let metaId = request.meta.metaId
+            let accountId = request.isEthereum ?
+                try query.publicKey.ethereumAddressFromPublicKey() : try query.publicKey.publicKeyToAccountId()
 
             try saveSecretKey(
-                keypair.secretKey,
+                query.privateKey,
                 metaId: metaId,
                 accountId: accountId,
                 ethereumBased: request.isEthereum
@@ -444,49 +441,36 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
-            try saveSeed(seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
-            try saveEntropy(seedResult.mnemonic.entropy(), metaId: metaId)
+            try saveSeed(query.seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
+            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
 
             let chainAccount = ChainAccountModel(
-                chainId: chainId,
+                chainId: request.chainId,
                 accountId: accountId,
-                publicKey: publicKey,
-                cryptoType: request.cryptoType.rawValue
-            )
-
-            return metaAccount.replacingChainAccount(chainAccount)
-        }
-    }
-
-    func replaceChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportSeedRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel> {
-        ClosureOperation { [self] in
-            let junctionResult = try getJunctionResult(
-                from: request.derivationPath,
+                publicKey: query.publicKey,
+                cryptoType: request.cryptoType.rawValue,
                 ethereumBased: request.isEthereum
             )
 
-            let chaincodes = junctionResult?.chaincodes ?? []
+            return request.meta.insertingChainAccount(chainAccount)
+        }
+    }
 
+    func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
+        ClosureOperation { [self] in
             let seed = try Data(hexString: request.seed)
-
-            let keypair = try generateKeypair(
-                from: seed,
-                chaincodes: chaincodes,
+            let query = try getQuery(
+                seedSource: .seed(seed),
+                derivationPath: request.derivationPath,
                 cryptoType: request.cryptoType,
-                isEthereum: request.isEthereum
+                ethereumBased: request.isEthereum
             )
-
-            let publicKey = keypair.publicKey
-            let accountId = request.isEthereum ? try publicKey.ethereumAddressFromPublicKey() :
-                try publicKey.publicKeyToAccountId()
-            let metaId = metaAccount.metaId
+            let accountId = request.isEthereum ?
+                try query.publicKey.ethereumAddressFromPublicKey() : try query.publicKey.publicKeyToAccountId()
+            let metaId = request.meta.metaId
 
             try saveSecretKey(
-                keypair.secretKey,
+                query.privateKey,
                 metaId: metaId,
                 accountId: accountId,
                 ethereumBased: request.isEthereum
@@ -502,21 +486,18 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveSeed(seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
 
             let chainAccount = ChainAccountModel(
-                chainId: chainId,
+                chainId: request.chainId,
                 accountId: accountId,
-                publicKey: publicKey,
-                cryptoType: request.cryptoType.rawValue
+                publicKey: query.publicKey,
+                cryptoType: request.cryptoType.rawValue,
+                ethereumBased: request.isEthereum
             )
 
-            return metaAccount.replacingChainAccount(chainAccount)
+            return request.meta.insertingChainAccount(chainAccount)
         }
     }
 
-    func replaceChainAccountOperation(
-        for metaAccount: MetaAccountModel,
-        request: ChainAccountImportKeystoreRequest,
-        chainId: ChainModel.Id
-    ) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
 
@@ -536,38 +517,41 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             }
 
             let publicKey: IRPublicKeyProtocol
-
-            switch request.cryptoType {
-            case .sr25519:
-                publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
-            case .ed25519:
-                publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
-            case .ecdsa:
-                publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+            if request.isEthereum {
+                if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
+                    publicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+                } else {
+                    throw AccountOperationFactoryError.decryption
+                }
+            } else {
+                switch request.cryptoType {
+                case .sr25519:
+                    publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+                case .ed25519:
+                    publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+                case .ecdsa:
+                    publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+                }
             }
-
-            let metaId = UUID().uuidString
             let accountId = request.isEthereum ?
-                try publicKey.rawData().ethereumAddressFromPublicKey() :
-                try publicKey.rawData().publicKeyToAccountId()
+                try publicKey.rawData().ethereumAddressFromPublicKey() : try publicKey.rawData().publicKeyToAccountId()
 
             try saveSecretKey(
                 keystore.secretKeyData,
-                metaId: metaAccount.metaId,
+                metaId: request.meta.metaId,
                 accountId: accountId,
                 ethereumBased: request.isEthereum
             )
 
             let chainAccount = ChainAccountModel(
-                chainId: chainId,
+                chainId: request.chainId,
                 accountId: accountId,
                 publicKey: publicKey.rawData(),
-                cryptoType: request.cryptoType.rawValue
+                cryptoType: request.cryptoType.rawValue,
+                ethereumBased: request.isEthereum
             )
 
-            try self.saveSecretKey(keystore.secretKeyData, metaId: metaId, ethereumBased: false)
-
-            return metaAccount.replacingChainAccount(chainAccount)
+            return request.meta.insertingChainAccount(chainAccount)
         }
     }
 }

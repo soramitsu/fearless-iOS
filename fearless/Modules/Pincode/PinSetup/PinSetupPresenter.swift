@@ -1,12 +1,23 @@
 import Foundation
+import SoraKeystore
 
 class PinSetupPresenter: PinSetupPresenterProtocol {
-    weak var view: PinSetupViewProtocol?
-    var interactor: PinSetupInteractorInputProtocol!
-    var wireframe: PinSetupWireframeProtocol!
+    private weak var view: PinSetupViewProtocol?
+    private var interactor: PinSetupInteractorInputProtocol
+    private var wireframe: PinSetupWireframeProtocol
 
-    func start() {
-        view?.didChangeAccessoryState(enabled: false, availableBiometryType: .none)
+    init(
+        interactor: PinSetupInteractorInputProtocol,
+        wireframe: PinSetupWireframeProtocol
+    ) {
+        self.interactor = interactor
+        self.wireframe = wireframe
+    }
+
+    func didLoad(view: PinSetupViewProtocol) {
+        self.view = view
+
+        self.view?.didChangeAccessoryState(enabled: false, availableBiometryType: .none)
     }
 
     func activateBiometricAuth() {}
@@ -30,7 +41,8 @@ extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
 
     func didSavePin() {
         DispatchQueue.main.async { [weak self] in
-            self?.wireframe.showMain(from: self?.view)
+            guard let strongSelf = self else { return }
+            strongSelf.wireframe.showMain(from: strongSelf.view)
         }
     }
 

@@ -111,7 +111,7 @@ class ChainRegistryIntegrationTests: XCTestCase {
                 let available = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.available,
-                        precision: Int16(utilityAsset.precision)
+                        precision: Int16(utilityAsset.asset.precision)
                     ) ?? 0.0
                 } ?? 0.0
 

@@ -8,7 +8,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     ) {
-        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
+        let walletDetails = WalletDetailsViewFactory.createView(flow: .normal(wallet: metaAccount))
         let navigationController = FearlessNavigationController(
             rootViewController: walletDetails.controller
         )
@@ -16,7 +16,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {
-        authorize(animated: true, cancellable: true) { [weak self] completed in
+        authorize(animated: true, cancellable: true, from: view) { [weak self] completed in
             if completed {
                 self?.showPinSetup(from: view)
             }

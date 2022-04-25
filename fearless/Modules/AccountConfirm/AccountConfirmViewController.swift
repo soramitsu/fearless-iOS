@@ -80,7 +80,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         configureLayout()
         updateNextButton()
 
-        presenter.setup()
+        presenter.didLoad(view: self)
     }
 
     private func configureLayout() {

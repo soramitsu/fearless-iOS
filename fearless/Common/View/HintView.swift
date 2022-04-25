@@ -1,6 +1,10 @@
 import UIKit
 
 class HintView: UIView {
+    private enum Constants {
+        static let iconSize: CGFloat = 16
+    }
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -30,7 +34,7 @@ class HintView: UIView {
         addSubview(iconView)
         iconView.snp.makeConstraints { make in
             make.leading.top.equalToSuperview()
-            make.size.equalTo(16.0)
+            make.size.equalTo(Constants.iconSize)
         }
 
         addSubview(titleLabel)
@@ -38,6 +42,31 @@ class HintView: UIView {
             make.top.equalTo(iconView.snp.top).offset(-1.0)
             make.leading.equalTo(iconView.snp.trailing).offset(9.0)
             make.trailing.bottom.equalToSuperview()
+        }
+    }
+
+    func setIconHidden(_ hidden: Bool) {
+        iconView.isHidden = hidden
+
+        if hidden {
+            iconView.snp.remakeConstraints { make in
+                make.size.equalTo(CGSize.zero)
+            }
+            titleLabel.snp.remakeConstraints { make in
+                make.top.equalToSuperview()
+                make.leading.equalToSuperview()
+                make.trailing.bottom.equalToSuperview()
+            }
+        } else {
+            iconView.snp.remakeConstraints { make in
+                make.leading.top.equalToSuperview()
+                make.size.equalTo(Constants.iconSize)
+            }
+            titleLabel.snp.remakeConstraints { make in
+                make.top.equalTo(iconView.snp.top).offset(-1.0)
+                make.leading.equalTo(iconView.snp.trailing).offset(9.0)
+                make.trailing.bottom.equalToSuperview()
+            }
         }
     }
 }

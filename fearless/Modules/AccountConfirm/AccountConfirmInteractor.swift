@@ -10,8 +10,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
     let eventCenter: EventCenterProtocol
 
     init(
-        request: MetaAccountCreationRequest,
-        mnemonic: IRMnemonicProtocol,
+        flow: AccountConfirmFlow,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         settings: SelectedWalletSettings,
@@ -22,8 +21,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
         self.eventCenter = eventCenter
 
         super.init(
-            request: request,
-            mnemonic: mnemonic,
+            flow: flow,
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,
             operationManager: operationManager

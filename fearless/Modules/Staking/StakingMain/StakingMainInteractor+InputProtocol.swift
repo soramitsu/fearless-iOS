@@ -92,7 +92,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     private func updateAfterSelectedAccountChange() {
         clearAccountRemoteSubscription()
-        clear(dataProvider: &balanceProvider)
+        accountInfoSubscriptionAdapter.reset()
         clearStashControllerSubscription()
 
         guard let selectedChain = selectedChainAsset?.chain,
@@ -122,6 +122,14 @@ extension StakingMainInteractor: EventVisitorProtocol {
         provideNetworkStakingInfo()
         provideEraStakersInfo(from: sharedState.eraValidatorService)
         provideRewardCalculator(from: sharedState.rewardCalculationService)
+    }
+
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        guard event.updatedChains.contains(where: {
+            $0.identifier == selectedChainAsset?.chain.identifier
+        }) else { return }
+        updateAfterChainAssetSave()
+        updateAfterSelectedAccountChange()
     }
 }
 

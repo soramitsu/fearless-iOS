@@ -225,7 +225,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     }
 
     func didReceiveExportOptions(options: [ExportOption]) {
-        let items: [ChainAction] = [.export, .switchNode, .copyAddress]
+        let items: [ChainAction] = [.export, .switchNode, .copyAddress, .replace]
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self else { return }
             let action = items[selectedIndex]
@@ -239,6 +239,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     chain: self.chain,
                     options: options,
                     locale: self.selectedLocale,
+                    wallet: self.selectedMetaAccount,
                     from: self.view
                 )
             case .switchNode:
@@ -252,6 +253,18 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
                 let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
                 self.wireframe.presentSuccessNotification(title, from: self.view)
+            case .replace:
+                let model = UniqueChainModel(meta: self.selectedMetaAccount, chain: self.chain)
+                let options: [ReplaceChainOption] = ReplaceChainOption.allCases
+                self.wireframe.showUniqueChainSourceSelection(from: self.view, items: options, callback: { [weak self] selectedIndex in
+                    let option = options[selectedIndex]
+                    switch option {
+                    case .create:
+                        self?.wireframe.showCreate(uniqueChainModel: model, from: self?.view)
+                    case .import:
+                        self?.wireframe.showImport(uniqueChainModel: model, from: self?.view)
+                    }
+                })
             default:
                 break
             }
@@ -260,6 +273,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         wireframe.presentChainActionsFlow(
             from: view,
             items: items,
+            chain: chain,
             callback: selectionCallback
         )
     }

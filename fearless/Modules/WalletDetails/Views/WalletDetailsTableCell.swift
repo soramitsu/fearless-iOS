@@ -75,6 +75,18 @@ class WalletDetailsTableCell: UITableViewCell {
         return imageView
     }()
 
+    private var accountMissingHintView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.iconView.image = R.image.iconWarning()
+        return view
+    }()
+
+    private var chainUnsupportedView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.iconView.image = R.image.iconWarning()
+        return view
+    }()
+
     weak var delegate: WalletDetailsTableCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -110,6 +122,23 @@ class WalletDetailsTableCell: UITableViewCell {
         } else {
             addressImageView.isHidden = true
         }
+
+        let chainSupported: Bool = viewModel.chain.isSupported
+        addressStackView.isHidden = !chainSupported || viewModel.accountMissing
+        chainUnsupportedView.isHidden = chainSupported
+        actionImageView.isHidden = !chainSupported || !viewModel.actionsAvailable
+
+        accountMissingHintView.isHidden = !viewModel.accountMissing
+        accountMissingHintView.setIconHidden(viewModel.chainUnused)
+
+        setDeactivated(viewModel.cellInactive)
+
+        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(
+            preferredLanguages: viewModel.locale?.rLanguages
+        )
+        accountMissingHintView.titleLabel.text = R.string.localizable.noAccountFound(
+            preferredLanguages: viewModel.locale?.rLanguages
+        )
     }
 }
 
@@ -117,13 +146,7 @@ private extension WalletDetailsTableCell {
     func configure() {
         backgroundColor = .clear
 
-        separatorInset = UIEdgeInsets(
-            top: 0.0,
-            left: UIConstants.horizontalInset,
-            bottom: 0.0,
-            right: UIConstants.horizontalInset
-        )
-
+        separatorInset = UIEdgeInsets.zero
         selectionStyle = .none
 
         let recognizer = UITapGestureRecognizer()
@@ -132,10 +155,18 @@ private extension WalletDetailsTableCell {
     }
 
     func setupLayout() {
+        let separator = UIFactory.default.createSeparatorView()
+        contentView.addSubview(separator)
+        separator.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(UIConstants.separatorHeight)
+        }
+
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalToSuperview()
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalToSuperview().offset(UIConstants.minimalOffset)
+            make.leading.trailing.equalToSuperview()
         }
 
         mainStackView.addArrangedSubview(chainImageView)
@@ -161,10 +192,23 @@ private extension WalletDetailsTableCell {
             make.size.equalTo(LayoutConstants.addressImageSize)
         }
         addressStackView.addArrangedSubview(addressLabel)
+        infoStackView.addArrangedSubview(chainUnsupportedView)
+
+        infoStackView.addArrangedSubview(accountMissingHintView)
     }
 
     @objc
     private func showActions() {
         delegate?.didTapActions(self)
+    }
+}
+
+extension WalletDetailsTableCell: DeactivatableView {
+    var deactivatableViews: [UIView] {
+        [chainImageView, chainLabel, addressLabel, addressImageView, chainUnsupportedView, accountMissingHintView.titleLabel]
+    }
+
+    var deactivatedAlpha: CGFloat {
+        0.5
     }
 }

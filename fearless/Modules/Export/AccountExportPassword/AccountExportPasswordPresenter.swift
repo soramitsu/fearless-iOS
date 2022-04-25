@@ -16,12 +16,10 @@ final class AccountExportPasswordPresenter {
 
     let localizationManager: LocalizationManagerProtocol
 
-    let address: String
-    let chain: ChainModel
+    let flow: ExportFlow
 
-    init(address: String, chain: ChainModel, localizationManager: LocalizationManagerProtocol) {
-        self.address = address
-        self.chain = chain
+    init(flow: ExportFlow, localizationManager: LocalizationManagerProtocol) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 }
@@ -30,6 +28,27 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
     func setup() {
         view?.setPasswordInputViewModel(passwordInputViewModel)
         view?.setPasswordConfirmationViewModel(confirmationViewModel)
+
+        let locale = localizationManager.selectedLocale
+
+        let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
+        let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
+
+        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
+            self?.wireframe.back(from: self?.view)
+        }
+
+        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle) {}
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [exportAction, cancelAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
 
     func proceed() {
@@ -40,13 +59,27 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
             return
         }
 
-        interactor.exportAccount(address: address, password: password, chain: chain)
+        switch flow {
+        case let .single(chain, address, wallet):
+            interactor.exportAccount(
+                address: address,
+                password: password,
+                chain: chain,
+                wallet: wallet
+            )
+        case let .multiple(wallet, _):
+            interactor.exportWallet(
+                wallet: wallet,
+                accounts: flow.exportingAccounts,
+                password: password
+            )
+        }
     }
 }
 
 extension AccountExportPasswordPresenter: AccountExportPasswordInteractorOutputProtocol {
-    func didExport(json: RestoreJson) {
-        wireframe.showJSONExport(json, from: view)
+    func didExport(jsons: [RestoreJson]) {
+        wireframe.showJSONExport(jsons, flow: flow, from: view)
     }
 
     func didReceive(error: Error) {

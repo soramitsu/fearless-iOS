@@ -10,7 +10,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let chainRegistry: ChainRegistryProtocol
     let crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol
     let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let settings: CrowdloanChainSettings
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
@@ -35,7 +35,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
         crowdloanRemoteSubscriptionService: CrowdloanRemoteSubscriptionServiceProtocol,
         crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         jsonDataProviderFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -46,7 +46,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.jsonDataProviderFactory = jsonDataProviderFactory
         self.crowdloanLocalSubscriptionFactory = crowdloanLocalSubscriptionFactory
         self.crowdloanRemoteSubscriptionService = crowdloanRemoteSubscriptionService
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.settings = settings
         self.operationManager = operationManager
         self.logger = logger
@@ -79,7 +79,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                         connection: connection,
                         runtimeService: runtimeService,
                         accountId: accountResponse.accountId,
-                        trieIndex: crowdloan.fundInfo.trieIndex
+                        trieOrFundIndex: crowdloan.fundInfo.trieOrFundIndex
                     )
                 }
             }.longrunOperation()
@@ -180,7 +180,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToAccountInfo(for accountId: AccountId, chain: ChainModel) {
-        accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
     }
 
     private func provideConstants(for chain: ChainModel) {
@@ -205,6 +205,19 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             operationManager: operationManager
         ) { [weak self] (result: Result<LeasingPeriod, Error>) in
             self?.presenter.didReceiveLeasingPeriod(result: result)
+        }
+    }
+}
+
+extension CrowdloanListInteractor: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId: AccountId,
+        chainId: ChainModel.Id
+    ) {
+        if let chain = settings.value, chain.chainId == chainId {
+            logger?.debug("Did receive balance for accountId: \(accountId.toHex()))")
+            presenter.didReceiveAccountInfo(result: result)
         }
     }
 }
@@ -235,8 +248,9 @@ extension CrowdloanListInteractor {
             putOffline(with: oldChain)
         }
 
+        accountInfoSubscriptionAdapter.reset()
+
         clear(singleValueProvider: &displayInfoProvider)
-        clear(dataProvider: &accountInfoProvider)
 
         crowdloansRequest?.cancel()
         crowdloansRequest = nil

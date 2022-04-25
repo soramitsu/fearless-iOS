@@ -2,6 +2,10 @@ import UIKit
 import SnapKit
 
 final class CrowdloanListViewLayout: UIView {
+    enum Constants {
+        static let footerHeight: CGFloat = 300
+    }
+
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
@@ -10,7 +14,16 @@ final class CrowdloanListViewLayout: UIView {
         return view
     }()
 
-    let statusView = UIView()
+    lazy var statusView: UIView = {
+        let view = UIView()
+        view.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: tableView.frame.width,
+            height: Constants.footerHeight
+        )
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,13 +41,6 @@ final class CrowdloanListViewLayout: UIView {
     }
 
     func setup() {
-        addSubview(statusView)
-        statusView.snp.makeConstraints { make in
-            make.left.right.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide)
-            make.top.equalTo(safeAreaLayoutGuide).inset(64.0)
-        }
-
         addSubview(tableView)
 
         tableView.snp.makeConstraints { make in

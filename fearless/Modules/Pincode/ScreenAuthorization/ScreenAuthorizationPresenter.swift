@@ -1,18 +1,28 @@
 import Foundation
 
 final class ScreenAuthorizationPresenter {
-    weak var view: PinSetupViewProtocol?
-    var wireframe: ScreenAuthorizationWireframeProtocol!
-    var interactor: LocalAuthInteractorInputProtocol!
+    private weak var view: PinSetupViewProtocol?
+    private var wireframe: ScreenAuthorizationWireframeProtocol
+    private var interactor: LocalAuthInteractorInputProtocol
+
+    init(
+        wireframe: ScreenAuthorizationWireframeProtocol,
+        interactor: LocalAuthInteractorInputProtocol
+    ) {
+        self.wireframe = wireframe
+        self.interactor = interactor
+    }
 }
 
 extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
-    func start() {
-        view?.didChangeAccessoryState(
+    func didLoad(view: PinSetupViewProtocol) {
+        self.view = view
+
+        self.view?.didChangeAccessoryState(
             enabled: interactor.allowManualBiometryAuth,
             availableBiometryType: interactor.availableBiometryType
         )
-        interactor.startAuth()
+        interactor.startAuth(with: self)
     }
 
     func cancel() {
@@ -20,7 +30,7 @@ extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
     }
 
     func activateBiometricAuth() {
-        interactor.startAuth()
+        interactor.startAuth(with: self)
     }
 
     func submit(pin: String) {

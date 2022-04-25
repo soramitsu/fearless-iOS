@@ -8,6 +8,7 @@ final class ChainAccountBalanceListPresenter {
     let interactor: ChainAccountBalanceListInteractorInputProtocol
     let viewModelFactory: ChainAccountBalanceListViewModelFactoryProtocol
 
+    private var sortedKeys: [String]?
     private var chainModels: [ChainModel] = []
 
     private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
@@ -28,12 +29,17 @@ final class ChainAccountBalanceListPresenter {
     }
 
     private func provideViewModel() {
+        guard let selectedMetaAccount = selectedMetaAccount else {
+            return
+        }
+
         let viewModel = viewModelFactory.buildChainAccountBalanceListViewModel(
             selectedMetaAccount: selectedMetaAccount,
             chains: chainModels,
             locale: selectedLocale,
             accountInfos: accountInfos,
-            prices: prices
+            prices: prices,
+            sortedKeys: sortedKeys
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
@@ -43,14 +49,26 @@ final class ChainAccountBalanceListPresenter {
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProtocol {
     func setup() {
         interactor.setup()
+
+        view?.didReceive(locale: selectedLocale)
     }
 
     func didPullToRefreshOnAssetsTable() {
         interactor.refresh()
     }
 
+    func didTapManageAssetsButton() {
+        wireframe.showManageAssets(from: view)
+    }
+
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
+        if viewModel.chain.isSupported {
+            wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
+        } else {
+            wireframe.presentWarningAlert(from: view, config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)) { [weak self] in
+                self?.wireframe.showAppstoreUpdatePage()
+            }
+        }
     }
 }
 
@@ -82,6 +100,9 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {
         selectedMetaAccount = account
+
+        sortedKeys = account.assetKeysOrder
+        provideViewModel()
     }
 
     func didTapAccountButton() {
@@ -91,6 +112,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
 extension ChainAccountBalanceListPresenter: Localizable {
     func applyLocalization() {
+        view?.didReceive(locale: selectedLocale)
+
         if let view = view, view.isSetup {
             provideViewModel()
         }

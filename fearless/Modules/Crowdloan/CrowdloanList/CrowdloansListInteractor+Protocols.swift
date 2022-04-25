@@ -72,16 +72,3 @@ extension CrowdloanListInteractor: CrowdloanLocalStorageSubscriber, CrowdloanLoc
         }
     }
 }
-
-extension CrowdloanListInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId: AccountId,
-        chainId: ChainModel.Id
-    ) {
-        if let chain = settings.value, chain.chainId == chainId {
-            logger?.debug("Did receive balance for accountId: \(accountId.toHex()))")
-            presenter.didReceiveAccountInfo(result: result)
-        }
-    }
-}

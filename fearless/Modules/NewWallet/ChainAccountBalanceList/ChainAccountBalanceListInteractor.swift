@@ -6,34 +6,38 @@ import SoraFoundation
 final class ChainAccountBalanceListInteractor {
     weak var presenter: ChainAccountBalanceListInteractorOutputProtocol?
 
-    let selectedMetaAccount: MetaAccountModel
-    let repository: AnyDataProviderRepository<ChainModel>
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
-    let operationQueue: OperationQueue
+    private var selectedMetaAccount: MetaAccountModel
+    private let chainRepository: AnyDataProviderRepository<ChainModel>
+    private let assetRepository: AnyDataProviderRepository<AssetModel>
+    private var accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let operationQueue: OperationQueue
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let eventCenter: EventCenterProtocol
+    private let eventCenter: EventCenterProtocol
 
-    private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
+    private var chains: [ChainModel]?
+
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        repository: AnyDataProviderRepository<ChainModel>,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        chainRepository: AnyDataProviderRepository<ChainModel>,
+        assetRepository: AnyDataProviderRepository<AssetModel>,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         operationQueue: OperationQueue,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.repository = repository
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.chainRepository = chainRepository
+        self.assetRepository = assetRepository
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.eventCenter = eventCenter
     }
 
     private func fetchChainsAndSubscribeBalance() {
-        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         fetchOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -47,12 +51,11 @@ final class ChainAccountBalanceListInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            let accountSupportsEthereum = SelectedWalletSettings.shared.value?.ethereumPublicKey != nil
+            self.chains = chains
 
-            let filteredChains: [ChainModel] = accountSupportsEthereum ? chains : chains.filter { $0.isEthereumBased == false }
-            presenter?.didReceiveChains(result: .success(filteredChains))
-            subscribeToAccountInfo(for: filteredChains)
-            subscribeToPrice(for: filteredChains)
+            presenter?.didReceiveChains(result: .success(chains))
+            subscribeToAccountInfo(for: chains)
+            subscribeToPrice(for: chains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:
@@ -77,29 +80,42 @@ final class ChainAccountBalanceListInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        var providers: [AnyDataProvider<DecodedAccountInfo>] = []
-
-        for chain in chains {
-            if
-                let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-                let dataProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                providers.append(dataProvider)
-            } else {
-                presenter?.didReceiveAccountInfo(
-                    result: .failure(ChainAccountFetchingError.accountNotExists),
-                    for: chain.chainId
-                )
-            }
-        }
-
-        accountInfoProviders = providers
+        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
     }
 
     private func refreshChain(_: ChainModel) {}
+
+    private func replaceAccountInfoSubscriptionAdapter() {
+        if let account = SelectedWalletSettings.shared.value {
+            accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: account
+            )
+        }
+    }
 }
 
 extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+        switch result {
+        case let .success(priceData):
+            let chainAsset = chains?.compactMap { Array($0.assets) }.reduce([], +).first(where: { $0?.asset.priceId == priceId })
+            if let asset = chainAsset?.asset,
+               let price = priceData?.price {
+                let updatedAsset = asset.replacingPrice(Decimal(string: price))
+
+                let saveOperation = assetRepository.saveOperation {
+                    [updatedAsset]
+                } _: {
+                    []
+                }
+
+                operationQueue.addOperation(saveOperation)
+            }
+        case .failure:
+            break
+        }
+
         presenter?.didReceivePriceData(result: result, for: priceId)
     }
 }
@@ -114,23 +130,11 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
     }
 
     func refresh() {
-        if let accountInfoProviders = accountInfoProviders {
-            for accountInfoProvider in accountInfoProviders {
-                accountInfoProvider.removeObserver(self)
-            }
-        }
-
-        if let priceProviders = priceProviders {
-            for priceProvider in priceProviders {
-                priceProvider.removeObserver(self)
-            }
-        }
-
         fetchChainsAndSubscribeBalance()
     }
 }
 
-extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
@@ -142,10 +146,7 @@ extension ChainAccountBalanceListInteractor: WalletLocalStorageSubscriber, Walle
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        refresh()
-    }
-
-    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        replaceAccountInfoSubscriptionAdapter()
         refresh()
     }
 
@@ -155,6 +156,13 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
 
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         refresh()
+    }
+
+    func processAssetsListChanged(event: AssetsListChangedEvent) {
+        if selectedMetaAccount.metaId == event.account.metaId {
+            selectedMetaAccount = event.account
+            presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+        }
     }
 }
 

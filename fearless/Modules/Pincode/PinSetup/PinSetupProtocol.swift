@@ -12,7 +12,7 @@ protocol PinSetupViewProtocol: ControllerBackedProtocol {
 }
 
 protocol PinSetupPresenterProtocol: AnyObject {
-    func start()
+    func didLoad(view: PinSetupViewProtocol)
     func cancel()
     func activateBiometricAuth()
     func submit(pin: String)

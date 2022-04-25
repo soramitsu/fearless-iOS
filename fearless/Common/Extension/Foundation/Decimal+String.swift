@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 extension Decimal {
     var stringWithPointSeparator: String {
@@ -8,15 +9,17 @@ extension Decimal {
         return NSDecimalString(&value, separator)
     }
 
-    func toString(digits: Int = 2) -> String? {
+    func toString(locale: Locale?, digits: Int = 2) -> String? {
         let formatter = NumberFormatter()
+        formatter.locale = locale
         formatter.minimumFractionDigits = digits
         formatter.maximumFractionDigits = digits
         return formatter.string(from: self as NSDecimalNumber)
     }
 
-    func percentString() -> String? {
+    func percentString(locale: Locale?) -> String? {
         let formatter = NumberFormatter()
+        formatter.locale = locale
         formatter.numberStyle = .percent
         formatter.positivePrefix = formatter.plusSign
         formatter.maximumFractionDigits = 2

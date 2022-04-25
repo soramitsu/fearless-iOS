@@ -7,7 +7,7 @@ import FearlessUtils
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
 
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -27,7 +27,7 @@ final class ControllerAccountInteractor {
     private var extrinsicService: ExtrinsicServiceProtocol?
 
     init(
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
@@ -40,7 +40,7 @@ final class ControllerAccountInteractor {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.runtimeService = runtimeService
         self.selectedAccount = selectedAccount
@@ -189,7 +189,11 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         let addressFactory = SS58AddressFactory()
 
         if let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
-            accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+            accountInfoSubscriptionAdapter.subscribe(
+                chain: chain,
+                accountId: accountId,
+                handler: self
+            )
         }
 
         fetchChainAccount(chain: chain, address: stashItem.stash, from: accountRepository, operationManager: operationManager) { [weak self] result in
@@ -228,7 +232,7 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     }
 }
 
-extension ControllerAccountInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension ControllerAccountInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainId _: ChainModel.Id) {
         let addressFactory = SS58AddressFactory()
         guard let address = try? addressFactory.address(

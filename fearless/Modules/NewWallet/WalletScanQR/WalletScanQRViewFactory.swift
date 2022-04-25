@@ -16,7 +16,8 @@ struct WalletScanQRViewFactory {
         let interactor = WalletScanQRInteractor()
         let wireframe = WalletScanQRWireframe()
 
-        let localSearchEngine = InvoiceScanLocalSearchEngine(addressPrefix: chain.addressPrefix)
+        let chainFormat: ChainFormat = chain.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
+        let localSearchEngine = InvoiceScanLocalSearchEngine(chainFormat: chainFormat)
 
         let qrCoderFactory = WalletQRCoderFactory(
             addressPrefix: chain.addressPrefix,

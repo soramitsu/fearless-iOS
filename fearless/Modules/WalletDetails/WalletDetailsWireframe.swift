@@ -2,15 +2,21 @@ import UIKit
 
 final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     func close(_ view: WalletDetailsViewProtocol) {
-        view.controller.navigationController?.dismiss(animated: true)
+        if view.controller.presentingViewController != nil {
+            view.controller.navigationController?.dismiss(animated: true)
+        } else {
+            view.controller.navigationController?.popViewController(animated: true)
+        }
     }
 
-    func presentAcions(
+    func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     ) {
         let actionsView = ModalPickerFactory.createPickerForList(
+            title: chain.name,
             items,
             callback: callback,
             context: nil
@@ -24,27 +30,17 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     }
 
     func showExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         options: [ExportOption],
         locale: Locale?,
         from view: ControllerBackedProtocol?
     ) {
-        authorize(
-            animated: true,
-            cancellable: true,
+        performExportPresentation(
+            flow: flow,
+            options: options,
+            locale: locale,
             from: view
-        ) { [weak self] success in
-            if success {
-                self?.performExportPresentation(
-                    for: address,
-                    chain: chain,
-                    options: options,
-                    locale: locale,
-                    from: view
-                )
-            }
-        }
+        )
     }
 
     func presentNodeSelection(
@@ -69,12 +65,90 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             completion: nil
         )
     }
+
+    func showUniqueChainSourceSelection(
+        from view: ControllerBackedProtocol?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        let actionsView = ModalPickerFactory.createPickerForList(
+            items,
+            callback: callback,
+            context: nil
+        )
+
+        guard let actionsView = actionsView else {
+            return
+        }
+
+        view?.controller.navigationController?.present(actionsView, animated: true)
+    }
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
+
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(.chain(model: uniqueChainModel))?.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(importController, animated: true)
+    }
+
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        options: [MissingAccountOption],
+        uniqueChainModel: UniqueChainModel,
+        skipBlock: @escaping (ChainModel) -> Void
+    ) {
+        let cancelTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
+        let actions: [AlertPresentableAction] = options.map { option in
+            switch option {
+            case .create:
+                let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
+                }
+            case .import:
+                let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
+                }
+            case .skip:
+                let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    skipBlock(uniqueChainModel.chain)
+                }
+            }
+        }
+
+        let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
+        let alertViewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: cancelTitle
+        )
+
+        present(
+            viewModel: alertViewModel,
+            style: .actionSheet,
+            from: view
+        )
+    }
 }
 
 private extension WalletDetailsWireframe {
     func performExportPresentation(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         options: [ExportOption],
         locale: Locale?,
         from view: ControllerBackedProtocol?
@@ -87,17 +161,41 @@ private extension WalletDetailsWireframe {
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showMnemonicExport(for: address, chain: chain, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showMnemonicExport(flow: flow, from: view)
+                        }
+                    }
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showKeystoreExport(for: address, chain: chain, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showKeystoreExport(flow: flow, from: view)
+                        }
+                    }
                 }
             case .seed:
                 let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showSeedExport(for: address, chain: chain, from: view)
+                    self?.authorize(
+                        animated: true,
+                        cancellable: true,
+                        from: view
+                    ) { [weak self] success in
+                        if success {
+                            self?.showSeedExport(flow: flow, from: view)
+                        }
+                    }
                 }
             }
         }
@@ -118,13 +216,11 @@ private extension WalletDetailsWireframe {
     }
 
     func showMnemonicExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         from view: ControllerBackedProtocol?
     ) {
         guard let mnemonicView = ExportMnemonicViewFactory.createViewForAddress(
-            address,
-            chain: chain
+            flow: flow
         ) else {
             return
         }
@@ -136,13 +232,11 @@ private extension WalletDetailsWireframe {
     }
 
     func showKeystoreExport(
-        for address: String,
-        chain: ChainModel,
+        flow: ExportFlow,
         from view: ControllerBackedProtocol?
     ) {
         guard let passwordView = AccountExportPasswordViewFactory.createView(
-            with: address,
-            chain: chain
+            flow: flow
         ) else {
             return
         }
@@ -153,8 +247,11 @@ private extension WalletDetailsWireframe {
         )
     }
 
-    func showSeedExport(for address: String, chain: ChainModel, from view: ControllerBackedProtocol?) {
-        guard let seedView = ExportSeedViewFactory.createViewForAddress(address, chain: chain) else {
+    func showSeedExport(
+        flow: ExportFlow,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: flow) else {
             return
         }
 

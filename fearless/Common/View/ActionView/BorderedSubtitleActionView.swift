@@ -43,3 +43,17 @@ final class BorderedSubtitleActionView: TriangularedView {
         )
     }
 }
+
+extension BorderedSubtitleActionView {
+    func disable() {
+        super.applyDisabledStyle()
+        actionControl.isUserInteractionEnabled = false
+        actionControl.imageIndicator.isHidden = true
+    }
+
+    func enable() {
+        super.applyEnabledStyle()
+        actionControl.isUserInteractionEnabled = true
+        actionControl.imageIndicator.isHidden = false
+    }
+}

@@ -10,20 +10,20 @@ final class ExportMnemonicConfirmViewFactory: ExportMnemonicConfirmViewFactoryPr
         }
 
         let localizationManager = LocalizationManager.shared
-
-        let presenter = AccountConfirmPresenter()
-
         let interactor = ExportMnemonicConfirmInteractor(mnemonic: mnemonic)
         let wireframe = ExportMnemonicConfirmWireframe(localizationManager: localizationManager)
 
+        let presenter = AccountConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            localizationManager: localizationManager
+        )
+
         view.presenter = presenter
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
 
         return view
     }

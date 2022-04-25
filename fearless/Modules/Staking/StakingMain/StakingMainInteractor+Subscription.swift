@@ -71,10 +71,7 @@ extension StakingMainInteractor {
             return
         }
 
-        balanceProvider = subscribeToAccountInfoProvider(
-            for: accountResponse.accountId,
-            chainId: chainAsset.chain.chainId
-        )
+        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountResponse.accountId, handler: self)
     }
 
     func clearStashControllerSubscription() {
@@ -265,7 +262,7 @@ extension StakingMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscrip
     }
 }
 
-extension StakingMainInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingMainInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

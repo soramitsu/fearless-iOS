@@ -78,7 +78,9 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
         tableState = tableState.reversed
         rootView.tableView.reloadData()
 
-        let editButtonTitle = tableState == .normal ? R.string.localizable.commonEdit(preferredLanguages: locale.rLanguages) : R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        let editButtonTitle = tableState == .normal
+            ? R.string.localizable.commonEdit(preferredLanguages: locale.rLanguages)
+            : R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
         rootView.editButton.setTitle(editButtonTitle, for: .normal)
     }
 

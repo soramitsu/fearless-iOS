@@ -4,6 +4,7 @@ struct ChainAccountRequest {
     let chainId: ChainModel.Id
     let addressPrefix: UInt16
     let isEthereumBased: Bool
+    let accountId: AccountId?
 }
 
 struct ChainAccountResponse: Equatable {
@@ -106,11 +107,12 @@ extension MetaAccountModel {
 }
 
 extension ChainModel {
-    func accountRequest() -> ChainAccountRequest {
+    func accountRequest(_ accountId: AccountId? = nil) -> ChainAccountRequest {
         ChainAccountRequest(
             chainId: chainId,
             addressPrefix: addressPrefix,
-            isEthereumBased: isEthereumBased
+            isEthereumBased: isEthereumBased,
+            accountId: accountId
         )
     }
 }

@@ -167,7 +167,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return StakingAmountInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             extrinsicService: extrinsicService,
             rewardService: rewardCalculatorService,
             runtimeService: runtimeService,
@@ -175,7 +178,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
+            eraValidatorService: eraValidatorService
         )
     }
 }

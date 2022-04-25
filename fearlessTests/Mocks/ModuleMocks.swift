@@ -5722,7 +5722,7 @@ import RobinHood
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.activateDetails(at: index))
+            defaultCall: __defaultImplStub!.activateWalletDetails(at: index))
         
     }
     

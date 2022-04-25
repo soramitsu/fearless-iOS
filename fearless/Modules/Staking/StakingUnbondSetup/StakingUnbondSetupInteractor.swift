@@ -9,7 +9,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
@@ -38,11 +38,11 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         operationManager: OperationManagerProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         connection: JSONRPCEngine,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
@@ -93,7 +93,7 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] (result: Result<BigUInt, Error>) in
-            self?.presenter.didReceiveExistentialDeposit(result: result)
+            self?.presenter?.didReceiveExistentialDeposit(result: result)
         }
 
         feeProxy.delegate = self
@@ -119,7 +119,7 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
     }
 }
 
-extension StakingUnbondSetupInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingUnbondSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
@@ -155,9 +155,10 @@ extension StakingUnbondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
                             chainId: self.chain.chainId
                         )
 
-                        self.accountInfoProvider = self.subscribeToAccountInfoProvider(
-                            for: account.accountId,
-                            chainId: self.chain.chainId
+                        self.accountInfoSubscriptionAdapter.subscribe(
+                            chain: self.chain,
+                            accountId: account.accountId,
+                            handler: self
                         )
 
                         self.handleController(accountItem: account)

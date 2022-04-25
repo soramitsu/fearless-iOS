@@ -47,10 +47,20 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
                 for: .valueChanged
             )
         }
+
+        rootView.manageAssetsButton.addTarget(
+            self,
+            action: #selector(manageAssetsButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     @objc private func pullToRefreshOnAssetsTableHandler() {
         presenter.didPullToRefreshOnAssetsTable()
+    }
+
+    @objc private func manageAssetsButtonClicked() {
+        presenter.didTapManageAssetsButton()
     }
 
     private func applyState(_ state: ChainAccountBalanceListViewState) {
@@ -74,6 +84,10 @@ extension ChainAccountBalanceListViewController: ChainAccountBalanceListViewProt
         self.state = state
 
         applyState(state)
+    }
+
+    func didReceive(locale: Locale) {
+        rootView.locale = locale
     }
 }
 
@@ -120,7 +134,9 @@ extension ChainAccountBalanceListViewController: UITableViewDelegate {
 }
 
 extension ChainAccountBalanceListViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 extension ChainAccountBalanceListViewController: ChainAccountBalanceListViewDelegate {

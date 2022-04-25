@@ -111,7 +111,7 @@ final class CrowdloansViewModelFactory {
 
         let contributionString: String? = {
             if
-                let contributionInPlank = viewInfo.contributions[model.fundInfo.trieIndex]?.balance,
+                let contributionInPlank = viewInfo.contributions[model.fundInfo.trieOrFundIndex]?.balance,
                 let contributionDecimal = Decimal.fromSubstrateAmount(
                     contributionInPlank,
                     precision: chainAsset.asset.assetPrecision
@@ -157,7 +157,7 @@ final class CrowdloansViewModelFactory {
             )
 
             if remainedTime.daysFromSeconds > 0 {
-                return R.string.localizable.commonDaysFormat(
+                return R.string.localizable.commonDaysLeftFormat(
                     format: remainedTime.daysFromSeconds,
                     preferredLanguages: locale.rLanguages
                 )

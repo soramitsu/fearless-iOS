@@ -9,7 +9,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     var extrinsicService: ExtrinsicServiceProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
@@ -34,7 +34,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -50,7 +50,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.extrinsicService = extrinsicService
         self.substrateProviderFactory = substrateProviderFactory
         self.runtimeService = runtimeService
@@ -136,7 +136,7 @@ extension StakingRewardDestConfirmInteractor: PriceLocalStorageSubscriber, Price
     }
 }
 
-extension StakingRewardDestConfirmInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingRewardDestConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -147,14 +147,11 @@ extension StakingRewardDestConfirmInteractor: StakingLocalStorageSubscriber, Sta
         do {
             let stashItem = try result.get()
 
-            clear(dataProvider: &accountInfoProvider)
+            accountInfoSubscriptionAdapter.reset()
 
             if let stashItem = stashItem {
                 let accountId = try addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix)
-                accountInfoProvider = subscribeToAccountInfoProvider(
-                    for: accountId,
-                    chainId: chain.chainId
-                )
+                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
 
                 fetchChainAccount(
                     chain: chain,
