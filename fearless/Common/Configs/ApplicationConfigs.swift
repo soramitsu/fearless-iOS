@@ -19,6 +19,12 @@ protocol ApplicationConfigProtocol {
     var phishingListURL: URL { get }
     var learnPayoutURL: URL { get }
     var learnControllerAccountURL: URL { get }
+
+    // MARK: - GitHub
+
+    var chainListURL: URL? { get }
+    var assetListURL: URL? { get }
+    var commonTypesURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -78,8 +84,8 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // swiftlint:enable force_cast
 
-    // swiftlint:disable line_length
     var logoURL: URL {
+        // swiftlint:disable:next line_length
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }
@@ -105,6 +111,33 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var learnControllerAccountURL: URL {
+        // swiftlint:disable:next line_length
         URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
+    }
+
+    // MARK: - GitHub
+
+    var chainListURL: URL? {
+        GitHubUrl.url(suffix: "chains/chains.json")
+    }
+
+    var assetListURL: URL? {
+        GitHubUrl.url(suffix: "chains/assets.json")
+    }
+
+    var commonTypesURL: URL? {
+        GitHubUrl.url(suffix: "type_registry/default.json")
+    }
+}
+
+private enum GitHubUrl {
+    private static var baseUrl: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+    }
+
+    private static let defaultBranch = "ios/2.0.6"
+
+    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
+        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
     }
 }

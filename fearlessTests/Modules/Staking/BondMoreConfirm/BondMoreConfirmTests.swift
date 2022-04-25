@@ -94,13 +94,11 @@ class BondMoreConfirmTests: XCTestCase {
 
         let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository()
-        let anyAccountRepository = AnyDataProviderRepository(accountRepository)
+        let accountRepository = AccountRepositoryFactory.createRepository(for: UserDataStorageTestFacade())
 
         // save controller
         let controllerItem = settings.selectedAccount!
-        let saveControllerOperation = anyAccountRepository.saveOperation({ [controllerItem] }, { [] })
+        let saveControllerOperation = accountRepository.saveOperation({ [controllerItem] }, { [] })
         operationQueue.addOperations([saveControllerOperation], waitUntilFinished: true)
 
         let extrinsicServiceFactory = ExtrinsicServiceFactoryStub(
@@ -112,7 +110,7 @@ class BondMoreConfirmTests: XCTestCase {
             settings: settings,
             singleValueProviderFactory: singleValueProviderFactory,
             substrateProviderFactory: substrateProviderFactory,
-            accountRepository: anyAccountRepository,
+            accountRepository: accountRepository,
             extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: ExtrinsicFeeProxy(),
             runtimeService: runtimeCodingService,

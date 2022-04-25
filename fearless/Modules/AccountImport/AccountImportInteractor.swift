@@ -5,16 +5,19 @@ import RobinHood
 import SoraKeystore
 
 final class AccountImportInteractor: BaseAccountImportInteractor {
-    private(set) var settings: SettingsManagerProtocol
+    private(set) var settings: SelectedWalletSettings
+    private(set) var eventCenter: EventCenterProtocol
 
     init(
-        accountOperationFactory: AccountOperationFactoryProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
+        accountOperationFactory: MetaAccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
-        settings: SettingsManagerProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        settings: SelectedWalletSettings,
+        keystoreImportService: KeystoreImportServiceProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.settings = settings
+        self.eventCenter = eventCenter
 
         super.init(
             accountOperationFactory: accountOperationFactory,
@@ -26,42 +29,26 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         )
     }
 
-    override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
-        let persistentOperation = accountRepository.saveOperation({
+    override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            return [accountItem]
-        }, { [] })
+            self?.settings.save(value: accountItem)
 
-        persistentOperation.addDependency(importOperation)
-
-        let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-            let accountItem = try importOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
-
-            guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type.rawValue == type.uint8Value })
-            else {
-                throw AccountCreateError.unsupportedNetwork
-            }
-
-            return (accountItem, connectionItem)
+            return accountItem
         }
 
-        connectionOperation.addDependency(persistentOperation)
-
-        connectionOperation.completionBlock = { [weak self] in
+        saveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
-                switch connectionOperation.result {
-                case .success(let (accountItem, connectionItem)):
-                    self?.settings.selectedAccount = accountItem
-                    self?.settings.selectedConnection = connectionItem
-
+                switch saveOperation.result {
+                case .success:
+                    self?.settings.setup()
+                    self?.eventCenter.notify(with: SelectedAccountChanged())
                     self?.presenter?.didCompleteAccountImport()
+
                 case let .failure(error):
                     self?.presenter?.didReceiveAccountImport(error: error)
+
                 case .none:
                     let error = BaseOperationError.parentOperationCancelled
                     self?.presenter?.didReceiveAccountImport(error: error)
@@ -69,8 +56,10 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             }
         }
 
+        saveOperation.addDependency(importOperation)
+
         operationManager.enqueue(
-            operations: [importOperation, persistentOperation, connectionOperation],
+            operations: [importOperation, saveOperation],
             in: .transient
         )
     }

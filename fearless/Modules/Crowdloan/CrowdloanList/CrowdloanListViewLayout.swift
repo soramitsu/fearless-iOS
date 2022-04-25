@@ -10,6 +10,8 @@ final class CrowdloanListViewLayout: UIView {
         return view
     }()
 
+    let statusView = UIView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -21,7 +23,18 @@ final class CrowdloanListViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setSeparators(enabled: Bool) {
+        tableView.separatorStyle = enabled ? .singleLine : .none
+    }
+
     func setup() {
+        addSubview(statusView)
+        statusView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(safeAreaLayoutGuide).inset(64.0)
+        }
+
         addSubview(tableView)
 
         tableView.snp.makeConstraints { make in

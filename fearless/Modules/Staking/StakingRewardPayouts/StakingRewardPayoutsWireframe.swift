@@ -6,7 +6,9 @@ final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
         historyDepth: UInt32,
-        chain: Chain
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
         let input = StakingRewardDetailsInput(
             payoutInfo: payoutInfo,
@@ -15,16 +17,31 @@ final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol
             historyDepth: historyDepth
         )
         guard
-            let rewardDetails = StakingRewardDetailsViewFactory.createView(input: input)
+            let rewardDetails = StakingRewardDetailsViewFactory.createView(
+                selectedAccount: selectedAccount,
+                chain: chain,
+                asset: asset,
+                input: input
+            )
         else { return }
         view?.controller
             .navigationController?
             .pushViewController(rewardDetails.controller, animated: true)
     }
 
-    func showPayoutConfirmation(for payouts: [PayoutInfo], from view: ControllerBackedProtocol?) {
-        guard let confirmationView = StakingPayoutConfirmationViewFactory
-            .createView(payouts: payouts) else { return }
+    func showPayoutConfirmation(
+        for payouts: [PayoutInfo],
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let confirmationView = StakingPayoutConfirmationViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            payouts: payouts
+        ) else { return }
 
         view?.controller
             .navigationController?

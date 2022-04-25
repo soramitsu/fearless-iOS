@@ -15,15 +15,9 @@ final class WebSocketService: WebSocketServiceProtocol {
             address: address
         )
         let storageFacade = SubstrateDataStorageFacade.shared
-        let subscriptionFactory = WebSocketSubscriptionFactory(
-            storageFacade: storageFacade,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager
-        )
         return WebSocketService(
             settings: settings,
-            connectionFactory: WebSocketEngineFactory(),
-            subscriptionsFactory: subscriptionFactory,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
             applicationHandler: ApplicationHandler()
         )
     }()
@@ -37,28 +31,27 @@ final class WebSocketService: WebSocketServiceProtocol {
     var connection: JSONRPCEngine? { engine }
 
     let applicationHandler: ApplicationHandlerProtocol
-    let connectionFactory: WebSocketEngineFactoryProtocol
-    let subscriptionsFactory: WebSocketSubscriptionFactoryProtocol
+    let chainRegistry: ChainRegistryProtocol
 
     private(set) var settings: WebSocketServiceSettings
     private(set) var engine: WebSocketEngine?
+
     private(set) var subscriptions: [WebSocketSubscribing]?
 
     private(set) var isThrottled: Bool = true
     private(set) var isActive: Bool = true
 
     var networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol?
+    private var stateListeners: [WeakWrapper] = []
 
     init(
         settings: WebSocketServiceSettings,
-        connectionFactory: WebSocketEngineFactoryProtocol,
-        subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
+        chainRegistry: ChainRegistryProtocol,
         applicationHandler: ApplicationHandlerProtocol
     ) {
         self.settings = settings
         self.applicationHandler = applicationHandler
-        self.connectionFactory = connectionFactory
-        self.subscriptionsFactory = subscriptionsFactory
+        self.chainRegistry = chainRegistry
     }
 
     func setup() {
@@ -96,6 +89,14 @@ final class WebSocketService: WebSocketServiceProtocol {
         }
     }
 
+    func addStateListener(_ listener: WebSocketServiceStateListener) {
+        stateListeners.append(WeakWrapper(target: listener))
+    }
+
+    func removeStateListener(_ listener: WebSocketServiceStateListener) {
+        stateListeners = stateListeners.filter { $0 !== listener }
+    }
+
     private func clearConnection() {
         engine?.delegate = nil
         engine?.disconnectIfNeeded()
@@ -104,21 +105,7 @@ final class WebSocketService: WebSocketServiceProtocol {
         subscriptions = nil
     }
 
-    private func setupConnection() {
-        let engine = connectionFactory.createEngine(for: settings.url, autoconnect: isActive)
-        engine.delegate = self
-        self.engine = engine
-
-        if let address = settings.address, let type = settings.addressType {
-            subscriptions = try? subscriptionsFactory.createSubscriptions(
-                address: address,
-                type: type,
-                engine: engine
-            )
-        } else {
-            subscriptions = nil
-        }
-    }
+    private func setupConnection() {}
 }
 
 extension WebSocketService: ApplicationHandlerDelegate {
@@ -141,6 +128,7 @@ extension WebSocketService: ApplicationHandlerDelegate {
 
 extension WebSocketService: WebSocketEngineDelegate {
     func webSocketDidChangeState(
+        engine _: WebSocketEngine,
         from _: WebSocketEngine.State,
         to newState: WebSocketEngine.State
     ) {
@@ -148,6 +136,10 @@ extension WebSocketService: WebSocketEngineDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 scheduleNetworkUnreachable()
+
+                stateListeners.forEach { listenerWeakWrapper in
+                    (listenerWeakWrapper.target as? WebSocketServiceStateListener)?.websocketNetworkDown(url: settings.url)
+                }
             }
         case .connected:
             scheduleNetworkReachable()

@@ -13,39 +13,35 @@ class AccountManagementTests: XCTestCase {
 
         let facade = UserDataStorageTestFacade()
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
+        let accountsCount = 10
+        let accounts: [ManagedMetaAccountModel] = (0..<accountsCount).map { index in
+            let info = AccountGenerator.generateMetaAccount()
 
-        let seed1 = Data(repeating: 0, count: 32)
-        let seed2 = Data(repeating: 1, count: 32)
+            return ManagedMetaAccountModel(
+                info: info,
+                isSelected: index == accountsCount - 1,
+                order: UInt32(index)
+            )
+        }
 
-        try AccountCreationHelper.createAccountFromSeed(seed1.toHex(),
-                                                        cryptoType: .sr25519,
-                                                        keychain: keychain,
-                                                        settings: settings)
+        let accountMapper = ManagedMetaAccountMapper()
+        let accountsRepository = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [NSSortDescriptor.accountsByOrder],
+            mapper: AnyCoreDataMapper(accountMapper)
+        )
 
-        let account1 = settings.selectedAccount!
-
-        try AccountCreationHelper.createAccountFromSeed(seed2.toHex(),
-                                                        cryptoType: .sr25519,
-                                                        keychain: keychain,
-                                                        settings: settings)
-
-        let account2 = settings.selectedAccount!
-
-        let accountsRepository: CoreDataRepository<AccountItem, CDAccountItem> = facade.createRepository()
-        let operation = accountsRepository.saveOperation({ [account1, account2]}, { [] })
+        let operation = accountsRepository.saveOperation({ accounts }, { [] })
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
-        let mapper = ManagedAccountItemMapper()
-        let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: OperationQueue())
+        settings.setup()
+
+        let observer: CoreDataContextObservable<ManagedMetaAccountModel, CDMetaAccount> =
             CoreDataContextObservable(service: facade.databaseService,
-                                                 mapper: AnyCoreDataMapper(mapper),
+                                                 mapper: AnyCoreDataMapper(accountMapper),
                                                  predicate: { _ in true })
-        let repository = facade.createRepository(filter: nil,
-                                                 sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                                                 mapper: AnyCoreDataMapper(mapper))
 
         let view = MockAccountManagementViewProtocol()
         let wireframe = MockAccountManagementWireframeProtocol()
@@ -75,13 +71,14 @@ class AccountManagementTests: XCTestCase {
         }
 
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
-        let presenter = AccountManagementPresenter(viewModelFactory: viewModelFactory,
-                                                   supportedNetworks: SNAddressType.supported)
-        let interactor = AccountManagementInteractor(repository: AnyDataProviderRepository(repository),
-                                                     repositoryObservable: AnyDataProviderRepositoryObservable(observer),
-                                                     settings: settings,
-                                                     operationManager: OperationManager(),
-                                                     eventCenter: eventCenter)
+        let presenter = AccountManagementPresenter(viewModelFactory: viewModelFactory)
+        let interactor = AccountManagementInteractor(
+            repository: AnyDataProviderRepository(accountsRepository),
+            repositoryObservable: AnyDataProviderRepositoryObservable(observer),
+            settings: settings,
+            operationQueue: OperationQueue(),
+            eventCenter: eventCenter
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe
@@ -98,11 +95,11 @@ class AccountManagementTests: XCTestCase {
 
         // when
 
-        presenter.selectItem(at: 0, in: 0)
+        presenter.selectItem(at: 0)
 
         wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
 
-        XCTAssertEqual(settings.selectedAccount, account1)
+        XCTAssertEqual(settings.value, accounts[0].info)
 
         verify(eventCenter, times(1)).notify(with: any())
     }

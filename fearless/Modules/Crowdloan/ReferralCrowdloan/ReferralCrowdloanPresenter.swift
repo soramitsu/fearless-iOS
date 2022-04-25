@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-class ReferralCrowdloanPresenter {
+final class ReferralCrowdloanPresenter {
     weak var view: ReferralCrowdloanViewProtocol?
     let wireframe: ReferralCrowdloanWireframeProtocol
 
@@ -11,12 +11,12 @@ class ReferralCrowdloanPresenter {
     let crowdloanViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let defaultReferralCode: String
 
-    private(set) var currentReferralCode: String = ""
-    private(set) var isTermsAgreed: Bool = false
+    private var currentReferralCode: String = ""
+    private var isTermsAgreed: Bool = false
 
     weak var crowdloanDelegate: CustomCrowdloanDelegate?
 
-    required init(
+    init(
         wireframe: ReferralCrowdloanWireframeProtocol,
         bonusService: CrowdloanBonusServiceProtocol,
         displayInfo: CrowdloanDisplayInfo,
@@ -38,7 +38,7 @@ class ReferralCrowdloanPresenter {
         isTermsAgreed = !currentReferralCode.isEmpty
     }
 
-    func handleSave(result: Result<Void, Error>) {
+    private func handleSave(result: Result<Void, Error>) {
         switch result {
         case .success:
             crowdloanDelegate?.didReceive(bonusService: bonusService)
@@ -48,7 +48,7 @@ class ReferralCrowdloanPresenter {
         }
     }
 
-    func provideReferralViewModel() {
+    private func provideReferralViewModel() {
         let bonusValue = crowdloanViewModelFactory.createAdditionalBonusViewModel(
             inputAmount: inputAmount,
             displayInfo: displayInfo,
@@ -63,11 +63,10 @@ class ReferralCrowdloanPresenter {
             bonusValue: bonusValue ?? "",
             canApplyDefaultCode: currentReferralCode != defaultReferralCode,
             isTermsAgreed: isTermsAgreed,
-            isCodeReceived: !currentReferralCode.isEmpty,
-            customFlow: displayInfo.flow
+            isCodeReceived: !currentReferralCode.isEmpty
         )
 
-        view?.didReceiveState(state: .loadedDefaultFlow(viewModel))
+        view?.didReceiveReferral(viewModel: viewModel)
     }
 
     private func provideLearnMoreViewModel() {
@@ -104,7 +103,7 @@ extension ReferralCrowdloanPresenter: ReferralCrowdloanPresenterProtocol {
         provideInputViewModel()
     }
 
-    @objc func applyInputCode() {
+    func applyInputCode() {
         if currentReferralCode.isEmpty {
             view?.didReceiveShouldInputCode()
             return
@@ -129,11 +128,11 @@ extension ReferralCrowdloanPresenter: ReferralCrowdloanPresenterProtocol {
     }
 
     func presentTerms() {
-        guard let view = view, let termsUrl = bonusService.termsURL else {
+        guard let view = view, let url = bonusService.termsURL else {
             return
         }
 
-        wireframe.showWeb(url: termsUrl, from: view, style: .automatic)
+        wireframe.showWeb(url: url, from: view, style: .automatic)
     }
 
     func presentLearnMore() {

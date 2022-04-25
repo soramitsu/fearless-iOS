@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 
+@available(*, deprecated, message: "Use MetaAccount instead")
 struct ManagedAccountItem: Equatable {
     let address: String
     let cryptoType: CryptoType

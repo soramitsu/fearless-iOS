@@ -7,6 +7,9 @@ enum SettingsKey: String {
     case selectedAccount
     case biometryEnabled
     case selectedConnection
+    case crowdloadChainId
+    case stakingAsset
+    case stakingNetworkExpansion
     case referralEthereumAccount
 }
 
@@ -57,10 +60,54 @@ extension SettingsManagerProtocol {
         }
     }
 
-    func saveReferralEthereumAddressForSelectedAccount(ethereumAccountAddress: String) {
+    var crowdloanChainId: String? {
+        get {
+            string(for: SettingsKey.crowdloadChainId.rawValue)
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.crowdloadChainId.rawValue)
+            } else {
+                removeValue(for: SettingsKey.crowdloadChainId.rawValue)
+            }
+        }
+    }
+
+    var stakingAsset: ChainAssetId? {
+        get {
+            value(of: ChainAssetId.self, for: SettingsKey.stakingAsset.rawValue)
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.stakingAsset.rawValue)
+            } else {
+                removeValue(for: SettingsKey.stakingAsset.rawValue)
+            }
+        }
+    }
+
+    var stakingNetworkExpansion: Bool {
+        get {
+            bool(for: SettingsKey.stakingNetworkExpansion.rawValue) ?? true
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.stakingNetworkExpansion.rawValue)
+        }
+    }
+
+    func saveReferralEthereumAddressForSelectedAccount(_ ethereumAccountAddress: String?) {
         guard let selectedAccount = selectedAccount else { return }
 
         let key = SettingsKey.referralEthereumAccount.rawValue.appending(selectedAccount.address)
+
+        guard let ethereumAccountAddress = ethereumAccountAddress else {
+            removeValue(for: key)
+            return
+        }
+
         set(value: ethereumAccountAddress, for: key)
     }
 

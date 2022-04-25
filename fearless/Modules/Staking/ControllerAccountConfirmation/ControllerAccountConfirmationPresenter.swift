@@ -9,21 +9,25 @@ final class ControllerAccountConfirmationPresenter {
     var interactor: ControllerAccountConfirmationInteractorInputProtocol!
 
     private let iconGenerator: IconGenerating
-    private let controllerAccountItem: AccountItem
-    private let chain: Chain
+    private let controllerAccountItem: ChainAccountResponse
+    private let chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol?
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
-    private var stashAccountItem: AccountItem?
+    private var stashAccountItem: ChainAccountResponse?
     private var fee: Decimal?
     private var priceData: PriceData?
     private var balance: Decimal?
     private var stakingLedger: StakingLedger?
 
     init(
-        controllerAccountItem: AccountItem,
-        chain: Chain,
+        controllerAccountItem: ChainAccountResponse,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         iconGenerator: IconGenerating,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -31,6 +35,8 @@ final class ControllerAccountConfirmationPresenter {
     ) {
         self.controllerAccountItem = controllerAccountItem
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.iconGenerator = iconGenerator
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
@@ -58,8 +64,11 @@ final class ControllerAccountConfirmationPresenter {
         view?.reload(with: viewModel)
     }
 
-    private func createAccountInfoViewModel(_ accountItem: AccountItem, title: String) -> AccountInfoViewModel {
-        let address = accountItem.address
+    private func createAccountInfoViewModel(
+        _ accountItem: ChainAccountResponse,
+        title: String
+    ) -> AccountInfoViewModel {
+        let address = accountItem.toAddress() ?? ""
         let icon = try? iconGenerator
             .generateFromAddress(address)
             .imageWithFillColor(
@@ -67,10 +76,11 @@ final class ControllerAccountConfirmationPresenter {
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )
+
         return AccountInfoViewModel(
             title: title,
             address: address,
-            name: accountItem.username,
+            name: accountItem.name,
             icon: icon
         )
     }
@@ -97,11 +107,11 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
     }
 
     func handleStashAction() {
-        presentAccountOptions(for: stashAccountItem?.address)
+        presentAccountOptions(for: stashAccountItem?.toAddress())
     }
 
     func handleControllerAction() {
-        presentAccountOptions(for: controllerAccountItem.address)
+        presentAccountOptions(for: controllerAccountItem.toAddress())
     }
 
     func confirm() {
@@ -117,7 +127,6 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
             ),
             dataValidatingFactory.ledgerNotExist(
                 stakingLedger: stakingLedger,
-                addressType: chain.addressType,
                 locale: locale
             )
         ]).runValidation { [weak self] in
@@ -154,7 +163,7 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
         }
     }
 
-    func didReceiveStashAccount(result: Result<AccountItem?, Error>) {
+    func didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             stashAccountItem = accountItem
@@ -168,7 +177,7 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
         switch result {
         case let .success(dispatchInfo):
             if let feeValue = BigUInt(dispatchInfo.fee) {
-                fee = Decimal.fromSubstrateAmount(feeValue, precision: chain.addressType.precision)
+                fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision))
             } else {
                 fee = nil
             }
@@ -205,7 +214,7 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil

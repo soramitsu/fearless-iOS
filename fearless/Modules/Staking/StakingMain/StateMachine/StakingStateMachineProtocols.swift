@@ -17,7 +17,7 @@ protocol StakingStateProtocol {
     func accept(visitor: StakingStateVisitorProtocol)
 
     func process(address: String?)
-    func process(chain: Chain?)
+    func process(chainAsset: ChainAsset?)
     func process(accountInfo: AccountInfo?)
     func process(price: PriceData?)
     func process(rewardEstimationAmount: Decimal?)
@@ -35,6 +35,7 @@ protocol StakingStateProtocol {
     func process(counterForNominators: UInt32?)
     func process(maxNominatorsCount: UInt32?)
     func process(eraCountdown: EraCountdown)
+    func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod))
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

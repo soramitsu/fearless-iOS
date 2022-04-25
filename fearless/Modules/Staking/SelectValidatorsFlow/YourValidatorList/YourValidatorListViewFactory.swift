@@ -5,20 +5,23 @@ import SoraKeystore
 import FearlessUtils
 
 struct YourValidatorListViewFactory {
-    static func createView() -> YourValidatorListViewProtocol? {
-        guard let interactor = createInteractor(settings: SettingsManager.shared) else {
+    static func createView(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> YourValidatorListViewProtocol? {
+        guard let interactor = try? createInteractor(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return nil
         }
 
         let wireframe = YourValidatorListWireframe()
 
-        let settings = SettingsManager.shared
-        let chain = settings.selectedConnection.type.chain
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount
         )
 
@@ -31,6 +34,8 @@ struct YourValidatorListViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared
         )
@@ -47,9 +52,15 @@ struct YourValidatorListViewFactory {
     }
 
     private static func createInteractor(
-        settings: SettingsManagerProtocol
-    ) -> YourValidatorListInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) throws -> YourValidatorListInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
@@ -58,36 +69,82 @@ struct YourValidatorListViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
-
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let chain = settings.selectedConnection.type.chain
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: storageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        stakingSettings.setup()
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: storageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let eraValidatorService = try serviceFactory.createEraValidatorService(
+            for: chain.chainId
+        )
+
+        let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
+            for: chain.chainId,
+            assetPrecision: Int16(asset.precision),
+            validatorService: eraValidatorService
+        )
+
+        defer {
+            eraValidatorService.setup()
+            rewardCalculatorService.setup()
+        }
 
         let validatorOperationFactory = ValidatorOperationFactory(
+            asset: asset,
             chain: chain,
-            eraValidatorService: EraValidatorFacade.sharedService,
-            rewardService: RewardCalculatorFacade.sharedService,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardCalculatorService,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
+            runtimeService: runtimeService,
+            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+        )
+
+        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        )
+
+        let facade = UserDataStorageFacade.shared
+
+        let mapper = MetaAccountMapper()
+
+        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
         )
 
         return YourValidatorListInteractor(
             chain: chain,
-            providerFactory: SingleValueProviderFactory.shared,
+            asset: asset,
+            selectedAccount: selectedAccount,
             substrateProviderFactory: substrateProviderFactory,
-            settings: settings,
-            accountRepository: AnyDataProviderRepository(repository),
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            eraValidatorService: EraValidatorFacade.sharedService,
+            runtimeService: runtimeService,
+            eraValidatorService: eraValidatorService,
             validatorOperationFactory: validatorOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }
 }

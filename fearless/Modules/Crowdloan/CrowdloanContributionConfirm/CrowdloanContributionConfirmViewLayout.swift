@@ -13,13 +13,6 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     let amountInputView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
         view.isUserInteractionEnabled = false
-        view.isHidden = true
-        return view
-    }()
-
-    let contributedView: HintView = {
-        let view = UIFactory.default.createHintView()
-        view.titleLabel.textColor = R.color.colorAccent()
         return view
     }()
 
@@ -27,9 +20,9 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     private(set) var bonusView: TitleValueView?
 
-    let leasingPeriodView = TitleMultiValueView()
+    private var assetViewModel: AssetBalanceViewModelProtocol?
 
-    let referralAddressView = TextSectionView()
+    let leasingPeriodView = TitleMultiValueView()
 
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
@@ -56,6 +49,11 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
+        amountInputView.iconView.image = nil
+
+        self.assetViewModel = assetViewModel
+
         amountInputView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
@@ -67,7 +65,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
             amountInputView.balanceText = nil
         }
 
-        amountInputView.assetIcon = assetViewModel.icon
+        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
 
         let symbol = assetViewModel.symbol.uppercased()
         amountInputView.symbol = symbol
@@ -87,7 +85,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(bonus: String?) {
-        if let bonus = bonus, !bonus.isEmpty {
+        if let bonus = bonus {
             createBonusViewIfNeeded()
             bonusView?.valueLabel.text = bonus
         } else {
@@ -105,29 +103,10 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         accountView.iconImage = icon
         accountView.subtitle = confirmationViewModel.senderName
 
-        amountInputView.isHidden = confirmationViewModel.inputAmount == nil
         amountInputView.fieldText = confirmationViewModel.inputAmount
-
-        contributedView.isHidden = confirmationViewModel.previousContribution == nil
-        contributedView.titleLabel.text = confirmationViewModel.previousContribution
 
         leasingPeriodView.valueTop.text = confirmationViewModel.leasingPeriod
         leasingPeriodView.valueBottom.text = confirmationViewModel.leasingCompletionDate
-    }
-
-    func bind(customFlow: CustomCrowdloanFlow?) {
-        guard let customFlow = customFlow else {
-            referralAddressView.isHidden = true
-            return
-        }
-
-        switch customFlow {
-        case let .moonbeamMemoFix(memo):
-            referralAddressView.isHidden = false
-            referralAddressView.titleLabel.text = R.string.localizable.moonbeanEthereumAddress(preferredLanguages: locale.rLanguages)
-            referralAddressView.valueLabel.text = memo
-        default: break
-        }
     }
 
     private func applyLocalization() {
@@ -172,22 +151,11 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
         contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
 
-        contentView.stackView.addArrangedSubview(contributedView)
-        contributedView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-        }
-
-        contentView.stackView.setCustomSpacing(16.0, after: contributedView)
-
         contentView.stackView.addArrangedSubview(leasingPeriodView)
         leasingPeriodView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
         }
-
-        contentView.stackView.setCustomSpacing(16.0, after: leasingPeriodView)
-
-        contentView.stackView.addArrangedSubview(referralAddressView)
 
         addSubview(networkFeeConfirmView)
 

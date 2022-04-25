@@ -247,7 +247,7 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
         }
     }
 
-    func didFindMultiple(accounts: [AccountItem], for connection: ConnectionItem) {
+    func didFindMultiple(accounts: [ChainAccountResponse], for connection: ConnectionItem) {
         pendingCompletion = false
 
         let context = PrimitiveContextWrapper(value: (accounts, connection))
@@ -308,17 +308,17 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
 }
 
 extension NetworkManagementPresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
-        guard
-            let (accounts, connection) =
-            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value
-        else {
-            return
-        }
-
-        pendingCompletion = true
-
-        interactor.select(connection: connection, account: accounts[index])
+    func modalPickerDidSelectModelAtIndex(_: Int, context _: AnyObject?) {
+//        guard
+//            let (accounts, connection) =
+//            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value
+//        else {
+//            return
+//        }
+//
+//        pendingCompletion = true
+//
+//        interactor.select(connection: connection, account: accounts[index])
     }
 
     func modalPickerDidSelectAction(context: AnyObject?) {

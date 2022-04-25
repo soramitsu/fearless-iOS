@@ -59,8 +59,8 @@ enum TransactionHistoryMergeItem {
 
     func buildTransactionData(
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         switch self {
@@ -68,14 +68,14 @@ enum TransactionHistoryMergeItem {
             return AssetTransactionData.createTransaction(
                 from: item,
                 address: address,
-                networkType: networkType,
+                chain: chain,
                 asset: asset,
                 addressFactory: addressFactory
             )
         case let .remote(item):
             return item.createTransactionForAddress(
                 address,
-                networkType: networkType,
+                chain: chain,
                 asset: asset,
                 addressFactory: addressFactory
             )
@@ -98,18 +98,18 @@ enum TransactionHistoryMergeItem {
 
 final class TransactionHistoryMergeManager {
     let address: String
-    let networkType: SNAddressType
-    let asset: WalletAsset
+    let chain: ChainModel
+    let asset: AssetModel
     let addressFactory: SS58AddressFactoryProtocol
 
     init(
         address: String,
-        networkType: SNAddressType,
-        asset: WalletAsset,
+        chain: ChainModel,
+        asset: AssetModel,
         addressFactory: SS58AddressFactoryProtocol
     ) {
         self.address = address
-        self.networkType = networkType
+        self.chain = chain
         self.asset = asset
         self.addressFactory = addressFactory
     }
@@ -155,7 +155,62 @@ final class TransactionHistoryMergeManager {
             .map { item in
                 item.buildTransactionData(
                     address: address,
-                    networkType: networkType,
+                    chain: chain,
+                    asset: asset,
+                    addressFactory: addressFactory
+                )
+            }
+
+        let results = TransactionHistoryMergeResult(
+            historyItems: transactionsItems,
+            identifiersToRemove: hashesToRemove
+        )
+
+        return results
+    }
+
+    func merge(
+        subqueryItems: [WalletRemoteHistoryItemProtocol],
+        localItems: [TransactionHistoryItem]
+    ) -> TransactionHistoryMergeResult {
+        let existingHashes = Set(subqueryItems.map(\.identifier))
+        let minSubscanItem = subqueryItems.last
+
+        let hashesToRemove: [String] = localItems.compactMap { item in
+            if existingHashes.contains(item.txHash) {
+                return item.txHash
+            }
+
+            guard let subscanItem = minSubscanItem else {
+                return nil
+            }
+
+            if item.timestamp < subscanItem.itemTimestamp {
+                return item.txHash
+            }
+
+            return nil
+        }
+
+        let filterSet = Set(hashesToRemove)
+        let localMergeItems: [TransactionHistoryMergeItem] = localItems.compactMap { item in
+            guard !filterSet.contains(item.txHash) else {
+                return nil
+            }
+
+            return TransactionHistoryMergeItem.local(item: item)
+        }
+
+        let remoteMergeItems: [TransactionHistoryMergeItem] = subqueryItems.map {
+            TransactionHistoryMergeItem.remote(remote: $0)
+        }
+
+        let transactionsItems = (localMergeItems + remoteMergeItems)
+            .sorted { $0.compareWithItem($1) }
+            .map { item in
+                item.buildTransactionData(
+                    address: address,
+                    chain: chain,
                     asset: asset,
                     addressFactory: addressFactory
                 )

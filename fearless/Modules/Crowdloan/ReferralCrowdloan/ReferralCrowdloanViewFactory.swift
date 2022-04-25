@@ -3,53 +3,20 @@ import SoraKeystore
 import SoraFoundation
 
 struct ReferralCrowdloanViewFactory {
-    static func createAstarView(
-        for delegate: CustomCrowdloanDelegate,
-        displayInfo: CrowdloanDisplayInfo,
-        inputAmount: Decimal,
-        existingService: CrowdloanBonusServiceProtocol?
-    ) -> ReferralCrowdloanViewProtocol? {
-        guard let paraId = ParaId(displayInfo.paraid) else {
-            return nil
-        }
-
-        let bonusService: CrowdloanBonusServiceProtocol = {
-            if let service = existingService as? AstarBonusService {
-                return service
-            } else {
-                return AstarBonusService(
-                    paraId: paraId,
-                    operationManager: OperationManagerFacade.sharedManager
-                )
-            }
-        }()
-
-        var defaultReferralCode: String = AstarBonusService.defaultReferralCode
-
-        if case let .astar(astarFlowData) = displayInfo.flow, let referralCode = astarFlowData.fearlessReferral {
-            defaultReferralCode = referralCode
-        }
-
-        let presenter = createAstarPresenter(
-            for: delegate,
-            displayInfo: displayInfo,
-            inputAmount: inputAmount,
-            bonusService: bonusService,
-            defaultReferralCode: defaultReferralCode
-        )
-
-        return createView(presenter: presenter)
-    }
-
     static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        existingService: CrowdloanBonusServiceProtocol?
+        existingService: CrowdloanBonusServiceProtocol?,
+        state: CrowdloanSharedState
     ) -> ReferralCrowdloanViewProtocol? {
-        let settings = SettingsManager.shared
-
-        guard let selectedAddress = settings.selectedAccount?.address else {
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chain = state.settings.value,
+            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()),
+            let selectedAddress = try? accountResponse.accountId.toAddress(
+                using: chain.chainFormat
+            ) else {
             return nil
         }
 
@@ -57,31 +24,35 @@ struct ReferralCrowdloanViewFactory {
             if let service = existingService as? KaruraBonusService {
                 return service
             } else {
+                let signingWrapper = SigningWrapper(
+                    keystore: Keychain(),
+                    metaId: selectedAccount.metaId,
+                    accountResponse: accountResponse
+                )
                 return KaruraBonusService(
                     address: selectedAddress,
-                    chain: settings.selectedConnection.type.chain,
-                    signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
+                    signingWrapper: signingWrapper,
                     operationManager: OperationManagerFacade.sharedManager
                 )
             }
         }()
 
-        let presenter = createDefaultPresenter(
+        return createView(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
             bonusService: bonusService,
-            defaultReferralCode: KaruraBonusService.defaultReferralCode
+            defaultReferralCode: KaruraBonusService.defaultReferralCode,
+            state: state
         )
-
-        return createView(presenter: presenter)
     }
 
     static func createBifrostView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        existingService: CrowdloanBonusServiceProtocol?
+        existingService: CrowdloanBonusServiceProtocol?,
+        state: CrowdloanSharedState
     ) -> ReferralCrowdloanViewProtocol? {
         guard let paraId = ParaId(displayInfo.paraid) else {
             return nil
@@ -98,56 +69,41 @@ struct ReferralCrowdloanViewFactory {
             }
         }()
 
-        let presenter = createDefaultPresenter(
+        return createView(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
             bonusService: bonusService,
-            defaultReferralCode: BifrostBonusService.defaultReferralCode
+            defaultReferralCode: BifrostBonusService.defaultReferralCode,
+            state: state
         )
-
-        return createView(presenter: presenter)
     }
 
     private static func createView(
-        presenter: ReferralCrowdloanPresenterProtocol
-    ) -> ReferralCrowdloanViewProtocol? {
-        let localizationManager = LocalizationManager.shared
-
-        let view = ReferralCrowdloanViewController(
-            presenter: presenter,
-            localizationManager: localizationManager
-        )
-
-        presenter.view = view
-
-        return view
-    }
-
-    private static func createPresenter<T: ReferralCrowdloanPresenterProtocol>(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol,
-        defaultReferralCode: String
-    ) -> T {
-        let settings = SettingsManager.shared
+        defaultReferralCode: String,
+        state: CrowdloanSharedState
+    ) -> ReferralCrowdloanViewProtocol? {
+        guard
+            let chain = state.settings.value,
+            let asset = chain.utilityAssets().first else {
+            return nil
+        }
 
         let wireframe = ReferralCrowdloanWireframe()
 
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
+        let assetInfo = asset.asset.displayInfo(with: chain.icon)
         let viewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let localizationManager = LocalizationManager.shared
 
-        return T(
+        let presenter = ReferralCrowdloanPresenter(
             wireframe: wireframe,
             bonusService: bonusService,
             displayInfo: displayInfo,
@@ -157,37 +113,11 @@ struct ReferralCrowdloanViewFactory {
             defaultReferralCode: defaultReferralCode,
             localizationManager: localizationManager
         )
-    }
 
-    private static func createAstarPresenter(
-        for delegate: CustomCrowdloanDelegate,
-        displayInfo: CrowdloanDisplayInfo,
-        inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol,
-        defaultReferralCode: String
-    ) -> AstarReferralCrowdloanPresenter {
-        createPresenter(
-            for: delegate,
-            displayInfo: displayInfo,
-            inputAmount: inputAmount,
-            bonusService: bonusService,
-            defaultReferralCode: defaultReferralCode
-        )
-    }
+        let view = ReferralCrowdloanViewController(presenter: presenter, localizationManager: localizationManager)
 
-    private static func createDefaultPresenter(
-        for delegate: CustomCrowdloanDelegate,
-        displayInfo: CrowdloanDisplayInfo,
-        inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol,
-        defaultReferralCode: String
-    ) -> ReferralCrowdloanPresenter {
-        createPresenter(
-            for: delegate,
-            displayInfo: displayInfo,
-            inputAmount: inputAmount,
-            bonusService: bonusService,
-            defaultReferralCode: defaultReferralCode
-        )
+        presenter.view = view
+
+        return view
     }
 }

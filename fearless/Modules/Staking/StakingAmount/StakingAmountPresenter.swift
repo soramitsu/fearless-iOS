@@ -9,7 +9,7 @@ final class StakingAmountPresenter {
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
-    let selectedAccount: AccountItem
+    let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol
     let applicationConfig: ApplicationConfigProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
@@ -19,10 +19,11 @@ final class StakingAmountPresenter {
     private var balance: Decimal?
     private var fee: Decimal?
     private var loadingFee: Bool = false
-    private var asset: WalletAsset
+    private var asset: AssetModel
+    private var chain: ChainModel
     private var amount: Decimal?
-    private var rewardDestination: RewardDestination<AccountItem> = .restake
-    private var payoutAccount: AccountItem
+    private var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
+    private var payoutAccount: ChainAccountResponse?
     private var loadingPayouts: Bool = false
     private var minimalBalance: Decimal?
     private var minBondAmount: Decimal?
@@ -31,8 +32,9 @@ final class StakingAmountPresenter {
 
     init(
         amount: Decimal?,
-        asset: WalletAsset,
-        selectedAccount: AccountItem,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel,
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -41,8 +43,9 @@ final class StakingAmountPresenter {
     ) {
         self.amount = amount
         self.asset = asset
+        self.chain = chain
         self.selectedAccount = selectedAccount
-        payoutAccount = selectedAccount
+        payoutAccount = selectedAccount.fetch(for: chain.accountRequest())
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
@@ -81,9 +84,11 @@ final class StakingAmountPresenter {
                 let viewModel = rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             case .payout:
-                let viewModel = try rewardDestViewModelFactory
-                    .createPayout(from: reward, priceData: priceData, account: payoutAccount)
-                view?.didReceiveRewardDestination(viewModel: viewModel)
+                if let payoutAccount = payoutAccount, let address = payoutAccount.toAddress() {
+                    let viewModel = try rewardDestViewModelFactory
+                        .createPayout(from: reward, priceData: priceData, address: address, title: (try? payoutAccount.toDisplayAddress().username) ?? address)
+                    view?.didReceiveRewardDestination(viewModel: viewModel)
+                }
             }
         } catch {
             logger.error("Can't create reward destination")
@@ -120,10 +125,12 @@ final class StakingAmountPresenter {
     }
 
     private func estimateFee() {
-        if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: asset.precision) {
+        if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: Int16(asset.precision)),
+           let payoutAccount = payoutAccount,
+           let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
             loadingFee = true
             interactor.estimateFee(
-                for: selectedAccount.address,
+                for: address,
                 amount: amount,
                 rewardDestination: .payout(account: payoutAccount)
             )
@@ -149,6 +156,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectPayoutDestination() {
+        guard let payoutAccount = payoutAccount else {
+            return
+        }
+
         rewardDestination = .payout(account: payoutAccount)
         provideRewardDestination()
 
@@ -229,17 +240,24 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             )
         ]).runValidation { [weak self] in
             guard
-                let amount = self?.amount,
-                let rewardDestination = self?.rewardDestination else {
+                let self = self,
+                let amount = self.amount
+            else {
                 return
             }
 
             let stakingState = InitiatedBonding(
                 amount: amount,
-                rewardDestination: rewardDestination
+                rewardDestination: self.rewardDestination
             )
 
-            self?.wireframe.proceed(from: self?.view, state: stakingState)
+            self.wireframe.proceed(
+                from: self.view,
+                state: stakingState,
+                asset: self.asset,
+                chain: self.chain,
+                selectedAccount: self.selectedAccount
+            )
         }
     }
 
@@ -255,7 +273,11 @@ extension StakingAmountPresenter: SchedulerDelegate {
 }
 
 extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
-    func didReceive(accounts: [AccountItem]) {
+    func didReceive(accounts: [ChainAccountResponse]) {
+        guard let payoutAccount = payoutAccount else {
+            return
+        }
+
         loadingPayouts = false
 
         let context = PrimitiveContextWrapper(value: accounts)
@@ -280,7 +302,7 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         if let availableValue = balance?.available {
             self.balance = Decimal.fromSubstrateAmount(
                 availableValue,
-                precision: asset.precision
+                precision: Int16(asset.precision)
             )
         } else {
             self.balance = 0.0
@@ -292,12 +314,12 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     func didReceive(
         paymentInfo: RuntimeDispatchInfo,
         for _: BigUInt,
-        rewardDestination _: RewardDestination<AccountItem>
+        rewardDestination _: RewardDestination<AccountAddress>
     ) {
         loadingFee = false
 
         if let feeValue = BigUInt(paymentInfo.fee),
-           let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
+           let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
             self.fee = fee
         } else {
             fee = nil
@@ -330,14 +352,14 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     }
 
     func didReceive(minimalBalance: BigUInt) {
-        if let amount = Decimal.fromSubstrateAmount(minimalBalance, precision: asset.precision) {
+        if let amount = Decimal.fromSubstrateAmount(minimalBalance, precision: Int16(asset.precision)) {
             logger.debug("Did receive minimun bonding amount: \(amount)")
             self.minimalBalance = amount
         }
     }
 
     func didReceive(minBondAmount: BigUInt?) {
-        self.minBondAmount = minBondAmount.map { Decimal.fromSubstrateAmount($0, precision: asset.precision) } ?? nil
+        self.minBondAmount = minBondAmount.map { Decimal.fromSubstrateAmount($0, precision: Int16(asset.precision)) } ?? nil
     }
 
     func didReceive(counterForNominators: UInt32?) {
@@ -353,14 +375,14 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
             let accounts =
-            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
+            (context as? PrimitiveContextWrapper<[ChainAccountResponse]>)?.value
         else {
             return
         }
 
         payoutAccount = accounts[index]
 
-        if case .payout = rewardDestination {
+        if let payoutAccount = payoutAccount, case .payout = rewardDestination {
             rewardDestination = .payout(account: payoutAccount)
         }
 

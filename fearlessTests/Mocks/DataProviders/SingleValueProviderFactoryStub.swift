@@ -21,6 +21,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let counterForNominators: AnyDataProvider<DecodedU32>
     let maxNominatorsCount: AnyDataProvider<DecodedU32>
     let jsonProviders: [URL: Any]
+    let balanceLocks: AnyDataProvider<DecodedBalanceLocks>
 
     init(price: AnySingleValueProvider<PriceData>,
          totalReward: AnySingleValueProvider<TotalRewardItem>,
@@ -36,7 +37,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          counterForNominators: AnyDataProvider<DecodedU32>,
          maxNominatorsCount: AnyDataProvider<DecodedU32>,
          jsonProviders: [URL: Any] = [:],
-         crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>) {
+         crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>,
+         balanceLocks: AnyDataProvider<DecodedBalanceLocks>) {
         self.price = price
         self.totalReward = totalReward
         self.balance = balance
@@ -52,6 +54,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
         self.maxNominatorsCount = maxNominatorsCount
         self.jsonProviders = jsonProviders
         self.crowdloanFunds = crowdloanFunds
+        self.balanceLocks = balanceLocks
     }
 
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
@@ -145,6 +148,11 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     ) -> AnyDataProvider<DecodedCrowdloanFunds> {
         crowdloanFunds
     }
+
+    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
+    -> AnyDataProvider<DecodedBalanceLocks> {
+        balanceLocks
+    }
 }
 
 extension SingleValueProviderFactoryStub {
@@ -166,6 +174,7 @@ extension SingleValueProviderFactoryStub {
         let payee = DataProviderStub(models: [decodedPayee])
         let blockNumber = DataProviderStub<DecodedBlockNumber>(models: [])
         let crowdloanFunds = DataProviderStub<DecodedCrowdloanFunds>(models: [])
+        let balanceLocks = DataProviderStub<DecodedBalanceLocks>(models: [])
 
         return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
                                               totalReward: AnySingleValueProvider(totalRewardProvider),
@@ -180,7 +189,9 @@ extension SingleValueProviderFactoryStub {
                                               minNominatorBond: AnyDataProvider(minNominatorBond),
                                               counterForNominators: AnyDataProvider(counterForNominators),
                                               maxNominatorsCount: AnyDataProvider(maxNominatorsCount),
-                                              crowdloanFunds: AnyDataProvider(crowdloanFunds))
+                                              crowdloanFunds: AnyDataProvider(crowdloanFunds),
+                                              balanceLocks: AnyDataProvider(balanceLocks)
+                                              )
     }
 
     func with(
@@ -208,7 +219,8 @@ extension SingleValueProviderFactoryStub {
                                               counterForNominators: counterForNominators,
                                               maxNominatorsCount: maxNominatorsCount,
                                               jsonProviders: jsonProviders,
-                                              crowdloanFunds: crowdloanFunds)
+                                              crowdloanFunds: crowdloanFunds,
+                                              balanceLocks: balanceLocks)
     }
 
     func with(
@@ -234,7 +246,8 @@ extension SingleValueProviderFactoryStub {
                                               counterForNominators: counterForNominators,
                                               maxNominatorsCount: maxNominatorsCount,
                                               jsonProviders: jsonProviders,
-                                              crowdloanFunds: crowdloanFunds)
+                                              crowdloanFunds: crowdloanFunds,
+                                              balanceLocks: balanceLocks)
     }
 
     func withBlockNumber(
@@ -260,7 +273,8 @@ extension SingleValueProviderFactoryStub {
                                               counterForNominators: counterForNominators,
                                               maxNominatorsCount: maxNominatorsCount,
                                               jsonProviders: jsonProviders,
-                                              crowdloanFunds: crowdloanFunds)
+                                              crowdloanFunds: crowdloanFunds,
+                                              balanceLocks: balanceLocks)
     }
 
     func withJSON<T>(
@@ -288,7 +302,8 @@ extension SingleValueProviderFactoryStub {
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
             jsonProviders: currentProviders,
-            crowdloanFunds: crowdloanFunds
+            crowdloanFunds: crowdloanFunds,
+            balanceLocks: balanceLocks
         )
     }
 
@@ -316,7 +331,43 @@ extension SingleValueProviderFactoryStub {
             counterForNominators: counterForNominators,
             maxNominatorsCount: maxNominatorsCount,
             jsonProviders: jsonProviders,
-            crowdloanFunds: AnyDataProvider(dataProvider)
+            crowdloanFunds: AnyDataProvider(dataProvider),
+            balanceLocks: balanceLocks
+        )
+    }
+
+    func withBalanceLocks(
+        _ locks: BalanceLocks
+    ) -> SingleValueProviderFactoryStub {
+
+        let decodedBalanceLocks: [DecodedBalanceLocks] = locks.compactMap { lock in
+            guard let identifier = lock.displayId else { return nil }
+
+            return DecodedBalanceLocks(
+                identifier: identifier,
+                item: lock
+            )
+        }
+
+        let dataProvider = DataProviderStub(models: decodedBalanceLocks)
+
+        return SingleValueProviderFactoryStub(
+            price: price,
+            totalReward: totalReward,
+            balance: balance,
+            nomination: nomination,
+            validatorPrefs: validatorPrefs,
+            ledgerInfo: ledgerInfo,
+            activeEra: activeEra,
+            currentEra: currentEra,
+            payee: payee,
+            blockNumber: blockNumber,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount,
+            jsonProviders: jsonProviders,
+            crowdloanFunds: crowdloanFunds,
+            balanceLocks: AnyDataProvider(dataProvider)
         )
     }
 }

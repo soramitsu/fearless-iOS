@@ -9,23 +9,31 @@ class CrowdloanTests: XCTestCase {
     func testFetchContributions() {
         do {
             let operationManager = OperationManagerFacade.sharedManager
+            let chainId = Chain.kusama.genesisHash
+            let selectedAccountId = try "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf".toAccountId()
 
-            let settings = SettingsManager.shared
-            let assetId = WalletAssetId.kusama
-            let chain = assetId.chain!
-            let selectedAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
-
-            try! AccountCreationHelper.createAccountFromMnemonic(
-                cryptoType: .sr25519,
-                networkType: chain,
-                keychain: Keychain(),
-                settings: settings
+            let chainRegistry = ChainRegistryFactory.createDefaultRegistry(
+                from: SubstrateStorageTestFacade()
             )
 
-            WebSocketService.shared.setup()
-            let connection = WebSocketService.shared.connection!
-            let runtimeService = RuntimeRegistryFacade.sharedService
-            runtimeService.setup()
+            chainRegistry.syncUp()
+
+            let syncCompletionExpectation = XCTestExpectation()
+            chainRegistry.chainsSubscribe(self, runningInQueue: .main) { changes in
+                if !changes.isEmpty {
+                    syncCompletionExpectation.fulfill()
+                }
+            }
+
+            wait(for: [syncCompletionExpectation], timeout: 10)
+
+            guard let connection = chainRegistry.getConnection(for: chainId) else {
+                throw ChainRegistryError.connectionUnavailable
+            }
+
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+                throw ChainRegistryError.runtimeMetadaUnavailable
+            }
 
             let storageRequestFactory = StorageRequestFactory(
                 remoteFactory: StorageKeyFactory(),
@@ -39,8 +47,7 @@ class CrowdloanTests: XCTestCase {
 
             let crowdloansWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
                 connection: connection,
-                runtimeService: runtimeService,
-                chain: chain
+                runtimeService: runtimeService
             )
 
             let contributionsOperation: BaseOperation<[CrowdloanContributionResponse]> =
@@ -50,7 +57,7 @@ class CrowdloanTests: XCTestCase {
                         crowdloanOperationFactory.fetchContributionOperation(
                             connection: connection,
                             runtimeService: runtimeService,
-                            address: selectedAccount,
+                            accountId: selectedAccountId,
                             trieIndex: crowdloan.fundInfo.trieIndex
                         )
                     }

@@ -1,20 +1,21 @@
 import UIKit
 import SoraKeystore
 import RobinHood
+import IrohaCrypto
 
-final class YourValidatorListInteractor {
+final class YourValidatorListInteractor: AccountFetching {
     weak var presenter: YourValidatorListInteractorOutputProtocol!
 
-    let chain: Chain
-    let providerFactory: SingleValueProviderFactoryProtocol
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let settings: SettingsManagerProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let eraValidatorService: EraValidatorServiceProtocol
     let validatorOperationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
-
-    let accountRepository: AnyDataProviderRepository<AccountItem>
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     var stashControllerProvider: StreamableProvider<StashItem>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
@@ -22,99 +23,42 @@ final class YourValidatorListInteractor {
     var rewardDestinationProvider: AnyDataProvider<DecodedPayee>?
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
+    var activeEraInfo: ActiveEraInfo?
+    var stashAddress: String?
+
     init(
-        chain: Chain,
-        providerFactory: SingleValueProviderFactoryProtocol,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        settings: SettingsManagerProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
         runtimeService: RuntimeCodingServiceProtocol,
         eraValidatorService: EraValidatorServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.chain = chain
-        self.providerFactory = providerFactory
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.substrateProviderFactory = substrateProviderFactory
-        self.settings = settings
-        self.accountRepository = accountRepository
         self.runtimeService = runtimeService
         self.eraValidatorService = eraValidatorService
         self.validatorOperationFactory = validatorOperationFactory
         self.operationManager = operationManager
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.accountRepository = accountRepository
     }
 
     func fetchController(for address: AccountAddress) {
-        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let accountItem = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceiveController(result: .success(accountItem))
-                } catch {
-                    self?.presenter.didReceiveController(result: .failure(error))
-                }
-            }
+        fetchChainAccount(
+            chain: chain,
+            address: address,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveController(result: result)
         }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
-    }
-
-    func handle(activeEra: EraIndex?) {
-        clearStashControllerProvider()
-        clearNominatorProvider()
-        clearLedgerProvider()
-        clearRewardDestinationProvider()
-
-        if let activeEra = activeEra {
-            subscribeToStashControllerProvider(at: activeEra)
-        } else {
-            presenter.didReceiveController(result: .success(nil))
-            presenter.didReceiveValidators(result: .success(nil))
-        }
-    }
-
-    func handle(stashItem: StashItem?, at activeEra: EraIndex) {
-        clearNominatorProvider()
-        clearLedgerProvider()
-        clearRewardDestinationProvider()
-
-        if let stashItem = stashItem {
-            fetchController(for: stashItem.controller)
-            subscribeToNominator(address: stashItem.stash, at: activeEra)
-            subscribeToLedger(for: stashItem.controller)
-            subscribeToRewardDestination(for: stashItem.stash)
-        } else {
-            presenter.didReceiveController(result: .success(nil))
-            presenter.didReceiveValidators(result: .success(nil))
-        }
-    }
-
-    func handle(nomination: Nomination?, stashAddress: AccountAddress, at activeEra: EraIndex) {
-        guard let nomination = nomination else {
-            presenter.didReceiveValidators(result: .success(nil))
-            return
-        }
-
-        let validatorsWrapper = createValidatorsWrapper(
-            for: nomination,
-            stashAddress: stashAddress,
-            activeEra: activeEra
-        )
-
-        validatorsWrapper.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let result = try validatorsWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceiveValidators(result: .success(result))
-                } catch {
-                    self?.presenter.didReceiveValidators(result: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: validatorsWrapper.allOperations, in: .transient)
     }
 
     func createValidatorsWrapper(
@@ -173,15 +117,120 @@ final class YourValidatorListInteractor {
             )
         }
     }
+
+    func clearAllSubscriptions() {
+        clear(dataProvider: &activeEraProvider)
+        clear(streamableProvider: &stashControllerProvider)
+        clear(dataProvider: &nominatorProvider)
+        clear(dataProvider: &ledgerProvider)
+        clear(dataProvider: &rewardDestinationProvider)
+    }
+
+    func clearActiveEraSubscription() {
+        clear(dataProvider: &activeEraProvider)
+    }
+}
+
+extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
+    func handleLedgerInfo(
+        result: Result<StakingLedger?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        presenter.didReceiveLedger(result: result)
+    }
+
+    func handlePayee(result: Result<RewardDestinationArg?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        do {
+            let payee = try result.get()
+            presenter.didReceiveRewardDestination(result: .success(payee))
+        } catch {
+            presenter.didReceiveRewardDestination(result: .failure(error))
+        }
+    }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+        activeEraInfo = try? result.get()
+
+        clear(dataProvider: &nominatorProvider)
+        clear(dataProvider: &ledgerProvider)
+        clear(dataProvider: &rewardDestinationProvider)
+        clear(streamableProvider: &stashControllerProvider)
+
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            stashControllerProvider = subscribeStashItemProvider(for: address)
+        } else {
+            presenter.didReceiveValidators(result: .success(nil))
+        }
+    }
+
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
+        clear(dataProvider: &nominatorProvider)
+        clear(dataProvider: &ledgerProvider)
+        clear(dataProvider: &rewardDestinationProvider)
+
+        let addressFactory = SS58AddressFactory()
+
+        if let stashItem = try? result.get(),
+           let controllerAccountId = try? addressFactory.accountId(
+               fromAddress: stashItem.controller,
+               addressPrefix: chain.addressPrefix
+           ),
+           let stashAccountId = try? addressFactory.accountId(
+               fromAddress: stashItem.stash,
+               type: chain.addressPrefix
+           ) {
+            presenter.didReceiveStashItem(result: .success(stashItem))
+
+            stashAddress = stashItem.controller
+
+            fetchController(for: stashItem.controller)
+
+            nominatorProvider = subscribeNomination(for: stashAccountId, chainId: chain.chainId)
+            ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainId: chain.chainId)
+            rewardDestinationProvider = subscribePayee(for: stashAccountId, chainId: chain.chainId)
+
+        } else {
+            presenter.didReceiveValidators(result: .success(nil))
+        }
+    }
+
+    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        guard let nomination = try? result.get(),
+              let activeEra = activeEraInfo?.index,
+              let stashAddress = stashAddress else {
+            presenter.didReceiveValidators(result: .success(nil))
+            return
+        }
+
+        let validatorsWrapper = createValidatorsWrapper(
+            for: nomination,
+            stashAddress: stashAddress,
+            activeEra: activeEra
+        )
+
+        validatorsWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try validatorsWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceiveValidators(result: .success(result))
+                } catch {
+                    self?.presenter.didReceiveValidators(result: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: validatorsWrapper.allOperations, in: .transient)
+    }
 }
 
 extension YourValidatorListInteractor: YourValidatorListInteractorInputProtocol {
     func setup() {
-        subscribeToActiveEraProvider()
+        activeEraProvider = subscribeActiveEra(for: chain.chainId)
     }
 
     func refresh() {
         clearAllSubscriptions()
-        subscribeToActiveEraProvider()
+        activeEraProvider = subscribeActiveEra(for: chain.chainId)
     }
 }

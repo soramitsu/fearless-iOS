@@ -4,11 +4,11 @@ import IrohaCrypto
 final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     func confirm(
         from view: AccountCreateViewProtocol?,
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        request: MetaAccountCreationRequest,
+        mnemonic: [String]
     ) {
         guard let accountConfirmation = AccountConfirmViewFactory
-            .createViewForOnboarding(request: request, metadata: metadata)?.controller
+            .createViewForOnboarding(request: request, mnemonic: mnemonic)?.controller
         else {
             return
         }

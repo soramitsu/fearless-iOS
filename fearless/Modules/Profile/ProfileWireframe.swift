@@ -2,17 +2,17 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
-    func showAccountDetails(from view: ProfileViewProtocol?) {
-        guard let accountManagement = AccountManagementViewFactory.createViewForSettings() else {
-            return
-        }
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
-        accountManagement.controller.hidesBottomBarWhenPushed = true
-
-        view?.controller.navigationController?.pushViewController(
-            accountManagement.controller,
-            animated: true
+    func showAccountDetails(
+        from view: ProfileViewProtocol?,
+        metaAccount: MetaAccountModel
+    ) {
+        let walletDetails = WalletDetailsViewFactory.createView(with: metaAccount)
+        let navigationController = FearlessNavigationController(
+            rootViewController: walletDetails.controller
         )
+        view?.controller.present(navigationController, animated: true)
     }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {
@@ -67,6 +67,29 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
             aboutView.controller.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(aboutView.controller, animated: true)
         }
+    }
+
+    func logout(from _: ProfileViewProtocol?) {
+        if let window = UIApplication.shared.windows.first {
+            window.rootViewController?.dismiss(animated: true, completion: nil)
+            let presenter = RootPresenterFactory.createPresenter(with: window)
+            presenter.reload()
+        }
+    }
+
+    func close(view: ControllerBackedProtocol?) {
+        view?.controller.dismiss(animated: true)
+    }
+
+    func showCheckPincode(
+        from view: ProfileViewProtocol?,
+        output: CheckPincodeModuleOutput
+    ) {
+        let checkPincodeViewController = CheckPincodeViewFactory.createView(
+            moduleOutput: output
+        ).controller
+        checkPincodeViewController.modalPresentationStyle = .fullScreen
+        view?.controller.present(checkPincodeViewController, animated: true)
     }
 
     // MARK: Private

@@ -20,35 +20,37 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         for wireframe: AccountManagementWireframeProtocol
     ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
-        let mapper = ManagedAccountItemMapper()
-        let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =
+        let mapper = ManagedMetaAccountMapper()
+
+        let observer: CoreDataContextObservable<ManagedMetaAccountModel, CDMetaAccount> =
             CoreDataContextObservable(
                 service: facade.databaseService,
                 mapper: AnyCoreDataMapper(mapper),
                 predicate: { _ in true }
             )
-        let repository = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [NSSortDescriptor.accountsByOrder],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(
+                for: nil,
+                sortDescriptors: [NSSortDescriptor.accountsByOrder]
+            )
 
         let view = AccountManagementViewController(nib: R.nib.accountManagementViewController)
+        view.localizationManager = LocalizationManager.shared
 
         let iconGenerator = PolkadotIconGenerator()
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: iconGenerator)
 
         let presenter = AccountManagementPresenter(
-            viewModelFactory: viewModelFactory,
-            supportedNetworks: SNAddressType.supported
+            viewModelFactory: viewModelFactory
         )
 
         let anyObserver = AnyDataProviderRepositoryObservable(observer)
         let interactor = AccountManagementInteractor(
             repository: AnyDataProviderRepository(repository),
             repositoryObservable: anyObserver,
-            settings: SettingsManager.shared,
-            operationManager: OperationManagerFacade.sharedManager,
+            settings: SelectedWalletSettings.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared
         )
 

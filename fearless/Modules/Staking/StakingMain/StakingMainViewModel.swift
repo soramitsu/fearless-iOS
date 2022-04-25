@@ -1,10 +1,10 @@
 import Foundation
-import FearlessUtils
+import SoraFoundation
 
-protocol StakingMainViewModelProtocol {
-    var address: String { get }
-}
-
-struct StakingMainViewModel: StakingMainViewModelProtocol {
+struct StakingMainViewModel {
     let address: String
+    let chainName: String
+    let assetName: String
+    let assetIcon: ImageViewModelProtocol?
+    let balanceViewModel: LocalizableResource<String>?
 }

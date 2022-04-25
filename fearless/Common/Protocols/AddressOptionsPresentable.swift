@@ -5,8 +5,9 @@ protocol AddressOptionsPresentable {
     func presentAccountOptions(
         from view: ControllerBackedProtocol,
         address: String,
-        chain: Chain,
-        locale: Locale
+        chain: ChainModel,
+        locale: Locale,
+        exportClosure: (() -> Void)?
     )
 }
 
@@ -43,8 +44,9 @@ extension AddressOptionsPresentable {
     func presentAccountOptions(
         from view: ControllerBackedProtocol,
         address: String,
-        chain: Chain,
-        locale: Locale
+        chain: ChainModel,
+        locale: Locale,
+        exportClosure: (() -> Void)? = nil
     ) {
         let copyClosure = { copyAddress(from: view, address: address, locale: locale) }
 
@@ -57,7 +59,8 @@ extension AddressOptionsPresentable {
             chain: chain,
             locale: locale,
             copyClosure: copyClosure,
-            urlClosure: urlClosure
+            urlClosure: urlClosure,
+            exportClosure: exportClosure
         )
 
         view.controller.present(controller, animated: true, completion: nil)

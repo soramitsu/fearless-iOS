@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class ExportMnemonicPresenter {
     weak var view: ExportGenericViewProtocol?
@@ -7,12 +8,14 @@ final class ExportMnemonicPresenter {
     var interactor: ExportMnemonicInteractorInputProtocol!
 
     let address: String
+    let chain: ChainModel
     let localizationManager: LocalizationManager
 
     private(set) var exportData: ExportMnemonicData?
 
-    init(address: String, localizationManager: LocalizationManager) {
+    init(address: String, chain: ChainModel, localizationManager: LocalizationManager) {
         self.address = address
+        self.chain = chain
         self.localizationManager = localizationManager
     }
 
@@ -28,7 +31,7 @@ final class ExportMnemonicPresenter {
         if let derivationPath = exportData?.derivationPath {
             text = R.string.localizable
                 .exportMnemonicWithDpTemplate(
-                    data.networkType.titleForLocale(locale),
+                    chain.name,
                     data.mnemonic.toString(),
                     derivationPath,
                     preferredLanguages: locale.rLanguages
@@ -36,7 +39,7 @@ final class ExportMnemonicPresenter {
         } else {
             text = R.string.localizable
                 .exportMnemonicWithoutDpTemplate(
-                    data.networkType.titleForLocale(locale),
+                    chain.name,
                     data.mnemonic.toString(),
                     preferredLanguages: locale.rLanguages
                 )
@@ -52,7 +55,7 @@ final class ExportMnemonicPresenter {
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     func setup() {
-        interactor.fetchExportDataForAddress(address)
+        interactor.fetchExportDataForAddress(address, chain: chain)
     }
 
     func activateExport() {
@@ -89,12 +92,11 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
     func didReceive(exportData: ExportMnemonicData) {
         self.exportData = exportData
-
         let viewModel = ExportMnemonicViewModel(
             option: .mnemonic,
-            networkType: exportData.networkType,
+            chain: chain,
+            cryptoType: exportData.cryptoType,
             derivationPath: exportData.derivationPath,
-            cryptoType: exportData.account.cryptoType,
             mnemonic: exportData.mnemonic.allWords()
         )
         view?.set(viewModel: viewModel)

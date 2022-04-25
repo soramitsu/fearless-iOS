@@ -7,17 +7,17 @@ import FearlessUtils
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
-    private let selectedAccountAddress: AccountAddress
-    private let accountRepository: AnyDataProviderRepository<AccountItem>
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
-    private let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let engine: JSONRPCEngine
-    private let chain: Chain
+    private let chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
     private lazy var callFactory = SubstrateCallFactory()
     private lazy var addressFactory = SS58AddressFactory()
 
@@ -27,50 +27,56 @@ final class ControllerAccountInteractor {
     private var extrinsicService: ExtrinsicServiceProtocol?
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        selectedAccountAddress: AccountAddress,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
+        extrinsicService: ExtrinsicServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
-        chain: Chain
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.substrateProviderFactory = substrateProviderFactory
+        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.runtimeService = runtimeService
-        self.selectedAccountAddress = selectedAccountAddress
+        self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.feeProxy = feeProxy
-        self.extrinsicServiceFactory = extrinsicServiceFactory
+        self.extrinsicService = extrinsicService
         self.storageRequestFactory = storageRequestFactory
         self.engine = engine
         self.chain = chain
+        self.asset = asset
     }
 }
 
 extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol {
     func setup() {
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            stashItemProvider = subscribeStashItemProvider(for: address)
+        }
 
-        fetchAllAccounts(
+        fetchChainAccounts(
+            chain: chain,
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
             self?.presenter.didReceiveAccounts(result: result)
         }
+
         feeProxy.delegate = self
     }
 
-    func estimateFee(for account: AccountItem) {
-        guard let extrinsicService = extrinsicService else { return }
+    func estimateFee(for account: ChainAccountResponse) {
+        guard let extrinsicService = extrinsicService, let address = account.toAddress() else { return }
         do {
-            let setController = try callFactory.setController(account.address)
-            let identifier = setController.callName + account.identifier
+            let setController = try callFactory.setController(address)
+            let identifier = setController.callName + account.name
 
             feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
                 try builder.adding(call: setController)
@@ -82,7 +88,10 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
     func fetchControllerAccountInfo(controllerAddress: AccountAddress) {
         do {
-            let accountId = try addressFactory.accountId(fromAddress: controllerAddress, type: chain.addressType)
+            let accountId = try addressFactory.accountId(
+                fromAddress: controllerAddress,
+                addressPrefix: chain.addressPrefix
+            )
 
             let accountInfoOperation = createAccountInfoFetchOperation(accountId)
             accountInfoOperation.targetOperation.completionBlock = { [weak presenter] in
@@ -103,7 +112,10 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
     func fetchLedger(controllerAddress: AccountAddress) {
         do {
-            let accountId = try addressFactory.accountId(fromAddress: controllerAddress, type: chain.addressType)
+            let accountId = try addressFactory.accountId(
+                fromAddress: controllerAddress,
+                addressPrefix: chain.addressPrefix
+            )
 
             let ledgerOperataion = createLedgerFetchOperation(accountId)
             ledgerOperataion.targetOperation.completionBlock = { [weak presenter] in
@@ -172,11 +184,70 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
+
+    private func handle(stashItem: StashItem) {
+        let addressFactory = SS58AddressFactory()
+
+        if let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
+            accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+        }
+
+        fetchChainAccount(chain: chain, address: stashItem.stash, from: accountRepository, operationManager: operationManager) { [weak self] result in
+            switch result {
+            case let .success(accountItem):
+                if let accountItem = accountItem {
+                    self?.handleAccount(accountItem)
+                }
+
+                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
+            case let .failure(error):
+                self?.presenter.didReceiveStashAccount(result: .failure(error))
+            }
+        }
+
+        fetchChainAccount(chain: chain, address: stashItem.controller, from: accountRepository, operationManager: operationManager) { [weak self] result in
+            if case let .success(account) = result, let account = account {
+                self?.estimateFee(for: account)
+            }
+
+            self?.presenter.didReceiveControllerAccount(result: result)
+        }
+    }
+
+    private func handleAccount(_ account: ChainAccountResponse) {
+        extrinsicService = ExtrinsicService(
+            accountId: account.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: account.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: engine,
+            operationManager: operationManager
+        )
+
+        estimateFee(for: account)
+    }
 }
 
-extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
-    SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning, AccountFetching {
-    func handleStashItem(result: Result<StashItem?, Error>) {
+extension ControllerAccountInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainId _: ChainModel.Id) {
+        let addressFactory = SS58AddressFactory()
+        guard let address = try? addressFactory.address(
+            fromAccountId: accountId,
+            type: chain.addressPrefix
+        ) else {
+            return
+        }
+
+        presenter.didReceiveAccountInfo(result: result, address: address)
+    }
+}
+
+extension ControllerAccountInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handleLedgerInfo(result: Result<StakingLedger?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        presenter.didReceiveStakingLedger(result: result)
+    }
+
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             clear(dataProvider: &accountInfoProvider)
 
@@ -190,50 +261,9 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
             presenter.didReceiveStashItem(result: .failure(error))
         }
     }
-
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress) {
-        presenter.didReceiveAccountInfo(result: result, address: address)
-    }
-
-    func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
-        presenter.didReceiveStakingLedger(result: result)
-    }
-
-    private func handle(stashItem: StashItem) {
-        accountInfoProvider = subscribeToAccountInfoProvider(
-            for: stashItem.stash,
-            runtimeService: runtimeService
-        )
-        fetchAccount(
-            for: stashItem.stash,
-            from: accountRepository,
-            operationManager: operationManager
-        ) { [weak self] result in
-            switch result {
-            case let .success(accountItem):
-                if let accountItem = accountItem {
-                    self?.extrinsicService = self?.extrinsicServiceFactory.createService(accountItem: accountItem)
-                    self?.estimateFee(for: accountItem)
-                }
-                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
-            case let .failure(error):
-                self?.presenter.didReceiveStashAccount(result: .failure(error))
-            }
-        }
-
-        fetchAccount(
-            for: stashItem.controller,
-            from: accountRepository,
-            operationManager: operationManager
-        ) { [weak self] result in
-            if case let .success(maybeController) = result, let controller = maybeController {
-                self?.estimateFee(for: controller)
-            }
-
-            self?.presenter.didReceiveControllerAccount(result: result)
-        }
-    }
 }
+
+extension ControllerAccountInteractor: AnyProviderAutoCleaning, AccountFetching {}
 
 extension ControllerAccountInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {

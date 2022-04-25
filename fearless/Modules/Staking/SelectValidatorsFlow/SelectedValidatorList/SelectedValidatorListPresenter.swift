@@ -7,6 +7,9 @@ final class SelectedValidatorListPresenter {
     let wireframe: SelectedValidatorListWireframeProtocol
     let viewModelFactory: SelectedValidatorListViewModelFactory
     let maxTargets: Int
+    let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
 
     private var selectedValidatorList: [SelectedValidatorInfo]
 
@@ -15,12 +18,18 @@ final class SelectedValidatorListPresenter {
         viewModelFactory: SelectedValidatorListViewModelFactory,
         localizationManager: LocalizationManagerProtocol,
         selectedValidatorList: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.selectedValidatorList = selectedValidatorList
         self.maxTargets = maxTargets
+        self.asset = asset
+        self.chain = chain
+        self.selectedAccount = selectedAccount
         self.localizationManager = localizationManager
     }
 
@@ -49,7 +58,12 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
 
     func didSelectValidator(at index: Int) {
         let validatorInfo = selectedValidatorList[index]
-        wireframe.present(validatorInfo, from: view)
+        wireframe.present(
+            validatorInfo,
+            asset: asset,
+            chain: chain,
+            from: view
+        )
     }
 
     func removeItem(at index: Int) {
@@ -67,7 +81,10 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
         wireframe.proceed(
             from: view,
             targets: selectedValidatorList,
-            maxTargets: maxTargets
+            maxTargets: maxTargets,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
     }
 

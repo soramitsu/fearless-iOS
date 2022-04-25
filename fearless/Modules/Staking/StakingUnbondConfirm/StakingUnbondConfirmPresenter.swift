@@ -10,7 +10,8 @@ final class StakingUnbondConfirmPresenter {
     let confirmViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
     let logger: LoggerProtocol?
 
     private var bonded: Decimal?
@@ -20,7 +21,7 @@ final class StakingUnbondConfirmPresenter {
     private var nomination: Nomination?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var controller: AccountItem?
+    private var controller: ChainAccountResponse?
     private var stashItem: StashItem?
     private var payee: RewardDestinationArg?
 
@@ -101,7 +102,8 @@ final class StakingUnbondConfirmPresenter {
         confirmViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -111,6 +113,7 @@ final class StakingUnbondConfirmPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
         self.logger = logger
     }
 }
@@ -170,7 +173,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -186,7 +189,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
             if let stakingLedger = stakingLedger {
                 bonded = Decimal.fromSubstrateAmount(
                     stakingLedger.active,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 bonded = nil
@@ -216,7 +219,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
 
             provideFeeViewModel()
@@ -230,7 +233,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
         case let .success(minimalBalance):
             self.minimalBalance = Decimal.fromSubstrateAmount(
                 minimalBalance,
-                precision: chain.addressType.precision
+                precision: Int16(asset.precision)
             )
 
             provideAssetViewModel()
@@ -240,7 +243,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             if let accountItem = accountItem {
@@ -282,7 +285,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
             if let minNominatorBonded = minNominatorBonded {
                 self.minNominatorBonded = Decimal.fromSubstrateAmount(
                     minNominatorBonded,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 self.minNominatorBonded = nil

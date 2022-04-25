@@ -18,21 +18,26 @@ protocol YourValidatorListInteractorInputProtocol: AnyObject {
 
 protocol YourValidatorListInteractorOutputProtocol: AnyObject {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
-    func didReceiveController(result: Result<AccountItem?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveLedger(result: Result<StakingLedger?, Error>)
     func didReceiveRewardDestination(result: Result<RewardDestinationArg?, Error>)
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
 }
 
 protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
+        asset: AssetModel,
+        chain: ChainModel,
         from view: YourValidatorListViewProtocol?
     )
 
     func proceedToSelectValidatorsStart(
         from view: YourValidatorListViewProtocol?,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel,
         existingBonding: ExistingBonding
     )
 }

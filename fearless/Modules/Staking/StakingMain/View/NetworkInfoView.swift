@@ -44,7 +44,7 @@ final class NetworkInfoView: UIView {
     }
 
     private var localizableViewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
-    private var chainName: LocalizableResource<String>?
+    private var chainName: String?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -79,7 +79,7 @@ final class NetworkInfoView: UIView {
         }
     }
 
-    func bind(chainName: LocalizableResource<String>) {
+    func bind(chainName: String) {
         self.chainName = chainName
 
         applyTitle()
@@ -101,7 +101,7 @@ final class NetworkInfoView: UIView {
     }
 
     private func applyTitle() {
-        guard let chainName = chainName?.value(for: locale) else {
+        guard let chainName = chainName else {
             return
         }
 

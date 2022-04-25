@@ -32,9 +32,11 @@ final class RuntimeHelper {
 
         let data = try Data(contentsOf: url)
         let basisNodes = BasisNodes.allNodes(for: runtimeMetadata)
-        let registry = try TypeRegistry
-            .createFromTypesDefinition(data: data,
-                                       additionalNodes: basisNodes)
+        let registry = try TypeRegistry.createFromTypesDefinition(
+            data: data,
+            additionalNodes: basisNodes,
+            schemaResolver: runtimeMetadata.schemaResolver
+        )
 
         return registry
     }

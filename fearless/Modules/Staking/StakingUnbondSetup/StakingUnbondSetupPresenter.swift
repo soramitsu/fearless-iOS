@@ -11,7 +11,9 @@ final class StakingUnbondSetupPresenter {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     let logger: LoggerProtocol?
-    let chain: Chain
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
 
     private var bonded: Decimal?
     private var balance: Decimal?
@@ -20,7 +22,7 @@ final class StakingUnbondSetupPresenter {
     private var minimalBalance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var controller: AccountItem?
+    private var controller: ChainAccountResponse?
     private var stashItem: StashItem?
 
     init(
@@ -28,7 +30,9 @@ final class StakingUnbondSetupPresenter {
         wireframe: StakingUnbondSetupWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: Chain,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -36,6 +40,8 @@ final class StakingUnbondSetupPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.logger = logger
     }
 
@@ -64,14 +70,14 @@ final class StakingUnbondSetupPresenter {
     }
 
     private func provideBondingDuration() {
-        let daysCount = bondingDuration.map { Int($0) / chain.erasPerDay }
+        let daysCount = bondingDuration.map { UInt32($0) / chain.erasPerDay }
         let bondingDuration: LocalizableResource<String> = LocalizableResource { locale in
             guard let daysCount = daysCount else {
                 return ""
             }
 
             return R.string.localizable.commonDaysFormat(
-                format: daysCount,
+                format: Int(daysCount),
                 preferredLanguages: locale.rLanguages
             )
         }
@@ -131,10 +137,20 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            if let amount = self?.inputAmount {
-                self?.wireframe.proceed(view: self?.view, amount: amount)
+            guard let self = self else {
+                return
+            }
+
+            if let amount = self.inputAmount {
+                self.wireframe.proceed(
+                    view: self.view,
+                    amount: amount,
+                    chain: self.chain,
+                    asset: self.asset,
+                    selectedAccount: self.selectedAccount
+                )
             } else {
-                self?.logger?.warning("Missing amount after validation")
+                self.logger?.warning("Missing amount after validation")
             }
         }
     }
@@ -151,7 +167,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 balance = nil
@@ -167,7 +183,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             if let stakingLedger = stakingLedger {
                 bonded = Decimal.fromSubstrateAmount(
                     stakingLedger.active,
-                    precision: chain.addressType.precision
+                    precision: Int16(asset.precision)
                 )
             } else {
                 bonded = nil
@@ -194,7 +210,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         switch result {
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
             }
 
             provideFeeViewModel()
@@ -218,14 +234,14 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         case let .success(minimalBalance):
             self.minimalBalance = Decimal.fromSubstrateAmount(
                 minimalBalance,
-                precision: chain.addressType.precision
+                precision: Int16(asset.precision)
             )
         case let .failure(error):
             logger?.error("Minimal balance fetching error: \(error)")
         }
     }
 
-    func didReceiveController(result: Result<AccountItem?, Error>) {
+    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
         switch result {
         case let .success(accountItem):
             if let accountItem = accountItem {

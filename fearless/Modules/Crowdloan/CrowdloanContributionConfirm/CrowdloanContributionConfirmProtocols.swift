@@ -7,7 +7,6 @@ protocol CrowdloanContributionConfirmViewProtocol: ControllerBackedProtocol, Loc
     func didReceiveCrowdloan(viewModel: CrowdloanContributeConfirmViewModel)
     func didReceiveEstimatedReward(viewModel: String?)
     func didReceiveBonus(viewModel: String?)
-    func didReceiveCustomFlow(viewModel: CustomCrowdloanFlow?)
 }
 
 protocol CrowdloanContributionConfirmPresenterProtocol: AnyObject {
@@ -17,8 +16,8 @@ protocol CrowdloanContributionConfirmPresenterProtocol: AnyObject {
 }
 
 protocol CrowdloanContributionConfirmInteractorInputProtocol: CrowdloanContributionInteractorInputProtocol {
-    func estimateFee(for contribution: BigUInt?)
-    func submit(contribution: BigUInt?)
+    func estimateFee(for contribution: BigUInt)
+    func submit(contribution: BigUInt)
 }
 
 protocol CrowdloanContributionConfirmInteractorOutputProtocol: CrowdloanContributionInteractorOutputProtocol {

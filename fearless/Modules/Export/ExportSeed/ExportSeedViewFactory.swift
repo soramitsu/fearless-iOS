@@ -4,7 +4,7 @@ import RobinHood
 import SoraFoundation
 
 final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
-    static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol? {
+    static func createViewForAddress(_ address: String, chain: ChainModel) -> ExportGenericViewProtocol? {
         let uiFactory = UIFactory()
         let view = ExportGenericViewController(
             uiFactory: uiFactory,
@@ -17,12 +17,12 @@ final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
 
         let presenter = ExportSeedPresenter(
             address: address,
+            chain: chain,
             localizationManager: localizationManager
         )
 
         let keychain = Keychain()
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let repository = AccountRepositoryFactory.createRepository()
 
         let interactor = ExportSeedInteractor(
             keystore: keychain,

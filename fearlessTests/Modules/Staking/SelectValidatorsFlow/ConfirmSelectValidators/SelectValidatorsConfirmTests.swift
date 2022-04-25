@@ -52,7 +52,7 @@ class SelectValidatorsConfirmTests: XCTestCase {
             balanceFactory: balanceViewModelFactory
         )
 
-        let signer = try DummySigner(cryptoType: .sr25519)
+        let signer = try DummySigner(cryptoType: CryptoType.sr25519)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
 

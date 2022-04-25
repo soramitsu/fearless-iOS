@@ -14,11 +14,20 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         view.iconGenerating = PolkadotIconGenerator()
 
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
+
+        let repository = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+            .createManagedMetaAccountRepository(
+                for: nil,
+                sortDescriptors: [NSSortDescriptor.accountsByOrder]
+            )
+
         let interactor = ProfileInteractor(
-            settingsManager: SettingsManager.shared,
+            selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
-            logger: Logger.shared
+            repository: repository,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
+
         let wireframe = ProfileWireframe()
 
         view.presenter = presenter

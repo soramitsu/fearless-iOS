@@ -19,10 +19,17 @@ class SelectionListViewController<C: UITableViewCell & SelectionItemViewProtocol
     }
 
     private func configureTableView() {
-        tableView.register(
-            selectableCellNib,
-            forCellReuseIdentifier: selectableCellIdentifier.identifier
-        )
+        if let nib = selectableCellNib {
+            tableView.register(
+                nib,
+                forCellReuseIdentifier: selectableCellIdentifier.identifier
+            )
+        } else {
+            tableView.register(
+                C.self,
+                forCellReuseIdentifier: selectableCellIdentifier.identifier
+            )
+        }
 
         let footerView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 1.0)))
         tableView.tableFooterView = footerView

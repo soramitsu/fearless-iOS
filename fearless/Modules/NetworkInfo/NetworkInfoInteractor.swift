@@ -6,159 +6,83 @@ import IrohaCrypto
 final class NetworkInfoInteractor {
     weak var presenter: NetworkInfoInteractorOutputProtocol!
 
-    let repository: AnyDataProviderRepository<ManagedConnectionItem>
+    private(set) var chain: ChainModel
+    let nodeRepository: AnyDataProviderRepository<ChainNodeModel>
     let substrateOperationFactory: SubstrateOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
-    private(set) var settingsManager: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
 
     init(
-        repository: AnyDataProviderRepository<ManagedConnectionItem>,
+        chain: ChainModel,
+        nodeRepository: AnyDataProviderRepository<ChainNodeModel>,
         substrateOperationFactory: SubstrateOperationFactoryProtocol,
-        settingsManager: SettingsManagerProtocol,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol
     ) {
-        self.repository = repository
+        self.chain = chain
+        self.nodeRepository = nodeRepository
         self.substrateOperationFactory = substrateOperationFactory
-        self.settingsManager = settingsManager
         self.operationManager = operationManager
         self.eventCenter = eventCenter
-    }
-
-    private func handleUpdate(
-        result: Result<Void, Error>?,
-        oldItem: ConnectionItem,
-        newUrl: URL,
-        newName: String
-    ) {
-        switch result {
-        case .success:
-            if settingsManager.selectedConnection.identifier == oldItem.identifier {
-                let selectedConnection = settingsManager.selectedConnection.replacingTitle(newName)
-                settingsManager.selectedConnection = selectedConnection
-
-                eventCenter.notify(with: SelectedConnectionChanged())
-            }
-
-            presenter.didCompleteConnectionUpdate(with: newUrl)
-        case let .failure(error):
-            presenter.didReceive(error: error, for: newUrl)
-        case .none:
-            presenter.didReceive(
-                error: BaseOperationError.parentOperationCancelled,
-                for: newUrl
-            )
-        }
-    }
-
-    private func createSaveOperationDependingOn(
-        fetchOldItemOperation: BaseOperation<ManagedConnectionItem?>,
-        fetchNewItemOperation: BaseOperation<ManagedConnectionItem?>,
-        networkTypeOperation: BaseOperation<String>,
-        newName: String,
-        newURL: URL
-    ) -> BaseOperation<Void> {
-        let saveOperation = repository.saveOperation({
-            guard let oldManagedItem = try fetchOldItemOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            else {
-                return []
-            }
-
-            if let newItem = try fetchNewItemOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
-                newItem.identifier != oldManagedItem.identifier {
-                throw AddConnectionError.alreadyExists
-            }
-
-            guard case let .success(rawType) = networkTypeOperation.result else {
-                throw AddConnectionError.invalidConnection
-            }
-
-            guard let chain = Chain(rawValue: rawType) else {
-                throw AddConnectionError.unsupportedChain(SNAddressType.supported)
-            }
-
-            let newManagedItem = ManagedConnectionItem(
-                title: newName,
-                url: newURL,
-                type: SNAddressType(chain: chain),
-                order: oldManagedItem.order
-            )
-
-            return [newManagedItem]
-        }, {
-            guard
-                let oldManagedItem = try fetchOldItemOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
-                oldManagedItem.url != newURL
-            else {
-                return []
-            }
-
-            if let newItem = try fetchNewItemOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
-                newItem.identifier != oldManagedItem.identifier {
-                throw AddConnectionError.alreadyExists
-            }
-
-            return [oldManagedItem.identifier]
-        })
-
-        saveOperation.addDependency(fetchOldItemOperation)
-        saveOperation.addDependency(fetchNewItemOperation)
-        saveOperation.addDependency(networkTypeOperation)
-
-        return saveOperation
     }
 }
 
 extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
-    func updateConnection(_ oldConnection: ConnectionItem, newURL: URL, newName: String) {
-        guard oldConnection.url != newURL || oldConnection.title != newName else {
+    func updateNode(_ node: ChainNodeModel, newURL: URL, newName: String) {
+        guard node.url != newURL || node.name != newName else {
             presenter.didCompleteConnectionUpdate(with: newURL)
-            return
-        }
-
-        guard ConnectionItem.supportedConnections.first(where: { $0.url == newURL }) == nil else {
-            presenter.didReceive(error: AddConnectionError.alreadyExists, for: newURL)
             return
         }
 
         presenter.didStartConnectionUpdate(with: newURL)
 
-        let fetchOldItemOperation = repository.fetchOperation(
-            by: oldConnection.identifier,
-            options: RepositoryFetchOptions()
-        )
-        let networkTypeOperation = substrateOperationFactory.fetchChainOperation(newURL)
-
-        let fetchNewItemOperation = repository.fetchOperation(
-            by: newURL.absoluteString,
-            options: RepositoryFetchOptions()
+        let updatedNode = ChainNodeModel(
+            url: newURL,
+            name: newName,
+            apikey: nil
         )
 
-        let saveOperation = createSaveOperationDependingOn(
-            fetchOldItemOperation: fetchOldItemOperation,
-            fetchNewItemOperation: fetchNewItemOperation,
-            networkTypeOperation: networkTypeOperation,
-            newName: newName,
-            newURL: newURL
-        )
+        var updatedNodes: [ChainNodeModel]
+        if let customNodes = chain.customNodes {
+            updatedNodes = Array(customNodes)
+        } else {
+            updatedNodes = []
+        }
+        updatedNodes = updatedNodes.filter { $0 != node }
+        updatedNodes.append(updatedNode)
 
-        saveOperation.completionBlock = { [weak self] in
+        chain = chain.replacingCustomNodes(updatedNodes)
+
+        if chain.selectedNode == node {
+            chain = chain.replacingSelectedNode(updatedNode)
+        }
+
+        let fetchNetworkOperation = substrateOperationFactory.fetchChainOperation(newURL)
+
+        let nodeSaveOperation = nodeRepository.saveOperation {
+            [updatedNode]
+        } _: {
+            []
+        }
+
+        nodeSaveOperation.completionBlock = { [weak self] in
+            guard let self = self else { return }
+
             DispatchQueue.main.async {
-                self?.handleUpdate(
-                    result: saveOperation.result,
-                    oldItem: oldConnection,
-                    newUrl: newURL,
-                    newName: newName
-                )
+                switch nodeSaveOperation.result {
+                case .success:
+                    let event = ChainsUpdatedEvent(updatedChains: [self.chain])
+                    self.eventCenter.notify(with: event)
+                    self.presenter.didCompleteConnectionUpdate(with: newURL)
+                case let .failure(error):
+                    self.presenter.didReceive(error: error, for: newURL)
+                case .none:
+                    self.presenter.didReceive(error: BaseOperationError.parentOperationCancelled, for: newURL)
+                }
             }
         }
 
-        let operations = [fetchOldItemOperation, fetchNewItemOperation, networkTypeOperation, saveOperation]
-        operationManager.enqueue(operations: operations, in: .transient)
+        nodeSaveOperation.addDependency(fetchNetworkOperation)
+        operationManager.enqueue(operations: [fetchNetworkOperation, nodeSaveOperation], in: .transient)
     }
 }

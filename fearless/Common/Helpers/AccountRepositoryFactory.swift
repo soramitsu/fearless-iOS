@@ -3,71 +3,94 @@ import IrohaCrypto
 import RobinHood
 
 protocol AccountRepositoryFactoryProtocol {
-    var operationManager: OperationManagerProtocol { get }
+    // TODO: remove
+    @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
+    func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem>
+    func createRepository() -> AnyDataProviderRepository<MetaAccountModel>
 
-    func createAccountRepository(for networkType: SNAddressType)
-        -> AnyDataProviderRepository<AccountItem>
-    func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem>
+    // TODO: remove
+    func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel>
+
+    func createMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<MetaAccountModel>
+
+    func createManagedMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<ManagedMetaAccountModel>
 }
 
 final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
     let storageFacade: StorageFacadeProtocol
-    let operationManager: OperationManagerProtocol
-    let logger: LoggerProtocol?
 
-    init(
-        storageFacade: StorageFacadeProtocol,
-        operationManager: OperationManagerProtocol,
-        logger: LoggerProtocol? = nil
-    ) {
+    init(storageFacade: StorageFacadeProtocol) {
         self.storageFacade = storageFacade
-        self.operationManager = operationManager
-        self.logger = logger
     }
 
+    func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem> {
+        Self.createManagedRepository(for: storageFacade)
+    }
+
+    func createRepository() -> AnyDataProviderRepository<MetaAccountModel> {
+        Self.createRepository(for: storageFacade)
+    }
+
+    // TODO: remove
     func createAccountRepository(
-        for networkType: SNAddressType
-    ) -> AnyDataProviderRepository<AccountItem> {
-        let mapper = CodableCoreDataMapper<AccountItem, CDAccountItem>()
-        let repository = storageFacade
-            .createRepository(
-                filter: NSPredicate.filterAccountBy(networkType: networkType),
-                sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                mapper: AnyCoreDataMapper(mapper)
-            )
+        for _: SNAddressType
+    ) -> AnyDataProviderRepository<MetaAccountModel> {
+        Self.createRepository(for: storageFacade)
+    }
+
+    func createMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<MetaAccountModel> {
+        let mapper = MetaAccountMapper()
+
+        let repository = storageFacade.createRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         return AnyDataProviderRepository(repository)
     }
 
-    func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem> {
-        let mapper: CodableCoreDataMapper<AccountItem, CDAccountItem> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountItem.identifier))
+    func createManagedMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AnyDataProviderRepository<ManagedMetaAccountModel> {
+        let mapper = ManagedMetaAccountMapper()
 
-        let filter = NSPredicate.filterAccountItemByAddress(accountAddress)
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> = storageFacade
-            .createRepository(
-                filter: filter,
-                sortDescriptors: [],
-                mapper: AnyCoreDataMapper(mapper)
-            )
-
-        let observable = CoreDataContextObservable(
-            service: storageFacade.databaseService,
-            mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.identifier == accountAddress }
+        let repository = storageFacade.createRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: AnyCoreDataMapper(mapper)
         )
 
-        observable.start { [weak self] error in
-            if let error = error {
-                self?.logger?.error("Did receive error: \(error)")
-            }
-        }
+        return AnyDataProviderRepository(repository)
+    }
+}
 
-        return StreamableProvider<AccountItem>(
-            source: AnyStreamableSource(EmptyStreamableSource()),
-            repository: AnyDataProviderRepository(repository),
-            observable: AnyDataProviderRepositoryObservable(observable),
-            operationManager: operationManager
-        )
+extension AccountRepositoryFactory {
+    static func createManagedRepository(
+        for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
+    ) -> AnyDataProviderRepository<ManagedAccountItem> {
+        let mapper = ManagedAccountItemMapper()
+        let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
+
+        return AnyDataProviderRepository(repository)
+    }
+
+    static func createRepository(
+        for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
+    ) -> AnyDataProviderRepository<MetaAccountModel> {
+        let mapper = MetaAccountMapper()
+        let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
+
+        return AnyDataProviderRepository(repository)
     }
 }

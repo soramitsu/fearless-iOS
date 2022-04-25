@@ -1,5 +1,5 @@
 protocol ExportSeedInteractorInputProtocol: AnyObject {
-    func fetchExportDataForAddress(_ address: String)
+    func fetchExportDataForAddress(_ address: String, chain: ChainModel)
 }
 
 protocol ExportSeedInteractorOutputProtocol: AnyObject {
@@ -10,5 +10,5 @@ protocol ExportSeedInteractorOutputProtocol: AnyObject {
 protocol ExportSeedWireframeProtocol: ExportGenericWireframeProtocol {}
 
 protocol ExportSeedViewFactoryProtocol: AnyObject {
-    static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol?
+    static func createViewForAddress(_ address: String, chain: ChainModel) -> ExportGenericViewProtocol?
 }

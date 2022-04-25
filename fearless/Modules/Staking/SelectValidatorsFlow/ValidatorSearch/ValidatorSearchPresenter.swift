@@ -9,6 +9,8 @@ final class ValidatorSearchPresenter {
     let interactor: ValidatorSearchInteractorInputProtocol
     let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
     let logger: LoggerProtocol?
+    let asset: AssetModel
+    let chain: ChainModel
 
     private var fullValidatorList: [SelectedValidatorInfo]
     private var selectedValidatorList: [SelectedValidatorInfo]
@@ -27,7 +29,9 @@ final class ValidatorSearchPresenter {
         fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
         localizationManager: LocalizationManager,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        asset: AssetModel,
+        chain: ChainModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -36,6 +40,8 @@ final class ValidatorSearchPresenter {
         self.selectedValidatorList = selectedValidatorList
         referenceValidatorList = selectedValidatorList
         self.logger = logger
+        self.asset = asset
+        self.chain = chain
         self.localizationManager = localizationManager
     }
 
@@ -161,7 +167,12 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 
     func didSelectValidator(at index: Int) {
         let selectedValidator = filteredValidatorList[index]
-        wireframe.present(selectedValidator, from: view)
+        wireframe.present(
+            selectedValidator,
+            asset: asset,
+            chain: chain,
+            from: view
+        )
     }
 
     func applyChanges() {

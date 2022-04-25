@@ -20,4 +20,11 @@ struct IdentityInfo: Decodable {
 struct IdentityAddition: Decodable {
     let field: ChainData
     let value: ChainData
+
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+
+        field = try container.decode(ChainData.self)
+        value = try container.decode(ChainData.self)
+    }
 }

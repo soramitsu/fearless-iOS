@@ -4,11 +4,11 @@ extension SwitchAccount {
     final class AccountCreateWireframe: AccountCreateWireframeProtocol {
         func confirm(
             from view: AccountCreateViewProtocol?,
-            request: AccountCreationRequest,
-            metadata: AccountCreationMetadata
+            request: MetaAccountCreationRequest,
+            mnemonic: [String]
         ) {
             guard let accountConfirmation = AccountConfirmViewFactory
-                .createViewForSwitch(request: request, metadata: metadata)?.controller
+                .createViewForSwitch(request: request, mnemonic: mnemonic)?.controller
             else {
                 return
             }

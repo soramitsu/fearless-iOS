@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import IrohaCrypto
+import RobinHood
 
 enum ProfileInteractorError: Error {
     case noSelectedAccount
@@ -9,34 +10,40 @@ enum ProfileInteractorError: Error {
 final class ProfileInteractor {
     weak var presenter: ProfileInteractorOutputProtocol?
 
-    let settingsManager: SettingsManagerProtocol
+    let selectedWalletSettings: SelectedWalletSettings
     let eventCenter: EventCenterProtocol
-    let logger: LoggerProtocol
+    let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
+    let operationQueue: OperationQueue
 
     init(
-        settingsManager: SettingsManagerProtocol,
+        selectedWalletSettings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
+        operationQueue: OperationQueue
     ) {
-        self.settingsManager = settingsManager
+        self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
-        self.logger = logger
+        self.repository = repository
+        self.operationQueue = operationQueue
     }
 
     private func provideUserSettings() {
         do {
-            guard let account = settingsManager.selectedAccount else {
+            guard let wallet = selectedWalletSettings.value else {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            let connection = settingsManager.selectedConnection
-
-            let userSettings = UserSettings(
-                account: account,
-                connection: connection
+            // TODO: Apply total account value logic instead
+            let genericAddress = try wallet.substrateAccountId.toAddress(
+                using: ChainFormat.substrate(42)
             )
 
-            presenter?.didReceive(userSettings: userSettings)
+            let userSettings = UserSettings(
+                userName: wallet.name,
+                details: ""
+            )
+
+            presenter?.didReceive(wallet: wallet)
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
@@ -48,6 +55,19 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
     }
+
+    func updateWallet(_ wallet: MetaAccountModel) {
+        selectedWalletSettings.save(value: wallet)
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceive(wallet: wallet)
+        }
+    }
+
+    func logout(completion: @escaping () -> Void) {
+        let operation = repository.deleteAllOperation()
+        operation.completionBlock = completion
+        operationQueue.addOperation(operation)
+    }
 }
 
 extension ProfileInteractor: EventVisitorProtocol {
@@ -57,5 +77,9 @@ extension ProfileInteractor: EventVisitorProtocol {
 
     func processSelectedUsernameChanged(event _: SelectedUsernameChanged) {
         provideUserSettings()
+    }
+
+    func processWalletNameChanged(event: WalletNameChanged) {
+        updateWallet(event.wallet)
     }
 }

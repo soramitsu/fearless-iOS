@@ -14,7 +14,7 @@ struct TransactionSubscriptionResult {
 final class TransactionSubscription {
     let engine: JSONRPCEngine
     let address: String
-    let chain: Chain
+    let chain: ChainModel
     let runtimeService: RuntimeCodingServiceProtocol
     let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     let contactOperationFactory: WalletContactOperationFactoryProtocol
@@ -26,7 +26,7 @@ final class TransactionSubscription {
     init(
         engine: JSONRPCEngine,
         address: String,
-        chain: Chain,
+        chain: ChainModel,
         runtimeService: RuntimeCodingServiceProtocol,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
         contactOperationFactory: WalletContactOperationFactoryProtocol,
@@ -136,12 +136,15 @@ extension TransactionSubscription {
         dependingOn processingOperaton: BaseOperation<[TransactionSubscriptionResult]>
     ) -> BaseOperation<Void> {
         txStorage.saveOperation({
-            let addressFactory = SS58AddressFactory()
-            return try processingOperaton.extractNoCancellableResultData().compactMap { result in
-                TransactionHistoryItem.createFromSubscriptionResult(
+            try processingOperaton.extractNoCancellableResultData().compactMap { [weak self] result in
+                guard let self = self else {
+                    return nil
+                }
+
+                return TransactionHistoryItem.createFromSubscriptionResult(
                     result,
                     address: address,
-                    addressFactory: addressFactory
+                    chain: self.chain
                 )
             }
         }, { [] })
@@ -150,18 +153,13 @@ extension TransactionSubscription {
     private func createContactSaveWrapper(
         dependingOn processingOperaton: BaseOperation<[TransactionSubscriptionResult]>,
         contactOperationFactory: WalletContactOperationFactoryProtocol,
-        chain: Chain
+        chain: ChainModel
     ) -> CompoundOperationWrapper<Void> {
-        let addressFactory = SS58AddressFactory()
-
         let extractionOperation = ClosureOperation<Set<AccountAddress>> {
             try processingOperaton.extractNoCancellableResultData()
                 .reduce(into: Set<AccountAddress>()) { result, item in
                     if let peerId = item.processingResult.peerId {
-                        let address = try addressFactory.addressFromAccountId(
-                            data: peerId,
-                            type: chain.addressType
-                        )
+                        let address = try AddressFactory.address(for: peerId, chain: chain)
 
                         result.insert(address)
                     }
@@ -197,7 +195,11 @@ extension TransactionSubscription {
         eventsOperation: BaseOperation<[StorageResponse<[EventRecord]>]>,
         coderOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> BaseOperation<[TransactionSubscriptionResult]> {
-        ClosureOperation<[TransactionSubscriptionResult]> {
+        ClosureOperation<[TransactionSubscriptionResult]> { [weak self] in
+            guard let self = self else {
+                return []
+            }
+
             let block = try fetchOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 .block
@@ -210,7 +212,7 @@ extension TransactionSubscription {
 
             let coderFactory = try coderOperation.extractNoCancellableResultData()
 
-            let accountId = try SS58AddressFactory().accountId(from: address)
+            let accountId = try AddressFactory.accountId(from: address, chain: self.chain)
             let extrinsicProcessor = ExtrinsicProcessor(accountId: accountId)
 
             return block.extrinsics.enumerated().compactMap { index, hexExtrinsic in

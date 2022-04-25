@@ -3,8 +3,8 @@ import SoraFoundation
 
 final class StakingAmountWireframe: StakingAmountWireframeProtocol {
     func presentAccountSelection(
-        _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
+        _ accounts: [ChainAccountResponse],
+        selectedAccountItem: ChainAccountResponse,
         delegate: ModalPickerViewControllerDelegate,
         from view: StakingAmountViewProtocol?,
         context: AnyObject?
@@ -27,9 +27,19 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
         view?.controller.present(picker, animated: true, completion: nil)
     }
 
-    func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding) {
-        guard let validatorsView = SelectValidatorsStartViewFactory
-            .createInitiatedBondingView(with: state)
+    func proceed(
+        from view: StakingAmountViewProtocol?,
+        state: InitiatedBonding,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let validatorsView = SelectValidatorsStartViewFactory.createInitiatedBondingView(
+            selectedAccount: selectedAccount,
+            asset: asset,
+            chain: chain,
+            state: state
+        )
         else {
             return
         }

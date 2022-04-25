@@ -4,27 +4,34 @@ import RobinHood
 import SoraKeystore
 
 final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
-    static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol? {
-        let mapper = ManagedConnectionItemMapper()
-        let repository = UserDataStorageFacade.shared
-            .createRepository(
-                filter: nil,
-                sortDescriptors: [NSSortDescriptor.connectionsByOrder],
-                mapper: AnyCoreDataMapper(mapper)
-            )
+    static func createView(
+        with chain: ChainModel,
+        mode: NetworkInfoMode,
+        node: ChainNodeModel
+    ) -> NetworkInfoViewProtocol? {
+        let facade = SubstrateDataStorageFacade.shared
+
+        let mapper = ChainNodeModelMapper()
+
+        let nodeRepository: CoreDataRepository<ChainNodeModel, CDChainNode> = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         let view = NetworkInfoViewController(nib: R.nib.networkInfoViewController)
         let presenter = NetworkInfoPresenter(
-            connectionItem: connectionItem,
+            chain: chain,
+            node: node,
             mode: mode,
             localizationManager: LocalizationManager.shared
         )
 
         let substrateOperationFactory = SubstrateOperationFactory(logger: Logger.shared)
         let interactor = NetworkInfoInteractor(
-            repository: AnyDataProviderRepository(repository),
+            chain: chain,
+            nodeRepository: AnyDataProviderRepository(nodeRepository),
             substrateOperationFactory: substrateOperationFactory,
-            settingsManager: SettingsManager.shared,
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared
         )

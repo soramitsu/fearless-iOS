@@ -10,7 +10,11 @@ class CalculatorServiceTests: XCTestCase {
         measure {
             do {
                 let storageFacade = SubstrateStorageTestFacade()
-                try performServiceTest(for: .westend, storageFacade: storageFacade)
+                try performServiceTest(
+                    for: Chain.westend.genesisHash,
+                    storageFacade: storageFacade,
+                    assetPrecision: 12
+                )
             } catch {
                 XCTFail("unexpected error \(error)")
             }
@@ -21,7 +25,11 @@ class CalculatorServiceTests: XCTestCase {
         let storageFacade = SubstrateDataStorageFacade.shared
 
         do {
-            try performServiceTest(for: .westend, storageFacade: storageFacade)
+            try performServiceTest(
+                for: Chain.westend.genesisHash,
+                storageFacade: storageFacade,
+                assetPrecision: 12
+            )
         } catch {
             XCTFail("unexpected error \(error)")
         }
@@ -31,7 +39,11 @@ class CalculatorServiceTests: XCTestCase {
         let storageFacade = SubstrateDataStorageFacade.shared
         measure {
             do {
-                try performServiceTest(for: .westend, storageFacade: storageFacade)
+                try performServiceTest(
+                    for: Chain.westend.genesisHash,
+                    storageFacade: storageFacade,
+                    assetPrecision: 12
+                )
             } catch {
                 XCTFail("unexpected error \(error)")
             }
@@ -42,7 +54,11 @@ class CalculatorServiceTests: XCTestCase {
         measure {
             do {
                 let storageFacade = SubstrateStorageTestFacade()
-                try performServiceTest(for: .kusama, storageFacade: storageFacade)
+                try performServiceTest(
+                    for: Chain.kusama.genesisHash,
+                    storageFacade: storageFacade,
+                    assetPrecision: 12
+                )
             } catch {
                 XCTFail("unexpected error \(error)")
             }
@@ -53,7 +69,11 @@ class CalculatorServiceTests: XCTestCase {
         let storageFacade = SubstrateDataStorageFacade.shared
 
         do {
-            try performServiceTest(for: .kusama, storageFacade: storageFacade)
+            try performServiceTest(
+                for: Chain.kusama.genesisHash,
+                storageFacade: storageFacade,
+                assetPrecision: 12
+            )
         } catch {
             XCTFail("unexpected error \(error)")
         }
@@ -63,7 +83,11 @@ class CalculatorServiceTests: XCTestCase {
         let storageFacade = SubstrateDataStorageFacade.shared
         measure {
             do {
-                try performServiceTest(for: .kusama, storageFacade: storageFacade)
+                try performServiceTest(
+                    for: Chain.kusama.genesisHash,
+                    storageFacade: storageFacade,
+                    assetPrecision: 12
+                )
             } catch {
                 XCTFail("unexpected error \(error)")
             }
@@ -71,33 +95,38 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testDecodeLocalEncodedValidatorsForWestend() {
-        performTestDecodeLocalEncodedValidators(for: .westend)
+        performTestDecodeLocalEncodedValidators(for: Chain.westend.genesisHash)
     }
 
     func testDecodeLocalEncodedValidatorsForKusama() {
-        performTestDecodeLocalEncodedValidators(for: .kusama)
+        performTestDecodeLocalEncodedValidators(for: Chain.kusama.genesisHash)
     }
 
     func testFetchingLocalEncodedValidatorsForKusama() {
         do {
             let storageFacade = SubstrateDataStorageFacade.shared
-            let chain = Chain.kusama
+            let chainId = Chain.kusama.genesisHash
 
-            let codingFactory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
+            let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
-            guard let era = try fetchActiveEra(for: chain,
-                                               storageFacade: storageFacade,
-                                               codingFactory: codingFactory) else {
+            let codingFactory = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
+
+            guard let era = try fetchActiveEra(
+                    for: chainId,
+                    storageFacade: storageFacade,
+                    codingFactory: codingFactory
+            ) else {
                 XCTFail("No era found")
                 return
             }
 
             measure {
                 do {
-                    let items = try fetchLocalEncodedValidators(for: chain,
-                                                                era: era,
-                                                                coderFactory: codingFactory,
-                                                                storageFacade: storageFacade)
+                    let items = try fetchLocalEncodedValidators(
+                        for: chainId, era: era,
+                        coderFactory: codingFactory,
+                        storageFacade: storageFacade
+                    )
                     XCTAssert(!items.isEmpty)
                 } catch {
                     XCTFail("Unexpected error \(error)")
@@ -111,12 +140,14 @@ class CalculatorServiceTests: XCTestCase {
 
     func testFetchingLocalElectedValidatorsForKusama() {
         let storageFacade = SubstrateDataStorageFacade.shared
-        let chain = Chain.kusama
+        let chainId = Chain.kusama.genesisHash
+
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
         measure {
             do {
-                let codingFactory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
-                try performDatabaseTest(for: .kusama,
+                let codingFactory = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
+                try performDatabaseTest(for: chainId,
                                         storageFacade: storageFacade,
                                         codingFactory: codingFactory)
             } catch {
@@ -126,10 +157,15 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testCoderFactoryFetchForKusama() {
+        let chainId = Chain.kusama.genesisHash
+
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(
+            with: SubstrateDataStorageFacade.shared
+        )
+
         measure {
             do {
-                let _ = try fetchCoderFactory(for: .kusama,
-                                              storageFacade: SubstrateDataStorageFacade.shared)
+                let _ = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
             } catch {
                 XCTFail("Unexpected error \(error)")
             }
@@ -137,14 +173,17 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testCoderFactoryFetchAndActiveEraForKusama() {
+        let chainId = Chain.kusama.genesisHash
         let facade = SubstrateDataStorageFacade.shared
+
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(
+            with: facade
+        )
+
         measure {
             do {
-                let factory = try fetchCoderFactory(for: .kusama,
-                                                    storageFacade: facade)
-                let _ = try fetchActiveEra(for: .kusama,
-                                           storageFacade: facade,
-                                           codingFactory: factory)
+                let factory = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
+                let _ = try fetchActiveEra(for: chainId, storageFacade: facade, codingFactory: factory)
             } catch {
                 XCTFail("Unexpected error \(error)")
             }
@@ -153,48 +192,23 @@ class CalculatorServiceTests: XCTestCase {
 
     func testValidatorPrefsFetchForKusama() {
         do {
-            let settings = InMemorySettingsManager()
-            let keychain = InMemoryKeychain()
-            let chain = Chain.kusama
+            let chainId = Chain.kusama.genesisHash
             let storageFacade = SubstrateDataStorageFacade.shared
 
-            try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                                networkType: chain,
-                                                                keychain: keychain,
-                                                                settings: settings)
+            let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
-            let operationManager = OperationManagerFacade.sharedManager
+            let connection = chainRegistry.getConnection(for: chainId)!
 
-            let runtimeService = try createRuntimeService(from: storageFacade,
-                                                          operationManager: operationManager,
-                                                          chain: chain)
+            let factory = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
 
-            runtimeService.setup()
-
-            let webSocketService = createWebSocketService(
-                storageFacade: storageFacade,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                settings: settings
-            )
-
-            webSocketService.setup()
-
-            guard let engine = webSocketService.connection else {
-                XCTFail("No engine")
-                return
-            }
-
-            let factory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
-
-            guard let activeEra = try fetchActiveEra(for: chain,
+            guard let activeEra = try fetchActiveEra(for: chainId,
                                                      storageFacade: storageFacade,
                                                      codingFactory: factory) else {
                 XCTFail("No era")
                 return
             }
 
-            let items = try fetchLocalEncodedValidators(for: chain,
+            let items = try fetchLocalEncodedValidators(for: chainId,
                                                         era: activeEra,
                                                         coderFactory: factory,
                                                         storageFacade: storageFacade)
@@ -208,7 +222,7 @@ class CalculatorServiceTests: XCTestCase {
                 do {
                     let prefs = try fetchRemoteEncodedValidatorPrefs(identifiers,
                                                                      era: activeEra,
-                                                                     engine: engine,
+                                                                     engine: connection,
                                                                      codingFactory: factory)
                     XCTAssertEqual(prefs.count, identifiers.count)
                 } catch {
@@ -224,48 +238,23 @@ class CalculatorServiceTests: XCTestCase {
     func testKusamaCalculatorSetupWithCacheAlternative() throws {
         measure {
             do {
-                let settings = InMemorySettingsManager()
-                let keychain = InMemoryKeychain()
-                let chain = Chain.kusama
+                let chainId = Chain.kusama.genesisHash
                 let storageFacade = SubstrateDataStorageFacade.shared
 
-                try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                                    networkType: chain,
-                                                                    keychain: keychain,
-                                                                    settings: settings)
+                let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
-                let operationManager = OperationManagerFacade.sharedManager
+                let connection = chainRegistry.getConnection(for: chainId)!
 
-                let runtimeService = try createRuntimeService(from: storageFacade,
-                                                              operationManager: operationManager,
-                                                              chain: chain)
+                let factory = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
 
-                runtimeService.setup()
-
-                let webSocketService = createWebSocketService(
-                    storageFacade: storageFacade,
-                    runtimeService: runtimeService,
-                    operationManager: operationManager,
-                    settings: settings
-                )
-
-                webSocketService.setup()
-
-                guard let engine = webSocketService.connection else {
-                    XCTFail("No engine")
-                    return
-                }
-
-                let factory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
-
-                guard let activeEra = try fetchActiveEra(for: chain,
+                guard let activeEra = try fetchActiveEra(for: chainId,
                                                          storageFacade: storageFacade,
                                                          codingFactory: factory) else {
                     XCTFail("No era")
                     return
                 }
 
-                let items = try fetchLocalEncodedValidators(for: chain,
+                let items = try fetchLocalEncodedValidators(for: chainId,
                                                             era: activeEra,
                                                             coderFactory: factory,
                                                             storageFacade: storageFacade)
@@ -279,7 +268,7 @@ class CalculatorServiceTests: XCTestCase {
 
                 let prefs = try fetchRemoteEncodedValidatorPrefs(identifiers,
                                                                  era: activeEra,
-                                                                 engine: engine,
+                                                                 engine: connection,
                                                                  codingFactory: factory)
                 XCTAssertEqual(prefs.count, identifiers.count)
             } catch {
@@ -291,17 +280,14 @@ class CalculatorServiceTests: XCTestCase {
     func testSubscriptionToEra() {
         measure {
             do {
-                let chain = Chain.kusama
+                let chainId = Chain.kusama.genesisHash
                 let storageFacade = SubstrateDataStorageFacade.shared
                 let syncQueue = DispatchQueue(label: "test.\(UUID().uuidString)")
 
-                let localFactory = try ChainStorageIdFactory(chain: chain)
+                let localFactory = LocalStorageKeyFactory()
 
                 let path = StorageCodingPath.activeEra
-                let key = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
-                                                                   storageName: path.itemName)
-
-                let localKey = localFactory.createIdentifier(for: key)
+                let localKey = try localFactory.createFromStoragePath(path, chainId: chainId)
                 let eraDataProvider = SubstrateDataProviderFactory(facade: storageFacade,
                                                                    operationManager: OperationManager())
                     .createStorageProvider(for: localKey)
@@ -347,12 +333,12 @@ class CalculatorServiceTests: XCTestCase {
 
     // MARK: Private
 
-    private func performDatabaseTest(for chain: Chain,
+    private func performDatabaseTest(for chainId: ChainModel.Id,
                                      storageFacade: StorageFacadeProtocol,
                                      codingFactory: RuntimeCoderFactoryProtocol) throws {
         let operationQueue = OperationQueue()
 
-        guard let activeEra = try fetchActiveEra(for: chain,
+        guard let activeEra = try fetchActiveEra(for: chainId,
                                                  storageFacade: storageFacade,
                                                  codingFactory: codingFactory,
                                                  operationQueue: operationQueue) else {
@@ -360,18 +346,9 @@ class CalculatorServiceTests: XCTestCase {
             return
         }
 
-        guard let prefixKey = try createEraStakersPrefixKey(for: chain,
-                                                            era: activeEra,
-                                                            codingFactory: codingFactory,
-                                                            queue: operationQueue) else {
-            XCTFail("No prefix key")
-            return
-        }
+        let localKey = try createEraStakersPrefixKey(for: chainId, era: activeEra)
 
-        let localPrefixKey = try ChainStorageIdFactory(chain: chain)
-            .createIdentifier(for: prefixKey)
-
-        let filter = NSPredicate.filterByIdPrefix(localPrefixKey)
+        let filter = NSPredicate.filterByIdPrefix(localKey)
 
         let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             storageFacade.createRepository(filter: filter)
@@ -457,22 +434,15 @@ class CalculatorServiceTests: XCTestCase {
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
     }
 
-    private func fetchLocalEncodedValidators(for chain: Chain,
+    private func fetchLocalEncodedValidators(for chainId: ChainModel.Id,
                                              era: UInt32,
                                              coderFactory: RuntimeCoderFactoryProtocol,
                                              storageFacade: StorageFacadeProtocol,
                                              queue: OperationQueue = OperationQueue()) throws
     -> [ChainStorageItem] {
-        guard let prefixKey = try createEraStakersPrefixKey(for: chain,
-                                                            era: era,
-                                                            codingFactory: coderFactory) else {
-            return []
-        }
+        let localKey = try createEraStakersPrefixKey(for: chainId, era: era)
 
-        let localPrefixKey = try ChainStorageIdFactory(chain: chain)
-            .createIdentifier(for: prefixKey)
-
-        let filter = NSPredicate.filterByIdPrefix(localPrefixKey)
+        let filter = NSPredicate.filterByIdPrefix(localKey)
 
         let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             storageFacade.createRepository(filter: filter)
@@ -496,15 +466,12 @@ class CalculatorServiceTests: XCTestCase {
         return try decodingOperation.extractNoCancellableResultData()
     }
 
-    private func fetchCoderFactory(for chain: Chain,
-                                   storageFacade: StorageFacadeProtocol,
-                                   queue: OperationQueue = OperationQueue()) throws
-    -> RuntimeCoderFactoryProtocol {
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: OperationManager(),
-                                                      chain: chain)
-
-        runtimeService.setup()
+    private func fetchCoderFactory(
+        for chainId: ChainModel.Id,
+        chainRegistry: ChainRegistryProtocol,
+        queue: OperationQueue = OperationQueue()
+    ) throws -> RuntimeCoderFactoryProtocol {
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -513,17 +480,17 @@ class CalculatorServiceTests: XCTestCase {
         return try coderFactoryOperation.extractNoCancellableResultData()
     }
 
-    private func fetchActiveEra(for chain: Chain,
-                                storageFacade: StorageFacadeProtocol,
-                                codingFactory: RuntimeCoderFactoryProtocol,
-                                operationQueue: OperationQueue = OperationQueue()) throws -> UInt32? {
-        let localFactory = try ChainStorageIdFactory(chain: chain)
+    private func fetchActiveEra(
+        for chainId: ChainModel.Id,
+        storageFacade: StorageFacadeProtocol,
+        codingFactory: RuntimeCoderFactoryProtocol,
+        operationQueue: OperationQueue = OperationQueue()
+    ) throws -> UInt32? {
+        let localFactory = LocalStorageKeyFactory()
 
         let path = StorageCodingPath.activeEra
-        let key = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
-                                                           storageName: path.itemName)
 
-        let localKey = localFactory.createIdentifier(for: key)
+        let localKey = try localFactory.createFromStoragePath(path, chainId: chainId)
 
         let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             storageFacade.createRepository()
@@ -549,35 +516,39 @@ class CalculatorServiceTests: XCTestCase {
         return try decodingOperation.extractNoCancellableResultData().index
     }
 
-    private func createEraStakersPrefixKey(for chain: Chain,
-                                           era: UInt32,
-                                           codingFactory: RuntimeCoderFactoryProtocol,
-                                           queue: OperationQueue = OperationQueue()) throws -> Data? {
+    private func createEraStakersPrefixKey(for chainId: ChainModel.Id, era: UInt32?) throws -> String {
 
-        let erasStakersKeyOperation = MapKeyEncodingOperation(path: .erasStakers,
-                                                              storageKeyFactory: StorageKeyFactory(),
-                                                              keyParams: [String(era)])
-        erasStakersKeyOperation.codingFactory = codingFactory
+        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+            .erasStakers,
+            chainId: chainId
+        )
 
-        queue.addOperations([erasStakersKeyOperation], waitUntilFinished: true)
-
-        return try erasStakersKeyOperation.extractNoCancellableResultData().first
+        if let era = era {
+            let encodedEra = try era.scaleEncoded()
+            return localKey + encodedEra.toHex()
+        } else {
+            return localKey
+        }
     }
 
-    private func performTestDecodeLocalEncodedValidators(for chain: Chain) {
+    private func performTestDecodeLocalEncodedValidators(
+        for chainId: ChainModel.Id
+    ) {
         do {
             let storageFacade = SubstrateDataStorageFacade.shared
 
-            let codingFactory = try fetchCoderFactory(for: chain, storageFacade: storageFacade)
+            let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
 
-            guard let era = try fetchActiveEra(for: chain,
+            let codingFactory = try fetchCoderFactory(for: chainId, chainRegistry: chainRegistry)
+
+            guard let era = try fetchActiveEra(for: chainId,
                                                storageFacade: storageFacade,
                                                codingFactory: codingFactory) else {
                 XCTFail("No era found")
                 return
             }
 
-            let items = try fetchLocalEncodedValidators(for: chain,
+            let items = try fetchLocalEncodedValidators(for: chainId,
                                                         era: era,
                                                         coderFactory: codingFactory,
                                                         storageFacade: storageFacade)
@@ -596,51 +567,49 @@ class CalculatorServiceTests: XCTestCase {
         }
     }
 
-    private func performServiceTest(for chain: Chain, storageFacade: StorageFacadeProtocol) throws {
+    private func performServiceTest(
+        for chainId: ChainModel.Id,
+        storageFacade: StorageFacadeProtocol,
+        assetPrecision: Int16
+    ) throws {
         // given
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            networkType: chain,
-                                                            keychain: keychain,
-                                                            settings: settings)
-
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
         let operationManager = OperationManagerFacade.sharedManager
 
-        let runtimeService = try createRuntimeService(from: storageFacade,
-                                                      operationManager: operationManager,
-                                                      chain: chain,
-                                                      logger: Logger.shared)
+        let chainItemRepository = SubstrateRepositoryFactory(
+            storageFacade: storageFacade
+        ).createChainStorageItemRepository()
 
-        runtimeService.setup()
-
-        let webSocketService = createWebSocketService(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            settings: settings
+        let remoteStakingSubcriptionService = StakingRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            repository: AnyDataProviderRepository(chainItemRepository),
+            operationManager: OperationManager(),
+            logger: Logger.shared
         )
 
-        webSocketService.setup()
+        let subscriptionId = remoteStakingSubcriptionService.attachToGlobalData(
+            for: chainId,
+            queue: nil,
+            closure: nil
+        )
 
-        let validatorService = createEraValidatorsService(storageFacade: storageFacade,
-                                                          runtimeService: runtimeService,
-                                                          operationManager: operationManager,
-                                                          logger: Logger.shared)
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: chainRegistry,
+            storageFacade: storageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: operationManager
+        )
 
-        if let engine = webSocketService.connection {
-            validatorService.update(to: chain, engine: engine)
-        }
-
+        let validatorService = try serviceFactory.createEraValidatorService(for: chainId)
         validatorService.setup()
 
-        let calculatorService = createCalculationService(storageFacade: storageFacade,
-                                                         eraValidatorService: validatorService,
-                                                         runtimeService: runtimeService,
-                                                         operationManager: operationManager)
-        calculatorService.update(to: chain)
+        let calculatorService = try serviceFactory.createRewardCalculatorService(
+            for: chainId,
+            assetPrecision: assetPrecision,
+            validatorService: validatorService
+        )
+
         calculatorService.setup()
 
         let operation = calculatorService.fetchCalculatorOperation()
@@ -662,79 +631,12 @@ class CalculatorServiceTests: XCTestCase {
         operationManager.enqueue(operations: [operation], in: .transient)
 
         wait(for: [expectation], timeout: 60.0)
-    }
 
-    private func createRuntimeService(from storageFacade: StorageFacadeProtocol,
-                                      operationManager: OperationManagerProtocol,
-                                      chain: Chain,
-                                      logger: LoggerProtocol? = nil) throws
-    -> RuntimeRegistryService {
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager,
-                                                           logger: logger)
-
-        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
-            FileManager.default.temporaryDirectory
-        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
-        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
-                                                          directoryPath: runtimeDirectory)
-
-        return RuntimeRegistryService(chain: chain,
-                                      metadataProviderFactory: providerFactory,
-                                      dataOperationFactory: DataOperationFactory(),
-                                      filesOperationFacade: filesRepository,
-                                      operationManager: operationManager,
-                                      eventCenter: EventCenter.shared,
-                                      logger: logger)
-    }
-
-    private func createWebSocketService(storageFacade: StorageFacadeProtocol,
-                                        runtimeService: RuntimeCodingServiceProtocol,
-                                        operationManager: OperationManagerProtocol,
-                                        settings: SettingsManagerProtocol
-    ) -> WebSocketServiceProtocol {
-        let connectionItem = settings.selectedConnection
-        let address = settings.selectedAccount?.address
-
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: address)
-        let factory = WebSocketSubscriptionFactory(
-            storageFacade: storageFacade,
-            runtimeService: runtimeService,
-            operationManager: operationManager
+        remoteStakingSubcriptionService.detachFromGlobalData(
+            for: subscriptionId!,
+            chainId: chainId,
+            queue: nil,
+            closure: nil
         )
-        return WebSocketService(settings: settings,
-                                connectionFactory: WebSocketEngineFactory(),
-                                subscriptionsFactory: factory,
-                                applicationHandler: ApplicationHandler())
-    }
-
-    private func createEraValidatorsService(storageFacade: StorageFacadeProtocol,
-                                            runtimeService: RuntimeCodingServiceProtocol,
-                                            operationManager: OperationManagerProtocol,
-                                            logger: LoggerProtocol? = nil)
-    -> EraValidatorService {
-        let factory = SubstrateDataProviderFactory(facade: storageFacade, operationManager: operationManager)
-        return EraValidatorService(storageFacade: storageFacade,
-                                   runtimeCodingService: runtimeService,
-                                   providerFactory: factory,
-                                   operationManager: operationManager,
-                                   eventCenter: EventCenter.shared,
-                                   logger: logger)
-    }
-
-    private func createCalculationService(storageFacade: StorageFacadeProtocol,
-                                          eraValidatorService: EraValidatorServiceProtocol,
-                                          runtimeService: RuntimeCodingServiceProtocol,
-                                          operationManager: OperationManagerProtocol,
-                                          logger: LoggerProtocol? = nil) -> RewardCalculatorService {
-        let factory = SubstrateDataProviderFactory(facade: storageFacade, operationManager: operationManager)
-        return RewardCalculatorService(eraValidatorsService: eraValidatorService,
-                                       logger: logger,
-                                       operationManager: operationManager,
-                                       providerFactory: factory,
-                                       runtimeCodingService: runtimeService,
-                                       storageFacade: storageFacade)
     }
 }
