@@ -4,12 +4,10 @@ import BigInt
 
 final class ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func createMapOperation(
-        dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
         revokeDelegationDelayOperation: BaseOperation<UInt32>,
         minDelegationOperation: BaseOperation<BigUInt>
     ) -> BaseOperation<NetworkStakingInfo> {
         ClosureOperation<NetworkStakingInfo> {
-            let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
             let revokeDelegationDelay = try Int(revokeDelegationDelayOperation.extractNoCancellableResultData())
             let minDelegation = try minDelegationOperation.extractNoCancellableResultData()
 
@@ -34,40 +32,38 @@ final class ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFac
 
 extension ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
     func networkStakingOperation(
-        for eraValidatorService: EraValidatorServiceProtocol,
+        for _: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<NetworkStakingInfo> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
         let revokeDelegationDelayOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: .revokeDelegationDelay
             )
 
         let minDelegationOperation: BaseOperation<BigUInt> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: .minDelegation
             )
 
         minDelegationOperation.addDependency(runtimeOperation)
         revokeDelegationDelayOperation.addDependency(runtimeOperation)
 
         let mapOperation = createMapOperation(
-            dependingOn: eraValidatorsOperation,
             revokeDelegationDelayOperation: revokeDelegationDelayOperation,
             minDelegationOperation: minDelegationOperation
         )
 
         let mapDependencies = [
-            eraValidatorsOperation,
             revokeDelegationDelayOperation,
             minDelegationOperation
         ]
 
-        mapDependencies.forEach { mapOperation.addDependency($0) }
+        mapOperation.addDependency(revokeDelegationDelayOperation)
+        mapOperation.addDependency(minDelegationOperation)
 
         return CompoundOperationWrapper(
             targetOperation: mapOperation,
