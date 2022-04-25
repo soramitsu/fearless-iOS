@@ -16,10 +16,10 @@ extension CryptoType {
 
     var version: UInt8 {
         switch self {
-        case .sr25519:
-            return 1
         case .ed25519:
             return 0
+        case .sr25519:
+            return 1
         case .ecdsa:
             return 2
         }

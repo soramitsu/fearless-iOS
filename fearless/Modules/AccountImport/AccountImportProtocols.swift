@@ -2,7 +2,8 @@ import IrohaCrypto
 import SoraFoundation
 
 protocol AccountImportViewProtocol: ControllerBackedProtocol {
-    func setSource(type: AccountImportSource)
+    func show(chainType: AccountCreateChainType)
+    func setSource(type: AccountImportSource, selectable: Bool)
     func setSource(viewModel: InputViewModelProtocol)
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
@@ -10,6 +11,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func bind(substrateViewModel: InputViewModelProtocol)
     func bind(ethereumViewModel: InputViewModelProtocol)
     func setUploadWarning(message: String)
+    func setUniqueChain(viewModel: UniqueChainViewModel)
 
     func didCompleteSourceTypeSelection()
     func didCompleteCryptoTypeSelection()
@@ -19,6 +21,8 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
 }
 
 protocol AccountImportPresenterProtocol: AnyObject {
+    var flow: AccountImportFlow { get }
+
     func setup()
     func selectSourceType()
     func selectCryptoType()
@@ -30,10 +34,10 @@ protocol AccountImportPresenterProtocol: AnyObject {
 
 protocol AccountImportInteractorInputProtocol: AnyObject {
     func setup()
-    func importAccountWithMnemonic(request: MetaAccountImportMnemonicRequest)
-    func importAccountWithSeed(request: MetaAccountImportSeedRequest)
-    func importAccountWithKeystore(request: MetaAccountImportKeystoreRequest)
+    func importMetaAccount(request: MetaAccountImportRequest)
+    func importUniqueChain(request: UniqueChainImportRequest)
     func deriveMetadataFromKeystore(_ keystore: String)
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol?
 }
 
 protocol AccountImportInteractorOutputProtocol: AnyObject {
@@ -43,8 +47,10 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?)
 }
 
-protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed(from view: AccountImportViewProtocol?)
+protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable, DocumentPickerPresentable {
+    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
+
+    func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow)
 
     func presentSourceTypeSelection(
         from view: AccountImportViewProtocol?,
@@ -61,18 +67,16 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
-
-    func presentNetworkTypeSelection(
-        from view: AccountImportViewProtocol?,
-        availableTypes: [Chain],
-        selectedType: Chain,
-        delegate: ModalPickerViewControllerDelegate?,
-        context: AnyObject?
-    )
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding() -> AccountImportViewProtocol?
-    static func createViewForAdding() -> AccountImportViewProtocol?
+    static func createViewForOnboarding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
+    static func createViewForAdding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
+}
+
+extension AccountImportViewFactoryProtocol {
+    static func createViewForOnboarding() -> AccountImportViewProtocol? {
+        Self.createViewForOnboarding(.wallet(step: .first))
+    }
 }

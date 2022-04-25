@@ -4,6 +4,7 @@ import IrohaCrypto
 import FearlessUtils
 import BigInt
 
+typealias DecodedOrmlAccountInfo = ChainStorageDecodedItem<OrmlAccountInfo>
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
 typealias DecodedBigUInt = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
 typealias DecodedU32 = ChainStorageDecodedItem<StringScaleMapper<UInt32>>

@@ -3,17 +3,19 @@ import FearlessUtils
 import UIKit
 final class WalletDetailsPresenter {
     weak var view: WalletDetailsViewProtocol?
-    let interactor: WalletDetailsInteractorInputProtocol
-    let wireframe: WalletDetailsWireframeProtocol
-    let selectedWallet: MetaAccountModel
+    private let interactor: WalletDetailsInteractorInputProtocol
+    private let wireframe: WalletDetailsWireframeProtocol
+    private let viewModelFactory: WalletDetailsViewModelFactoryProtocol
+    private var flow: WalletDetailsFlow
+    private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
-    private var chainsWithAccounts: [ChainModel: ChainAccountResponse] = [:]
+    private var chainAccounts: [ChainAccountInfo] = []
     private lazy var inputViewModel: InputViewModelProtocol = {
         let inputHandling = InputHandler(
             predicate: NSPredicate.notEmpty,
             processor: ByteLengthProcessor.username
         )
-        inputHandling.changeValue(to: selectedWallet.name)
+        inputHandling.changeValue(to: flow.wallet.name)
         return InputViewModel(
             inputHandler: inputHandling,
             title: R.string.localizable.usernameSetupChooseTitle(preferredLanguages: selectedLocale.rLanguages)
@@ -27,19 +29,21 @@ final class WalletDetailsPresenter {
     init(
         interactor: WalletDetailsInteractorInputProtocol,
         wireframe: WalletDetailsWireframeProtocol,
-        selectedWallet: MetaAccountModel,
+        viewModelFactory: WalletDetailsViewModelFactoryProtocol,
+        flow: WalletDetailsFlow,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
-        self.selectedWallet = selectedWallet
+        self.viewModelFactory = viewModelFactory
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 }
 
 extension WalletDetailsPresenter: Localizable {
     func applyLocalization() {
-        provideViewModel(chainsWithAccounts: chainsWithAccounts)
+        provideViewModel(chainAccounts: chainAccounts)
     }
 }
 
@@ -60,8 +64,21 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         }
     }
 
+    func didTapExportButton() {
+        guard case let .export(wallet, accounts) = flow else {
+            return
+        }
+
+        wireframe.showExport(
+            flow: .multiple(wallet: wallet, accounts: accounts),
+            options: availableExportOptionsProvider.getAvailableExportOptions(for: wallet, accountId: nil),
+            locale: selectedLocale,
+            from: view
+        )
+    }
+
     func willDisappear() {
-        if inputViewModel.inputHandler.value != selectedWallet.name {
+        if inputViewModel.inputHandler.value != flow.wallet.name {
             interactor.update(walletName: inputViewModel.inputHandler.value)
         }
     }
@@ -78,20 +95,21 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         )
     }
 
-    func showActions(for chain: ChainModel) {
-        guard let address = chainsWithAccounts[chain]?.toAddress() else {
+    func showActions(for chainAccount: ChainAccountInfo) {
+        guard let address = chainAccount.account.toAddress() else {
             return
         }
-        interactor.getAvailableExportOptions(for: chain, address: address)
+
+        interactor.getAvailableExportOptions(for: chainAccount, address: address)
     }
 }
 
 extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
-    func didReceiveExportOptions(options: [ExportOption], for chain: ChainModel) {
-        guard let address = chainsWithAccounts[chain]?.toAddress() else {
+    func didReceiveExportOptions(options: [ExportOption], for chainAccount: ChainAccountInfo) {
+        guard let address = chainAccount.account.toAddress() else {
             return
         }
-        let items: [ChainAction] = createActions(for: chain, address: address)
+        let items: [ChainAction] = createActions(for: chainAccount.chain, address: address)
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self,
                   let view = self.view
@@ -100,8 +118,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             switch action {
             case .export:
                 self.wireframe.showExport(
-                    for: address,
-                    chain: chain,
+                    flow: .single(chain: chainAccount.chain, address: address),
                     options: options,
                     locale: self.selectedLocale,
                     from: self.view
@@ -109,7 +126,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             case .switchNode:
                 self.wireframe.presentNodeSelection(
                     from: self.view,
-                    chain: chain
+                    chain: chainAccount.chain
                 )
             case .copyAddress:
                 UIPasteboard.general.string = address
@@ -119,52 +136,55 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case let .polkascan(url):
                 self.wireframe.present(from: view, url: url)
+            case .replace:
+                let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
+                let options: [ReplaceChainOption] = ReplaceChainOption.allCases
+                self.wireframe.showUniqueChainSourceSelection(from: view, items: options, callback: { [weak self] selectedIndex in
+                    let option = options[selectedIndex]
+                    switch option {
+                    case .create:
+                        self?.wireframe.showCreate(uniqueChainModel: model, from: view)
+                    case .import:
+                        self?.wireframe.showImport(uniqueChainModel: model, from: view)
+                    }
+                })
             }
         }
-        wireframe.presentAcions(
+        wireframe.presentActions(
             from: view,
             items: items,
             callback: selectionCallback
         )
     }
 
-    func didReceive(chainsWithAccounts: [ChainModel: ChainAccountResponse]) {
-        self.chainsWithAccounts = chainsWithAccounts
-        provideViewModel(chainsWithAccounts: chainsWithAccounts)
+    func didReceive(chainAccounts: [ChainAccountInfo]) {
+        self.chainAccounts = chainAccounts
+        provideViewModel(chainAccounts: chainAccounts)
     }
 }
 
 private extension WalletDetailsPresenter {
-    func provideViewModel(chainsWithAccounts: [ChainModel: ChainAccountResponse]) {
-        let viewModel = WalletDetailsViewModel(
-            navigationTitle: R.string.localizable.tabbarWalletTitle(
-                preferredLanguages: selectedLocale.rLanguages
-            ),
-            chainViewModels: chainsWithAccounts.map {
-                let icon = $0.key.icon.map { RemoteImageViewModel(url: $0) }
-                let address = $0.value.toAddress()
-                var addressImage: UIImage?
-                if let address = address {
-                    addressImage = try? PolkadotIconGenerator().generateFromAddress(address)
-                        .imageWithFillColor(
-                            R.color.colorBlack()!,
-                            size: UIConstants.normalAddressIconSize,
-                            contentScale: UIScreen.main.scale
-                        )
-                }
-                return WalletDetailsCellViewModel(
-                    chainImageViewModel: icon,
-                    chain: $0.key,
-                    addressImage: addressImage,
-                    address: address
-                )
-            }
-        )
-        view?.bind(to: viewModel)
+    func provideViewModel(chainAccounts: [ChainAccountInfo]) {
+        switch flow {
+        case .normal:
+            let viewModel = viewModelFactory.buildNormalViewModel(
+                flow: flow,
+                chainAccounts: chainAccounts,
+                locale: selectedLocale
+            )
+            view?.didReceive(state: .normal(viewModel: viewModel))
+        case .export:
+            let viewModel = viewModelFactory.buildExportViewModel(
+                flow: flow,
+                chainAccounts: chainAccounts,
+                locale: selectedLocale
+            )
+            view?.didReceive(state: .export(viewModel: viewModel))
+        }
     }
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
-        var actions: [ChainAction] = [.copyAddress, .switchNode, .export]
+        var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
         if let polkascanUrl = chain.polkascanAddressURL(address) {
             actions.append(.polkascan(url: polkascanUrl))
         }

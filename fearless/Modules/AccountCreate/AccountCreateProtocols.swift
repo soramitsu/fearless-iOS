@@ -3,7 +3,8 @@ import SoraFoundation
 
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
-    func setSelectedSubstrateCrypto(model: TitleWithSubtitleViewModel)
+    func set(chainType: AccountCreateChainType)
+    func setSelectedSubstrateCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
     func setEthereumCrypto(model: TitleWithSubtitleViewModel)
     func bind(substrateViewModel: InputViewModelProtocol)
     func bind(ethereumViewModel: InputViewModelProtocol)
@@ -24,6 +25,7 @@ protocol AccountCreatePresenterProtocol: AnyObject {
 
 protocol AccountCreateInteractorInputProtocol: AnyObject {
     func setup()
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol?
 }
 
 protocol AccountCreateInteractorOutputProtocol: AnyObject {
@@ -34,8 +36,7 @@ protocol AccountCreateInteractorOutputProtocol: AnyObject {
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func confirm(
         from view: AccountCreateViewProtocol?,
-        request: MetaAccountCreationRequest,
-        mnemonic: [String]
+        flow: AccountConfirmFlow
     )
 
     func presentCryptoTypeSelection(
@@ -48,7 +49,14 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountCreateViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
-    static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
-    static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol?
+    static func createViewForOnboarding(
+        model: UsernameSetupModel,
+        flow: AccountCreateFlow
+    ) -> AccountCreateViewProtocol?
+    static func createViewForAdding(
+        model: UsernameSetupModel
+    ) -> AccountCreateViewProtocol?
+    static func createViewForSwitch(
+        model: UsernameSetupModel
+    ) -> AccountCreateViewProtocol?
 }

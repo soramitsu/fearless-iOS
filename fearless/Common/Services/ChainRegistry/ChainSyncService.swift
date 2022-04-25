@@ -78,6 +78,7 @@ final class ChainSyncService {
             let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsRemoteData)
             let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
             let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: remoteData)
+
             remoteChains.forEach { chain in
                 chain.assets.forEach { chainAsset in
                     chainAsset.chain = chain

@@ -19,14 +19,17 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func didReloadSelectedNetwork()
     func didUpdateWalletInfo()
     func didRequestImportAccount()
+    func handleLongInactivity()
 }
 
-protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
+protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
     func showNewWalletView(on view: MainTabBarViewProtocol?)
 
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
 
     func presentAccountImport(on view: MainTabBarViewProtocol?)
+
+    func logout(from _: MainTabBarViewProtocol?)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {

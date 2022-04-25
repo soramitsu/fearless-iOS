@@ -3,32 +3,40 @@ import BigInt
 
 protocol ChainAccountBalanceListViewModelFactoryProtocol {
     func buildChainAccountBalanceListViewModel(
-        selectedMetaAccount: MetaAccountModel?,
+        selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
-        prices: [AssetModel.PriceId: PriceData]?
+        prices: [AssetModel.PriceId: PriceData]?,
+        sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel
 }
 
 class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelFactoryProtocol {
     func buildChainAccountBalanceListViewModel(
-        selectedMetaAccount: MetaAccountModel?,
+        selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
-        prices: [AssetModel.PriceId: PriceData]?
+        prices: [AssetModel.PriceId: PriceData]?,
+        sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
         let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        var chainAssets = chains.map { chain in
-            chain.assets.compactMap { asset in
-                ChainAsset(chain: chain, asset: asset.asset)
+        var chainAssets = chains
+            .filter { selectedMetaAccount.fetch(for: $0.accountRequest()) != nil }
+            .map { chain in
+                chain.assets.compactMap { asset in
+                    ChainAsset(chain: chain, asset: asset.asset)
+                }
             }
+            .reduce([], +)
+
+        if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled {
+            chainAssets = chainAssets.filter { assetIdsEnabled.contains($0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)) == true }
         }
-        .reduce([], +)
 
         var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
         var balanceByChainAsset: [ChainAsset: Decimal] = [:]
@@ -49,21 +57,37 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             )
         }
 
+        let useSortedKeys: Bool = sortedKeys != nil
+        var orderByKey: [String: Int]?
+
+        if let sortedKeys = sortedKeys {
+            orderByKey = [:]
+            for (index, key) in sortedKeys.enumerated() {
+                orderByKey?[key] = index
+            }
+        }
+
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
-                (
-                    usdBalanceByChainAsset[ca1] ?? Decimal.zero,
-                    balanceByChainAsset[ca1] ?? Decimal.zero,
-                    ca2.chain.isTestnet.intValue,
-                    ca1.chain.isPolkadotOrKusama.intValue,
-                    ca2.chain.name
-                ) > (
-                    usdBalanceByChainAsset[ca2] ?? Decimal.zero,
-                    balanceByChainAsset[ca2] ?? Decimal.zero,
-                    ca1.chain.isTestnet.intValue,
-                    ca2.chain.isPolkadotOrKusama.intValue,
-                    ca1.chain.name
-                )
+                if let orderByKey = orderByKey {
+                    let accountId = selectedMetaAccount.substrateAccountId
+
+                    return orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
+                } else {
+                    return (
+                        usdBalanceByChainAsset[ca1] ?? Decimal.zero,
+                        balanceByChainAsset[ca1] ?? Decimal.zero,
+                        ca2.chain.isTestnet.intValue,
+                        ca1.chain.isPolkadotOrKusama.intValue,
+                        ca2.chain.name
+                    ) > (
+                        usdBalanceByChainAsset[ca2] ?? Decimal.zero,
+                        balanceByChainAsset[ca2] ?? Decimal.zero,
+                        ca1.chain.isTestnet.intValue,
+                        ca2.chain.isPolkadotOrKusama.intValue,
+                        ca1.chain.name
+                    )
+                }
             }
 
         let totalWalletBalance: Decimal = chains.compactMap { chainModel in
@@ -103,10 +127,13 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             )
         }
 
+        let haveMissingAccounts = chains.first(where: { selectedMetaAccount.fetch(for: $0.accountRequest()) == nil && $0.unused == false }) != nil
+
         return ChainAccountBalanceListViewModel(
-            accountName: selectedMetaAccount?.name,
+            accountName: selectedMetaAccount.name,
             balance: usdTokenFormatterValue.stringFromDecimal(totalWalletBalance),
-            accountViewModels: viewModels
+            accountViewModels: viewModels,
+            ethAccountMissed: haveMissingAccounts
         )
     }
 
@@ -126,7 +153,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let title = chainAsset.chain.name
         let balance = getBalanceString(
             for: chainAsset,
-            accountInfo: accountInfo
+            accountInfo: accountInfo, locale: locale
         )
         let totalAmountString = getUsdBalanceString(
             for: chainAsset,
@@ -158,11 +185,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 extension ChainAccountBalanceListViewModelFactory {
     private func getBalanceString(
         for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?
+        accountInfo: AccountInfo?,
+        locale: Locale
     ) -> String? {
         let balance = getBalance(for: chainAsset, accountInfo: accountInfo)
         let digits = balance > 0 ? 4 : 0
-        return balance.toString(digits: digits)
+        return balance.toString(locale: locale, digits: digits)
     }
 
     private func getBalance(

@@ -20,7 +20,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     private let selectedAccount: MetaAccountModel
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -31,7 +31,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -45,7 +45,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
@@ -108,7 +108,7 @@ extension StakingBondMoreInteractor: PriceLocalSubscriptionHandler, PriceLocalSt
     }
 }
 
-extension StakingBondMoreInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingBondMoreInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -119,7 +119,7 @@ extension StakingBondMoreInteractor: StakingLocalStorageSubscriber, StakingLocal
         do {
             let maybeStashItem = try result.get()
 
-            clear(dataProvider: &balanceProvider)
+            accountInfoSubscriptionAdapter.reset()
 
             presenter.didReceiveStashItem(result: result)
 
@@ -135,10 +135,7 @@ extension StakingBondMoreInteractor: StakingLocalStorageSubscriber, StakingLocal
                     }
 
                     if case let .success(stash) = result, let stash = stash {
-                        self.balanceProvider = self.subscribeToAccountInfoProvider(
-                            for: stash.accountId,
-                            chainId: self.chain.chainId
-                        )
+                        self.accountInfoSubscriptionAdapter.subscribe(chain: self.chain, accountId: stash.accountId, handler: self)
 
                         self.handleStashAccountItem(stash)
                     }

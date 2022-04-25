@@ -39,6 +39,8 @@ class ChainModel: Codable {
     let externalApi: ExternalApiSet?
     let selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
+    let iosMinAppVersion: String?
+    var unused: Bool?
 
     init(
         chainId: Id,
@@ -52,7 +54,9 @@ class ChainModel: Codable {
         options: [ChainOptions]? = nil,
         externalApi: ExternalApiSet? = nil,
         selectedNode: ChainNodeModel? = nil,
-        customNodes: Set<ChainNodeModel>? = nil
+        customNodes: Set<ChainNodeModel>? = nil,
+        iosMinAppVersion: String?,
+        unused: Bool?
     ) {
         self.chainId = chainId
         self.parentId = parentId
@@ -66,6 +70,8 @@ class ChainModel: Codable {
         self.externalApi = externalApi
         self.selectedNode = selectedNode
         self.customNodes = customNodes
+        self.iosMinAppVersion = iosMinAppVersion
+        self.unused = unused
     }
 
     var isEthereumBased: Bool {
@@ -74,6 +80,10 @@ class ChainModel: Codable {
 
     var isTestnet: Bool {
         options?.contains(.testnet) ?? false
+    }
+
+    var isOrml: Bool {
+        options?.contains(.orml) ?? false
     }
 
     var isPolkadotOrKusama: Bool {
@@ -92,6 +102,10 @@ class ChainModel: Codable {
         options?.contains(.crowdloans) ?? false
     }
 
+    var isSupported: Bool {
+        AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
+    }
+
     func utilityAssets() -> Set<ChainAssetModel> {
         assets.filter { $0.isUtility }
     }
@@ -102,6 +116,22 @@ class ChainModel: Codable {
         } else {
             return .onlyCommon
         }
+    }
+
+    var tokenSymbol: TokenSymbol? {
+        guard isOrml else {
+            return nil
+        }
+
+        guard let assetName = assets.first?.assetId else {
+            return nil
+        }
+
+        return TokenSymbol(rawValue: assetName)
+    }
+
+    var currencyId: CurrencyId? {
+        CurrencyId.token(symbol: tokenSymbol)
     }
 
     var erasPerDay: UInt32 {
@@ -130,7 +160,9 @@ class ChainModel: Codable {
             options: options,
             externalApi: externalApi,
             selectedNode: node,
-            customNodes: customNodes
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            unused: unused
         )
     }
 
@@ -147,7 +179,9 @@ class ChainModel: Codable {
             options: options,
             externalApi: externalApi,
             selectedNode: selectedNode,
-            customNodes: Set(newCustomNodes)
+            customNodes: Set(newCustomNodes),
+            iosMinAppVersion: iosMinAppVersion,
+            unused: unused
         )
     }
 }
@@ -164,6 +198,7 @@ extension ChainModel: Hashable {
             && lhs.addressPrefix == rhs.addressPrefix
             && lhs.selectedNode == rhs.selectedNode
             && lhs.nodes == rhs.nodes
+            && lhs.iosMinAppVersion == rhs.iosMinAppVersion
     }
 
     func hash(into hasher: inout Hasher) {
@@ -179,6 +214,7 @@ enum ChainOptions: String, Codable {
     case ethereumBased
     case testnet
     case crowdloans
+    case orml
 }
 
 extension ChainModel {

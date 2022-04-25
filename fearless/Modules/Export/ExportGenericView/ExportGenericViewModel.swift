@@ -6,25 +6,36 @@ protocol ExportGenericViewModelBinding {
     func bind(mnemonicViewModel: ExportMnemonicViewModel, locale: Locale) -> UIView
 }
 
+protocol MultipleExportGenericViewModelProtocol {
+    var viewModels: [ExportGenericViewModelProtocol] { get }
+}
+
 protocol ExportGenericViewModelProtocol {
     var option: ExportOption { get }
-    var chain: ChainModel { get }
-    var cryptoType: CryptoType { get }
+    var chain: ChainModel? { get }
+    var cryptoType: CryptoType? { get }
     var derivationPath: String? { get }
+    var ethereumBased: Bool { get }
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView
+}
+
+struct MultiExportViewModel: MultipleExportGenericViewModelProtocol {
+    let viewModels: [ExportGenericViewModelProtocol]
 }
 
 struct ExportStringViewModel: ExportGenericViewModelProtocol {
     let option: ExportOption
 
-    let chain: ChainModel
+    let chain: ChainModel?
 
-    let cryptoType: CryptoType
+    let cryptoType: CryptoType?
 
     let derivationPath: String?
 
     let data: String
+
+    let ethereumBased: Bool
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView {
         if option == .seed {
@@ -38,13 +49,15 @@ struct ExportStringViewModel: ExportGenericViewModelProtocol {
 struct ExportMnemonicViewModel: ExportGenericViewModelProtocol {
     let option: ExportOption
 
-    let chain: ChainModel
+    let chain: ChainModel?
 
-    let cryptoType: CryptoType
+    let cryptoType: CryptoType?
 
     let derivationPath: String?
 
     let mnemonic: [String]
+
+    let ethereumBased: Bool
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView {
         binder.bind(mnemonicViewModel: self, locale: locale)

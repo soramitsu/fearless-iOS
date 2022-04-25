@@ -130,7 +130,10 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         return StakingPayoutConfirmationInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
             extrinsicOperationFactory: extrinsicOperationFactory,

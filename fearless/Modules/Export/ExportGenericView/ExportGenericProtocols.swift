@@ -2,21 +2,30 @@ import Foundation
 import SoraFoundation
 
 protocol ExportGenericViewProtocol: ControllerBackedProtocol {
-    func set(viewModel: ExportGenericViewModelProtocol)
+    func set(viewModel: MultipleExportGenericViewModelProtocol)
 }
 
 protocol ExportGenericPresenterProtocol {
+    func didLoadView()
     func setup()
     func activateExport()
     func activateAccessoryOption()
+    func didTapExportSubstrateButton()
+    func didTapExportEthereumButton()
+    func didTapStringExport(_ value: String?)
 }
 
 extension ExportGenericPresenterProtocol {
     func activateAccessoryOption() {}
+    func activateExport() {}
+    func didTapExportSubstrateButton() {}
+    func didTapExportEthereumButton() {}
+    func didTapStringExport(_: String?) {}
 }
 
 protocol ExportGenericWireframeProtocol: ErrorPresentable, AlertPresentable, SharingPresentable {
     func close(view: ExportGenericViewProtocol?)
+    func back(view: ExportGenericViewProtocol?)
 }
 
 extension ExportGenericWireframeProtocol {

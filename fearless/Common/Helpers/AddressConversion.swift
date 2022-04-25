@@ -17,6 +17,10 @@ enum AddressFactory {
         try accountId.toAddress(using: chainFormat(of: chain))
     }
 
+    static func address(for accountId: AccountId, chainFormat: ChainFormat) throws -> AccountAddress {
+        try accountId.toAddress(using: chainFormat)
+    }
+
     static func accountId(from address: AccountAddress, chain: ChainModel) throws -> AccountId {
         try address.toAccountId(using: chainFormat(of: chain))
     }

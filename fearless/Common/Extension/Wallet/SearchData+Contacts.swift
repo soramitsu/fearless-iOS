@@ -62,16 +62,15 @@ extension SearchData {
         chain: ChainModel,
         account: MetaAccountModel
     ) throws -> SearchData? {
-        guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
-            assertionFailure()
+        guard let chainAccountResponse = account.fetch(for: chain.accountRequest()) else {
             return nil
         }
-        let address = try AddressFactory.address(for: accountId, chain: chain)
+        let address = try AddressFactory.address(for: chainAccountResponse.accountId, chain: chain)
 
         let contactContext = ContactContext(destination: .local)
 
         return SearchData(
-            accountId: accountId.toHex(),
+            accountId: chainAccountResponse.accountId.toHex(),
             firstName: address,
             lastName: account.name,
             context: contactContext.toContext()

@@ -120,7 +120,10 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         return StakingRebondSetupInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             runtimeCodingService: runtimeService,
             operationManager: operationManager,

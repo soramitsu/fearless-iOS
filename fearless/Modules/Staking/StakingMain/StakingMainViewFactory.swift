@@ -23,7 +23,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             let sharedState = try? createSharedState(
                 with: chainAsset,
                 stakingSettings: stakingSettings
-            ) else {
+            ), let selectedAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
 
@@ -37,7 +37,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         // MARK: - Interactor
 
-        let interactor = createInteractor(state: sharedState, settings: settings)
+        let interactor = createInteractor(state: sharedState, settings: settings, selectedAccount: selectedAccount)
 
         // MARK: - Router
 
@@ -86,7 +86,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
     private static func createInteractor(
         state: StakingSharedState,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        selectedAccount: MetaAccountModel
     ) -> StakingMainInteractor {
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
@@ -153,7 +154,10 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             stakingRemoteSubscriptionService: stakingRemoteSubscriptionService,
             stakingAccountUpdatingService: stakingAccountUpdatingService,
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: selectedAccount
+            ),
             priceLocalSubscriptionFactory: PriceProviderFactory.shared,
             stakingServiceFactory: serviceFactory,
             accountProviderFactory: accountProviderFactory,

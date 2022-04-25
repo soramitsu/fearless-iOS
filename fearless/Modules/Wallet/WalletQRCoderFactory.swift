@@ -35,25 +35,32 @@ final class WalletQREncoder: WalletQREncoderProtocol {
 }
 
 final class WalletQRDecoder: WalletQRDecoderProtocol {
-    private lazy var addressFactory = SS58AddressFactory()
     private let substrateDecoder: SubstrateQRDecoder
+    private let qrDecoders: [QRDecodable]
     private let asset: AssetModel
 
     init(addressPrefix: UInt16, asset: AssetModel) {
         substrateDecoder = SubstrateQRDecoder(chainType: addressPrefix)
+        qrDecoders = [
+            SubstrateQRDecoder(chainType: addressPrefix),
+            CexQRDecoder()
+        ]
         self.asset = asset
     }
 
     func decode(data: Data) throws -> ReceiveInfo {
-        let info = try substrateDecoder.decode(data: data)
+        let info = qrDecoders.compactMap {
+            try? $0.decode(data: data)
+        }.first
 
-        let accountId = try addressFactory.accountId(
-            fromAddress: info.address,
-            type: substrateDecoder.chainType
-        )
+        guard let info = info else {
+            throw QRDecoderError.wrongDecoder
+        }
+
+        let accountId = try info.address.toAccountId()
 
         return ReceiveInfo(
-            accountId: accountId.toHex(),
+            accountId: accountId.toHex(includePrefix: true),
             assetId: asset.identifier,
             amount: nil,
             details: nil

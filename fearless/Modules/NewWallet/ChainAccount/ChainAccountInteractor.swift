@@ -10,7 +10,7 @@ final class ChainAccountInteractor {
     private let asset: AssetModel
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let connection: JSONRPCEngine
@@ -25,7 +25,7 @@ final class ChainAccountInteractor {
         selectedMetaAccount: MetaAccountModel,
         chain: ChainModel,
         asset: AssetModel,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         connection: JSONRPCEngine,
@@ -39,7 +39,7 @@ final class ChainAccountInteractor {
         self.selectedMetaAccount = selectedMetaAccount
         self.chain = chain
         self.asset = asset
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.connection = connection
         self.storageRequestFactory = storageRequestFactory
@@ -53,7 +53,7 @@ final class ChainAccountInteractor {
 
     private func subscribeToAccountInfo() {
         if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-            accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
         } else {
             presenter?.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists),
@@ -135,8 +135,9 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
                 let accountId = response.isChainAccount ? response.accountId : nil
                 let options = self.availableExportOptionsProvider
                     .getAvailableExportOptions(
-                        for: self.selectedMetaAccount.metaId,
-                        accountId: accountId
+                        for: self.selectedMetaAccount,
+                        accountId: accountId,
+                        isEthereum: response.isEthereumBased
                     )
                 self.presenter?.didReceiveExportOptions(options: options)
             default:
@@ -152,7 +153,7 @@ extension ChainAccountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscri
     }
 }
 
-extension ChainAccountInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension ChainAccountInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
@@ -187,8 +188,7 @@ extension ChainAccountInteractor: EventVisitorProtocol {
     }
 
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        clear(dataProvider: &accountInfoProvider)
-
+        accountInfoSubscriptionAdapter.reset()
         subscribeToAccountInfo()
     }
 }

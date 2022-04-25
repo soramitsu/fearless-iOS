@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import BigInt
 
 protocol WalletLocalStorageSubscriber where Self: AnyObject {
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol { get }
@@ -10,6 +11,11 @@ protocol WalletLocalStorageSubscriber where Self: AnyObject {
         for accountId: AccountId,
         chainId: ChainModel.Id
     ) -> AnyDataProvider<DecodedAccountInfo>?
+
+    func subscribeToOrmlAccountInfoProvider(
+        for accountId: AccountId,
+        chain: ChainModel
+    ) -> AnyDataProvider<DecodedOrmlAccountInfo>?
 }
 
 extension WalletLocalStorageSubscriber {
@@ -38,6 +44,55 @@ extension WalletLocalStorageSubscriber {
                 result: .failure(error),
                 accountId: accountId,
                 chainId: chainId
+            )
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        accountInfoProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return accountInfoProvider
+    }
+
+    func subscribeToOrmlAccountInfoProvider(
+        for accountId: AccountId,
+        chain: ChainModel
+    ) -> AnyDataProvider<DecodedOrmlAccountInfo>? {
+        guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getOrmlAccountProvider(
+            for: accountId,
+            chain: chain
+        ) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedOrmlAccountInfo>]) in
+            guard let ormlAccountInfo = changes.reduceToLastChange()?.item else {
+                return
+            }
+
+            let accountInfo = AccountInfo(ormlAccountInfo: ormlAccountInfo)
+            self?.walletLocalSubscriptionHandler.handleAccountInfo(
+                result: .success(accountInfo),
+                accountId: accountId,
+                chainId: chain.chainId
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.walletLocalSubscriptionHandler.handleAccountInfo(
+                result: .failure(error),
+                accountId: accountId,
+                chainId: chain.chainId
             )
             return
         }

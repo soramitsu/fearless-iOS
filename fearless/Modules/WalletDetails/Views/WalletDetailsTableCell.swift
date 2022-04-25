@@ -75,6 +75,26 @@ class WalletDetailsTableCell: UITableViewCell {
         return imageView
     }()
 
+    private var accountMissingHintView = UIFactory.default.createHintView()
+
+    private var addMissingAccountButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(R.color.colorAccent(), for: .normal)
+        return button
+    }()
+
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    private var chainUnsupportedView: HintView = {
+        let view = UIFactory.default.createHintView()
+        view.iconView.image = R.image.iconWarning()
+        return view
+    }()
+
     weak var delegate: WalletDetailsTableCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -82,6 +102,8 @@ class WalletDetailsTableCell: UITableViewCell {
 
         configure()
         setupLayout()
+
+        applyLocalization()
     }
 
     override func prepareForReuse() {
@@ -94,6 +116,12 @@ class WalletDetailsTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private func applyLocalization() {
+        chainUnsupportedView.titleLabel.text = R.string.localizable.commonUnsupported(preferredLanguages: locale.rLanguages)
+        accountMissingHintView.titleLabel.text = R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
+        addMissingAccountButton.setTitle(R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages), for: .normal)
+    }
+
     func bind(to viewModel: WalletDetailsCellViewModel) {
         viewModel.chainImageViewModel?.cancel(on: chainImageView)
         viewModel.chainImageViewModel?.loadImage(
@@ -102,7 +130,7 @@ class WalletDetailsTableCell: UITableViewCell {
             animated: false
         )
 
-        chainLabel.text = viewModel.chain.name
+        chainLabel.text = viewModel.chainAccount.chain.name
         addressLabel.text = viewModel.address
         if let addressImage = viewModel.addressImage {
             addressImageView.isHidden = false
@@ -110,6 +138,16 @@ class WalletDetailsTableCell: UITableViewCell {
         } else {
             addressImageView.isHidden = true
         }
+
+        let chainSupported: Bool = viewModel.chainAccount.chain.isSupported
+        addressStackView.isHidden = !chainSupported
+        chainUnsupportedView.isHidden = chainSupported
+        actionImageView.isHidden = !chainSupported || !viewModel.actionsAvailable
+
+        addMissingAccountButton.isHidden = !viewModel.accountMissing
+        accountMissingHintView.isHidden = !viewModel.accountMissing
+
+        setDeactivated(!chainSupported)
     }
 }
 
@@ -149,6 +187,7 @@ private extension WalletDetailsTableCell {
         actionImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.actionImageSize)
         }
+        mainStackView.addArrangedSubview(addMissingAccountButton)
 
         infoStackView.addArrangedSubview(chainLabel)
         infoStackView.addArrangedSubview(addressStackView)
@@ -161,10 +200,23 @@ private extension WalletDetailsTableCell {
             make.size.equalTo(LayoutConstants.addressImageSize)
         }
         addressStackView.addArrangedSubview(addressLabel)
+        infoStackView.addArrangedSubview(chainUnsupportedView)
+
+        infoStackView.addArrangedSubview(accountMissingHintView)
     }
 
     @objc
     private func showActions() {
         delegate?.didTapActions(self)
+    }
+}
+
+extension WalletDetailsTableCell: DeactivatableView {
+    var deactivatableViews: [UIView] {
+        [chainImageView, chainLabel, addressLabel, addressImageView, chainUnsupportedView]
+    }
+
+    var deactivatedAlpha: CGFloat {
+        0.5
     }
 }

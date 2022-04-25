@@ -2,33 +2,67 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 import IrohaCrypto
+import SoraKeystore
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
-    func createUserViewModel(from wallet: MetaAccountModel, locale: Locale) -> ProfileUserViewModelProtocol
-
-    func createOptionViewModels(
-        language: Language,
-        locale: Locale
-    ) -> [ProfileOptionViewModelProtocol]
-
-    func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol
+    func createProfileViewModel(
+        from wallet: MetaAccountModel,
+        locale: Locale,
+        language: Language
+    ) -> ProfileViewModelProtocol
 }
 
 enum ProfileOption: UInt, CaseIterable {
     case accountList
     case language
     case changePincode
+    case biometry
     case about
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
-    let iconGenerator: IconGenerating
+    // MARK: - Private properties
 
-    init(iconGenerator: IconGenerating) {
+    private let iconGenerator: IconGenerating
+    private let biometry: BiometryAuthProtocol
+    private let settings: SettingsManagerProtocol
+
+    // MARK: - Constructors
+
+    init(
+        iconGenerator: IconGenerating,
+        biometry: BiometryAuthProtocol,
+        settings: SettingsManagerProtocol
+    ) {
         self.iconGenerator = iconGenerator
+        self.biometry = biometry
+        self.settings = settings
     }
 
-    func createUserViewModel(from wallet: MetaAccountModel, locale _: Locale) -> ProfileUserViewModelProtocol {
+    // MARK: - Public methods
+
+    func createProfileViewModel(
+        from wallet: MetaAccountModel,
+        locale: Locale,
+        language: Language
+    ) -> ProfileViewModelProtocol {
+        let profileUserViewModel = createUserViewModel(from: wallet, locale: locale)
+        let profileOptionViewModel = createOptionViewModels(language: language, locale: locale)
+        let logoutViewModel = createLogoutViewModel(locale: locale)
+        let viewModel = ProfileViewModel(
+            profileUserViewModel: profileUserViewModel,
+            profileOptionViewModel: profileOptionViewModel,
+            logoutViewModel: logoutViewModel
+        )
+        return viewModel
+    }
+
+    // MARK: - Private methods
+
+    private func createUserViewModel(
+        from wallet: MetaAccountModel,
+        locale _: Locale
+    ) -> ProfileUserViewModelProtocol {
         let icon = try? iconGenerator.generateFromAddress("")
 
         return ProfileUserViewModel(
@@ -38,7 +72,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
     }
 
-    func createOptionViewModels(
+    private func createOptionViewModels(
         language: Language,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
@@ -52,19 +86,42 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createLanguageViewModel(from: language, locale: locale)
             case .about:
                 return createAboutViewModel(for: locale)
+            case .biometry:
+                return createBiometryViewModel(for: locale)
             }
         }
 
         return optionViewModels
     }
 
-    func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol {
+    private func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol {
         let title = R.string.localizable
             .profileLogoutTitle(preferredLanguages: locale.rLanguages)
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsLogout()!,
-            accessoryTitle: nil
+            accessoryTitle: nil,
+            accessoryType: .arrow
+        )
+        return viewModel
+    }
+
+    private func createBiometryViewModel(for _: Locale) -> ProfileOptionViewModel? {
+        let title: String
+        switch biometry.availableBiometryType {
+        case .none:
+            return nil
+        case .touchId:
+            title = "Touch ID"
+        case .faceId:
+            title = "Face ID"
+        }
+
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: biometry.availableBiometryType.accessoryIconSettings,
+            accessoryTitle: nil,
+            accessoryType: .switcher(settings.biometryEnabled ?? false)
         )
         return viewModel
     }
@@ -75,7 +132,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWallet()!,
-            accessoryTitle: nil
+            accessoryTitle: nil,
+            accessoryType: .arrow
         )
         return viewModel
     }
@@ -87,7 +145,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconProfileNetworks()!,
-            accessoryTitle: nil
+            accessoryTitle: nil,
+            accessoryType: .arrow
         )
 
         return viewModel
@@ -99,7 +158,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsPin()!,
-            accessoryTitle: nil
+            accessoryTitle: nil,
+            accessoryType: .arrow
         )
     }
 
@@ -110,7 +170,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsLanguage()!,
-            accessoryTitle: subtitle
+            accessoryTitle: subtitle,
+            accessoryType: .arrow
         )
 
         return viewModel
@@ -122,7 +183,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWebsite()!,
-            accessoryTitle: nil
+            accessoryTitle: nil,
+            accessoryType: .arrow
         )
     }
 }

@@ -92,7 +92,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     private func updateAfterSelectedAccountChange() {
         clearAccountRemoteSubscription()
-        clear(dataProvider: &balanceProvider)
+        accountInfoSubscriptionAdapter.reset()
         clearStashControllerSubscription()
 
         guard let selectedChain = selectedChainAsset?.chain,

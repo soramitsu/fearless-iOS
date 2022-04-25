@@ -17,7 +17,10 @@ struct AssetSelectionViewFactory {
         let interactor = ChainSelectionInteractor(
             selectedMetaAccount: selectedMetaAccount,
             repository: AnyDataProviderRepository(repository),
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+                selectedMetaAccount: selectedMetaAccount
+            ),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 

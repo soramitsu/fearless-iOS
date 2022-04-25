@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol CrowdloanListViewProtocol: ControllerBackedProtocol {
-    func didReceive(chainInfo: CrowdloansChainViewModel)
+    func didReceive(chainInfo: CrowdloansChainViewModel, wikiCrowdloan: LearnMoreViewModel)
     func didReceive(listState: CrowdloanListState)
 }
 
@@ -12,6 +12,7 @@ protocol CrowdloanListPresenterProtocol: AnyObject {
     func becomeOnline()
     func putOffline()
     func selectChain()
+    func selectWiki()
 }
 
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
@@ -34,7 +35,7 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
-protocol CrowdloanListWireframeProtocol: AnyObject {
+protocol CrowdloanListWireframeProtocol: WebPresentable {
     func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId)
     func selectChain(
         from view: CrowdloanListViewProtocol?,

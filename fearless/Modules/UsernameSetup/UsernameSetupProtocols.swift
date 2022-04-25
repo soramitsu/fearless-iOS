@@ -1,20 +1,27 @@
 import SoraFoundation
 
 protocol UsernameSetupViewProtocol: ControllerBackedProtocol {
-    func setInput(viewModel: InputViewModelProtocol)
+    func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>)
+    func bindUniqueChain(viewModel: UniqueChainViewModel)
 }
 
 protocol UsernameSetupPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: UsernameSetupViewProtocol)
     func proceed()
 }
 
 protocol UsernameSetupWireframeProtocol: AlertPresentable, NetworkTypeSelectionPresentable {
-    func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel)
+    func proceed(from view: UsernameSetupViewProtocol?, flow: AccountCreateFlow, model: UsernameSetupModel)
 }
 
 protocol UsernameSetupViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding() -> UsernameSetupViewProtocol?
+    static func createViewForOnboarding(flow: AccountCreateFlow) -> UsernameSetupViewProtocol?
     static func createViewForAdding() -> UsernameSetupViewProtocol?
     static func createViewForSwitch() -> UsernameSetupViewProtocol?
+}
+
+extension UsernameSetupViewFactoryProtocol {
+    static func createViewForOnboarding() -> UsernameSetupViewProtocol? {
+        Self.createViewForOnboarding(flow: .wallet)
+    }
 }

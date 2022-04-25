@@ -74,4 +74,15 @@ extension AvailableBiometryType {
             return nil
         }
     }
+
+    var accessoryIconSettings: UIImage? {
+        switch self {
+        case .faceId:
+            return R.image.pinFaceIdSettings()
+        case .touchId:
+            return R.image.pinFingerprintSettings()
+        case .none:
+            return nil
+        }
+    }
 }

@@ -21,6 +21,13 @@ final class LearnMoreView: BackgroundedContentControl {
         return label
     }()
 
+    let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorLightGray()
+        label.font = .p2Paragraph
+        return label
+    }()
+
     let arrowIconView: UIView = {
         let imageView = UIImageView(image: R.image.iconAboutArrow())
         imageView.tintColor = .white
@@ -60,6 +67,11 @@ final class LearnMoreView: BackgroundedContentControl {
         let iconSize = CGSize(width: Constants.iconSize, height: Constants.iconSize)
         viewModel?.iconViewModel?.loadImage(on: iconView, targetSize: iconSize, animated: true)
         titleLabel.text = viewModel?.title
+        if let subtitleUnderlined = viewModel?.subtitleUnderlined, subtitleUnderlined {
+            subtitleLabel.attributedText = viewModel?.subtitle?.underlined
+        } else {
+            subtitleLabel.text = viewModel?.subtitle
+        }
     }
 
     override func layoutSubviews() {
@@ -90,16 +102,20 @@ final class LearnMoreView: BackgroundedContentControl {
             make.size.equalTo(Constants.iconSize)
         }
 
-        baseView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
+        let commonTextStackView = UIFactory.default.createVerticalStackView(spacing: 1)
+        baseView.addSubview(commonTextStackView)
+        commonTextStackView.snp.makeConstraints { make in
             make.leading.equalTo(iconView.snp.trailing).offset(Constants.horizontalSpacing)
             make.centerY.equalToSuperview()
         }
 
+        commonTextStackView.addArrangedSubview(titleLabel)
+        commonTextStackView.addArrangedSubview(subtitleLabel)
+
         baseView.addSubview(arrowIconView)
         arrowIconView.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(Constants.horizontalSpacing)
+            make.leading.greaterThanOrEqualTo(commonTextStackView.snp.trailing).offset(Constants.horizontalSpacing)
             make.size.equalTo(16.0)
         }
 

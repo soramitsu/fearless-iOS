@@ -140,7 +140,10 @@ struct StakingBondMoreConfirmViewFactory {
         return StakingBondMoreConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             substrateProviderFactory: substrateProviderFactory,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,

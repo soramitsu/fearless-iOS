@@ -8,7 +8,7 @@ final class ExportMnemonicConfirmWireframe: AccountConfirmWireframeProtocol, Mod
         self.localizationManager = localizationManager
     }
 
-    func proceed(from view: AccountConfirmViewProtocol?) {
+    func proceed(from view: AccountConfirmViewProtocol?, flow _: AccountConfirmFlow?) {
         let title = R.string.localizable
             .commonConfirmed(preferredLanguages: localizationManager.selectedLocale.rLanguages)
 

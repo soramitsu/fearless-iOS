@@ -5,6 +5,7 @@ struct ChainAccountModel: Equatable, Hashable, Codable {
     let accountId: AccountId
     let publicKey: Data
     let cryptoType: UInt8
+    let ethereumBased: Bool
 }
 
 extension ChainAccountModel {

@@ -11,6 +11,7 @@ final class CrowdloanContributionSetupPresenter {
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
     let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
+    let chainAsset: ChainAsset
 
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -53,7 +54,8 @@ final class CrowdloanContributionSetupPresenter {
         dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
         assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        chainAsset: ChainAsset
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -62,6 +64,7 @@ final class CrowdloanContributionSetupPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.assetInfo = assetInfo
         self.logger = logger
+        self.chainAsset = chainAsset
         self.localizationManager = localizationManager
     }
 
@@ -243,7 +246,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 spendingAmount: spendingValue,
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
-                locale: selectedLocale
+                locale: selectedLocale,
+                chain: chainAsset.chain
             )
 
         ]).runValidation { [weak self] in

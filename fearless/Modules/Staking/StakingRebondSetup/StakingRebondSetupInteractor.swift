@@ -7,7 +7,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     weak var presenter: StakingRebondSetupInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
@@ -29,7 +29,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
@@ -42,7 +42,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         runtimeService = runtimeCodingService
         self.operationManager = operationManager
@@ -106,7 +106,7 @@ extension StakingRebondSetupInteractor: PriceLocalStorageSubscriber, PriceLocalS
     }
 }
 
-extension StakingRebondSetupInteractor: WalletLocalStorageSubscriber, WalletLocalSubscriptionHandler {
+extension StakingRebondSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -117,7 +117,7 @@ extension StakingRebondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
         do {
             let maybeStashItem = try result.get()
 
-            clear(dataProvider: &accountInfoProvider)
+            accountInfoSubscriptionAdapter.reset()
             clear(dataProvider: &ledgerProvider)
 
             presenter.didReceiveStashItem(result: result)
@@ -128,7 +128,7 @@ extension StakingRebondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
                let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
                 ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
 
-                accountInfoProvider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId)
+                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
 
                 fetchChainAccount(
                     chain: chain,

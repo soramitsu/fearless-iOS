@@ -112,7 +112,10 @@ struct ControllerAccountViewFactory {
         )
 
         return ControllerAccountInteractor(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             runtimeService: runtimeService,
             accountRepository: AnyDataProviderRepository(accountRepository),
