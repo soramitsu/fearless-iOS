@@ -59,10 +59,10 @@ extension ConstantCodingPath {
     }
 
     static var revokeDelegationDelay: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "revokeDelegationDelay")
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "RevokeDelegationDelay")
     }
 
     static var minDelegation: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "minDelegation")
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MinDelegation")
     }
 }

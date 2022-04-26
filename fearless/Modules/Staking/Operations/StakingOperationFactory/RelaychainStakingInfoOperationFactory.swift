@@ -78,15 +78,15 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
             let stakingDuration = try durationOperation.extractNoCancellableResultData()
 
             let baseStakingInfo = BaseStakingInfo(
-                stakingDuration: stakingDuration,
+                lockUpPeriod: lockUpPeriod,
                 minimalBalance: minBalance,
                 minStakeAmongActiveNominators: minimalStake
             )
 
             let relaychainStakingInfo = RelaychainStakingInfo(
+                stakingDuration: stakingDuration,
                 totalStake: totalStake,
-                activeNominatorsCount: activeNominatorsCount,
-                lockUpPeriod: lockUpPeriod
+                activeNominatorsCount: activeNominatorsCount
             )
 
             return .relaychain(

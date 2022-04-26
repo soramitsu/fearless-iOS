@@ -8,6 +8,9 @@ protocol NetworkInfoViewDelegate: AnyObject {
 }
 
 final class NetworkInfoView: UIView {
+    
+    let stackTableView = StackedTableView(columns: 2)
+    
     @IBOutlet var backgroundView: TriangularedBlurView!
     @IBOutlet var networkInfoContainer: UIView!
     @IBOutlet var titleControl: ActionTitleControl!
@@ -45,12 +48,18 @@ final class NetworkInfoView: UIView {
 
     private var localizableViewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
     private var chainName: String?
-
+    
     override func awakeFromNib() {
         super.awakeFromNib()
 
         titleControl.imageView.isUserInteractionEnabled = false
         titleControl.activate(animated: false)
+        
+        setupLayout()
+    }
+    
+    private func setupLayout() {
+        
     }
 
     func setExpanded(_ value: Bool, animated: Bool) {

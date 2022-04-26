@@ -1859,6 +1859,7 @@
 		FA402F3627CCD14D008CF986 /* SubstrateStorageVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA402F3527CCD14D008CF986 /* SubstrateStorageVersion.swift */; };
 		FA402F3A27CCD1DB008CF986 /* SubstrateStorageMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA402F3927CCD1DB008CF986 /* SubstrateStorageMigrator.swift */; };
 		FA402F3C27CCD53D008CF986 /* SubstrateStorageMigrator+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA402F3B27CCD53D008CF986 /* SubstrateStorageMigrator+Sync.swift */; };
+		FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4CC6632817C3AC00A7E85F /* StackedTableView.swift */; };
 		FA5989532812658F008BD8A2 /* StakingOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5989522812658F008BD8A2 /* StakingOperationFactory.swift */; };
 		FA598955281265B9008BD8A2 /* ParachainStakingInfoOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA598954281265B9008BD8A2 /* ParachainStakingInfoOperationFactory.swift */; };
 		FA5AE96227B10B1D00B2564E /* Dismissable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5AE96127B10B1D00B2564E /* Dismissable.swift */; };
@@ -3879,6 +3880,7 @@
 		FA402F3527CCD14D008CF986 /* SubstrateStorageVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateStorageVersion.swift; sourceTree = "<group>"; };
 		FA402F3927CCD1DB008CF986 /* SubstrateStorageMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateStorageMigrator.swift; sourceTree = "<group>"; };
 		FA402F3B27CCD53D008CF986 /* SubstrateStorageMigrator+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubstrateStorageMigrator+Sync.swift"; sourceTree = "<group>"; };
+		FA4CC6632817C3AC00A7E85F /* StackedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackedTableView.swift; sourceTree = "<group>"; };
 		FA5989522812658F008BD8A2 /* StakingOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingOperationFactory.swift; sourceTree = "<group>"; };
 		FA598954281265B9008BD8A2 /* ParachainStakingInfoOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingInfoOperationFactory.swift; sourceTree = "<group>"; };
 		FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmWireframe.swift; sourceTree = "<group>"; };
@@ -6668,6 +6670,7 @@
 				FA38C98F275DFC42005C5577 /* AssetInfoView.swift */,
 				FA38C998275F2CDC005C5577 /* ChainOptionsView.swift */,
 				FA99549827B3609700CCC94B /* TableSectionTitleView.swift */,
+				FA4CC6632817C3AC00A7E85F /* StackedTableView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -11230,6 +11233,7 @@
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
+				FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
 				FA99425D28053C8800D771E5 /* BaseEducationStoriesView.swift in Sources */,
 				FA2E9BBD27A293DA0023FAD2 /* FilterSet.swift in Sources */,

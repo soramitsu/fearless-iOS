@@ -28,15 +28,15 @@ enum NetworkStakingInfo {
 }
 
 struct BaseStakingInfo {
-    let stakingDuration: StakingDuration
+    let lockUpPeriod: UInt32
     let minimalBalance: BigUInt
     let minStakeAmongActiveNominators: BigUInt
 }
 
 struct RelaychainStakingInfo {
+    let stakingDuration: StakingDuration
     let totalStake: BigUInt
     let activeNominatorsCount: Int
-    let lockUpPeriod: UInt32
 }
 
 extension NetworkStakingInfo {

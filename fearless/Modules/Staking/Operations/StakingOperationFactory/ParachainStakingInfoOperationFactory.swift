@@ -8,17 +8,11 @@ final class ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFac
         minDelegationOperation: BaseOperation<BigUInt>
     ) -> BaseOperation<NetworkStakingInfo> {
         ClosureOperation<NetworkStakingInfo> {
-            let revokeDelegationDelay = try Int(revokeDelegationDelayOperation.extractNoCancellableResultData())
+            let revokeDelegationDelay = try revokeDelegationDelayOperation.extractNoCancellableResultData()
             let minDelegation = try minDelegationOperation.extractNoCancellableResultData()
 
-            let stakingDuration = StakingDuration(
-                session: 0,
-                era: 0,
-                unlocking: TimeInterval(revokeDelegationDelay)
-            )
-
             let baseStakingInfo = BaseStakingInfo(
-                stakingDuration: stakingDuration,
+                lockUpPeriod: revokeDelegationDelay,
                 minimalBalance: minDelegation,
                 minStakeAmongActiveNominators: minDelegation
             )
@@ -59,7 +53,8 @@ extension ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFacto
 
         let mapDependencies = [
             revokeDelegationDelayOperation,
-            minDelegationOperation
+            minDelegationOperation,
+            runtimeOperation
         ]
 
         mapOperation.addDependency(revokeDelegationDelayOperation)
