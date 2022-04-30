@@ -6,8 +6,8 @@ protocol ChainAccountBalanceListViewModelFactoryProtocol {
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale,
-        accountInfos: [ChainModel.Id: AccountInfo]?,
-        prices: [AssetModel.PriceId: PriceData]?,
+        accountInfos: [ChainModel.Id: AccountInfo?],
+        prices: [AssetModel.PriceId: PriceDataUpdated],
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel
 }
@@ -17,8 +17,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale,
-        accountInfos: [ChainModel.Id: AccountInfo]?,
-        prices: [AssetModel.PriceId: PriceData]?,
+        accountInfos: [ChainModel.Id: AccountInfo?],
+        prices: [AssetModel.PriceId: PriceDataUpdated],
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
         let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
@@ -42,13 +42,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         var balanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
-            let accountInfo: AccountInfo? = accountInfos?[chainAsset.chain.chainId]
+            let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
 
             usdBalanceByChainAsset[chainAsset] = getUsdBalance(
                 for: chainAsset,
                 accountInfo: accountInfo,
-                priceData: prices?[chainAsset.asset.priceId ?? ""],
-                locale: locale
+                priceData: prices[chainAsset.asset.priceId ?? ""]?.priceData
             )
 
             balanceByChainAsset[chainAsset] = getBalance(
@@ -94,7 +93,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
             chainModel.assets.compactMap { asset in
                 let chainAsset = ChainAsset(chain: chainModel, asset: asset.asset)
-                let accountInfo = accountInfos?[chainModel.chainId]
+                let accountInfo = accountInfos[chainModel.chainId] ?? nil
 
                 let balanceDecimal = getBalance(
                     for: chainAsset,
@@ -102,7 +101,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 )
 
                 guard let priceId = asset.asset.priceId,
-                      let priceData = prices?[priceId],
+                      let priceData = prices[priceId]?.priceData,
                       let priceDecimal = Decimal(string: priceData.price)
                 else {
                     return nil
@@ -113,27 +112,34 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         }.reduce(0, +)
 
         let viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
-            var priceData: PriceData?
+            var priceData: PriceDataUpdated?
 
-            if let prices = prices, let priceId = chainAsset.asset.priceId {
+            if let priceId = chainAsset.asset.priceId {
                 priceData = prices[priceId]
+            } else {
+                priceData = prices[chainAsset.asset.id]
             }
 
             return buildChainAccountBalanceCellViewModel(
                 chainAsset: chainAsset,
                 priceData: priceData,
-                accountInfo: accountInfos?[chainAsset.chain.chainId],
+                accountInfos: accountInfos,
                 locale: locale
             )
         }
 
         let haveMissingAccounts = chains.first(where: { selectedMetaAccount.fetch(for: $0.accountRequest()) == nil && $0.unused == false }) != nil
 
+        let isColdBoot = accountInfos.keys.count != chains.count
+        let balanceUpdated = prices.filter { $0.value.updated == false }.isEmpty
+
+        let balance = usdTokenFormatterValue.stringFromDecimal(totalWalletBalance)
         return ChainAccountBalanceListViewModel(
             accountName: selectedMetaAccount.name,
-            balance: usdTokenFormatterValue.stringFromDecimal(totalWalletBalance),
+            balance: .init(value: .text(balance), isUpdated: balanceUpdated && !isColdBoot),
             accountViewModels: viewModels,
-            ethAccountMissed: haveMissingAccounts
+            ethAccountMissed: haveMissingAccounts,
+            isColdBoot: isColdBoot
         )
     }
 
@@ -145,28 +151,33 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
     func buildChainAccountBalanceCellViewModel(
         chainAsset: ChainAsset,
-        priceData: PriceData?,
-        accountInfo: AccountInfo?,
+        priceData: PriceDataUpdated?,
+        accountInfos: [ChainModel.Id: AccountInfo?],
         locale: Locale
     ) -> ChainAccountBalanceCellViewModel {
         let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
         let title = chainAsset.chain.name
+
+        let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
         let balance = getBalanceString(
             for: chainAsset,
-            accountInfo: accountInfo, locale: locale
+            accountInfo: accountInfo,
+            locale: locale
         )
         let totalAmountString = getUsdBalanceString(
             for: chainAsset,
             accountInfo: accountInfo,
-            priceData: priceData,
+            priceData: priceData?.priceData,
             locale: locale
         )
         let priceAttributedString = getPriceAttributedString(
-            for: chainAsset.asset,
-            priceData: priceData,
+            priceData: priceData?.priceData,
             locale: locale
         )
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
+
+        let isColdBoot = !accountInfos.keys.contains(chainAsset.chain.chainId)
+        let isUpdated = priceData?.updated ?? false
 
         return ChainAccountBalanceCellViewModel(
             chain: chainAsset.chain,
@@ -174,10 +185,21 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             assetName: title,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: icon,
-            balanceString: balance,
-            priceAttributedString: priceAttributedString,
-            totalAmountString: totalAmountString,
-            options: options
+            balanceString: .init(
+                value: .text(balance),
+                isUpdated: isUpdated
+            ),
+            priceAttributedString: .init(
+                value: .attributed(priceAttributedString),
+                isUpdated: isUpdated
+            ),
+            totalAmountString: .init(
+                value: .text(totalAmountString),
+                isUpdated: isUpdated
+            ),
+            options: options,
+            isColdBoot: isColdBoot,
+            priceDataWasUpdated: isUpdated
         )
     }
 }
@@ -212,7 +234,6 @@ extension ChainAccountBalanceListViewModelFactory {
     }
 
     private func getPriceAttributedString(
-        for _: AssetModel,
         priceData: PriceData?,
         locale: Locale
     ) -> NSAttributedString? {
@@ -261,19 +282,14 @@ extension ChainAccountBalanceListViewModelFactory {
         let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
         let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
 
-        return usdTokenFormatterValue.stringFromDecimal(getUsdBalance(for: chainAsset, accountInfo: accountInfo, priceData: priceData, locale: locale))
+        return usdTokenFormatterValue.stringFromDecimal(getUsdBalance(for: chainAsset, accountInfo: accountInfo, priceData: priceData))
     }
 
     private func getUsdBalance(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
-        priceData: PriceData?,
-        locale: Locale
+        priceData: PriceData?
     ) -> Decimal {
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
-
         let assetInfo = chainAsset.asset.displayInfo
 
         var balance: Decimal

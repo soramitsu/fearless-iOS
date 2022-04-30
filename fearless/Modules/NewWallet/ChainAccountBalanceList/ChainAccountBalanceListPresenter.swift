@@ -2,6 +2,8 @@ import Foundation
 import SoraFoundation
 import Charts
 
+typealias PriceDataUpdated = (priceData: PriceData?, updated: Bool)
+
 final class ChainAccountBalanceListPresenter {
     weak var view: ChainAccountBalanceListViewProtocol?
     let wireframe: ChainAccountBalanceListWireframeProtocol
@@ -11,8 +13,8 @@ final class ChainAccountBalanceListPresenter {
     private var sortedKeys: [String]?
     private var chainModels: [ChainModel] = []
 
-    private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
-    private var prices: [AssetModel.PriceId: PriceData] = [:]
+    private var accountInfos: [ChainModel.Id: AccountInfo?] = [:]
+    private var prices: [AssetModel.PriceId: PriceDataUpdated] = [:]
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
 
@@ -43,6 +45,37 @@ final class ChainAccountBalanceListPresenter {
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
+
+        updatePrices(for: viewModel.accountViewModels)
+    }
+
+    private func updatePrices(for accountViewModels: [ChainAccountBalanceCellViewModel]) {
+        let updatedAssets = accountViewModels.map { viewModel -> AssetModel? in
+            switch viewModel.priceAttributedString {
+            case .normal, .normalAttributed, .stopShimmering:
+                return viewModel.asset
+            case .updating, .updatingAttributed:
+                return nil
+            }
+        }.compactMap { $0 }
+
+        updatedAssets.forEach {
+            prices[$0.chainId]?.updated = false
+        }
+    }
+
+    private func priceIsUpdating() {
+        let chainModelsWithPriceId = chainModels.filter { chain in
+            !chain.assets.filter { $0.asset.priceId != nil }.isEmpty
+        }
+
+        for chain in chainModelsWithPriceId {
+            for asset in chain.assets {
+                if let priceId = asset.asset.priceId {
+                    prices[priceId]?.updated = false
+                }
+            }
+        }
     }
 }
 
@@ -54,6 +87,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didPullToRefreshOnAssetsTable() {
+        priceIsUpdating()
+        provideViewModel()
         interactor.refresh()
     }
 
@@ -84,15 +119,37 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
-        accountInfos[chainId] = try? result.get()
+        switch result {
+        case let .success(accountInfo):
+            accountInfos[chainId] = accountInfo
+        case .failure:
+            break
+        }
         provideViewModel()
     }
 
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId) {
-        if prices[priceId] != nil, case let .success(priceData) = result, priceData != nil {
-            prices[priceId] = try? result.get()
-        } else if prices[priceId] == nil {
-            prices[priceId] = try? result.get()
+        func setOldValue() {
+            if let priceData = prices[priceId] {
+                let priceDataUpdated = (priceData: priceData.priceData, updated: true)
+                prices[priceId] = priceDataUpdated
+                provideViewModel()
+            } else {
+                let priceDataUpdated = (priceData: PriceData?.none, updated: true)
+                prices[priceId] = priceDataUpdated
+            }
+        }
+
+        switch result {
+        case let .success(priceDataResult):
+            guard let priceDataResult = priceDataResult else {
+                setOldValue()
+                return
+            }
+            let priceDataUpdated = (priceData: priceDataResult, updated: true)
+            prices[priceId] = priceDataUpdated
+        case .failure:
+            setOldValue()
         }
 
         provideViewModel()

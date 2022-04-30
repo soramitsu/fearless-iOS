@@ -7,8 +7,10 @@ struct ChainAccountBalanceCellViewModel {
     let assetName: String?
     let assetInfo: AssetBalanceDisplayInfo?
     let imageViewModel: RemoteImageViewModel?
-    let balanceString: String?
-    let priceAttributedString: NSAttributedString?
-    let totalAmountString: String?
+    let balanceString: ShimmeredLabelState
+    let priceAttributedString: ShimmeredLabelState
+    let totalAmountString: ShimmeredLabelState
     let options: [ChainOptionsViewModel]?
+    var isColdBoot: Bool
+    var priceDataWasUpdated: Bool
 }
