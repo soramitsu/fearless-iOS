@@ -291,8 +291,7 @@ extension ChainAccountBalanceTableCell {
     }
 
     private func createLoadingSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
-
-        return [
+        [
             SingleSkeleton.createRow(
                 under: priceView.keyLabel,
                 containerView: backgroundTriangularedView,

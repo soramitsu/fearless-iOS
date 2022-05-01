@@ -33,7 +33,6 @@ enum ShimmeredLabelState {
 }
 
 final class ShimmeredLabel: UILabel, ShimmeredProtocol {
-
     private var state: ShimmeredLabelState?
 
     // MARK: - Public methods
