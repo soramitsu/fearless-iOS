@@ -17,18 +17,24 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
         accountId: AccountId?,
         isEthereum: Bool
     ) -> [ExportOption] {
-        var options: [ExportOption] = [.keystore]
+        var options: [ExportOption] = []
+
         if mnemonicAvailable(for: account, accountId: accountId, isEthereum: isEthereum) {
             options.append(.mnemonic)
         }
+
         if seedAvailable(for: account, accountId: accountId) {
             options.append(.seed)
         }
+
+        options.append(.keystore)
+
         return options
     }
 
     func getAvailableExportOptions(for wallet: MetaAccountModel, accountId: AccountId?) -> [ExportOption] {
-        var options: [ExportOption] = [.keystore]
+        var options: [ExportOption] = []
+
         if mnemonicAvailable(for: wallet, accountId: accountId, isEthereum: true),
            mnemonicAvailable(for: wallet, accountId: accountId, isEthereum: false) {
             options.append(.mnemonic)
@@ -36,6 +42,9 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
         if seedAvailable(for: wallet, accountId: accountId) {
             options.append(.seed)
         }
+
+        options.append(.keystore)
+
         return options
     }
 }

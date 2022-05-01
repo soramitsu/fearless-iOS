@@ -159,9 +159,10 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     }
 
     func processAssetsListChanged(event: AssetsListChangedEvent) {
-        selectedMetaAccount = event.account
-
-        presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+        if selectedMetaAccount.metaId == event.account.metaId {
+            selectedMetaAccount = event.account
+            presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+        }
     }
 }
 

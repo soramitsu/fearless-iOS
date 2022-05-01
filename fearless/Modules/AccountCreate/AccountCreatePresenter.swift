@@ -240,12 +240,11 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 flow: .wallet(request)
             )
         case let .chain(model):
-            let derivationPath = model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivationPath
             let request = ChainAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
                 username: usernameSetup.username,
-                derivationPath: derivationPath,
-                cryptoType: selectedCryptoType,
+                derivationPath: model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivationPath,
+                cryptoType: model.chain.isEthereumBased ? .ecdsa : selectedCryptoType,
                 isEthereum: model.chain.isEthereumBased,
                 meta: model.meta,
                 chainId: model.chain.chainId

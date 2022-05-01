@@ -127,7 +127,10 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             )
         }
 
-        let haveMissingAccounts = chains.first(where: { selectedMetaAccount.fetch(for: $0.accountRequest()) == nil && $0.unused == false }) != nil
+        let haveMissingAccounts = chains.first(where: {
+            selectedMetaAccount.fetch(for: $0.accountRequest()) == nil
+                && (selectedMetaAccount.unusedChainIds ?? []).contains($0.chainId) == false
+        }) != nil
 
         return ChainAccountBalanceListViewModel(
             accountName: selectedMetaAccount.name,
@@ -227,7 +230,7 @@ extension ChainAccountBalanceListViewModelFactory {
 
         let changeString: String = priceData.usdDayChange.map {
             let percentValue = $0 / 100
-            return percentValue.percentString() ?? ""
+            return percentValue.percentString(locale: locale) ?? ""
         } ?? ""
 
         let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""

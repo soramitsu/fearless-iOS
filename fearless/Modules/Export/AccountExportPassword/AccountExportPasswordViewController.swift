@@ -61,7 +61,12 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale
 
-        title = R.string.localizable.commonExport(preferredLanguages: locale?.rLanguages)
+        switch presenter.flow {
+        case .multiple:
+            title = R.string.localizable.exportWallet(preferredLanguages: locale?.rLanguages)
+        case .single:
+            title = R.string.localizable.commonExport(preferredLanguages: locale?.rLanguages)
+        }
 
         hintLabel.text = R.string.localizable.accountExportJsonHint(preferredLanguages: locale?.rLanguages)
 

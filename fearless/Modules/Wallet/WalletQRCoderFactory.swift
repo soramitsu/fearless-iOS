@@ -38,6 +38,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
     private let substrateDecoder: SubstrateQRDecoder
     private let qrDecoders: [QRDecodable]
     private let asset: AssetModel
+    private let addressPrefix: UInt16
 
     init(addressPrefix: UInt16, asset: AssetModel) {
         substrateDecoder = SubstrateQRDecoder(chainType: addressPrefix)
@@ -46,6 +47,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
             CexQRDecoder()
         ]
         self.asset = asset
+        self.addressPrefix = addressPrefix
     }
 
     func decode(data: Data) throws -> ReceiveInfo {
@@ -57,10 +59,14 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
             throw QRDecoderError.wrongDecoder
         }
 
-        let accountId = try info.address.toAccountId()
+        let chainFormat: ChainFormat = info.address.hasPrefix("0x")
+            ? .ethereum
+            : .substrate(addressPrefix)
+
+        let accountId = try info.address.toAccountId(using: chainFormat)
 
         return ReceiveInfo(
-            accountId: accountId.toHex(includePrefix: true),
+            accountId: accountId.toHex(includePrefix: info.address.hasPrefix("0x")),
             assetId: asset.identifier,
             amount: nil,
             details: nil
