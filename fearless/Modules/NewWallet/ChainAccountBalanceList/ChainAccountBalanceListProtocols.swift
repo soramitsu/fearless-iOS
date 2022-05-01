@@ -17,8 +17,8 @@ protocol ChainAccountBalanceListPresenterProtocol: AnyObject {
 protocol ChainAccountBalanceListInteractorInputProtocol: AnyObject {
     func setup()
     func refresh()
-    func updateIfNeeded()
-    func selected(currency: Currency)
+    func updatePricesIfNeeded()
+    func didReceive(currency: Currency)
 }
 
 protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {

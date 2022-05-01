@@ -153,15 +153,15 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
         fetchChainsAndSubscribeBalance()
     }
 
-    func updateIfNeeded() {
+    func updatePricesIfNeeded() {
         guard currentCurrency != settingsManager.selectedCurrency else { return }
         provideCurrency()
         priceProviders?.forEach { $0.refresh() }
     }
 
-    func selected(currency: Currency) {
+    func didReceive(currency: Currency) {
         settingsManager.selectedCurrency = currency
-        updateIfNeeded()
+        updatePricesIfNeeded()
     }
 }
 

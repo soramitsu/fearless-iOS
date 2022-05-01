@@ -105,13 +105,11 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         info: AssetBalanceDisplayInfo,
         currency: Currency
     ) {
-        let assetBalanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let priceFormatter = AssetBalanceFormatterFactory().createTokenFormatter(for: assetBalanceDisplayInfo)
         let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
             balanceContext,
             amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info),
-            priceFormatter: priceFormatter,
-            precision: info.assetPrecision
+            precision: info.assetPrecision,
+            currency: currency
         )
         view?.controller.present(balanceLocksController, animated: true)
     }

@@ -77,7 +77,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func viewWillAppear() {
-        interactor.updateIfNeeded()
+        interactor.updatePricesIfNeeded()
     }
 
     func didTapTotalBalanceLabel() {
@@ -87,7 +87,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
             guard let strongSelf = self else { return }
 
             let selectedCurrency = Currency.allCases[selectedIndex]
-            strongSelf.interactor.selected(currency: selectedCurrency)
+            strongSelf.interactor.didReceive(currency: selectedCurrency)
         }
 
         wireframe.presentSelectCurrency(
