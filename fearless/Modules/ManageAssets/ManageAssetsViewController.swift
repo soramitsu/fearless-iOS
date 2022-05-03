@@ -39,7 +39,6 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupKeyboardHandler()
-        navigationController?.isNavigationBarHidden = true
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -74,7 +73,6 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
         rootView.tableView.dragDelegate = self
         rootView.tableView.dragInteractionEnabled = true
 
-        rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.applyButton.addTarget(self, action: #selector(applyButtonClicked), for: .touchUpInside)
     }
 
@@ -95,6 +93,8 @@ extension ManageAssetsViewController: ManageAssetsViewProtocol {
 
     func didReceive(locale: Locale) {
         rootView.locale = locale
+
+        title = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
     }
 }
 

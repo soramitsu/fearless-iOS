@@ -72,7 +72,7 @@ extension SelectExportAccountPresenter: SelectExportAccountViewOutput {
     func exportNativeAccounts() {
         let metaAccount = managedMetaAccountModel.info
         let chainAccountsInfo = chains?.compactMap { chain -> ChainAccountInfo? in
-            guard let accountResponse = metaAccount.fetch(for: chain.accountRequest()) else {
+            guard let accountResponse = metaAccount.fetch(for: chain.accountRequest()), !accountResponse.isChainAccount else {
                 return nil
             }
             return ChainAccountInfo(

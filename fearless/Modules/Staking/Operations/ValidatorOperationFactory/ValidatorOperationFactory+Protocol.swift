@@ -99,7 +99,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         statusesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
-        let slashesWrapper = createSlashesOperation(for: nomination.targets, nomination: nomination)
+        let slashesWrapper = createSlashesOperation(for: nomination.uniqueTargets, nomination: nomination)
 
         slashesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
@@ -121,7 +121,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
             let addressFactory = SS58AddressFactory()
 
-            return try nomination.targets.enumerated().map { index, accountId in
+            return try nomination.uniqueTargets.enumerated().map { index, accountId in
                 let address = try addressFactory.addressFromAccountId(data: accountId, addressPrefix: addressType)
 
                 return SelectedValidatorInfo(
