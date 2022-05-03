@@ -4,6 +4,7 @@ import Kingfisher
 
 class WalletTransactionHistoryCell: UITableViewCell {
     private enum LayoutConstants {
+        static let accountImageViewSize = CGSize(width: 32, height: 32)
         static let accountImageSize: CGFloat = 32
     }
 
@@ -112,7 +113,16 @@ class WalletTransactionHistoryCell: UITableViewCell {
         transactionStatusIconImageView.image = viewModel.statusIcon
         transactionStatusIconImageView.isHidden = viewModel.statusIcon == nil
 
-        accountIconImageView.image = viewModel.icon
+        if let icon = viewModel.icon {
+            accountIconImageView.image = icon
+        } else if let imageViewModel = viewModel.imageViewModel {
+            imageViewModel.loadImage(
+                on: accountIconImageView,
+                targetSize: LayoutConstants.accountImageViewSize,
+                animated: true,
+                cornerRadius: 0
+            )
+        }
 
         switch viewModel.status {
         case .commited:

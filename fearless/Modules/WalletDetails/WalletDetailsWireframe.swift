@@ -12,9 +12,11 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     ) {
         let actionsView = ModalPickerFactory.createPickerForList(
+            title: chain.name,
             items,
             callback: callback,
             context: nil
@@ -96,6 +98,51 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         }
 
         view?.controller.navigationController?.pushViewController(importController, animated: true)
+    }
+
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        options: [MissingAccountOption],
+        uniqueChainModel: UniqueChainModel,
+        skipBlock: @escaping (ChainModel) -> Void
+    ) {
+        let cancelTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
+        let actions: [AlertPresentableAction] = options.map { option in
+            switch option {
+            case .create:
+                let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
+                }
+            case .import:
+                let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
+                }
+            case .skip:
+                let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    skipBlock(uniqueChainModel.chain)
+                }
+            }
+        }
+
+        let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
+        let alertViewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: cancelTitle
+        )
+
+        present(
+            viewModel: alertViewModel,
+            style: .actionSheet,
+            from: view
+        )
     }
 }
 

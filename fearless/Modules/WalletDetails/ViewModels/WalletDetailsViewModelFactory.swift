@@ -4,13 +4,13 @@ import FearlessUtils
 protocol WalletDetailsViewModelFactoryProtocol {
     func buildNormalViewModel(
         flow: WalletDetailsFlow,
-        chainAccounts: [ChainAccountInfo],
+        chains: [ChainModel],
         locale: Locale
     ) -> WalletDetailsViewModel
 
     func buildExportViewModel(
         flow: WalletDetailsFlow,
-        chainAccounts: [ChainAccountInfo],
+        chains: [ChainModel],
         locale: Locale
     ) -> WalletExportViewModel
 }
@@ -18,15 +18,16 @@ protocol WalletDetailsViewModelFactoryProtocol {
 class WalletDetailsViewModelFactory {
     private func buildSection(
         flow: WalletDetailsFlow,
-        chainAccounts: [ChainAccountInfo],
+        chains: [ChainModel],
         title: String,
-        locale _: Locale
+        locale: Locale
     ) -> WalletDetailsSection {
         WalletDetailsSection(
             title: title,
-            viewModels: chainAccounts.compactMap { chainAccount in
-                let icon = chainAccount.chain.icon.map { RemoteImageViewModel(url: $0) }
-                let address = chainAccount.account.toAddress()
+            viewModels: chains.compactMap { chain in
+                let account = flow.wallet.fetch(for: chain.accountRequest())
+                let icon = chain.icon.map { RemoteImageViewModel(url: $0) }
+                let address = account?.toAddress()
                 var addressImage: UIImage?
                 if let address = address {
                     addressImage = try? PolkadotIconGenerator().generateFromAddress(address)
@@ -39,13 +40,16 @@ class WalletDetailsViewModelFactory {
 
                 return WalletDetailsCellViewModel(
                     chainImageViewModel: icon,
-                    chainAccount: chainAccount,
+                    account: account,
+                    chain: chain,
                     addressImage: addressImage,
                     address: address,
                     accountMissing: flow.wallet.fetch(
-                        for: chainAccount.chain.accountRequest()
+                        for: chain.accountRequest()
                     )?.accountId == nil,
-                    actionsAvailable: flow.actionsAvailable
+                    actionsAvailable: flow.actionsAvailable,
+                    locale: locale,
+                    chainUnused: (flow.wallet.unusedChainIds ?? []).contains(chain.chainId)
                 )
             }
         )
@@ -53,18 +57,37 @@ class WalletDetailsViewModelFactory {
 
     private func buildSections(
         flow: WalletDetailsFlow,
-        chainAccounts: [ChainAccountInfo],
+        chains: [ChainModel],
         locale: Locale
     ) -> [WalletDetailsSection] {
-        let nativeAccounts = chainAccounts.filter { $0.account.isChainAccount == false }
-        let customAccounts = chainAccounts.filter { $0.account.isChainAccount == true }
+        let emptyAccounts = chains.filter {
+            flow.wallet.fetch(for: $0.accountRequest()) == nil
+                && !(flow.wallet.unusedChainIds ?? []).contains($0.chainId)
+        }
+        let nativeAccounts = chains.filter {
+            flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false
+                || (flow.wallet.fetch(for: $0.accountRequest()) == nil
+                    && (flow.wallet.unusedChainIds ?? []).contains($0.chainId))
+        }
+
+        let customAccounts = chains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
 
         var sections: [WalletDetailsSection] = []
+
+        if !emptyAccounts.isEmpty {
+            let customSection = buildSection(
+                flow: flow,
+                chains: emptyAccounts,
+                title: "",
+                locale: locale
+            )
+            sections.append(customSection)
+        }
 
         if !customAccounts.isEmpty {
             let customSection = buildSection(
                 flow: flow,
-                chainAccounts: customAccounts,
+                chains: customAccounts,
                 title: R.string.localizable.accountsWithChangedKey(preferredLanguages: locale.rLanguages),
                 locale: locale
             )
@@ -74,7 +97,7 @@ class WalletDetailsViewModelFactory {
         if !nativeAccounts.isEmpty {
             let nativeSection = buildSection(
                 flow: flow,
-                chainAccounts: nativeAccounts,
+                chains: nativeAccounts,
                 title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages),
                 locale: locale
             )
@@ -88,10 +111,10 @@ class WalletDetailsViewModelFactory {
 extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
     func buildNormalViewModel(
         flow: WalletDetailsFlow,
-        chainAccounts: [ChainAccountInfo],
+        chains: [ChainModel],
         locale: Locale
     ) -> WalletDetailsViewModel {
-        let sections = buildSections(flow: flow, chainAccounts: chainAccounts, locale: locale)
+        let sections = buildSections(flow: flow, chains: chains, locale: locale)
         return WalletDetailsViewModel(
             navigationTitle: R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages),
             sections: sections
@@ -100,10 +123,10 @@ extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
 
     func buildExportViewModel(
         flow: WalletDetailsFlow,
-        chainAccounts: [ChainAccountInfo],
+        chains: [ChainModel],
         locale: Locale
     ) -> WalletExportViewModel {
-        let sections = buildSections(flow: flow, chainAccounts: chainAccounts, locale: locale)
+        let sections = buildSections(flow: flow, chains: chains, locale: locale)
         return WalletExportViewModel(
             navigationTitle: R.string.localizable.accountsForExport(preferredLanguages: locale.rLanguages),
             sections: sections

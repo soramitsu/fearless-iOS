@@ -73,6 +73,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     func presentChainActionsFlow(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     )
 
@@ -86,6 +87,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         chain: ChainModel,
         options: [ExportOption],
         locale: Locale?,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 

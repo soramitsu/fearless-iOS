@@ -248,6 +248,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     chain: self.chain,
                     options: options,
                     locale: self.selectedLocale,
+                    wallet: self.selectedMetaAccount,
                     from: self.view
                 )
             case .switchNode:
@@ -281,6 +282,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         wireframe.presentChainActionsFlow(
             from: view,
             items: items,
+            chain: chain,
             callback: selectionCallback
         )
     }

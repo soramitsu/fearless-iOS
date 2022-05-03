@@ -29,7 +29,7 @@ extension AssetPriceViewModelFactoryProtocol {
 
         let changeString: String = priceData.fiatDayChange.map {
             let percentValue = $0 / 100
-            return percentValue.percentString() ?? ""
+            return percentValue.percentString(locale: locale) ?? ""
         } ?? ""
 
         let priceString: String = tokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""

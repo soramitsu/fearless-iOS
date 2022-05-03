@@ -36,7 +36,7 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
             return
         }
 
-        let navigationController = UINavigationController(rootViewController: manageAssetsController)
+        let navigationController = FearlessNavigationController(rootViewController: manageAssetsController)
 
         view?.controller.present(
             navigationController,

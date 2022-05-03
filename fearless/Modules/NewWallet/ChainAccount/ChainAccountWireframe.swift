@@ -70,9 +70,11 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     func presentChainActionsFlow(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     ) {
         let actionsView = ModalPickerFactory.createPickerForList(
+            title: chain.name,
             items,
             callback: callback,
             context: nil
@@ -130,6 +132,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chain: ChainModel,
         options: [ExportOption],
         locale: Locale?,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     ) {
         performExportPresentation(
@@ -137,6 +140,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             chain: chain,
             options: options,
             locale: locale,
+            wallet: wallet,
             from: view
         )
     }
@@ -187,6 +191,7 @@ private extension ChainAccountWireframe {
         chain: ChainModel,
         options: [ExportOption],
         locale: Locale?,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     ) {
         let cancelTitle = R.string.localizable
@@ -203,7 +208,7 @@ private extension ChainAccountWireframe {
                         from: view
                     ) { [weak self] success in
                         if success {
-                            self?.showMnemonicExport(for: address, chain: chain, from: view)
+                            self?.showMnemonicExport(for: address, chain: chain, wallet: wallet, from: view)
                         }
                     }
                 }
@@ -216,7 +221,7 @@ private extension ChainAccountWireframe {
                         from: view
                     ) { [weak self] success in
                         if success {
-                            self?.showKeystoreExport(for: address, chain: chain, from: view)
+                            self?.showKeystoreExport(for: address, chain: chain, wallet: wallet, from: view)
                         }
                     }
                 }
@@ -229,7 +234,7 @@ private extension ChainAccountWireframe {
                         from: view
                     ) { [weak self] success in
                         if success {
-                            self?.showSeedExport(for: address, chain: chain, from: view)
+                            self?.showSeedExport(for: address, chain: chain, wallet: wallet, from: view)
                         }
                     }
                 }
@@ -254,10 +259,11 @@ private extension ChainAccountWireframe {
     func showMnemonicExport(
         for address: String,
         chain: ChainModel,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     ) {
         guard let mnemonicView = ExportMnemonicViewFactory.createViewForAddress(
-            flow: .single(chain: chain, address: address)
+            flow: .single(chain: chain, address: address, wallet: wallet)
         ) else {
             return
         }
@@ -271,10 +277,11 @@ private extension ChainAccountWireframe {
     func showKeystoreExport(
         for address: String,
         chain: ChainModel,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     ) {
         guard let passwordView = AccountExportPasswordViewFactory.createView(
-            flow: .single(chain: chain, address: address)
+            flow: .single(chain: chain, address: address, wallet: wallet)
         ) else {
             return
         }
@@ -285,8 +292,8 @@ private extension ChainAccountWireframe {
         )
     }
 
-    func showSeedExport(for address: String, chain: ChainModel, from view: ControllerBackedProtocol?) {
-        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .single(chain: chain, address: address)) else {
+    func showSeedExport(for address: String, chain: ChainModel, wallet: MetaAccountModel, from view: ControllerBackedProtocol?) {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(flow: .single(chain: chain, address: address, wallet: wallet)) else {
             return
         }
 
