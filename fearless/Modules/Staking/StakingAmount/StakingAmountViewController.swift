@@ -5,7 +5,7 @@ import FearlessUtils
 import CommonWallet
 
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable, LoadableViewProtocol {
-    var presenter: StakingAmountPresenterProtocol!
+    var presenter: StakingAmountPresenterProtocol?
 
     @IBOutlet private var inputContainerView: UIView!
     @IBOutlet private var stackView: UIStackView!
@@ -37,7 +37,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         setupLocalization()
         updateActionButton()
 
-        presenter.setup()
+        presenter?.setup()
     }
 
     private func setupNavigationItem() {
@@ -52,7 +52,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     }
 
     @objc private func actionClose() {
-        presenter.close()
+        presenter?.close()
     }
 
     // MARK: Private
@@ -294,30 +294,48 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 
     @IBAction private func actionRestake() {
         if !restakeView.isSelected {
-            presenter.selectRestakeDestination()
+            presenter?.selectRestakeDestination()
         }
     }
 
     @IBAction private func actionPayout() {
         if !payoutView.isSelected {
-            presenter.selectPayoutDestination()
+            presenter?.selectPayoutDestination()
         }
     }
 
     @IBAction private func actionLearnPayout() {
-        presenter.selectLearnMore()
+        presenter?.selectLearnMore()
     }
 
     @IBAction private func actionProceed() {
-        presenter.proceed()
+        presenter?.proceed()
     }
 
     @objc private func actionSelectPayoutAccount() {
-        presenter.selectPayoutAccount()
+        presenter?.selectPayoutAccount()
     }
 }
 
 extension StakingAmountViewController: StakingAmountViewProtocol {
+    func didReceive(viewModel: StakingAmountMainViewModel) {
+        if let assetViewModel = viewModel.assetViewModel {
+            didReceiveAsset(viewModel: assetViewModel)
+        }
+
+        if let rewardDestinationViewModel = viewModel.rewardDestinationViewModel {
+            didReceiveRewardDestination(viewModel: rewardDestinationViewModel)
+        }
+
+        if let feeViewModel = viewModel.feeViewModel {
+            didReceiveFee(viewModel: feeViewModel)
+        }
+
+        if let inputViewModel = viewModel.inputViewModel {
+            didReceiveInput(viewModel: inputViewModel)
+        }
+    }
+
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         assetViewModel = viewModel
         applyAsset()
@@ -354,7 +372,7 @@ extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         amountInputView.textField.resignFirstResponder()
 
-        presenter.selectAmountPercentage(percentage)
+        presenter?.selectAmountPercentage(percentage)
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {
@@ -369,7 +387,7 @@ extension StakingAmountViewController: AmountInputViewModelObserver {
         updateActionButton()
 
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
-        presenter.updateAmount(amount)
+        presenter?.updateAmount(amount)
     }
 }
 

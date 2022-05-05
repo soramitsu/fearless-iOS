@@ -4,14 +4,14 @@ final class StakingSharedState {
     let settings: StakingAssetSettings
     private(set) var eraValidatorService: EraValidatorServiceProtocol
     private(set) var rewardCalculationService: RewardCalculatorServiceProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol
 
     init(
         settings: StakingAssetSettings,
         eraValidatorService: EraValidatorServiceProtocol,
         rewardCalculationService: RewardCalculatorServiceProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol
     ) {
         self.settings = settings

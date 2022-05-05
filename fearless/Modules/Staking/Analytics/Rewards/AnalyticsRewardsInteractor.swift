@@ -4,7 +4,7 @@ import BigInt
 final class AnalyticsRewardsInteractor {
     weak var presenter: AnalyticsRewardsInteractorOutputProtocol!
 
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
     private let asset: AssetModel
@@ -14,7 +14,7 @@ final class AnalyticsRewardsInteractor {
     private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         asset: AssetModel,
@@ -66,7 +66,7 @@ extension AnalyticsRewardsInteractor: PriceLocalStorageSubscriber, PriceLocalSub
     }
 }
 
-extension AnalyticsRewardsInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension AnalyticsRewardsInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         presenter.didReceiveStashItem(result: result)
     }

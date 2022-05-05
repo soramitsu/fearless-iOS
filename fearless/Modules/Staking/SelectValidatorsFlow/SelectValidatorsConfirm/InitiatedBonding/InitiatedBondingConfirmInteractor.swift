@@ -16,7 +16,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
         nomination: PreparedNomination<InitiatedBonding>,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     ) {

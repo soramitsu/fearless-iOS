@@ -15,7 +15,7 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
         nomination: PreparedNomination<ExistingBonding>,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     ) {

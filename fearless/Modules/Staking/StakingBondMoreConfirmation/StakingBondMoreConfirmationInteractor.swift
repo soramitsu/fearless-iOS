@@ -9,7 +9,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
 
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private var extrinsicService: ExtrinsicServiceProtocol
@@ -32,7 +32,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -145,7 +145,7 @@ extension StakingBondMoreConfirmationInteractor: AccountInfoSubscriptionAdapterH
     }
 }
 
-extension StakingBondMoreConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingBondMoreConfirmationInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let maybeStashItem = try result.get()

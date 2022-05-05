@@ -8,7 +8,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     weak var presenter: StakingUnbondSetupInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     let runtimeService: RuntimeCodingServiceProtocol
@@ -37,7 +37,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         connection: JSONRPCEngine,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -129,7 +129,7 @@ extension StakingUnbondSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension StakingUnbondSetupInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
+extension StakingUnbondSetupInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let maybeStashItem = try result.get()

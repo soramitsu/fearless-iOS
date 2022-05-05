@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-protocol StakingLocalSubscriptionFactoryProtocol {
+protocol RelaychainStakingLocalSubscriptionFactoryProtocol {
     func getMinNominatorBondProvider(for chainId: ChainModel.Id) throws
         -> AnyDataProvider<DecodedBigUInt>
 
@@ -40,8 +40,8 @@ protocol StakingLocalSubscriptionFactoryProtocol {
     ) -> StreamableProvider<StashItem>
 }
 
-final class StakingLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
-    StakingLocalSubscriptionFactoryProtocol {
+final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
+    RelaychainStakingLocalSubscriptionFactoryProtocol {
     func getMinNominatorBondProvider(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedBigUInt> {
         let codingPath = StorageCodingPath.minNominatorBond
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(codingPath, chainId: chainId)

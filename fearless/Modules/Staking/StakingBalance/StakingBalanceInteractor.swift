@@ -5,7 +5,7 @@ import FearlessUtils
 final class StakingBalanceInteractor: AccountFetching {
     weak var presenter: StakingBalanceInteractorOutputProtocol!
 
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let chain: ChainModel
     let asset: AssetModel
@@ -21,7 +21,7 @@ final class StakingBalanceInteractor: AccountFetching {
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     init(
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         chain: ChainModel,
         asset: AssetModel,
@@ -106,7 +106,7 @@ extension StakingBalanceInteractor: PriceLocalStorageSubscriber, PriceLocalSubsc
     }
 }
 
-extension StakingBalanceInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingBalanceInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceive(ledgerResult: result)
     }

@@ -8,7 +8,7 @@ final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
@@ -28,7 +28,7 @@ final class ControllerAccountInteractor {
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
@@ -246,7 +246,7 @@ extension ControllerAccountInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension ControllerAccountInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension ControllerAccountInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveStakingLedger(result: result)
     }

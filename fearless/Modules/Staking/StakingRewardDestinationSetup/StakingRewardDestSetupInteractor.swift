@@ -7,7 +7,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -38,7 +38,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     init(
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         calculatorService: RewardCalculatorServiceProtocol,
@@ -166,7 +166,7 @@ extension StakingRewardDestSetupInteractor: PriceLocalStorageSubscriber, PriceLo
     }
 }
 
-extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRewardDestSetupInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             stashItem = try result.get()

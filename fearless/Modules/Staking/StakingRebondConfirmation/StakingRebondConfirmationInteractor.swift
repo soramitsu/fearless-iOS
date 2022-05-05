@@ -10,7 +10,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
@@ -35,7 +35,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
@@ -148,7 +148,7 @@ extension StakingRebondConfirmationInteractor: AccountInfoSubscriptionAdapterHan
     }
 }
 
-extension StakingRebondConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRebondConfirmationInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveStakingLedger(result: result)
     }

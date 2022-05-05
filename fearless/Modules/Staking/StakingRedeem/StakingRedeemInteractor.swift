@@ -10,7 +10,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
@@ -36,7 +36,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
@@ -222,7 +222,7 @@ extension StakingRedeemInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension StakingRedeemInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRedeemInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let maybeStashItem = try result.get()

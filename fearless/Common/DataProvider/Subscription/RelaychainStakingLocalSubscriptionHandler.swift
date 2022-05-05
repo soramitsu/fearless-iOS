@@ -1,7 +1,7 @@
 import Foundation
 import BigInt
 
-protocol StakingLocalSubscriptionHandler {
+protocol RelaychainStakingLocalSubscriptionHandler {
     func handleTotalReward(
         result: Result<TotalRewardItem, Error>,
         for address: AccountAddress,
@@ -41,7 +41,7 @@ protocol StakingLocalSubscriptionHandler {
     func handleCurrentEra(result: Result<EraIndex?, Error>, chainId: ChainModel.Id)
 }
 
-extension StakingLocalSubscriptionHandler {
+extension RelaychainStakingLocalSubscriptionHandler {
     func handleTotalReward(
         result _: Result<TotalRewardItem, Error>,
         for _: AccountAddress,

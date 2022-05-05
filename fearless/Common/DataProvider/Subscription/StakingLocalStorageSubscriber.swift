@@ -1,10 +1,10 @@
 import Foundation
 import RobinHood
 
-protocol StakingLocalStorageSubscriber where Self: AnyObject {
-    var stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol { get }
+protocol RelaychainStakingLocalStorageSubscriber where Self: AnyObject {
+    var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol { get }
 
-    var stakingLocalSubscriptionHandler: StakingLocalSubscriptionHandler { get }
+    var stakingLocalSubscriptionHandler: RelaychainStakingLocalSubscriptionHandler { get }
 
     func subscribeToMinNominatorBond(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedBigUInt>?
 
@@ -40,7 +40,7 @@ protocol StakingLocalStorageSubscriber where Self: AnyObject {
     ) -> StreamableProvider<StashItem>?
 }
 
-extension StakingLocalStorageSubscriber {
+extension RelaychainStakingLocalStorageSubscriber {
     func subscribeToMinNominatorBond(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedBigUInt>? {
         guard let minBondProvider = try? stakingLocalSubscriptionFactory.getMinNominatorBondProvider(
             for: chainId
@@ -496,6 +496,6 @@ extension StakingLocalStorageSubscriber {
     }
 }
 
-extension StakingLocalStorageSubscriber where Self: StakingLocalSubscriptionHandler {
-    var stakingLocalSubscriptionHandler: StakingLocalSubscriptionHandler { self }
+extension RelaychainStakingLocalStorageSubscriber where Self: RelaychainStakingLocalSubscriptionHandler {
+    var stakingLocalSubscriptionHandler: RelaychainStakingLocalSubscriptionHandler { self }
 }

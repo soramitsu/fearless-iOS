@@ -7,7 +7,7 @@ import SoraFoundation
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
-    var stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol {
+    var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol {
         sharedState.stakingLocalSubscriptionFactory
     }
 

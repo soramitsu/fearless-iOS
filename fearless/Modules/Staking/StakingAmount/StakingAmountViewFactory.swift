@@ -14,13 +14,34 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
         let wireframe = StakingAmountWireframe()
 
+        let errorBalanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            limit: StakingConstants.maxAmount
+        )
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: errorBalanceViewModelFactory
+        )
+
+        guard let dependencyContainer = createContainer(
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            viewModelStateListener: nil,
+            dataValidatingFactory: dataValidatingFactory,
+            wallet: selectedAccount
+        ) else {
+            return nil
+        }
+
         guard let presenter = createPresenter(
             view: view,
             wireframe: wireframe,
             amount: amount,
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            viewModelState: dependencyContainer.viewModelState,
+            viewModelFactory: dependencyContainer.viewModelFactory
         ) else {
             return nil
         }
@@ -28,7 +49,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         guard let interactor = createInteractor(
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            strategy: dependencyContainer.strategy
         ) else {
             return nil
         }
@@ -49,7 +71,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        viewModelState: StakingAmountViewModelState?,
+        viewModelFactory: StakingAmountViewModelFactoryProtocol?
     ) -> StakingAmountPresenter? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
@@ -79,7 +103,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             applicationConfig: ApplicationConfig.shared,
-            logger: Logger.shared
+            logger: Logger.shared,
+            viewModelState: viewModelState,
+            viewModelFactory: viewModelFactory
         )
 
         presenter.view = view
@@ -89,10 +115,88 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return presenter
     }
 
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        viewModelStateListener: StakingAmountModelStateListener?,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        wallet: MetaAccountModel
+    ) -> StakingAmountDependencyContainer? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            assertionFailure("StakingAmountViewFactory.createContainer.runtimeService.missing")
+            return nil
+        }
+
+        let flow: StakingAmountFlow = chainAsset.chain.isEthereumBased ? .parachain : .relaychain
+        let operationManager = OperationManagerFacade.sharedManager
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount
+        )
+
+        let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
+        switch flow {
+        case .relaychain:
+            let viewModelState = StakingAmountRelaychainViewModelState(
+                stateListener: viewModelStateListener,
+                dataValidatingFactory: dataValidatingFactory,
+                wallet: wallet,
+                chainAsset: chainAsset
+            )
+
+            let strategy = StakingAmountRelaychainStrategy(
+                chain: chainAsset.chain,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                output: viewModelState
+            )
+
+            let viewModelFactory = StakingAmountRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                rewardDestViewModelFactory: rewardDestViewModelFactory
+            )
+
+            return StakingAmountDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .parachain:
+            let viewModelState = StakingAmountParachainViewModelState()
+
+            let strategy = StakingAmountParachainStrategy()
+
+            let viewModelFactory = StakingAmountParachainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                rewardDestViewModelFactory: rewardDestViewModelFactory
+            )
+
+            return StakingAmountDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
+    }
+
     private static func createInteractor(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        strategy: StakingAmountStrategy?
     ) -> StakingAmountInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
@@ -140,7 +244,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -180,7 +284,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             selectedAccount: selectedAccount,
             accountRepository: AnyDataProviderRepository(accountRepository),
             eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
-            eraValidatorService: eraValidatorService
+            eraValidatorService: eraValidatorService,
+            strategy: strategy
         )
     }
 }

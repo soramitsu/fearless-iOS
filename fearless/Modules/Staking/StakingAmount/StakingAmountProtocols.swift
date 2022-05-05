@@ -4,6 +4,8 @@ import BigInt
 import CommonWallet
 
 protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable {
+    func didReceive(viewModel: StakingAmountMainViewModel)
+
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
@@ -24,11 +26,7 @@ protocol StakingAmountPresenterProtocol: AnyObject {
 
 protocol StakingAmountInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(
-        for address: String,
-        amount: BigUInt,
-        rewardDestination: RewardDestination<ChainAccountResponse>
-    )
+    func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure)
     func fetchAccounts()
 }
 
@@ -36,11 +34,7 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(accounts: [ChainAccountResponse])
     func didReceive(price: PriceData?)
     func didReceive(balance: AccountData?)
-    func didReceive(
-        paymentInfo: RuntimeDispatchInfo,
-        for amount: BigUInt,
-        rewardDestination: RewardDestination<AccountAddress>
-    )
+    func didReceive(paymentInfo: RuntimeDispatchInfo)
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)

@@ -117,7 +117,7 @@ struct YourValidatorListViewFactory {
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager,

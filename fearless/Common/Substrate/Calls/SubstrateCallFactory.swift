@@ -52,6 +52,10 @@ protocol SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<CrowdloanAddMemo>
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
+
+    func candidatePool() -> RuntimeCall<NoRuntimeArgs>
+
+    func selectedCandidates() -> RuntimeCall<NoRuntimeArgs>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {

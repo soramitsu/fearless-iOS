@@ -192,7 +192,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             validatorService: eraValidatorService
         )
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             storageFacade: storageFacade,
             operationManager: OperationManagerFacade.sharedManager,
