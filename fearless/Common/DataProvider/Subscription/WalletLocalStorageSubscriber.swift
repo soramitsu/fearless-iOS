@@ -31,6 +31,7 @@ extension WalletLocalStorageSubscriber {
         }
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
+            guard !changes.isEmpty else { return }
             let accountInfo = changes.reduceToLastChange()
             self?.walletLocalSubscriptionHandler.handleAccountInfo(
                 result: .success(accountInfo?.item),

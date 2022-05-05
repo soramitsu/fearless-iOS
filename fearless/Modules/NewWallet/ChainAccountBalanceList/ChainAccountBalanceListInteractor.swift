@@ -66,12 +66,19 @@ final class ChainAccountBalanceListInteractor {
     private func subscribeToPrice(for chains: [ChainModel]) {
         var providers: [AnySingleValueProvider<PriceData>] = []
 
+        guard priceProviders == nil else {
+            priceProviders?.forEach { $0.refresh() }
+            return
+        }
+
         for chain in chains {
             for asset in chain.assets {
                 if
                     let priceId = asset.asset.priceId,
                     let dataProvider = subscribeToPrice(for: priceId) {
                     providers.append(dataProvider)
+                } else {
+                    presenter?.didReceivePriceData(result: .success(nil), for: asset.asset.id)
                 }
             }
         }
@@ -162,6 +169,8 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
         if selectedMetaAccount.metaId == event.account.metaId {
             selectedMetaAccount = event.account
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+            priceProviders = nil
+            refresh()
         }
     }
 }

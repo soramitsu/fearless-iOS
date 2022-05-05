@@ -11,20 +11,22 @@ class HorizontalKeyValueView: UIView {
     private var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
+        stackView.distribution = .equalSpacing
         return stackView
     }()
 
-    let keyLabel: UILabel = {
-        let label = UILabel()
+    let keyLabel: ShimmeredLabel = {
+        let label = ShimmeredLabel()
         label.textColor = .white
         label.font = .h3Title
         return label
     }()
 
-    let valueLabel: UILabel = {
-        let label = UILabel()
+    let valueLabel: ShimmeredLabel = {
+        let label = ShimmeredLabel()
         label.textColor = .white
         label.font = .h3Title
+        label.textAlignment = .right
         return label
     }()
 
