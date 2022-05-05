@@ -88,6 +88,8 @@ final class ChainAccountBalanceListInteractor {
                     let priceId = asset.asset.priceId,
                     let dataProvider = subscribeToPrice(for: priceId) {
                     providers.append(dataProvider)
+                } else {
+                    presenter?.didReceivePriceData(result: .success(nil), for: asset.asset.id)
                 }
             }
         }
@@ -224,7 +226,6 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
 
     func didReceive(currency: Currency) {
         save(currency)
-        updatePrices()
     }
 
     func fetchFiats() {
@@ -258,10 +259,11 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
 
     func processAssetsListChanged(event: AssetsListChangedEvent) {
         if selectedMetaAccount.metaId == event.account.metaId {
-            refresh()
             selectedMetaAccount = event.account
             currency = event.account.selectedCurrency
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+            priceProviders = nil
+            refresh()
         }
     }
 }

@@ -21,6 +21,9 @@
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
 		07A93B0E28238627005A1E0D /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B0828238627005A1E0D /* UserDataModel.xcdatamodeld */; };
+		07A93B1028239D65005A1E0D /* ShimmeredLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B0F28239D64005A1E0D /* ShimmeredLabel.swift */; };
+		07A93B1228239D8E005A1E0D /* ShimmeredProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B1128239D8E005A1E0D /* ShimmeredProtocol.swift */; };
+		07A93B1428239DA2005A1E0D /* UIImageView+Shimmered.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B1328239DA2005A1E0D /* UIImageView+Shimmered.swift */; };
 		07BFF6912820F1A100645906 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF6902820F1A100645906 /* Currency.swift */; };
 		07DC9B182810501300526040 /* WalletDetailsTableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */; };
 		07DC9B1B2810600E00526040 /* SelectCurrencyTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DC9B1A2810600E00526040 /* SelectCurrencyTableCell.swift */; };
@@ -2025,6 +2028,9 @@
 		07A93B0B28238627005A1E0D /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
 		07A93B0C28238627005A1E0D /* MultiassetUserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel.xcdatamodel; sourceTree = "<group>"; };
 		07A93B0D28238627005A1E0D /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		07A93B0F28239D64005A1E0D /* ShimmeredLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShimmeredLabel.swift; sourceTree = "<group>"; };
+		07A93B1128239D8E005A1E0D /* ShimmeredProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShimmeredProtocol.swift; sourceTree = "<group>"; };
+		07A93B1328239DA2005A1E0D /* UIImageView+Shimmered.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Shimmered.swift"; sourceTree = "<group>"; };
 		07BFF6902820F1A100645906 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableHeaderView.swift; sourceTree = "<group>"; };
@@ -6692,6 +6698,9 @@
 				84644AC42567EC05004EAA4B /* MultilineTriangularedView.swift */,
 				846CDECC258D212D009F3E75 /* AlertImageWithTitleView.swift */,
 				840DCBFA25E0703A00D45C6A /* RewardSelectionView.swift */,
+				07A93B0F28239D64005A1E0D /* ShimmeredLabel.swift */,
+				07A93B1128239D8E005A1E0D /* ShimmeredProtocol.swift */,
+				07A93B1328239DA2005A1E0D /* UIImageView+Shimmered.swift */,
 				84DE8BD5264A651A002AF1EF /* RewardSelectionView+Inspectable.swift */,
 				F462B35B260C86880005AB01 /* ViewHolder.swift */,
 				84F5105A263AB9F2005D15AE /* NetworkFeeView.swift */,
@@ -10976,6 +10985,7 @@
 				8428768624AE046300D91AD8 /* LanguageSelectionPresenter.swift in Sources */,
 				8490152724ABCC40008F705E /* NumberFormatter.swift in Sources */,
 				846A2C4325271CDE00731018 /* TransactionType.swift in Sources */,
+				07A93B1028239D65005A1E0D /* ShimmeredLabel.swift in Sources */,
 				FA1A0245274F8FF200DA07CB /* ChainAccountBalanceCellViewModel.swift in Sources */,
 				2A84E87825D425750006FE9C /* AlertControllerFactory.swift in Sources */,
 				843461CB26E2590200DCE0CD /* SubscanHistoryOperationFactory.swift in Sources */,
@@ -11319,6 +11329,7 @@
 				FA402F3427CCCC19008CF986 /* ChainSubstrateV2MigrationPolicy.swift in Sources */,
 				C6A8D6BD27EF0CF40080F81C /* UIView + FirstResponder.swift in Sources */,
 				8470D6D4253E35F0009E9A5D /* StorageUpdate.swift in Sources */,
+				07A93B1228239D8E005A1E0D /* ShimmeredProtocol.swift in Sources */,
 				84C2F27D25E297350050A4AD /* CalculatedReward.swift in Sources */,
 				849E689526AF388500E0E7BE /* ElectedValidatorInfo+Selected.swift in Sources */,
 				8454C26F2632BBAA00657DAD /* ExtrinsicProcessing.swift in Sources */,
@@ -11568,6 +11579,7 @@
 				F40966C126B297D6008CD244 /* AnalyticsPeriodView.swift in Sources */,
 				84D97EC82520D32000F07405 /* PolkadotIcon+Image.swift in Sources */,
 				84563D0724F4674A0055591D /* ManagedAccountItemMapper.swift in Sources */,
+				07A93B1428239DA2005A1E0D /* UIImageView+Shimmered.swift in Sources */,
 				F4A198F3263299C900CD6E61 /* StakingBalanceData.swift in Sources */,
 				84C2802126F541DE006E8014 /* WebSocketEngine+Connection.swift in Sources */,
 				84CA68D326BE9A35003B9453 /* RuntimeProvider.swift in Sources */,
