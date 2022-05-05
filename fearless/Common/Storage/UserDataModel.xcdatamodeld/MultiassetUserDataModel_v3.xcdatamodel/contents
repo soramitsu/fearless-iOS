@@ -12,13 +12,6 @@
         <attribute name="autobalanced" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="chainId" attributeType="String"/>
     </entity>
-    <entity name="CDCurrency" representedClassName="CDCurrency" syncable="YES" codeGenerationType="class">
-        <attribute name="icon" optional="YES" attributeType="String"/>
-        <attribute name="id" optional="YES" attributeType="String"/>
-        <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="symbol" optional="YES" attributeType="String"/>
-    </entity>
     <entity name="CDCustomChainNode" representedClassName="CDCustomChainNode" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="url" attributeType="URI"/>
@@ -38,13 +31,11 @@
         <attribute name="substratePublicKey" attributeType="Binary"/>
         <attribute name="unusedChainIds" optional="YES" attributeType="Transformable"/>
         <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
-        <relationship name="selectedCurrency" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDCurrency"/>
     </entity>
     <elements>
         <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="119"/>
         <element name="CDChainSettings" positionX="-54" positionY="45" width="128" height="59"/>
         <element name="CDCustomChainNode" positionX="-45" positionY="54" width="128" height="59"/>
-        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="254"/>
-        <element name="CDCurrency" positionX="-18" positionY="135" width="128" height="104"/>
+        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="239"/>
     </elements>
 </model>
