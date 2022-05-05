@@ -51,17 +51,16 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) -> StakingAmountPresenter? {
-        let settings = SettingsManager.shared
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: settings
+            selectedMetaAccount: selectedAccount
         )
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: settings
+            selectedMetaAccount: selectedAccount
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(

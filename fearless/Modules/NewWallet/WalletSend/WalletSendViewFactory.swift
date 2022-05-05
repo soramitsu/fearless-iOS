@@ -10,17 +10,19 @@ struct WalletSendViewFactory {
         chain: ChainModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendViewProtocol? {
-        guard let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress) else {
+        guard
+            let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress),
+            let selectedMetaAccount = SelectedWalletSettings.shared.value
+        else {
             return nil
         }
 
         let wireframe = WalletSendWireframe()
-        let settings = SettingsManager.shared
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)

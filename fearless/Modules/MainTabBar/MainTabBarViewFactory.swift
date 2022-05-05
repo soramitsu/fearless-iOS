@@ -23,11 +23,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             with: selectedMetaAccount
         )
 
-        let jsonDataProviderFactory = JsonDataProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared,
-            useCache: false
-        )
-
         let wireframe = MainTabBarWireframe()
 
         let appVersionObserver = AppVersionObserver(

@@ -110,13 +110,13 @@ final class ChainAccountInteractor {
     }
 
     private func provideSelectedCurrency() {
-        presenter?.didRecieve(currency: settingsManager.selectedCurrency)
+        presenter?.didRecieve(currency: selectedMetaAccount.selectedCurrency)
     }
 }
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
-        eventCenter.add(observer: self)
+        eventCenter.add(observer: self, dispatchIn: .main)
 
         subscribeToAccountInfo()
         fetchMinimalBalance()
@@ -199,6 +199,10 @@ extension ChainAccountInteractor: EventVisitorProtocol {
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         accountInfoSubscriptionAdapter.reset()
         subscribeToAccountInfo()
+    }
+
+    func processAssetsListChanged(event: AssetsListChangedEvent) {
+        presenter?.didRecieve(currency: event.account.selectedCurrency)
     }
 }
 

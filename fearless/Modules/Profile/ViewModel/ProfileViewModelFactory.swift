@@ -201,7 +201,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createCurrencyViewModel(from currency: Currency, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .commonCurrency(preferredLanguages: locale.rLanguages)
-        let subtitle = currency.rawValue.uppercased()
+        let subtitle = currency.id.uppercased()
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconCurrency()!,

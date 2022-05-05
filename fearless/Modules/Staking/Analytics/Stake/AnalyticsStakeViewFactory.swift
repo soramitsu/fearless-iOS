@@ -14,7 +14,8 @@ struct AnalyticsStakeViewFactory {
         let chain = addressType.chain
         guard
             let accountAddress = settings.selectedAccount?.address,
-            let assetId = WalletAssetId(rawValue: asset.identifier)
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let selectedMetaAccount = SelectedWalletSettings.shared.value
         else {
             return nil
         }
@@ -33,10 +34,10 @@ struct AnalyticsStakeViewFactory {
         )
         let wireframe = AnalyticsStakeWireframe()
 
-        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
+        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: targetAssetInfo,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
         let viewModelFactory = AnalyticsStakeViewModelFactory(
             assetInfo: targetAssetInfo,

@@ -47,8 +47,12 @@ final class SelectCurrencyTableCell: UITableViewCell {
     func bind(viewModel: SelectCurrencyCellViewModel) {
         isSelected = viewModel.isSelected
 
-        currencyImageView.image = viewModel.icon
         title.text = viewModel.title
+        viewModel.imageViewModel.loadImage(
+            on: currencyImageView,
+            targetSize: Constants.currencyImageViewSize,
+            animated: true
+        )
     }
 
     private func setupLayout() {

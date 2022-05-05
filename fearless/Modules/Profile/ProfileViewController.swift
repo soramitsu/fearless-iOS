@@ -50,11 +50,6 @@ final class ProfileViewController: UIViewController, ViewHolder {
         presenter.didLoad(view: self)
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        presenter.viewWillAppear()
-    }
-
     override func loadView() {
         view = ProfileViewLayout()
     }

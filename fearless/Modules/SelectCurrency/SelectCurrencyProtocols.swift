@@ -15,7 +15,7 @@ protocol SelectCurrencyInteractorInput: AnyObject {
 }
 
 protocol SelectCurrencyInteractorOutput: AnyObject {
-    func didRecieve(selectedCurrency: Currency)
+    func didRecieve(supportedCurrencys: Result<[Currency], Error>)
 }
 
 protocol SelectCurrencyRouterInput: AnyObject {

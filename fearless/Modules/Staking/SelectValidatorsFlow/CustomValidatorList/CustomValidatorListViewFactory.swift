@@ -24,7 +24,7 @@ enum CustomValidatorListViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedAccount
         )
 
         let viewModelFactory = CustomValidatorListViewModelFactory(

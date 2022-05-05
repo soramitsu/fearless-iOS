@@ -19,7 +19,7 @@ struct StakingBalanceViewFactory {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedAccount
         )
 
         let viewModelFactory = StakingBalanceViewModelFactory(

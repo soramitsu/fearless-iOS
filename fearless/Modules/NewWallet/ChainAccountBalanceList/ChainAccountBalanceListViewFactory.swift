@@ -19,6 +19,9 @@ struct ChainAccountBalanceListViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+
         let interactor = ChainAccountBalanceListInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -30,7 +33,8 @@ struct ChainAccountBalanceListViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             eventCenter: EventCenter.shared,
-            settingsManager: SettingsManager.shared
+            metaAccountRepository: accountRepository,
+            jsonDataProviderFactory: JsonDataProviderFactory.shared
         )
 
         let wireframe = ChainAccountBalanceListWireframe()

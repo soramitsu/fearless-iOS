@@ -14,7 +14,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedAccount
         )
 
         let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(

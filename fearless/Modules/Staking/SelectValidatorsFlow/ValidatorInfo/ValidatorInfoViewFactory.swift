@@ -9,12 +9,13 @@ final class ValidatorInfoViewFactory {
         chain: ChainModel,
         interactor: ValidatorInfoInteractorBase
     ) -> ValidatorInfoViewProtocol? {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(

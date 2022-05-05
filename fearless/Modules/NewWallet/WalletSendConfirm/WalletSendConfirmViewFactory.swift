@@ -27,7 +27,7 @@ struct WalletSendConfirmViewFactory {
         let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)

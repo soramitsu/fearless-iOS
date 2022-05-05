@@ -7,14 +7,16 @@ protocol NetworkInfoViewModelFactoryProtocol {
     func createMainViewModel(
         from address: AccountAddress,
         chainAsset: ChainAsset,
-        balance: Decimal
+        balance: Decimal,
+        selectedMetaAccount: MetaAccountModel
     ) -> StakingMainViewModel
 
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chainAsset: ChainAsset,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
@@ -22,14 +24,17 @@ final class NetworkInfoViewModelFactory {
     private var chainAsset: ChainAsset?
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
 
-    private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
+    private func getBalanceViewModelFactory(
+        for chainAsset: ChainAsset,
+        selectedMetaAccount: MetaAccountModel
+    ) -> BalanceViewModelFactoryProtocol {
         if let factory = balanceViewModelFactory, self.chainAsset == chainAsset {
             return factory
         }
 
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedMetaAccount
         )
 
         self.chainAsset = chainAsset
@@ -41,9 +46,13 @@ final class NetworkInfoViewModelFactory {
     private func createStakeViewModel(
         stake: BigUInt,
         chainAsset: ChainAsset,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+        let balanceViewModelFactory = getBalanceViewModelFactory(
+            for: chainAsset,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         let stakedAmount = Decimal.fromSubstrateAmount(
             stake,
@@ -63,12 +72,14 @@ final class NetworkInfoViewModelFactory {
     private func createTotalStakeViewModel(
         with networkStakingInfo: NetworkStakingInfo,
         chainAsset: ChainAsset,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(
             stake: networkStakingInfo.totalStake,
             chainAsset: chainAsset,
-            priceData: priceData
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
     }
 
@@ -76,12 +87,14 @@ final class NetworkInfoViewModelFactory {
         with networkStakingInfo: NetworkStakingInfo,
         chainAsset: ChainAsset,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(
             stake: networkStakingInfo.calculateMinimumStake(given: minNominatorBond),
             chainAsset: chainAsset,
-            priceData: priceData
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
     }
 
@@ -115,9 +128,13 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
     func createMainViewModel(
         from address: AccountAddress,
         chainAsset: ChainAsset,
-        balance: Decimal
+        balance: Decimal,
+        selectedMetaAccount: MetaAccountModel
     ) -> StakingMainViewModel {
-        let balanceViewModel = getBalanceViewModelFactory(for: chainAsset).amountFromValue(balance)
+        let balanceViewModel = getBalanceViewModelFactory(
+            for: chainAsset,
+            selectedMetaAccount: selectedMetaAccount
+        ).amountFromValue(balance)
 
         let imageViewModel = chainAsset.assetDisplayInfo.icon.map {
             RemoteImageViewModel(url: $0)
@@ -136,19 +153,22 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         with networkStakingInfo: NetworkStakingInfo,
         chainAsset: ChainAsset,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let localizedTotalStake = createTotalStakeViewModel(
             with: networkStakingInfo,
             chainAsset: chainAsset,
-            priceData: priceData
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let localizedMinimalStake = createMinimalStakeViewModel(
             with: networkStakingInfo,
             chainAsset: chainAsset,
             minNominatorBond: minNominatorBond,
-            priceData: priceData
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let nominatorsCount = createActiveNominatorsViewModel(with: networkStakingInfo)

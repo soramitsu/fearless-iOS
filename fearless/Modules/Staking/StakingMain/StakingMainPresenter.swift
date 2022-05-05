@@ -7,6 +7,7 @@ final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
+    private let selectedMetaAccount: MetaAccountModel
 
     let networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol
     let viewModelFacade: StakingViewModelFacadeProtocol
@@ -44,12 +45,14 @@ final class StakingMainPresenter {
         networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
         viewModelFacade: StakingViewModelFacadeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
         self.viewModelFacade = viewModelFacade
         self.logger = logger
+        self.selectedMetaAccount = selectedMetaAccount
 
         let stateMachine = StakingStateMachine()
         self.stateMachine = stateMachine
@@ -68,7 +71,8 @@ final class StakingMainPresenter {
                     with: networkStakingInfo,
                     chainAsset: chainAsset,
                     minNominatorBond: commonData?.minNominatorBond,
-                    priceData: commonData?.price
+                    priceData: commonData?.price,
+                    selectedMetaAccount: selectedMetaAccount
                 )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
         } else {
@@ -91,7 +95,8 @@ final class StakingMainPresenter {
         let viewModel = networkInfoViewModelFactory.createMainViewModel(
             from: address,
             chainAsset: chainAsset,
-            balance: balance ?? 0.0
+            balance: balance ?? 0.0,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         view?.didReceive(viewModel: viewModel)

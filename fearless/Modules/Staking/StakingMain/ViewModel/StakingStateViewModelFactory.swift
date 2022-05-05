@@ -17,7 +17,7 @@ typealias AnalyticsRewardsViewModelFactoryBuilder = (
 final class StakingStateViewModelFactory {
     private let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
     private let logger: LoggerProtocol?
-    private let settings: SettingsManagerProtocol
+    private let selectedMetaAccount: MetaAccountModel
 
     private var lastViewModel: StakingViewState = .undefined
 
@@ -30,11 +30,11 @@ final class StakingStateViewModelFactory {
     init(
         analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
         logger: LoggerProtocol? = nil,
-        settings: SettingsManagerProtocol
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
-        self.settings = settings
+        self.selectedMetaAccount = selectedMetaAccount
     }
 
     private func updateCacheForChainAsset(_ newChainAsset: ChainAsset) {
@@ -67,7 +67,7 @@ final class StakingStateViewModelFactory {
 
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
 
         balanceViewModelFactory = factory
@@ -82,7 +82,7 @@ final class StakingStateViewModelFactory {
 
         let factory = RewardViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
 
         rewardViewModelFactory = factory

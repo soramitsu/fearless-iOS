@@ -10,8 +10,7 @@ protocol ChainAccountBalanceListViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
         prices: [AssetModel.PriceId: PriceData]?,
-        sortedKeys: [String]?,
-        currency: Currency
+        sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel
 }
 
@@ -23,10 +22,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo]?,
         prices: [AssetModel.PriceId: PriceData]?,
-        sortedKeys: [String]?,
-        currency: Currency
+        sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
-        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
+        let balanceTokenFormatterValue = tokenFormatter(
+            for: selectedMetaAccount.selectedCurrency,
+            locale: locale
+        )
 
         var chainAssets = chains
             .filter { selectedMetaAccount.fetch(for: $0.accountRequest()) != nil }
@@ -133,7 +134,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 priceData: priceData,
                 accountInfo: accountInfos?[chainAsset.chain.chainId],
                 locale: locale,
-                currency: currency
+                currency: selectedMetaAccount.selectedCurrency
             )
         }
 

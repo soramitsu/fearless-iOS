@@ -553,11 +553,9 @@ enum ModalPickerFactory {
     }
 
     static func createPickerForSelectCurrency(
-        _ selectedCurrency: Currency,
+        supportedCurrencys: [Currency],
         callback: ModalPickerSelectionCallback?
     ) -> UIViewController? {
-        let actions = Currency.allCases
-
         let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
@@ -569,13 +567,19 @@ enum ModalPickerFactory {
         viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.selectionCallback = callback
         viewController.modalPresentationStyle = .custom
-        viewController.selectedIndex = actions.firstIndex(where: { $0 == selectedCurrency }) ?? 0
+        viewController.selectedIndex = supportedCurrencys.firstIndex(where: { $0.isSelected == true }) ?? 0
+        viewController.presenterCanDrag = false
 
-        viewController.viewModels = actions.map { action in
+        viewController.viewModels = supportedCurrencys.map { action in
             LocalizableResource { _ in
-                IconWithTitleViewModel(
-                    icon: action.icon,
-                    title: action.rawValue.uppercased()
+                var remoteImageViewModel: RemoteImageViewModel?
+                if let iconUrl = URL(string: action.icon) {
+                    remoteImageViewModel = RemoteImageViewModel(url: iconUrl)
+                }
+                return IconWithTitleViewModel(
+                    icon: nil,
+                    remoteImageViewModel: remoteImageViewModel,
+                    title: action.id.uppercased()
                 )
             }
         }
@@ -583,9 +587,7 @@ enum ModalPickerFactory {
         let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
         viewController.modalTransitioningFactory = factory
 
-        let height = viewController.headerHeight
-            + CGFloat(actions.count) * viewController.cellHeight
-            + viewController.footerHeight
+        let height = UIScreen.main.bounds.height / 3
         viewController.preferredContentSize = CGSize(width: 0.0, height: height)
 
         viewController.localizationManager = LocalizationManager.shared

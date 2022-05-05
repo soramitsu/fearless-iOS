@@ -99,20 +99,6 @@ extension SettingsManagerProtocol {
         }
     }
 
-    var selectedCurrency: Currency {
-        get {
-            if let currency = value(of: Currency.self, for: SettingsKey.selectedCurrency.rawValue) {
-                return currency
-            } else {
-                return .defaultCurrency
-            }
-        }
-
-        set {
-            set(value: newValue, for: SettingsKey.selectedCurrency.rawValue)
-        }
-    }
-
     func saveReferralEthereumAddressForSelectedAccount(_ ethereumAccountAddress: String?) {
         guard let selectedAccount = selectedAccount else { return }
 

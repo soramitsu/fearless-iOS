@@ -15,7 +15,6 @@ final class ChainAccountBalanceListPresenter {
     private var prices: [AssetModel.PriceId: PriceData] = [:]
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
-    private var currency: Currency?
 
     init(
         interactor: ChainAccountBalanceListInteractorInputProtocol,
@@ -30,10 +29,7 @@ final class ChainAccountBalanceListPresenter {
     }
 
     private func provideViewModel() {
-        guard
-            let selectedMetaAccount = selectedMetaAccount,
-            let currency = currency
-        else {
+        guard let selectedMetaAccount = selectedMetaAccount else {
             return
         }
 
@@ -43,8 +39,7 @@ final class ChainAccountBalanceListPresenter {
             locale: selectedLocale,
             accountInfos: accountInfos,
             prices: prices,
-            sortedKeys: sortedKeys,
-            currency: currency
+            sortedKeys: sortedKeys
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
@@ -76,29 +71,34 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
         }
     }
 
-    func viewWillAppear() {
-        interactor.updatePricesIfNeeded()
-    }
-
     func didTapTotalBalanceLabel() {
-        guard let currency = currency else { return }
-
-        let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
-            guard let strongSelf = self else { return }
-
-            let selectedCurrency = Currency.allCases[selectedIndex]
-            strongSelf.interactor.didReceive(currency: selectedCurrency)
-        }
-
-        wireframe.presentSelectCurrency(
-            from: view,
-            currency: currency,
-            callback: selectionCallback
-        )
+        interactor.fetchFiats()
     }
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOutputProtocol {
+    func didRecieve(supportedCurrencys: Result<[Currency], Error>) {
+        switch supportedCurrencys {
+        case let .success(supportedCurrencys):
+
+            let selectionCallback: ModalPickerSelectionCallback = { [weak self, supportedCurrencys] selectedIndex in
+                guard let strongSelf = self else { return }
+
+                var selectedCurrency = supportedCurrencys[selectedIndex]
+                selectedCurrency.isSelected = true
+                strongSelf.interactor.didReceive(currency: selectedCurrency)
+            }
+
+            wireframe.presentSelectCurrency(
+                from: view,
+                supportedCurrencys: supportedCurrencys,
+                callback: selectionCallback
+            )
+        case .failure:
+            break
+        }
+    }
+
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
         case let .success(chains):
@@ -133,10 +133,6 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didTapAccountButton() {
         wireframe.showWalletSelection(from: view)
-    }
-
-    func didReceiceCurrency(_ currency: Currency) {
-        self.currency = currency
     }
 }
 

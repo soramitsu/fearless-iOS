@@ -49,6 +49,7 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder {
         )
         rightBarButtonItem.setupDefaultTitleStyle(with: .h4Title)
         navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationController?.navigationBar.backgroundColor = R.color.colorBlack()
         title = R.string.localizable.commonCurrency(preferredLanguages: selectedLocale.rLanguages)
     }
 

@@ -14,12 +14,16 @@ final class ChainAccountBalanceListInteractor {
     private let operationQueue: OperationQueue
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let eventCenter: EventCenterProtocol
-    private let settingsManager: SettingsManagerProtocol
+    private let metaAccountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let jsonDataProviderFactory: JsonDataProviderFactoryProtocol
 
     private var chains: [ChainModel]?
 
     private var priceProviders: [AnySingleValueProvider<PriceData>]?
-    private var currentCurrency: Currency?
+    private var fiatInfoProvider: AnySingleValueProvider<[Currency]>?
+    private lazy var currency: Currency = {
+        selectedMetaAccount.selectedCurrency
+    }()
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -29,7 +33,8 @@ final class ChainAccountBalanceListInteractor {
         operationQueue: OperationQueue,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         eventCenter: EventCenterProtocol,
-        settingsManager: SettingsManagerProtocol
+        metaAccountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        jsonDataProviderFactory: JsonDataProviderFactoryProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainRepository = chainRepository
@@ -38,7 +43,8 @@ final class ChainAccountBalanceListInteractor {
         self.operationQueue = operationQueue
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.eventCenter = eventCenter
-        self.settingsManager = settingsManager
+        self.metaAccountRepository = metaAccountRepository
+        self.jsonDataProviderFactory = jsonDataProviderFactory
     }
 
     private func fetchChainsAndSubscribeBalance() {
@@ -71,6 +77,11 @@ final class ChainAccountBalanceListInteractor {
     private func subscribeToPrice(for chains: [ChainModel]) {
         var providers: [AnySingleValueProvider<PriceData>] = []
 
+        guard priceProviders == nil else {
+            priceProviders?.forEach { $0.refresh() }
+            return
+        }
+
         for chain in chains {
             for asset in chain.assets {
                 if
@@ -99,10 +110,69 @@ final class ChainAccountBalanceListInteractor {
         }
     }
 
-    private func provideCurrency() {
-        let currentCurrency = settingsManager.selectedCurrency
-        self.currentCurrency = currentCurrency
-        presenter?.didReceiceCurrency(currentCurrency)
+    private func subscribeToFiats() {
+        fiatInfoProvider = nil
+
+        guard let fiatUrl = ApplicationConfig.shared.fiatsURL else { return }
+        fiatInfoProvider = jsonDataProviderFactory.getJson(for: fiatUrl)
+
+        let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in
+            guard let strongSelf = self else { return }
+            if var result = changes.reduceToLastChange() {
+                guard
+                    let selectedCurrencyIndex = result.firstIndex(where: { $0.id == strongSelf.currency.id })
+                else {
+                    return
+                }
+
+                result[selectedCurrencyIndex] = strongSelf.currency
+                self?.presenter?.didRecieve(supportedCurrencys: .success(result))
+            }
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter?.didRecieve(supportedCurrencys: .failure(error))
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: true,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        fiatInfoProvider?.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    private func save(_ currency: Currency) {
+        let updatedAccount = selectedMetaAccount.replacingCurrency(currency)
+
+        let operation = metaAccountRepository.saveOperation {
+            [updatedAccount]
+        } _: {
+            []
+        }
+
+        operation.completionBlock = { [weak self] in
+            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                switch result {
+                case let .success(account):
+                    self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                case .failure:
+                    break
+                }
+            }
+        }
+
+        operationQueue.addOperation(operation)
+    }
+
+    private func updatePrices() {
+        priceProviders?.forEach { $0.refresh() }
     }
 }
 
@@ -146,22 +216,19 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
         eventCenter.add(observer: self, dispatchIn: .main)
         fetchChainsAndSubscribeBalance()
         presenter?.didReceiveSelectedAccount(selectedMetaAccount)
-        provideCurrency()
     }
 
     func refresh() {
         fetchChainsAndSubscribeBalance()
     }
 
-    func updatePricesIfNeeded() {
-        guard currentCurrency != settingsManager.selectedCurrency else { return }
-        provideCurrency()
-        priceProviders?.forEach { $0.refresh() }
+    func didReceive(currency: Currency) {
+        save(currency)
+        updatePrices()
     }
 
-    func didReceive(currency: Currency) {
-        settingsManager.selectedCurrency = currency
-        updatePricesIfNeeded()
+    func fetchFiats() {
+        subscribeToFiats()
     }
 }
 
@@ -191,7 +258,9 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
 
     func processAssetsListChanged(event: AssetsListChangedEvent) {
         if selectedMetaAccount.metaId == event.account.metaId {
+            refresh()
             selectedMetaAccount = event.account
+            currency = event.account.selectedCurrency
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
         }
     }

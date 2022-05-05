@@ -4,6 +4,9 @@ import SoraKeystore
 
 struct AnalyticsRewardDetailsViewFactory {
     static func createView(rewardModel: AnalyticsRewardDetailsModel) -> AnalyticsRewardDetailsViewProtocol? {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
+            return nil
+        }
         let interactor = AnalyticsRewardDetailsInteractor()
         let wireframe = AnalyticsRewardDetailsWireframe()
 
@@ -12,11 +15,11 @@ struct AnalyticsRewardDetailsViewFactory {
         let addressType = settings.selectedConnection.type
         let chain = addressType.chain
 
-        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
+        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: targetAssetInfo,
             limit: StakingConstants.maxAmount,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let viewModelFactory = AnalyticsRewardDetailsViewModelFactory(

@@ -19,18 +19,21 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
     private let limit: Decimal
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
-    private let settings: SettingsManagerProtocol
+    private let selectedMetaAccount: MetaAccountModel
+    private lazy var selectedCurrency: Currency = {
+        selectedMetaAccount.selectedCurrency
+    }()
 
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
         formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
         limit: Decimal = StakingConstants.maxAmount,
-        settings: SettingsManagerProtocol
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
         self.limit = limit
-        self.settings = settings
+        self.selectedMetaAccount = selectedMetaAccount
     }
 
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String> {
@@ -39,7 +42,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
 
         let targetAmount = rate * amount
-        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedCurrency)
         let localizableFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
@@ -62,7 +65,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
-        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
@@ -109,7 +112,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
         let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
-        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(settings.selectedCurrency)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         let symbol = targetAssetInfo.symbol

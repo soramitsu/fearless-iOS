@@ -15,10 +15,10 @@ final class ProfileInteractor {
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
-    private let settings: SettingsManagerProtocol
+    private let selectedMetaAccount: MetaAccountModel
 
-    private lazy var currentCurrency: Currency = {
-        settings.selectedCurrency
+    private lazy var currentCurrency: Currency? = {
+        selectedMetaAccount.selectedCurrency
     }()
 
     // MARK: - Constructors
@@ -28,13 +28,13 @@ final class ProfileInteractor {
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
-        settings: SettingsManagerProtocol
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
         self.repository = repository
         self.operationQueue = operationQueue
-        self.settings = settings
+        self.selectedMetaAccount = selectedMetaAccount
     }
 
     // MARK: - Private methods
@@ -62,13 +62,8 @@ final class ProfileInteractor {
     }
 
     private func provideSelectedCurrency() {
+        guard let currentCurrency = currentCurrency else { return }
         presenter?.didRecieve(selectedCurrency: currentCurrency)
-    }
-
-    private func updateCurrentCurrencyIfNeeded() {
-        guard currentCurrency != settings.selectedCurrency else { return }
-        currentCurrency = settings.selectedCurrency
-        provideSelectedCurrency()
     }
 }
 
@@ -95,8 +90,9 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         operationQueue.addOperation(operation)
     }
 
-    func updateCurrencyIfNeeded() {
-        updateCurrentCurrencyIfNeeded()
+    func update(currency: Currency) {
+        currentCurrency = currency
+        provideSelectedCurrency()
     }
 }
 

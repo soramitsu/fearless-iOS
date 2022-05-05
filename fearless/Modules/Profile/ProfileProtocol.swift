@@ -6,7 +6,6 @@ protocol ProfileViewProtocol: ControllerBackedProtocol {
 
 protocol ProfilePresenterProtocol: AnyObject {
     func didLoad(view: ProfileViewProtocol)
-    func viewWillAppear()
     func activateAccountDetails()
     func activateOption(at index: UInt)
     func logout()
@@ -17,7 +16,7 @@ protocol ProfileInteractorInputProtocol: AnyObject {
     func setup(with output: ProfileInteractorOutputProtocol)
     func updateWallet(_ wallet: MetaAccountModel)
     func logout(completion: @escaping () -> Void)
-    func updateCurrencyIfNeeded()
+    func update(currency: Currency)
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {

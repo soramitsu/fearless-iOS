@@ -25,7 +25,7 @@ struct ControllerAccountConfirmationViewFactory {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedAccount
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)

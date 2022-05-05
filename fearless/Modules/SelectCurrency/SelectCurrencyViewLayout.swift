@@ -32,7 +32,8 @@ final class SelectCurrencyViewLayout: UIView {
         backgroundColor = R.color.colorBlack()!
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.leading.trailing.bottom.equalToSuperview()
         }
     }
 }

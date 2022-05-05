@@ -24,7 +24,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             let sharedState = try? createSharedState(
                 with: chainAsset,
                 stakingSettings: stakingSettings
-            ), let selectedAccount = SelectedWalletSettings.shared.value else {
+            ),
+            let selectedAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
 
@@ -46,7 +47,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         // MARK: - Presenter
 
-        let viewModelFacade = StakingViewModelFacade(settings: settings)
+        let viewModelFacade = StakingViewModelFacade(selectedMetaAccount: selectedAccount)
         let analyticsVMFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
             = { chainAsset, balanceViewModelFactory in
                 AnalyticsRewardsViewModelFactory(
@@ -61,7 +62,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let stateViewModelFactory = StakingStateViewModelFactory(
             analyticsRewardsViewModelFactoryBuilder: analyticsVMFactoryBuilder,
             logger: logger,
-            settings: settings
+            selectedMetaAccount: selectedAccount
         )
         let networkInfoViewModelFactory = NetworkInfoViewModelFactory()
 
@@ -72,7 +73,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             networkInfoViewModelFactory: networkInfoViewModelFactory,
             viewModelFacade: viewModelFacade,
             dataValidatingFactory: dataValidatingFactory,
-            logger: logger
+            logger: logger,
+            selectedMetaAccount: selectedAccount
         )
 
         view.presenter = presenter

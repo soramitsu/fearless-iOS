@@ -9,6 +9,8 @@ final class SelectCurrencyPresenter {
     private let interactor: SelectCurrencyInteractorInput
     private let viewModelFactory: SelectCurrencyViewModelFactoryProtocol
 
+    private var supportedCurrencys: [Currency]?
+
     // MARK: - Constructors
 
     init(
@@ -25,8 +27,10 @@ final class SelectCurrencyPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel(with selectedCurrency: Currency) {
-        let viewModel = viewModelFactory.buildViewModel(selected: selectedCurrency)
+    private func provideViewModel(with supportedCurrencys: [Currency]) {
+        let viewModel = viewModelFactory.buildViewModel(
+            supportedCurrencys: supportedCurrencys
+        )
         view?.didRecieve(viewModel: viewModel)
     }
 }
@@ -40,7 +44,8 @@ extension SelectCurrencyPresenter: SelectCurrencyViewOutput {
     }
 
     func didSelect(viewModel: SelectCurrencyCellViewModel) {
-        guard let currency = Currency(rawValue: viewModel.title.lowercased()) else { return }
+        guard var currency = supportedCurrencys?.first(where: { $0.id == viewModel.id }) else { return }
+        currency.isSelected = true
         interactor.didSelect(currency)
         router.proceed(from: view)
     }
@@ -49,8 +54,14 @@ extension SelectCurrencyPresenter: SelectCurrencyViewOutput {
 // MARK: - SelectCurrencyInteractorOutput
 
 extension SelectCurrencyPresenter: SelectCurrencyInteractorOutput {
-    func didRecieve(selectedCurrency: Currency) {
-        provideViewModel(with: selectedCurrency)
+    func didRecieve(supportedCurrencys: Result<[Currency], Error>) {
+        switch supportedCurrencys {
+        case let .success(supportedCurrencys):
+            self.supportedCurrencys = supportedCurrencys
+            provideViewModel(with: supportedCurrencys)
+        case .failure:
+            break
+        }
     }
 }
 

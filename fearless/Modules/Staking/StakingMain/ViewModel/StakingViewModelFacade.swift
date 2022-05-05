@@ -7,23 +7,23 @@ protocol StakingViewModelFacadeProtocol {
 }
 
 final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
-    private let settings: SettingsManagerProtocol
+    private let selectedMetaAccount: MetaAccountModel
 
-    init(settings: SettingsManagerProtocol) {
-        self.settings = settings
+    init(selectedMetaAccount: MetaAccountModel) {
+        self.selectedMetaAccount = selectedMetaAccount
     }
 
     func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
         BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
     }
 
     func createRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
         RewardViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            settings: settings
+            selectedMetaAccount: selectedMetaAccount
         )
     }
 }

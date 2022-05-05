@@ -26,7 +26,8 @@ struct StakingRebondConfirmationViewFactory {
             variant: variant,
             interactor: interactor,
             wireframe: wireframe,
-            dataValidatingFactory: dataValidatingFactory
+            dataValidatingFactory: dataValidatingFactory,
+            selectedMetaAccount: selectedAccount
         )
 
         let view = StakingRebondConfirmationViewController(
@@ -48,12 +49,13 @@ struct StakingRebondConfirmationViewFactory {
         variant: SelectedRebondVariant,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        selectedMetaAccount: MetaAccountModel
     ) -> StakingRebondConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(asset: asset)

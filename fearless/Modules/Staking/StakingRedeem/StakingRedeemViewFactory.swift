@@ -23,7 +23,8 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             asset: asset,
             interactor: interactor,
             wireframe: wireframe,
-            dataValidatingFactory: dataValidatingFactory
+            dataValidatingFactory: dataValidatingFactory,
+            selectedMetaAccount: selectedAccount
         )
 
         let view = StakingRedeemViewController(
@@ -43,12 +44,13 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         asset: AssetModel,
         interactor: StakingRedeemInteractorInputProtocol,
         wireframe: StakingRedeemWireframeProtocol,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        selectedMetaAccount: MetaAccountModel
     ) -> StakingRedeemPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            settings: SettingsManager.shared
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let confirmationViewModelFactory = StakingRedeemViewModelFactory(asset: asset)

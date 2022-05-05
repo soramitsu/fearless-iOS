@@ -58,8 +58,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
             balanceForModel: .managedMetaAccounts,
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            settings: SettingsManager.shared
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let anyObserver = AnyDataProviderRepositoryObservable(observer)

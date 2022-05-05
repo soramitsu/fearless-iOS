@@ -20,6 +20,7 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		07BFF6912820F1A100645906 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF6902820F1A100645906 /* Currency.swift */; };
 		07DC9B182810501300526040 /* WalletDetailsTableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */; };
 		07DC9B1B2810600E00526040 /* SelectCurrencyTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DC9B1A2810600E00526040 /* SelectCurrencyTableCell.swift */; };
 		07DC9B1D2810646B00526040 /* SelectCurrencyViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DC9B1C2810646B00526040 /* SelectCurrencyViewModelFactory.swift */; };
@@ -2019,6 +2020,7 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		07BFF6902820F1A100645906 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableHeaderView.swift; sourceTree = "<group>"; };
 		07DC9B1A2810600E00526040 /* SelectCurrencyTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectCurrencyTableCell.swift; sourceTree = "<group>"; };
@@ -6393,6 +6395,7 @@
 				84CEAAF226D6ED870021B881 /* KeystoreTag.swift */,
 				8419C39526EA8F7300A3179C /* PriceData.swift */,
 				84F13F0926F14122006725FF /* ChainAsset.swift */,
+				07BFF6902820F1A100645906 /* Currency.swift */,
 				FA38C96D275897E0005C5577 /* AssetAmountValues.swift */,
 				FA1109EA27A92D56003C2158 /* ChainAction.swift */,
 				FA402F2E27C7C646008CF986 /* ExportAction.swift */,
@@ -10714,6 +10717,7 @@
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				842349C52624E98C0066ACFE /* MultiAddress+Query.swift in Sources */,
 				84155DED2539817200A27058 /* ApplicationService.swift in Sources */,
+				07BFF6912820F1A100645906 /* Currency.swift in Sources */,
 				8409C264252210A70049B5C8 /* WalletDisplayAmountView.swift in Sources */,
 				841493DC2604C144000D8D1A /* SubscanRewardData.swift in Sources */,
 				84403D7F25E91BC100494FD4 /* SuperIdentity.swift in Sources */,

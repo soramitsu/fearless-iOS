@@ -16,12 +16,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         }
 
         let balanceOperation = fetchBalanceInfoForAsset(userAssets)
-        let priceOperations: [CompoundOperationWrapper<Price?>] = userAssets.compactMap {
-            if let assetId = WalletAssetId(rawValue: $0.identifier) {
-                return fetchPriceOperation(assetId, currency: .usd)
-            } else {
-                return nil
-            }
+        let priceOperations: [CompoundOperationWrapper<Price?>] = userAssets.compactMap { _ in
+            nil
         }
 
         let minimalBalanceOperation: CompoundOperationWrapper<BigUInt> = fetchMinimalBalanceOperation()

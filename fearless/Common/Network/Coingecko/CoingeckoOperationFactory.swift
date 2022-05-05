@@ -20,7 +20,7 @@ final class CoingeckoOperationFactory {
         ) else { return nil }
 
         let tokenIDParam = tokenIds.joined(separator: ",")
-        let currencyParam = currency.rawValue
+        let currencyParam = currency.id
 
         components.queryItems = [
             URLQueryItem(name: "ids", value: tokenIDParam),
@@ -66,8 +66,8 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
                     return nil
                 }
 
-                let price = priceDataJson[currency.rawValue] as? CGFloat
-                let dayChange = priceDataJson["\(currency.rawValue)_24h_change"] as? CGFloat
+                let price = priceDataJson[currency.id] as? CGFloat
+                let dayChange = priceDataJson["\(currency.id)_24h_change"] as? CGFloat
 
                 guard let price = price else {
                     return nil

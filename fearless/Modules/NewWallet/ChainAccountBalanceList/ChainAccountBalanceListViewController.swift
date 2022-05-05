@@ -29,11 +29,6 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
         presenter.setup()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        presenter.viewWillAppear()
-    }
-
     func configure() {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
 

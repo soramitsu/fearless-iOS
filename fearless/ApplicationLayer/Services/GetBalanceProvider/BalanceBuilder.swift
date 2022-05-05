@@ -15,7 +15,6 @@ protocol BalanceBuilderProtocol {
         chains: [ChainModel],
         accountsInfos: [String: [ChainModel.Id: AccountInfo]],
         prices: [AssetModel.PriceId: PriceData],
-        currency: Currency,
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     )
 }
@@ -60,13 +59,11 @@ final class BalanceBuilder: BalanceBuilderProtocol {
         chains: [ChainModel],
         accountsInfos: [String: [ChainModel.Id: AccountInfo]],
         prices: [AssetModel.PriceId: PriceData],
-        currency: Currency,
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     ) {
-        let balanceTokenFormatterValue = tokenFormatter(for: currency)
-
         let managetMetaAccoutsWithBalance = managetMetaAccounts.map { managetMetaAccount -> ManagedMetaAccountModel in
             let metaAccount = managetMetaAccount.info
+            let balanceTokenFormatterValue = tokenFormatter(for: metaAccount.selectedCurrency)
 
             let totalWalletBalance: Decimal = chains.compactMap { chainModel in
 
