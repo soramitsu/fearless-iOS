@@ -7,11 +7,12 @@ final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
-    private let selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel
 
     let networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
+    private let eventCenter: EventCenter
 
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
@@ -46,13 +47,15 @@ final class StakingMainPresenter {
         viewModelFacade: StakingViewModelFacadeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol?,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        eventCenter: EventCenter
     ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
         self.viewModelFacade = viewModelFacade
         self.logger = logger
         self.selectedMetaAccount = selectedMetaAccount
+        self.eventCenter = eventCenter
 
         let stateMachine = StakingStateMachine()
         self.stateMachine = stateMachine
@@ -60,6 +63,7 @@ final class StakingMainPresenter {
         self.dataValidatingFactory = dataValidatingFactory
 
         stateMachine.delegate = self
+        self.eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     private func provideStakingInfo() {
@@ -741,5 +745,18 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
 extension StakingMainPresenter: AssetSelectionDelegate {
     func assetSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
         interactor.save(chainAsset: chainAsset)
+    }
+}
+
+extension StakingMainPresenter: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
+        guard
+            let isViewLoaded = view?.controller.isViewLoaded,
+            isViewLoaded
+        else {
+            return
+        }
+        interactor.updatePrices()
     }
 }

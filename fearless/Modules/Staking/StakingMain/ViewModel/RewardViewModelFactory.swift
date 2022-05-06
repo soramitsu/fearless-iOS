@@ -15,7 +15,8 @@ protocol RewardViewModelFactoryProtocol {
 final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
-    private let selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel
+    private let eventCenter = EventCenter.shared
 
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
@@ -25,6 +26,8 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
         self.selectedMetaAccount = selectedMetaAccount
+
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     func createRewardViewModel(
@@ -64,5 +67,11 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
                 increase: rewardPercentageString
             )
         }
+    }
+}
+
+extension RewardViewModelFactory: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
     }
 }

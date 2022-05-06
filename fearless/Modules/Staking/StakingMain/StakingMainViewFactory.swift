@@ -47,7 +47,10 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         // MARK: - Presenter
 
-        let viewModelFacade = StakingViewModelFacade(selectedMetaAccount: selectedAccount)
+        let eventCenter = EventCenter.shared
+        let viewModelFacade = StakingViewModelFacade(
+            selectedMetaAccount: selectedAccount
+        )
         let analyticsVMFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
             = { chainAsset, balanceViewModelFactory in
                 AnalyticsRewardsViewModelFactory(
@@ -62,7 +65,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let stateViewModelFactory = StakingStateViewModelFactory(
             analyticsRewardsViewModelFactoryBuilder: analyticsVMFactoryBuilder,
             logger: logger,
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: selectedAccount,
+            eventCenter: eventCenter
         )
         let networkInfoViewModelFactory = NetworkInfoViewModelFactory()
 
@@ -74,7 +78,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             viewModelFacade: viewModelFacade,
             dataValidatingFactory: dataValidatingFactory,
             logger: logger,
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: selectedAccount,
+            eventCenter: eventCenter
         )
 
         view.presenter = presenter

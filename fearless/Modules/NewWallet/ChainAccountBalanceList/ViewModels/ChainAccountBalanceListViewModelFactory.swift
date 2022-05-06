@@ -149,7 +149,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 && (selectedMetaAccount.unusedChainIds ?? []).contains($0.chainId) == false
         }) != nil
 
-        let isColdBoot = accountInfos.keys.count != chains.count
+        let isColdBoot = accountInfos.keys.count != fiatBalanceByChainAsset.count
         let balanceUpdated = prices.filter { $0.value.updated == false }.isEmpty
 
         let balance = balanceTokenFormatterValue.stringFromDecimal(totalWalletBalance)

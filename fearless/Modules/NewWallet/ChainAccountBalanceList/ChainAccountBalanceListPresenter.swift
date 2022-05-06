@@ -199,6 +199,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didRecieveSelectedCurrency(_ selectedCurrency: Currency) {
         self.selectedCurrency = selectedCurrency
+        priceIsUpdating()
         provideViewModel()
     }
 }
