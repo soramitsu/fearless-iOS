@@ -122,7 +122,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             }.reduce(0, +)
         }.reduce(0, +)
 
-        let viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
+        var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
             var priceData: PriceDataUpdated?
 
             if let priceId = chainAsset.asset.priceId {
@@ -138,6 +138,10 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 locale: locale,
                 currency: selectedMetaAccount.selectedCurrency
             )
+        }
+
+        if sortedKeys == nil {
+            viewModels.sort { $0.isColdBoot && !$1.isColdBoot }
         }
 
         let haveMissingAccounts = chains.first(where: {
