@@ -21,7 +21,10 @@ struct AccountInfo: Codable, Equatable {
         self.data = data
     }
 
-    init(ormlAccountInfo: OrmlAccountInfo) {
+    init?(ormlAccountInfo: OrmlAccountInfo?) {
+        guard let ormlAccountInfo = ormlAccountInfo else {
+            return nil
+        }
         nonce = 0
         consumers = 0
         providers = 0
