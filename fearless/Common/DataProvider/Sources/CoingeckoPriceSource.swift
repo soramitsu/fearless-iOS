@@ -10,7 +10,7 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
         SelectedWalletSettings.shared.value?.selectedCurrency
     }()
 
-    private let eventCentr: EventCenterProtocol = {
+    private let eventCenter: EventCenterProtocol = {
         EventCenter.shared
     }()
 
@@ -47,12 +47,12 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     }
 
     private func setup() {
-        eventCentr.add(observer: self)
+        eventCenter.add(observer: self)
     }
 }
 
 extension CoingeckoPriceSource: EventVisitorProtocol {
-    func processAssetsListChanged(event: AssetsListChangedEvent) {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         currency = event.account.selectedCurrency
     }
 }

@@ -4,15 +4,14 @@ import SoraKeystore
 import RobinHood
 
 final class SelectCurrencyAssembly {
-    static func configureModule() -> SelectCurrencyModuleCreationResult? {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
+    static func configureModule(with wallet: MetaAccountModel) -> SelectCurrencyModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let interactor = SelectCurrencyInteractor(
-            selectedMetaAccount: selectedMetaAccount,
+            selectedMetaAccount: wallet,
             repository: accountRepository,
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             eventCenter: eventCenter,

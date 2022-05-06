@@ -48,7 +48,7 @@ final class SelectCurrencyTableCell: UITableViewCell {
         isSelected = viewModel.isSelected
 
         title.text = viewModel.title
-        viewModel.imageViewModel.loadImage(
+        viewModel.imageViewModel?.loadImage(
             on: currencyImageView,
             targetSize: Constants.currencyImageViewSize,
             animated: true

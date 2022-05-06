@@ -14,12 +14,14 @@ class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtoc
         asset: AssetModel,
         chain: ChainModel,
         validatorInfo: SelectedValidatorInfo,
-        from view: RecommendedValidatorListViewProtocol?
+        from view: RecommendedValidatorListViewProtocol?,
+        wallet: MetaAccountModel
     ) {
         guard let validatorInfoView = ValidatorInfoViewFactory.createView(
             asset: asset,
             chain: chain,
-            validatorInfo: validatorInfo
+            validatorInfo: validatorInfo,
+            wallet: wallet
         ) else {
             return
         }

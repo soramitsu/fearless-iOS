@@ -287,7 +287,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         )
     }
 
-    func didRecieve(currency: Currency) {
+    func didReceive(currency: Currency) {
         self.currency = currency
         provideViewModel()
     }

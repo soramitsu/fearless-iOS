@@ -44,7 +44,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         from view: ProfileViewProtocol?,
         output: CheckPincodeModuleOutput
     )
-    func showSelectCurrency(from view: ProfileViewProtocol?)
+    func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
     func close(view: ControllerBackedProtocol?)
 }
 

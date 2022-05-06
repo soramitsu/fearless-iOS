@@ -25,7 +25,8 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
-    func didRecieve(supportedCurrencys: Result<[Currency], Error>)
+    func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>)
+    func didRecieveSelectedCurrency(_ selectedCurrency: Currency)
 }
 
 protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
@@ -39,6 +40,7 @@ protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresen
     func presentSelectCurrency(
         from view: ControllerBackedProtocol?,
         supportedCurrencys: [Currency],
+        selectedCurrency: Currency,
         callback: @escaping ModalPickerSelectionCallback
     )
 }

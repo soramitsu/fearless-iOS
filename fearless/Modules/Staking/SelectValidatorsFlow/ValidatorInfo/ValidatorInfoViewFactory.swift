@@ -7,15 +7,15 @@ final class ValidatorInfoViewFactory {
     private static func createView(
         asset: AssetModel,
         chain: ChainModel,
-        interactor: ValidatorInfoInteractorBase
+        interactor: ValidatorInfoInteractorBase,
+        wallet: MetaAccountModel
     ) -> ValidatorInfoViewProtocol? {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
 
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
@@ -50,7 +50,8 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
     static func createView(
         asset: AssetModel,
         chain: ChainModel,
-        validatorInfo: ValidatorInfoProtocol
+        validatorInfo: ValidatorInfoProtocol,
+        wallet: MetaAccountModel
     ) -> ValidatorInfoViewProtocol? {
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
 
@@ -60,7 +61,7 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
             asset: asset
         )
 
-        return createView(asset: asset, chain: chain, interactor: interactor)
+        return createView(asset: asset, chain: chain, interactor: interactor, wallet: wallet)
     }
 
     static func createView(
@@ -108,7 +109,8 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         return createView(
             asset: asset,
             chain: chain,
-            interactor: interactor
+            interactor: interactor,
+            wallet: selectedAccount
         )
     }
 }

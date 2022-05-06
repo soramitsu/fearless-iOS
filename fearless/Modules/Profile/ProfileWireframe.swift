@@ -92,8 +92,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(checkPincodeViewController, animated: true)
     }
 
-    func showSelectCurrency(from view: ProfileViewProtocol?) {
-        guard let controller = SelectCurrencyAssembly.configureModule()?.view.controller else { return }
+    func showSelectCurrency(
+        from view: ProfileViewProtocol?,
+        with wallet: MetaAccountModel
+    ) {
+        guard let controller = SelectCurrencyAssembly.configureModule(
+            with: wallet
+        )?.view.controller else { return }
         controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }

@@ -119,21 +119,13 @@ final class ChainAccountBalanceListInteractor {
         fiatInfoProvider = jsonDataProviderFactory.getJson(for: fiatUrl)
 
         let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in
-            guard let strongSelf = self else { return }
-            if var result = changes.reduceToLastChange() {
-                guard
-                    let selectedCurrencyIndex = result.firstIndex(where: { $0.id == strongSelf.currency.id })
-                else {
-                    return
-                }
-
-                result[selectedCurrencyIndex] = strongSelf.currency
-                self?.presenter?.didRecieve(supportedCurrencys: .success(result))
+            if let result = changes.reduceToLastChange() {
+                self?.presenter?.didReceiveSupportedCurrencys(.success(result))
             }
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter?.didRecieve(supportedCurrencys: .failure(error))
+            self?.presenter?.didReceiveSupportedCurrencys(.failure(error))
         }
 
         let options = DataProviderObserverOptions(
@@ -163,7 +155,7 @@ final class ChainAccountBalanceListInteractor {
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
-                    self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                 case .failure:
                     break
                 }
@@ -218,6 +210,7 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
         eventCenter.add(observer: self, dispatchIn: .main)
         fetchChainsAndSubscribeBalance()
         presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+        presenter?.didRecieveSelectedCurrency(currency)
     }
 
     func refresh() {
@@ -257,11 +250,12 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
         refresh()
     }
 
-    func processAssetsListChanged(event: AssetsListChangedEvent) {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         if selectedMetaAccount.metaId == event.account.metaId {
             selectedMetaAccount = event.account
             currency = event.account.selectedCurrency
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+            presenter?.didRecieveSelectedCurrency(currency)
             priceProviders = nil
             refresh()
         }

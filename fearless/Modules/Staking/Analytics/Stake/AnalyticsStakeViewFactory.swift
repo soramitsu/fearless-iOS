@@ -3,7 +3,7 @@ import SoraKeystore
 import SoraFoundation
 
 struct AnalyticsStakeViewFactory {
-    static func createView() -> AnalyticsStakeViewProtocol? {
+    static func createView(with wallet: MetaAccountModel) -> AnalyticsStakeViewProtocol? {
         let settings = SettingsManager.shared
         let operationManager = OperationManagerFacade.sharedManager
 
@@ -14,8 +14,7 @@ struct AnalyticsStakeViewFactory {
         let chain = addressType.chain
         guard
             let accountAddress = settings.selectedAccount?.address,
-            let assetId = WalletAssetId(rawValue: asset.identifier),
-            let selectedMetaAccount = SelectedWalletSettings.shared.value
+            let assetId = WalletAssetId(rawValue: asset.identifier)
         else {
             return nil
         }
@@ -34,10 +33,10 @@ struct AnalyticsStakeViewFactory {
         )
         let wireframe = AnalyticsStakeWireframe()
 
-        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: targetAssetInfo,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
         let viewModelFactory = AnalyticsStakeViewModelFactory(
             assetInfo: targetAssetInfo,
@@ -48,7 +47,8 @@ struct AnalyticsStakeViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            wallet: wallet
         )
 
         let view = AnalyticsStakeViewController(presenter: presenter, localizationManager: LocalizationManager.shared)

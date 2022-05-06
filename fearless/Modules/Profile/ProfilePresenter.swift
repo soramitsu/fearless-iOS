@@ -9,7 +9,7 @@ final class ProfilePresenter {
     private let logger: LoggerProtocol
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
-    private let eventCentr: EventCenter
+    private let eventCenter: EventCenter
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -20,7 +20,7 @@ final class ProfilePresenter {
         wireframe: ProfileWireframeProtocol,
         logger: LoggerProtocol,
         settings: SettingsManagerProtocol,
-        eventCentr: EventCenter,
+        eventCenter: EventCenter,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.viewModelFactory = viewModelFactory
@@ -28,10 +28,10 @@ final class ProfilePresenter {
         self.wireframe = wireframe
         self.logger = logger
         self.settings = settings
-        self.eventCentr = eventCentr
+        self.eventCenter = eventCenter
         self.localizationManager = localizationManager
 
-        self.eventCentr.add(
+        self.eventCenter.add(
             observer: self,
             dispatchIn: .main
         )
@@ -83,7 +83,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .about:
             wireframe.showAbout(from: view)
         case .currency:
-            wireframe.showSelectCurrency(from: view)
+            guard let selectedWallet = selectedWallet else { return }
+            wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry:
             break
         }
@@ -170,8 +171,9 @@ extension ProfilePresenter: Localizable {
 }
 
 extension ProfilePresenter: EventVisitorProtocol {
-    func processAssetsListChanged(event: AssetsListChangedEvent) {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         let currency = event.account.selectedCurrency
+        selectedWallet = event.account
         interactor.update(currency: currency)
     }
 }

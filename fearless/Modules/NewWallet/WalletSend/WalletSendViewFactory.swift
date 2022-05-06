@@ -8,12 +8,10 @@ struct WalletSendViewFactory {
         receiverAddress: String,
         asset: AssetModel,
         chain: ChainModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendViewProtocol? {
-        guard
-            let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress),
-            let selectedMetaAccount = SelectedWalletSettings.shared.value
-        else {
+        guard let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress) else {
             return nil
         }
 
@@ -22,7 +20,7 @@ struct WalletSendViewFactory {
         let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)

@@ -28,7 +28,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
     func didReceiveExportOptions(options: [ExportOption])
-    func didRecieve(currency: Currency)
+    func didReceive(currency: Currency)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,

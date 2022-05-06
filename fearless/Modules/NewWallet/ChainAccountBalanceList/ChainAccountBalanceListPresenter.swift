@@ -17,6 +17,7 @@ final class ChainAccountBalanceListPresenter {
     private var prices: [AssetModel.PriceId: PriceDataUpdated] = [:]
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
+    private var selectedCurrency: Currency?
 
     init(
         interactor: ChainAccountBalanceListInteractorInputProtocol,
@@ -112,7 +113,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOutputProtocol {
-    func didRecieve(supportedCurrencys: Result<[Currency], Error>) {
+    func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>) {
         switch supportedCurrencys {
         case let .success(supportedCurrencys):
 
@@ -130,10 +131,11 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
             wireframe.presentSelectCurrency(
                 from: view,
                 supportedCurrencys: supportedCurrencys,
+                selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
                 callback: selectionCallback
             )
-        case .failure:
-            break
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: localizationManager?.selectedLocale)
         }
     }
 
@@ -193,6 +195,11 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didTapAccountButton() {
         wireframe.showWalletSelection(from: view)
+    }
+
+    func didRecieveSelectedCurrency(_ selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        provideViewModel()
     }
 }
 

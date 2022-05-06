@@ -9,6 +9,7 @@ final class SelectCurrencyPresenter {
     private let interactor: SelectCurrencyInteractorInput
     private let viewModelFactory: SelectCurrencyViewModelFactoryProtocol
 
+    private var selectedCurrency: Currency?
     private var supportedCurrencys: [Currency]?
 
     // MARK: - Constructors
@@ -27,9 +28,17 @@ final class SelectCurrencyPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel(with supportedCurrencys: [Currency]) {
+    private func provideViewModel() {
+        guard
+            let supportedCurrencys = supportedCurrencys,
+            let selectedCurrency = selectedCurrency
+        else {
+            return
+        }
+
         let viewModel = viewModelFactory.buildViewModel(
-            supportedCurrencys: supportedCurrencys
+            supportedCurrencys: supportedCurrencys,
+            selectedCurrency: selectedCurrency
         )
         view?.didRecieve(viewModel: viewModel)
     }
@@ -58,10 +67,15 @@ extension SelectCurrencyPresenter: SelectCurrencyInteractorOutput {
         switch supportedCurrencys {
         case let .success(supportedCurrencys):
             self.supportedCurrencys = supportedCurrencys
-            provideViewModel(with: supportedCurrencys)
-        case .failure:
-            break
+            provideViewModel()
+        case let .failure(error):
+            router.present(error: error, from: view, locale: localizationManager?.selectedLocale)
         }
+    }
+
+    func didRecieve(selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        provideViewModel()
     }
 }
 

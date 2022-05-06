@@ -36,15 +36,7 @@ final class SelectCurrencyInteractor {
         fiatInfoProvider = jsonDataProviderFactory.getJson(for: fiatUrl)
 
         let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in
-            if var result = changes.reduceToLastChange() {
-                guard
-                    let selectedCurrency = self?.selectedMetaAccount.selectedCurrency,
-                    let selectedCurrencyIndex = result.firstIndex(where: { $0.id == selectedCurrency.id })
-                else {
-                    return
-                }
-
-                result[selectedCurrencyIndex] = selectedCurrency
+            if let result = changes.reduceToLastChange() {
                 self?.output?.didRecieve(supportedCurrencys: .success(result))
             }
         }
@@ -76,11 +68,11 @@ final class SelectCurrencyInteractor {
             []
         }
 
-        operation.completionBlock = { [weak self] in
+        operation.completionBlock = { [eventCenter] in
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
-                    self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                    eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                 case .failure:
                     break
                 }
@@ -96,6 +88,7 @@ final class SelectCurrencyInteractor {
 extension SelectCurrencyInteractor: SelectCurrencyInteractorInput {
     func setup(with output: SelectCurrencyInteractorOutput) {
         self.output = output
+        output.didRecieve(selectedCurrency: selectedMetaAccount.selectedCurrency)
         subscribeToFiats()
     }
 

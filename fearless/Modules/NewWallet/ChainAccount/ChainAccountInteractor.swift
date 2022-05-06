@@ -110,7 +110,7 @@ final class ChainAccountInteractor {
     }
 
     private func provideSelectedCurrency() {
-        presenter?.didRecieve(currency: selectedMetaAccount.selectedCurrency)
+        presenter?.didReceive(currency: selectedMetaAccount.selectedCurrency)
     }
 }
 
@@ -201,8 +201,8 @@ extension ChainAccountInteractor: EventVisitorProtocol {
         subscribeToAccountInfo()
     }
 
-    func processAssetsListChanged(event: AssetsListChangedEvent) {
-        presenter?.didRecieve(currency: event.account.selectedCurrency)
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        presenter?.didReceive(currency: event.account.selectedCurrency)
     }
 }
 

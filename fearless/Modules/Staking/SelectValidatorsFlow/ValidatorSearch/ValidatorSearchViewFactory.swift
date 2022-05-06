@@ -42,7 +42,8 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
         chain: ChainModel,
         with validatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?
+        delegate: ValidatorSearchDelegate?,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol? {
         guard let interactor = createInteractor(asset: asset, chain: chain, settings: SettingsManager.shared) else {
             return nil
@@ -61,7 +62,8 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared,
             asset: asset,
-            chain: chain
+            chain: chain,
+            wallet: wallet
         )
 
         presenter.delegate = delegate

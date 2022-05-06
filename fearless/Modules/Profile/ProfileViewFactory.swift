@@ -34,7 +34,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             wireframe: ProfileWireframe(),
             logger: Logger.shared,
             settings: settings,
-            eventCentr: EventCenter.shared,
+            eventCenter: EventCenter.shared,
             localizationManager: localizationManager
         )
 
