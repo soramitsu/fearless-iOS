@@ -65,7 +65,10 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         }
 
         repositoryObservable.addObserver(self, deliverOn: .main) { [weak self] changes in
-            self?.presenter?.didReceive(changes: changes)
+            guard let strongSelf = self else { return }
+            strongSelf.presenter?.didReceive(changes: changes)
+            let accounts = changes.compactMap(\.item)
+            strongSelf.getBalanceProvider.getBalances(for: accounts, handler: strongSelf)
         }
 
         provideInitialList()
