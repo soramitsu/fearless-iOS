@@ -121,6 +121,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             }
 
             return buildChainAccountBalanceCellViewModel(
+                chains: chains,
                 chainAsset: chainAsset,
                 priceData: priceData,
                 accountInfos: accountInfos,
@@ -153,13 +154,20 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
     }
 
     func buildChainAccountBalanceCellViewModel(
+        chains: [ChainModel],
         chainAsset: ChainAsset,
         priceData: PriceDataUpdated?,
         accountInfos: [ChainModel.Id: AccountInfo?],
         locale: Locale
     ) -> ChainAccountBalanceCellViewModel {
-        let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
-        let title = chainAsset.chain.name
+        var icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
+        var title = chainAsset.chain.name
+
+        if chainAsset.chain.parentId == chainAsset.asset.chainId,
+           let chain = chains.first(where: { $0.chainId == chainAsset.asset.chainId }) {
+            title = chain.name
+            icon = chain.icon.map { buildRemoteImageViewModel(url: $0) }
+        }
 
         let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
         let balance = getBalanceString(
