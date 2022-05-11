@@ -12,6 +12,12 @@ final class AccountImportViewLayout: UIView {
         static let derivationPathLabelHeight: CGFloat = 15
         static let derivationPathViewToLabelSpacing: CGFloat = 12
         static let contentBottomOffset: CGFloat = 92
+        static let usernameTextFieldContentInsets = UIEdgeInsets(
+            top: 4.0,
+            left: 0.0,
+            bottom: 4.0,
+            right: 0.0
+        )
     }
 
     var locale = Locale.current {
@@ -81,12 +87,7 @@ final class AccountImportViewLayout: UIView {
         inputView.backgroundView.strokeColor = R.color.colorGray()!
         inputView.backgroundView.highlightedStrokeColor = R.color.colorGray()!
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
-        inputView.animatedInputField.contentInsets = UIEdgeInsets(
-            top: 4.0,
-            left: 0.0,
-            bottom: 4.0,
-            right: 0.0
-        )
+        inputView.animatedInputField.contentInsets = Constants.usernameTextFieldContentInsets
         inputView.defaultSetup()
         return inputView
     }()
