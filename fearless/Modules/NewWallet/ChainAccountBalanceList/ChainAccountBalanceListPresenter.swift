@@ -65,7 +65,7 @@ final class ChainAccountBalanceListPresenter {
         }
     }
 
-    private func priceIsUpdating() {
+    private func priceUpdateDidStart() {
         let chainModelsWithPriceId = chainModels.filter { chain in
             !chain.assets.filter { $0.asset.priceId != nil }.isEmpty
         }
@@ -88,7 +88,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didPullToRefreshOnAssetsTable() {
-        priceIsUpdating()
+        priceUpdateDidStart()
         provideViewModel()
         interactor.refresh()
     }
@@ -120,7 +120,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
             let selectionCallback: ModalPickerSelectionCallback = { [weak self, supportedCurrencys] selectedIndex in
                 guard let strongSelf = self else { return }
 
-                strongSelf.priceIsUpdating()
+                strongSelf.priceUpdateDidStart()
                 strongSelf.provideViewModel()
 
                 var selectedCurrency = supportedCurrencys[selectedIndex]
@@ -199,7 +199,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didRecieveSelectedCurrency(_ selectedCurrency: Currency) {
         self.selectedCurrency = selectedCurrency
-        priceIsUpdating()
+        priceUpdateDidStart()
         provideViewModel()
     }
 }
