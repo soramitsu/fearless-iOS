@@ -254,6 +254,7 @@ extension StakingMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscrip
         if let chainAsset = stakingSettings.value, chainAsset.asset.priceId == priceId {
             switch result {
             case let .success(priceData):
+                guard let priceData = priceData else { return }
                 presenter.didReceive(price: priceData)
             case let .failure(error):
                 presenter.didReceive(priceError: error)
