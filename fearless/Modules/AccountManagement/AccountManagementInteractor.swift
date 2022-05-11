@@ -68,7 +68,7 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
             guard let strongSelf = self else { return }
             strongSelf.presenter?.didReceive(changes: changes)
             let accounts = changes.compactMap(\.item)
-            strongSelf.getBalanceProvider.getBalances(for: accounts, handler: strongSelf)
+            strongSelf.getBalances(for: accounts)
         }
 
         provideInitialList()
