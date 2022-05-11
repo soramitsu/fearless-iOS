@@ -13,6 +13,7 @@ final class ManageAssetsPresenter {
     private var sortedKeys: [String]?
     private var assetIdsEnabled: [String]?
     private var filter: String?
+    private var notFilteredCellModels: [ManageAssetsTableViewCellModel]?
 
     init(
         interactor: ManageAssetsInteractorInputProtocol,
@@ -42,6 +43,16 @@ final class ManageAssetsPresenter {
         )
 
         self.viewModel = viewModel
+
+        let cellModels = viewModel.sections
+            .compactMap { section in
+                section.cellModels
+            }
+            .reduce([], +)
+
+        if notFilteredCellModels == nil, !cellModels.isEmpty {
+            notFilteredCellModels = cellModels
+        }
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
@@ -125,12 +136,8 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
 
         var modifiedAssetIdsEnabled: [String] = []
         if assetIdsEnabled == nil {
-            modifiedAssetIdsEnabled = viewModel?.sections
-                .compactMap { section in
-                    section.cellModels
-                }
-                .reduce([], +)
-                .map { $0.chainAsset.uniqueKey(accountId: accountId) }
+            modifiedAssetIdsEnabled = notFilteredCellModels?
+                .compactMap { $0.chainAsset.uniqueKey(accountId: accountId) }
                 .filter { $0 != id } ?? []
         } else {
             let contains = assetIdsEnabled?.contains(id) == true
