@@ -6,8 +6,15 @@ struct Crowdloan {
 }
 
 extension Crowdloan {
-    func isCompleted(for metadata: CrowdloanMetadata) -> Bool {
-        fundInfo.raised >= fundInfo.cap ||
+    func isCompleted(for metadata: CrowdloanMetadata, displayInfo: CrowdloanDisplayInfo?) -> Bool {
+        if let displayInfo = displayInfo {
+            if displayInfo.disabled == true { return true }
+            if let endingBlock = displayInfo.endingBlock, metadata.blockNumber >= endingBlock {
+                return true
+            }
+        }
+
+        return fundInfo.raised >= fundInfo.cap ||
             metadata.blockNumber >= fundInfo.end ||
             metadata.leasingIndex > fundInfo.firstPeriod
     }
