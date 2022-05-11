@@ -173,6 +173,10 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
             refresh()
         }
     }
+
+    func processWalletNameChanged(event: WalletNameChanged) {
+        presenter?.didReceiveSelectedAccount(event.wallet)
+    }
 }
 
 extension ChainAccountBalanceListInteractor: ApplicationHandlerDelegate {
