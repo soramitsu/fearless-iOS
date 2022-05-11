@@ -21,11 +21,10 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
 
         var extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol?
 
-        if case let .single(chain, _) = flow,
-           let selectedAccount = SelectedWalletSettings.shared.value,
+        if case let .single(chain, _, wallet) = flow,
            let connection = chainRegistry.getConnection(for: chain.chainId),
            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-           let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) {
+           let accountResponse = wallet.fetch(for: chain.accountRequest()) {
             extrinsicOperationFactory = ExtrinsicOperationFactory(
                 accountId: accountResponse.accountId,
                 chainFormat: chain.chainFormat,

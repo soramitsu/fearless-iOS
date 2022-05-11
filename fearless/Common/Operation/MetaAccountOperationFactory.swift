@@ -38,16 +38,17 @@ private extension MetaAccountOperationFactory {
     // MARK: - Factory functions
 
     func createKeypairFactory(_ cryptoType: CryptoType, isEthereumBased: Bool) -> KeypairFactoryProtocol {
-        switch cryptoType {
-        case .sr25519:
-            return SR25519KeypairFactory()
-        case .ed25519:
-            return Ed25519KeypairFactory()
-        case .ecdsa:
-            if isEthereumBased {
-                return BIP32KeypairFactory()
+        if isEthereumBased {
+            return BIP32KeypairFactory()
+        } else {
+            switch cryptoType {
+            case .sr25519:
+                return SR25519KeypairFactory()
+            case .ed25519:
+                return Ed25519KeypairFactory()
+            case .ecdsa:
+                return EcdsaKeypairFactory()
             }
-            return EcdsaKeypairFactory()
         }
     }
 
@@ -240,7 +241,8 @@ private extension MetaAccountOperationFactory {
             chainAccounts: [],
             assetKeysOrder: nil,
             assetIdsEnabled: nil,
-            canExportEthereumMnemonic: true
+            canExportEthereumMnemonic: true,
+            unusedChainIds: nil
         )
     }
 }
@@ -406,7 +408,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainAccounts: [],
                 assetKeysOrder: nil,
                 assetIdsEnabled: nil,
-                canExportEthereumMnemonic: true
+                canExportEthereumMnemonic: true,
+                unusedChainIds: nil
             )
         }
     }

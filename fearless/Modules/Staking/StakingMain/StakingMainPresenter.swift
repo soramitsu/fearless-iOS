@@ -247,7 +247,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                     .stakingBalance,
                     .pendingRewards,
                     .rewardDestination,
-                    .changeValidators(count: nominatorState.nomination.targets.count),
+                    .changeValidators(count: nominatorState.nomination.uniqueTargets.count),
                     .controllerAccount
                 ]
             }

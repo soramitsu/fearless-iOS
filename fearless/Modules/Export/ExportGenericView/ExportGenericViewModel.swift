@@ -8,10 +8,11 @@ protocol ExportGenericViewModelBinding {
 
 protocol MultipleExportGenericViewModelProtocol {
     var viewModels: [ExportGenericViewModelProtocol] { get }
+    var option: ExportOption { get }
+    var flow: ExportFlow { get }
 }
 
 protocol ExportGenericViewModelProtocol {
-    var option: ExportOption { get }
     var chain: ChainModel? { get }
     var cryptoType: CryptoType? { get }
     var derivationPath: String? { get }
@@ -22,6 +23,8 @@ protocol ExportGenericViewModelProtocol {
 
 struct MultiExportViewModel: MultipleExportGenericViewModelProtocol {
     let viewModels: [ExportGenericViewModelProtocol]
+    let option: ExportOption
+    let flow: ExportFlow
 }
 
 struct ExportStringViewModel: ExportGenericViewModelProtocol {

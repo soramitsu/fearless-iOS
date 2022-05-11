@@ -20,6 +20,10 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		07DC9B182810501300526040 /* WalletDetailsTableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */; };
+		07BFF6872816F46C00645906 /* ShimmeredLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF6862816F46C00645906 /* ShimmeredLabel.swift */; };
+		07BFF68A281C3F3400645906 /* ShimmeredProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF689281C3F3400645906 /* ShimmeredProtocol.swift */; };
+		07BFF68C281C3FBD00645906 /* UIImageView+Shimmered.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF68B281C3FBD00645906 /* UIImageView+Shimmered.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
 		0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB887490A8B33890B4E0E4 /* ControllerAccountConfirmationPresenter.swift */; };
@@ -2009,7 +2013,11 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		07BFF6862816F46C00645906 /* ShimmeredLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmeredLabel.swift; sourceTree = "<group>"; };
+		07BFF689281C3F3400645906 /* ShimmeredProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmeredProtocol.swift; sourceTree = "<group>"; };
+		07BFF68B281C3FBD00645906 /* UIImageView+Shimmered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Shimmered.swift"; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
+		07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableHeaderView.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
 		08EB1FC5907B5165836318C4 /* AnalyticsValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsTests.swift; sourceTree = "<group>"; };
 		095DEF513136A26593FB421F /* AnalyticsRewardDetailsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardDetailsViewController.swift; sourceTree = "<group>"; };
@@ -4076,6 +4084,16 @@
 				84E7D67B26376A0A0037EB23 /* YourValidatorListInteractor+Subscription.swift */,
 			);
 			path = YourValidatorList;
+			sourceTree = "<group>";
+		};
+		07BFF688281C3F1600645906 /* Shimmered */ = {
+			isa = PBXGroup;
+			children = (
+				07BFF6862816F46C00645906 /* ShimmeredLabel.swift */,
+				07BFF689281C3F3400645906 /* ShimmeredProtocol.swift */,
+				07BFF68B281C3FBD00645906 /* UIImageView+Shimmered.swift */,
+			);
+			name = Shimmered;
 			sourceTree = "<group>";
 		};
 		08D39660D17C5BB0783B7091 /* ChainAccountList */ = {
@@ -6615,6 +6633,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				07BFF688281C3F1600645906 /* Shimmered */,
 				FA8644502768A13300956D8E /* TwoLabelView.swift */,
 				FA38C988275DFB8D005C5577 /* NavigationBar */,
 				FA2569B9274CE74000875A53 /* AttentionView.swift */,
@@ -8608,6 +8627,7 @@
 			isa = PBXGroup;
 			children = (
 				C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */,
+				07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -10539,6 +10559,7 @@
 				FA38C9A62760701F005C5577 /* SearchService.swift in Sources */,
 				84873B0926029CBD000A83EE /* StakingStateViewModelFactory.swift in Sources */,
 				84C3F78C26020DE800D47501 /* StakingStateMachineProtocols.swift in Sources */,
+				07DC9B182810501300526040 /* WalletDetailsTableHeaderView.swift in Sources */,
 				846CA7722707A3060011124C /* SingleToMultiasset.xcmappingmodel in Sources */,
 				8425EA9525EA82CE00C307C9 /* AccountIdentity.swift in Sources */,
 				845BB8DB25E462B100E5FCDC /* SubstrateConstansts.swift in Sources */,
@@ -10606,6 +10627,7 @@
 				84DD5F64263DFAB700425ACF /* ErrorConditionViolation.swift in Sources */,
 				8428768324AE046300D91AD8 /* LanguageSelectionViewController.swift in Sources */,
 				8493D3E62705994200157009 /* StakingSharedState.swift in Sources */,
+				07BFF68A281C3F3400645906 /* ShimmeredProtocol.swift in Sources */,
 				8470D6D2253E3382009E9A5D /* StorageSubscriptionContainer.swift in Sources */,
 				84038FEE26FFBA6200C73F3F /* PriceLocalSubscriptionHandler.swift in Sources */,
 				84293E5D261BB7B3008E5EDD /* TransactionType+Wallet.swift in Sources */,
@@ -10787,6 +10809,7 @@
 				FA99425C28053C8800D771E5 /* SelectExportAccountRouter.swift in Sources */,
 				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
 				C68130E1275FD426007B573A /* ReceiveAssetWireframe.swift in Sources */,
+				07BFF68C281C3FBD00645906 /* UIImageView+Shimmered.swift in Sources */,
 				84F2FEFF25E7ADE7008338D5 /* ValidatorPrefs.swift in Sources */,
 				FA2569AE274CE70800875A53 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */,
@@ -11820,6 +11843,7 @@
 				90EFE3768F1375470FDBE6F6 /* PurchaseViewFactory.swift in Sources */,
 				F4A198EE2631AA2000CD6E61 /* StakingBalanceUnbondingItemView.swift in Sources */,
 				FA99425528053C8800D771E5 /* SelectExportAccountInteractor.swift in Sources */,
+				07BFF6872816F46C00645906 /* ShimmeredLabel.swift in Sources */,
 				845532D226846B6800C2645D /* ParachainLeaseInfo.swift in Sources */,
 				84DE8BD6264A651A002AF1EF /* RewardSelectionView+Inspectable.swift in Sources */,
 				8401AEC02642A71D000B03E3 /* StakingRebondConfirmationViewModelFactory.swift in Sources */,

@@ -223,7 +223,7 @@ final class AccountImportViewLayout: UIView {
         view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
-        view.clearButtonMode = .whileEditing
+        view.clearButtonMode = .never
         view.returnKeyType = .done
         return view
     }()
@@ -233,7 +233,7 @@ final class AccountImportViewLayout: UIView {
         view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
-        view.clearButtonMode = .whileEditing
+        view.clearButtonMode = .never
         view.keyboardType = .decimalPad
         return view
     }()
@@ -358,6 +358,17 @@ extension AccountImportViewLayout {
         ethereumDerivationPathImage.isHidden = !chainType.includeEthereum
         ethereumDerivationPathLabel.isHidden = !chainType.includeEthereum
         ethereumCryptoTypeView.isHidden = !chainType.includeEthereum
+    }
+
+    func setAdvancedVisibility(_ visible: Bool) {
+        expandableControlContainerView.isHidden = !visible
+        expandableControl.isHidden = !visible
+        advancedContainerView.isHidden = !visible
+    }
+
+    func setUsernameVisibility(_ visible: Bool) {
+        usernameTextFieldContainer.isHidden = !visible
+        usernameLabelContainer.isHidden = !visible
     }
 }
 

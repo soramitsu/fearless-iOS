@@ -115,9 +115,18 @@ final class SelectValidatorsViewLayout: UIView {
 
     private func setupLayout() {
         addSubview(contentView)
+        addSubview(suggestedValidatorsWarningView)
+        suggestedValidatorsWarningView.backgroundColor = R.color.colorBlack()
+        suggestedValidatorsWarningView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset)
+        }
+
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.bottom.greaterThanOrEqualTo(suggestedValidatorsWarningView.snp.top).offset(-UIConstants.bigOffset)
         }
 
         stackView.addArrangedSubview(algoSectionLabel)
@@ -168,13 +177,6 @@ final class SelectValidatorsViewLayout: UIView {
         customValidatorsCell.rowContentView.addSubview(customValidatorsActivityIndicator)
         customValidatorsActivityIndicator.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
-        }
-
-        addSubview(suggestedValidatorsWarningView)
-        suggestedValidatorsWarningView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset)
         }
     }
 

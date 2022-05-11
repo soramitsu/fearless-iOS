@@ -2,7 +2,7 @@ import Foundation
 
 enum ExportFlow {
     case multiple(wallet: MetaAccountModel, accounts: [ChainAccountInfo])
-    case single(chain: ChainModel, address: String)
+    case single(chain: ChainModel, address: String, wallet: MetaAccountModel)
 
     var exportingAccounts: [ChainAccountInfo] {
         guard case let .multiple(_, accounts) = self else {

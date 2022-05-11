@@ -13,6 +13,10 @@ final class SubstrateQRParser: QRParser {
         let fields = code
             .components(separatedBy: separator)
 
+        if fields.count == 1 {
+            return code
+        }
+
         guard fields.count >= 3, fields.count <= 4 else {
             throw QRDecoderError.unexpectedNumberOfFields
         }
