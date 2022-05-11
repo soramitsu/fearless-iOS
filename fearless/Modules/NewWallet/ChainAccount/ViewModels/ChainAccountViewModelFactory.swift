@@ -97,7 +97,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     ) -> AssetInfoViewModel {
         AssetInfoViewModel(
             assetInfo: assetModel.displayInfo,
-            imageViewModel: chain.icon.map { buildRemoteImageViewModel(url: $0) },
+            imageViewModel: assetModel.displayInfo.icon.map { buildRemoteImageViewModel(url: $0) },
             priceAttributedString: buildPriceViewModel(
                 for: assetModel,
                 priceData: priceData,
