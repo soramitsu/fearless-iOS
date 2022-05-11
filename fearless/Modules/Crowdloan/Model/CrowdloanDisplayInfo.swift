@@ -8,6 +8,8 @@ struct CrowdloanDisplayInfo: Codable, Equatable {
     let website: String
     let icon: String
     let rewardRate: Decimal?
+    let endingBlock: BlockNumber?
+    let disabled: Bool?
     let flow: CustomCrowdloanFlow?
 }
 

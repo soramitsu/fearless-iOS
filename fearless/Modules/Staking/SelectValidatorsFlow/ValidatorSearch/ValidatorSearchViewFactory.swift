@@ -9,7 +9,8 @@ struct ValidatorSearchViewFactory {
         chain: ChainModel,
         settings _: SettingsManagerProtocol
     ) -> ValidatorSearchInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
             return nil
         }
 
@@ -25,7 +26,7 @@ struct ValidatorSearchViewFactory {
             rewardService: RewardCalculatorFacade.sharedService,
             storageRequestFactory: storageRequestFactory,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
+            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
