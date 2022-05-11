@@ -79,7 +79,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
             self.flow.wallet.replacingName(walletName)
         }
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try updateOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             return accountItem
