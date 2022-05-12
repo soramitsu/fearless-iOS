@@ -73,7 +73,7 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     }
 
     func handleReward(_ rewardModel: AnalyticsRewardDetailsModel) {
-        wireframe.showRewardDetails(rewardModel, from: view)
+        wireframe.showRewardDetails(rewardModel, from: view, wallet: selectedAccount)
     }
 
     func handlePendingRewardsAction() {

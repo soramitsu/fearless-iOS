@@ -18,7 +18,8 @@ struct StakingBalanceViewFactory {
         let wireframe = StakingBalanceWireframe()
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedAccount
         )
 
         let viewModelFactory = StakingBalanceViewModelFactory(

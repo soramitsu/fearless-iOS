@@ -82,7 +82,7 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
                 case let .success(account):
                     DispatchQueue.main.async {
                         self?.selectedMetaAccount = account
-                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                     }
                 case .failure:
                     break
@@ -138,7 +138,7 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
                     SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                         switch result {
                         case let .success(account):
-                            self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                            self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                         case .failure:
                             break
                         }

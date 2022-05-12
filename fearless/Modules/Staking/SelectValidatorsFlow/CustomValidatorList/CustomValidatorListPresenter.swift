@@ -195,7 +195,8 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
             asset: asset,
             chain: chain,
             validatorInfo: selectedValidator,
-            from: view
+            from: view,
+            wallet: selectedAccount
         )
     }
 
@@ -215,7 +216,8 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
             selectedValidatorList: selectedValidatorList.items,
             delegate: self,
             chain: chain,
-            asset: asset
+            asset: asset,
+            wallet: selectedAccount
         )
     }
 

@@ -14,7 +14,8 @@ struct CrowdloanContributionSetupViewFactory {
                 for: paraId,
                 chainAsset: ChainAsset(chain: chain, asset: asset.asset),
                 state: state
-            )
+            ),
+            let selectedMetaAccount = SelectedWalletSettings.shared.value
         else {
             return nil
         }
@@ -22,7 +23,10 @@ struct CrowdloanContributionSetupViewFactory {
         let wireframe = CrowdloanContributionSetupWireframe(state: state)
 
         let assetInfo = asset.asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         let localizationManager = LocalizationManager.shared
 

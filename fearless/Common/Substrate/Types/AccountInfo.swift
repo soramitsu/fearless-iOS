@@ -25,7 +25,6 @@ struct AccountInfo: Codable, Equatable {
         guard let ormlAccountInfo = ormlAccountInfo else {
             return nil
         }
-
         nonce = 0
         consumers = 0
         providers = 0

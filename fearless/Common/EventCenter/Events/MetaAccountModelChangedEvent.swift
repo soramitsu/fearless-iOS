@@ -1,9 +1,9 @@
 import Foundation
 
-struct AssetsListChangedEvent: EventProtocol {
+struct MetaAccountModelChangedEvent: EventProtocol {
     let account: MetaAccountModel
 
     func accept(visitor: EventVisitorProtocol) {
-        visitor.processAssetsListChanged(event: self)
+        visitor.processMetaAccountChanged(event: self)
     }
 }

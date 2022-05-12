@@ -57,8 +57,8 @@ final class SelectExportAccountViewLayout: UIView {
     }
 
     func applyLocalization() {
-        titleLabel.text = "What accounts in the wallet do you want to export?"
-        continueButton.imageWithTitleView?.title = "Continue"
+        titleLabel.text = R.string.localizable.whatAccountsForExport(preferredLanguages: locale.rLanguages)
+        continueButton.imageWithTitleView?.title = R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)
     }
 
     // MARK: - Public methods

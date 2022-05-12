@@ -77,6 +77,10 @@ extension WalletDetailsViewController: WalletDetailsViewProtocol {
         rootView.walletView.animatedInputField.title = viewModel.title
         rootView.walletView.animatedInputField.text = viewModel.inputHandler.value
     }
+
+    func didReceive(locale: Locale) {
+        rootView.locale = locale
+    }
 }
 
 extension WalletDetailsViewController: AnimatedTextFieldDelegate {

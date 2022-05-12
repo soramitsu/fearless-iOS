@@ -17,6 +17,7 @@ final class ChainAccountBalanceListPresenter {
     private var prices: [AssetModel.PriceId: PriceDataUpdated] = [:]
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
+    private var selectedCurrency: Currency?
 
     init(
         interactor: ChainAccountBalanceListInteractorInputProtocol,
@@ -64,7 +65,7 @@ final class ChainAccountBalanceListPresenter {
         }
     }
 
-    private func priceIsUpdating() {
+    private func priceUpdateDidStart() {
         let chainModelsWithPriceId = chainModels.filter { chain in
             !chain.assets.filter { $0.asset.priceId != nil }.isEmpty
         }
@@ -87,7 +88,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didPullToRefreshOnAssetsTable() {
-        priceIsUpdating()
+        priceUpdateDidStart()
         provideViewModel()
         interactor.refresh()
     }
@@ -105,9 +106,39 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
             }
         }
     }
+
+    func didTapTotalBalanceLabel() {
+        interactor.fetchFiats()
+    }
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOutputProtocol {
+    func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>) {
+        switch supportedCurrencys {
+        case let .success(supportedCurrencys):
+
+            let selectionCallback: ModalPickerSelectionCallback = { [weak self, supportedCurrencys] selectedIndex in
+                guard let strongSelf = self else { return }
+
+                strongSelf.priceUpdateDidStart()
+                strongSelf.provideViewModel()
+
+                var selectedCurrency = supportedCurrencys[selectedIndex]
+                selectedCurrency.isSelected = true
+                strongSelf.interactor.didReceive(currency: selectedCurrency)
+            }
+
+            wireframe.presentSelectCurrency(
+                from: view,
+                supportedCurrencys: supportedCurrencys,
+                selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
+                callback: selectionCallback
+            )
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: localizationManager?.selectedLocale)
+        }
+    }
+
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
         case let .success(chains):
@@ -164,6 +195,12 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didTapAccountButton() {
         wireframe.showWalletSelection(from: view)
+    }
+
+    func didRecieveSelectedCurrency(_ selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        priceUpdateDidStart()
+        provideViewModel()
     }
 }
 
