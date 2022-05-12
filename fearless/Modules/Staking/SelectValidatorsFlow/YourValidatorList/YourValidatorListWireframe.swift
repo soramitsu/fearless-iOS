@@ -5,13 +5,15 @@ final class YourValidatorListWireframe: YourValidatorListWireframeProtocol {
         _ validatorInfo: ValidatorInfoProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        from view: YourValidatorListViewProtocol?
+        from view: YourValidatorListViewProtocol?,
+        wallet: MetaAccountModel
     ) {
         guard
             let nextView = ValidatorInfoViewFactory.createView(
                 asset: asset,
                 chain: chain,
-                validatorInfo: validatorInfo
+                validatorInfo: validatorInfo,
+                wallet: wallet
             ) else {
             return
         }

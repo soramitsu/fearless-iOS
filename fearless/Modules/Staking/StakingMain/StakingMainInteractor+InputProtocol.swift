@@ -3,6 +3,11 @@ import SoraFoundation
 import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
+    func updatePrices() {
+        updateAfterChainAssetSave()
+        updateAfterSelectedAccountChange()
+    }
+
     func saveNetworkInfoViewExpansion(isExpanded: Bool) {
         commonSettings.stakingNetworkExpansion = isExpanded
     }
@@ -130,6 +135,10 @@ extension StakingMainInteractor: EventVisitorProtocol {
         }) else { return }
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
+    }
+
+    func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {
+        priceProvider?.refresh()
     }
 }
 

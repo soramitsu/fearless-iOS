@@ -8,12 +8,14 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
     func createProfileViewModel(
         from wallet: MetaAccountModel,
         locale: Locale,
-        language: Language
+        language: Language,
+        currency: Currency
     ) -> ProfileViewModelProtocol
 }
 
 enum ProfileOption: UInt, CaseIterable {
     case accountList
+    case currency
     case language
     case changePincode
     case biometry
@@ -44,10 +46,15 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     func createProfileViewModel(
         from wallet: MetaAccountModel,
         locale: Locale,
-        language: Language
+        language: Language,
+        currency: Currency
     ) -> ProfileViewModelProtocol {
         let profileUserViewModel = createUserViewModel(from: wallet, locale: locale)
-        let profileOptionViewModel = createOptionViewModels(language: language, locale: locale)
+        let profileOptionViewModel = createOptionViewModels(
+            language: language,
+            currency: currency,
+            locale: locale
+        )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         let viewModel = ProfileViewModel(
             profileUserViewModel: profileUserViewModel,
@@ -74,6 +81,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createOptionViewModels(
         language: Language,
+        currency: Currency,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
@@ -88,6 +96,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createAboutViewModel(for: locale)
             case .biometry:
                 return createBiometryViewModel(for: locale)
+            case .currency:
+                return createCurrencyViewModel(from: currency, locale: locale)
             }
         }
 
@@ -186,5 +196,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: nil,
             accessoryType: .arrow
         )
+    }
+
+    private func createCurrencyViewModel(from currency: Currency, locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .commonCurrency(preferredLanguages: locale.rLanguages)
+        let subtitle = currency.id.uppercased()
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconCurrency()!,
+            accessoryTitle: subtitle,
+            accessoryType: .arrow
+        )
+
+        return viewModel
     }
 }

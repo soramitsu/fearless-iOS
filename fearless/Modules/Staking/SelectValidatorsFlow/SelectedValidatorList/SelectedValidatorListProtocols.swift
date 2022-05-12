@@ -33,7 +33,8 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
         _ validatorInfo: ValidatorInfoProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     )
 
     func proceed(

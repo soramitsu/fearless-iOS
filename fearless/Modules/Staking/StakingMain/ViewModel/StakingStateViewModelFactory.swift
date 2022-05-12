@@ -3,6 +3,7 @@ import CommonWallet
 import SoraFoundation
 import BigInt
 import IrohaCrypto
+import SoraKeystore
 
 protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState
@@ -14,8 +15,10 @@ typealias AnalyticsRewardsViewModelFactoryBuilder = (
 ) -> AnalyticsRewardsViewModelFactoryProtocol
 
 final class StakingStateViewModelFactory {
-    let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
-    let logger: LoggerProtocol?
+    private let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
+    private let logger: LoggerProtocol?
+    private var selectedMetaAccount: MetaAccountModel
+    private let eventCenter: EventCenter
 
     private var lastViewModel: StakingViewState = .undefined
 
@@ -27,10 +30,15 @@ final class StakingStateViewModelFactory {
 
     init(
         analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        selectedMetaAccount: MetaAccountModel,
+        eventCenter: EventCenter
     ) {
         self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
+        self.selectedMetaAccount = selectedMetaAccount
+        self.eventCenter = eventCenter
+        self.eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     private func updateCacheForChainAsset(_ newChainAsset: ChainAsset) {
@@ -61,7 +69,10 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
+        let factory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         balanceViewModelFactory = factory
 
@@ -73,7 +84,10 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = RewardViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo)
+        let factory = RewardViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         rewardViewModelFactory = factory
 
@@ -445,5 +459,11 @@ extension StakingStateViewModelFactory: StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState {
         state.accept(visitor: self)
         return lastViewModel
+    }
+}
+
+extension StakingStateViewModelFactory: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
     }
 }

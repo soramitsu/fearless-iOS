@@ -18,7 +18,11 @@ protocol AnalyticsStakeInteractorOutputProtocol: AnyObject {
 }
 
 protocol AnalyticsStakeWireframeProtocol: AnyObject {
-    func showRewardDetails(_ rewardModel: AnalyticsRewardDetailsModel, from view: ControllerBackedProtocol?)
+    func showRewardDetails(
+        _ rewardModel: AnalyticsRewardDetailsModel,
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol AnalyticsStakeViewModelFactoryProtocol {

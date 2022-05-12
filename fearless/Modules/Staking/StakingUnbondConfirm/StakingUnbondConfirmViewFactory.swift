@@ -25,7 +25,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             asset: asset,
             interactor: interactor,
             wireframe: wireframe,
-            amount: amount
+            amount: amount,
+            selectedMetaAccount: selectedAccount
         )
 
         let view = StakingUnbondConfirmViewController(
@@ -44,11 +45,13 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         asset: AssetModel,
         interactor: StakingUnbondConfirmInteractorInputProtocol,
         wireframe: StakingUnbondConfirmWireframeProtocol,
-        amount: Decimal
+        amount: Decimal,
+        selectedMetaAccount: MetaAccountModel
     ) -> StakingUnbondConfirmPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let confirmationViewModelFactory = StakingUnbondConfirmViewModelFactory(asset: asset)

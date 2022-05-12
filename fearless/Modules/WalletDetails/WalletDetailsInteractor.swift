@@ -54,7 +54,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
                             self?.flow = .normal(wallet: account)
                         }
 
-                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                     }
 
                 case .failure:

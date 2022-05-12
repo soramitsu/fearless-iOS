@@ -25,7 +25,10 @@ struct WalletSendConfirmViewFactory {
 
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
 
