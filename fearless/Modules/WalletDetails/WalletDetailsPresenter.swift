@@ -44,6 +44,7 @@ final class WalletDetailsPresenter {
 extension WalletDetailsPresenter: Localizable {
     func applyLocalization() {
         provideViewModel(chains: chains)
+        view?.didReceive(locale: selectedLocale)
     }
 }
 
