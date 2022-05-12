@@ -92,6 +92,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
             to: viewModel.address,
             asset: asset,
             chain: chain,
+            wallet: selectedAccount,
             transferFinishBlock: transferFinishBlock
         )
     }
@@ -126,6 +127,7 @@ extension SearchPeoplePresenter: WalletScanQRModuleOutput {
             to: address,
             asset: asset,
             chain: chain,
+            wallet: selectedAccount,
             transferFinishBlock: transferFinishBlock
         )
     }

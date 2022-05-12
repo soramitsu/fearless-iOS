@@ -44,6 +44,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var hasCloseItem: Bool = false
     var allowsSelection: Bool = true
     var showSelection: Bool = true
+    var presenterCanDrag: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
@@ -213,8 +214,12 @@ extension ModalPickerViewController: Localizable {
     }
 }
 
-extension ModalPickerViewController: ModalPresenterDelegate {
+extension ModalPickerViewController: ModalPresenterDelegate, ModalSheetPresenterDelegate {
     func presenterDidHide(_: ModalPresenterProtocol) {
         delegate?.modalPickerDidCancel(context: context)
+    }
+
+    func presenterCanDrag(_: ModalPresenterProtocol) -> Bool {
+        presenterCanDrag
     }
 }

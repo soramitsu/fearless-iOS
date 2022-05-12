@@ -2,7 +2,10 @@ import Foundation
 import SoraFoundation
 
 final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
-    static func createView(with models: [RestoreJson]) -> ExportGenericViewProtocol? {
+    static func createView(
+        with models: [RestoreJson],
+        flow: ExportFlow
+    ) -> ExportGenericViewProtocol? {
         let accessoryActionTitle = LocalizableResource { locale in
             R.string.localizable.commonChangePassword(preferredLanguages: locale.rLanguages)
         }
@@ -21,6 +24,7 @@ final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
 
         let presenter = ExportRestoreJsonPresenter(
             models: models,
+            flow: flow,
             localizationManager: LocalizationManager.shared
         )
         presenter.wireframe = ExportRestoreJsonWireframe()

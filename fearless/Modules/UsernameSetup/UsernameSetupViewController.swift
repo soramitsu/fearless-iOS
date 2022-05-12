@@ -132,7 +132,8 @@ extension UsernameSetupViewController: UsernameSetupViewProtocol {
     func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>) {
         self.viewModel = viewModel.underlyingViewModel
         rootView.usernameTextField.text = viewModel.underlyingViewModel.inputHandler.value
-        viewModel.selectable ? rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
+        rootView.usernameTextFieldContainer.isHidden = !viewModel.selectable
+        rootView.hintLabelContainer.isHidden = !viewModel.selectable
         updateActionButton()
     }
 

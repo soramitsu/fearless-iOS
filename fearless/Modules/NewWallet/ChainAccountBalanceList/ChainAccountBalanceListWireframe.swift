@@ -36,12 +36,29 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
             return
         }
 
-        let navigationController = UINavigationController(rootViewController: manageAssetsController)
+        let navigationController = FearlessNavigationController(rootViewController: manageAssetsController)
 
         view?.controller.present(
             navigationController,
             animated: true,
             completion: nil
         )
+    }
+
+    func presentSelectCurrency(
+        from view: ControllerBackedProtocol?,
+        supportedCurrencys: [Currency],
+        selectedCurrency: Currency,
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        guard
+            let pickerView = ModalPickerFactory.createPickerForSelectCurrency(
+                supportedCurrencys: supportedCurrencys,
+                selectedCurrency: selectedCurrency,
+                callback: callback
+            )
+        else { return }
+
+        view?.controller.navigationController?.present(pickerView, animated: true)
     }
 }

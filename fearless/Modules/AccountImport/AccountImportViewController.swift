@@ -170,8 +170,7 @@ private extension AccountImportViewController {
     }
 
     @objc func substrateTextFieldEditingChanged() {
-        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text,
-           !(rootView.substrateDerivationPathField.text?.isEmpty ?? true) {
+        if substrateDerivationPathModel?.inputHandler.value != rootView.substrateDerivationPathField.text {
             rootView.substrateDerivationPathField.text = substrateDerivationPathModel?.inputHandler.value
         }
 
@@ -179,8 +178,7 @@ private extension AccountImportViewController {
     }
 
     @objc func ethereumTextFieldEditingChanged() {
-        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text,
-           !(rootView.ethereumDerivationPathField.text?.isEmpty ?? true) {
+        if ethereumDerivationPathModel?.inputHandler.value != rootView.ethereumDerivationPathField.text {
             rootView.ethereumDerivationPathField.text = ethereumDerivationPathModel?.inputHandler.value
         }
 
@@ -224,30 +222,28 @@ extension AccountImportViewController: AccountImportViewProtocol {
         rootView.set(chainType: chainType)
     }
 
-    func setSource(type: AccountImportSource, selectable: Bool) {
+    func setSource(type: AccountImportSource, chainType: AccountCreateChainType, selectable: Bool) {
         switch type {
         case .mnemonic:
-            rootView.expandableControlContainerView.isHidden = false
-            rootView.expandableControl.isHidden = false
-            rootView.advancedContainerView.isHidden = false
+            rootView.setAdvancedVisibility(true)
 
             rootView.textViewContainer.isHidden = false
 
             rootView.passwordContainerView.isHidden = true
             rootView.uploadViewContainer.isHidden = true
         case .seed:
-            rootView.expandableControlContainerView.isHidden = !selectable
-            rootView.expandableControl.isHidden = !selectable
-            rootView.advancedContainerView.isHidden = !selectable
-
+            switch chainType {
+            case .substrate, .both:
+                rootView.setAdvancedVisibility(true)
+            case .ethereum:
+                rootView.setAdvancedVisibility(false)
+            }
             rootView.textViewContainer.isHidden = false
 
             rootView.passwordContainerView.isHidden = true
             rootView.uploadViewContainer.isHidden = true
         case .keystore:
-            rootView.expandableControlContainerView.isHidden = true
-            rootView.expandableControl.isHidden = true
-            rootView.advancedContainerView.isHidden = true
+            rootView.setAdvancedVisibility(false)
 
             rootView.textViewContainer.isHidden = true
 
@@ -266,7 +262,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
         rootView.sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
         selectable ? rootView.sourceTypeView.enable() : rootView.sourceTypeView.disable()
         rootView.uploadView.title =
-            selectable ? R.string.localizable.importSubstrateRecoveryJson(preferredLanguages: locale.rLanguages) :
+            chainType.includeSubstrate ? R.string.localizable.importSubstrateRecoveryJson(preferredLanguages: locale.rLanguages) :
             R.string.localizable.importEthereumRecoveryJson(preferredLanguages: locale.rLanguages)
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
@@ -288,12 +284,15 @@ extension AccountImportViewController: AccountImportViewProtocol {
         updateNextButton()
     }
 
-    func setName(viewModel: InputViewModelProtocol) {
+    func setName(viewModel: InputViewModelProtocol, visible: Bool) {
         usernameViewModel = viewModel
 
         rootView.usernameTextField.text = viewModel.inputHandler.value
         viewModel.inputHandler.value.isEmpty ?
             rootView.usernameTextField.enable() : rootView.usernameTextField.disable()
+
+        rootView.setUsernameVisibility(visible)
+
         updateNextButton()
     }
 

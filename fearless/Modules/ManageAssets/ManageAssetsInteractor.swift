@@ -4,7 +4,12 @@ import RobinHood
 final class ManageAssetsInteractor {
     weak var presenter: ManageAssetsInteractorOutputProtocol?
 
-    private var selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel {
+        didSet {
+            presenter?.didReceiveWallet(selectedMetaAccount)
+        }
+    }
+
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -61,17 +66,28 @@ final class ManageAssetsInteractor {
 
 extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
     func markUnused(chain: ChainModel) {
-        chain.unused = true
-        let saveOperation = chainRepository.saveOperation {
-            [chain]
+        var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = selectedMetaAccount.replacingUnusedChainIds(unusedChainIds)
+
+        let saveOperation = accountRepository.saveOperation {
+            [updatedAccount]
         } _: {
             []
         }
 
         saveOperation.completionBlock = { [weak self] in
-            self?.fetchChainsAndSubscribeBalance()
-
-            self?.eventCenter.notify(with: ChainsUpdatedEvent(updatedChains: [chain]))
+            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                switch result {
+                case let .success(account):
+                    DispatchQueue.main.async {
+                        self?.selectedMetaAccount = account
+                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                    }
+                case .failure:
+                    break
+                }
+            }
         }
 
         operationQueue.addOperation(saveOperation)
@@ -122,7 +138,7 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
                     SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                         switch result {
                         case let .success(account):
-                            self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                            self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                         case .failure:
                             break
                         }

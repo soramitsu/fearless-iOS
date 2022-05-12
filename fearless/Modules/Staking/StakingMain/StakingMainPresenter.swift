@@ -7,10 +7,12 @@ final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
+    private var selectedMetaAccount: MetaAccountModel
 
     let networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
+    private let eventCenter: EventCenter
 
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
@@ -44,12 +46,16 @@ final class StakingMainPresenter {
         networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
         viewModelFacade: StakingViewModelFacadeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        selectedMetaAccount: MetaAccountModel,
+        eventCenter: EventCenter
     ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
         self.viewModelFacade = viewModelFacade
         self.logger = logger
+        self.selectedMetaAccount = selectedMetaAccount
+        self.eventCenter = eventCenter
 
         let stateMachine = StakingStateMachine()
         self.stateMachine = stateMachine
@@ -57,6 +63,7 @@ final class StakingMainPresenter {
         self.dataValidatingFactory = dataValidatingFactory
 
         stateMachine.delegate = self
+        self.eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     private func provideStakingInfo() {
@@ -68,7 +75,8 @@ final class StakingMainPresenter {
                     with: networkStakingInfo,
                     chainAsset: chainAsset,
                     minNominatorBond: commonData?.minNominatorBond,
-                    priceData: commonData?.price
+                    priceData: commonData?.price,
+                    selectedMetaAccount: selectedMetaAccount
                 )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
         } else {
@@ -91,7 +99,8 @@ final class StakingMainPresenter {
         let viewModel = networkInfoViewModelFactory.createMainViewModel(
             from: address,
             chainAsset: chainAsset,
-            balance: balance ?? 0.0
+            balance: balance ?? 0.0,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -247,7 +256,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                     .stakingBalance,
                     .pendingRewards,
                     .rewardDestination,
-                    .changeValidators(count: nominatorState.nomination.targets.count),
+                    .changeValidators(count: nominatorState.nomination.uniqueTargets.count),
                     .controllerAccount
                 ]
             }
@@ -736,5 +745,18 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
 extension StakingMainPresenter: AssetSelectionDelegate {
     func assetSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
         interactor.save(chainAsset: chainAsset)
+    }
+}
+
+extension StakingMainPresenter: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
+        guard
+            let isViewLoaded = view?.controller.isViewLoaded,
+            isViewLoaded
+        else {
+            return
+        }
+        interactor.updatePrices()
     }
 }

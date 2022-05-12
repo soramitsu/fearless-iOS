@@ -93,7 +93,8 @@ struct AnalyticsValidatorsViewFactory {
     ) -> AnalyticsValidatorsPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedAccount
         )
         let viewModelFactory = AnalyticsValidatorsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,

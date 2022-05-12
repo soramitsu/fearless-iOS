@@ -375,6 +375,7 @@ enum ModalPickerFactory {
     }
 
     static func createPickerForList(
+        title: String,
         _ chainActions: [ChainAction],
         callback: ModalPickerSelectionCallback?,
         context: AnyObject?
@@ -386,10 +387,7 @@ enum ModalPickerFactory {
         let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
-        viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.importSourcePickerTitle(preferredLanguages: locale.rLanguages)
-        }
-
+        viewController.localizedTitle = LocalizableResource { _ in title }
         viewController.showSelection = false
         viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.selectionCallback = callback
@@ -547,6 +545,50 @@ enum ModalPickerFactory {
 
         let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
             viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerForSelectCurrency(
+        supportedCurrencys: [Currency],
+        selectedCurrency: Currency,
+        callback: ModalPickerSelectionCallback?
+    ) -> UIViewController? {
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonCurrency(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = true
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.selectedIndex = supportedCurrencys.firstIndex(where: { $0.id == selectedCurrency.id }) ?? 0
+        viewController.presenterCanDrag = false
+
+        viewController.viewModels = supportedCurrencys.map { action in
+            LocalizableResource { _ in
+                var remoteImageViewModel: RemoteImageViewModel?
+                if let iconUrl = URL(string: action.icon) {
+                    remoteImageViewModel = RemoteImageViewModel(url: iconUrl)
+                }
+                return IconWithTitleViewModel(
+                    icon: nil,
+                    remoteImageViewModel: remoteImageViewModel,
+                    title: action.id.uppercased()
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = UIScreen.main.bounds.height / 3
         viewController.preferredContentSize = CGSize(width: 0.0, height: height)
 
         viewController.localizationManager = LocalizationManager.shared

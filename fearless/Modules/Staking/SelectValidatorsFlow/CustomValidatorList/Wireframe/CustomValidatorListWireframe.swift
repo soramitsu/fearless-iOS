@@ -5,13 +5,15 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         asset: AssetModel,
         chain: ChainModel,
         validatorInfo: ValidatorInfoProtocol,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     ) {
         guard
             let validatorInfoView = ValidatorInfoViewFactory.createView(
                 asset: asset,
                 chain: chain,
-                validatorInfo: validatorInfo
+                validatorInfo: validatorInfo,
+                wallet: wallet
             ) else {
             return
         }
@@ -47,7 +49,8 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?,
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        wallet: MetaAccountModel
     ) {
         guard let searchView = ValidatorSearchViewFactory
             .createView(
@@ -55,7 +58,8 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
                 chain: chain,
                 with: fullValidatorList,
                 selectedValidatorList: selectedValidatorList,
-                delegate: delegate
+                delegate: delegate,
+                wallet: wallet
             ) else { return }
 
         view?.controller.navigationController?.pushViewController(

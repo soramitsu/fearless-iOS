@@ -26,7 +26,7 @@ protocol EventVisitorProtocol: AnyObject {
 
     func processUserInactive(event: UserInactiveEvent)
 
-    func processAssetsListChanged(event: AssetsListChangedEvent)
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
 }
 
 extension EventVisitorProtocol {
@@ -55,5 +55,5 @@ extension EventVisitorProtocol {
 
     func processUserInactive(event _: UserInactiveEvent) {}
 
-    func processAssetsListChanged(event _: AssetsListChangedEvent) {}
+    func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
 }
