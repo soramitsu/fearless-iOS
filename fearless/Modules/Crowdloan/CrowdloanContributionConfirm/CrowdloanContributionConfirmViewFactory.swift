@@ -11,6 +11,7 @@ struct CrowdloanContributionConfirmViewFactory {
         state: CrowdloanSharedState
     ) -> CrowdloanContributionConfirmViewProtocol? {
         guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
             let chain = state.settings.value,
             let asset = chain.utilityAssets().first,
             let interactor = createInteractor(
@@ -25,7 +26,10 @@ struct CrowdloanContributionConfirmViewFactory {
         let wireframe = CrowdloanContributionConfirmWireframe()
 
         let assetInfo = asset.asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: selectedAccount
+        )
 
         let localizationManager = LocalizationManager.shared
 

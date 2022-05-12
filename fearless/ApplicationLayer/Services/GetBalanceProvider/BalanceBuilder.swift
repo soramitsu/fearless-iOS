@@ -1,11 +1,13 @@
 import Foundation
 import SoraFoundation
 
+// swiftlint:disable function_parameter_count
 protocol BalanceBuilderProtocol {
     func buildBalance(
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo],
         prices: [AssetModel.PriceId: PriceData],
+        currency: Currency,
         completion: @escaping (String?) -> Void
     )
     func buildBalance(
@@ -20,15 +22,7 @@ protocol BalanceBuilderProtocol {
 final class BalanceBuilder: BalanceBuilderProtocol {
     // MARK: - Private properties
 
-    private lazy var usdTokenFormatter: LocalizableResource<TokenFormatter> = {
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
-        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(
-            for: usdDisplayInfo
-        )
-        return usdTokenFormatter
-    }()
-
+    private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
     private lazy var locale: Locale = {
         let localicationManaget = LocalizationManager.shared
         return localicationManaget.selectedLocale
@@ -40,9 +34,10 @@ final class BalanceBuilder: BalanceBuilderProtocol {
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo],
         prices: [AssetModel.PriceId: PriceData],
+        currency: Currency,
         completion: @escaping (String?) -> Void
     ) {
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
+        let balanceTokenFormatterValue = tokenFormatter(for: currency)
 
         let totalWalletBalance: Decimal = chains.compactMap { chainModel in
             let accountInfo = accountInfos[chainModel.chainId]
@@ -54,7 +49,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
             )
         }.reduce(0, +)
 
-        let totalWalletBalanceString = usdTokenFormatterValue.stringFromDecimal(totalWalletBalance)
+        let totalWalletBalanceString = balanceTokenFormatterValue.stringFromDecimal(totalWalletBalance)
 
         completion(totalWalletBalanceString)
     }
@@ -66,10 +61,9 @@ final class BalanceBuilder: BalanceBuilderProtocol {
         prices: [AssetModel.PriceId: PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     ) {
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
-
         let managetMetaAccoutsWithBalance = managetMetaAccounts.map { managetMetaAccount -> ManagedMetaAccountModel in
             let metaAccount = managetMetaAccount.info
+            let balanceTokenFormatterValue = tokenFormatter(for: metaAccount.selectedCurrency)
 
             let totalWalletBalance: Decimal = chains.compactMap { chainModel in
 
@@ -86,7 +80,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
                 )
             }.reduce(0, +)
 
-            let totalWalletBalanceString = usdTokenFormatterValue.stringFromDecimal(totalWalletBalance)
+            let totalWalletBalanceString = balanceTokenFormatterValue.stringFromDecimal(totalWalletBalance)
             return ManagedMetaAccountModel(
                 info: managetMetaAccount.info,
                 isSelected: managetMetaAccount.isSelected,
@@ -99,6 +93,13 @@ final class BalanceBuilder: BalanceBuilderProtocol {
     }
 
     // MARK: - Private methods
+
+    private func tokenFormatter(for currency: Currency) -> TokenFormatter {
+        let balanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo)
+        let balanceTokenFormatterValue = balanceTokenFormatter.value(for: locale)
+        return balanceTokenFormatterValue
+    }
 
     private func getBalance(
         for chainModel: ChainModel,

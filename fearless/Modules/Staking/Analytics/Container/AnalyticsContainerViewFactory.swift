@@ -28,12 +28,14 @@ enum AnalyticsContainerViewFactory {
             asset: asset,
             selectedAccount: selectedAccount
         )
-        let stakeModule = AnalyticsStakeViewFactory.createView()
-        let validatorsModule = mode.contains(.includeValidatorsTab) ? AnalyticsValidatorsViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
-        ) : nil
+        let stakeModule = AnalyticsStakeViewFactory.createView(with: selectedAccount)
+        let validatorsModule = mode.contains(.includeValidatorsTab)
+            ? AnalyticsValidatorsViewFactory.createView(
+                chain: chain,
+                asset: asset,
+                selectedAccount: selectedAccount
+            )
+            : nil
         let modules = [rewardsModule, stakeModule, validatorsModule].compactMap { $0 }
 
         let containerModule = AnalyticsContainerViewController(

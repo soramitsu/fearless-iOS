@@ -14,6 +14,7 @@ struct MetaAccountModel: Equatable, Codable {
     let assetIdsEnabled: [String]?
     let canExportEthereumMnemonic: Bool
     let unusedChainIds: [String]?
+    let selectedCurrency: Currency
 }
 
 extension MetaAccountModel {
@@ -46,7 +47,8 @@ extension MetaAccountModel {
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -63,7 +65,8 @@ extension MetaAccountModel {
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -80,7 +83,8 @@ extension MetaAccountModel {
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -97,7 +101,8 @@ extension MetaAccountModel {
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -114,7 +119,8 @@ extension MetaAccountModel {
             assetKeysOrder: newAssetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -131,7 +137,8 @@ extension MetaAccountModel {
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: newAssetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -148,7 +155,26 @@ extension MetaAccountModel {
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: newUnusedChainIds
+            unusedChainIds: newUnusedChainIds,
+            selectedCurrency: selectedCurrency
+        )
+    }
+
+    func replacingCurrency(_ currency: Currency) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: currency
         )
     }
 }

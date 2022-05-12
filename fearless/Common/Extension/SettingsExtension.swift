@@ -11,6 +11,7 @@ enum SettingsKey: String {
     case stakingAsset
     case stakingNetworkExpansion
     case referralEthereumAccount
+    case selectedCurrency
 }
 
 extension SettingsManagerProtocol {

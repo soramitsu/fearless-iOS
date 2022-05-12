@@ -242,7 +242,8 @@ private extension MetaAccountOperationFactory {
             assetKeysOrder: nil,
             assetIdsEnabled: nil,
             canExportEthereumMnemonic: true,
-            unusedChainIds: nil
+            unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency()
         )
     }
 }
@@ -409,7 +410,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 assetKeysOrder: nil,
                 assetIdsEnabled: nil,
                 canExportEthereumMnemonic: true,
-                unusedChainIds: nil
+                unusedChainIds: nil,
+                selectedCurrency: Currency.defaultCurrency()
             )
         }
     }

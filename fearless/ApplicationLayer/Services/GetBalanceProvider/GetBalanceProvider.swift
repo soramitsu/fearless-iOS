@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import SoraKeystore
 
 protocol GetBalanceMetaAccountHandler: AnyObject {
     func handleMetaAccountBalance(metaAccount: MetaAccountModel, balance: String?)
@@ -128,7 +129,8 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         balanceBuilder.buildBalance(
             chains: chainModels,
             accountInfos: accountInfos,
-            prices: prices
+            prices: prices,
+            currency: metaAccount.selectedCurrency
         ) { [weak self] totalBalanceString in
             self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
                 metaAccount: metaAccount,

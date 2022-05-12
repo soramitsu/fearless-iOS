@@ -56,6 +56,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
         let label = ShimmeredLabel()
         label.font = .h1Title
         label.textColor = .white
+        label.isUserInteractionEnabled = true
         return label
     }()
 

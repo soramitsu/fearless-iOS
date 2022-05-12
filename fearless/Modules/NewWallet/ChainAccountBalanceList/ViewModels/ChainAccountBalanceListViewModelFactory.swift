@@ -1,6 +1,8 @@
 import Foundation
 import BigInt
+import SoraFoundation
 
+// swiftlint:disable function_parameter_count
 protocol ChainAccountBalanceListViewModelFactoryProtocol {
     func buildChainAccountBalanceListViewModel(
         selectedMetaAccount: MetaAccountModel,
@@ -12,6 +14,7 @@ protocol ChainAccountBalanceListViewModelFactoryProtocol {
     ) -> ChainAccountBalanceListViewModel
 }
 
+// swiftlint:disable function_body_length
 class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelFactoryProtocol {
     func buildChainAccountBalanceListViewModel(
         selectedMetaAccount: MetaAccountModel,
@@ -21,9 +24,10 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         prices: [AssetModel.PriceId: PriceDataUpdated],
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
+        let balanceTokenFormatterValue = tokenFormatter(
+            for: selectedMetaAccount.selectedCurrency,
+            locale: locale
+        )
 
         var chainAssets = chains
             .filter { selectedMetaAccount.fetch(for: $0.accountRequest()) != nil }
@@ -35,16 +39,22 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             .reduce([], +)
 
         if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled {
-            chainAssets = chainAssets.filter { assetIdsEnabled.contains($0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)) == true }
+            chainAssets = chainAssets
+                .filter {
+                    assetIdsEnabled
+                        .contains(
+                            $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+                        ) == true
+                }
         }
 
-        var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
+        var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
         var balanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
             let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
 
-            usdBalanceByChainAsset[chainAsset] = getUsdBalance(
+            fiatBalanceByChainAsset[chainAsset] = getFiatBalance(
                 for: chainAsset,
                 accountInfo: accountInfo,
                 priceData: prices[chainAsset.asset.priceId ?? ""]?.priceData
@@ -56,7 +66,6 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             )
         }
 
-        let useSortedKeys: Bool = sortedKeys != nil
         var orderByKey: [String: Int]?
 
         if let sortedKeys = sortedKeys {
@@ -71,16 +80,18 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 if let orderByKey = orderByKey {
                     let accountId = selectedMetaAccount.substrateAccountId
 
-                    return orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
+                    return orderByKey[ca1.uniqueKey(accountId: accountId)]
+                        ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)]
+                        ?? Int.max
                 } else {
                     return (
-                        usdBalanceByChainAsset[ca1] ?? Decimal.zero,
+                        fiatBalanceByChainAsset[ca1] ?? Decimal.zero,
                         balanceByChainAsset[ca1] ?? Decimal.zero,
                         ca2.chain.isTestnet.intValue,
                         ca1.chain.isPolkadotOrKusama.intValue,
                         ca2.chain.name
                     ) > (
-                        usdBalanceByChainAsset[ca2] ?? Decimal.zero,
+                        fiatBalanceByChainAsset[ca2] ?? Decimal.zero,
                         balanceByChainAsset[ca2] ?? Decimal.zero,
                         ca1.chain.isTestnet.intValue,
                         ca2.chain.isPolkadotOrKusama.intValue,
@@ -111,7 +122,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             }.reduce(0, +)
         }.reduce(0, +)
 
-        let viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
+        var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
             var priceData: PriceDataUpdated?
 
             if let priceId = chainAsset.asset.priceId {
@@ -125,8 +136,13 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 chainAsset: chainAsset,
                 priceData: priceData,
                 accountInfos: accountInfos,
-                locale: locale
+                locale: locale,
+                currency: selectedMetaAccount.selectedCurrency
             )
+        }
+
+        if sortedKeys == nil {
+            viewModels.sort { $0.isColdBoot && !$1.isColdBoot }
         }
 
         let haveMissingAccounts = chains.first(where: {
@@ -134,10 +150,10 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 && (selectedMetaAccount.unusedChainIds ?? []).contains($0.chainId) == false
         }) != nil
 
-        let isColdBoot = accountInfos.keys.count != chains.count
+        let isColdBoot = accountInfos.keys.count != fiatBalanceByChainAsset.count
         let balanceUpdated = prices.filter { $0.value.updated == false }.isEmpty
 
-        let balance = usdTokenFormatterValue.stringFromDecimal(totalWalletBalance)
+        let balance = balanceTokenFormatterValue.stringFromDecimal(totalWalletBalance)
         return ChainAccountBalanceListViewModel(
             accountName: selectedMetaAccount.name,
             balance: .init(value: .text(balance), isUpdated: balanceUpdated && !isColdBoot),
@@ -158,7 +174,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         chainAsset: ChainAsset,
         priceData: PriceDataUpdated?,
         accountInfos: [ChainModel.Id: AccountInfo?],
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> ChainAccountBalanceCellViewModel {
         var icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
         var title = chainAsset.chain.name
@@ -175,15 +192,17 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             accountInfo: accountInfo,
             locale: locale
         )
-        let totalAmountString = getUsdBalanceString(
+        let totalAmountString = getFiatBalanceString(
             for: chainAsset,
             accountInfo: accountInfo,
             priceData: priceData?.priceData,
-            locale: locale
+            locale: locale,
+            currency: currency
         )
         let priceAttributedString = getPriceAttributedString(
             priceData: priceData?.priceData,
-            locale: locale
+            locale: locale,
+            currency: currency
         )
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
@@ -216,6 +235,16 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 }
 
 extension ChainAccountBalanceListViewModelFactory {
+    private func tokenFormatter(
+        for currency: Currency,
+        locale: Locale
+    ) -> TokenFormatter {
+        let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatterValue = tokenFormatter.value(for: locale)
+        return tokenFormatterValue
+    }
+
     private func getBalanceString(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
@@ -246,29 +275,28 @@ extension ChainAccountBalanceListViewModelFactory {
 
     private func getPriceAttributedString(
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> NSAttributedString? {
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
+        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
 
         guard let priceData = priceData,
               let priceDecimal = Decimal(string: priceData.price) else {
             return nil
         }
 
-        let changeString: String = priceData.usdDayChange.map {
+        let changeString: String = priceData.fiatDayChange.map {
             let percentValue = $0 / 100
             return percentValue.percentString(locale: locale) ?? ""
         } ?? ""
 
-        let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
-
+        let priceString: String = balanceTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
         let priceWithChangeString = [priceString, changeString].joined(separator: " ")
-
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
 
-        let color = (priceData.usdDayChange ?? 0) > 0 ? R.color.colorGreen() : R.color.colorRed()
+        let color = (priceData.fiatDayChange ?? 0) > 0
+            ? R.color.colorGreen()
+            : R.color.colorRed()
 
         if let color = color {
             priceWithChangeAttributed.addAttributes(
@@ -283,20 +311,25 @@ extension ChainAccountBalanceListViewModelFactory {
         return priceWithChangeAttributed
     }
 
-    private func getUsdBalanceString(
+    private func getFiatBalanceString(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> String? {
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
+        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
 
-        return usdTokenFormatterValue.stringFromDecimal(getUsdBalance(for: chainAsset, accountInfo: accountInfo, priceData: priceData))
+        return balanceTokenFormatterValue.stringFromDecimal(
+            getFiatBalance(
+                for: chainAsset,
+                accountInfo: accountInfo,
+                priceData: priceData
+            )
+        )
     }
 
-    private func getUsdBalance(
+    private func getFiatBalance(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
         priceData: PriceData?
