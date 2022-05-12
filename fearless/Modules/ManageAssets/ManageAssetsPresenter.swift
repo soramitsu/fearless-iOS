@@ -13,6 +13,7 @@ final class ManageAssetsPresenter {
     private var sortedKeys: [String]?
     private var assetIdsEnabled: [String]?
     private var filter: String?
+    private var chainAssets: [ChainAsset]?
 
     init(
         interactor: ManageAssetsInteractorInputProtocol,
@@ -95,6 +96,12 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
         switch result {
         case let .success(chains):
             chainModels = chains
+            chainAssets = chains.map { chain in
+                chain.assets.compactMap { asset in
+                    ChainAsset(chain: chain, asset: asset.asset)
+                }
+            }.reduce([], +)
+
             provideViewModel()
         case let .failure(error):
             _ = wireframe.present(error: error, from: view, locale: selectedLocale)
@@ -125,12 +132,8 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
 
         var modifiedAssetIdsEnabled: [String] = []
         if assetIdsEnabled == nil {
-            modifiedAssetIdsEnabled = viewModel?.sections
-                .compactMap { section in
-                    section.cellModels
-                }
-                .reduce([], +)
-                .map { $0.chainAsset.uniqueKey(accountId: accountId) }
+            modifiedAssetIdsEnabled = chainAssets?
+                .compactMap { $0.uniqueKey(accountId: accountId) }
                 .filter { $0 != id } ?? []
         } else {
             let contains = assetIdsEnabled?.contains(id) == true
