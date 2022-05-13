@@ -52,6 +52,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol) {
         view = ui
         view?.setInput(viewModel: inputViewModel)
+        view?.didReceive(locale: selectedLocale)
         interactor.setup()
     }
 

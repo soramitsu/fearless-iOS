@@ -47,7 +47,7 @@ final class WalletDetailsViewLayout: UIView {
         return button
     }()
 
-    var locale = Locale.current {
+    var locale: Locale? {
         didSet {
             applyLocalization()
         }
@@ -67,7 +67,7 @@ final class WalletDetailsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        exportButton.imageWithTitleView?.title = R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
+        exportButton.imageWithTitleView?.title = R.string.localizable.accountExportAction(preferredLanguages: locale?.rLanguages)
     }
 
     func bind(to viewModel: WalletDetailsViewModel) {
