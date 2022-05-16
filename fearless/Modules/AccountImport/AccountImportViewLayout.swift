@@ -435,7 +435,7 @@ private extension AccountImportViewLayout {
         ethereumCryptoTypeView.actionControl.invalidateLayout()
 
         nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: locale.rLanguages)
+            .commonContinue(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
     }
 
