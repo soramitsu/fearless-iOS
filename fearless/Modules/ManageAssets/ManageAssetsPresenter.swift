@@ -31,20 +31,24 @@ final class ManageAssetsPresenter {
     }
 
     private func provideViewModel() {
-        let viewModel = viewModelFactory.buildManageAssetsViewModel(
-            selectedMetaAccount: selectedMetaAccount,
-            chains: chainModels,
-            accountInfos: accountInfos,
-            sortedKeys: sortedKeys,
-            assetIdsEnabled: assetIdsEnabled,
-            cellsDelegate: self,
-            filter: filter,
-            locale: localizationManager?.selectedLocale
-        )
+        DispatchQueue.global(qos: .userInteractive).async {
+            let viewModel = self.viewModelFactory.buildManageAssetsViewModel(
+                selectedMetaAccount: self.selectedMetaAccount,
+                chains: self.chainModels,
+                accountInfos: self.accountInfos,
+                sortedKeys: self.sortedKeys,
+                assetIdsEnabled: self.assetIdsEnabled,
+                cellsDelegate: self,
+                filter: self.filter,
+                locale: self.localizationManager?.selectedLocale
+            )
 
-        self.viewModel = viewModel
+            self.viewModel = viewModel
 
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+            DispatchQueue.main.async {
+                self.view?.didReceive(state: .loaded(viewModel: viewModel))
+            }
+        }
     }
 }
 
