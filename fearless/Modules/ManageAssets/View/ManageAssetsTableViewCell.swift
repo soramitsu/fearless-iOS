@@ -139,7 +139,6 @@ class ManageAssetsTableViewCell: UITableViewCell {
         dragButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
-            make.top.bottom.equalToSuperview()
             make.size.equalTo(LayoutConstants.iconSize)
         }
 
