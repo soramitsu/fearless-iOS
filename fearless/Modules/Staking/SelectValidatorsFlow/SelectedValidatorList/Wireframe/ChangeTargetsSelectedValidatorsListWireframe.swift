@@ -8,7 +8,10 @@ final class ChangeTargetsSelectedValidatorListWireframe: SelectedValidatorListWi
     override func proceed(
         from view: SelectedValidatorListViewProtocol?,
         targets: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
         let nomination = PreparedNomination(
             bonding: state,
@@ -17,7 +20,12 @@ final class ChangeTargetsSelectedValidatorListWireframe: SelectedValidatorListWi
         )
 
         guard let confirmView = SelectValidatorsConfirmViewFactory
-            .createChangeTargetsView(for: nomination) else {
+            .createChangeTargetsView(
+                selectedAccount: selectedAccount,
+                asset: asset,
+                chain: chain,
+                for: nomination
+            ) else {
             return
         }
 

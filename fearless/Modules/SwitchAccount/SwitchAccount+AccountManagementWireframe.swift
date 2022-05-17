@@ -2,16 +2,16 @@ import Foundation
 
 extension SwitchAccount {
     final class AccountManagementWireframe: AccountManagementWireframeProtocol {
-        func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?) {
-            guard let infoView = AccountInfoViewFactory.createView(address: account.address) else {
-                return
-            }
-
-            let navigationController = ImportantFlowViewFactory.createNavigation(
-                from: infoView.controller
+        func showAccountDetails(
+            from view: AccountManagementViewProtocol?,
+            metaAccount: MetaAccountModel
+        ) {
+            let walletDetails = WalletDetailsViewFactory.createView(
+                flow: .normal(wallet: metaAccount)
             )
-
-            view?.controller.present(navigationController, animated: true, completion: nil)
+            if let navigationController = view?.controller.navigationController {
+                navigationController.present(walletDetails.controller, animated: true)
+            }
         }
 
         func showAddAccount(from view: AccountManagementViewProtocol?) {
@@ -30,6 +30,34 @@ extension SwitchAccount {
             }
 
             navigationController.popToRootViewController(animated: true)
+        }
+
+        func showWalletSettings(
+            from view: AccountManagementViewProtocol?,
+            items: [WalletSettingsRow],
+            callback: @escaping ModalPickerSelectionCallback
+        ) {
+            guard let pickerView = ModalPickerFactory.createPickerForWalletActions(
+                items,
+                callback: callback,
+                context: nil
+            ) else {
+                return
+            }
+
+            view?.controller.navigationController?.present(pickerView, animated: true)
+        }
+
+        func showSelectAccounts(
+            from view: AccountManagementViewProtocol?,
+            managedMetaAccountModel: ManagedMetaAccountModel
+        ) {
+            guard let module = SelectExportAccountAssembly.configureModule(
+                managedMetaAccountModel: managedMetaAccountModel
+            ) else {
+                return
+            }
+            view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
         }
     }
 }

@@ -4,14 +4,25 @@ class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtoc
     func proceed(
         from _: RecommendedValidatorListViewProtocol?,
         targets _: [SelectedValidatorInfo],
-        maxTargets _: Int
+        maxTargets _: Int,
+        selectedAccount _: MetaAccountModel,
+        asset _: AssetModel,
+        chain _: ChainModel
     ) {}
 
     func present(
-        _ validatorInfo: SelectedValidatorInfo,
-        from view: RecommendedValidatorListViewProtocol?
+        asset: AssetModel,
+        chain: ChainModel,
+        validatorInfo: SelectedValidatorInfo,
+        from view: RecommendedValidatorListViewProtocol?,
+        wallet: MetaAccountModel
     ) {
-        guard let validatorInfoView = ValidatorInfoViewFactory.createView(with: validatorInfo) else {
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
+            asset: asset,
+            chain: chain,
+            validatorInfo: validatorInfo,
+            wallet: wallet
+        ) else {
             return
         }
 

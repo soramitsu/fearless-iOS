@@ -5,9 +5,12 @@ import FearlessUtils
 
 struct ValidatorSearchViewFactory {
     private static func createInteractor(
-        settings: SettingsManagerProtocol
+        asset: AssetModel,
+        chain: ChainModel,
+        settings _: SettingsManagerProtocol
     ) -> ValidatorSearchInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
             return nil
         }
 
@@ -16,15 +19,14 @@ struct ValidatorSearchViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let chain = settings.selectedConnection.type.chain
-
         let validatorOperationFactory = ValidatorOperationFactory(
+            asset: asset,
             chain: chain,
             eraValidatorService: EraValidatorFacade.sharedService,
             rewardService: RewardCalculatorFacade.sharedService,
             storageRequestFactory: storageRequestFactory,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
+            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
@@ -37,11 +39,14 @@ struct ValidatorSearchViewFactory {
 
 extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
     static func createView(
+        asset: AssetModel,
+        chain: ChainModel,
         with validatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?
+        delegate: ValidatorSearchDelegate?,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol? {
-        guard let interactor = createInteractor(settings: SettingsManager.shared) else {
+        guard let interactor = createInteractor(asset: asset, chain: chain, settings: SettingsManager.shared) else {
             return nil
         }
 
@@ -56,7 +61,10 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
             fullValidatorList: validatorList,
             selectedValidatorList: selectedValidatorList,
             localizationManager: LocalizationManager.shared,
-            logger: Logger.shared
+            logger: Logger.shared,
+            asset: asset,
+            chain: chain,
+            wallet: wallet
         )
 
         presenter.delegate = delegate

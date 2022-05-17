@@ -1,23 +1,25 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class ExportMnemonicPresenter {
     weak var view: ExportGenericViewProtocol?
     var wireframe: ExportMnemonicWireframeProtocol!
     var interactor: ExportMnemonicInteractorInputProtocol!
 
-    let address: String
+    let flow: ExportFlow
     let localizationManager: LocalizationManager
 
-    private(set) var exportData: ExportMnemonicData?
+    private(set) var exportDatas: [ExportMnemonicData]?
 
-    init(address: String, localizationManager: LocalizationManager) {
-        self.address = address
+    init(flow: ExportFlow, localizationManager: LocalizationManager) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 
     private func share() {
-        guard let data = exportData else {
+        // TODO: Support custom accounts
+        guard let exportData = exportDatas?.first else {
             return
         }
 
@@ -25,19 +27,19 @@ final class ExportMnemonicPresenter {
 
         let locale = localizationManager.selectedLocale
 
-        if let derivationPath = exportData?.derivationPath {
+        if let derivationPath = exportData.derivationPath {
             text = R.string.localizable
                 .exportMnemonicWithDpTemplate(
-                    data.networkType.titleForLocale(locale),
-                    data.mnemonic.toString(),
+                    exportData.chain.name,
+                    exportData.mnemonic.toString(),
                     derivationPath,
                     preferredLanguages: locale.rLanguages
                 )
         } else {
             text = R.string.localizable
                 .exportMnemonicWithoutDpTemplate(
-                    data.networkType.titleForLocale(locale),
-                    data.mnemonic.toString(),
+                    exportData.chain.name,
+                    exportData.mnemonic.toString(),
                     preferredLanguages: locale.rLanguages
                 )
         }
@@ -51,53 +53,70 @@ final class ExportMnemonicPresenter {
 }
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
-    func setup() {
-        interactor.fetchExportDataForAddress(address)
-    }
-
-    func activateExport() {
+    func didLoadView() {
         let locale = localizationManager.selectedLocale
 
         let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
         let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
 
-        let exportTitle = R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
+        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
         let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
-            self?.share()
+            self?.wireframe.back(view: self?.view)
         }
 
-        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle) {}
         let viewModel = AlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [exportAction],
-            closeAction: cancelTitle
+            actions: [exportAction, cancelAction],
+            closeAction: nil
         )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
 
-    func activateAccessoryOption() {
-        guard let exportData = exportData else {
+    func setup() {
+        switch flow {
+        case let .single(chain, address, wallet):
+            interactor.fetchExportDataForAddress(address, chain: chain, wallet: wallet)
+        case let .multiple(wallet, accounts):
+            interactor.fetchExportDataForWallet(wallet: wallet, accounts: flow.exportingAccounts)
+        }
+    }
+
+    func activateExport() {
+        guard let exportData = exportDatas?.first else {
             return
         }
 
         wireframe.openConfirmationForMnemonic(exportData.mnemonic, from: view)
     }
+
+    func activateAccessoryOption() {}
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
-    func didReceive(exportData: ExportMnemonicData) {
-        self.exportData = exportData
+    func didReceive(exportDatas: [ExportMnemonicData]) {
+        self.exportDatas = exportDatas
 
-        let viewModel = ExportMnemonicViewModel(
+        let viewModels = exportDatas.compactMap { exportData in
+            ExportMnemonicViewModel(
+                option: .mnemonic,
+                chain: exportData.chain,
+                cryptoType: exportData.cryptoType,
+                derivationPath: exportData.derivationPath,
+                mnemonic: exportData.mnemonic.allWords(),
+                ethereumBased: exportData.chain.isEthereumBased
+            )
+        }
+
+        let multipleExportViewModel = MultiExportViewModel(
+            viewModels: viewModels,
             option: .mnemonic,
-            networkType: exportData.networkType,
-            derivationPath: exportData.derivationPath,
-            cryptoType: exportData.account.cryptoType,
-            mnemonic: exportData.mnemonic.allWords()
+            flow: flow
         )
-        view?.set(viewModel: viewModel)
+        view?.set(viewModel: multipleExportViewModel)
     }
 
     func didReceive(error: Error) {

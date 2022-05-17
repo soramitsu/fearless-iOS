@@ -2,17 +2,17 @@ import Foundation
 import SoraKeystore
 import CommonWallet
 import FearlessUtils
+import SoraFoundation
 
 final class MainTabBarInteractor {
     weak var presenter: MainTabBarInteractorOutputProtocol?
 
-    let eventCenter: EventCenterProtocol
-    let settings: SettingsManagerProtocol
-    let keystoreImportService: KeystoreImportServiceProtocol
-    let serviceCoordinator: ServiceCoordinatorProtocol
+    private let eventCenter: EventCenterProtocol
+    private let keystoreImportService: KeystoreImportServiceProtocol
+    private let serviceCoordinator: ServiceCoordinatorProtocol
+    private let applicationHandler: ApplicationHandlerProtocol
 
-    private var currentAccount: AccountItem?
-    private var currentConnection: ConnectionItem?
+    private var goneBackgroundTimestamp: TimeInterval?
 
     deinit {
         stopServices()
@@ -20,23 +20,16 @@ final class MainTabBarInteractor {
 
     init(
         eventCenter: EventCenterProtocol,
-        settings: SettingsManagerProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        applicationHandler: ApplicationHandlerProtocol
     ) {
         self.eventCenter = eventCenter
-        self.settings = settings
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
-
-        updateSelectedItems()
+        self.applicationHandler = applicationHandler
 
         startServices()
-    }
-
-    private func updateSelectedItems() {
-        currentAccount = settings.selectedAccount
-        currentConnection = settings.selectedConnection
     }
 
     private func startServices() {
@@ -50,6 +43,7 @@ final class MainTabBarInteractor {
 
 extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
     func setup() {
+        applicationHandler.delegate = self
         eventCenter.add(observer: self, dispatchIn: .main)
         keystoreImportService.add(observer: self)
 
@@ -61,19 +55,8 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 
 extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        if currentAccount != settings.selectedAccount {
-            serviceCoordinator.updateOnAccountChange()
-            updateSelectedItems()
-            presenter?.didReloadSelectedAccount()
-        }
-    }
-
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        if currentConnection != settings.selectedConnection {
-            serviceCoordinator.updateOnNetworkChange()
-            updateSelectedItems()
-            presenter?.didReloadSelectedNetwork()
-        }
+        serviceCoordinator.updateOnAccountChange()
+        presenter?.didReloadSelectedAccount()
     }
 
     func processBalanceChanged(event _: WalletBalanceChanged) {
@@ -87,6 +70,10 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     func processNewTransaction(event _: WalletNewTransactionInserted) {
         presenter?.didUpdateWalletInfo()
     }
+
+    func processUserInactive(event _: UserInactiveEvent) {
+        presenter?.handleLongInactivity()
+    }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
@@ -96,5 +83,18 @@ extension MainTabBarInteractor: KeystoreImportObserver {
         }
 
         presenter?.didRequestImportAccount()
+    }
+}
+
+extension MainTabBarInteractor: ApplicationHandlerDelegate {
+    func didReceiveDidEnterBackground(notification _: Notification) {
+        goneBackgroundTimestamp = Date().timeIntervalSince1970
+    }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        if let goneBackgroundTimestamp = goneBackgroundTimestamp,
+           Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+            presenter?.handleLongInactivity()
+        }
     }
 }

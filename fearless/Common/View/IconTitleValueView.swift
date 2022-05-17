@@ -2,6 +2,13 @@ import UIKit
 import SoraUI
 
 class IconTitleValueView: UIView {
+    enum IconPosition {
+        case left
+        case right
+    }
+
+    private var iconPosition: IconPosition = .right
+
     let imageView = UIImageView()
 
     let titleLabel: UILabel = {
@@ -20,6 +27,14 @@ class IconTitleValueView: UIView {
 
     let borderView = UIFactory.default.createBorderedContainerView()
 
+    init(iconPosition: IconPosition) {
+        self.iconPosition = iconPosition
+
+        super.init(frame: .zero)
+
+        setupLayout()
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -33,26 +48,47 @@ class IconTitleValueView: UIView {
 
     private func setupLayout() {
         addSubview(borderView)
+        addSubview(imageView)
+        addSubview(titleLabel)
+        addSubview(valueLabel)
+
         borderView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        addSubview(imageView)
-        imageView.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
-            make.size.equalTo(16.0)
-        }
+        switch iconPosition {
+        case .left:
+            imageView.snp.makeConstraints { make in
+                make.leading.centerY.equalToSuperview()
+                make.size.equalTo(16.0)
+            }
 
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(imageView.snp.trailing).offset(9.0)
-            make.centerY.equalToSuperview()
-        }
+            titleLabel.snp.makeConstraints { make in
+                make.leading.equalTo(imageView.snp.trailing).offset(UIConstants.defaultOffset)
+                make.centerY.equalToSuperview()
+            }
 
-        addSubview(valueLabel)
-        valueLabel.snp.makeConstraints { make in
-            make.trailing.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
+            valueLabel.snp.makeConstraints { make in
+                make.trailing.centerY.equalToSuperview()
+                make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.defaultOffset)
+            }
+        case .right:
+
+            titleLabel.snp.makeConstraints { make in
+                make.leading.equalToSuperview()
+                make.centerY.equalToSuperview()
+            }
+
+            valueLabel.snp.makeConstraints { make in
+                make.centerY.equalToSuperview()
+                make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.defaultOffset)
+            }
+
+            imageView.snp.makeConstraints { make in
+                make.leading.equalTo(valueLabel.snp.trailing).offset(UIConstants.defaultOffset)
+                make.trailing.centerY.equalToSuperview()
+                make.size.equalTo(16.0)
+            }
         }
     }
 }

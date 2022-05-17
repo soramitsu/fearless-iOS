@@ -6,15 +6,18 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     StakingDurationFetching {
     weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
-    let balanceAccountAddress: AccountAddress
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let balanceAccountId: AccountId
     let runtimeService: RuntimeCodingServiceProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let durationOperationFactory: StakingDurationOperationFactoryProtocol
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
-    let assetId: WalletAssetId
-    let chain: Chain
+    let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -23,46 +26,47 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
     init(
-        balanceAccountAddress: AccountAddress,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        balanceAccountId: AccountId,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         durationOperationFactory: StakingDurationOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
-        chain: Chain,
-        assetId: WalletAssetId
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
-        self.balanceAccountAddress = balanceAccountAddress
-        self.singleValueProviderFactory = singleValueProviderFactory
+        self.balanceAccountId = balanceAccountId
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
         self.durationOperationFactory = durationOperationFactory
         self.operationManager = operationManager
         self.signer = signer
         self.chain = chain
-        self.assetId = assetId
+        self.asset = asset
+        self.selectedAccount = selectedAccount
     }
 
     // MARK: - SelectValidatorsConfirmInteractorInputProtocol
 
     func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
-        balanceProvider = subscribeToAccountInfoProvider(
-            for: balanceAccountAddress,
-            runtimeService: runtimeService
-        )
-        minBondProvider = subscribeToMinNominatorBondProvider(chain: chain, runtimeService: runtimeService)
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
 
-        counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
-            chain: chain,
-            runtimeService: runtimeService
-        )
+        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: balanceAccountId, handler: self)
 
-        maxNominatorsCountProvider = subscribeToMaxNominatorsCountProvider(
-            chain: chain,
-            runtimeService: runtimeService
-        )
+        minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
+
+        counterForNominatorsProvider = subscribeToCounterForNominators(for: chain.chainId)
+
+        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chain.chainId)
 
         fetchStakingDuration(
             runtimeCodingService: runtimeService,
@@ -78,24 +82,28 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     func estimateFee() {}
 }
 
-extension SelectValidatorsConfirmInteractorBase: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
-        presenter.didReceivePrice(result: result)
-    }
-
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
-        presenter.didReceiveAccountInfo(result: result)
-    }
-
-    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {
+extension SelectValidatorsConfirmInteractorBase: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveMinBond(result: result)
     }
 
-    func handleCounterForNominators(result: Result<UInt32?, Error>, chain _: Chain) {
+    func handleCounterForNominators(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveCounterForNominators(result: result)
     }
 
-    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         presenter.didReceiveMaxNominatorsCount(result: result)
+    }
+}
+
+extension SelectValidatorsConfirmInteractorBase: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        presenter.didReceiveAccountInfo(result: result)
+    }
+}
+
+extension SelectValidatorsConfirmInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        presenter.didReceivePrice(result: result)
     }
 }

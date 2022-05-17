@@ -1,133 +1,71 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
 
 final class ProfilePresenter {
-    weak var view: ProfileViewProtocol?
-    var interactor: ProfileInteractorInputProtocol!
-    var wireframe: ProfileWireframeProtocol!
+    private weak var view: ProfileViewProtocol?
+    private var interactor: ProfileInteractorInputProtocol
+    private var wireframe: ProfileWireframeProtocol
+    private let logger: LoggerProtocol
+    private let settings: SettingsManagerProtocol
+    private let viewModelFactory: ProfileViewModelFactoryProtocol
+    private let eventCenter: EventCenter
 
-    var logger: LoggerProtocol?
+    private var selectedWallet: MetaAccountModel?
+    private var selectedCurrency: Currency?
 
-    private(set) var viewModelFactory: ProfileViewModelFactoryProtocol
-
-    private(set) var userSettings: UserSettings?
-
-    init(viewModelFactory: ProfileViewModelFactoryProtocol) {
+    init(
+        viewModelFactory: ProfileViewModelFactoryProtocol,
+        interactor: ProfileInteractorInputProtocol,
+        wireframe: ProfileWireframeProtocol,
+        logger: LoggerProtocol,
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenter,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.viewModelFactory = viewModelFactory
-    }
+        self.interactor = interactor
+        self.wireframe = wireframe
+        self.logger = logger
+        self.settings = settings
+        self.eventCenter = eventCenter
+        self.localizationManager = localizationManager
 
-    private func updateAccountViewModel() {
-        guard let userSettings = userSettings else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: userSettings, locale: locale)
-        view?.didLoad(userViewModel: userDetailsViewModel)
-    }
-
-    private func updateOptionsViewModel() {
-        guard
-            let userSettings = userSettings,
-            let language = localizationManager?.selectedLanguage
-        else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let optionViewModels = viewModelFactory.createOptionViewModels(
-            from: userSettings,
-            language: language,
-            locale: locale
+        self.eventCenter.add(
+            observer: self,
+            dispatchIn: .main
         )
-        view?.didLoad(optionViewModels: optionViewModels)
     }
 
-    private func copyAddress() {
-        if let address = userSettings?.account.address {
-            UIPasteboard.general.string = address
+    private func receiveState() {
+        guard
+            let wallet = selectedWallet,
+            let language = localizationManager?.selectedLanguage,
+            let currency = selectedCurrency
+        else { return }
 
-            let locale = localizationManager?.selectedLocale
-            let title = R.string.localizable.commonCopied(preferredLanguages: locale?.rLanguages)
-            wireframe.presentSuccessNotification(title, from: view)
-        }
+        let viewModel = viewModelFactory.createProfileViewModel(
+            from: wallet,
+            locale: selectedLocale,
+            language: language,
+            currency: currency
+        )
+        let state = ProfileViewState.loaded(viewModel)
+        view?.didReceive(state: state)
     }
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
-    func setup() {
-        updateOptionsViewModel()
-
-        interactor.setup()
+    func didLoad(view: ProfileViewProtocol) {
+        self.view = view
+        interactor.setup(with: self)
     }
 
     func activateAccountDetails() {
-        let locale = localizationManager?.selectedLocale
-
-        let title = R.string.localizable
-            .accountInfoTitle(preferredLanguages: locale?.rLanguages)
-
-        var actions: [AlertPresentableAction] = []
-
-        let accountsTitle = R.string.localizable.profileAccountsTitle(preferredLanguages: locale?.rLanguages)
-        let accountAction = AlertPresentableAction(title: accountsTitle) { [weak self] in
-            self?.wireframe.showAccountDetails(from: self?.view)
+        guard let wallet = selectedWallet else {
+            return
         }
-
-        actions.append(accountAction)
-
-        let copyTitle = R.string.localizable
-            .commonCopyAddress(preferredLanguages: locale?.rLanguages)
-        let copyAction = AlertPresentableAction(title: copyTitle) { [weak self] in
-            self?.copyAddress()
-        }
-
-        actions.append(copyAction)
-
-        if
-            let address = userSettings?.account.address,
-            let url = userSettings?.connection.type.chain.polkascanAddressURL(address) {
-            let polkascanTitle = R.string.localizable
-                .transactionDetailsViewPolkascan(preferredLanguages: locale?.rLanguages)
-
-            let polkascanAction = AlertPresentableAction(title: polkascanTitle) { [weak self] in
-                if let view = self?.view {
-                    self?.wireframe.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-            actions.append(polkascanAction)
-        }
-
-        if
-            let address = userSettings?.account.address,
-            let url = userSettings?.connection.type.chain.subscanAddressURL(address) {
-            let subscanTitle = R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: locale?.rLanguages)
-            let subscanAction = AlertPresentableAction(title: subscanTitle) { [weak self] in
-                if let view = self?.view {
-                    self?.wireframe.showWeb(url: url, from: view, style: .automatic)
-                }
-            }
-
-            actions.append(subscanAction)
-        }
-
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-
-        let viewModel = AlertPresentableViewModel(
-            title: title,
-            message: nil,
-            actions: actions,
-            closeAction: closeTitle
-        )
-
-        wireframe.present(
-            viewModel: viewModel,
-            style: .actionSheet,
-            from: view
-        )
+        wireframe.showAccountDetails(from: view, metaAccount: wallet)
     }
 
     func activateOption(at index: UInt) {
@@ -138,41 +76,104 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view)
-        case .connectionList:
-            wireframe.showConnectionSelection(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
             wireframe.showLanguageSelection(from: view)
         case .about:
             wireframe.showAbout(from: view)
+        case .currency:
+            guard let selectedWallet = selectedWallet else { return }
+            wireframe.showSelectCurrency(from: view, with: selectedWallet)
+        case .biometry:
+            break
+        }
+    }
+
+    func switcherValueChanged(isOn: Bool) {
+        settings.biometryEnabled = isOn
+    }
+
+    func logout() {
+        let removeTitle = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
+
+        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+            guard let self = self else { return }
+            self.wireframe.showCheckPincode(
+                from: self.view,
+                output: self
+            )
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel)
+
+        let title = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
+        let details = R.string.localizable
+            .profileLogoutDescription(preferredLanguages: selectedLocale.rLanguages)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: details,
+            actions: [cancelAction, removeAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+}
+
+extension ProfilePresenter: CheckPincodeModuleOutput {
+    func close(view: ControllerBackedProtocol?) {
+        wireframe.close(view: view)
+    }
+
+    func didCheck() {
+        interactor.logout { [weak self] in
+            DispatchQueue.main.async {
+                self?.wireframe.logout(from: self?.view)
+            }
         }
     }
 }
 
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
-    func didReceive(userSettings: UserSettings) {
-        self.userSettings = userSettings
-        updateAccountViewModel()
-        updateOptionsViewModel()
+    func didReceive(wallet: MetaAccountModel) {
+        selectedWallet = wallet
+        receiveState()
     }
 
     func didReceiveUserDataProvider(error: Error) {
-        logger?.debug("Did receive user data provider \(error)")
+        logger.debug("Did receive user data provider \(error)")
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
+        if !wireframe.present(error: error, from: view, locale: selectedLocale) {
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: selectedLocale
+            )
         }
+    }
+
+    func didRecieve(selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        receiveState()
     }
 }
 
 extension ProfilePresenter: Localizable {
     func applyLocalization() {
         if view?.isSetup == true {
-            updateAccountViewModel()
-            updateOptionsViewModel()
+            receiveState()
         }
+    }
+}
+
+extension ProfilePresenter: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        let currency = event.account.selectedCurrency
+        selectedWallet = event.account
+        interactor.update(currency: currency)
     }
 }

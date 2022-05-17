@@ -9,6 +9,14 @@ extension NSPredicate {
         NSPredicate(format: "SELF == ''")
     }
 
+    // TODO: Add deriviationPathHardSoftNumericPassword?
+    // TODO: Add deriviationPathHardSoftNumeric?
+
+    static var deriviationPathHardSoftNumeric: NSPredicate {
+        let format = "length = 15 or length = 0"
+        return NSPredicate(format: format)
+    }
+
     static var deriviationPathHardSoftPassword: NSPredicate {
         let format = "(//?[^/]+)*(///[^/]+)?"
         return NSPredicate(format: "SELF MATCHES %@", format)

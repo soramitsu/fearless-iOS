@@ -2,6 +2,8 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
+typealias ModalPickerSelectionCallback = (Int) -> Void
+
 protocol ModalPickerViewControllerDelegate: AnyObject {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?)
     func modalPickerDidCancel(context: AnyObject?)
@@ -27,6 +29,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
     @IBOutlet private var tableView: UITableView!
 
+    var selectionCallback: ModalPickerSelectionCallback?
     var localizedTitle: LocalizableResource<String>?
     var icon: UIImage?
     var actionType: ModalPickerViewAction = .none
@@ -40,10 +43,13 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
     var hasCloseItem: Bool = false
     var allowsSelection: Bool = true
+    var showSelection: Bool = true
+    var presenterCanDrag: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
     var separatorColor: UIColor?
+    var separatorInset: UIEdgeInsets = .zero
 
     weak var delegate: ModalPickerViewControllerDelegate?
     weak var presenter: ModalPresenterProtocol?
@@ -66,6 +72,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         tableView.allowsSelection = allowsSelection
         tableView.separatorStyle = separatorStyle
+        tableView.separatorInset = separatorInset
 
         if let separatorColor = separatorColor {
             tableView.separatorColor = separatorColor
@@ -119,7 +126,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     private func centerHeader() {
         headerView.trailingAnchor.constraint(
             equalTo: headerBackgroundView.trailingAnchor,
-            constant: -20.0
+            constant: -16.0
         ).isActive = true
     }
 
@@ -147,20 +154,20 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if indexPath.row != selectedIndex {
-            if var oldCell = tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0)) as? C {
-                oldCell.checkmarked = false
-            }
-
-            if var newCell = tableView.cellForRow(at: indexPath) as? C {
-                newCell.checkmarked = true
-            }
-
-            selectedIndex = indexPath.row
-
-            presenter?.hide(view: self, animated: true)
-            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
+        if var oldCell = tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0)) as? C {
+            oldCell.checkmarked = false
         }
+
+        if var newCell = tableView.cellForRow(at: indexPath) as? C {
+            newCell.checkmarked = true
+        }
+
+        selectedIndex = indexPath.row
+
+        presenter?.hide(view: self, animated: true)
+        delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
+
+        selectionCallback?(indexPath.row)
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
@@ -180,7 +187,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         cell.bind(model: viewModels[indexPath.row].value(for: locale))
-        cell.checkmarked = (selectedIndex == indexPath.row)
+        cell.checkmarked = (selectedIndex == indexPath.row) && showSelection
 
         return cell
     }
@@ -207,8 +214,12 @@ extension ModalPickerViewController: Localizable {
     }
 }
 
-extension ModalPickerViewController: ModalPresenterDelegate {
+extension ModalPickerViewController: ModalPresenterDelegate, ModalSheetPresenterDelegate {
     func presenterDidHide(_: ModalPresenterProtocol) {
         delegate?.modalPickerDidCancel(context: context)
+    }
+
+    func presenterCanDrag(_: ModalPresenterProtocol) -> Bool {
+        presenterCanDrag
     }
 }

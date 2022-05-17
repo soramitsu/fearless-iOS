@@ -9,7 +9,10 @@ extension YourValidatorList {
         override func proceed(
             from view: SelectedValidatorListViewProtocol?,
             targets: [SelectedValidatorInfo],
-            maxTargets: Int
+            maxTargets: Int,
+            chain: ChainModel,
+            asset: AssetModel,
+            selectedAccount: MetaAccountModel
         ) {
             let nomination = PreparedNomination(
                 bonding: state,
@@ -18,7 +21,12 @@ extension YourValidatorList {
             )
 
             guard let confirmView = SelectValidatorsConfirmViewFactory
-                .createChangeYourValidatorsView(for: nomination) else {
+                .createChangeYourValidatorsView(
+                    selectedAccount: selectedAccount,
+                    asset: asset,
+                    chain: chain,
+                    for: nomination
+                ) else {
                 return
             }
 

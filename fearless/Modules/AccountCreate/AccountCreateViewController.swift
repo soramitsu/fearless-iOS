@@ -1,84 +1,62 @@
 import UIKit
-import SoraFoundation
 import SoraUI
+import SoraFoundation
+import SnapKit
 
-final class AccountCreateViewController: UIViewController {
-    var presenter: AccountCreatePresenterProtocol!
+final class AccountCreateViewController: UIViewController, ViewHolder {
+    typealias RootViewType = AccountCreateViewLayout
 
-    @IBOutlet private var scrollView: UIScrollView!
-    @IBOutlet private var stackView: UIStackView!
-    @IBOutlet private var expadableControl: ExpandableActionControl!
-    @IBOutlet private var detailsLabel: UILabel!
+    private let presenter: AccountCreatePresenterProtocol
+    private var substrateDerivationPathModel: InputViewModelProtocol?
+    private var ethereumDerivationPathModel: InputViewModelProtocol?
+    private var isFirstLayoutCompleted: Bool = false
 
-    @IBOutlet var cryptoTypeView: BorderedSubtitleActionView!
+    private lazy var locale: Locale = {
+        localizationManager?.selectedLocale ?? Locale.current
+    }()
 
-    @IBOutlet var derivationPathView: UIView!
-    @IBOutlet var derivationPathLabel: UILabel!
-    @IBOutlet var derivationPathField: UITextField!
-    @IBOutlet var derivationPathImageView: UIImageView!
+    init(presenter: AccountCreatePresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
 
-    @IBOutlet var advancedContainerView: UIView!
-    @IBOutlet var advancedControl: ExpandableActionControl!
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    @IBOutlet var nextButton: TriangularedButton!
-
-    private var derivationPathModel: InputViewModelProtocol?
-
-    var keyboardHandler: KeyboardHandler?
-
-    var advancedAppearanceAnimator = TransitionAnimator(
-        type: .push,
-        duration: 0.35,
-        subtype: .fromBottom,
-        curve: .easeOut
-    )
-
-    var advancedDismissalAnimator = TransitionAnimator(
-        type: .push,
-        duration: 0.35,
-        subtype: .fromTop,
-        curve: .easeIn
-    )
-
-    private var mnemonicView: MnemonicDisplayView?
+    override func loadView() {
+        view = AccountCreateViewLayout()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationItem()
         setupLocalization()
-        configure()
+        setupActions()
 
         presenter.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        if keyboardHandler == nil {
-            setupKeyboardHandler()
-        }
+        setupKeyboardHandler()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-
         clearKeyboardHandler()
     }
 
-    private func configure() {
-        stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
-
-        advancedContainerView.isHidden = !expadableControl.isActivated
-
-        cryptoTypeView.actionControl.addTarget(
-            self,
-            action: #selector(actionOpenCryptoType),
-            for: .valueChanged
-        )
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        isFirstLayoutCompleted = true
     }
+}
 
-    private func setupNavigationItem() {
+private extension AccountCreateViewController {
+    func setupNavigationItem() {
         let infoItem = UIBarButtonItem(
             image: R.image.iconInfo(),
             style: .plain,
@@ -86,10 +64,11 @@ final class AccountCreateViewController: UIViewController {
             action: #selector(actionOpenInfo)
         )
         navigationItem.rightBarButtonItem = infoItem
+        title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
     }
 
-    private func setupMnemonicViewIfNeeded() {
-        guard mnemonicView == nil else {
+    func setupMnemonicViewIfNeeded() {
+        guard rootView.mnemonicView == nil else {
             return
         }
 
@@ -107,68 +86,55 @@ final class AccountCreateViewController: UIViewController {
         mnemonicView.wordFontInColumn = .p0Paragraph
         mnemonicView.backgroundColor = R.color.colorBlack()
 
-        stackView.insertArrangedSubview(mnemonicView, at: 1)
+        rootView.contentView.stackView.insertArrangedSubview(mnemonicView, at: 1)
 
-        self.mnemonicView = mnemonicView
+        rootView.mnemonicView = mnemonicView
     }
 
-    private func setupLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
-        detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
-
-        advancedControl.titleLabel.text = R.string.localizable
-            .commonAdvanced(preferredLanguages: locale.rLanguages)
-        advancedControl.invalidateLayout()
-
-        cryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
-            .commonCryptoType(preferredLanguages: locale.rLanguages)
-        cryptoTypeView.actionControl.invalidateLayout()
-
-        derivationPathLabel.text = R.string.localizable
-            .commonSecretDerivationPath(preferredLanguages: locale.rLanguages)
-
-        nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: locale.rLanguages)
-        nextButton.invalidateLayout()
+    func setupLocalization() {
+        rootView.locale = locale
     }
 
-    private func updateDerivationPath(status: FieldStatus) {
-        derivationPathImageView.image = status.icon
+    func setupActions() {
+        rootView.nextButton.addTarget(self, action: #selector(actionNext), for: .touchUpInside)
+        rootView.substrateDerivationPathField.delegate = self
+        rootView.ethereumDerivationPathField.delegate = self
+
+        rootView.substrateCryptoTypeView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenCryptoType),
+            for: .valueChanged
+        )
     }
 
-    @IBAction private func actionExpand() {
-        stackView.sendSubviewToBack(advancedContainerView)
+    private func updateSubstrateDerivationPath(status: FieldStatus) {
+        rootView.substrateDerivationPathImage.image = status.icon
+    }
 
-        advancedContainerView.isHidden = !expadableControl.isActivated
+    private func updateEthereumDerivationPath(status: FieldStatus) {
+        rootView.ethereumDerivationPathImage.image = status.icon
+    }
 
-        if expadableControl.isActivated {
-            advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
-        } else {
-            derivationPathField.resignFirstResponder()
-
-            advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
+    func viewModel(for field: UITextField) -> InputViewModelProtocol? {
+        if field == rootView.substrateDerivationPathField {
+            return substrateDerivationPathModel
+        } else if field == rootView.ethereumDerivationPathField {
+            return ethereumDerivationPathModel
         }
+        return nil
     }
 
-    @IBAction private func actionNext() {
+    @objc func actionNext() {
         presenter.proceed()
     }
 
-    @IBAction private func actionTextFieldEditingChanged() {
-        if derivationPathModel?.inputHandler.value != derivationPathField.text {
-            derivationPathField.text = derivationPathModel?.inputHandler.value
+    @objc func actionOpenCryptoType() {
+        if rootView.substrateCryptoTypeView.actionControl.isActivated {
+            presenter.selectSubstrateCryptoType()
         }
     }
 
-    @objc private func actionOpenCryptoType() {
-        if cryptoTypeView.actionControl.isActivated {
-            presenter.selectCryptoType()
-        }
-    }
-
-    @objc private func actionOpenInfo() {
+    @objc func actionOpenInfo() {
         presenter.activateInfo()
     }
 }
@@ -177,45 +143,97 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     func set(mnemonic: [String]) {
         setupMnemonicViewIfNeeded()
 
-        mnemonicView?.bind(words: mnemonic, columnsCount: 2)
+        rootView.mnemonicView?.bind(words: mnemonic, columnsCount: 2)
     }
 
-    func setSelectedCrypto(model: TitleWithSubtitleViewModel) {
+    func set(chainType: AccountCreateChainType) {
+        rootView.set(chainType: chainType)
+    }
+
+    func setSelectedSubstrateCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>) {
+        let title = "\(model.underlyingViewModel.title) | \(model.underlyingViewModel.subtitle)"
+
+        rootView.substrateCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
+
+        if model.selectable {
+            rootView.substrateCryptoTypeView.enable()
+        } else {
+            rootView.substrateCryptoTypeView.disable()
+        }
+
+        rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
+        rootView.substrateCryptoTypeView.actionControl.invalidateLayout()
+    }
+
+    func setEthereumCrypto(model: TitleWithSubtitleViewModel) {
         let title = "\(model.title) | \(model.subtitle)"
 
-        cryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
+        rootView.ethereumCryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
 
-        cryptoTypeView.actionControl.contentView.invalidateLayout()
-        cryptoTypeView.actionControl.invalidateLayout()
+        rootView.ethereumCryptoTypeView.actionControl.contentView.invalidateLayout()
+        rootView.ethereumCryptoTypeView.invalidateLayout()
     }
 
-    func setDerivationPath(viewModel: InputViewModelProtocol) {
-        derivationPathModel = viewModel
+    func bind(substrateViewModel: InputViewModelProtocol) {
+        substrateDerivationPathModel = substrateViewModel
 
-        derivationPathField.text = viewModel.inputHandler.value
+        rootView.substrateDerivationPathField.text = substrateViewModel.inputHandler.value
 
         let attributedPlaceholder = NSAttributedString(
-            string: viewModel.placeholder,
+            string: R.string.localizable.substrateSecretDerivationPath(
+                preferredLanguages: locale.rLanguages
+            ),
             attributes: [.foregroundColor: R.color.colorGray()!]
         )
-        derivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.substrateDerivationPathField.attributedPlaceholder = attributedPlaceholder
+
+        rootView.substrateDerivationPathLabel.text = R.string.localizable.example(substrateViewModel.placeholder, preferredLanguages: locale.rLanguages)
+    }
+
+    func bind(ethereumViewModel: InputViewModelProtocol) {
+        ethereumDerivationPathModel = ethereumViewModel
+
+        rootView.ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
+
+        let attributedPlaceholder = NSAttributedString(
+            string: R.string.localizable.ethereumSecretDerivationPath(
+                preferredLanguages: locale.rLanguages
+            ),
+            attributes: [.foregroundColor: R.color.colorGray()!]
+        )
+        rootView.ethereumDerivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.ethereumDerivationPathLabel.text = R.string.localizable.example(ethereumViewModel.placeholder, preferredLanguages: locale.rLanguages)
     }
 
     func didCompleteCryptoTypeSelection() {
-        cryptoTypeView.actionControl.deactivate(animated: true)
+        rootView.substrateCryptoTypeView.actionControl.deactivate(animated: true)
     }
 
-    func didValidateDerivationPath(_ status: FieldStatus) {
-        updateDerivationPath(status: status)
+    func didValidateSubstrateDerivationPath(_ status: FieldStatus) {
+        updateSubstrateDerivationPath(status: status)
+    }
+
+    func didValidateEthereumDerivationPath(_ status: FieldStatus) {
+        updateEthereumDerivationPath(status: status)
     }
 }
 
 extension AccountCreateViewController: UITextFieldDelegate {
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField == rootView.substrateDerivationPathField {
+            presenter.validateSubstrate()
+        } else if textField == rootView.ethereumDerivationPathField {
+            presenter.validateEthereum()
+        }
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-
-        presenter.validate()
-
+        if textField == rootView.substrateDerivationPathField {
+            presenter.validateSubstrate()
+        } else if textField == rootView.ethereumDerivationPathField {
+            presenter.validateEthereum()
+        }
         return false
     }
 
@@ -224,7 +242,7 @@ extension AccountCreateViewController: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        guard let viewModel = derivationPathModel else {
+        guard let viewModel = self.viewModel(for: textField) else {
             return true
         }
 
@@ -238,32 +256,38 @@ extension AccountCreateViewController: UITextFieldDelegate {
     }
 }
 
-extension AccountCreateViewController: KeyboardAdoptable {
-    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
-        let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
-        let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
-
-        var contentInsets = scrollView.contentInset
-        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
-        scrollView.contentInset = contentInsets
-
-        if contentInsets.bottom > 0.0 {
-            let fieldFrame = scrollView.convert(
-                cryptoTypeView.frame,
-                from: cryptoTypeView.superview
-            )
-
-            scrollView.scrollRectToVisible(fieldFrame, animated: true)
-        }
-    }
-}
-
 extension AccountCreateViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
             view.setNeedsLayout()
+        }
+    }
+}
+
+extension AccountCreateViewController: KeyboardViewAdoptable {
+    var target: UIView? { rootView.nextButton }
+
+    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
+    }
+
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if let responder = rootView.firstResponder {
+            var inset = rootView.contentView.scrollView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: rootView.contentView.scrollView)
+
+            if frame.height == 0 {
+                inset.bottom = 0
+                rootView.contentView.scrollView.contentInset = inset
+            } else {
+                inset.bottom = frame.height
+                rootView.contentView.scrollView.contentInset = inset
+            }
+            rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)
         }
     }
 }

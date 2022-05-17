@@ -6,7 +6,7 @@ final class InvoiceScanConfigurator {
     let searchEngine: InvoiceLocalSearchEngineProtocol
 
     init(networkType: SNAddressType) {
-        searchEngine = InvoiceScanLocalSearchEngine(networkType: networkType)
+        searchEngine = InvoiceScanLocalSearchEngine(chainFormat: .substrate(UInt16(networkType.rawValue)))
     }
 
     let style: InvoiceScanViewStyleProtocol = {

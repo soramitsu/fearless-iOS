@@ -63,7 +63,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     private var originalPositions: [RoundedButton: Position] = [:]
 
     lazy var nextButtonTitle: LocalizableResource<String> = LocalizableResource { locale in
-        R.string.localizable.commonNext(preferredLanguages: locale.rLanguages)
+        R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)
     }
 
     var skipButtonTitle: LocalizableResource<String>?
@@ -80,7 +80,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         configureLayout()
         updateNextButton()
 
-        presenter.setup()
+        presenter.didLoad(view: self)
     }
 
     private func configureLayout() {

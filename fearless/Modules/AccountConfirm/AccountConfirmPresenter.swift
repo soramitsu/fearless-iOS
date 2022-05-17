@@ -3,12 +3,23 @@ import SoraFoundation
 
 final class AccountConfirmPresenter {
     weak var view: AccountConfirmViewProtocol?
-    var wireframe: AccountConfirmWireframeProtocol!
-    var interactor: AccountConfirmInteractorInputProtocol!
+    var wireframe: AccountConfirmWireframeProtocol
+    var interactor: AccountConfirmInteractorInputProtocol
+
+    init(
+        interactor: AccountConfirmInteractorInputProtocol,
+        wireframe: AccountConfirmWireframeProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.interactor = interactor
+        self.wireframe = wireframe
+        self.localizationManager = localizationManager
+    }
 }
 
 extension AccountConfirmPresenter: AccountConfirmPresenterProtocol {
-    func setup() {
+    func didLoad(view: AccountConfirmViewProtocol) {
+        self.view = view
         interactor.requestWords()
     }
 
@@ -47,7 +58,7 @@ extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
     }
 
     func didCompleteConfirmation() {
-        wireframe.proceed(from: view)
+        wireframe.proceed(from: view, flow: interactor.flow)
     }
 
     func didReceive(error: Error) {

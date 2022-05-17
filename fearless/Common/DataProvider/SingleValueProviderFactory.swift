@@ -4,6 +4,7 @@ import IrohaCrypto
 import FearlessUtils
 import BigInt
 
+typealias DecodedOrmlAccountInfo = ChainStorageDecodedItem<OrmlAccountInfo>
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
 typealias DecodedBigUInt = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
 typealias DecodedU32 = ChainStorageDecodedItem<StringScaleMapper<UInt32>>
@@ -11,10 +12,11 @@ typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
-typealias DecodedEraIndex = ChainStorageDecodedItem<EraIndex>
+typealias DecodedEraIndex = ChainStorageDecodedItem<StringScaleMapper<EraIndex>>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
 typealias DecodedCrowdloanFunds = ChainStorageDecodedItem<CrowdloanFunds>
+typealias DecodedBalanceLocks = ChainStorageDecodedItem<BalanceLock>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -42,6 +44,8 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedPayee>
     func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedBlockNumber>
+    func getBalanceLocks(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedBalanceLocks>
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 
@@ -53,6 +57,7 @@ protocol SingleValueProviderFactoryProtocol {
     ) -> AnyDataProvider<DecodedCrowdloanFunds>
 }
 
+@available(*, deprecated, message: "Use subsclass of LocalSubscriptionFactory instead")
 final class SingleValueProviderFactory {
     static let shared = SingleValueProviderFactory(
         facade: SubstrateDataStorageFacade.shared,
@@ -188,6 +193,19 @@ final class SingleValueProviderFactory {
 }
 
 extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
+    func getBalanceLocks(
+        for address: String,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedBalanceLocks> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .balanceLocks,
+            hasher: .blake128Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
         clearIfNeeded()
 
@@ -244,7 +262,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         let source = SubqueryRewardSource(
             address: address,
-            chain: chain,
+            assetPrecision: chain.addressType.precision,
             targetIdentifier: identifier,
             repository: AnyDataProviderRepository(repository),
             operationFactory: operationFactory,

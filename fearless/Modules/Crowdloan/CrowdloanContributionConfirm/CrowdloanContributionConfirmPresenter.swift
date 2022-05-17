@@ -9,12 +9,11 @@ final class CrowdloanContributionConfirmPresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
-    let inputAmount: Decimal?
+    let inputAmount: Decimal
     let bonusRate: Decimal?
-    let chain: Chain
+    let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
-    let customFlow: CustomCrowdloanFlow?
-
+    let chain: ChainModel
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -27,7 +26,6 @@ final class CrowdloanContributionConfirmPresenter {
     private var leasingPeriod: LeasingPeriod?
     private var minimumBalance: BigUInt?
     private var minimumContribution: BigUInt?
-    private var previousContribution: CrowdloanContribution?
 
     private var crowdloanMetadata: CrowdloanMetadata? {
         if
@@ -61,12 +59,12 @@ final class CrowdloanContributionConfirmPresenter {
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
         dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
-        inputAmount: Decimal?,
+        inputAmount: Decimal,
         bonusRate: Decimal?,
-        chain: Chain,
+        assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        customFlow: CustomCrowdloanFlow?
+        chain: ChainModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -75,14 +73,14 @@ final class CrowdloanContributionConfirmPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.inputAmount = inputAmount
         self.bonusRate = bonusRate
-        self.chain = chain
+        self.assetInfo = assetInfo
         self.logger = logger
-        self.customFlow = customFlow
+        self.chain = chain
         self.localizationManager = localizationManager
     }
 
     private func provideAssetVewModel() {
-        guard minimumBalance != nil, let inputAmount = inputAmount else {
+        guard minimumBalance != nil else {
             return
         }
 
@@ -93,10 +91,6 @@ final class CrowdloanContributionConfirmPresenter {
         ).value(for: selectedLocale)
 
         view?.didReceiveAsset(viewModel: assetViewModel)
-    }
-
-    private func provideCustomFlowViewModel() {
-        view?.didReceiveCustomFlow(viewModel: customFlow)
     }
 
     private func provideFeeViewModel() {
@@ -119,18 +113,13 @@ final class CrowdloanContributionConfirmPresenter {
             from: crowdloan,
             metadata: metadata,
             confirmationData: confirmationData,
-            locale: selectedLocale,
-            previousContribution: previousContribution
+            locale: selectedLocale
         )
 
         maybeViewModel.map { view?.didReceiveCrowdloan(viewModel: $0) }
     }
 
     private func provideEstimatedRewardViewModel() {
-        guard let inputAmount = inputAmount else {
-            return
-        }
-
         let viewModel = displayInfo.map {
             contributionViewModelFactory.createEstimatedRewardViewModel(
                 inputAmount: inputAmount,
@@ -144,7 +133,7 @@ final class CrowdloanContributionConfirmPresenter {
 
     private func provideBonusViewModel() {
         let viewModel: String? = {
-            if let displayInfo = displayInfo, let bonusRate = bonusRate, let inputAmount = inputAmount {
+            if let displayInfo = displayInfo, let bonusRate = bonusRate {
                 return contributionViewModelFactory.createAdditionalBonusViewModel(
                     inputAmount: inputAmount,
                     displayInfo: displayInfo,
@@ -164,23 +153,14 @@ final class CrowdloanContributionConfirmPresenter {
         provideFeeViewModel()
         provideEstimatedRewardViewModel()
         provideBonusViewModel()
-        provideCustomFlowViewModel()
     }
 
     private func refreshFee() {
-        let amount = getInputAmount()?.toSubstrateAmount(precision: chain.addressType.precision)
-
-        interactor.estimateFee(for: amount)
-    }
-
-    private func getInputAmount() -> Decimal? {
-        var inputAmount = self.inputAmount
-
-        if let customFlow = customFlow, !customFlow.needsContribute {
-            inputAmount = nil
+        guard let amount = inputAmount.toSubstrateAmount(precision: assetInfo.assetPrecision) else {
+            return
         }
 
-        return inputAmount
+        interactor.estimateFee(for: amount)
     }
 }
 
@@ -194,19 +174,12 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
     }
 
     func confirm() {
-        let contributionValue = inputAmount?.toSubstrateAmount(precision: chain.addressType.precision)
+        let contributionValue = inputAmount.toSubstrateAmount(precision: assetInfo.assetPrecision)
         let spendingValue = (contributionValue ?? 0) +
-            (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
-
-        let needsMinContributionValidation = customFlow.map {
-            switch $0 {
-            case .moonbeamMemoFix: return false
-            default: return true
-            }
-        } ?? true
+            (fee?.toSubstrateAmount(precision: assetInfo.assetPrecision) ?? 0)
 
         DataValidationRunner(validators: [
-            //            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
+            dataValidatingFactory.crowdloanIsNotPrivate(crowdloan: crowdloan, locale: selectedLocale),
 
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee()
@@ -219,12 +192,11 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
                 locale: selectedLocale
             ),
 
-            needsMinContributionValidation ?
-                dataValidatingFactory.contributesAtLeastMinContribution(
-                    contribution: contributionValue,
-                    minimumBalance: minimumBalance,
-                    locale: selectedLocale
-                ) : nil,
+            dataValidatingFactory.contributesAtLeastMinContribution(
+                contribution: contributionValue,
+                minimumBalance: minimumContribution,
+                locale: selectedLocale
+            ),
 
             dataValidatingFactory.capNotExceeding(
                 contribution: contributionValue,
@@ -236,6 +208,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
             dataValidatingFactory.crowdloanIsNotCompleted(
                 crowdloan: crowdloan,
                 metadata: crowdloanMetadata,
+                displayInfo: displayInfo,
                 locale: selectedLocale
             ),
 
@@ -243,14 +216,16 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
                 spendingAmount: spendingValue,
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
-                locale: selectedLocale
+                locale: selectedLocale,
+                chain: chain
             )
 
-        ].compactMap { $0 }).runValidation { [weak self] in
+        ]).runValidation { [weak self] in
             guard
-                let strongSelf = self else { return }
+                let strongSelf = self,
+                let contribution = contributionValue else { return }
             strongSelf.view?.didStartLoading()
-            strongSelf.interactor.submit(contribution: contributionValue)
+            strongSelf.interactor.submit(contribution: contribution)
         }
     }
 
@@ -259,22 +234,16 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
             return
         }
 
-        wireframe.presentAccountOptions(from: view, address: address, chain: chain, locale: selectedLocale)
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: selectedLocale
+        )
     }
 }
 
 extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol {
-    func didReceiveContribution(result: Result<CrowdloanContribution?, Error>) {
-        switch result {
-        case let .success(contribution):
-            previousContribution = contribution
-
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Did receive contribution error: \(error)")
-        }
-    }
-
     func didSubmitContribution(result: Result<String, Error>) {
         view?.didStopLoading()
 
@@ -332,7 +301,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             totalBalanceValue = accountInfo?.data.total ?? 0
 
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0.data.available, precision: assetInfo.assetPrecision)
             } ?? 0.0
 
             provideAssetVewModel()
@@ -390,7 +359,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: chain.addressType.precision)
+                Decimal.fromSubstrateAmount($0, precision: assetInfo.assetPrecision)
             } ?? nil
 
             provideFeeViewModel()
@@ -420,8 +389,6 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             logger?.error("Did receive minimum contribution error: \(error)")
         }
     }
-
-    func didReceiveReferralEthereumAddress(address _: String) {}
 }
 
 extension CrowdloanContributionConfirmPresenter: Localizable {

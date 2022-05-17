@@ -2,72 +2,45 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
 
 struct CrowdloanContributionConfirmViewFactory {
     static func createView(
         with paraId: ParaId,
-        inputAmount: Decimal?,
+        inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol?,
-        customFlow: CustomCrowdloanFlow?,
-        ethereumAddress: String?
+        state: CrowdloanSharedState
     ) -> CrowdloanContributionConfirmViewProtocol? {
-        let settings = SettingsManager.shared
-        let addressType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(addressType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
-
-        var interactor: CrowdloanContributionConfirmInteractor?
-        switch customFlow {
-        case let .moonbeam(moonbeamFlowData):
-            interactor = createMoonbeamInteractor(
+        guard
+            let selectedAccount = SelectedWalletSettings.shared.value,
+            let chain = state.settings.value,
+            let asset = chain.utilityAssets().first,
+            let interactor = createInteractor(
                 for: paraId,
-                assetId: assetId,
-                moonbeamFlowData: moonbeamFlowData,
-                ethereumAddress: ethereumAddress
-            )
-        case .moonbeamMemoFix:
-            interactor = createMoonbeamInteractor(
-                for: paraId,
-                assetId: assetId,
-                moonbeamFlowData: nil,
-                ethereumAddress: ethereumAddress
-            )
-        default:
-            interactor = createInteractor(
-                for: paraId,
-                assetId: assetId,
+                chainAsset: ChainAsset(chain: chain, asset: asset.asset),
                 bonusService: bonusService,
-                memo: ethereumAddress
-            )
+                state: state
+            ) else {
+            return nil
         }
-
-        guard let interactor = interactor else { return nil }
 
         let wireframe = CrowdloanContributionConfirmWireframe()
 
+        let assetInfo = asset.asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: selectedAccount
         )
 
         let localizationManager = LocalizationManager.shared
-        let amountFormatterFactory = AmountFormatterFactory()
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: amountFormatterFactory,
-            chainDateCalculator: ChainDateCalculator(),
-            asset: asset
+            assetInfo: assetInfo,
+            chainDateCalculator: ChainDateCalculator()
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(
             presentable: wireframe,
-            amountFormatterFactory: amountFormatterFactory,
-            chain: addressType.chain,
-            asset: asset
+            assetInfo: assetInfo
         )
 
         let presenter = CrowdloanContributionConfirmPresenter(
@@ -78,10 +51,10 @@ struct CrowdloanContributionConfirmViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             inputAmount: inputAmount,
             bonusRate: bonusService?.bonusRate,
-            chain: addressType.chain,
+            assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            customFlow: customFlow
+            chain: chain
         )
 
         let view = CrowdloanContributionConfirmVC(
@@ -96,178 +69,61 @@ struct CrowdloanContributionConfirmViewFactory {
         return view
     }
 
-    private static func createMoonbeamInteractor(
-        for paraId: ParaId,
-        assetId: WalletAssetId,
-        moonbeamFlowData: MoonbeamFlowData?,
-        ethereumAddress: String?
-    ) -> MoonbeamContributionConfirmInteractor? {
-        guard let engine = WebSocketService.shared.connection else { return nil }
-
-        let settings = SettingsManager.shared
-        let keystore = Keychain()
-
-        guard let selectedAccount = settings.selectedAccount else { return nil }
-
-        let chain = settings.selectedConnection.type.chain
-
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let runtimeService = RuntimeRegistryFacade.sharedService
-
-        let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: engine,
-            operationManager: operationManager
-        )
-
-        let feeProxy = ExtrinsicFeeProxy()
-
-        let singleValueProviderFactory = SingleValueProviderFactory.shared
-
-        let crowdloanFundsProvider = singleValueProviderFactory.getCrowdloanFunds(
-            for: paraId,
-            connection: settings.selectedConnection,
-            engine: engine,
-            runtimeService: runtimeService
-        )
-
-        let signingWrapper = SigningWrapper(keystore: keystore, settings: settings)
-
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
-
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
-        let crowdloanOperationFactory = CrowdloanOperationFactory(
-            requestOperationFactory: storageRequestFactory,
-            operationManager: operationManager
-        )
-
-        var moonbeamService: MoonbeamService?
-
-        if let moonbeamFlowData = moonbeamFlowData {
-            #if F_DEV
-                let apiKey = moonbeamFlowData.devApiKey
-                let host = moonbeamFlowData.devApiUrl
-            #else
-                let apiKey = moonbeamFlowData.prodApiKey
-                let host = moonbeamFlowData.prodApiUrl
-            #endif
-
-            let headerBuilder = MoonbeamHTTPHeadersBuilder(apiKey: apiKey)
-            let requestBuilder = HTTPRequestBuilder(host: host, headerBuilder: headerBuilder)
-
-            moonbeamService = MoonbeamService(
-                address: selectedAccount.address,
-                chain: settings.selectedConnection.type.chain,
-                signingWrapper: signingWrapper,
-                operationManager: OperationManagerFacade.sharedManager,
-                requestBuilder: requestBuilder,
-                dataOperationFactory: DataOperationFactory()
-            )
-        }
-
-        return MoonbeamContributionConfirmInteractor(
-            paraId: paraId,
-            selectedAccount: selectedAccount,
-            chain: chain,
-            assetId: assetId,
-            runtimeService: runtimeService,
-            feeProxy: feeProxy,
-            extrinsicService: extrinsicService,
-            signingWrapper: signingWrapper,
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            crowdloanFundsProvider: crowdloanFundsProvider,
-            singleValueProviderFactory: singleValueProviderFactory,
-            bonusService: nil,
-            operationManager: operationManager,
-            moonbeamService: moonbeamService,
-            logger: Logger.shared,
-            crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: engine,
-            ethereumAddress: ethereumAddress,
-            settings: SettingsManager.shared
-        )
-    }
-
     private static func createInteractor(
         for paraId: ParaId,
-        assetId: WalletAssetId,
+        chainAsset: ChainAsset,
         bonusService: CrowdloanBonusServiceProtocol?,
-        memo: String?
+        state: CrowdloanSharedState
     ) -> CrowdloanContributionConfirmInteractor? {
-        guard let engine = WebSocketService.shared.connection else { return nil }
-
-        let settings = SettingsManager.shared
-        let keystore = Keychain()
-
-        guard let selectedAccount = settings.selectedAccount else { return nil }
-
-        let chain = settings.selectedConnection.type.chain
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
+            return nil
+        }
 
         let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        let runtimeService = RuntimeRegistryFacade.sharedService
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return nil
+        }
+
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
+            return nil
+        }
 
         let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
+            accountId: accountResponse.accountId,
+            chainFormat: chainAsset.chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
-            engine: engine,
+            engine: connection,
             operationManager: operationManager
         )
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let singleValueProviderFactory = SingleValueProviderFactory.shared
-
-        let crowdloanFundsProvider = singleValueProviderFactory.getCrowdloanFunds(
-            for: paraId,
-            connection: settings.selectedConnection,
-            engine: engine,
-            runtimeService: runtimeService
-        )
-
-        let signingWrapper = SigningWrapper(keystore: keystore, settings: settings)
-
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
-
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
-        let crowdloanOperationFactory = CrowdloanOperationFactory(
-            requestOperationFactory: storageRequestFactory,
-            operationManager: operationManager
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedMetaAccount.metaId,
+            accountResponse: accountResponse
         )
 
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
-            selectedAccountAddress: selectedAccount.address,
-            chain: chain,
-            assetId: assetId,
+            selectedMetaAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
+            crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            priceLocalSubscriptionFactory: PriceProviderFactory.shared,
+            jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            crowdloanFundsProvider: crowdloanFundsProvider,
-            singleValueProviderFactory: singleValueProviderFactory,
             bonusService: bonusService,
-            operationManager: operationManager,
-            logger: Logger.shared,
-            crowdloanOperationFactory: crowdloanOperationFactory,
-            connection: engine,
-            settings: SettingsManager.shared,
-            memo: memo
+            operationManager: operationManager
         )
     }
 }

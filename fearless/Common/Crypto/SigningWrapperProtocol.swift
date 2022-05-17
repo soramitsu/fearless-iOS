@@ -38,4 +38,16 @@ extension SigningWrapperProtocol {
         let hashedData = try originalData.blake2b32()
         return try signer.sign(hashedData)
     }
+
+    func signEthereumEcdsa(_ originalData: Data, secretKey: Data) throws -> IRSignatureProtocol {
+        let keypairFactory = EcdsaKeypairFactory()
+        let privateKey = try keypairFactory
+            .createKeypairFromSeed(secretKey.miniSeed, chaincodeList: [])
+            .privateKey()
+
+        let signer = SECSigner(privateKey: privateKey)
+
+        let hashedData = try originalData.keccak256()
+        return try signer.sign(hashedData)
+    }
 }

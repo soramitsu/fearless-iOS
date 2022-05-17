@@ -17,23 +17,34 @@ final class AboutViewFactory: AboutViewFactoryProtocol {
         )
 
         let about = AboutData(
-            version: config.version,
-            opensourceUrl: config.opensourceURL,
             websiteUrl: config.websiteURL,
-            socialUrl: config.socialURL,
-            legal: legal,
-            writeUs: supportData
+            opensourceUrl: config.opensourceURL,
+            twitter: config.twitter,
+            youTube: config.youTube,
+            instagram: config.instagram,
+            medium: config.medium,
+            wiki: config.wiki,
+            telegram: TelegramData(
+                fearlessWallet: config.fearlessWallet,
+                fearlessAnnouncements: config.fearlessAnnouncements,
+                fearlessHappiness: config.fearlessHappiness
+            ),
+            writeUs: supportData,
+            version: config.version,
+            legal: legal
         )
 
-        let view = AboutViewController(nib: R.nib.aboutViewController)
-        let presenter = AboutPresenter(locale: locale, about: about)
         let wireframe = AboutWireframe()
+        let localizationManager = LocalizationManager.shared
+        let aboutViewModelFactory = AboutViewModelFactory(about: about)
 
-        view.presenter = presenter
-        presenter.view = view
-        presenter.wireframe = wireframe
-
-        view.locale = locale
+        let presenter = AboutPresenter(
+            about: about,
+            wireframe: wireframe,
+            aboutViewModelFactory: aboutViewModelFactory,
+            localizationManager: localizationManager
+        )
+        let view = AboutViewController(locale: locale, presenter: presenter)
 
         return view
     }

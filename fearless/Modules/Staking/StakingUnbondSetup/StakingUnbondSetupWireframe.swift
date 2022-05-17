@@ -5,8 +5,19 @@ final class StakingUnbondSetupWireframe: StakingUnbondSetupWireframeProtocol {
         view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
-    func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal) {
-        guard let confirmationView = StakingUnbondConfirmViewFactory.createView(from: amount) else {
+    func proceed(
+        view: StakingUnbondSetupViewProtocol?,
+        amount: Decimal,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let confirmationView = StakingUnbondConfirmViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            amount: amount
+        ) else {
             return
         }
 

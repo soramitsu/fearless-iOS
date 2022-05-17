@@ -51,7 +51,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         adjustLayoutConstraints()
         setupAccessibilityIdentifiers()
 
-        presenter.start()
+        presenter.didLoad(view: self)
     }
 
     // MARK: Configure
@@ -104,10 +104,10 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         if pinView.mode == .create {
             if pinView.creationState == .normal {
                 titleLabel.text = R.string.localizable
-                    .pincodeSetYourPinCode(preferredLanguages: languages)
+                    .createNewPincode(preferredLanguages: languages)
             } else {
                 titleLabel.text = R.string.localizable
-                    .pincodeConfirmYourPinCode(preferredLanguages: languages)
+                    .pincodeConfirmPinCode(preferredLanguages: languages)
             }
         } else {
             titleLabel.text = R.string.localizable

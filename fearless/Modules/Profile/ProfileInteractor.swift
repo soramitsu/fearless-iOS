@@ -1,54 +1,102 @@
 import Foundation
 import SoraKeystore
 import IrohaCrypto
+import RobinHood
 
 enum ProfileInteractorError: Error {
     case noSelectedAccount
 }
 
 final class ProfileInteractor {
-    weak var presenter: ProfileInteractorOutputProtocol?
+    // MARK: - Private properties
 
-    let settingsManager: SettingsManagerProtocol
-    let eventCenter: EventCenterProtocol
-    let logger: LoggerProtocol
+    private weak var presenter: ProfileInteractorOutputProtocol?
+    private let selectedWalletSettings: SelectedWalletSettings
+    private let eventCenter: EventCenterProtocol
+    private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
+    private let operationQueue: OperationQueue
+    private let selectedMetaAccount: MetaAccountModel
+
+    private lazy var currentCurrency: Currency? = {
+        selectedMetaAccount.selectedCurrency
+    }()
+
+    // MARK: - Constructors
 
     init(
-        settingsManager: SettingsManagerProtocol,
+        selectedWalletSettings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
+        operationQueue: OperationQueue,
+        selectedMetaAccount: MetaAccountModel
     ) {
-        self.settingsManager = settingsManager
+        self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
-        self.logger = logger
+        self.repository = repository
+        self.operationQueue = operationQueue
+        self.selectedMetaAccount = selectedMetaAccount
     }
+
+    // MARK: - Private methods
 
     private func provideUserSettings() {
         do {
-            guard let account = settingsManager.selectedAccount else {
+            guard let wallet = selectedWalletSettings.value else {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            let connection = settingsManager.selectedConnection
-
-            let userSettings = UserSettings(
-                account: account,
-                connection: connection
+            // TODO: Apply total account value logic instead
+            let genericAddress = try wallet.substrateAccountId.toAddress(
+                using: ChainFormat.substrate(42)
             )
 
-            presenter?.didReceive(userSettings: userSettings)
+            let userSettings = UserSettings(
+                userName: wallet.name,
+                details: ""
+            )
+
+            presenter?.didReceive(wallet: wallet)
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
     }
-}
 
-extension ProfileInteractor: ProfileInteractorInputProtocol {
-    func setup() {
-        eventCenter.add(observer: self, dispatchIn: .main)
-        provideUserSettings()
+    private func provideSelectedCurrency() {
+        guard let currentCurrency = currentCurrency else { return }
+        presenter?.didRecieve(selectedCurrency: currentCurrency)
     }
 }
+
+// MARK: - ProfileInteractorInputProtocol
+
+extension ProfileInteractor: ProfileInteractorInputProtocol {
+    func setup(with output: ProfileInteractorOutputProtocol) {
+        presenter = output
+        eventCenter.add(observer: self, dispatchIn: .main)
+        provideUserSettings()
+        provideSelectedCurrency()
+    }
+
+    func updateWallet(_ wallet: MetaAccountModel) {
+        selectedWalletSettings.save(value: wallet)
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceive(wallet: wallet)
+        }
+    }
+
+    func logout(completion: @escaping () -> Void) {
+        let operation = repository.deleteAllOperation()
+        operation.completionBlock = completion
+        operationQueue.addOperation(operation)
+    }
+
+    func update(currency: Currency) {
+        currentCurrency = currency
+        provideSelectedCurrency()
+    }
+}
+
+// MARK: - EventVisitorProtocol
 
 extension ProfileInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
@@ -57,5 +105,9 @@ extension ProfileInteractor: EventVisitorProtocol {
 
     func processSelectedUsernameChanged(event _: SelectedUsernameChanged) {
         provideUserSettings()
+    }
+
+    func processWalletNameChanged(event: WalletNameChanged) {
+        updateWallet(event.wallet)
     }
 }

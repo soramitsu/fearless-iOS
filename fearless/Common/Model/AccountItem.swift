@@ -6,6 +6,7 @@ enum CryptoType: UInt8, Codable, CaseIterable {
     case ecdsa
 }
 
+@available(*, deprecated, message: "Use MetaAccount instead")
 struct AccountItem: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case address

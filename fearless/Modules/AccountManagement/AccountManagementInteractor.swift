@@ -5,24 +5,27 @@ import SoraKeystore
 final class AccountManagementInteractor {
     weak var presenter: AccountManagementInteractorOutputProtocol?
 
-    let repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>
-    let repository: AnyDataProviderRepository<ManagedAccountItem>
-    private(set) var settings: SettingsManagerProtocol
-    let operationManager: OperationManagerProtocol
+    let repositoryObservable: AnyDataProviderRepositoryObservable<ManagedMetaAccountModel>
+    let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
+    let settings: SelectedWalletSettings
+    let operationQueue: OperationQueue
     let eventCenter: EventCenterProtocol
+    let getBalanceProvider: GetBalanceProviderProtocol
 
     init(
-        repository: AnyDataProviderRepository<ManagedAccountItem>,
-        repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>,
-        settings: SettingsManagerProtocol,
-        operationManager: OperationManagerProtocol,
-        eventCenter: EventCenterProtocol
+        repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
+        repositoryObservable: AnyDataProviderRepositoryObservable<ManagedMetaAccountModel>,
+        settings: SelectedWalletSettings,
+        operationQueue: OperationQueue,
+        eventCenter: EventCenterProtocol,
+        getBalanceProvider: GetBalanceProviderProtocol
     ) {
         self.repository = repository
         self.repositoryObservable = repositoryObservable
         self.settings = settings
-        self.operationManager = operationManager
+        self.operationQueue = operationQueue
         self.eventCenter = eventCenter
+        self.getBalanceProvider = getBalanceProvider
     }
 
     private func provideInitialList() {
@@ -34,8 +37,8 @@ final class AccountManagementInteractor {
                 do {
                     let items = try operation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    self?.getBalances(for: items)
                     let changes = items.map { DataProviderChange.insert(newItem: $0) }
-
                     self?.presenter?.didReceive(changes: changes)
                 } catch {
                     self?.presenter?.didReceive(error: error)
@@ -43,7 +46,11 @@ final class AccountManagementInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation], in: .transient)
+        operationQueue.addOperation(operation)
+    }
+
+    private func getBalances(for items: [ManagedMetaAccountModel]) {
+        getBalanceProvider.getBalances(for: items, handler: self)
     }
 }
 
@@ -58,57 +65,74 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         }
 
         repositoryObservable.addObserver(self, deliverOn: .main) { [weak self] changes in
-            self?.presenter?.didReceive(changes: changes)
-        }
-
-        if let selectedAccountItem = settings.selectedAccount {
-            presenter?.didReceiveSelected(item: selectedAccountItem)
+            guard let strongSelf = self else { return }
+            strongSelf.presenter?.didReceive(changes: changes)
+            let accounts = changes.compactMap(\.item)
+            strongSelf.getBalances(for: accounts)
         }
 
         provideInitialList()
+
+        eventCenter.add(observer: self)
     }
 
-    func select(item: ManagedAccountItem) {
-        let connectionChanged: Bool
+    func select(item: ManagedMetaAccountModel) {
+        let oldMetaAccount = settings.value
 
-        if item.networkType != settings.selectedConnection.type {
-            guard let newConnection = ConnectionItem
-                .supportedConnections.first(where: { $0.type == item.networkType })
-            else {
-                return
+        guard item.info.identifier != oldMetaAccount?.identifier else {
+            return
+        }
+
+        settings.save(value: item.info, runningCompletionIn: .main) { [weak self] result in
+            switch result {
+            case .success:
+                self?.eventCenter.notify(with: SelectedAccountChanged())
+
+                self?.presenter?.didCompleteSelection(of: item.info)
+            case let .failure(error):
+                self?.presenter?.didReceive(error: error)
             }
-
-            settings.selectedConnection = newConnection
-
-            connectionChanged = true
-        } else {
-            connectionChanged = false
         }
-
-        let newSelectedAccountItem = AccountItem(
-            address: item.address,
-            cryptoType: item.cryptoType,
-            username: item.username,
-            publicKeyData: item.publicKeyData
-        )
-
-        settings.selectedAccount = newSelectedAccountItem
-        presenter?.didReceiveSelected(item: newSelectedAccountItem)
-
-        if connectionChanged {
-            eventCenter.notify(with: SelectedConnectionChanged())
-        }
-
-        eventCenter.notify(with: SelectedAccountChanged())
     }
 
-    func save(items: [ManagedAccountItem]) {
+    func save(items: [ManagedMetaAccountModel]) {
         let operation = repository.saveOperation({ items }, { [] })
-        operationManager.enqueue(operations: [operation], in: .transient)
+        operationQueue.addOperation(operation)
     }
 
-    func remove(item: ManagedAccountItem) {
-        let operation = repository.saveOperation({ [] }, { [item.address] })
-        operationManager.enqueue(operations: [operation], in: .transient)
+    func remove(item: ManagedMetaAccountModel) {
+        let operation = repository.saveOperation({ [] }, { [item.identifier] })
+        operationQueue.addOperation(operation)
+    }
+
+    func update(item: ManagedMetaAccountModel) {
+        let operation = repository.saveOperation({ [item] }, { [] })
+        operationQueue.addOperation(operation)
+    }
+}
+
+extension AccountManagementInteractor: EventVisitorProtocol {
+    func processWalletNameChanged(event: WalletNameChanged) {
+        let operation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        operation.completionBlock = { [weak self] in
+            let items = try? operation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            if let changedItem = items?.first(where: { $0.info.metaId == event.wallet.metaId }) {
+                let newItem = ManagedMetaAccountModel(
+                    info: event.wallet,
+                    isSelected: changedItem.isSelected,
+                    order: changedItem.order
+                )
+                self?.update(item: newItem)
+            }
+        }
+        operationQueue.addOperation(operation)
+    }
+}
+
+extension AccountManagementInteractor: GetBalanceManagedMetaAccountsHandler {
+    func handleManagedMetaAccountsBalance(managedMetaAccounts: [ManagedMetaAccountModel]) {
+        let changes = managedMetaAccounts.map { DataProviderChange.update(newItem: $0) }
+        presenter?.didReceive(changes: changes)
     }
 }

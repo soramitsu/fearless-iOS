@@ -7,15 +7,14 @@ import BigInt
 protocol CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(
         connection: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol,
-        chain: Chain
+        runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<[Crowdloan]>
 
     func fetchContributionOperation(
         connection: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
-        address: AccountAddress,
-        trieIndex: UInt32
+        accountId: AccountId,
+        trieOrFundIndex: TrieOrFundIndex
     ) -> CompoundOperationWrapper<CrowdloanContributionResponse>
 
     func fetchLeaseInfoOperation(
@@ -38,8 +37,7 @@ final class CrowdloanOperationFactory {
 extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(
         connection: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol,
-        chain _: Chain
+        runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<[Crowdloan]> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -93,22 +91,19 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
     func fetchContributionOperation(
         connection: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
-        address: AccountAddress,
-        trieIndex: UInt32
+        accountId: AccountId,
+        trieOrFundIndex: TrieOrFundIndex
     ) -> CompoundOperationWrapper<CrowdloanContributionResponse> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-        let addressFactory = SS58AddressFactory()
 
-        let storageKeyParam: () throws -> Data = {
-            try addressFactory.accountId(from: address)
-        }
+        let storageKeyParam: () throws -> Data = { accountId }
 
         let childKeyParam: () throws -> Data = {
-            let trieIndexEncoder = ScaleEncoder()
-            try trieIndex.encode(scaleEncoder: trieIndexEncoder)
-            let trieIndexData = trieIndexEncoder.encode()
+            let trieOrFundIndexEncoder = ScaleEncoder()
+            try trieOrFundIndex.encode(scaleEncoder: trieOrFundIndexEncoder)
+            let trieOrFundIndexData = trieOrFundIndexEncoder.encode()
 
-            guard let childSuffix = try "crowdloan".data(using: .utf8).map({ $0 + trieIndexData })?.blake2b32() else {
+            guard let childSuffix = try "crowdloan".data(using: .utf8).map({ $0 + trieOrFundIndexData })?.blake2b32() else {
                 throw NetworkBaseError.badSerialization
             }
 
@@ -132,7 +127,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
 
         let mappingOperation = ClosureOperation<CrowdloanContributionResponse> {
             let result = try queryWrapper.targetOperation.extractNoCancellableResultData()
-            return CrowdloanContributionResponse(address: address, trieIndex: trieIndex, contribution: result.value)
+            return CrowdloanContributionResponse(accountId: accountId, trieOrFundIndex: trieOrFundIndex, contribution: result.value)
         }
 
         mappingOperation.addDependency(queryWrapper.targetOperation)

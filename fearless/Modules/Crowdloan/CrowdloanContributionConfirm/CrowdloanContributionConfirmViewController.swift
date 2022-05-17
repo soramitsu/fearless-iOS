@@ -35,11 +35,7 @@ final class CrowdloanContributionConfirmVC: UIViewController, ViewHolder {
     }
 
     private func configure() {
-        rootView.accountView.addTarget(
-            self,
-            action: #selector(actionAccountOptions),
-            for: .touchUpInside
-        )
+        rootView.accountView.addTarget(self, action: #selector(actionAccountOptions), for: .touchUpInside)
         rootView.networkFeeConfirmView.actionButton.addTarget(
             self,
             action: #selector(actionConfirm),
@@ -62,10 +58,6 @@ final class CrowdloanContributionConfirmVC: UIViewController, ViewHolder {
 }
 
 extension CrowdloanContributionConfirmVC: CrowdloanContributionConfirmViewProtocol {
-    func didReceiveCustomFlow(viewModel: CustomCrowdloanFlow?) {
-        rootView.bind(customFlow: viewModel)
-    }
-
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol) {
         rootView.bind(assetViewModel: viewModel)
     }

@@ -5,19 +5,19 @@ import FearlessUtils
 
 protocol StakingUnbondConfirmViewModelFactoryProtocol {
     func createUnbondConfirmViewModel(
-        controllerItem: AccountItem,
+        controllerItem: ChainAccountResponse,
         amount: Decimal,
         shouldResetRewardDestination: Bool
     ) throws -> StakingUnbondConfirmViewModel
 }
 
 final class StakingUnbondConfirmViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol {
-    let asset: WalletAsset
+    let asset: AssetModel
 
-    private lazy var formatterFactory = AmountFormatterFactory()
+    private lazy var formatterFactory = AssetBalanceFormatterFactory()
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    init(asset: WalletAsset) {
+    init(asset: AssetModel) {
         self.asset = asset
     }
 
@@ -58,24 +58,25 @@ final class StakingUnbondConfirmViewModelFactory: StakingUnbondConfirmViewModelF
     }
 
     func createUnbondConfirmViewModel(
-        controllerItem: AccountItem,
+        controllerItem: ChainAccountResponse,
         amount: Decimal,
         shouldResetRewardDestination: Bool
     ) throws -> StakingUnbondConfirmViewModel {
-        let formatter = formatterFactory.createInputFormatter(for: asset)
+        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).string(from: amount as NSNumber) ?? ""
         }
 
-        let icon = try iconGenerator.generateFromAddress(controllerItem.address)
+        let address = controllerItem.toAddress() ?? ""
+        let icon = try iconGenerator.generateFromAddress(address)
 
         let hints = createHints(from: shouldResetRewardDestination)
 
         return StakingUnbondConfirmViewModel(
-            senderAddress: controllerItem.address,
+            senderAddress: address,
             senderIcon: icon,
-            senderName: controllerItem.username,
+            senderName: controllerItem.name,
             amount: amount,
             hints: hints
         )

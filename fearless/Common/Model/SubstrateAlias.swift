@@ -1,9 +1,11 @@
 import Foundation
+import BigInt
 
 typealias AccountAddress = String
 typealias AccountId = Data
 typealias ParaId = UInt32
 typealias TrieIndex = UInt32
+typealias FundIndex = UInt32
 typealias BlockNumber = UInt32
 typealias BlockTime = UInt64
 typealias LeasingPeriod = UInt32
@@ -19,7 +21,11 @@ extension AccountId {
             return nil
         }
 
-        return data.count == SubstrateConstants.accountIdLength ? data : nil
+        let accountIdLength = value.hasPrefix("0x")
+            ? EthereumConstants.accountIdLength
+            : SubstrateConstants.accountIdLength
+
+        return data.count == accountIdLength ? data : nil
     }
 }
 

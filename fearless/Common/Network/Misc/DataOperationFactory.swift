@@ -9,6 +9,7 @@ final class DataOperationFactory: DataOperationFactoryProtocol {
     func fetchData(from url: URL) -> BaseOperation<Data> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.httpMethod = HttpMethod.get.rawValue
             return request
         }

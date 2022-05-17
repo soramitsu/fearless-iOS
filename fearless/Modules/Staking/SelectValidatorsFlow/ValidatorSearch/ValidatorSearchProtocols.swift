@@ -3,7 +3,10 @@ import SoraFoundation
 protocol ValidatorSearchWireframeProtocol: AlertPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
-        from view: ControllerBackedProtocol?
+        asset: AssetModel,
+        chain: ChainModel,
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     )
 
     func close(_ view: ControllerBackedProtocol?)
@@ -38,9 +41,12 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
+        asset: AssetModel,
+        chain: ChainModel,
         with fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?
+        delegate: ValidatorSearchDelegate?,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol?
 }
 

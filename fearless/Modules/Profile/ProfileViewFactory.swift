@@ -6,30 +6,43 @@ import FearlessUtils
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
     static func createView() -> ProfileViewProtocol? {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
-
-        let profileViewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
-
-        let view = ProfileViewController(nib: R.nib.profileViewController)
-        view.iconGenerating = PolkadotIconGenerator()
-
-        let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
-        let interactor = ProfileInteractor(
-            settingsManager: SettingsManager.shared,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
+        let repository = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+            .createManagedMetaAccountRepository(
+                for: nil,
+                sortDescriptors: [NSSortDescriptor.accountsByOrder]
+            )
+        let settings = SettingsManager.shared
+        let profileViewModelFactory = ProfileViewModelFactory(
+            iconGenerator: PolkadotIconGenerator(),
+            biometry: BiometryAuth(),
+            settings: settings
         )
-        let wireframe = ProfileWireframe()
 
-        view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
-        interactor.presenter = presenter
+        let interactor = ProfileInteractor(
+            selectedWalletSettings: SelectedWalletSettings.shared,
+            eventCenter: EventCenter.shared,
+            repository: repository,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
-        presenter.logger = Logger.shared
+        let presenter = ProfilePresenter(
+            viewModelFactory: profileViewModelFactory,
+            interactor: interactor,
+            wireframe: ProfileWireframe(),
+            logger: Logger.shared,
+            settings: settings,
+            eventCenter: EventCenter.shared,
+            localizationManager: localizationManager
+        )
+
+        let view = ProfileViewController(
+            presenter: presenter,
+            iconGenerating: PolkadotIconGenerator(),
+            localizationManager: localizationManager
+        )
 
         return view
     }

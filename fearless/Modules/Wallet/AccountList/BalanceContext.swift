@@ -6,28 +6,24 @@ struct BalanceContext {
     static let miscFrozenKey = "account.balance.misc.frozen.key"
     static let feeFrozenKey = "account.balance.fee.frozen.key"
 
-    static let bondedKey = "account.balance.bonded.key"
-    static let redeemableKey = "account.balance.redeemable.key"
-    static let unbondingKey = "account.balance.unbonding.key"
-
     static let priceKey = "account.balance.price.key"
     static let priceChangeKey = "account.balance.price.change.key"
 
     static let minimalBalanceKey = "account.balance.minimal.key"
+
+    static let balanceLocksKey = "account.balance.locks.key"
 
     let free: Decimal
     let reserved: Decimal
     let miscFrozen: Decimal
     let feeFrozen: Decimal
 
-    let bonded: Decimal
-    let redeemable: Decimal
-    let unbonding: Decimal
-
     let price: Decimal
     let priceChange: Decimal
 
     let minimalBalance: Decimal
+
+    let balanceLocks: BalanceLocks
 }
 
 extension BalanceContext {
@@ -44,28 +40,32 @@ extension BalanceContext {
         miscFrozen = Self.parseContext(key: BalanceContext.miscFrozenKey, context: context)
         feeFrozen = Self.parseContext(key: BalanceContext.feeFrozenKey, context: context)
 
-        bonded = Self.parseContext(key: BalanceContext.bondedKey, context: context)
-        redeemable = Self.parseContext(key: BalanceContext.redeemableKey, context: context)
-        unbonding = Self.parseContext(key: BalanceContext.unbondingKey, context: context)
-
         price = Self.parseContext(key: BalanceContext.priceKey, context: context)
         priceChange = Self.parseContext(key: BalanceContext.priceChangeKey, context: context)
 
         minimalBalance = Self.parseContext(key: BalanceContext.minimalBalanceKey, context: context)
+
+        balanceLocks = Self.parseJSONContext(key: BalanceContext.balanceLocksKey, context: context)
     }
 
     func toContext() -> [String: String] {
-        [
+        let locksStringRepresentation: String = {
+            guard let locksJSON = try? JSONEncoder().encode(balanceLocks) else {
+                return ""
+            }
+
+            return String(data: locksJSON, encoding: .utf8) ?? ""
+        }()
+
+        return [
             BalanceContext.freeKey: free.stringWithPointSeparator,
             BalanceContext.reservedKey: reserved.stringWithPointSeparator,
             BalanceContext.miscFrozenKey: miscFrozen.stringWithPointSeparator,
             BalanceContext.feeFrozenKey: feeFrozen.stringWithPointSeparator,
-            BalanceContext.bondedKey: bonded.stringWithPointSeparator,
-            BalanceContext.redeemableKey: redeemable.stringWithPointSeparator,
-            BalanceContext.unbondingKey: unbonding.stringWithPointSeparator,
             BalanceContext.priceKey: price.stringWithPointSeparator,
             BalanceContext.priceChangeKey: priceChange.stringWithPointSeparator,
-            BalanceContext.minimalBalanceKey: minimalBalance.stringWithPointSeparator
+            BalanceContext.minimalBalanceKey: minimalBalance.stringWithPointSeparator,
+            BalanceContext.balanceLocksKey: locksStringRepresentation
         ]
     }
 
@@ -75,6 +75,21 @@ extension BalanceContext {
         } else {
             return .zero
         }
+    }
+
+    private static func parseJSONContext(key: String, context: [String: String]) -> [BalanceLock] {
+        guard let locksStringRepresentation = context[key] else { return [] }
+
+        guard let JSONData = locksStringRepresentation.data(using: .utf8) else {
+            return []
+        }
+
+        let balanceLocks = try? JSONDecoder().decode(
+            BalanceLocks.self,
+            from: JSONData
+        )
+
+        return balanceLocks ?? []
     }
 }
 
@@ -94,49 +109,25 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: price,
             priceChange: priceChange,
-            minimalBalance: minimalBalance
+            minimalBalance: minimalBalance,
+            balanceLocks: balanceLocks
         )
     }
 
-    func byChangingStakingInfo(
-        _ stakingInfo: StakingLedger,
-        activeEra: UInt32,
-        precision: Int16
+    func byChangingBalanceLocks(
+        _ updatedLocks: BalanceLocks
     ) -> BalanceContext {
-        let redeemable = Decimal
-            .fromSubstrateAmount(
-                stakingInfo.redeemable(inEra: activeEra),
-                precision: precision
-            ) ?? .zero
-
-        let bonded = Decimal
-            .fromSubstrateAmount(
-                stakingInfo.active,
-                precision: precision
-            ) ?? .zero
-
-        let unbonding = Decimal
-            .fromSubstrateAmount(
-                stakingInfo.unbonding(inEra: activeEra),
-                precision: precision
-            ) ?? .zero
-
-        return BalanceContext(
+        BalanceContext(
             free: free,
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: price,
             priceChange: priceChange,
-            minimalBalance: minimalBalance
+            minimalBalance: minimalBalance,
+            balanceLocks: updatedLocks
         )
     }
 
@@ -146,12 +137,10 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: newPrice,
             priceChange: newPriceChange,
-            minimalBalance: minimalBalance
+            minimalBalance: minimalBalance,
+            balanceLocks: balanceLocks
         )
     }
 
@@ -161,12 +150,10 @@ extension BalanceContext {
             reserved: reserved,
             miscFrozen: miscFrozen,
             feeFrozen: feeFrozen,
-            bonded: bonded,
-            redeemable: redeemable,
-            unbonding: unbonding,
             price: price,
             priceChange: priceChange,
-            minimalBalance: newMinimalBalance
+            minimalBalance: newMinimalBalance,
+            balanceLocks: balanceLocks
         )
     }
 }

@@ -27,19 +27,19 @@ protocol StakingAmountInteractorInputProtocol: AnyObject {
     func estimateFee(
         for address: String,
         amount: BigUInt,
-        rewardDestination: RewardDestination<AccountItem>
+        rewardDestination: RewardDestination<ChainAccountResponse>
     )
     func fetchAccounts()
 }
 
 protocol StakingAmountInteractorOutputProtocol: AnyObject {
-    func didReceive(accounts: [AccountItem])
+    func didReceive(accounts: [ChainAccountResponse])
     func didReceive(price: PriceData?)
     func didReceive(balance: AccountData?)
     func didReceive(
         paymentInfo: RuntimeDispatchInfo,
         for amount: BigUInt,
-        rewardDestination: RewardDestination<AccountItem>
+        rewardDestination: RewardDestination<AccountAddress>
     )
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
@@ -48,23 +48,36 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(minBondAmount: BigUInt?)
     func didReceive(counterForNominators: UInt32?)
     func didReceive(maxNominatorsCount: UInt32?)
+    func didReceive(networkStakingInfo: NetworkStakingInfo)
+    func didReceive(networkStakingInfoError: Error)
 }
 
 protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,
     StakingErrorPresentable {
     func presentAccountSelection(
-        _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
+        _ accounts: [ChainAccountResponse],
+        selectedAccountItem: ChainAccountResponse,
         delegate: ModalPickerViewControllerDelegate,
         from view: StakingAmountViewProtocol?,
         context: AnyObject?
     )
 
-    func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding)
+    func proceed(
+        from view: StakingAmountViewProtocol?,
+        state: InitiatedBonding,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    )
 
     func close(view: StakingAmountViewProtocol?)
 }
 
 protocol StakingAmountViewFactoryProtocol: AnyObject {
-    static func createView(with amount: Decimal?) -> StakingAmountViewProtocol?
+    static func createView(
+        with amount: Decimal?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) -> StakingAmountViewProtocol?
 }

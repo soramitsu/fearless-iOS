@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SoraFoundation
 
 final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     var presenter: OnboardingMainPresenterProtocol!
@@ -15,7 +16,7 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     @IBOutlet private var termsBottomConstraint: NSLayoutConstraint!
 
-    var locale: Locale?
+    var localizationManager: LocalizationManagerProtocol?
 
     var termDecorator: AttributedStringDecoratorProtocol?
 
@@ -44,12 +45,12 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     private func setupLocalization() {
         signUpButton.imageWithTitleView?.title = R.string.localizable
-            .onboardingCreateAccount(preferredLanguages: locale?.rLanguages)
+            .usernameSetupTitle20(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
-            .onboardingRestoreAccount(preferredLanguages: locale?.rLanguages)
+            .onboardingRestoreWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
 
         let text = NSAttributedString(string: R.string.localizable
-            .onboardingTermsAndConditions1(preferredLanguages: locale?.rLanguages))
+            .onboardingTermsAndConditions1(preferredLanguages: localizationManager?.selectedLocale.rLanguages))
         termsLabel.attributedText = text
     }
 

@@ -6,56 +6,21 @@ final class ExportSeedPresenter {
     var wireframe: ExportSeedWireframeProtocol!
     var interactor: ExportSeedInteractorInputProtocol!
 
-    let address: String
+    let flow: ExportFlow
     let localizationManager: LocalizationManager
 
-    private(set) var exportViewModel: ExportStringViewModel?
+    private(set) var exportViewModels: [ExportStringViewModel]?
 
-    init(address: String, localizationManager: LocalizationManager) {
-        self.address = address
+    init(flow: ExportFlow, localizationManager: LocalizationManager) {
+        self.flow = flow
         self.localizationManager = localizationManager
     }
 
-    private func share() {
-        guard let viewModel = exportViewModel else {
+    func didTapStringExport(_ value: String?) {
+        guard let value = value else {
             return
         }
 
-        let text: String
-
-        let locale = localizationManager.selectedLocale
-
-        if let derivationPath = viewModel.derivationPath {
-            text = R.string.localizable
-                .exportSeedWithDpTemplate(
-                    viewModel.networkType.titleForLocale(locale),
-                    viewModel.data,
-                    derivationPath,
-                    preferredLanguages: locale.rLanguages
-                )
-        } else {
-            text = R.string.localizable
-                .exportSeedWithoutDpTemplate(
-                    viewModel.networkType.titleForLocale(locale),
-                    viewModel.data,
-                    preferredLanguages: locale.rLanguages
-                )
-        }
-
-        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
-            if completed {
-                self?.wireframe.close(view: self?.view)
-            }
-        }
-    }
-}
-
-extension ExportSeedPresenter: ExportGenericPresenterProtocol {
-    func setup() {
-        interactor.fetchExportDataForAddress(address)
-    }
-
-    func activateExport() {
         let locale = localizationManager.selectedLocale
 
         let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
@@ -63,7 +28,7 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
 
         let exportTitle = R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
         let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
-            self?.share()
+            self?.share(value)
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
@@ -76,21 +41,72 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
+
+    func share(_ value: String) {
+        wireframe.share(source: TextSharingSource(message: value), from: view) { [weak self] completed in
+            if completed {
+                self?.wireframe.close(view: self?.view)
+            }
+        }
+    }
+}
+
+extension ExportSeedPresenter: ExportGenericPresenterProtocol {
+    func didLoadView() {
+        let locale = localizationManager.selectedLocale
+
+        let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
+        let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
+
+        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
+            self?.wireframe.back(view: self?.view)
+        }
+
+        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle) {}
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [exportAction, cancelAction],
+            closeAction: nil
+        )
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+
+    func setup() {
+        switch flow {
+        case let .single(chain, address, wallet):
+            interactor.fetchExportDataForAddress(address, chain: chain, wallet: wallet)
+        case let .multiple(wallet, _):
+            interactor.fetchExportDataForWallet(wallet, accounts: flow.exportingAccounts)
+        }
+    }
 }
 
 extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
-    func didReceive(exportData: ExportSeedData) {
-        let viewModel = ExportStringViewModel(
+    func didReceive(exportData: [ExportSeedData]) {
+        let viewModels = exportData.compactMap { seedData in
+            ExportStringViewModel(
+                option: .seed,
+                chain: seedData.chain,
+                cryptoType: seedData.chain.isEthereumBased ? nil : seedData.cryptoType,
+                derivationPath: seedData.derivationPath,
+                data: seedData.seed.toHex(includePrefix: true),
+                ethereumBased: seedData.chain.isEthereumBased
+            )
+        }
+
+        exportViewModels = viewModels
+
+        let multipleExportViewModel = MultiExportViewModel(
+            viewModels: viewModels,
             option: .seed,
-            networkType: exportData.networkType,
-            derivationPath: exportData.derivationPath,
-            cryptoType: exportData.account.cryptoType,
-            data: exportData.seed.toHex(includePrefix: true)
+            flow: flow
         )
 
-        exportViewModel = viewModel
-
-        view?.set(viewModel: viewModel)
+        view?.set(viewModel: multipleExportViewModel)
     }
 
     func didReceive(error: Error) {

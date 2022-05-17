@@ -13,9 +13,9 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    static func createViewForConnection(item: ConnectionItem) -> OnboardingMainViewProtocol? {
-        let wireframe = SelectConnection.OnboardingMainWireframe(connectionItem: item)
-        return createView(for: wireframe)
+    // TODO: Remove with connection refactoring
+    static func createViewForConnection(item _: ConnectionItem) -> OnboardingMainViewProtocol? {
+        nil
     }
 
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol? {
@@ -42,18 +42,36 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
             privacyPolicyUrl: applicationConfig.privacyPolicyURL
         )
 
+        let localizationManager = LocalizationManager.shared
+
         let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
         view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-        view.locale = locale
+        view.localizationManager = localizationManager
 
-        let presenter = OnboardingMainPresenter(legalData: legalData, locale: locale)
+        let jsonDataProviderFactory = JsonDataProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            useCache: false
+        )
+
+        let appVersionObserver = AppVersionObserver(
+            operationManager: OperationManagerFacade.sharedManager,
+            currentAppVersion: AppVersion.stringValue,
+            wireframe: wireframe,
+            locale: localizationManager.selectedLocale
+        )
 
         let interactor = OnboardingMainInteractor(keystoreImportService: kestoreImportService)
 
+        let presenter = OnboardingMainPresenter(
+            legalData: legalData,
+            locale: locale,
+            appVersionObserver: appVersionObserver,
+            wireframe: wireframe,
+            interactor: interactor
+        )
+
         view.presenter = presenter
         presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
 
         interactor.presenter = presenter
 

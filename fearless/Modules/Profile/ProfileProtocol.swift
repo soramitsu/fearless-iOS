@@ -1,32 +1,51 @@
 import Foundation
 
 protocol ProfileViewProtocol: ControllerBackedProtocol {
-    func didLoad(userViewModel: ProfileUserViewModelProtocol)
-    func didLoad(optionViewModels: [ProfileOptionViewModelProtocol])
+    func didReceive(state: ProfileViewState)
 }
 
 protocol ProfilePresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: ProfileViewProtocol)
     func activateAccountDetails()
     func activateOption(at index: UInt)
+    func logout()
+    func switcherValueChanged(isOn: Bool)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(with output: ProfileInteractorOutputProtocol)
+    func updateWallet(_ wallet: MetaAccountModel)
+    func logout(completion: @escaping () -> Void)
+    func update(currency: Currency)
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {
-    func didReceive(userSettings: UserSettings)
+    func didReceive(wallet: MetaAccountModel)
     func didReceiveUserDataProvider(error: Error)
+    func didRecieve(selectedCurrency: Currency)
 }
 
-protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresentable, ModalAlertPresenting {
-    func showAccountDetails(from view: ProfileViewProtocol?)
+protocol ProfileWireframeProtocol: ErrorPresentable,
+    AlertPresentable,
+    WebPresentable,
+    ModalAlertPresenting,
+    AddressOptionsPresentable {
+    func showAccountDetails(
+        from view: ProfileViewProtocol?,
+        metaAccount: MetaAccountModel
+    )
     func showAccountSelection(from view: ProfileViewProtocol?)
     func showConnectionSelection(from view: ProfileViewProtocol?)
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)
+    func logout(from view: ProfileViewProtocol?)
+    func showCheckPincode(
+        from view: ProfileViewProtocol?,
+        output: CheckPincodeModuleOutput
+    )
+    func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
+    func close(view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

@@ -3,35 +3,40 @@ import SoraFoundation
 
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
-    func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func setDerivationPath(viewModel: InputViewModelProtocol)
+    func set(chainType: AccountCreateChainType)
+    func setSelectedSubstrateCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
+    func setEthereumCrypto(model: TitleWithSubtitleViewModel)
+    func bind(substrateViewModel: InputViewModelProtocol)
+    func bind(ethereumViewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()
-    func didValidateDerivationPath(_ status: FieldStatus)
+    func didValidateSubstrateDerivationPath(_ status: FieldStatus)
+    func didValidateEthereumDerivationPath(_ status: FieldStatus)
 }
 
 protocol AccountCreatePresenterProtocol: AnyObject {
     func setup()
-    func selectCryptoType()
+    func selectSubstrateCryptoType()
     func activateInfo()
-    func validate()
+    func validateSubstrate()
+    func validateEthereum()
     func proceed()
 }
 
 protocol AccountCreateInteractorInputProtocol: AnyObject {
     func setup()
+    func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol?
 }
 
 protocol AccountCreateInteractorOutputProtocol: AnyObject {
-    func didReceive(metadata: AccountCreationMetadata)
+    func didReceive(mnemonic: [String])
     func didReceiveMnemonicGeneration(error: Error)
 }
 
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func confirm(
         from view: AccountCreateViewProtocol?,
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        flow: AccountConfirmFlow
     )
 
     func presentCryptoTypeSelection(
@@ -44,13 +49,14 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountCreateViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
-    static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
-
-    static func createViewForConnection(
-        item: ConnectionItem,
+    static func createViewForOnboarding(
+        model: UsernameSetupModel,
+        flow: AccountCreateFlow
+    ) -> AccountCreateViewProtocol?
+    static func createViewForAdding(
         model: UsernameSetupModel
     ) -> AccountCreateViewProtocol?
-
-    static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol?
+    static func createViewForSwitch(
+        model: UsernameSetupModel
+    ) -> AccountCreateViewProtocol?
 }

@@ -10,6 +10,23 @@ protocol EventVisitorProtocol: AnyObject {
     func processPurchaseCompletion(event: PurchaseCompleted)
     func processTypeRegistryPrepared(event: TypeRegistryPrepared)
     func processEraStakersInfoChanged(event: EraStakersInfoChanged)
+    func processWalletNameChanged(event: WalletNameChanged)
+
+    func processChainSyncDidStart(event: ChainSyncDidStart)
+    func processChainSyncDidComplete(event: ChainSyncDidComplete)
+    func processChainSyncDidFail(event: ChainSyncDidFail)
+    func processChainsUpdated(event: ChainsUpdatedEvent)
+
+    func processRuntimeCommonTypesSyncCompleted(event: RuntimeCommonTypesSyncCompleted)
+    func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted)
+    func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
+
+    func processRuntimeCoderReady(event: RuntimeCoderCreated)
+    func processRuntimeCoderCreationFailed(event: RuntimeCoderCreationFailed)
+
+    func processUserInactive(event: UserInactiveEvent)
+
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
 }
 
 extension EventVisitorProtocol {
@@ -22,4 +39,21 @@ extension EventVisitorProtocol {
     func processPurchaseCompletion(event _: PurchaseCompleted) {}
     func processTypeRegistryPrepared(event _: TypeRegistryPrepared) {}
     func processEraStakersInfoChanged(event _: EraStakersInfoChanged) {}
+    func processWalletNameChanged(event _: WalletNameChanged) {}
+
+    func processChainSyncDidStart(event _: ChainSyncDidStart) {}
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {}
+    func processChainSyncDidFail(event _: ChainSyncDidFail) {}
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {}
+
+    func processRuntimeCommonTypesSyncCompleted(event _: RuntimeCommonTypesSyncCompleted) {}
+    func processRuntimeChainTypesSyncCompleted(event _: RuntimeChainTypesSyncCompleted) {}
+    func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
+
+    func processRuntimeCoderReady(event _: RuntimeCoderCreated) {}
+    func processRuntimeCoderCreationFailed(event _: RuntimeCoderCreationFailed) {}
+
+    func processUserInactive(event _: UserInactiveEvent) {}
+
+    func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
 }

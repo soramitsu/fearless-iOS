@@ -1,0 +1,214 @@
+import Foundation
+import SoraFoundation
+import FearlessUtils
+import IrohaCrypto
+import SoraKeystore
+
+protocol ProfileViewModelFactoryProtocol: AnyObject {
+    func createProfileViewModel(
+        from wallet: MetaAccountModel,
+        locale: Locale,
+        language: Language,
+        currency: Currency
+    ) -> ProfileViewModelProtocol
+}
+
+enum ProfileOption: UInt, CaseIterable {
+    case accountList
+    case currency
+    case language
+    case changePincode
+    case biometry
+    case about
+}
+
+final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
+    // MARK: - Private properties
+
+    private let iconGenerator: IconGenerating
+    private let biometry: BiometryAuthProtocol
+    private let settings: SettingsManagerProtocol
+
+    // MARK: - Constructors
+
+    init(
+        iconGenerator: IconGenerating,
+        biometry: BiometryAuthProtocol,
+        settings: SettingsManagerProtocol
+    ) {
+        self.iconGenerator = iconGenerator
+        self.biometry = biometry
+        self.settings = settings
+    }
+
+    // MARK: - Public methods
+
+    func createProfileViewModel(
+        from wallet: MetaAccountModel,
+        locale: Locale,
+        language: Language,
+        currency: Currency
+    ) -> ProfileViewModelProtocol {
+        let profileUserViewModel = createUserViewModel(from: wallet, locale: locale)
+        let profileOptionViewModel = createOptionViewModels(
+            language: language,
+            currency: currency,
+            locale: locale
+        )
+        let logoutViewModel = createLogoutViewModel(locale: locale)
+        let viewModel = ProfileViewModel(
+            profileUserViewModel: profileUserViewModel,
+            profileOptionViewModel: profileOptionViewModel,
+            logoutViewModel: logoutViewModel
+        )
+        return viewModel
+    }
+
+    // MARK: - Private methods
+
+    private func createUserViewModel(
+        from wallet: MetaAccountModel,
+        locale _: Locale
+    ) -> ProfileUserViewModelProtocol {
+        let icon = try? iconGenerator.generateFromAddress("")
+
+        return ProfileUserViewModel(
+            name: wallet.name,
+            details: "",
+            icon: icon
+        )
+    }
+
+    private func createOptionViewModels(
+        language: Language,
+        currency: Currency,
+        locale: Locale
+    ) -> [ProfileOptionViewModelProtocol] {
+        let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
+            switch option {
+            case .accountList:
+                return createAccountListViewModel(for: locale)
+            case .changePincode:
+                return createChangePincode(for: locale)
+            case .language:
+                return createLanguageViewModel(from: language, locale: locale)
+            case .about:
+                return createAboutViewModel(for: locale)
+            case .biometry:
+                return createBiometryViewModel(for: locale)
+            case .currency:
+                return createCurrencyViewModel(from: currency, locale: locale)
+            }
+        }
+
+        return optionViewModels
+    }
+
+    private func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol {
+        let title = R.string.localizable
+            .profileLogoutTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsLogout()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow
+        )
+        return viewModel
+    }
+
+    private func createBiometryViewModel(for _: Locale) -> ProfileOptionViewModel? {
+        let title: String
+        switch biometry.availableBiometryType {
+        case .none:
+            return nil
+        case .touchId:
+            title = "Touch ID"
+        case .faceId:
+            title = "Face ID"
+        }
+
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: biometry.availableBiometryType.accessoryIconSettings,
+            accessoryTitle: nil,
+            accessoryType: .switcher(settings.biometryEnabled ?? false)
+        )
+        return viewModel
+    }
+
+    private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileWalletsTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsWallet()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow
+        )
+        return viewModel
+    }
+
+    private func createConnectionListViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileNetworkTitle(preferredLanguages: locale.rLanguages)
+
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconProfileNetworks()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow
+        )
+
+        return viewModel
+    }
+
+    private func createChangePincode(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profilePincodeChangeTitle(preferredLanguages: locale.rLanguages)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsPin()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow
+        )
+    }
+
+    private func createLanguageViewModel(from language: Language?, locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileLanguageTitle(preferredLanguages: locale.rLanguages)
+        let subtitle = language?.title(in: locale)?.capitalized
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsLanguage()!,
+            accessoryTitle: subtitle,
+            accessoryType: .arrow
+        )
+
+        return viewModel
+    }
+
+    private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileAboutTitle(preferredLanguages: locale.rLanguages)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsWebsite()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow
+        )
+    }
+
+    private func createCurrencyViewModel(from currency: Currency, locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .commonCurrency(preferredLanguages: locale.rLanguages)
+        let subtitle = currency.id.uppercased()
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconCurrency()!,
+            accessoryTitle: subtitle,
+            accessoryType: .arrow
+        )
+
+        return viewModel
+    }
+}

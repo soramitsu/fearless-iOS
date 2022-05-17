@@ -2,27 +2,25 @@ import Foundation
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SoraFoundation
 
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    let settings: SettingsManagerProtocol
-    let keystore: KeystoreProtocol
-    let applicationConfig: ApplicationConfigProtocol
-    let eventCenter: EventCenterProtocol
-    let migrators: [Migrating]
-    let logger: LoggerProtocol?
+    private let settings: SelectedWalletSettings
+    private let applicationConfig: ApplicationConfigProtocol
+    private let eventCenter: EventCenterProtocol
+    private let migrators: [Migrating]
+    private let logger: LoggerProtocol?
 
     init(
-        settings: SettingsManagerProtocol,
-        keystore: KeystoreProtocol,
+        settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
         logger: LoggerProtocol? = nil
     ) {
         self.settings = settings
-        self.keystore = keystore
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
         self.migrators = migrators
@@ -53,30 +51,25 @@ final class RootInteractor {
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
-    func decideModuleSynchroniously() {
-        do {
-            if !settings.hasSelectedAccount {
-                try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
-
-                presenter?.didDecideOnboarding()
-                return
-            }
-
-            let pincodeExists = try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
-
-            if pincodeExists {
-                presenter?.didDecideLocalAuthentication()
-            } else {
-                presenter?.didDecidePincodeSetup()
-            }
-
-        } catch {
-            presenter?.didDecideBroken()
-        }
-    }
-
-    func setup() {
+    func setup(runMigrations: Bool) {
         setupURLHandlingService()
-        runMigrators()
+
+        if runMigrations {
+            runMigrators()
+        }
+
+        // TODO: Move to loading screen
+        settings.setup(runningCompletionIn: .main) { result in
+            switch result {
+            case let .success(maybeMetaAccount):
+                if let metaAccount = maybeMetaAccount {
+                    self.logger?.debug("Selected account: \(metaAccount.metaId)")
+                } else {
+                    self.logger?.debug("No selected account")
+                }
+            case let .failure(error):
+                self.logger?.error("Selected account setup failed: \(error)")
+            }
+        }
     }
 }

@@ -2,79 +2,103 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import SoraKeystore
+import FearlessUtils
 
 final class StakingBondMoreConfirmationInteractor: AccountFetching {
     weak var presenter: StakingBondMoreConfirmationOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
-    private let settings: SettingsManagerProtocol
-    private let accountRepository: AnyDataProviderRepository<AccountItem>
-    private let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
+    private var extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    private let chain: Chain
-    private let assetId: WalletAssetId
+    private let chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let connection: JSONRPCEngine
+    private let keystore: KeystoreProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var extrinsicService: ExtrinsicServiceProtocol?
-    private var signingWrapper: SigningWrapperProtocol?
+    private var signingWrapper: SigningWrapperProtocol
 
     private lazy var callFactory = SubstrateCallFactory()
 
     init(
-        settings: SettingsManagerProtocol,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
-        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
+        extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        chain: Chain,
-        assetId: WalletAssetId
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        signingWrapper: SigningWrapperProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        connection: JSONRPCEngine,
+        keystore: KeystoreProtocol
     ) {
-        self.settings = settings
-        self.singleValueProviderFactory = singleValueProviderFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.substrateProviderFactory = substrateProviderFactory
-        self.accountRepository = accountRepository
-        self.extrinsicServiceFactory = extrinsicServiceFactory
+        self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.chain = chain
-        self.assetId = assetId
+        self.asset = asset
+        self.selectedAccount = selectedAccount
+        self.signingWrapper = signingWrapper
+        self.accountRepository = accountRepository
+        self.connection = connection
+        self.keystore = keystore
     }
 
-    func handleStashAccountItem(_ accountItem: AccountItem) {
-        extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
-        signingWrapper = extrinsicServiceFactory.createSigningWrapper(
-            accountItem: accountItem,
-            connectionItem: settings.selectedConnection
+    func handleStashAccountItem(_ accountItem: ChainAccountResponse) {
+        extrinsicService = ExtrinsicService(
+            accountId: accountItem.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountItem.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: selectedAccount.metaId,
+            accountResponse: accountItem
         )
     }
 }
 
 extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInteractorInputProtocol {
     func setup() {
-        if let address = settings.selectedAccount?.address {
-            stashItemProvider = subscribeToStashItemProvider(for: address)
+        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+            stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        priceProvider = subscribeToPriceProvider(for: assetId)
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
 
         feeProxy.delegate = self
     }
 
     func estimateFee(for amount: Decimal) {
-        guard let extrinsicService = extrinsicService,
-              let amountValue = amount.toSubstrateAmount(
-                  precision: chain.addressType.precision
-              ) else {
+        guard let amountValue = amount.toSubstrateAmount(
+            precision: Int16(asset.precision)
+        ) else {
             presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
         }
@@ -89,10 +113,7 @@ extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInte
     }
 
     func submit(for amount: Decimal) {
-        guard
-            let extrinsicService = extrinsicService,
-            let signingWrapper = signingWrapper,
-            let amountValue = amount.toSubstrateAmount(precision: chain.addressType.precision) else {
+        guard let amountValue = amount.toSubstrateAmount(precision: Int16(asset.precision)) else {
             presenter.didSubmitBonding(result: .failure(CommonError.undefined))
             return
         }
@@ -112,35 +133,49 @@ extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInte
     }
 }
 
-extension StakingBondMoreConfirmationInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
-    SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
-    AnyProviderAutoCleaning {
-    func handleStashItem(result: Result<StashItem?, Error>) {
+extension StakingBondMoreConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        presenter.didReceivePriceData(result: result)
+    }
+}
+
+extension StakingBondMoreConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        presenter.didReceiveAccountInfo(result: result)
+    }
+}
+
+extension StakingBondMoreConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let maybeStashItem = try result.get()
 
-            clear(dataProvider: &balanceProvider)
+            accountInfoSubscriptionAdapter.reset()
 
             presenter.didReceiveStashItem(result: result)
 
             if let stashItem = maybeStashItem {
-                balanceProvider = subscribeToAccountInfoProvider(
-                    for: stashItem.stash,
-                    runtimeService: runtimeService
-                )
+                let addressFactory = SS58AddressFactory()
 
-                fetchAccount(
-                    for: stashItem.stash,
+                if let accountId = try? addressFactory.accountId(
+                    fromAddress: stashItem.stash,
+                    type: chain.addressPrefix
+                ) {
+                    accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+                }
+
+                fetchChainAccount(
+                    chain: chain,
+                    address: stashItem.stash,
                     from: accountRepository,
                     operationManager: operationManager
                 ) { [weak self] result in
-                    if case let .success(maybeStash) = result, let stash = maybeStash {
+                    if case let .success(stash) = result, let stash = stash {
                         self?.handleStashAccountItem(stash)
                     }
 
                     self?.presenter.didReceiveStash(result: result)
                 }
-
             } else {
                 presenter.didReceiveAccountInfo(result: .success(nil))
             }
@@ -150,15 +185,9 @@ extension StakingBondMoreConfirmationInteractor: SingleValueProviderSubscriber, 
             presenter.didReceiveAccountInfo(result: .failure(error))
         }
     }
-
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
-        presenter.didReceiveAccountInfo(result: result)
-    }
-
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
-        presenter.didReceivePriceData(result: result)
-    }
 }
+
+extension StakingBondMoreConfirmationInteractor: AnyProviderAutoCleaning {}
 
 extension StakingBondMoreConfirmationInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {

@@ -6,12 +6,10 @@ import RobinHood
 
 final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     static func createViewForOnboarding(
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAccountConfirmInteractor(
-            for: request,
-            metadata: metadata
+            flow: flow
         ) else {
             return nil
         }
@@ -22,12 +20,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     }
 
     static func createViewForAdding(
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
-            for: request,
-            metadata: metadata
+            flow: flow
         ) else {
             return nil
         }
@@ -37,48 +33,11 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    static func createViewForConnection(
-        item: ConnectionItem,
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
-    ) -> AccountConfirmViewProtocol? {
-        guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
-        else {
-            return nil
-        }
-
-        let keychain = Keychain()
-
-        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
-
-        let operationManager = OperationManagerFacade.sharedManager
-        let anyRepository = AnyDataProviderRepository(accountRepository)
-        let interactor = SelectConnection
-            .AccountConfirmInteractor(
-                connectionItem: item,
-                request: request,
-                mnemonic: mnemonic,
-                accountOperationFactory: accountOperationFactory,
-                accountRepository: anyRepository,
-                settings: SettingsManager.shared,
-                operationManager: operationManager,
-                eventCenter: EventCenter.shared
-            )
-        let wireframe = SelectConnection.AccountConfirmWireframe()
-
-        return createView(for: interactor, wireframe: wireframe)
-    }
-
     static func createViewForSwitch(
-        request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol? {
         guard let interactor = createAddAccountConfirmInteractor(
-            for: request,
-            metadata: metadata
+            flow: flow
         ) else {
             return nil
         }
@@ -91,79 +50,65 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         for interactor: BaseAccountConfirmInteractor,
         wireframe: AccountConfirmWireframeProtocol
     ) -> AccountConfirmViewProtocol? {
+        let localizationManager = LocalizationManager.shared
+
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
         view.skipButtonTitle = LocalizableResource { locale in
             R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
         }
 
-        let presenter = AccountConfirmPresenter()
+        view.localizationManager = localizationManager
+
+        let presenter = AccountConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            localizationManager: localizationManager
+        )
 
         view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
-
-        let localizationManager = LocalizationManager.shared
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
 
         return view
     }
 
     private static func createAccountConfirmInteractor(
-        for request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        flow: AccountConfirmFlow
     ) -> BaseAccountConfirmInteractor? {
-        guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
-        else {
-            return nil
-        }
-
         let keychain = Keychain()
-        let settings = SettingsManager.shared
+        let settings = SelectedWalletSettings.shared
 
-        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let interactor = AccountConfirmInteractor(
-            request: request,
-            mnemonic: mnemonic,
+            flow: flow,
             accountOperationFactory: accountOperationFactory,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             settings: settings,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            eventCenter: EventCenter.shared
         )
 
         return interactor
     }
 
     private static func createAddAccountConfirmInteractor(
-        for request: AccountCreationRequest,
-        metadata: AccountCreationMetadata
+        flow: AccountConfirmFlow
     ) -> BaseAccountConfirmInteractor? {
-        guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
-        else {
-            return nil
-        }
-
         let keychain = Keychain()
 
-        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository()
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let interactor = AddAccount
             .AccountConfirmInteractor(
-                request: request,
-                mnemonic: mnemonic,
+                flow: flow,
                 accountOperationFactory: accountOperationFactory,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,
-                settings: SettingsManager.shared,
+                settings: SelectedWalletSettings.shared,
                 eventCenter: EventCenter.shared
             )
 

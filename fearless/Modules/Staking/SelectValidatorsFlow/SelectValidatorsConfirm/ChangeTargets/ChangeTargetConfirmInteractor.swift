@@ -4,66 +4,57 @@ import SoraKeystore
 
 final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBase {
     let nomination: PreparedNomination<ExistingBonding>
-    let repository: AnyDataProviderRepository<AccountItem>
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        durationOperationFactory: StakingDurationOperationFactoryProtocol,
+        durationOperationFactory _: StakingDurationOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
-        chain: Chain,
-        assetId: WalletAssetId,
-        repository: AnyDataProviderRepository<AccountItem>,
-        nomination: PreparedNomination<ExistingBonding>
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        nomination: PreparedNomination<ExistingBonding>,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     ) {
         self.nomination = nomination
-        self.repository = repository
 
         super.init(
-            balanceAccountAddress: nomination.bonding.controllerAccount.address,
-            singleValueProviderFactory: singleValueProviderFactory,
+            balanceAccountId: nomination.bonding.controllerAccount.accountId,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
-            durationOperationFactory: durationOperationFactory,
+            durationOperationFactory: StakingDurationOperationFactory(),
             operationManager: operationManager,
             signer: signer,
             chain: chain,
-            assetId: assetId
+            asset: asset,
+            selectedAccount: selectedAccount
         )
     }
 
     private func createRewardDestinationOperation(
         for payoutAddress: String
     ) -> CompoundOperationWrapper<RewardDestination<DisplayAddress>> {
-        let accountFetchOperation = repository.fetchOperation(
-            by: payoutAddress,
-            options: RepositoryFetchOptions()
-        )
         let mapOperation: BaseOperation<RewardDestination<DisplayAddress>> = ClosureOperation {
-            if let accountItem = try accountFetchOperation.extractNoCancellableResultData() {
-                let displayAddress = DisplayAddress(
-                    address: accountItem.address,
-                    username: accountItem.username
-                )
+            let displayAddress = DisplayAddress(
+                address: self.selectedAccount.fetch(for: self.chain.accountRequest())?.toAddress() ?? payoutAddress,
+                username: self.selectedAccount.name
+            )
 
-                return RewardDestination.payout(account: displayAddress)
-            } else {
-                let displayAddress = DisplayAddress(
-                    address: payoutAddress,
-                    username: payoutAddress
-                )
-
-                return RewardDestination.payout(account: displayAddress)
-            }
+            return RewardDestination.payout(account: displayAddress)
         }
-
-        mapOperation.addDependency(accountFetchOperation)
 
         return CompoundOperationWrapper(
             targetOperation: mapOperation,
-            dependencies: [accountFetchOperation]
+            dependencies: []
         )
     }
 
@@ -84,8 +75,8 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
             let rewardDestination = try rewardDestWrapper.targetOperation.extractNoCancellableResultData()
 
             let controllerDisplayAddress = DisplayAddress(
-                address: controller.address,
-                username: controller.username
+                address: controller.toAddress() ?? "",
+                username: controller.name
             )
 
             return SelectValidatorsConfirmationModel(

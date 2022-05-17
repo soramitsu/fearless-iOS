@@ -2,61 +2,65 @@ import Foundation
 import SoraFoundation
 
 final class UsernameSetupPresenter {
-    weak var view: UsernameSetupViewProtocol?
-    var wireframe: UsernameSetupWireframeProtocol!
-    var interactor: UsernameSetupInteractorInputProtocol!
+    private weak var view: UsernameSetupViewProtocol?
+    private var wireframe: UsernameSetupWireframeProtocol
+    private let flow: AccountCreateFlow
 
-    private var metadata: UsernameSetupMetadata?
-    private var selectedNetwork: Chain?
+    private var viewModel: InputViewModelProtocol
 
-    private var viewModel: InputViewModelProtocol = {
+    init(
+        wireframe: UsernameSetupWireframeProtocol,
+        flow: AccountCreateFlow,
+        localizationManager: LocalizationManagerProtocol
+    ) {
+        self.wireframe = wireframe
+        self.flow = flow
+
         let inputHandling = InputHandler(
+            value: flow.predefinedUsername,
             predicate: NSPredicate.notEmpty,
             processor: ByteLengthProcessor.username
         )
-        return InputViewModel(inputHandler: inputHandling)
-    }()
+        viewModel = InputViewModel(inputHandler: inputHandling)
 
-    private func provideNetworkViewModel() {
-        guard let network = selectedNetwork else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let contentViewModel = IconWithTitleViewModel(
-            icon: network.icon,
-            title: network.titleForLocale(locale)
-        )
-
-        let selectable = (metadata?.availableNetworks.count ?? 0) > 1
-        let viewModel = SelectableViewModel(
-            underlyingViewModel: contentViewModel,
-            selectable: selectable
-        )
-
-        view?.setSelectedNetwork(model: viewModel)
+        self.localizationManager = localizationManager
     }
 }
 
 extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
-    func setup() {
-        view?.setInput(viewModel: viewModel)
-        interactor.setup()
+    func didLoad(view: UsernameSetupViewProtocol) {
+        switch flow {
+        case .wallet:
+            let selectableViewModel = SelectableViewModel(
+                underlyingViewModel: viewModel,
+                selectable: true
+            )
+            view.bindUsername(viewModel: selectableViewModel)
+        case let .chain(model):
+            let selectableViewModel = SelectableViewModel(
+                underlyingViewModel: viewModel,
+                selectable: false
+            )
+            view.bindUsername(viewModel: selectableViewModel)
+
+            let uniqueChainModel = UniqueChainViewModel(
+                text: model.chain.name,
+                icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
+            )
+            view.bindUniqueChain(viewModel: uniqueChainModel)
+        }
+        self.view = view
     }
 
     func proceed() {
-        guard let selectedNetwork = selectedNetwork else {
-            return
-        }
-
         let username = viewModel.inputHandler.value
 
         let rLanguages = localizationManager?.selectedLocale.rLanguages
         let actionTitle = R.string.localizable.commonOk(preferredLanguages: rLanguages)
         let action = AlertPresentableAction(title: actionTitle) { [weak self] in
-            let model = UsernameSetupModel(username: username, selectedNetwork: selectedNetwork)
-            self?.wireframe.proceed(from: self?.view, model: model)
+            guard let self = self else { return }
+            let model = UsernameSetupModel(username: username)
+            self.wireframe.proceed(from: self.view, flow: self.flow, model: model)
         }
 
         let title = R.string.localizable.commonNoScreenshotTitle(preferredLanguages: rLanguages)
@@ -69,43 +73,6 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
         )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
-    }
-
-    func selectNetworkType() {
-        if let metadata = metadata {
-            let network = selectedNetwork ?? metadata.defaultNetwork
-            wireframe.presentNetworkTypeSelection(
-                from: view,
-                availableTypes: metadata.availableNetworks,
-                selectedType: network,
-                delegate: self,
-                context: nil
-            )
-        }
-    }
-}
-
-extension UsernameSetupPresenter: UsernameSetupInteractorOutputProtocol {
-    func didReceive(metadata: UsernameSetupMetadata) {
-        self.metadata = metadata
-
-        selectedNetwork = metadata.defaultNetwork
-
-        provideNetworkViewModel()
-    }
-}
-
-extension UsernameSetupPresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
-        selectedNetwork = metadata?.availableNetworks[index]
-
-        provideNetworkViewModel()
-
-        view?.didCompleteNetworkSelection()
-    }
-
-    func modalPickerDidCancel(context _: AnyObject?) {
-        view?.didCompleteNetworkSelection()
     }
 }
 

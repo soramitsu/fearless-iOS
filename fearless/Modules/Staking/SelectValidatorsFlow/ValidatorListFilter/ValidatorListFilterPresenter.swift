@@ -8,14 +8,14 @@ final class ValidatorListFilterPresenter {
     let wireframe: ValidatorListFilterWireframeProtocol
     let viewModelFactory: ValidatorListFilterViewModelFactoryProtocol
 
-    let asset: WalletAsset
+    let asset: AssetModel
     let initialFilter: CustomValidatorListFilter
     private(set) var currentFilter: CustomValidatorListFilter
 
     init(
         wireframe: ValidatorListFilterWireframeProtocol,
         viewModelFactory: ValidatorListFilterViewModelFactoryProtocol,
-        asset: WalletAsset,
+        asset: AssetModel,
         filter: CustomValidatorListFilter,
         localizationManager: LocalizationManager
     ) {
@@ -31,7 +31,7 @@ final class ValidatorListFilterPresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: currentFilter,
             initialFilter: initialFilter,
-            token: asset.symbol,
+            token: asset.id,
             locale: selectedLocale
         )
         view?.didUpdateViewModel(viewModel)

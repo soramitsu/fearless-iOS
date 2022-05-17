@@ -25,7 +25,7 @@ struct WestendStub {
     }()
 
     static let currentEra: DecodedEraIndex = {
-        DecodedEraIndex(identifier: Chain.westend.genesisHash + "_current_era", item: 777)
+        DecodedEraIndex(identifier: Chain.westend.genesisHash + "_current_era", item: StringScaleMapper(value: 777))
     }()
 
     static let accountInfo: DecodedAccountInfo = {
@@ -154,8 +154,13 @@ struct WestendStub {
 
     static let rewardCalculator: RewardCalculatorEngineProtocol = {
         let total = eraValidators.reduce(BigUInt(0)) { $0 + $1.exposure.total }
-        return RewardCalculatorEngine(totalIssuance: total,
-                                      validators: eraValidators,
-                                      chain: .westend)
+
+        return RewardCalculatorEngine(
+            chainId: Chain.westend.genesisHash,
+            assetPrecision: Chain.westend.addressType.precision,
+            totalIssuance: total,
+            validators: eraValidators,
+            eraDurationInSeconds: 21600
+        )
     }()
 }

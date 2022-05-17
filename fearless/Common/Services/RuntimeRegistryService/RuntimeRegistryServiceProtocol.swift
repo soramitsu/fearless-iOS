@@ -9,8 +9,12 @@ protocol RuntimeRegistryServiceProtocol: ApplicationServiceProtocol {
 }
 
 protocol RuntimeCodingServiceProtocol {
-    func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?)
-        -> BaseOperation<RuntimeCoderFactoryProtocol>
+    var runtimeSnapshot: RuntimeSnapshot? { get }
+
+    func fetchCoderFactoryOperation(
+        with timeout: TimeInterval,
+        closure: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol>
 }
 
 extension RuntimeCodingServiceProtocol {

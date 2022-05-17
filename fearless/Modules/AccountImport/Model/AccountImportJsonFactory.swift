@@ -2,11 +2,11 @@ import Foundation
 import FearlessUtils
 
 protocol AccountImportJsonFactoryProtocol {
-    func createInfo(from definition: KeystoreDefinition) throws -> AccountImportPreferredInfo
+    func createInfo(from definition: KeystoreDefinition) throws -> MetaAccountImportPreferredInfo
 }
 
 final class AccountImportJsonFactory {
-    func createInfo(from definition: KeystoreDefinition) throws -> AccountImportPreferredInfo {
+    func createInfo(from definition: KeystoreDefinition) throws -> MetaAccountImportPreferredInfo {
         let info = try KeystoreInfoFactory().createInfo(from: definition)
 
         let chain: Chain?
@@ -28,7 +28,8 @@ final class AccountImportJsonFactory {
             networkTypeConfirmed = false
         }
 
-        return AccountImportPreferredInfo(
+        // TODO: Check with Ethereum data
+        return MetaAccountImportPreferredInfo(
             username: info.meta?.name,
             networkType: chain,
             cryptoType: CryptoType(info.cryptoType),

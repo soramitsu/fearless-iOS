@@ -5,10 +5,13 @@ final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?
     weak var delegate: ValidatorSearchDelegate?
 
-    let wireframe: ValidatorSearchWireframeProtocol
-    let interactor: ValidatorSearchInteractorInputProtocol
-    let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
-    let logger: LoggerProtocol?
+    private let wireframe: ValidatorSearchWireframeProtocol
+    private let interactor: ValidatorSearchInteractorInputProtocol
+    private let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
+    private let logger: LoggerProtocol?
+    private let asset: AssetModel
+    private let chain: ChainModel
+    private let wallet: MetaAccountModel
 
     private var fullValidatorList: [SelectedValidatorInfo]
     private var selectedValidatorList: [SelectedValidatorInfo]
@@ -27,7 +30,10 @@ final class ValidatorSearchPresenter {
         fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
         localizationManager: LocalizationManager,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        asset: AssetModel,
+        chain: ChainModel,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -36,6 +42,9 @@ final class ValidatorSearchPresenter {
         self.selectedValidatorList = selectedValidatorList
         referenceValidatorList = selectedValidatorList
         self.logger = logger
+        self.asset = asset
+        self.chain = chain
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -161,7 +170,13 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 
     func didSelectValidator(at index: Int) {
         let selectedValidator = filteredValidatorList[index]
-        wireframe.present(selectedValidator, from: view)
+        wireframe.present(
+            selectedValidator,
+            asset: asset,
+            chain: chain,
+            from: view,
+            wallet: wallet
+        )
     }
 
     func applyChanges() {

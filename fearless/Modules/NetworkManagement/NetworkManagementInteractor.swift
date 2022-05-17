@@ -59,35 +59,35 @@ final class NetworkManagementInteractor {
     }
 
     private func select(
-        connection: ConnectionItem,
-        for accountsFetchResult: Result<[ManagedAccountItem], Error>?
+        connection _: ConnectionItem,
+        for _: Result<[ManagedAccountItem], Error>?
     ) {
-        guard let result = accountsFetchResult else {
-            presenter.didReceiveConnection(selectionError: BaseOperationError.parentOperationCancelled)
-            return
-        }
-
-        switch result {
-        case let .success(accounts):
-            let filteredAccounts: [AccountItem] = accounts.compactMap { managedAccount in
-                if managedAccount.networkType == connection.type {
-                    return AccountItem(managedItem: managedAccount)
-                } else {
-                    return nil
-                }
-            }
-
-            if filteredAccounts.isEmpty {
-                presenter.didFindNoAccounts(for: connection)
-            } else if filteredAccounts.count > 1 {
-                presenter.didFindMultiple(accounts: filteredAccounts, for: connection)
-            } else if let account = filteredAccounts.first {
-                select(connection: connection, account: account)
-            }
-
-        case let .failure(error):
-            presenter.didReceiveConnection(selectionError: error)
-        }
+//        guard let result = accountsFetchResult else {
+//            presenter.didReceiveConnection(selectionError: BaseOperationError.parentOperationCancelled)
+//            return
+//        }
+//
+//        switch result {
+//        case let .success(accounts):
+//            let filteredAccounts: [ChainAccountResponse] = accounts.compactMap { managedAccount in
+//                if managedAccount.networkType == connection.type {
+//                    return AccountItem(managedItem: managedAccount)
+//                } else {
+//                    return nil
+//                }
+//            }
+//
+//            if filteredAccounts.isEmpty {
+//                presenter.didFindNoAccounts(for: connection)
+//            } else if filteredAccounts.count > 1 {
+//                presenter.didFindMultiple(accounts: filteredAccounts, for: connection)
+//            } else if let account = filteredAccounts.first {
+//                select(connection: connection, account: account)
+//            }
+//
+//        case let .failure(error):
+//            presenter.didReceiveConnection(selectionError: error)
+//        }
     }
 }
 
@@ -130,14 +130,15 @@ extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol 
         }
     }
 
-    func select(connection: ConnectionItem, account: AccountItem) {
-        settings.selectedAccount = account
-        settings.selectedConnection = connection
-
-        presenter.didReceiveSelectedConnection(connection)
-
-        eventCenter.notify(with: SelectedConnectionChanged())
-        eventCenter.notify(with: SelectedAccountChanged())
+    func select(connection _: ConnectionItem, account _: ChainAccountResponse) {
+        // TODO: Restore logic if needed
+//        settings.selectedAccount = account
+//        settings.selectedConnection = connection
+//
+//        presenter.didReceiveSelectedConnection(connection)
+//
+//        eventCenter.notify(with: SelectedConnectionChanged())
+//        eventCenter.notify(with: SelectedAccountChanged())
     }
 
     func save(items: [ManagedConnectionItem]) {

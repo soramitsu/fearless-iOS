@@ -8,17 +8,26 @@ final class RecommendedValidatorListPresenter {
     let validators: [SelectedValidatorInfo]
     let maxTargets: Int
     let logger: LoggerProtocol?
+    let chain: ChainModel
+    let asset: AssetModel
+    let selectedAccount: MetaAccountModel
 
     init(
         viewModelFactory: RecommendedValidatorListViewModelFactoryProtocol,
         validators: [SelectedValidatorInfo],
         maxTargets: Int,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.viewModelFactory = viewModelFactory
         self.validators = validators
         self.maxTargets = maxTargets
         self.logger = logger
+        self.asset = asset
+        self.chain = chain
+        self.selectedAccount = selectedAccount
     }
 
     private func provideViewModel() {
@@ -43,12 +52,22 @@ extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterPr
     func selectedValidatorAt(index: Int) {
         let selectedValidator = validators[index]
         wireframe.present(
-            selectedValidator,
-            from: view
+            asset: asset,
+            chain: chain,
+            validatorInfo: selectedValidator,
+            from: view,
+            wallet: selectedAccount
         )
     }
 
     func proceed() {
-        wireframe.proceed(from: view, targets: validators, maxTargets: maxTargets)
+        wireframe.proceed(
+            from: view,
+            targets: validators,
+            maxTargets: maxTargets,
+            selectedAccount: selectedAccount,
+            asset: asset,
+            chain: chain
+        )
     }
 }

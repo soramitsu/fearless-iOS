@@ -167,7 +167,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             )
         rootView.amountView.priceText = viewModel.price
 
-        rootView.amountView.assetIcon = viewModel.icon
+        viewModel.iconViewModel?.loadAmountInputIcon(on: rootView.amountView.iconView, animated: true)
         rootView.amountView.symbol = viewModel.symbol
     }
 

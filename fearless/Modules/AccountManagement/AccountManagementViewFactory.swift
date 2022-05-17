@@ -20,36 +20,55 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         for wireframe: AccountManagementWireframeProtocol
     ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
-        let mapper = ManagedAccountItemMapper()
-        let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =
+        let mapper = ManagedMetaAccountMapper()
+        let localizationManager = LocalizationManager.shared
+
+        let observer: CoreDataContextObservable<ManagedMetaAccountModel, CDMetaAccount> =
             CoreDataContextObservable(
                 service: facade.databaseService,
                 mapper: AnyCoreDataMapper(mapper),
                 predicate: { _ in true }
             )
-        let repository = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [NSSortDescriptor.accountsByOrder],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(
+                for: nil,
+                sortDescriptors: [NSSortDescriptor.accountsByOrder]
+            )
 
         let view = AccountManagementViewController(nib: R.nib.accountManagementViewController)
+        view.localizationManager = LocalizationManager.shared
 
         let iconGenerator = PolkadotIconGenerator()
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: iconGenerator)
 
         let presenter = AccountManagementPresenter(
             viewModelFactory: viewModelFactory,
-            supportedNetworks: SNAddressType.supported
+            localizationManager: localizationManager
+        )
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let getBalanceProvider = GetBalanceProvider(
+            balanceForModel: .managedMetaAccounts,
+            chainModelRepository: AnyDataProviderRepository(chainRepository),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let anyObserver = AnyDataProviderRepositoryObservable(observer)
         let interactor = AccountManagementInteractor(
             repository: AnyDataProviderRepository(repository),
             repositoryObservable: anyObserver,
-            settings: SettingsManager.shared,
-            operationManager: OperationManagerFacade.sharedManager,
-            eventCenter: EventCenter.shared
+            settings: SelectedWalletSettings.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            eventCenter: EventCenter.shared,
+            getBalanceProvider: getBalanceProvider
         )
 
         view.presenter = presenter
@@ -58,7 +77,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         presenter.wireframe = wireframe
         interactor.presenter = presenter
 
-        view.localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
 
         return view
     }

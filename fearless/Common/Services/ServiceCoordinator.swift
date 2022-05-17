@@ -4,150 +4,108 @@ import SoraFoundation
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
-    func updateOnNetworkChange()
-    func updateOnNetworkDown()
 }
 
 final class ServiceCoordinator {
-    let webSocketService: WebSocketServiceProtocol
-    let runtimeService: RuntimeRegistryServiceProtocol
-    let validatorService: EraValidatorServiceProtocol
-    let gitHubPhishingAPIService: ApplicationServiceProtocol
-    let rewardCalculatorService: RewardCalculatorServiceProtocol
-    let settings: SettingsManagerProtocol
-    let eventCenter: EventCenterProtocol
+    let walletSettings: SelectedWalletSettings
+    let accountInfoService: AccountInfoUpdatingServiceProtocol
+    let githubPhishingService: ApplicationServiceProtocol
 
     init(
-        webSocketService: WebSocketServiceProtocol,
-        runtimeService: RuntimeRegistryServiceProtocol,
-        validatorService: EraValidatorServiceProtocol,
-        gitHubPhishingAPIService: ApplicationServiceProtocol,
-        rewardCalculatorService: RewardCalculatorServiceProtocol,
-        settings: SettingsManagerProtocol,
-        eventCenter: EventCenterProtocol
+        walletSettings: SelectedWalletSettings,
+        accountInfoService: AccountInfoUpdatingServiceProtocol,
+        githubPhishingService: ApplicationServiceProtocol
     ) {
-        self.webSocketService = webSocketService
-        self.runtimeService = runtimeService
-        self.validatorService = validatorService
-        self.gitHubPhishingAPIService = gitHubPhishingAPIService
-        self.rewardCalculatorService = rewardCalculatorService
-        self.settings = settings
-        self.eventCenter = eventCenter
-
-        webSocketService.addStateListener(self)
+        self.walletSettings = walletSettings
+        self.accountInfoService = accountInfoService
+        self.githubPhishingService = githubPhishingService
     }
 
-    deinit {
-        webSocketService.removeStateListener(self)
-    }
+    private func setup(chainRegistry: ChainRegistryProtocol) {
+        chainRegistry.syncUp()
 
-    private func updateWebSocketSettings() {
-        let connectionItem = settings.selectedConnection
-        let account = settings.selectedAccount
+        let semaphore = DispatchSemaphore(value: 0)
 
-        let settings = WebSocketServiceSettings(
-            url: connectionItem.url,
-            addressType: connectionItem.type,
-            address: account?.address
-        )
-        webSocketService.update(settings: settings)
-    }
-
-    private func updateRuntimeService() {
-        let connectionItem = settings.selectedConnection
-        runtimeService.update(to: connectionItem.type.chain)
-    }
-
-    private func updateValidatorService() {
-        if let engine = webSocketService.connection {
-            let chain = settings.selectedConnection.type.chain
-            validatorService.update(to: chain, engine: engine)
+        chainRegistry.chainsSubscribe(self, runningInQueue: DispatchQueue.global()) { changes in
+            if !changes.isEmpty {
+                semaphore.signal()
+            }
         }
-    }
 
-    private func updateRewardCalculatorService() {
-        let chain = settings.selectedConnection.type.chain
-        rewardCalculatorService.update(to: chain)
+        semaphore.wait()
     }
 }
 
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
-    func updateOnNetworkDown() {
-        let selectedConnectionItem = settings.selectedConnection
-
-        guard let connectionItem = ConnectionItem.supportedConnections.filter { $0.type == selectedConnectionItem.type && $0.url != selectedConnectionItem.url }.randomElement() else {
-            return
-        }
-
-        settings.selectedConnection = connectionItem
-
-        updateOnNetworkChange()
-
-        eventCenter.notify(with: SelectedConnectionChanged())
+    func updateOnNetworkDown(url _: URL) {
+        // TODO: Replace with multiassets code
+//        let selectedConnectionItem = settings.selectedConnection
+//
+//        guard let connectionItem = ConnectionItem.supportedConnections.filter { $0.type == selectedConnectionItem.type && $0.url != selectedConnectionItem.url }.randomElement() else {
+//            return
+//        }
+//
+//        settings.selectedConnection = connectionItem
+//
+//        updateOnNetworkChange()
+//
+//        eventCenter.notify(with: SelectedConnectionChanged())
     }
 
     func updateOnAccountChange() {
-        updateWebSocketSettings()
-        updateRuntimeService()
-        updateValidatorService()
-        updateRewardCalculatorService()
-    }
-
-    func updateOnNetworkChange() {
-        updateWebSocketSettings()
-        updateRuntimeService()
-        updateValidatorService()
-        updateRewardCalculatorService()
+        if let seletedMetaAccount = walletSettings.value {
+            accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
+        }
     }
 
     func setup() {
-        webSocketService.setup()
-        runtimeService.setup()
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        setup(chainRegistry: chainRegistry)
 
-        let chain = settings.selectedConnection.type.chain
-
-        if let engine = webSocketService.connection {
-            validatorService.update(to: chain, engine: engine)
-            validatorService.setup()
-        }
-
-        gitHubPhishingAPIService.setup()
-
-        rewardCalculatorService.update(to: chain)
-        rewardCalculatorService.setup()
+        githubPhishingService.setup()
+        accountInfoService.setup()
     }
 
     func throttle() {
-        webSocketService.throttle()
-        runtimeService.throttle()
-        validatorService.throttle()
-        gitHubPhishingAPIService.throttle()
-        rewardCalculatorService.throttle()
+        githubPhishingService.throttle()
+        accountInfoService.throttle()
     }
 }
 
 extension ServiceCoordinator {
-    static func createDefault() -> ServiceCoordinatorProtocol {
-        let webSocketService = WebSocketServiceFactory.createService()
-        let runtimeService = RuntimeRegistryFacade.sharedService
-        let gitHubPhishingAPIService = GitHubPhishingServiceFactory.createService()
-        let validatorService = EraValidatorFacade.sharedService
-        let rewardCalculatorService = RewardCalculatorFacade.sharedService
+    static func createDefault(with selectedMetaAccount: MetaAccountModel) -> ServiceCoordinatorProtocol {
+        let githubPhishingAPIService = GitHubPhishingServiceFactory.createService()
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
+        let logger = Logger.shared
+        let walletSettings = SelectedWalletSettings.shared
+
+        let walletRemoteSubscription = WalletRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: logger
+        )
+
+        let accountInfoService = AccountInfoUpdatingService(
+            selectedAccount: selectedMetaAccount,
+            chainRegistry: chainRegistry,
+            remoteSubscriptionService: walletRemoteSubscription,
+            logger: logger,
+            eventCenter: EventCenter.shared
+        )
 
         return ServiceCoordinator(
-            webSocketService: webSocketService,
-            runtimeService: runtimeService,
-            validatorService: validatorService,
-            gitHubPhishingAPIService: gitHubPhishingAPIService,
-            rewardCalculatorService: rewardCalculatorService,
-            settings: SettingsManager.shared,
-            eventCenter: EventCenter.shared
+            walletSettings: walletSettings,
+            accountInfoService: accountInfoService,
+            githubPhishingService: githubPhishingAPIService
         )
     }
 }
 
 extension ServiceCoordinator: WebSocketServiceStateListener {
-    func websocketNetworkDown() {
-        updateOnNetworkDown()
+    func websocketNetworkDown(url: URL) {
+        updateOnNetworkDown(url: url)
     }
 }

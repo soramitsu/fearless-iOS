@@ -10,6 +10,9 @@ final class CustomValidatorListPresenter {
     let selectedValidatorList: SharedList<SelectedValidatorInfo>
     let maxTargets: Int
     let logger: LoggerProtocol?
+    let asset: AssetModel
+    let chain: ChainModel
+    let selectedAccount: MetaAccountModel
 
     private let recommendedValidatorList: [SelectedValidatorInfo]
     private var fullValidatorList: [SelectedValidatorInfo]
@@ -28,7 +31,10 @@ final class CustomValidatorListPresenter {
         recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -38,6 +44,9 @@ final class CustomValidatorListPresenter {
         self.selectedValidatorList = selectedValidatorList
         self.maxTargets = maxTargets
         self.logger = logger
+        self.chain = chain
+        self.asset = asset
+        self.selectedAccount = selectedAccount
         self.localizationManager = localizationManager
     }
 
@@ -182,14 +191,21 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
     func didSelectValidator(at index: Int) {
         let selectedValidator = filteredValidatorList[index]
-        wireframe.present(selectedValidator, from: view)
+        wireframe.present(
+            asset: asset,
+            chain: chain,
+            validatorInfo: selectedValidator,
+            from: view,
+            wallet: selectedAccount
+        )
     }
 
     func presentFilter() {
         wireframe.presentFilters(
             from: view,
             filter: filter,
-            delegate: self
+            delegate: self,
+            asset: asset
         )
     }
 
@@ -198,7 +214,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
             from: view,
             fullValidatorList: fullValidatorList,
             selectedValidatorList: selectedValidatorList.items,
-            delegate: self
+            delegate: self,
+            chain: chain,
+            asset: asset,
+            wallet: selectedAccount
         )
     }
 
@@ -207,7 +226,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
             from: view,
             validatorList: selectedValidatorList.items,
             maxTargets: maxTargets,
-            delegate: self
+            delegate: self,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
     }
 }

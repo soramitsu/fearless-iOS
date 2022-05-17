@@ -21,32 +21,32 @@ struct WalletCommonConfigurator {
         self.assets = assets
     }
 
-    func configure(builder: CommonWalletBuilderProtocol) {
-        let language = WalletLanguage(rawValue: localizationManager.selectedLocalization)
-            ?? WalletLanguage.defaultLanguage
-
-        let decoratorFactory = WalletCommandDecoratorFactory(
-            localizationManager: localizationManager,
-            dataStorageFacade: SubstrateDataStorageFacade.shared
-        )
-
-        let qrCoderFactory = WalletQRCoderFactory(
-            networkType: networkType,
-            publicKey: account.publicKeyData,
-            username: account.username,
-            assets: assets
-        )
-
-        let singleProviderIdFactory = WalletSingleProviderIdFactory(addressType: networkType)
-        let transactionTypes = TransactionType.allCases.map { $0.toWalletType() }
-
-        builder
-            .with(language: language)
-            .with(commandDecoratorFactory: decoratorFactory)
-            .with(logger: Logger.shared)
-            .with(transactionTypeList: transactionTypes)
-            .with(amountFormatterFactory: AmountFormatterFactory())
-            .with(singleProviderIdentifierFactory: singleProviderIdFactory)
-            .with(qrCoderFactory: qrCoderFactory)
+    func configure(builder _: CommonWalletBuilderProtocol) {
+//        let language = WalletLanguage(rawValue: localizationManager.selectedLocalization)
+//            ?? WalletLanguage.defaultLanguage
+//
+//        let decoratorFactory = WalletCommandDecoratorFactory(
+//            localizationManager: localizationManager,
+//            dataStorageFacade: SubstrateDataStorageFacade.shared
+//        )
+//
+//        let qrCoderFactory = WalletQRCoderFactory(
+//            networkType: networkType,
+//            publicKey: account.publicKeyData,
+//            username: account.username,
+//            assets: assets
+//        )
+//
+//        let singleProviderIdFactory = WalletSingleProviderIdFactory(addressType: networkType)
+//        let transactionTypes = TransactionType.allCases.map { $0.toWalletType() }
+//
+//        builder
+//            .with(language: language)
+//            .with(commandDecoratorFactory: decoratorFactory)
+//            .with(logger: Logger.shared)
+//            .with(transactionTypeList: transactionTypes)
+//            .with(amountFormatterFactory: AmountFormatterFactory())
+//            .with(singleProviderIdentifierFactory: singleProviderIdFactory)
+//            .with(qrCoderFactory: qrCoderFactory)
     }
 }

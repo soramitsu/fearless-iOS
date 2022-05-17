@@ -1,7 +1,7 @@
 import Foundation
 
 struct CrowdloanContributionResponse {
-    let address: AccountAddress
-    let trieIndex: TrieIndex
+    let accountId: AccountId
+    let trieOrFundIndex: TrieOrFundIndex
     let contribution: CrowdloanContribution?
 }

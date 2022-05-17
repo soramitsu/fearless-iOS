@@ -4,24 +4,46 @@ import SoraKeystore
 import RobinHood
 
 final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryProtocol {
-    static func createView(with address: String) -> AccountExportPasswordViewProtocol? {
+    static func createView(flow: ExportFlow) -> AccountExportPasswordViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
         let view = AccountExportPasswordViewController(nib: R.nib.accountExportPasswordViewController)
         let presenter = AccountExportPasswordPresenter(
-            address: address,
+            flow: flow,
             localizationManager: localizationManager
         )
 
         let exportJsonWrapper = KeystoreExportWrapper(keystore: Keychain())
 
-        let facade = UserDataStorageFacade.shared
-        let repository: CoreDataRepository<AccountItem, CDAccountItem> = facade.createRepository()
+        let accountRepository = AccountRepositoryFactory.createRepository()
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        var extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol?
+
+        if case let .single(chain, _, wallet) = flow,
+           let connection = chainRegistry.getConnection(for: chain.chainId),
+           let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+           let accountResponse = wallet.fetch(for: chain.accountRequest()) {
+            extrinsicOperationFactory = ExtrinsicOperationFactory(
+                accountId: accountResponse.accountId,
+                chainFormat: chain.chainFormat,
+                cryptoType: accountResponse.cryptoType,
+                runtimeRegistry: runtimeService,
+                engine: connection
+            )
+        }
+
+        let repository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
 
         let interactor = AccountExportPasswordInteractor(
             exportJsonWrapper: exportJsonWrapper,
-            repository: AnyDataProviderRepository(repository),
-            operationManager: OperationManagerFacade.sharedManager
+            accountRepository: accountRepository,
+            operationManager: OperationManagerFacade.sharedManager,
+            extrinsicOperationFactory: extrinsicOperationFactory,
+            chainRepository: AnyDataProviderRepository(repository)
         )
         let wireframe = AccountExportPasswordWireframe()
 

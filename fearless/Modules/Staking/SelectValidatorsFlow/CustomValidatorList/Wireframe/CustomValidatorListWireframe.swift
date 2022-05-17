@@ -2,12 +2,19 @@ import Foundation
 
 class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        from view: ControllerBackedProtocol?
+        asset: AssetModel,
+        chain: ChainModel,
+        validatorInfo: ValidatorInfoProtocol,
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     ) {
         guard
-            let validatorInfoView = ValidatorInfoViewFactory
-            .createView(with: validatorInfo) else {
+            let validatorInfoView = ValidatorInfoViewFactory.createView(
+                asset: asset,
+                chain: chain,
+                validatorInfo: validatorInfo,
+                wallet: wallet
+            ) else {
             return
         }
 
@@ -20,10 +27,12 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func presentFilters(
         from view: ControllerBackedProtocol?,
         filter: CustomValidatorListFilter,
-        delegate: ValidatorListFilterDelegate?
+        delegate: ValidatorListFilterDelegate?,
+        asset: AssetModel
     ) {
         guard let filterView = ValidatorListFilterViewFactory
             .createView(
+                asset: asset,
                 with: filter,
                 delegate: delegate
             ) else { return }
@@ -38,13 +47,19 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         from view: ControllerBackedProtocol?,
         fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?
+        delegate: ValidatorSearchDelegate?,
+        chain: ChainModel,
+        asset: AssetModel,
+        wallet: MetaAccountModel
     ) {
         guard let searchView = ValidatorSearchViewFactory
             .createView(
+                asset: asset,
+                chain: chain,
                 with: fullValidatorList,
                 selectedValidatorList: selectedValidatorList,
-                delegate: delegate
+                delegate: delegate,
+                wallet: wallet
             ) else { return }
 
         view?.controller.navigationController?.pushViewController(
@@ -57,6 +72,9 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         from _: ControllerBackedProtocol?,
         validatorList _: [SelectedValidatorInfo],
         maxTargets _: Int,
-        delegate _: SelectedValidatorListDelegate
+        delegate _: SelectedValidatorListDelegate,
+        chain _: ChainModel,
+        asset _: AssetModel,
+        selectedAccount _: MetaAccountModel
     ) {}
 }

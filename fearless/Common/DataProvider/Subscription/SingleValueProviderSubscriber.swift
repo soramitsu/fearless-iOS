@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 
+@available(*, deprecated, message: "Use subsclass of LocalSubscriber instead")
 protocol SingleValueProviderSubscriber {
     var singleValueProviderFactory: SingleValueProviderFactoryProtocol { get }
 
@@ -39,6 +40,11 @@ protocol SingleValueProviderSubscriber {
         for chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedActiveEra>?
+
+    func subscribeToCurrentEraProvider(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedEraIndex>?
 
     func subscribeToPayeeProvider(
         for address: AccountAddress,

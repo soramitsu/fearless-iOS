@@ -45,8 +45,6 @@ final class MainTabBarViewController: UITabBarController {
             presenter.setup()
         }
 
-        presenter.viewDidAppear()
-
         applyLocalization()
     }
 

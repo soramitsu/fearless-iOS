@@ -2,7 +2,15 @@ import UIKit
 import SoraFoundation
 
 final class NetworkAvailabilityLayerPresenter {
-    var view: ApplicationStatusPresentable!
+    private var view: ApplicationStatusPresentable
+
+    init(
+        view: ApplicationStatusPresentable,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
+        self.view = view
+        self.localizationManager = localizationManager
+    }
 
     var unavailbleStyle: ApplicationStatusStyle {
         ApplicationStatusStyle(

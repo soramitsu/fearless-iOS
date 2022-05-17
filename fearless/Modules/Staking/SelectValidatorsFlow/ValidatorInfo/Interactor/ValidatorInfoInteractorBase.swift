@@ -3,21 +3,23 @@ import RobinHood
 class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     weak var presenter: ValidatorInfoInteractorOutputProtocol!
 
-    internal let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    private let assetId: WalletAssetId
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let asset: AssetModel
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        walletAssetId: WalletAssetId
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        asset: AssetModel
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
-        assetId = walletAssetId
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.asset = asset
     }
 
     func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
+        if let priceId = asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
     }
 
     func reload() {
@@ -25,8 +27,8 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     }
 }
 
-extension ValidatorInfoInteractorBase: SingleValueSubscriptionHandler, SingleValueProviderSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+extension ValidatorInfoInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         presenter.didReceivePriceData(result: result)
     }
 }

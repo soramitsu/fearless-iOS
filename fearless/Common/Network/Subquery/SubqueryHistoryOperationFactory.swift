@@ -12,11 +12,11 @@ protocol SubqueryHistoryOperationFactoryProtocol {
 
 final class SubqueryHistoryOperationFactory {
     let url: URL
-    let filter: WalletHistoryFilter
+    let filters: [WalletTransactionHistoryFilter]
 
-    init(url: URL, filter: WalletHistoryFilter) {
+    init(url: URL, filters: [WalletTransactionHistoryFilter]) {
         self.url = url
-        self.filter = filter
+        self.filters = filters
     }
 
     private func prepareExtrinsicInclusionFilter() -> String {
@@ -48,17 +48,15 @@ final class SubqueryHistoryOperationFactory {
     private func prepareFilter() -> String {
         var filterStrings: [String] = []
 
-        if filter.contains(.extrinsics) {
-            filterStrings.append(prepareExtrinsicInclusionFilter())
-        } else {
+        if !filters.contains(where: { $0.type == .other && $0.selected }) {
             filterStrings.append("{extrinsic: { isNull: true }}")
         }
 
-        if !filter.contains(.rewardsAndSlashes) {
+        if !filters.contains(where: { $0.type == .reward && $0.selected }) {
             filterStrings.append("{reward: { isNull: true }}")
         }
 
-        if !filter.contains(.transfers) {
+        if !filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append("{transfer: { isNull: true }}")
         }
 

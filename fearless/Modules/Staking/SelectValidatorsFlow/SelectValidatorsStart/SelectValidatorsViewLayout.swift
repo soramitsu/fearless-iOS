@@ -64,6 +64,8 @@ final class SelectValidatorsViewLayout: UIView {
         return label
     }()
 
+    let suggestedValidatorsWarningView = UIFactory.default.createHintView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -113,9 +115,18 @@ final class SelectValidatorsViewLayout: UIView {
 
     private func setupLayout() {
         addSubview(contentView)
+        addSubview(suggestedValidatorsWarningView)
+        suggestedValidatorsWarningView.backgroundColor = R.color.colorBlack()
+        suggestedValidatorsWarningView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset)
+        }
+
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.bottom.greaterThanOrEqualTo(suggestedValidatorsWarningView.snp.top).offset(-UIConstants.bigOffset)
         }
 
         stackView.addArrangedSubview(algoSectionLabel)

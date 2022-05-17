@@ -4,35 +4,40 @@ import SoraKeystore
 
 final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractorBase {
     let nomination: PreparedNomination<InitiatedBonding>
-    let selectedAccount: AccountItem
-    let selectedConnection: ConnectionItem
 
     init(
-        selectedAccount: AccountItem,
-        selectedConnection: ConnectionItem,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        chainAccount: ChainAccountResponse,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         durationOperationFactory: StakingDurationOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
-        assetId: WalletAssetId,
-        nomination: PreparedNomination<InitiatedBonding>
+        nomination: PreparedNomination<InitiatedBonding>,
+        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     ) {
         self.nomination = nomination
-        self.selectedAccount = selectedAccount
-        self.selectedConnection = selectedConnection
 
         super.init(
-            balanceAccountAddress: selectedAccount.address,
-            singleValueProviderFactory: singleValueProviderFactory,
+            balanceAccountId: chainAccount.accountId,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                selectedMetaAccount: selectedAccount
+            ),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
             durationOperationFactory: durationOperationFactory,
             operationManager: operationManager,
             signer: signer,
-            chain: selectedConnection.type.chain,
-            assetId: assetId
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         )
     }
 
@@ -43,16 +48,16 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
                 return .restake
             case let .payout(account):
                 let displayAddress = DisplayAddress(
-                    address: account.address,
-                    username: account.username
+                    address: account.toAddress() ?? "",
+                    username: account.name
                 )
                 return .payout(account: displayAddress)
             }
         }()
 
         let stash = DisplayAddress(
-            address: selectedAccount.address,
-            username: selectedAccount.username
+            address: selectedAccount.fetch(for: chain.accountRequest())?.toAddress() ?? "",
+            username: selectedAccount.name
         )
 
         let confirmation = SelectValidatorsConfirmationModel(
@@ -69,15 +74,13 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
     }
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        let networkType = selectedConnection.type
-
         guard let amount = nomination.bonding.amount
-            .toSubstrateAmount(precision: networkType.precision)
+            .toSubstrateAmount(precision: Int16(asset.precision)),
+            let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress()
         else {
             return nil
         }
 
-        let controllerAddress = selectedAccount.address
         let rewardDestination = nomination.bonding.rewardDestination.accountAddress
         let targets = nomination.targets
 
@@ -86,7 +89,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
 
             let bondCall = try callFactory.bond(
                 amount: amount,
-                controller: controllerAddress,
+                controller: address,
                 rewardDestination: rewardDestination
             )
 

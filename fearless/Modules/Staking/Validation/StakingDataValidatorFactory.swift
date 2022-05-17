@@ -6,8 +6,8 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
     func canUnbond(amount: Decimal?, bonded: Decimal?, locale: Locale) -> DataValidating
     func canRebond(amount: Decimal?, unbonding: Decimal?, locale: Locale) -> DataValidating
 
-    func has(controller: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
-    func has(stash: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
+    func has(controller: ChainAccountResponse?, for address: AccountAddress, locale: Locale) -> DataValidating
+    func has(stash: ChainAccountResponse?, for address: AccountAddress, locale: Locale) -> DataValidating
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating
     func controllerBalanceIsNotZero(_ balance: Decimal?, locale: Locale) -> DataValidating
 
@@ -33,7 +33,6 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
 
     func ledgerNotExist(
         stakingLedger: StakingLedger?,
-        addressType: SNAddressType,
         locale: Locale
     ) -> DataValidating
 
@@ -43,6 +42,13 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
         counterForNominators: UInt32?,
         maxNominatorsCount: UInt32?,
         hasExistingNomination: Bool,
+        locale: Locale
+    ) -> DataValidating
+
+    func bondAtLeastMinStaking(
+        asset: AssetModel,
+        amount: Decimal?,
+        minNominatorBond: Decimal?,
         locale: Locale
     ) -> DataValidating
 }
@@ -97,7 +103,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         })
     }
 
-    func has(controller: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating {
+    func has(controller: ChainAccountResponse?, for address: AccountAddress, locale: Locale) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
             guard let view = self?.view else {
                 return
@@ -107,7 +113,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         }, preservesCondition: { controller != nil })
     }
 
-    func has(stash: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating {
+    func has(stash: ChainAccountResponse?, for address: AccountAddress, locale: Locale) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
             guard let view = self?.view else {
                 return
@@ -218,7 +224,6 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
     func ledgerNotExist(
         stakingLedger: StakingLedger?,
-        addressType _: SNAddressType,
         locale: Locale
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
@@ -289,6 +294,34 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
                 return counterForNominators < maxNominatorsCount
             } else {
                 return true
+            }
+        })
+    }
+
+    func bondAtLeastMinStaking(asset: AssetModel, amount: Decimal?, minNominatorBond: Decimal?, locale: Locale) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] delegate in
+            guard let view = self?.view else {
+                return
+            }
+
+            if minNominatorBond == nil {
+                self?.presentable.presentMissingMinNominatorBond(from: view, locale: locale)
+                return
+            }
+
+            let amountString = (minNominatorBond ?? Decimal.zero).stringWithPointSeparator
+            let amountWithSymbolString = [amountString, asset.id.uppercased()].joined(separator: " ")
+
+            self?.presentable.presentWarningAlert(from: view, config: WarningAlertConfig.inactiveAlertConfig(bondAmount: amountWithSymbolString, with: locale), buttonHandler: {
+                self?.presentable.dismiss(view: view)
+
+                delegate.didCompleteWarningHandling()
+            })
+        }, preservesCondition: {
+            if let amount = amount, let minNominatorBond = minNominatorBond {
+                return amount >= minNominatorBond
+            } else {
+                return false
             }
         })
     }

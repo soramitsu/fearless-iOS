@@ -1,9 +1,9 @@
 import Foundation
 import IrohaCrypto
 
-struct AccountCreationRequest {
+struct MetaAccountCreationRequest {
     let username: String
-    let type: Chain
-    let derivationPath: String
-    let cryptoType: CryptoType
+    let substrateDerivationPath: String
+    let substrateCryptoType: CryptoType
+    let ethereumDerivationPath: String
 }

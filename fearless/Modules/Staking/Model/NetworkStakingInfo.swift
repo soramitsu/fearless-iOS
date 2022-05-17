@@ -7,6 +7,7 @@ struct NetworkStakingInfo {
     let minimalBalance: BigUInt
     let activeNominatorsCount: Int
     let lockUpPeriod: UInt32
+    let stakingDuration: StakingDuration
 }
 
 extension NetworkStakingInfo {

@@ -1,8 +1,19 @@
 import Foundation
 
 final class StakingMainWireframe: StakingMainWireframeProtocol {
-    func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?) {
-        guard let amountView = StakingAmountViewFactory.createView(with: amount) else {
+    func showSetupAmount(
+        from view: StakingMainViewProtocol?,
+        amount: Decimal?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let amountView = StakingAmountViewFactory.createView(
+            with: amount,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return
         }
 
@@ -29,10 +40,18 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func proceedToSelectValidatorsStart(
         from view: StakingMainViewProtocol?,
-        existingBonding: ExistingBonding
+        existingBonding: ExistingBonding,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
     ) {
         guard let recommendedView = SelectValidatorsStartViewFactory
-            .createChangeTargetsView(with: existingBonding)
+            .createChangeTargetsView(
+                selectedAccount: selectedAccount,
+                asset: asset,
+                chain: chain,
+                state: existingBonding
+            )
         else {
             return
         }
@@ -59,9 +78,20 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(infoVew, animated: true, completion: nil)
     }
 
-    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
+    func showRewardPayoutsForNominator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
         guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
-            .createViewForNominator(stashAddress: stashAddress) else { return }
+            .createViewForNominator(
+                chain: chain,
+                asset: asset,
+                selectedAccount: selectedAccount,
+                stashAddress: stashAddress
+            ) else { return }
 
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: rewardPayoutsView.controller
@@ -70,9 +100,20 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
+    func showRewardPayoutsForValidator(
+        from view: ControllerBackedProtocol?,
+        stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
         guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
-            .createViewForValidator(stashAddress: stashAddress) else { return }
+            .createViewForValidator(
+                chain: chain,
+                asset: asset,
+                selectedAccount: selectedAccount,
+                stashAddress: stashAddress
+            ) else { return }
 
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: rewardPayoutsView.controller
@@ -81,8 +122,17 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showStakingBalance(from view: ControllerBackedProtocol?) {
-        guard let stakingBalance = StakingBalanceViewFactory.createView() else { return }
+    func showStakingBalance(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let stakingBalance = StakingBalanceViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else { return }
         let controller = stakingBalance.controller
         controller.hidesBottomBarWhenPushed = true
 
@@ -91,8 +141,17 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
             .pushViewController(controller, animated: true)
     }
 
-    func showNominatorValidators(from view: ControllerBackedProtocol?) {
-        guard let validatorsView = YourValidatorListViewFactory.createView() else {
+    func showNominatorValidators(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let validatorsView = YourValidatorListViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return
         }
 
@@ -103,8 +162,17 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showControllerAccount(from view: ControllerBackedProtocol?) {
-        guard let controllerAccount = ControllerAccountViewFactory.createView() else {
+    func showControllerAccount(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let controllerAccount = ControllerAccountViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return
         }
         let navigationController = ImportantFlowViewFactory.createNavigation(
@@ -127,8 +195,17 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         )
     }
 
-    func showRewardDestination(from view: ControllerBackedProtocol?) {
-        guard let displayView = StakingRewardDestSetupViewFactory.createView() else {
+    func showRewardDestination(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let displayView = StakingRewardDestSetupViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return
         }
 
@@ -139,16 +216,34 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showBondMore(from view: ControllerBackedProtocol?) {
-        guard let bondMoreView = StakingBondMoreViewFactory.createView() else { return }
+    func showBondMore(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let bondMoreView = StakingBondMoreViewFactory.createView(
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
+        ) else { return }
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: bondMoreView.controller
         )
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showRedeem(from view: ControllerBackedProtocol?) {
-        guard let redeemView = StakingRedeemViewFactory.createView() else {
+    func showRedeem(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        guard let redeemView = StakingRedeemViewFactory.createView(
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        ) else {
             return
         }
 
@@ -159,9 +254,63 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showYourValidatorInfo(_ stashAddress: AccountAddress, from view: ControllerBackedProtocol?) {
-        guard let validatorInfoView = ValidatorInfoViewFactory.createView(with: stashAddress) else { return }
+    func showAnalytics(
+        from view: ControllerBackedProtocol?,
+        mode: AnalyticsContainerViewMode,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel
+    ) {
+        let analyticsView = AnalyticsContainerViewFactory.createView(
+            mode: mode,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
+        )
+        analyticsView.controller.hidesBottomBarWhenPushed = true
+        view?.controller.navigationController?.pushViewController(analyticsView.controller, animated: true)
+    }
+
+    func showYourValidatorInfo(
+        _ stashAddress: AccountAddress,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
+            address: stashAddress,
+            asset: asset,
+            chain: chain,
+            selectedAccount: selectedAccount
+        ) else {
+            return
+        }
         let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showChainAssetSelection(
+        from view: StakingMainViewProtocol?,
+        selectedChainAssetId: ChainAssetId?,
+        delegate: AssetSelectionDelegate
+    ) {
+        let stakingFilter: AssetSelectionFilter = { chainAsset in chainAsset.staking != nil }
+
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let selectionView = AssetSelectionViewFactory.createView(
+                  delegate: delegate,
+                  selectedChainId: selectedChainAssetId,
+                  selectedMetaAccount: selectedMetaAccount,
+                  assetFilter: stakingFilter
+              ) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: selectionView.controller
+        )
+
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }

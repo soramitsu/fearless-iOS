@@ -18,9 +18,10 @@ final class WebSocketServiceFactory {
             return nil
         }
 
-        let prenseter = NetworkAvailabilityLayerPresenter()
-        prenseter.localizationManager = localizationManager
-        prenseter.view = window
+        let prenseter = NetworkAvailabilityLayerPresenter(
+            view: window,
+            localizationManager: localizationManager
+        )
 
         return prenseter
     }

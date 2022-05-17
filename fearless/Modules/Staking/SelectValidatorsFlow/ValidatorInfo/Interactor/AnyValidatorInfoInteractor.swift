@@ -3,13 +3,13 @@ final class AnyValidatorInfoInteractor: ValidatorInfoInteractorBase {
 
     init(
         validatorInfo: ValidatorInfoProtocol,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        walletAssetId: WalletAssetId
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        asset: AssetModel
     ) {
         self.validatorInfo = validatorInfo
         super.init(
-            singleValueProviderFactory: singleValueProviderFactory,
-            walletAssetId: walletAssetId
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            asset: asset
         )
     }
 

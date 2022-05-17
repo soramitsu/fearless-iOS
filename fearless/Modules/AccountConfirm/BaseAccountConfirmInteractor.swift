@@ -6,29 +6,28 @@ import RobinHood
 class BaseAccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
-    let request: AccountCreationRequest
-    let mnemonic: IRMnemonicProtocol
+    let flow: AccountConfirmFlow?
     let shuffledWords: [String]
-    let accountOperationFactory: AccountOperationFactoryProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
+    let accountOperationFactory: MetaAccountOperationFactoryProtocol
+    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
 
     init(
-        request: AccountCreationRequest,
-        mnemonic: IRMnemonicProtocol,
-        accountOperationFactory: AccountOperationFactoryProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
+        flow: AccountConfirmFlow,
+        accountOperationFactory: MetaAccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
-        self.request = request
-        self.mnemonic = mnemonic
-        shuffledWords = mnemonic.allWords().shuffled()
+        self.flow = flow
+        shuffledWords = flow.mnemonic.allWords().shuffled()
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
     }
 
-    func createAccountUsingOperation(_: BaseOperation<AccountItem>) {}
+    internal func createAccountUsingOperation(_: BaseOperation<MetaAccountModel>) {
+        fatalError("This function should be overriden")
+    }
 }
 
 extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
@@ -37,26 +36,42 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
     }
 
     func confirm(words: [String]) {
-        guard words == mnemonic.allWords() else {
+        guard let confirmFlow = flow, words == confirmFlow.mnemonic.allWords() else {
             presenter.didReceive(
                 words: shuffledWords,
                 afterConfirmationFail: true
             )
             return
         }
-
-        let operation = accountOperationFactory.newAccountOperation(
-            request: request,
-            mnemonic: mnemonic
-        )
-        createAccountUsingOperation(operation)
+        switch confirmFlow {
+        case let .wallet(request):
+            createAccount(request)
+        case let .chain(request):
+            importUniqueChain(request)
+        }
     }
 
     func skipConfirmation() {
-        let operation = accountOperationFactory.newAccountOperation(
-            request: request,
-            mnemonic: mnemonic
-        )
+        guard let confirmFlow = flow else {
+            return
+        }
+        switch confirmFlow {
+        case let .wallet(request):
+            createAccount(request)
+        case let .chain(request):
+            importUniqueChain(request)
+        }
+    }
+}
+
+private extension BaseAccountConfirmInteractor {
+    func createAccount(_ request: MetaAccountImportMnemonicRequest) {
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
+        createAccountUsingOperation(operation)
+    }
+
+    func importUniqueChain(_ request: ChainAccountImportMnemonicRequest) {
+        let operation = accountOperationFactory.importChainAccountOperation(request: request)
         createAccountUsingOperation(operation)
     }
 }

@@ -34,7 +34,7 @@ extension StakingStateViewModelFactory {
     ) -> StakingAlert? {
         guard
             let era = commonData.eraStakersInfo?.activeEra,
-            let precision = commonData.chain?.addressType.precision,
+            let precision = commonData.chainAsset?.assetDisplayInfo.assetPrecision,
             let redeemable = Decimal.fromSubstrateAmount(
                 ledgerInfo.redeemable(inEra: era),
                 precision: precision
@@ -62,10 +62,10 @@ extension StakingStateViewModelFactory {
         }
 
         guard
-            let chain = commonData.chain,
+            let chainAsset = commonData.chainAsset,
             let minActiveDecimal = Decimal.fromSubstrateAmount(
                 minStake,
-                precision: chain.addressType.precision
+                precision: chainAsset.assetDisplayInfo.assetPrecision
             ),
             let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
         else {
@@ -94,10 +94,10 @@ extension StakingStateViewModelFactory {
 
         if ledgerInfo.active < minStake {
             guard
-                let chain = commonData.chain,
+                let chainAsset = commonData.chainAsset,
                 let minActiveDecimal = Decimal.fromSubstrateAmount(
                     minStake,
-                    precision: chain.addressType.precision
+                    precision: chainAsset.assetDisplayInfo.assetPrecision
                 ),
                 let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
             else {

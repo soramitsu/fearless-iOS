@@ -8,7 +8,6 @@ protocol MainTabBarViewProtocol: ControllerBackedProtocol {
 
 protocol MainTabBarPresenterProtocol: AnyObject {
     func setup()
-    func viewDidAppear()
 }
 
 protocol MainTabBarInteractorInputProtocol: AnyObject {
@@ -20,17 +19,17 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func didReloadSelectedNetwork()
     func didUpdateWalletInfo()
     func didRequestImportAccount()
+    func handleLongInactivity()
 }
 
-protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
-    var walletContext: CommonWalletContextProtocol { get set }
-
+protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
     func showNewWalletView(on view: MainTabBarViewProtocol?)
-    func reloadWalletContent()
 
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?, moduleOutput: CrowdloanListModuleOutput?) -> UIViewController?
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
 
     func presentAccountImport(on view: MainTabBarViewProtocol?)
+
+    func logout(from _: MainTabBarViewProtocol?)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {
@@ -41,7 +40,6 @@ protocol MainTabBarViewFactoryProtocol: AnyObject {
     )
 
     static func reloadCrowdloanView(
-        on view: MainTabBarViewProtocol,
-        moduleOutput: CrowdloanListModuleOutput?
+        on view: MainTabBarViewProtocol
     ) -> UIViewController?
 }

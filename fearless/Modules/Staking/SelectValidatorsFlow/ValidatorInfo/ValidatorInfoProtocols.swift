@@ -26,8 +26,19 @@ protocol ValidatorInfoProtocol {
 // MARK: - View
 
 protocol ValidatorInfoViewFactoryProtocol: AnyObject {
-    static func createView(with validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoViewProtocol?
-    static func createView(with validatorAccountAddress: AccountAddress) -> ValidatorInfoViewProtocol?
+    static func createView(
+        asset: AssetModel,
+        chain: ChainModel,
+        validatorInfo: ValidatorInfoProtocol,
+        wallet: MetaAccountModel
+    ) -> ValidatorInfoViewProtocol?
+
+    static func createView(
+        address: AccountAddress,
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    ) -> ValidatorInfoViewProtocol?
 }
 
 protocol ValidatorInfoViewProtocol: ControllerBackedProtocol, Localizable {

@@ -25,8 +25,10 @@ struct UIConstants {
     static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
+    static let amountInputIconSize = CGSize(width: 24.0, height: 24.0)
     static let networkFeeViewDefaultHeight: CGFloat = 132
     static let referralBonusButtonHeight: CGFloat = 30
+    static let amountViewHeight: CGFloat = 72
 }
 
 enum AccountViewMode {
@@ -35,6 +37,8 @@ enum AccountViewMode {
 }
 
 protocol UIFactoryProtocol {
+    func createVerticalStackView(spacing: CGFloat) -> UIStackView
+    func createHorizontalStackView(spacing: CGFloat) -> UIStackView
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
     func createDetailsView(
@@ -70,7 +74,7 @@ protocol UIFactoryProtocol {
 
     func createTitleValueView() -> TitleValueView
 
-    func createIconTitleValueView() -> IconTitleValueView
+    func createIconTitleValueView(iconPosition: IconTitleValueView.IconPosition) -> IconTitleValueView
 
     func createTitleValueSelectionView() -> TitleValueSelectionView
 
@@ -81,6 +85,8 @@ protocol UIFactoryProtocol {
     func createRewardSelectionView() -> RewardSelectionView
 
     func createInfoIndicatingView() -> ImageWithTitleView
+
+    func createChainAssetSelectionView() -> DetailsTriangularedView
 
     func createWalletReferralBonusButton() -> GradientButton
 }
@@ -99,6 +105,20 @@ extension UIFactoryProtocol {
 
 final class UIFactory: UIFactoryProtocol {
     static let `default` = UIFactory()
+
+    func createVerticalStackView(spacing: CGFloat = 0) -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = spacing
+        return stackView
+    }
+
+    func createHorizontalStackView(spacing: CGFloat = 0) -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = spacing
+        return stackView
+    }
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
@@ -193,7 +213,6 @@ final class UIFactory: UIFactoryProtocol {
         view.titleLabel.font = UIFont.p2Paragraph
         view.subtitleLabel?.textColor = R.color.colorWhite()!
         view.subtitleLabel?.font = UIFont.p1Paragraph
-        view.contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
 
         return view
     }
@@ -244,8 +263,9 @@ final class UIFactory: UIFactoryProtocol {
         let toolBar = AmountInputAccessoryView(frame: frame)
         toolBar.actionDelegate = delegate
 
+        let maxTitle = R.string.localizable.commonMax(preferredLanguages: locale.rLanguages)
         let actions: [ViewSelectorAction] = [
-            ViewSelectorAction(title: "100%", selector: #selector(toolBar.actionSelect100)),
+            ViewSelectorAction(title: maxTitle.uppercased(), selector: #selector(toolBar.actionSelect100)),
             ViewSelectorAction(title: "75%", selector: #selector(toolBar.actionSelect75)),
             ViewSelectorAction(title: "50%", selector: #selector(toolBar.actionSelect50)),
             ViewSelectorAction(title: "25%", selector: #selector(toolBar.actionSelect25))
@@ -398,7 +418,7 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView {
-        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: filled)
+        let view = createDetailsView(with: .largeIconTitleSubtitle, filled: filled)
         view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
 
         switch mode {
@@ -452,15 +472,20 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView()
+        NetworkFeeConfirmView(
+            frame: CGRect(
+                x: 0.0, y: 0.0,
+                width: 0.0, height: UIConstants.networkFeeViewDefaultHeight
+            )
+        )
     }
 
     func createTitleValueView() -> TitleValueView {
         TitleValueView()
     }
 
-    func createIconTitleValueView() -> IconTitleValueView {
-        IconTitleValueView()
+    func createIconTitleValueView(iconPosition: IconTitleValueView.IconPosition = .left) -> IconTitleValueView {
+        IconTitleValueView(iconPosition: iconPosition)
     }
 
     func createHintView() -> HintView {
@@ -513,6 +538,21 @@ final class UIFactory: UIFactoryProtocol {
         view.layoutType = .horizontalLabelFirst
         view.spacingBetweenLabelAndIcon = 5.0
         view.iconImage = R.image.iconInfoFilled()
+        return view
+    }
+
+    func createChainAssetSelectionView() -> DetailsTriangularedView {
+        let view = DetailsTriangularedView()
+        view.layout = .largeIconTitleSubtitle
+        view.fillColor = .clear
+        view.highlightedFillColor = R.color.colorCellSelection()!
+        view.titleLabel.textColor = R.color.colorWhite()
+        view.titleLabel.font = .p1Paragraph
+        view.subtitleLabel?.textColor = R.color.colorLightGray()
+        view.subtitleLabel?.font = .p2Paragraph
+        view.actionImage = R.image.iconHorMore()
+        view.contentInsets = UIEdgeInsets(top: 7.0, left: 16.0, bottom: 8.0, right: 16.0)
+        view.iconRadius = 16.0
         return view
     }
 

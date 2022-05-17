@@ -5,14 +5,14 @@ import FearlessUtils
 
 final class WalletQREncoder: WalletQREncoderProtocol {
     let username: String?
-    let networkType: SNAddressType
+    let addressPrefix: UInt16
     let publicKey: Data
 
     private lazy var substrateEncoder = SubstrateQREncoder()
     private lazy var addressFactory = SS58AddressFactory()
 
-    init(networkType: SNAddressType, publicKey: Data, username: String?) {
-        self.networkType = networkType
+    init(addressPrefix: UInt16, publicKey: Data, username: String?) {
+        self.addressPrefix = addressPrefix
         self.publicKey = publicKey
         self.username = username
     }
@@ -21,8 +21,8 @@ final class WalletQREncoder: WalletQREncoderProtocol {
         let accountId = try Data(hexString: receiverInfo.accountId)
 
         let address = try addressFactory.address(
-            fromPublicKey: AccountIdWrapper(rawData: accountId),
-            type: networkType
+            fromAccountId: accountId,
+            type: addressPrefix
         )
 
         let info = SubstrateQRInfo(
@@ -35,26 +35,39 @@ final class WalletQREncoder: WalletQREncoderProtocol {
 }
 
 final class WalletQRDecoder: WalletQRDecoderProtocol {
-    private lazy var addressFactory = SS58AddressFactory()
     private let substrateDecoder: SubstrateQRDecoder
-    private let assets: [WalletAsset]
+    private let qrDecoders: [QRDecodable]
+    private let asset: AssetModel
+    private let addressPrefix: UInt16
 
-    init(networkType: SNAddressType, assets: [WalletAsset]) {
-        substrateDecoder = SubstrateQRDecoder(chainType: ChainType(networkType.rawValue))
-        self.assets = assets
+    init(addressPrefix: UInt16, asset: AssetModel) {
+        substrateDecoder = SubstrateQRDecoder(chainType: addressPrefix)
+        qrDecoders = [
+            SubstrateQRDecoder(chainType: addressPrefix),
+            CexQRDecoder()
+        ]
+        self.asset = asset
+        self.addressPrefix = addressPrefix
     }
 
     func decode(data: Data) throws -> ReceiveInfo {
-        let info = try substrateDecoder.decode(data: data)
+        let info = qrDecoders.compactMap {
+            try? $0.decode(data: data)
+        }.first
 
-        let accountId = try addressFactory.accountId(
-            fromAddress: info.address,
-            type: substrateDecoder.chainType
-        )
+        guard let info = info else {
+            throw QRDecoderError.wrongDecoder
+        }
+
+        let chainFormat: ChainFormat = info.address.hasPrefix("0x")
+            ? .ethereum
+            : .substrate(addressPrefix)
+
+        let accountId = try info.address.toAccountId(using: chainFormat)
 
         return ReceiveInfo(
-            accountId: accountId.toHex(),
-            assetId: assets.first?.identifier,
+            accountId: accountId.toHex(includePrefix: info.address.hasPrefix("0x")),
+            assetId: asset.identifier,
             amount: nil,
             details: nil
         )
@@ -62,27 +75,27 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
 }
 
 final class WalletQRCoderFactory: WalletQRCoderFactoryProtocol {
-    let networkType: SNAddressType
+    let addressPrefix: UInt16
     let publicKey: Data
     let username: String?
-    let assets: [WalletAsset]
+    let asset: AssetModel
 
-    init(networkType: SNAddressType, publicKey: Data, username: String?, assets: [WalletAsset]) {
-        self.networkType = networkType
+    init(addressPrefix: UInt16, publicKey: Data, username: String?, asset: AssetModel) {
+        self.addressPrefix = addressPrefix
         self.publicKey = publicKey
         self.username = username
-        self.assets = assets
+        self.asset = asset
     }
 
     func createEncoder() -> WalletQREncoderProtocol {
         WalletQREncoder(
-            networkType: networkType,
+            addressPrefix: addressPrefix,
             publicKey: publicKey,
             username: username
         )
     }
 
     func createDecoder() -> WalletQRDecoderProtocol {
-        WalletQRDecoder(networkType: networkType, assets: assets)
+        WalletQRDecoder(addressPrefix: addressPrefix, asset: asset)
     }
 }

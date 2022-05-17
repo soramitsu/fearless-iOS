@@ -16,9 +16,14 @@ final class LanguageSelectionViewController: SelectionListViewController<Selecti
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        applyLocalization()
+        setupLocalization()
 
         presenter.setup()
+    }
+
+    private func setupLocalization() {
+        let languages = localizationManager?.preferredLocalizations
+        title = R.string.localizable.languageTitle(preferredLanguages: languages)
     }
 }
 
@@ -26,7 +31,8 @@ extension LanguageSelectionViewController: LanguageSelectionViewProtocol {}
 
 extension LanguageSelectionViewController: Localizable {
     func applyLocalization() {
-        let languages = localizationManager?.preferredLocalizations
-        title = R.string.localizable.languageTitle(preferredLanguages: languages)
+        if isViewLoaded {
+            setupLocalization()
+        }
     }
 }

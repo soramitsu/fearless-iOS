@@ -9,6 +9,7 @@ enum AccountHeaderType {
     case address(_ type: SNAddressType, title: LocalizableResource<String>)
 }
 
+// swiftlint:disable type_body_length
 enum ModalPickerFactory {
     static func createPickerForList(
         _ types: [CryptoType],
@@ -158,8 +159,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         title: LocalizableResource<String>,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -174,8 +175,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         addressType: SNAddressType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -194,8 +195,8 @@ enum ModalPickerFactory {
     }
 
     static func createPickerList(
-        _ accounts: [AccountItem],
-        selectedAccount: AccountItem?,
+        _ accounts: [ChainAccountResponse],
+        selectedAccount: ChainAccountResponse?,
         headerType: AccountHeaderType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
@@ -227,10 +228,10 @@ enum ModalPickerFactory {
 
         viewController.viewModels = accounts.compactMap { account in
             let viewModel: AccountPickerViewModel
-            if let icon = try? iconGenerator.generateFromAddress(account.address) {
-                viewModel = AccountPickerViewModel(title: account.username, icon: icon)
+            if let icon = try? iconGenerator.generateFromAddress(account.toAddress() ?? "") {
+                viewModel = AccountPickerViewModel(title: account.name, icon: icon)
             } else {
-                viewModel = AccountPickerViewModel(title: account.username, icon: EmptyAccountIcon())
+                viewModel = AccountPickerViewModel(title: account.name, icon: EmptyAccountIcon())
             }
 
             return LocalizableResource { _ in viewModel }
@@ -306,7 +307,7 @@ enum ModalPickerFactory {
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.walletAssetBuyWith(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages)
         }
 
         viewController.cellNib = UINib(resource: R.nib.purchaseProviderPickerTableViewCell)
@@ -345,7 +346,7 @@ enum ModalPickerFactory {
             return nil
         }
 
-        let viewController: ModalPickerViewController<ValidatorInfoStakingAmountCell, StakingAmountViewModel>
+        let viewController: ModalPickerViewController<BottomSheetInfoBalanceCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
@@ -366,6 +367,228 @@ enum ModalPickerFactory {
 
         let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
             viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerForList(
+        title: String,
+        _ chainActions: [ChainAction],
+        callback: ModalPickerSelectionCallback?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !chainActions.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { _ in title }
+        viewController.showSelection = false
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+
+        viewController.viewModels = chainActions.map { action in
+            LocalizableResource { locale in
+                IconWithTitleViewModel(
+                    icon: action.icon,
+                    title: action.localizableTitle(for: locale)
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerForList(
+        _ chainActions: [JsonExportAction],
+        callback: ModalPickerSelectionCallback?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !chainActions.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<TitleWithSubtitleTableViewCell, TitleWithSubtitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.importSourcePickerTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.cellNib = UINib(resource: R.nib.titleWithSubtitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+
+        viewController.viewModels = chainActions.map { action in
+            LocalizableResource { locale in
+                TitleWithSubtitleViewModel(
+                    title: action.localizableTitle(for: locale),
+                    subtitle: ""
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerForWalletActions(
+        _ items: [WalletSettingsRow],
+        callback: ModalPickerSelectionCallback?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !items.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.walletSettings(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+        viewController.separatorStyle = .singleLine
+        viewController.separatorColor = R.color.colorLightGray()
+        viewController.separatorInset = UIEdgeInsets(
+            top: 0,
+            left: UIConstants.bigOffset,
+            bottom: 0,
+            right: UIConstants.bigOffset
+        )
+
+        viewController.viewModels = items.map { item in
+            LocalizableResource { _ in
+                IconWithTitleViewModel(
+                    icon: item.row.icon,
+                    title: item.row.title
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerForList(
+        _ chainActions: [ReplaceChainOption],
+        callback: ModalPickerSelectionCallback?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !chainActions.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.replaceAccount(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+
+        viewController.viewModels = chainActions.map { action in
+            LocalizableResource { locale in
+                IconWithTitleViewModel(
+                    icon: action.icon,
+                    title: action.localizableTitle(for: locale)
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerForSelectCurrency(
+        supportedCurrencys: [Currency],
+        selectedCurrency: Currency,
+        callback: ModalPickerSelectionCallback?
+    ) -> UIViewController? {
+        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonCurrency(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = true
+        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
+        viewController.selectionCallback = callback
+        viewController.modalPresentationStyle = .custom
+        viewController.selectedIndex = supportedCurrencys.firstIndex(where: { $0.id == selectedCurrency.id }) ?? 0
+        viewController.presenterCanDrag = false
+
+        viewController.viewModels = supportedCurrencys.map { action in
+            LocalizableResource { _ in
+                var remoteImageViewModel: RemoteImageViewModel?
+                if let iconUrl = URL(string: action.icon) {
+                    remoteImageViewModel = RemoteImageViewModel(url: iconUrl)
+                }
+                return IconWithTitleViewModel(
+                    icon: nil,
+                    remoteImageViewModel: remoteImageViewModel,
+                    title: action.id.uppercased()
+                )
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = UIScreen.main.bounds.height / 3
         viewController.preferredContentSize = CGSize(width: 0.0, height: height)
 
         viewController.localizationManager = LocalizationManager.shared

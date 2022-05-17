@@ -3,6 +3,7 @@ import SoraFoundation
 import IrohaCrypto
 import CommonWallet
 import BigInt
+import SoraKeystore
 
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
@@ -15,29 +16,25 @@ protocol BalanceViewModelFactoryProtocol {
 }
 
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
-    let walletPrimitiveFactory: WalletPrimitiveFactoryProtocol
-    let selectedAddressType: SNAddressType
-    let limit: Decimal
+    private let targetAssetInfo: AssetBalanceDisplayInfo
+    private let limit: Decimal
+    private let formatterFactory: AssetBalanceFormatterFactoryProtocol
+    private var selectedMetaAccount: MetaAccountModel
 
-    private let formatterFactory: NumberFormatterFactoryProtocol
-    private lazy var priceAsset = {
-        walletPrimitiveFactory.createPriceAsset()
-    }()
-
-    private lazy var targetAsset = {
-        walletPrimitiveFactory.createAssetForAddressType(selectedAddressType)
-    }()
+    private let eventCenter = EventCenter.shared
 
     init(
-        walletPrimitiveFactory: WalletPrimitiveFactoryProtocol,
-        selectedAddressType: SNAddressType,
-        limit: Decimal,
-        formatterFactory: NumberFormatterFactoryProtocol = AmountFormatterFactory()
+        targetAssetInfo: AssetBalanceDisplayInfo,
+        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
+        limit: Decimal = StakingConstants.maxAmount,
+        selectedMetaAccount: MetaAccountModel
     ) {
-        self.walletPrimitiveFactory = walletPrimitiveFactory
-        self.selectedAddressType = selectedAddressType
-        self.limit = limit
+        self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
+        self.limit = limit
+        self.selectedMetaAccount = selectedMetaAccount
+
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String> {
@@ -46,9 +43,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
 
         let targetAmount = rate * amount
-
-        let priceAsset = walletPrimitiveFactory.createPriceAsset()
-        let localizableFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let localizableFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
@@ -57,7 +53,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     }
 
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String> {
-        let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
+        let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
@@ -69,8 +65,9 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         _ amount: Decimal,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
+        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)
@@ -93,8 +90,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     func createBalanceInputViewModel(
         _ amount: Decimal?
     ) -> LocalizableResource<AmountInputViewModelProtocol> {
-        let localizableFormatter = formatterFactory.createInputFormatter(for: targetAsset)
-        let symbol = targetAsset.symbol
+        let localizableFormatter = formatterFactory.createInputFormatter(for: targetAssetInfo)
+        let symbol = targetAssetInfo.symbol
 
         let currentLimit = limit
 
@@ -115,11 +112,13 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         balance: Decimal?,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
-        let icon = WalletAssetId(rawValue: targetAsset.identifier)?.icon
-        let symbol = targetAsset.symbol
+        let symbol = targetAssetInfo.symbol
+
+        let iconViewModel = targetAssetInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
             let priceString: String?
@@ -144,11 +143,17 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             }
 
             return AssetBalanceViewModel(
-                icon: icon,
                 symbol: symbol,
                 balance: balanceString,
-                price: priceString
+                price: priceString,
+                iconViewModel: iconViewModel
             )
         }
+    }
+}
+
+extension BalanceViewModelFactory: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
     }
 }

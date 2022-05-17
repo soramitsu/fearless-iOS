@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import IrohaCrypto
 import BigInt
+import SoraKeystore
 
 protocol RewardViewModelFactoryProtocol {
     func createRewardViewModel(
@@ -12,21 +13,21 @@ protocol RewardViewModelFactoryProtocol {
 }
 
 final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
-    let walletPrimitiveFactory: WalletPrimitiveFactoryProtocol
-    let selectedAddressType: SNAddressType
+    private let targetAssetInfo: AssetBalanceDisplayInfo
+    private let formatterFactory: AssetBalanceFormatterFactoryProtocol
+    private var selectedMetaAccount: MetaAccountModel
+    private let eventCenter = EventCenter.shared
 
-    private lazy var formatterFactory = AmountFormatterFactory()
-    private lazy var priceAsset = {
-        walletPrimitiveFactory.createPriceAsset()
-    }()
+    init(
+        targetAssetInfo: AssetBalanceDisplayInfo,
+        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
+        selectedMetaAccount: MetaAccountModel
+    ) {
+        self.targetAssetInfo = targetAssetInfo
+        self.formatterFactory = formatterFactory
+        self.selectedMetaAccount = selectedMetaAccount
 
-    private lazy var targetAsset = {
-        walletPrimitiveFactory.createAssetForAddressType(selectedAddressType)
-    }()
-
-    init(walletPrimitiveFactory: WalletPrimitiveFactoryProtocol, selectedAddressType: SNAddressType) {
-        self.walletPrimitiveFactory = walletPrimitiveFactory
-        self.selectedAddressType = selectedAddressType
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     func createRewardViewModel(
@@ -34,8 +35,9 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         targetReturn: Decimal,
         priceData: PriceData?
     ) -> LocalizableResource<RewardViewModelProtocol> {
-        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
+        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)
@@ -65,5 +67,11 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
                 increase: rewardPercentageString
             )
         }
+    }
+}
+
+extension RewardViewModelFactory: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
     }
 }

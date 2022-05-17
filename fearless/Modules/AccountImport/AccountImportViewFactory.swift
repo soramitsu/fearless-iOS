@@ -5,55 +5,23 @@ import RobinHood
 import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
-    static func createViewForOnboarding() -> AccountImportViewProtocol? {
+    static func createViewForOnboarding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
         guard let interactor = createAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AccountImportWireframe()
-        return createView(for: interactor, wireframe: wireframe)
+        return createView(for: interactor, wireframe: wireframe, flow: flow)
     }
 
-    static func createViewForAdding() -> AccountImportViewProtocol? {
+    static func createViewForAdding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
         guard let interactor = createAddAccountImportInteractor() else {
             return nil
         }
 
         let wireframe = AddAccount.AccountImportWireframe()
 
-        return createView(for: interactor, wireframe: wireframe)
-    }
-
-    static func createViewForConnection(item: ConnectionItem) -> AccountImportViewProtocol? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService()
-        else {
-            Logger.shared.error("Missing required keystore import service")
-            return nil
-        }
-
-        let keystore = Keychain()
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
-
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
-
-        let anyRepository = AnyDataProviderRepository(accountRepository)
-        let operationManager = OperationManagerFacade.sharedManager
-        let interactor = SelectConnection
-            .AccountImportInteractor(
-                connectionItem: item,
-                accountOperationFactory: accountOperationFactory,
-                accountRepository: anyRepository,
-                operationManager: operationManager,
-                settings: SettingsManager.shared,
-                keystoreImportService: keystoreImportService,
-                eventCenter: EventCenter.shared
-            )
-
-        let wireframe = SelectConnection.AccountImportWireframe(connection: item)
-
-        return createView(for: interactor, wireframe: wireframe)
+        return createView(for: interactor, wireframe: wireframe, flow: flow)
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {
@@ -67,15 +35,17 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
     private static func createView(
         for interactor: BaseAccountImportInteractor,
-        wireframe: AccountImportWireframeProtocol
+        wireframe: AccountImportWireframeProtocol,
+        flow: AccountImportFlow = .wallet(step: .first)
     ) -> AccountImportViewProtocol? {
-        let view = AccountImportViewController(nib: R.nib.accountImportViewController)
-        let presenter = AccountImportPresenter()
+        let presenter = AccountImportPresenter(
+            wireframe: wireframe,
+            interactor: interactor,
+            flow: flow
+        )
+        let view = AccountImportViewController(presenter: presenter)
 
-        view.presenter = presenter
         presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         let localizationManager = LocalizationManager.shared
@@ -94,20 +64,21 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         }
 
         let keystore = Keychain()
-        let settings = SettingsManager.shared
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+        let settings = SelectedWalletSettings.shared
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keystore)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
-        let anyRepository = AnyDataProviderRepository(accountRepository)
+        let eventCenter = EventCenter.shared
 
         let interactor = AccountImportInteractor(
             accountOperationFactory: accountOperationFactory,
-            accountRepository: anyRepository,
+            accountRepository: accountRepository,
             operationManager: OperationManagerFacade.sharedManager,
             settings: settings,
-            keystoreImportService: keystoreImportService
+            keystoreImportService: keystoreImportService,
+            eventCenter: eventCenter
         )
 
         return interactor
@@ -122,19 +93,20 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         }
 
         let keystore = Keychain()
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keystore)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
+        let eventCenter = EventCenter.shared
 
         let interactor = AddAccount
             .AccountImportInteractor(
                 accountOperationFactory: accountOperationFactory,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 operationManager: OperationManagerFacade.sharedManager,
-                settings: SettingsManager.shared,
+                settings: SelectedWalletSettings.shared,
                 keystoreImportService: keystoreImportService,
-                eventCenter: EventCenter.shared
+                eventCenter: eventCenter
             )
 
         return interactor

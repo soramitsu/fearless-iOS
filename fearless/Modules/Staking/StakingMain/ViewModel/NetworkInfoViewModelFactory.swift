@@ -4,37 +4,40 @@ import BigInt
 import SoraKeystore
 
 protocol NetworkInfoViewModelFactoryProtocol {
-    func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
+    func createMainViewModel(
+        from address: AccountAddress,
+        chainAsset: ChainAsset,
+        balance: Decimal,
+        selectedMetaAccount: MetaAccountModel
+    ) -> StakingMainViewModel
+
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
-        chain: Chain,
+        chainAsset: ChainAsset,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
 final class NetworkInfoViewModelFactory {
-    let primitiveFactory: WalletPrimitiveFactoryProtocol
-
-    private var chain: Chain?
+    private var chainAsset: ChainAsset?
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
 
-    init(primitiveFactory: WalletPrimitiveFactoryProtocol) {
-        self.primitiveFactory = primitiveFactory
-    }
-
-    private func getBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
-        if let factory = balanceViewModelFactory, self.chain == chain {
+    private func getBalanceViewModelFactory(
+        for chainAsset: ChainAsset,
+        selectedMetaAccount: MetaAccountModel
+    ) -> BalanceViewModelFactoryProtocol {
+        if let factory = balanceViewModelFactory, self.chainAsset == chainAsset {
             return factory
         }
 
         let factory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
-            limit: StakingConstants.maxAmount
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: selectedMetaAccount
         )
 
-        self.chain = chain
+        self.chainAsset = chainAsset
         balanceViewModelFactory = factory
 
         return factory
@@ -42,14 +45,18 @@ final class NetworkInfoViewModelFactory {
 
     private func createStakeViewModel(
         stake: BigUInt,
-        chain: Chain,
-        priceData: PriceData?
+        chainAsset: ChainAsset,
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
+        let balanceViewModelFactory = getBalanceViewModelFactory(
+            for: chainAsset,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         let stakedAmount = Decimal.fromSubstrateAmount(
             stake,
-            precision: chain.addressType.precision
+            precision: Int16(chainAsset.asset.precision)
         ) ?? 0.0
 
         let stakedPair = balanceViewModelFactory.balanceFromPrice(
@@ -64,22 +71,30 @@ final class NetworkInfoViewModelFactory {
 
     private func createTotalStakeViewModel(
         with networkStakingInfo: NetworkStakingInfo,
-        chain: Chain,
-        priceData: PriceData?
+        chainAsset: ChainAsset,
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        createStakeViewModel(stake: networkStakingInfo.totalStake, chain: chain, priceData: priceData)
+        createStakeViewModel(
+            stake: networkStakingInfo.totalStake,
+            chainAsset: chainAsset,
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
+        )
     }
 
     private func createMinimalStakeViewModel(
         with networkStakingInfo: NetworkStakingInfo,
-        chain: Chain,
+        chainAsset: ChainAsset,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(
             stake: networkStakingInfo.calculateMinimumStake(given: minNominatorBond),
-            chain: chain,
-            priceData: priceData
+            chainAsset: chainAsset,
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
     }
 
@@ -95,10 +110,10 @@ final class NetworkInfoViewModelFactory {
     }
 
     private func createLockUpPeriodViewModel(
-        with networkStakingInfo: NetworkStakingInfo,
-        chain: Chain
+        with networkStakingInfo: NetworkStakingInfo
     ) -> LocalizableResource<String> {
-        let lockUpPeriodInDays = Int(networkStakingInfo.lockUpPeriod) / chain.erasPerDay
+        let eraPerDay = networkStakingInfo.stakingDuration.era.intervalsInDay
+        let lockUpPeriodInDays = eraPerDay > 0 ? Int(networkStakingInfo.lockUpPeriod) / eraPerDay : 0
 
         return LocalizableResource { locale in
             R.string.localizable.commonDaysFormat(
@@ -110,37 +125,55 @@ final class NetworkInfoViewModelFactory {
 }
 
 extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
-    func createChainViewModel(for chain: Chain) -> LocalizableResource<String> {
-        LocalizableResource { locale in
-            chain.addressType.titleForLocale(locale)
+    func createMainViewModel(
+        from address: AccountAddress,
+        chainAsset: ChainAsset,
+        balance: Decimal,
+        selectedMetaAccount: MetaAccountModel
+    ) -> StakingMainViewModel {
+        let balanceViewModel = getBalanceViewModelFactory(
+            for: chainAsset,
+            selectedMetaAccount: selectedMetaAccount
+        ).amountFromValue(balance)
+
+        let imageViewModel = chainAsset.assetDisplayInfo.icon.map {
+            RemoteImageViewModel(url: $0)
         }
+
+        return StakingMainViewModel(
+            address: address,
+            chainName: chainAsset.chain.name,
+            assetName: chainAsset.chain.name,
+            assetIcon: imageViewModel,
+            balanceViewModel: balanceViewModel
+        )
     }
 
     func createNetworkStakingInfoViewModel(
         with networkStakingInfo: NetworkStakingInfo,
-        chain: Chain,
+        chainAsset: ChainAsset,
         minNominatorBond: BigUInt?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectedMetaAccount: MetaAccountModel
     ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let localizedTotalStake = createTotalStakeViewModel(
             with: networkStakingInfo,
-            chain: chain,
-            priceData: priceData
+            chainAsset: chainAsset,
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let localizedMinimalStake = createMinimalStakeViewModel(
             with: networkStakingInfo,
-            chain: chain,
+            chainAsset: chainAsset,
             minNominatorBond: minNominatorBond,
-            priceData: priceData
+            priceData: priceData,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let nominatorsCount = createActiveNominatorsViewModel(with: networkStakingInfo)
 
-        let localizedLockUpPeriod = createLockUpPeriodViewModel(
-            with: networkStakingInfo,
-            chain: chain
-        )
+        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: networkStakingInfo)
 
         return LocalizableResource { locale in
             NetworkStakingInfoViewModel(

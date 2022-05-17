@@ -1,18 +1,35 @@
 import Foundation
 import RobinHood
+import SoraKeystore
 
 final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     typealias Model = PriceData
 
-    let assetId: WalletAssetId
+    private let priceId: AssetModel.PriceId?
+    private lazy var currency: Currency? = {
+        SelectedWalletSettings.shared.value?.selectedCurrency
+    }()
+
+    private let eventCenter: EventCenterProtocol = {
+        EventCenter.shared
+    }()
 
     init(assetId: WalletAssetId) {
-        self.assetId = assetId
+        priceId = assetId.coingeckoTokenId
+        setup()
+    }
+
+    init(priceId: AssetModel.PriceId) {
+        self.priceId = priceId
+        setup()
     }
 
     func fetchOperation() -> CompoundOperationWrapper<PriceData?> {
-        if let tokenId = assetId.coingeckoTokenId {
-            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(for: [tokenId])
+        if let priceId = priceId, let currency = currency {
+            let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
+                for: [priceId],
+                currency: currency
+            )
 
             let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
                 try priceOperation.extractNoCancellableResultData().first
@@ -27,5 +44,15 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
         } else {
             return CompoundOperationWrapper.createWithResult(nil)
         }
+    }
+
+    private func setup() {
+        eventCenter.add(observer: self)
+    }
+}
+
+extension CoingeckoPriceSource: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        currency = event.account.selectedCurrency
     }
 }
