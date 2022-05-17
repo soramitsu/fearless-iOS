@@ -31,7 +31,7 @@ final class ManageAssetsPresenter {
     }
 
     private func provideViewModel() {
-        DispatchQueue.global(qos: .userInteractive).async {
+        DispatchQueue.global().async {
             let viewModel = self.viewModelFactory.buildManageAssetsViewModel(
                 selectedMetaAccount: self.selectedMetaAccount,
                 chains: self.chainModels,
