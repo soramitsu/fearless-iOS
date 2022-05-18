@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import Charts
 
-typealias PriceDataUpdated = (priceData: PriceData?, updated: Bool)
+typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
 
 final class ChainAccountBalanceListPresenter {
     weak var view: ChainAccountBalanceListViewProtocol?
@@ -14,7 +14,7 @@ final class ChainAccountBalanceListPresenter {
     private var chainModels: [ChainModel] = []
 
     private var accountInfos: [ChainModel.Id: AccountInfo?] = [:]
-    private var prices: [AssetModel.PriceId: PriceDataUpdated] = [:]
+    private var prices: PriceDataUpdated = ([], false)
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -46,37 +46,10 @@ final class ChainAccountBalanceListPresenter {
         )
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
-
-        updatePrices(for: viewModel.accountViewModels)
-    }
-
-    private func updatePrices(for accountViewModels: [ChainAccountBalanceCellViewModel]) {
-        let updatedAssets = accountViewModels.map { viewModel -> AssetModel? in
-            switch viewModel.priceAttributedString {
-            case .normal, .normalAttributed, .stopShimmering:
-                return viewModel.asset
-            case .updating, .updatingAttributed:
-                return nil
-            }
-        }.compactMap { $0 }
-
-        updatedAssets.forEach {
-            prices[$0.chainId]?.updated = false
-        }
     }
 
     private func priceUpdateDidStart() {
-        let chainModelsWithPriceId = chainModels.filter { chain in
-            !chain.assets.filter { $0.asset.priceId != nil }.isEmpty
-        }
-
-        for chain in chainModelsWithPriceId {
-            for asset in chain.assets {
-                if let priceId = asset.asset.priceId {
-                    prices[priceId]?.updated = false
-                }
-            }
-        }
+        prices.updated = false
     }
 }
 
@@ -101,7 +74,10 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
         if viewModel.chain.isSupported {
             wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
         } else {
-            wireframe.presentWarningAlert(from: view, config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)) { [weak self] in
+            wireframe.presentWarningAlert(
+                from: view,
+                config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)
+            ) { [weak self] in
                 self?.wireframe.showAppstoreUpdatePage()
             }
         }
@@ -159,31 +135,21 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         provideViewModel()
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId) {
-        func setOldValue() {
-            if let priceData = prices[priceId] {
-                let priceDataUpdated = (priceData: priceData.priceData, updated: true)
-                prices[priceId] = priceDataUpdated
-                provideViewModel()
-            } else {
-                let priceDataUpdated = (priceData: PriceData?.none, updated: true)
-                prices[priceId] = priceDataUpdated
-            }
-        }
-
+    func didReceivePricesData(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(priceDataResult):
-            guard let priceDataResult = priceDataResult else {
-                setOldValue()
-                return
-            }
-            let priceDataUpdated = (priceData: priceDataResult, updated: true)
-            prices[priceId] = priceDataUpdated
-        case .failure:
-            setOldValue()
+            let priceDataUpdated = (pricesData: priceDataResult, updated: true)
+            prices = priceDataUpdated
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
 
         provideViewModel()
+    }
+
+    func didReceiveAssetIdWithoutPriceId(_ assetId: String) {
+        let emptyPrice = PriceData(priceId: assetId, price: "", fiatDayChange: nil)
+        prices.pricesData.append(emptyPrice)
     }
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {
