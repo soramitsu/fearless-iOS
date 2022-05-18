@@ -6,7 +6,7 @@ protocol BalanceBuilderProtocol {
     func buildBalance(
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo],
-        prices: [AssetModel.PriceId: PriceData],
+        prices: [PriceData],
         currency: Currency,
         completion: @escaping (String?) -> Void
     )
@@ -14,7 +14,7 @@ protocol BalanceBuilderProtocol {
         for accounts: [ManagedMetaAccountModel],
         chains: [ChainModel],
         accountsInfos: [String: [ChainModel.Id: AccountInfo]],
-        prices: [AssetModel.PriceId: PriceData],
+        prices: [PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     )
 }
@@ -33,7 +33,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
     func buildBalance(
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo],
-        prices: [AssetModel.PriceId: PriceData],
+        prices: [PriceData],
         currency: Currency,
         completion: @escaping (String?) -> Void
     ) {
@@ -58,7 +58,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
         for managetMetaAccounts: [ManagedMetaAccountModel],
         chains: [ChainModel],
         accountsInfos: [String: [ChainModel.Id: AccountInfo]],
-        prices: [AssetModel.PriceId: PriceData],
+        prices: [PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     ) {
         let managetMetaAccoutsWithBalance = managetMetaAccounts.map { managetMetaAccount -> ManagedMetaAccountModel in
@@ -104,7 +104,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
     private func getBalance(
         for chainModel: ChainModel,
         accountInfo: AccountInfo?,
-        prices: [AssetModel.PriceId: PriceData]
+        prices: [PriceData]
     ) -> Decimal {
         chainModel.assets.compactMap { asset in
             let chainAsset = ChainAsset(chain: chainModel, asset: asset.asset)
@@ -115,7 +115,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
             )
 
             guard let priceId = asset.asset.priceId,
-                  let priceData = prices[priceId],
+                  let priceData = prices.first(where: { $0.priceId == priceId }),
                   let priceDecimal = Decimal(string: priceData.price)
             else {
                 return nil

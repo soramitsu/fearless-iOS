@@ -74,6 +74,7 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
                 }
 
                 return PriceData(
+                    priceId: assetId,
                     price: String(describing: price),
                     fiatDayChange: Decimal(dayChange ?? 0.0)
                 )
