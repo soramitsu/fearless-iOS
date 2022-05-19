@@ -2,17 +2,13 @@ import Foundation
 
 final class YourValidatorListWireframe: YourValidatorListWireframeProtocol {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: YourValidatorListViewProtocol?
     ) {
         guard
-            let nextView = ValidatorInfoViewFactory.createView(
-                asset: asset,
-                chain: chain,
-                validatorInfo: validatorInfo
-            ) else {
+            let nextView = ValidatorInfoViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: flow) else {
             return
         }
 
@@ -30,9 +26,8 @@ final class YourValidatorListWireframe: YourValidatorListWireframeProtocol {
         existingBonding: ExistingBonding
     ) {
         guard let nextView = SelectValidatorsStartViewFactory.createChangeYourValidatorsView(
-            selectedAccount: selectedAccount,
-            asset: asset,
-            chain: chain,
+            wallet: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
             state: existingBonding
         ) else {
             return

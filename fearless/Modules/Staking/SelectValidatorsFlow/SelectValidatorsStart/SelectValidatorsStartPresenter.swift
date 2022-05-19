@@ -9,9 +9,10 @@ final class SelectValidatorsStartPresenter {
     let initialTargets: [SelectedValidatorInfo]?
     let existingStashAddress: AccountAddress?
     let logger: LoggerProtocol?
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
+    let viewModelState: SelectValidatorsStartViewModelState
+    let viewModelFactory: SelectValidatorsStartViewModelFactoryProtocol
 
     private var electedValidators: [AccountAddress: ElectedValidatorInfo]?
     private var recommendedValidators: [ElectedValidatorInfo]?
@@ -24,18 +25,20 @@ final class SelectValidatorsStartPresenter {
         existingStashAddress: AccountAddress?,
         initialTargets: [SelectedValidatorInfo]?,
         logger: LoggerProtocol? = nil,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        viewModelState: SelectValidatorsStartViewModelState,
+        viewModelFactory: SelectValidatorsStartViewModelFactoryProtocol
     ) {
-        self.chain = chain
-        self.selectedAccount = selectedAccount
-        self.asset = asset
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.interactor = interactor
         self.wireframe = wireframe
         self.existingStashAddress = existingStashAddress
         self.initialTargets = initialTargets
         self.logger = logger
+        self.viewModelState = viewModelState
+        self.viewModelFactory = viewModelFactory
     }
 
     private func updateSelectedValidatorsIfNeeded() {
@@ -103,6 +106,8 @@ final class SelectValidatorsStartPresenter {
 extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol {
     func setup() {
         interactor.setup()
+
+        viewModelState.setStateListener(self)
     }
 
     func updateOnAppearance() {
@@ -110,46 +115,28 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     }
 
     func selectRecommendedValidators() {
-        guard
-            let recommendedValidators = recommendedValidators,
-            let maxNominations = maxNominations else {
+        guard let recommendedValidatorListFlow = viewModelState.recommendedValidatorListFlow else {
             return
         }
 
-        let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
-
         wireframe.proceedToRecommendedList(
             from: view,
-            validatorList: recommendedValidatorList,
-            maxTargets: maxNominations,
-            selectedAccount: selectedAccount,
-            chain: chain,
-            asset: asset
+            flow: recommendedValidatorListFlow,
+            wallet: wallet,
+            chainAsset: chainAsset
         )
     }
 
     func selectCustomValidators() {
-        guard
-            let electedValidators = electedValidators,
-            let maxNominations = maxNominations,
-            let selectedValidators = selectedValidators else {
+        guard let flow = viewModelState.customValidatorListFlow else {
             return
         }
 
-        let electedValidatorList = electedValidators.values.map { $0.toSelected(for: existingStashAddress) }
-        let recommendedValidatorList = recommendedValidators?.map {
-            $0.toSelected(for: existingStashAddress)
-        } ?? []
-
         wireframe.proceedToCustomList(
             from: view,
-            validatorList: electedValidatorList,
-            recommendedValidatorList: recommendedValidatorList,
-            selectedValidatorList: selectedValidators,
-            maxTargets: maxNominations,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 }
@@ -183,5 +170,19 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputP
         case let .failure(error):
             handle(error: error)
         }
+    }
+}
+
+extension SelectValidatorsStartPresenter: SelectValidatorsStartModelStateListener {
+    func didReceiveError(error: Error) {
+        handle(error: error)
+    }
+
+    func modelStateDidChanged(viewModelState: SelectValidatorsStartViewModelState) {
+        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState) else {
+            return
+        }
+
+        view?.didReceive(viewModel: viewModel)
     }
 }

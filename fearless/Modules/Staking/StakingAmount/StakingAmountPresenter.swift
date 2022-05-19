@@ -19,11 +19,9 @@ final class StakingAmountPresenter {
     private var calculator: RewardCalculatorEngineProtocol?
     private var priceData: PriceData?
     private var balance: Decimal?
-    private var fee: Decimal?
     private var loadingFee: Bool = false
     private var asset: AssetModel
     private var chain: ChainModel
-    private var amount: Decimal?
     private var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
     private var payoutAccount: ChainAccountResponse?
     private var loadingPayouts: Bool = false
@@ -36,7 +34,7 @@ final class StakingAmountPresenter {
     private var networkStakingInfo: NetworkStakingInfo?
 
     init(
-        amount: Decimal?,
+        amount _: Decimal?,
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
@@ -48,7 +46,6 @@ final class StakingAmountPresenter {
         viewModelState: StakingAmountViewModelState?,
         viewModelFactory: StakingAmountViewModelFactoryProtocol?
     ) {
-        self.amount = amount
         self.asset = asset
         self.chain = chain
         self.selectedAccount = selectedAccount
@@ -77,7 +74,7 @@ final class StakingAmountPresenter {
                     period: .year
                 )
 
-                let curAmount = amount ?? 0.0
+                let curAmount = viewModelState?.amount ?? 0.0
                 reward = CalculatedReward(
                     restakeReturn: restake * curAmount,
                     restakeReturnPercentage: restake,
@@ -107,7 +104,7 @@ final class StakingAmountPresenter {
 
     private func provideAsset() {
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            amount ?? 0.0,
+            viewModelState?.amount ?? 0.0,
             balance: balance,
             priceData: priceData
         )
@@ -115,7 +112,7 @@ final class StakingAmountPresenter {
     }
 
     private func provideFee() {
-        if let fee = fee {
+        if let fee = viewModelState?.fee {
             let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
             view?.didReceiveFee(viewModel: feeViewModel)
         } else {
@@ -124,12 +121,12 @@ final class StakingAmountPresenter {
     }
 
     private func provideAmountInputViewModel() {
-        let viewModel = balanceViewModelFactory.createBalanceInputViewModel(amount)
+        let viewModel = balanceViewModelFactory.createBalanceInputViewModel(viewModelState?.amount)
         view?.didReceiveInput(viewModel: viewModel)
     }
 
     private func scheduleFeeEstimation() {
-        if !loadingFee, fee == nil {
+        if !loadingFee, viewModelState?.fee == nil {
             estimateFee()
         }
     }
@@ -144,6 +141,8 @@ final class StakingAmountPresenter {
 
 extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     func setup() {
+        viewModelState?.setStateListener(self)
+
         provideAmountInputViewModel()
         provideRewardDestination()
 
@@ -174,11 +173,11 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectAmountPercentage(_ percentage: Float) {
-        if let balance = balance, let fee = fee {
+        if let balance = balance, let fee = viewModelState?.fee {
             let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
 
             if newAmount > 0 {
-                amount = newAmount
+                viewModelState?.updateAmount(newAmount)
 
                 provideAmountInputViewModel()
                 provideAsset()
@@ -225,54 +224,54 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
         let customValidators: [DataValidating] = viewModelState?.validators ?? []
         let commonValidators: [DataValidating] = [
-            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
-                self?.scheduleFeeEstimation()
-            },
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: amount,
-                locale: locale
-            ),
-            dataValidatingFactory.canNominate(
-                amount: amount,
-                minimalBalance: minimalBalance,
-                minNominatorBond: minBondAmount,
-                locale: locale
-            ),
-            dataValidatingFactory.bondAtLeastMinStaking(
-                asset: asset,
-                amount: amount,
-                minNominatorBond: minStake,
-                locale: locale
-            ),
-            dataValidatingFactory.maxNominatorsCountNotApplied(
-                counterForNominators: counterForNominators,
-                maxNominatorsCount: maxNominatorsCount,
-                hasExistingNomination: false,
-                locale: locale
-            )
+            //            dataValidatingFactory.has(fee: viewModelState?.fee, locale: locale) { [weak self] in
+//                self?.scheduleFeeEstimation()
+//            },
+//            dataValidatingFactory.canPayFeeAndAmount(
+//                balance: balance,
+//                fee: viewModelState?.fee,
+//                spendingAmount: viewModelState?.amount,
+//                locale: locale
+//            ),
+//            dataValidatingFactory.canNominate(
+//                amount: viewModelState?.amount,
+//                minimalBalance: minimalBalance,
+//                minNominatorBond: minBondAmount,
+//                locale: locale
+//            ),
+//            dataValidatingFactory.bondAtLeastMinStaking(
+//                asset: asset,
+//                amount: viewModelState?.amount,
+//                minNominatorBond: minStake,
+//                locale: locale
+//            ),
+//            dataValidatingFactory.maxNominatorsCountNotApplied(
+//                counterForNominators: counterForNominators,
+//                maxNominatorsCount: maxNominatorsCount,
+//                hasExistingNomination: false,
+//                locale: locale
+//            )
         ]
 
         DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
             guard
-                let self = self,
-                let amount = self.amount
+                let strongSelf = self,
+                let amount = strongSelf.viewModelState?.amount
             else {
                 return
             }
 
             let stakingState = InitiatedBonding(
                 amount: amount,
-                rewardDestination: self.rewardDestination
+                rewardDestination: strongSelf.rewardDestination
             )
 
-            self.wireframe.proceed(
-                from: self.view,
+            strongSelf.wireframe.proceed(
+                from: strongSelf.view,
                 state: stakingState,
-                asset: self.asset,
-                chain: self.chain,
-                selectedAccount: self.selectedAccount
+                asset: strongSelf.asset,
+                chain: strongSelf.chain,
+                selectedAccount: strongSelf.selectedAccount
             )
         }
     }
@@ -310,7 +309,7 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     func didReceive(price: PriceData?) {
         priceData = price
         provideAsset()
-        provideFee()
+//        provideFee()
         provideRewardDestination()
     }
 
@@ -327,15 +326,15 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         provideAsset()
     }
 
-    func didReceive(paymentInfo: RuntimeDispatchInfo) {
-        loadingFee = false
-
-        if let feeValue = BigUInt(paymentInfo.fee),
-           let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
-            self.fee = fee
-        } else {
-            fee = nil
-        }
+    func didReceive(paymentInfo _: RuntimeDispatchInfo) {
+//        loadingFee = false
+//
+//        if let feeValue = BigUInt(paymentInfo.fee),
+//           let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
+//            self.fee = fee
+//        } else {
+//            fee = nil
+//        }
 
         provideFee()
     }

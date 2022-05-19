@@ -3,28 +3,18 @@ import BigInt
 import CommonWallet
 import SoraFoundation
 
-protocol StakingAmountModelStateListener: AnyObject {
-    func modelStateDidChanged(viewModelState: StakingAmountViewModelState)
-}
-
-protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
-    var stateListener: StakingAmountModelStateListener? { get set }
-    var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure { get }
-    var validators: [DataValidating] { get }
-
-    var amount: Decimal? { get set }
-}
-
 final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     weak var stateListener: StakingAmountModelStateListener?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
 
-    private var minimalBalance: Decimal?
-    private var minimumBond: Decimal?
-    private var counterForNominators: UInt32?
-    private var maxNominatorsCount: UInt32?
+    private(set) var minimalBalance: Decimal?
+    private(set) var minimumBond: Decimal?
+    private(set) var counterForNominators: UInt32?
+    private(set) var maxNominatorsCount: UInt32?
+    var fee: Decimal?
+    var amount: Decimal?
 
     var assetViewModel: AssetBalanceViewModelProtocol?
     var rewardDestinationViewModel: RewardDestinationViewModelProtocol?
@@ -33,7 +23,6 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
     var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
     var payoutAccount: ChainAccountResponse?
-    var amount: Decimal?
 
     init(
         stateListener: StakingAmountModelStateListener?,
@@ -118,6 +107,14 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         notifyListeners()
     }
+
+    func setStateListener(_ stateListener: StakingAmountModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func updateAmount(_ newValue: Decimal) {
+        amount = newValue
+    }
 }
 
 extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategyOutput {
@@ -146,6 +143,17 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
 
     func didReceive(maxNominatorsCount: UInt32?) {
         self.maxNominatorsCount = maxNominatorsCount
+
+        notifyListeners()
+    }
+
+    func didReceive(paymentInfo: RuntimeDispatchInfo) {
+        if let feeValue = BigUInt(paymentInfo.fee),
+           let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(chainAsset.asset.precision)) {
+            self.fee = fee
+        } else {
+            fee = nil
+        }
 
         notifyListeners()
     }

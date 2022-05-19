@@ -56,14 +56,15 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
         provideViewModel()
     }
 
-    func didSelectValidator(at index: Int) {
-        let validatorInfo = selectedValidatorList[index]
-        wireframe.present(
-            validatorInfo,
-            asset: asset,
-            chain: chain,
-            from: view
-        )
+    func didSelectValidator(at _: Int) {
+        // TODO: Transition with new parameters
+//        let validatorInfo = selectedValidatorList[index]
+//        wireframe.present(
+//            validatorInfo,
+//            asset: asset,
+//            chain: chain,
+//            from: view
+//        )
     }
 
     func removeItem(at index: Int) {

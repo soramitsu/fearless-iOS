@@ -27,9 +27,9 @@ protocol YourValidatorListInteractorOutputProtocol: AnyObject {
 protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: YourValidatorListViewProtocol?
     )
 

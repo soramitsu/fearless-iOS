@@ -138,14 +138,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
     }
 
     func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure) {
-        extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { [weak self] result in
-            switch result {
-            case let .success(info):
-                self?.presenter?.didReceive(paymentInfo: info)
-            case let .failure(error):
-                self?.presenter?.didReceive(error: error)
-            }
-        }
+        strategy?.estimateFee(extrinsicBuilderClosure: extrinsicBuilderClosure)
     }
 }
 

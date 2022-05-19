@@ -2,9 +2,9 @@ import SoraFoundation
 
 protocol ValidatorSearchWireframeProtocol: AlertPresentable {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 
@@ -26,9 +26,7 @@ protocol ValidatorSearchInteractorInputProtocol {
     func performValidatorSearch(accountId: AccountId)
 }
 
-protocol ValidatorSearchInteractorOutputProtocol: AnyObject {
-    func didReceiveValidatorInfo(result: Result<SelectedValidatorInfo?, Error>)
-}
+protocol ValidatorSearchInteractorOutputProtocol: AnyObject {}
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
     func setup()
@@ -40,18 +38,16 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
-        asset: AssetModel,
-        chain: ChainModel,
-        with fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
+        chainAsset: ChainAsset,
+        flow: ValidatorSearchFlow,
         delegate: ValidatorSearchDelegate?
     ) -> ValidatorSearchViewProtocol?
 }
 
-protocol ValidatorSearchViewModelFactoryProtocol {
-    func createViewModel(
-        from displayValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        locale: Locale
-    ) -> ValidatorSearchViewModel
-}
+// protocol ValidatorSearchViewModelFactoryProtocol {
+//    func createViewModel(
+//        from displayValidatorList: [SelectedValidatorInfo],
+//        selectedValidatorList: [SelectedValidatorInfo],
+//        locale: Locale
+//    ) -> ValidatorSearchViewModel
+// }

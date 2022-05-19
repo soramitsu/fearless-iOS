@@ -2,16 +2,16 @@ import Foundation
 
 class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: ValidatorInfoProtocol,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: ValidatorInfoFlow,
         from view: ControllerBackedProtocol?
     ) {
         guard
             let validatorInfoView = ValidatorInfoViewFactory.createView(
-                asset: asset,
-                chain: chain,
-                validatorInfo: validatorInfo
+                chainAsset: chainAsset,
+                wallet: wallet,
+                flow: flow
             ) else {
             return
         }
@@ -43,18 +43,14 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
 
     func presentSearch(
         from view: ControllerBackedProtocol?,
-        fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
+        flow: ValidatorSearchFlow,
         delegate: ValidatorSearchDelegate?,
-        chain: ChainModel,
-        asset: AssetModel
+        chainAsset: ChainAsset
     ) {
         guard let searchView = ValidatorSearchViewFactory
             .createView(
-                asset: asset,
-                chain: chain,
-                with: fullValidatorList,
-                selectedValidatorList: selectedValidatorList,
+                chainAsset: chainAsset,
+                flow: flow,
                 delegate: delegate
             ) else { return }
 

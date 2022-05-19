@@ -10,7 +10,6 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
     private var cellViewModels: [CustomValidatorCellViewModel] = []
     private var headerViewModel: TitleWithSubtitleViewModel?
     private var selectedValidatorsCount: Int = 0
-    private var electedValidatorsCount: Int = 0
 
     private var filterIsApplied: Bool = true
 

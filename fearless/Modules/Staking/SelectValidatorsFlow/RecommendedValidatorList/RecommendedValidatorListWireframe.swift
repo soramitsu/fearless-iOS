@@ -11,16 +11,12 @@ class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtoc
     ) {}
 
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: SelectedValidatorInfo,
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: RecommendedValidatorListViewProtocol?
     ) {
-        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            validatorInfo: validatorInfo
-        ) else {
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: flow) else {
             return
         }
 

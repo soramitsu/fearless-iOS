@@ -8,6 +8,7 @@ protocol StakingAmountRelaychainStrategyOutput: AnyObject {
     func didReceive(minimumBond: BigUInt?)
     func didReceive(counterForNominators: UInt32?)
     func didReceive(maxNominatorsCount: UInt32?)
+    func didReceive(paymentInfo: RuntimeDispatchInfo)
 }
 
 class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
@@ -19,6 +20,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private let chain: ChainModel
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol
 
     private weak var output: StakingAmountRelaychainStrategyOutput?
 
@@ -27,12 +29,14 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
+        extrinsicService: ExtrinsicServiceProtocol,
         output: StakingAmountRelaychainStrategyOutput?
     ) {
         self.chain = chain
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.extrinsicService = extrinsicService
         self.output = output
     }
 }
@@ -53,6 +57,17 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
             switch result {
             case let .success(amount):
                 self?.output?.didReceive(minimalBalance: amount)
+            case let .failure(error):
+                self?.output?.didReceive(error: error)
+            }
+        }
+    }
+
+    func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure) {
+        extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { [weak self] result in
+            switch result {
+            case let .success(info):
+                self?.output?.didReceive(paymentInfo: info)
             case let .failure(error):
                 self?.output?.didReceive(error: error)
             }

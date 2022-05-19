@@ -17,6 +17,7 @@ typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
 typealias DecodedCrowdloanFunds = ChainStorageDecodedItem<CrowdloanFunds>
 typealias DecodedBalanceLocks = ChainStorageDecodedItem<BalanceLock>
+typealias DecodedParachainStakingCandidate = ChainStorageDecodedItem<ParachainStakingCandidate>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>

@@ -8,6 +8,21 @@ enum StakingAmountFlow {
     case parachain
 }
 
+protocol StakingAmountModelStateListener: AnyObject {
+    func modelStateDidChanged(viewModelState: StakingAmountViewModelState)
+}
+
+protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
+    var stateListener: StakingAmountModelStateListener? { get set }
+    var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure { get }
+    var validators: [DataValidating] { get }
+
+    var amount: Decimal? { get set }
+    var fee: Decimal? { get set }
+
+    func setStateListener(_ stateListener: StakingAmountModelStateListener?)
+}
+
 struct StakingAmountDependencyContainer {
     let viewModelState: StakingAmountViewModelState
     let strategy: StakingAmountStrategy
@@ -24,6 +39,7 @@ protocol StakingAmountViewModelFactoryProtocol {
 
 protocol StakingAmountStrategy {
     func setup()
+    func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure)
 }
 
 protocol StakingAmountUserInputHandler {

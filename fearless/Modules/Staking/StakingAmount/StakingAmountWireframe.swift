@@ -35,9 +35,8 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
         selectedAccount: MetaAccountModel
     ) {
         guard let validatorsView = SelectValidatorsStartViewFactory.createInitiatedBondingView(
-            selectedAccount: selectedAccount,
-            asset: asset,
-            chain: chain,
+            wallet: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
             state: state
         )
         else {

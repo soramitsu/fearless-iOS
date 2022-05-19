@@ -12,9 +12,9 @@ protocol RecommendedValidatorListPresenterProtocol: AnyObject {
 
 protocol RecommendedValidatorListWireframeProtocol: AnyObject {
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: SelectedValidatorInfo,
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: RecommendedValidatorListViewProtocol?
     )
 
@@ -30,29 +30,23 @@ protocol RecommendedValidatorListWireframeProtocol: AnyObject {
 
 protocol RecommendedValidatorListViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(
-        for validators: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: RecommendedValidatorListFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         with state: InitiatedBonding
     ) -> RecommendedValidatorListViewProtocol?
 
     static func createChangeTargetsView(
-        for validators: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: RecommendedValidatorListFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         with state: ExistingBonding
     ) -> RecommendedValidatorListViewProtocol?
 
     static func createChangeYourValidatorsView(
-        for validators: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: RecommendedValidatorListFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         with state: ExistingBonding
     ) -> RecommendedValidatorListViewProtocol?
 }

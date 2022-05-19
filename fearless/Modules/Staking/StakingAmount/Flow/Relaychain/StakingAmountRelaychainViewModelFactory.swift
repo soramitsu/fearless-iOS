@@ -29,12 +29,28 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             calculator: calculator
         )
 
+        let feeViewModel = buildFeeViewModel(
+            viewModelState: relaychainViewModelState,
+            priceData: priceData
+        )
+
         return StakingAmountMainViewModel(
             assetViewModel: nil,
             rewardDestinationViewModel: rewardDestinationViewModel,
-            feeViewModel: nil,
+            feeViewModel: feeViewModel,
             inputViewModel: nil
         )
+    }
+
+    private func buildFeeViewModel(
+        viewModelState: StakingAmountRelaychainViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let fee = viewModelState.fee else {
+            return nil
+        }
+
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 
     private func buildRewardDestinationViewModel(

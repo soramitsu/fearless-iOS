@@ -106,7 +106,7 @@ struct YourValidatorListViewFactory {
             rewardCalculatorService.setup()
         }
 
-        let validatorOperationFactory = ValidatorOperationFactory(
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
             asset: asset,
             chain: chain,
             eraValidatorService: eraValidatorService,

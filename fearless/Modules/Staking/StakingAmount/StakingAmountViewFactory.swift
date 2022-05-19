@@ -122,7 +122,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         wallet: MetaAccountModel
     ) -> StakingAmountDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             assertionFailure("StakingAmountViewFactory.createContainer.runtimeService.missing")
             return nil
         }
@@ -130,13 +133,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let flow: StakingAmountFlow = chainAsset.chain.isEthereumBased ? .parachain : .relaychain
         let operationManager = OperationManagerFacade.sharedManager
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -147,8 +143,24 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             balanceViewModelFactory: balanceViewModelFactory
         )
 
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chainAsset.chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
         switch flow {
         case .relaychain:
+            let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+                chainRegistry: chainRegistry,
+                storageFacade: substrateStorageFacade,
+                operationManager: operationManager,
+                logger: Logger.shared
+            )
+
             let viewModelState = StakingAmountRelaychainViewModelState(
                 stateListener: viewModelStateListener,
                 dataValidatingFactory: dataValidatingFactory,
@@ -160,7 +172,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 chain: chainAsset.chain,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
-                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                stakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
+                extrinsicService: extrinsicService,
                 output: viewModelState
             )
 
@@ -175,9 +188,25 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 viewModelFactory: viewModelFactory
             )
         case .parachain:
-            let viewModelState = StakingAmountParachainViewModelState()
+            let parachainStakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
+                chainRegistry: chainRegistry,
+                storageFacade: substrateStorageFacade,
+                operationManager: operationManager,
+                logger: Logger.shared
+            )
 
-            let strategy = StakingAmountParachainStrategy()
+            let viewModelState = StakingAmountParachainViewModelState(
+                stateListener: viewModelStateListener,
+                dataValidatingFactory: dataValidatingFactory,
+                wallet: wallet,
+                chainAsset: chainAsset
+            )
+
+            let strategy = StakingAmountParachainStrategy(
+                chainAsset: chainAsset,
+                stakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory,
+                output: viewModelState
+            )
 
             let viewModelFactory = StakingAmountParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,

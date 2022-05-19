@@ -20,17 +20,6 @@ protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func proceed()
 }
 
-protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
-    func createViewModel(
-        from validatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
-        priceData: PriceData?,
-        locale: Locale
-    ) -> CustomValidatorListViewModel
-}
-
 protocol CustomValidatorListInteractorInputProtocol: AnyObject {
     func setup()
 }
@@ -41,9 +30,9 @@ protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
 
 protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: ValidatorInfoProtocol,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: ValidatorInfoFlow,
         from view: ControllerBackedProtocol?
     )
 
@@ -56,11 +45,9 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
 
     func presentSearch(
         from view: ControllerBackedProtocol?,
-        fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
+        flow: ValidatorSearchFlow,
         delegate: ValidatorSearchDelegate?,
-        chain: ChainModel,
-        asset: AssetModel
+        chainAsset: ChainAsset
     )
 
     func proceed(

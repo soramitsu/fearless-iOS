@@ -4,12 +4,11 @@ import RobinHood
 import FearlessUtils
 
 struct ValidatorSearchViewFactory {
-    private static func createInteractor(
-        asset: AssetModel,
-        chain: ChainModel,
-        settings _: SettingsManagerProtocol
-    ) -> ValidatorSearchInteractor? {
-        guard let engine = WebSocketService.shared.connection else {
+    private static func createContainer(flow: ValidatorSearchFlow, delegate _: ValidatorSearchDelegate?, chainAsset: ChainAsset) -> ValidatorSearchDependencyContainer? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -18,50 +17,50 @@ struct ValidatorSearchViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let validatorOperationFactory = ValidatorOperationFactory(
-            asset: asset,
-            chain: chain,
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
             eraValidatorService: EraValidatorFacade.sharedService,
             rewardService: RewardCalculatorFacade.sharedService,
             storageRequestFactory: storageRequestFactory,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
+            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
-        return ValidatorSearchInteractor(
-            validatorOperationFactory: validatorOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager
-        )
+        switch flow {
+        case let .relaychain(validatorList, selectedValidatorList):
+            let viewModelState = ValidatorSearchRelaychainViewModelState(fullValidatorList: validatorList, selectedValidatorList: selectedValidatorList)
+            let strategy = ValidatorSearchRelaychainStrategy(validatorOperationFactory: validatorOperationFactory, operationManager: OperationManagerFacade.sharedManager, output: viewModelState)
+            let viewModelFactory = ValidatorSearchRelaychainViewModelFactory()
+            return ValidatorSearchDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+        case .parachain:
+            return nil
+        }
     }
 }
 
 extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
     static func createView(
-        asset: AssetModel,
-        chain: ChainModel,
-        with validatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
+        chainAsset: ChainAsset,
+        flow: ValidatorSearchFlow,
         delegate: ValidatorSearchDelegate?
     ) -> ValidatorSearchViewProtocol? {
-        guard let interactor = createInteractor(asset: asset, chain: chain, settings: SettingsManager.shared) else {
+        guard let container = createContainer(flow: flow, delegate: delegate, chainAsset: chainAsset) else {
             return nil
         }
 
+        let interactor = ValidatorSearchInteractor(strategy: container.strategy)
         let wireframe = ValidatorSearchWireframe()
-
-        let viewModelFactory = ValidatorSearchViewModelFactory()
 
         let presenter = ValidatorSearchPresenter(
             wireframe: wireframe,
             interactor: interactor,
-            viewModelFactory: viewModelFactory,
-            fullValidatorList: validatorList,
-            selectedValidatorList: selectedValidatorList,
+            viewModelFactory: container.viewModelFactory,
+            viewModelState: container.viewModelState,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared,
-            asset: asset,
-            chain: chain
+            chainAsset: chainAsset
         )
 
         presenter.delegate = delegate

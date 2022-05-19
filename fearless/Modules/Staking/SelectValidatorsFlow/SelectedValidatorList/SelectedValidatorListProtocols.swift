@@ -30,9 +30,9 @@ protocol SelectedValidatorListViewModelFactoryProtocol: AnyObject {
 
 protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 

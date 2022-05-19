@@ -1,15 +1,8 @@
 import Foundation
-import FearlessUtils
 import SoraFoundation
+import FearlessUtils
 
-protocol RecommendedValidatorListViewModelFactoryProtocol {
-    func createViewModel(
-        from validators: [SelectedValidatorInfo],
-        maxTargets: Int
-    ) throws -> RecommendedValidatorListViewModelProtocol
-}
-
-final class RecommendedValidatorListViewModelFactory {
+class RecommendedValidatorListRelaychainViewModelFactory {
     private let iconGenerator: IconGenerating
 
     init(
@@ -39,14 +32,18 @@ final class RecommendedValidatorListViewModelFactory {
     }
 }
 
-extension RecommendedValidatorListViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
-    func createViewModel(
-        from validators: [SelectedValidatorInfo],
-        maxTargets: Int
-    ) throws -> RecommendedValidatorListViewModelProtocol {
+extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
+    func buildViewModel(viewModelState: RecommendedValidatorListViewModelState) -> RecommendedValidatorListViewModel? {
+        guard let relaychainViewModelState = viewModelState as? RecommendedValidatorListRelaychainViewModelState else {
+            return nil
+        }
+
         let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
-            try validators.map { validator in
-                let icon = try iconGenerator.generateFromAddress(validator.address)
+            relaychainViewModelState.validators.compactMap { validator in
+                guard let icon = try? iconGenerator.generateFromAddress(validator.address) else {
+                    return nil
+                }
+
                 let title = validator.identity?.displayName ?? validator.address
 
                 let details = createStakeReturnString(from: validator.stakeInfo?.stakeReturn)
@@ -60,7 +57,7 @@ extension RecommendedValidatorListViewModelFactory: RecommendedValidatorListView
                 }
             }
 
-        let itemsCountString = createItemsCountString(for: items.count, outOf: maxTargets)
+        let itemsCountString = createItemsCountString(for: items.count, outOf: relaychainViewModelState.maxTargets)
 
         return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
