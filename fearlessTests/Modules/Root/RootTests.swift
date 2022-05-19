@@ -2,6 +2,8 @@ import XCTest
 @testable import fearless
 import Cuckoo
 import SoraKeystore
+import SoraFoundation
+import simd
 
 class RootTests: XCTestCase {
     func testOnboardingDecision() throws {
@@ -19,28 +21,42 @@ class RootTests: XCTestCase {
             storageFacade: UserDataStorageTestFacade(),
             operationQueue: OperationQueue()
         )
+        
+        let userDefaultsStorage = InMemorySettingsManager()
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
-                                        keystore: keystore)
+                                        keystore: keystore,
+                                        userDefaultsStorage: userDefaultsStorage)
 
-        let expectation = XCTestExpectation()
+        let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
+            when(stub).showSplash(splashView: any(), on: any()).then { _ in
+                splashExpectation.fulfill()
+            }
+        }
+        
+        let onboardingExpectation = XCTestExpectation()
+        
+        stub(wireframe) { stub in
             when(stub).showOnboarding(on: any()).then { _ in
-                expectation.fulfill()
+                onboardingExpectation.fulfill()
             }
         }
 
         // when
 
-        presenter.interactor.decideModuleSynchroniously()
+        presenter.loadOnLaunch()
 
         // then
 
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
-
         XCTAssertFalse(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
+        wait(for: [splashExpectation, onboardingExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
     func testPincodeSetupDecision() {
@@ -57,26 +73,41 @@ class RootTests: XCTestCase {
         settings.save(value: selectedAccount)
 
         let keystore = InMemoryKeychain()
+        
+        let userDefaultsStorage = InMemorySettingsManager()
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
-                                        keystore: keystore)
+                                        keystore: keystore,
+                                        userDefaultsStorage: userDefaultsStorage)
+        
+        let splashExpectation = XCTestExpectation()
 
-        let expectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).showSplash(splashView: any(), on: any()).then { _ in
+                splashExpectation.fulfill()
+            }
+        }
+
+        let pincodeExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
             when(stub).showPincodeSetup(on: any()).then { _ in
-                expectation.fulfill()
+                pincodeExpectation.fulfill()
             }
         }
 
         // when
 
-        presenter.interactor.decideModuleSynchroniously()
+        presenter.loadOnLaunch()
 
         // then
 
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [splashExpectation, pincodeExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
     func testMainScreenDecision() throws {
@@ -97,51 +128,66 @@ class RootTests: XCTestCase {
         let expectedPincode = "123456"
         try keystore.saveKey(expectedPincode.data(using: .utf8)!,
                              with: KeystoreTag.pincode.rawValue)
+        
+        let userDefaultsStorage = InMemorySettingsManager()
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
-                                        keystore: keystore)
+                                        keystore: keystore,
+                                        userDefaultsStorage: userDefaultsStorage)
+        
+        let splashExpectation = XCTestExpectation()
 
-        let expectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).showSplash(splashView: any(), on: any()).then { _ in
+                splashExpectation.fulfill()
+            }
+        }
+
+        let mainScreenExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
             when(stub).showLocalAuthentication(on: any()).then { _ in
-                expectation.fulfill()
+                mainScreenExpectation.fulfill()
             }
         }
 
         // when
 
-        presenter.interactor.decideModuleSynchroniously()
+        presenter.loadOnLaunch()
 
         // then
 
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [splashExpectation, mainScreenExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
     private func createPresenter(wireframe: MockRootWireframeProtocol,
                                  settings: SelectedWalletSettings,
                                  keystore: KeystoreProtocol,
+                                 userDefaultsStorage: SettingsManagerProtocol,
                                  migrators: [Migrating] = []
     ) -> RootPresenter {
         let interactor = RootInteractor(settings: settings,
-                                        keystore: keystore,
                                         applicationConfig: ApplicationConfig.shared,
                                         eventCenter: MockEventCenterProtocol(),
                                         migrators: migrators)
-        let presenter = RootPresenter()
+        
+        let startViewHelper = StartViewHelper(keystore: keystore,
+                                              selectedWalletSettings: settings,
+                                              userDefaultsStorage: userDefaultsStorage)
+        let presenter = RootPresenter(localizationManager: LocalizationManager.shared, startViewHelper: startViewHelper)
 
-        presenter.view = UIWindow()
+        let view = MockControllerBackedProtocol()
+
+        presenter.view = view
+        presenter.window = UIWindow()
         presenter.wireframe = wireframe
         presenter.interactor = interactor
         interactor.presenter = presenter
-
-        stub(wireframe) { stub in
-            when(stub).showOnboarding(on: any()).thenDoNothing()
-            when(stub).showLocalAuthentication(on: any()).thenDoNothing()
-            when(stub).showPincodeSetup(on: any()).thenDoNothing()
-            when(stub).showBroken(on: any()).thenDoNothing()
-        }
 
         return presenter
     }

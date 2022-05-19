@@ -125,7 +125,7 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                 ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
                 : KeystoreTagV2.substrateSeedTagForMetaId(metaId, accountId: accountId)
 
-            var optionalSeed = try self?.keystore.fetchKey(for: keyTag)
+            let optionalSeed = try self?.keystore.fetchKey(for: keyTag)
 
             guard let seed = optionalSeed else {
                 throw ExportSeedInteractorError.missingSeed

@@ -11,7 +11,15 @@ final class RuntimeCodingServiceStub {
 }
 
 extension RuntimeCodingServiceStub: RuntimeCodingServiceProtocol {
+    var snapshot: RuntimeSnapshot? {
+        return nil
+    }
+    
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        ClosureOperation { self.factory }
+    }
+    
+    func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { self.factory }
     }
 }

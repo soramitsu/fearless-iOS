@@ -4,6 +4,7 @@ import SoraKeystore
 import Cuckoo
 import IrohaCrypto
 import RobinHood
+import SoraFoundation
 
 class AccountConfirmTests: XCTestCase {
 
@@ -21,12 +22,13 @@ class AccountConfirmTests: XCTestCase {
 
         let mnemonicWords = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
-        let newAccountRequest = MetaAccountCreationRequest(username: "myusername",
-                                                           substrateDerivationPath: "",
-                                                           substrateCryptoType: .sr25519,
-                                                           ethereumDerivationPath: "")
-
         let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
+        
+        let newAccountRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
+                                                                 username: "myusername",
+                                                                 substrateDerivationPath: "",
+                                                                 ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                                                                 cryptoType: .sr25519)
 
         let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
 
@@ -35,18 +37,17 @@ class AccountConfirmTests: XCTestCase {
 
         let eventCenter = MockEventCenterProtocol()
 
-        let interactor = AccountConfirmInteractor(request: newAccountRequest,
-                                                  mnemonic: mnemonic,
+        let flow: AccountConfirmFlow = .wallet(newAccountRequest)
+        let interactor = AccountConfirmInteractor(flow: flow,
                                                   accountOperationFactory: accountOperationFactory,
                                                   accountRepository: AnyDataProviderRepository(repository),
                                                   settings: settings,
                                                   operationManager: OperationManager(),
                                                   eventCenter: eventCenter)
 
-        let presenter = AccountConfirmPresenter()
-        presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
+        let presenter = AccountConfirmPresenter(interactor: interactor,
+                                                wireframe: wireframe,
+                                                localizationManager: LocalizationManager.shared)
         interactor.presenter = presenter
 
         let setupExpectation = XCTestExpectation()
@@ -60,7 +61,7 @@ class AccountConfirmTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any()).then { _ in
+            when(stub).proceed(from: any(), flow: any()).then { _ in
                 expectation.fulfill()
             }
         }
@@ -77,7 +78,7 @@ class AccountConfirmTests: XCTestCase {
 
         // when
 
-        presenter.setup()
+        presenter.didLoad(view: view)
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 

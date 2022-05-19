@@ -40,7 +40,7 @@ class ChainModel: Codable {
     let selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
     let iosMinAppVersion: String?
-    var unused: Bool?
+    var unused: Bool
 
     init(
         chainId: Id,
@@ -56,7 +56,7 @@ class ChainModel: Codable {
         selectedNode: ChainNodeModel? = nil,
         customNodes: Set<ChainNodeModel>? = nil,
         iosMinAppVersion: String?,
-        unused: Bool?
+        unused: Bool
     ) {
         self.chainId = chainId
         self.parentId = parentId
