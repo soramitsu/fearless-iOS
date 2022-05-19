@@ -35,6 +35,13 @@ protocol AccountFetching {
         operationManager: OperationManagerProtocol,
         closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
     )
+
+    func fetchChainAccountFor(
+        meta: MetaAccountModel,
+        chain: ChainModel,
+        address: String,
+        closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
+    )
 }
 
 extension AccountFetching {
@@ -97,6 +104,40 @@ extension AccountFetching {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
+    func fetchChainAccountFor(
+        meta: MetaAccountModel,
+        chain: ChainModel,
+        address: String,
+        closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
+    ) {
+        let nativeChainAccount = meta.fetch(for: chain.accountRequest())
+        if let nativeAddress = nativeChainAccount?.toAddress(), nativeAddress == address {
+            closure(.success(nativeChainAccount))
+            return
+        }
+
+        for chainAccount in meta.chainAccounts {
+            let chainFormat: ChainFormat = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix)
+            if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
+               chainAddress == address {
+                let account = ChainAccountResponse(
+                    chainId: chain.chainId,
+                    accountId: chainAccount.accountId,
+                    publicKey: chainAccount.publicKey,
+                    name: meta.name,
+                    cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                    addressPrefix: chain.addressPrefix,
+                    isEthereumBased: false,
+                    isChainAccount: true
+                )
+                closure(.success(account))
+                return
+            }
+        }
+        closure(.failure(ChainAccountFetchingError.accountNotExists))
+        return
+    }
+
     func fetchChainAccount(
         chain: ChainModel,
         address: String,
@@ -113,32 +154,9 @@ extension AccountFetching {
                         return
                     }
 
-                    var response: ChainAccountResponse?
-
                     for meta in accounts {
-                        let nativeChainAccount = meta.fetch(for: chain.accountRequest())
-                        if nativeChainAccount?.toAddress() == address {
-                            response = nativeChainAccount
-                            break
-                        }
-
-                        for chainAccount in meta.chainAccounts {
-                            if chainAccount.toAddress(addressPrefix: chain.addressPrefix) == address {
-                                response = ChainAccountResponse(
-                                    chainId: chain.chainId,
-                                    accountId: chainAccount.accountId,
-                                    publicKey: chainAccount.publicKey,
-                                    name: meta.name,
-                                    cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
-                                    addressPrefix: chain.addressPrefix,
-                                    isEthereumBased: false,
-                                    isChainAccount: true
-                                )
-                            }
-                        }
+                        fetchChainAccountFor(meta: meta, chain: chain, address: address, closure: closure)
                     }
-
-                    closure(.success(response))
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))
                 }
