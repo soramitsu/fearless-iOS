@@ -3,6 +3,7 @@ import RobinHood
 
 protocol PriceProviderFactoryProtocol {
     func getPriceProvider(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData>
+    func getPricesProvider(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]>
 }
 
 class PriceProviderFactory {
@@ -49,6 +50,25 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
         )
 
         providers[identifier] = WeakWrapper(target: provider)
+
+        return AnySingleValueProvider(provider)
+    }
+
+    func getPricesProvider(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]> {
+        let identifier = pricesIds.joined(separator: ",")
+
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
+            storageFacade.createRepository()
+
+        let source = CoingeckoPricesSource(pricesIds: pricesIds)
+
+        let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
+        let provider = SingleValueProvider(
+            targetIdentifier: identifier,
+            source: AnySingleValueProviderSource(source),
+            repository: AnyDataProviderRepository(repository),
+            updateTrigger: trigger
+        )
 
         return AnySingleValueProvider(provider)
     }
