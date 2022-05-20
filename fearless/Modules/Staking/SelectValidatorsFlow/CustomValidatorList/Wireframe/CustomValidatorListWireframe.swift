@@ -24,14 +24,14 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
 
     func presentFilters(
         from view: ControllerBackedProtocol?,
-        filter: CustomValidatorListFilter,
+        flow: ValidatorListFilterFlow,
         delegate: ValidatorListFilterDelegate?,
         asset: AssetModel
     ) {
         guard let filterView = ValidatorListFilterViewFactory
             .createView(
                 asset: asset,
-                with: filter,
+                flow: flow,
                 delegate: delegate
             ) else { return }
 

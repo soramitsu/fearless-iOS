@@ -91,7 +91,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func clearFilter() {
-        viewModelState.updateFilter(CustomValidatorListFilter.defaultFilter())
+        viewModelState.clearFilter()
 
         provideViewModels(viewModelState: viewModelState)
     }
@@ -128,9 +128,13 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentFilter() {
+        guard let flow = viewModelState.validatorListFilterFlow() else {
+            return
+        }
+
         wireframe.presentFilters(
             from: view,
-            filter: viewModelState.filter,
+            flow: flow,
             delegate: self,
             asset: chainAsset.asset
         )
@@ -190,8 +194,8 @@ extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
 // MARK: - ValidatorListFilterDelegate
 
 extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
-    func didUpdate(_ filter: CustomValidatorListFilter) {
-        viewModelState.updateFilter(filter)
+    func didUpdate(with flow: ValidatorListFilterFlow) {
+        viewModelState.updateFilter(with: flow)
         provideViewModels(viewModelState: viewModelState)
     }
 }

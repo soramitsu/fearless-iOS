@@ -1940,6 +1940,9 @@
 		FA93A30A2834FCA10021330F /* ValidatorSearchRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3092834FCA10021330F /* ValidatorSearchRelaychainViewModelState.swift */; };
 		FA93A30C2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A30B2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift */; };
 		FA93A30E2834FCB80021330F /* ValidatorSearchRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A30D2834FCB80021330F /* ValidatorSearchRelaychainViewModelFactory.swift */; };
+		FA93A313283653B70021330F /* ValidatorListFilterFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */; };
+		FA93A3162836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */; };
+		FA93A3182836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */; };
 		FA99420D27FE91DD00D771E5 /* AssetsListChangedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99420C27FE91DD00D771E5 /* AssetsListChangedEvent.swift */; };
 		FA99421C27FE921000D771E5 /* ManageAssetsTableViewCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99421027FE921000D771E5 /* ManageAssetsTableViewCellModel.swift */; };
 		FA99421D27FE921000D771E5 /* ManageAssetsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99421127FE921000D771E5 /* ManageAssetsViewModelFactory.swift */; };
@@ -4005,6 +4008,9 @@
 		FA93A3092834FCA10021330F /* ValidatorSearchRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA93A30B2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FA93A30D2834FCB80021330F /* ValidatorSearchRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterFlow.swift; sourceTree = "<group>"; };
+		FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelState.swift; sourceTree = "<group>"; };
+		FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA99420C27FE91DD00D771E5 /* AssetsListChangedEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetsListChangedEvent.swift; sourceTree = "<group>"; };
 		FA99421027FE921000D771E5 /* ManageAssetsTableViewCellModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageAssetsTableViewCellModel.swift; sourceTree = "<group>"; };
 		FA99421127FE921000D771E5 /* ManageAssetsViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageAssetsViewModelFactory.swift; sourceTree = "<group>"; };
@@ -8251,6 +8257,7 @@
 		AE6F7FD62685E812002BBC3E /* ValidatorListFilter */ = {
 			isa = PBXGroup;
 			children = (
+				FA93A30F283653990021330F /* Flow */,
 				AE6F7FD82685E812002BBC3E /* ValidatorListFilterPresenter.swift */,
 				AE6F7FD92685E812002BBC3E /* ValidatorListFilterProtocols.swift */,
 				AE6F7FDA2685E812002BBC3E /* ValidatorListFilterViewController.swift */,
@@ -10071,6 +10078,24 @@
 			path = Parachain;
 			sourceTree = "<group>";
 		};
+		FA93A30F283653990021330F /* Flow */ = {
+			isa = PBXGroup;
+			children = (
+				FA93A3142836541A0021330F /* Relaychain */,
+				FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */,
+			);
+			path = Flow;
+			sourceTree = "<group>";
+		};
+		FA93A3142836541A0021330F /* Relaychain */ = {
+			isa = PBXGroup;
+			children = (
+				FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */,
+				FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */,
+			);
+			path = Relaychain;
+			sourceTree = "<group>";
+		};
 		FA99420E27FE921000D771E5 /* ManageAssets */ = {
 			isa = PBXGroup;
 			children = (
@@ -10948,6 +10973,7 @@
 				FA256998274CE65100875A53 /* HTTPHeadersBuilderProtocol.swift in Sources */,
 				FA256995274CE65100875A53 /* DashcaseJSONEncoder.swift in Sources */,
 				C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */,
+				FA93A3182836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				842349C52624E98C0066ACFE /* MultiAddress+Query.swift in Sources */,
 				84155DED2539817200A27058 /* ApplicationService.swift in Sources */,
@@ -11858,6 +11884,7 @@
 				849842F426592408006BBB9F /* ActiveCrowdloanTableViewCell.swift in Sources */,
 				501347BEA67CD30FE484358E /* AccountImportViewFactory.swift in Sources */,
 				84EBC55124F660A700459D15 /* EventVisitor.swift in Sources */,
+				FA93A313283653B70021330F /* ValidatorListFilterFlow.swift in Sources */,
 				8454C21D2632A78900657DAD /* EventRecord.swift in Sources */,
 				84C4C2F9255DB9510045B582 /* PinChangeInteractor.swift in Sources */,
 				FAF5E9DE27E46DCC005A3448 /* String+VersionComparsion.swift in Sources */,
@@ -12180,6 +12207,7 @@
 				2E57C70D27E9ED5400AF075A /* ProfileViewModel.swift in Sources */,
 				EC978E6C4FBF39BE9ED10C86 /* SelectValidatorsStartWireframe.swift in Sources */,
 				AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */,
+				FA93A3162836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift in Sources */,
 				FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */,
 				F477CD3A262EE0E7004DF739 /* StakingRewardDetailsViewModelFactory.swift in Sources */,
 				849ABE7C2628116F00011A2A /* NominationsReducer.swift in Sources */,

@@ -29,6 +29,7 @@ protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler 
 
     func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow?
     func validatorSearchFlow() -> ValidatorSearchFlow?
+    func validatorListFilterFlow() -> ValidatorListFilterFlow?
 }
 
 struct CustomValidatorListDependencyContainer {
@@ -55,7 +56,8 @@ protocol CustomValidatorListUserInputHandler {
     func fillWithRecommended()
     func performDeselect()
     func changeValidatorSelection(at index: Int)
-    func updateFilter(_ filter: CustomValidatorListFilter)
+    func updateFilter(with flow: ValidatorListFilterFlow)
+    func clearFilter()
 }
 
 extension CustomValidatorListUserInputHandler {
@@ -64,5 +66,6 @@ extension CustomValidatorListUserInputHandler {
     func fillWithRecommended() {}
     func performDeselect() {}
     func changeValidatorSelection(at _: Int) {}
-    func updateFilter(_: CustomValidatorListFilter) {}
+    func updateFilter(with _: ValidatorListFilterFlow) {}
+    func clearFilter() {}
 }

@@ -39,6 +39,10 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
         .relaychain(validatorList: fullValidatorList, selectedValidatorList: selectedValidatorList.items)
     }
 
+    func validatorListFilterFlow() -> ValidatorListFilterFlow? {
+        .relaychain(filter: filter)
+    }
+
     func performDeselect() {
         guard var viewModel = viewModel else { return }
 
@@ -131,9 +135,18 @@ extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserIn
         self.viewModel = viewModel
     }
 
-    func updateFilter(_ filter: CustomValidatorListFilter) {
-        self.filter = filter
-
+    func clearFilter() {
+        filter = CustomValidatorListFilter.defaultFilter()
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
+    }
+
+    func updateFilter(with flow: ValidatorListFilterFlow) {
+        guard case let ValidatorListFilterFlow.relaychain(updatedFilter) = flow else {
+            return
+        }
+
+        filter = updatedFilter
+
+        filteredValidatorList = composeFilteredValidatorList(filter: updatedFilter)
     }
 }
