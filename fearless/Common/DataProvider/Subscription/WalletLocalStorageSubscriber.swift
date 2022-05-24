@@ -5,7 +5,7 @@ import BigInt
 protocol WalletLocalStorageSubscriber where Self: AnyObject {
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol { get }
 
-    var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler { get }
+    var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler? { get }
 
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
@@ -33,7 +33,7 @@ extension WalletLocalStorageSubscriber {
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
             guard !changes.isEmpty else { return }
             let accountInfo = changes.reduceToLastChange()
-            self?.walletLocalSubscriptionHandler.handleAccountInfo(
+            self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .success(accountInfo?.item),
                 accountId: accountId,
                 chainId: chainId
@@ -41,7 +41,7 @@ extension WalletLocalStorageSubscriber {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.walletLocalSubscriptionHandler.handleAccountInfo(
+            self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .failure(error),
                 accountId: accountId,
                 chainId: chainId
@@ -81,7 +81,7 @@ extension WalletLocalStorageSubscriber {
             let ormlAccountInfo = changes.reduceToLastChange()?.item
 
             let accountInfo = AccountInfo(ormlAccountInfo: ormlAccountInfo)
-            self?.walletLocalSubscriptionHandler.handleAccountInfo(
+            self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .success(accountInfo),
                 accountId: accountId,
                 chainId: chain.chainId
@@ -89,7 +89,7 @@ extension WalletLocalStorageSubscriber {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.walletLocalSubscriptionHandler.handleAccountInfo(
+            self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .failure(error),
                 accountId: accountId,
                 chainId: chain.chainId
@@ -115,5 +115,5 @@ extension WalletLocalStorageSubscriber {
 }
 
 extension WalletLocalStorageSubscriber where Self: WalletLocalSubscriptionHandler {
-    var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler { self }
+    var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler? { self }
 }
