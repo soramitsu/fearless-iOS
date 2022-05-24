@@ -6,11 +6,19 @@ enum CustomValidatorListFlowError {
 
 enum CustomValidatorListFlow {
     case parachain
-    case relaychain(
+    case relaychainInitiated(
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
-        maxTargets: Int
+        maxTargets: Int,
+        bonding: InitiatedBonding
+    )
+    case relaychainExisting(
+        validatorList: [SelectedValidatorInfo],
+        recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
+        maxTargets: Int,
+        bonding: ExistingBonding
     )
 }
 
@@ -30,6 +38,7 @@ protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler 
     func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow?
     func validatorSearchFlow() -> ValidatorSearchFlow?
     func validatorListFilterFlow() -> ValidatorListFilterFlow?
+    func selectedValidatorListFlow() -> SelectedValidatorListFlow?
 }
 
 struct CustomValidatorListDependencyContainer {

@@ -50,15 +50,15 @@ extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterPr
     }
 
     func proceed() {
-        // TODO: Transition with new parameters
+        guard let flow = viewModelState.selectValidatorsConfirmFlow() else {
+            return
+        }
 
-//        wireframe.proceed(
-//            from: view,
-//            targets: validators,
-//            maxTargets: maxTargets,
-//            selectedAccount: selectedAccount,
-//            asset: asset,
-//            chain: chain
-//        )
+        wireframe.proceed(
+            from: view,
+            flow: flow,
+            wallet: wallet,
+            chainAsset: chainAsset
+        )
     }
 }

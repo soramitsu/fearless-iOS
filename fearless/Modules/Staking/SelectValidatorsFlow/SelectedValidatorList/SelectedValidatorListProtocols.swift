@@ -20,14 +20,6 @@ protocol SelectedValidatorListPresenterProtocol: AnyObject {
     func dismiss()
 }
 
-protocol SelectedValidatorListViewModelFactoryProtocol: AnyObject {
-    func createViewModel(
-        from validatorList: [SelectedValidatorInfo],
-        totalValidatorsCount: Int,
-        locale: Locale
-    ) -> SelectedValidatorListViewModel
-}
-
 protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable {
     func present(
         flow: ValidatorInfoFlow,
@@ -37,12 +29,10 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
     )
 
     func proceed(
-        from view: SelectedValidatorListViewProtocol?,
-        targets: [SelectedValidatorInfo],
-        maxTargets: Int,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        from _: SelectedValidatorListViewProtocol?,
+        flow _: SelectValidatorsConfirmFlow,
+        wallet _: MetaAccountModel,
+        chainAsset _: ChainAsset
     )
 
     func dismiss(_ view: ControllerBackedProtocol?)
@@ -50,31 +40,25 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
 
 protocol SelectedValidatorListViewFactoryProtocol {
     static func createInitiatedBondingView(
-        for validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        flow: SelectedValidatorListFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: InitiatedBonding
     ) -> SelectedValidatorListViewProtocol?
 
     static func createChangeTargetsView(
-        for validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        flow: SelectedValidatorListFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol?
 
     static func createChangeYourValidatorsView(
-        for validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        flow: SelectedValidatorListFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         delegate: SelectedValidatorListDelegate,
         with state: ExistingBonding
     ) -> SelectedValidatorListViewProtocol?

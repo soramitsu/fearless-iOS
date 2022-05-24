@@ -23,11 +23,9 @@ class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
 
     func proceed(
         from _: SelectedValidatorListViewProtocol?,
-        targets _: [SelectedValidatorInfo],
-        maxTargets _: Int,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        selectedAccount _: MetaAccountModel
+        flow _: SelectValidatorsConfirmFlow,
+        wallet _: MetaAccountModel,
+        chainAsset _: ChainAsset
     ) {}
 
     func dismiss(_ view: ControllerBackedProtocol?) {

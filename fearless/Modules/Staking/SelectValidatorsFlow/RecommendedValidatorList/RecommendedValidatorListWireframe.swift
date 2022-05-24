@@ -3,11 +3,9 @@ import Foundation
 class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtocol {
     func proceed(
         from _: RecommendedValidatorListViewProtocol?,
-        targets _: [SelectedValidatorInfo],
-        maxTargets _: Int,
-        selectedAccount _: MetaAccountModel,
-        asset _: AssetModel,
-        chain _: ChainModel
+        flow _: SelectValidatorsConfirmFlow,
+        wallet _: MetaAccountModel,
+        chainAsset _: ChainAsset
     ) {}
 
     func present(
@@ -16,7 +14,11 @@ class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtoc
         wallet: MetaAccountModel,
         from view: RecommendedValidatorListViewProtocol?
     ) {
-        guard let validatorInfoView = ValidatorInfoViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: flow) else {
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
+        ) else {
             return
         }
 

@@ -7,19 +7,15 @@ final class InitBondingCustomValidatorListWireframe: CustomValidatorListWirefram
 
     override func proceed(
         from view: ControllerBackedProtocol?,
-        validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
+        flow: SelectedValidatorListFlow,
         delegate: SelectedValidatorListDelegate,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let nextView = SelectedValidatorListViewFactory.createInitiatedBondingView(
-            for: validatorList,
-            maxTargets: maxTargets,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
             delegate: delegate,
             with: state
         )

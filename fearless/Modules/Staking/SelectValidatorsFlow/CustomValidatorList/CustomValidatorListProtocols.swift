@@ -52,12 +52,10 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
 
     func proceed(
         from view: ControllerBackedProtocol?,
-        validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
+        flow: SelectedValidatorListFlow,
         delegate: SelectedValidatorListDelegate,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

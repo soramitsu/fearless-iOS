@@ -13,4 +13,5 @@ struct SelectedValidatorListViewModel {
     var headerViewModel: TitleWithSubtitleViewModel
     var cellViewModels: [SelectedValidatorCellViewModel]
     var limitIsExceeded: Bool
+    let selectedValidatorsLimit: Int
 }

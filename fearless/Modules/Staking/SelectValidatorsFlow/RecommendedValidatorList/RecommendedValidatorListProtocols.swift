@@ -19,12 +19,10 @@ protocol RecommendedValidatorListWireframeProtocol: AnyObject {
     )
 
     func proceed(
-        from view: RecommendedValidatorListViewProtocol?,
-        targets: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel
+        from _: RecommendedValidatorListViewProtocol?,
+        flow _: SelectValidatorsConfirmFlow,
+        wallet _: MetaAccountModel,
+        chainAsset _: ChainAsset
     )
 }
 

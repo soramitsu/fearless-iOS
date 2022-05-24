@@ -3,8 +3,20 @@ import RobinHood
 import SoraFoundation
 
 enum SelectValidatorsStartFlow {
-    case relaychain
+    case relaychainInitiated(state: InitiatedBonding)
+    case relaychainExisting(state: ExistingBonding)
     case parachain
+
+    var phase: SelectValidatorsStartViewController.Phase {
+        switch self {
+        case .relaychainInitiated:
+            return .setup
+        case let .relaychainExisting(state):
+            return state.selectedTargets == nil ? .setup : .update
+        case .parachain:
+            return .setup
+        }
+    }
 }
 
 protocol SelectValidatorsStartModelStateListener: AnyObject {

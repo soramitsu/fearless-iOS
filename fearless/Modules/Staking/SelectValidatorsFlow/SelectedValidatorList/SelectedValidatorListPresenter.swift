@@ -2,49 +2,46 @@ import SoraFoundation
 
 final class SelectedValidatorListPresenter {
     weak var view: SelectedValidatorListViewProtocol?
-    weak var delegate: SelectedValidatorListDelegate?
 
     let wireframe: SelectedValidatorListWireframeProtocol
-    let viewModelFactory: SelectedValidatorListViewModelFactory
-    let maxTargets: Int
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
-
-    private var selectedValidatorList: [SelectedValidatorInfo]
+    let viewModelFactory: SelectedValidatorListViewModelFactoryProtocol
+    let viewModelState: SelectedValidatorListViewModelState
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
 
     init(
         wireframe: SelectedValidatorListWireframeProtocol,
-        viewModelFactory: SelectedValidatorListViewModelFactory,
+        viewModelFactory: SelectedValidatorListViewModelFactoryProtocol,
+        viewModelState: SelectedValidatorListViewModelState,
         localizationManager: LocalizationManagerProtocol,
-        selectedValidatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.selectedValidatorList = selectedValidatorList
-        self.maxTargets = maxTargets
-        self.asset = asset
-        self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.viewModelState = viewModelState
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private functions
 
-    private func createViewModel() -> SelectedValidatorListViewModel {
-        viewModelFactory.createViewModel(
-            from: selectedValidatorList,
-            totalValidatorsCount: maxTargets,
+    private func createViewModel() -> SelectedValidatorListViewModel? {
+        viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
             locale: selectedLocale
         )
     }
 
     private func provideViewModel() {
-        let viewModel = createViewModel()
+        guard let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            locale: selectedLocale
+        ) else {
+            return
+        }
+
         view?.didReload(viewModel)
     }
 }
@@ -53,39 +50,37 @@ final class SelectedValidatorListPresenter {
 
 extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
         provideViewModel()
     }
 
-    func didSelectValidator(at _: Int) {
-        // TODO: Transition with new parameters
-//        let validatorInfo = selectedValidatorList[index]
-//        wireframe.present(
-//            validatorInfo,
-//            asset: asset,
-//            chain: chain,
-//            from: view
-//        )
+    func didSelectValidator(at index: Int) {
+        guard let flow = viewModelState.validatorInfoFlow(validatorIndex: index) else {
+            return
+        }
+
+        wireframe.present(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
     }
 
     func removeItem(at index: Int) {
-        let validator = selectedValidatorList[index]
-
-        selectedValidatorList.remove(at: index)
-
-        let viewModel = createViewModel()
-        view?.didChangeViewModel(viewModel, byRemovingItemAt: index)
-
-        delegate?.didRemove(validator)
+        viewModelState.removeItem(at: index)
     }
 
     func proceed() {
+        guard let flow = viewModelState.selectValidatorsConfirmFlow() else {
+            return
+        }
+
         wireframe.proceed(
             from: view,
-            targets: selectedValidatorList,
-            maxTargets: maxTargets,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            flow: flow,
+            wallet: wallet,
+            chainAsset: chainAsset
         )
     }
 
@@ -102,4 +97,20 @@ extension SelectedValidatorListPresenter: Localizable {
             provideViewModel()
         }
     }
+}
+
+extension SelectedValidatorListPresenter: SelectedValidatorListModelStateListener {
+    func modelStateDidChanged(viewModelState _: SelectedValidatorListViewModelState) {
+        provideViewModel()
+    }
+
+    func validatorRemovedAtIndex(_ index: Int, viewModelState _: SelectedValidatorListViewModelState) {
+        guard let viewModel = createViewModel() else {
+            return
+        }
+
+        view?.didChangeViewModel(viewModel, byRemovingItemAt: index)
+    }
+
+    func didReceiveError(error _: SelectedValidatorListFlowError) {}
 }

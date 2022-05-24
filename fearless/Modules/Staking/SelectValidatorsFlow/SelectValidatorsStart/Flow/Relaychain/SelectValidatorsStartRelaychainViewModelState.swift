@@ -1,5 +1,101 @@
 import Foundation
 
+final class SelectValidatorsStartRelaychainExistingViewModelState: SelectValidatorsStartRelaychainViewModelState {
+    let bonding: ExistingBonding
+
+    init(
+        bonding: ExistingBonding,
+        initialTargets: [SelectedValidatorInfo]?,
+        existingStashAddress: AccountAddress?
+    ) {
+        self.bonding = bonding
+
+        super.init(
+            initialTargets: initialTargets,
+            existingStashAddress: existingStashAddress
+        )
+    }
+
+    override var customValidatorListFlow: CustomValidatorListFlow? {
+        guard let electedValidators = electedValidators,
+              let selectedValidators = selectedValidators,
+              let maxTargets = maxNominations else {
+            return nil
+        }
+
+        let electedValidatorList = electedValidators.values.map { $0.toSelected(for: existingStashAddress) }
+        let recommendedValidatorList = recommendedValidators?.map {
+            $0.toSelected(for: existingStashAddress)
+        } ?? []
+
+        return .relaychainExisting(
+            validatorList: electedValidatorList,
+            recommendedValidatorList: recommendedValidatorList,
+            selectedValidatorList: selectedValidators,
+            maxTargets: maxTargets,
+            bonding: bonding
+        )
+    }
+
+    override var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
+        guard let recommendedValidators = recommendedValidators, let maxTargets = maxNominations else {
+            return nil
+        }
+
+        let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
+
+        return .relaychainExisting(validators: recommendedValidatorList, maxTargets: maxTargets, bonding: bonding)
+    }
+}
+
+final class SelectValidatorsStartRelaychainInitiatedViewModelState: SelectValidatorsStartRelaychainViewModelState {
+    let bonding: InitiatedBonding
+
+    init(
+        bonding: InitiatedBonding,
+        initialTargets: [SelectedValidatorInfo]?,
+        existingStashAddress: AccountAddress?
+    ) {
+        self.bonding = bonding
+
+        super.init(
+            initialTargets: initialTargets,
+            existingStashAddress: existingStashAddress
+        )
+    }
+
+    override var customValidatorListFlow: CustomValidatorListFlow? {
+        guard let electedValidators = electedValidators,
+              let selectedValidators = selectedValidators,
+              let maxTargets = maxNominations else {
+            return nil
+        }
+
+        let electedValidatorList = electedValidators.values.map { $0.toSelected(for: existingStashAddress) }
+        let recommendedValidatorList = recommendedValidators?.map {
+            $0.toSelected(for: existingStashAddress)
+        } ?? []
+
+        return .relaychainInitiated(
+            validatorList: electedValidatorList,
+            recommendedValidatorList: recommendedValidatorList,
+            selectedValidatorList: selectedValidators,
+            maxTargets: maxTargets,
+            bonding: bonding
+        )
+    }
+
+    override var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
+        guard let recommendedValidators = recommendedValidators, let maxTargets = maxNominations else {
+            return nil
+        }
+
+        let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
+
+        return .relaychainInitiated(validators: recommendedValidatorList, maxTargets: maxTargets, bonding: bonding)
+    }
+}
+
 class SelectValidatorsStartRelaychainViewModelState: SelectValidatorsStartViewModelState {
     let initialTargets: [SelectedValidatorInfo]?
     let existingStashAddress: AccountAddress?
@@ -24,31 +120,13 @@ class SelectValidatorsStartRelaychainViewModelState: SelectValidatorsStartViewMo
     }
 
     var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
-        guard let recommendedValidators = recommendedValidators, let maxTargets = maxNominations else {
-            return nil
-        }
-
-        let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
-
-        return .relaychain(validators: recommendedValidatorList, maxTargets: maxTargets)
+        assertionFailure("SelectValidatorsStartRelaychainViewModelState.recommendedValidatorListFlow error: Please use subclass to specify flow")
+        return nil
     }
 
     var customValidatorListFlow: CustomValidatorListFlow? {
-        guard let electedValidators = electedValidators, let selectedValidators = selectedValidators, let maxTargets = maxNominations else {
-            return nil
-        }
-
-        let electedValidatorList = electedValidators.values.map { $0.toSelected(for: existingStashAddress) }
-        let recommendedValidatorList = recommendedValidators?.map {
-            $0.toSelected(for: existingStashAddress)
-        } ?? []
-
-        return .relaychain(
-            validatorList: electedValidatorList,
-            recommendedValidatorList: recommendedValidatorList,
-            selectedValidatorList: selectedValidators,
-            maxTargets: maxTargets
-        )
+        assertionFailure("SelectValidatorsStartRelaychainViewModelState.customValidatorListFlow error: Please use subclass to specify flow")
+        return nil
     }
 
     private func updateSelectedValidatorsIfNeeded() {

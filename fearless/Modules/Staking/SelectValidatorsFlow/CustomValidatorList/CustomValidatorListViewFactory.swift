@@ -60,8 +60,25 @@ extension CustomValidatorListViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .relaychain(validatorList, recommendedValidatorList, selectedValidatorList, maxTargets):
+        case let .relaychainInitiated(validatorList, recommendedValidatorList, selectedValidatorList, maxTargets, bonding):
             let viewModelState = CustomValidatorListRelaychainViewModelState(
+                baseFlow: flow,
+                fullValidatorList: validatorList,
+                recommendedValidatorList: recommendedValidatorList,
+                selectedValidatorList: selectedValidatorList,
+                maxTargets: maxTargets
+            )
+            let strategy = CustomValidatorListRelaychainStrategy()
+            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+
+            return CustomValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .relaychainExisting(validatorList, recommendedValidatorList, selectedValidatorList, maxTargets, bonding):
+            let viewModelState = CustomValidatorListRelaychainViewModelState(
+                baseFlow: flow,
                 fullValidatorList: validatorList,
                 recommendedValidatorList: recommendedValidatorList,
                 selectedValidatorList: selectedValidatorList,

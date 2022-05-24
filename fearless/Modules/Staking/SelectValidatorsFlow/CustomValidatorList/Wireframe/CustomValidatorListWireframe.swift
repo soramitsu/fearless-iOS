@@ -62,11 +62,9 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
 
     func proceed(
         from _: ControllerBackedProtocol?,
-        validatorList _: [SelectedValidatorInfo],
-        maxTargets _: Int,
+        flow _: SelectedValidatorListFlow,
         delegate _: SelectedValidatorListDelegate,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        selectedAccount _: MetaAccountModel
+        chainAsset _: ChainAsset,
+        wallet _: MetaAccountModel
     ) {}
 }

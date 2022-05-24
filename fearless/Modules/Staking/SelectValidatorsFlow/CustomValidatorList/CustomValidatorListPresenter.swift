@@ -154,17 +154,17 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func proceed() {
-        // TODO: transition with new parameters
+        guard let flow = viewModelState.selectedValidatorListFlow() else {
+            return
+        }
 
-//        wireframe.proceed(
-//            from: view,
-//            validatorList: selectedValidatorList.items,
-//            maxTargets: maxTargets,
-//            delegate: self,
-//            chain: chainAsset.chain,
-//            asset: chainAsset.asset,
-//            selectedAccount: wallet
-//        )
+        wireframe.proceed(
+            from: view,
+            flow: flow,
+            delegate: self,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
     }
 }
 

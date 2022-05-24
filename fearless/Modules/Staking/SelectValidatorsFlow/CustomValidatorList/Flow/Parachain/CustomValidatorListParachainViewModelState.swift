@@ -26,6 +26,10 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
         nil
     }
+
+    func selectedValidatorListFlow() -> SelectedValidatorListFlow? {
+        nil
+    }
 }
 
 extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInputHandler {}

@@ -11,6 +11,7 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     let recommendedValidatorList: [SelectedValidatorInfo]
     let selectedValidatorList: SharedList<SelectedValidatorInfo>
     let maxTargets: Int
+    let baseFlow: CustomValidatorListFlow
 
     var filteredValidatorList: [SelectedValidatorInfo] = []
 
@@ -18,11 +19,13 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     var filter: CustomValidatorListFilter = .recommendedFilter()
 
     init(
+        baseFlow: CustomValidatorListFlow,
         fullValidatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: SharedList<SelectedValidatorInfo>,
         maxTargets: Int
     ) {
+        self.baseFlow = baseFlow
         self.fullValidatorList = fullValidatorList
         self.recommendedValidatorList = recommendedValidatorList
         self.selectedValidatorList = selectedValidatorList
@@ -41,6 +44,25 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
         .relaychain(filter: filter)
+    }
+
+    func selectedValidatorListFlow() -> SelectedValidatorListFlow? {
+        switch baseFlow {
+        case .parachain:
+            return nil
+        case let .relaychainInitiated(_, _, _, maxTargets, bonding):
+            return .relaychainInitiated(
+                validatorList: selectedValidatorList.items,
+                maxTargets: maxTargets,
+                state: bonding
+            )
+        case let .relaychainExisting(_, _, _, maxTargets, bonding):
+            return .relaychainExisting(
+                validatorList: selectedValidatorList.items,
+                maxTargets: maxTargets,
+                state: bonding
+            )
+        }
     }
 
     func performDeselect() {

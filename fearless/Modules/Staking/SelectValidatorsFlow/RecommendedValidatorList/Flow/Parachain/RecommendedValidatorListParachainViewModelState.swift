@@ -10,4 +10,8 @@ class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListV
     func validatorInfoFlow(validatorIndex _: Int) -> ValidatorInfoFlow? {
         .parachain
     }
+
+    func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
+        .parachain
+    }
 }

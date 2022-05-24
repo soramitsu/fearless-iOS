@@ -1,7 +1,8 @@
 import Foundation
 
 enum RecommendedValidatorListFlow {
-    case relaychain(validators: [SelectedValidatorInfo], maxTargets: Int)
+    case relaychainInitiated(validators: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
+    case relaychainExisting(validators: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
     case parachain
 }
 
@@ -17,6 +18,7 @@ protocol RecommendedValidatorListViewModelState: RecommendedValidatorListUserInp
     func setStateListener(_ stateListener: RecommendedValidatorListModelStateListener?)
 
     func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow?
+    func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow?
 }
 
 struct RecommendedValidatorListDependencyContainer {

@@ -14,8 +14,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             wallet: wallet,
             chainAsset: chainAsset,
             wireframe: wireframe,
-            existingStashAddress: nil,
-            selectedValidators: nil
+            flow: .relaychainInitiated(state: state)
         )
     }
 
@@ -29,8 +28,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             wallet: wallet,
             chainAsset: chainAsset,
             wireframe: wireframe,
-            existingStashAddress: state.stashAddress,
-            selectedValidators: state.selectedTargets
+            flow: .relaychainExisting(state: state)
         )
     }
 
@@ -44,8 +42,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             wallet: wallet,
             chainAsset: chainAsset,
             wireframe: wireframe,
-            existingStashAddress: state.stashAddress,
-            selectedValidators: state.selectedTargets
+            flow: .relaychainExisting(state: state)
         )
     }
 
@@ -53,13 +50,11 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         wireframe: SelectValidatorsStartWireframeProtocol,
-        existingStashAddress: AccountAddress?,
-        selectedValidators: [SelectedValidatorInfo]?
+        flow: SelectValidatorsStartFlow
     ) -> SelectValidatorsStartViewProtocol? {
         guard let container = createContainer(
-            chainAsset: chainAsset,
-            existingStashAddress: existingStashAddress,
-            selectedValidators: selectedValidators
+            flow: flow,
+            chainAsset: chainAsset
         ) else {
             return nil
         }
@@ -71,8 +66,6 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         let presenter = SelectValidatorsStartPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            existingStashAddress: existingStashAddress,
-            initialTargets: selectedValidators,
             logger: Logger.shared,
             chainAsset: chainAsset,
             wallet: wallet,
@@ -82,7 +75,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
 
         let view = SelectValidatorsStartViewController(
             presenter: presenter,
-            phase: selectedValidators == nil ? .setup : .update,
+            phase: flow.phase,
             localizationManager: LocalizationManager.shared
         )
 
@@ -95,12 +88,9 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     }
 
     private static func createContainer(
-        chainAsset: ChainAsset,
-        existingStashAddress: AccountAddress?,
-        selectedValidators: [SelectedValidatorInfo]?
+        flow: SelectValidatorsStartFlow,
+        chainAsset: ChainAsset
     ) -> SelectValidatorsStartDependencyContainer? {
-        let flow: SelectValidatorsStartFlow = chainAsset.chain.isEthereumBased ? .parachain : .relaychain
-
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
@@ -152,7 +142,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
         switch flow {
-        case .relaychain:
+        case let .relaychainExisting(bonding):
             let operationFactory = RelaychainValidatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
@@ -164,9 +154,37 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 identityOperationFactory: identityOperationFactory
             )
 
-            let viewModelState = SelectValidatorsStartRelaychainViewModelState(
-                initialTargets: selectedValidators,
-                existingStashAddress: existingStashAddress
+            let viewModelState = SelectValidatorsStartRelaychainExistingViewModelState(
+                bonding: bonding,
+                initialTargets: bonding.selectedTargets,
+                existingStashAddress: bonding.stashAddress
+            )
+
+            let strategy = SelectValidatorsStartRelaychainStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
+
+            let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+        case let .relaychainInitiated(bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
+
+            let viewModelState = SelectValidatorsStartRelaychainInitiatedViewModelState(
+                bonding: bonding,
+                initialTargets: nil,
+                existingStashAddress: nil
             )
 
             let strategy = SelectValidatorsStartRelaychainStrategy(

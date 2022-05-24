@@ -79,8 +79,17 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
 
     static func createContainer(flow: RecommendedValidatorListFlow) -> RecommendedValidatorListDependencyContainer? {
         switch flow {
-        case let .relaychain(validators, maxTargets):
-            let viewModelState = RecommendedValidatorListRelaychainViewModelState(validators: validators, maxTargets: maxTargets)
+        case let .relaychainInitiated(validators, maxTargets, bonding):
+            let viewModelState = RecommendedValidatorListRelaychainInitiatedViewModelState(bonding: bonding, validators: validators, maxTargets: maxTargets)
+            let strategy = RecommendedValidatorListRelaychainStrategy()
+            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(iconGenerator: PolkadotIconGenerator())
+            return RecommendedValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .relaychainExisting(validators, maxTargets, bonding):
+            let viewModelState = RecommendedValidatorListRelaychainExistingViewModelState(bonding: bonding, validators: validators, maxTargets: maxTargets)
             let strategy = RecommendedValidatorListRelaychainStrategy()
             let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(iconGenerator: PolkadotIconGenerator())
             return RecommendedValidatorListDependencyContainer(

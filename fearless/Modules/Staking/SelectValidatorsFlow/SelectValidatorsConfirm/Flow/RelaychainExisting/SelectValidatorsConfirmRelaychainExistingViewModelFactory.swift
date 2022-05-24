@@ -1,14 +1,37 @@
 import Foundation
 import FearlessUtils
-import CommonWallet
 import SoraFoundation
 
-final class SelectValidatorsConfirmViewModelFactory {
+final class SelectValidatorsConfirmRelaychainExistingViewModelFactory {
+    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
+        self.balanceViewModelFactory = balanceViewModelFactory
+    }
+
     private lazy var iconGenerator = PolkadotIconGenerator()
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+}
 
-    func createHints(from duration: StakingDuration) -> LocalizableResource<[TitleIconViewModel]> {
-        LocalizableResource { locale in
+extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
+    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
+            return nil
+        }
+
+        return balanceViewModelFactory.createAssetBalanceViewModel(
+            viewModelState.confirmationModel?.amount ?? 0,
+            balance: viewModelState.balance,
+            priceData: priceData
+        )
+    }
+
+    func buildHintsViewModel(viewModelState: SelectValidatorsConfirmViewModelState) -> LocalizableResource<[TitleIconViewModel]>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
+              let duration = viewModelState.stakingDuration else {
+            return nil
+        }
+
+        return LocalizableResource { locale in
             let eraDurationString = R.string.localizable.commonHoursFormat(
                 format: duration.era.hoursFromSeconds,
                 preferredLanguages: locale.rLanguages
@@ -50,8 +73,11 @@ final class SelectValidatorsConfirmViewModelFactory {
         }
     }
 
-    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: AssetModel) throws
-        -> LocalizableResource<SelectValidatorsConfirmViewModel> {
+    func buildViewModel(viewModelState: SelectValidatorsConfirmViewModelState, asset: AssetModel) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
+            return nil
+        }
+
         let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
@@ -79,5 +105,13 @@ final class SelectValidatorsConfirmViewModelFactory {
                 maxValidatorCount: state.maxTargets
             )
         }
+    }
+
+    func buildFeeViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let fee = viewModelState.fee else {
+            return nil
+        }
+
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 }
