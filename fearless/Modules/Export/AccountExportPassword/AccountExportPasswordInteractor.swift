@@ -72,11 +72,10 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
     }
 
     func exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel) {
-        fetchChainAccount(
+        fetchChainAccountFor(
+            meta: wallet,
             chain: chain,
-            address: address,
-            from: accountRepository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):

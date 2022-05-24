@@ -127,7 +127,7 @@ extension AccountFetching {
                     name: meta.name,
                     cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                     addressPrefix: chain.addressPrefix,
-                    isEthereumBased: false,
+                    isEthereumBased: chainAccount.ethereumBased,
                     isChainAccount: true
                 )
                 closure(.success(account))
