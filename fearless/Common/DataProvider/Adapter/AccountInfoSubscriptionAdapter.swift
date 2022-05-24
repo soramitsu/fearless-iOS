@@ -9,7 +9,7 @@ protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
     )
 }
 
-protocol AccountInfoSubscriptionAdapterProtocol {
+protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
     func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?)
     func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?)
 

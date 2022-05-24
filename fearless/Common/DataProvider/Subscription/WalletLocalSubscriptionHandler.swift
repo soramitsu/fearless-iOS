@@ -1,6 +1,6 @@
 import Foundation
 
-protocol WalletLocalSubscriptionHandler {
+protocol WalletLocalSubscriptionHandler: AnyObject {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
