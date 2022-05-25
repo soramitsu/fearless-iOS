@@ -210,6 +210,18 @@ enum ChainOptions: String, Codable {
     case testnet
     case crowdloans
     case orml
+
+    case unsupported
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        if let options = ChainOptions(rawValue: rawValue) {
+            self = options
+        } else {
+            self = .unsupported
+        }
+    }
 }
 
 extension ChainModel {
