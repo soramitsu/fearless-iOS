@@ -6,6 +6,8 @@ protocol WalletSendConfirmViewModelFactoryProtocol {
         senderAccountViewModel: AccountViewModel?,
         receiverAccountViewModel: AccountViewModel?,
         assetBalanceViewModel: AssetBalanceViewModelProtocol?,
+        tipRequired: Bool,
+        tipViewModel: BalanceViewModelProtocol?,
         feeViewModel: BalanceViewModelProtocol?,
         locale: Locale
     ) -> WalletSendConfirmViewModel
@@ -25,6 +27,8 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
         senderAccountViewModel: AccountViewModel?,
         receiverAccountViewModel: AccountViewModel?,
         assetBalanceViewModel: AssetBalanceViewModelProtocol?,
+        tipRequired: Bool,
+        tipViewModel: BalanceViewModelProtocol?,
         feeViewModel: BalanceViewModelProtocol?,
         locale: Locale
     ) -> WalletSendConfirmViewModel {
@@ -36,6 +40,8 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
             senderAccountViewModel: senderAccountViewModel,
             receiverAccountViewModel: receiverAccountViewModel,
             assetBalanceViewModel: assetBalanceViewModel,
+            tipRequired: tipRequired,
+            tipViewModel: tipViewModel,
             feeViewModel: feeViewModel
         )
     }

@@ -19,6 +19,7 @@ final class WalletSendViewLayout: UIView {
 
     let addressView = UIFactory.default.createAccountView(for: .options, filled: false)
     let amountView = UIFactory.default.createAmountInputView(filled: false)
+    let tipView = UIFactory.default.createNetworkFeeView()
     let feeView = UIFactory.default.createNetworkFeeView()
 
     let actionButton: TriangularedButton = {
@@ -67,28 +68,36 @@ final class WalletSendViewLayout: UIView {
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: addressView)
         contentView.stackView.addArrangedSubview(amountView)
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
+        contentView.stackView.addArrangedSubview(tipView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: tipView)
         contentView.stackView.addArrangedSubview(feeView)
 
+        let viewOffset = -2.0 * UIConstants.horizontalInset
+
         addressView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(UIConstants.triangularedViewHeight)
         }
 
         amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(UIConstants.amountViewHeight)
         }
 
         feeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(UIConstants.cellHeight)
         }
 
-        addSubview(actionButton)
-        actionButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            make.height.equalTo(UIConstants.actionHeight)
+        tipView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        addSubview(actionButton) {
+            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            $0.height.equalTo(UIConstants.actionHeight)
         }
 
         contentView.scrollBottomOffset = 2 * UIConstants.horizontalInset + UIConstants.actionHeight
@@ -127,11 +136,17 @@ final class WalletSendViewLayout: UIView {
         assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
     }
 
+    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
+        tipView.bind(viewModel: tipViewModel)
+        tipView.isHidden = !isRequired
+    }
+
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
     }
 
     private func applyLocalization() {
+        tipView.titleLabel.text = "Tip" // TODO: Localizable
         feeView.locale = locale
 
         amountView.title = R.string.localizable
