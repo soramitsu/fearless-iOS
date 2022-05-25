@@ -22,6 +22,7 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'keccak.c'
   pod 'Charts'
+  pod 'X-Networking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/master/AppCommonNetworking/commonNetworking/X-Networking.podspec'
 
   target 'fearlessTests' do
     inherit! :search_paths
