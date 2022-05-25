@@ -33,7 +33,7 @@ final class NetworkFeeConfirmView: UIView {
     }
 
     private func applyLocalization() {
-        tipView.titleLabel.text = "Tip" // TODO: Localizable
+        tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
         networkFeeView.locale = locale
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)

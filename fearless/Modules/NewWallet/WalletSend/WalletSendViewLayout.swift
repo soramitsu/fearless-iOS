@@ -146,7 +146,7 @@ final class WalletSendViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        tipView.titleLabel.text = "Tip" // TODO: Localizable
+        tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
         feeView.locale = locale
 
         amountView.title = R.string.localizable
