@@ -31,7 +31,11 @@ final class TransferConfirmViewModelFactory {
 
         guard price > 0.0 else { return nil }
 
-        return PriceData(price: price.stringWithPointSeparator, fiatDayChange: nil)
+        return PriceData(
+            priceId: "",
+            price: price.stringWithPointSeparator,
+            fiatDayChange: nil
+        )
     }
 
     func populateFee(

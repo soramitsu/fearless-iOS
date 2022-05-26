@@ -108,11 +108,10 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
             return
         }
 
-        fetchChainAccount(
+        fetchChainAccountFor(
+            meta: flow.wallet,
             chain: chainAccount.chain,
-            address: address,
-            from: repository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):
