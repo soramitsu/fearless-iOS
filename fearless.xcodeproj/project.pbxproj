@@ -20,6 +20,7 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		079EDB9328349E0100744C70 /* CoingeckoPricesSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079EDB9228349E0100744C70 /* CoingeckoPricesSource.swift */; };
 		07A93B0E28238627005A1E0D /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B0828238627005A1E0D /* UserDataModel.xcdatamodeld */; };
 		07A93B1028239D65005A1E0D /* ShimmeredLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B0F28239D64005A1E0D /* ShimmeredLabel.swift */; };
 		07A93B1228239D8E005A1E0D /* ShimmeredProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B1128239D8E005A1E0D /* ShimmeredProtocol.swift */; };
@@ -2025,6 +2026,7 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		079EDB9228349E0100744C70 /* CoingeckoPricesSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPricesSource.swift; sourceTree = "<group>"; };
 		07A93B0928238627005A1E0D /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
 		07A93B0A28238627005A1E0D /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
 		07A93B0B28238627005A1E0D /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
@@ -5752,6 +5754,7 @@
 				843F657026584D2C00829C14 /* JsonSingleProviderSource.swift */,
 				F4C086C626D1159E00716AEC /* SubqueryEraStakersInfoSource.swift */,
 				AEAC68FD26EA3C2A00346599 /* CoingeckoPriceSource.swift */,
+				079EDB9228349E0100744C70 /* CoingeckoPricesSource.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -11293,6 +11296,7 @@
 				8472C601265D7A1F00E2481B /* WebSocketProviderSource.swift in Sources */,
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
+				079EDB9328349E0100744C70 /* CoingeckoPricesSource.swift in Sources */,
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,

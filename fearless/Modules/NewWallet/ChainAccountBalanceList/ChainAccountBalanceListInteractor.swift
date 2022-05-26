@@ -19,7 +19,7 @@ final class ChainAccountBalanceListInteractor {
 
     private var chains: [ChainModel]?
 
-    private var priceProviders: [AnySingleValueProvider<PriceData>]?
+    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var fiatInfoProvider: AnySingleValueProvider<[Currency]>?
     private lazy var currency: Currency = {
         selectedMetaAccount.selectedCurrency
@@ -75,33 +75,23 @@ final class ChainAccountBalanceListInteractor {
     }
 
     private func subscribeToPrice(for chains: [ChainModel]) {
-        var providers: [AnySingleValueProvider<PriceData>] = []
-
-        guard priceProviders == nil else {
-            priceProviders?.forEach { $0.refresh() }
-            return
-        }
-
+        var pricesIds: [AssetModel.PriceId] = []
         for chain in chains {
             for asset in chain.assets {
-                if
-                    let priceId = asset.asset.priceId,
-                    let dataProvider = subscribeToPrice(for: priceId) {
-                    providers.append(dataProvider)
+                if let priceId = asset.asset.priceId {
+                    pricesIds.append(priceId)
                 } else {
-                    presenter?.didReceivePriceData(result: .success(nil), for: asset.asset.id)
+                    presenter?.didReceiveAssetIdWithoutPriceId(asset.asset.id)
                 }
             }
         }
 
-        priceProviders = providers
+        pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
         accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
     }
-
-    private func refreshChain(_: ChainModel) {}
 
     private func replaceAccountInfoSubscriptionAdapter() {
         if let account = SelectedWalletSettings.shared.value {
@@ -164,44 +154,39 @@ final class ChainAccountBalanceListInteractor {
 
         operationQueue.addOperation(operation)
     }
-
-    private func updatePrices() {
-        priceProviders?.forEach { $0.refresh() }
-    }
 }
 
 extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+    func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
-        case let .success(priceData):
-            updatePrice(with: priceData, priceId: priceId)
+        case let .success(prices):
+            updatePrices(with: prices)
         case .failure:
-            updatePrice(with: nil, priceId: priceId)
+            break
         }
-
-        presenter?.didReceivePriceData(result: result, for: priceId)
+        presenter?.didReceivePricesData(result: result)
     }
 
-    private func updatePrice(
-        with priceData: PriceData?,
-        priceId: AssetModel.PriceId
-    ) {
-        let chainAsset = chains?
-            .compactMap { Array($0.assets) }
-            .reduce([], +)
-            .first(where: { $0?.asset.priceId == priceId })
-        if let asset = chainAsset?.asset {
-            let price = priceData?.price ?? ""
-            let updatedAsset = asset.replacingPrice(Decimal(string: price))
+    private func updatePrices(with priceData: [PriceData]) {
+        let updatedAssets = priceData.compactMap { priceData -> AssetModel? in
+            let chainAsset = chains?
+                .compactMap { Array($0.assets) }
+                .reduce([], +)
+                .first(where: { $0?.asset.priceId == priceData.priceId })
 
-            let saveOperation = assetRepository.saveOperation {
-                [updatedAsset]
-            } _: {
-                []
+            guard let asset = chainAsset?.asset else {
+                return nil
             }
-
-            operationQueue.addOperation(saveOperation)
+            return asset.replacingPrice(Decimal(string: priceData.price))
         }
+
+        let saveOperation = assetRepository.saveOperation {
+            updatedAssets
+        } _: {
+            []
+        }
+
+        operationQueue.addOperation(saveOperation)
     }
 }
 
@@ -256,7 +241,7 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
             currency = event.account.selectedCurrency
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
             presenter?.didRecieveSelectedCurrency(currency)
-            priceProviders = nil
+            pricesProvider = nil
             refresh()
         }
     }
