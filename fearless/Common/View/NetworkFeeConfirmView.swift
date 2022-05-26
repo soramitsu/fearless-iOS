@@ -40,6 +40,7 @@ final class NetworkFeeConfirmView: UIView {
     }
 
     private func setupLayout() {
+        tipView.isHidden = true // by default, because this view is being used among other screens but send confirmatio
         addSubview(tipView) {
             $0.top.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
