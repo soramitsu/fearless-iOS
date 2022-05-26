@@ -62,6 +62,16 @@ final class WalletSendInteractor: RuntimeConstantFetching {
         ) { [weak self] (result: Result<BigUInt, Error>) in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
+
+        if chain.isTipRequired {
+            fetchConstant(
+                for: .defaultTip,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Result<BigUInt, Error>) in
+                self?.presenter?.didReceiveTip(result: result)
+            }
+        }
     }
 
     private func subscribeToAccountInfo() {
@@ -92,14 +102,20 @@ final class WalletSendInteractor: RuntimeConstantFetching {
 }
 
 extension WalletSendInteractor: WalletSendInteractorInputProtocol {
-    func estimateFee(for amount: BigUInt) {
+    func estimateFee(for amount: BigUInt, tip: BigUInt?) {
         guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
 
         let call = callFactory.transfer(to: accountId, amount: amount, currencyId: chain.currencyId, chain: chain)
-        let identifier = String(amount)
+        var identifier = String(amount)
+        if let tip = tip {
+            identifier += "_\(String(tip))"
+        }
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
-            let nextBuilder = try builder.adding(call: call)
+            var nextBuilder = try builder.adding(call: call)
+            if let tip = tip {
+                nextBuilder = builder.with(tip: tip)
+            }
             return nextBuilder
         }
     }

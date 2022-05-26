@@ -52,21 +52,24 @@ final class WalletSendViewController: UIViewController, ViewHolder {
     }
 
     private func applyState(_ state: WalletSendViewState) {
+        self.state = state
+
         switch state {
         case .loading:
             break
-        case let .loaded(walletSendViewModel):
-            if let accountViewModel = walletSendViewModel.accountViewModel {
+        case let .loaded(model):
+            if let accountViewModel = model.accountViewModel {
                 rootView.bind(accountViewModel: accountViewModel)
             }
 
-            rootView.bind(feeViewModel: walletSendViewModel.feeViewModel)
+            rootView.bind(feeViewModel: model.feeViewModel)
+            rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
 
-            if let assetViewModel = walletSendViewModel.assetBalanceViewModel {
+            if let assetViewModel = model.assetBalanceViewModel {
                 rootView.bind(assetViewModel: assetViewModel)
             }
 
-            if let amountViewModel = walletSendViewModel.amountInputViewModel {
+            if let amountViewModel = model.amountInputViewModel {
                 amountViewModel.observable.remove(observer: self)
                 amountViewModel.observable.add(observer: self)
                 rootView.amountView.fieldText = amountViewModel.displayAmount
@@ -97,8 +100,6 @@ extension WalletSendViewController: WalletSendViewProtocol {
     }
 
     func didReceive(state: WalletSendViewState) {
-        self.state = state
-
         applyState(state)
     }
 
@@ -108,6 +109,10 @@ extension WalletSendViewController: WalletSendViewProtocol {
     }
 
     func didStopFeeCalculation() {
+        updateActionButton()
+    }
+
+    func didStopTipCalculation() {
         updateActionButton()
     }
 }
