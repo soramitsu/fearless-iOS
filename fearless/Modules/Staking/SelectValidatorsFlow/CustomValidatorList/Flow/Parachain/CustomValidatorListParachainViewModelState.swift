@@ -22,7 +22,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
         filteredValidatorList = candidates
     }
 
-    var filter: CustomValidatorListFilter = .recommendedFilter()
+    var filter: CustomValidatorRelaychainListFilter = .recommendedFilter()
 
     var viewModel: CustomValidatorListViewModel?
 
@@ -41,7 +41,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     }
 
     func validatorSearchFlow() -> ValidatorSearchFlow? {
-        .parachain(validatorList: candidates, selectedValidatorList: selectedValidatorList.items)
+        .parachain(validatorList: candidates, selectedValidatorList: selectedValidatorList.items, delegate: self)
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
@@ -54,3 +54,11 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
 }
 
 extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInputHandler {}
+
+extension CustomValidatorListParachainViewModelState: ValidatorSearchParachainDelegate {
+    func validatorSearchDidUpdate(selectedValidatorList: [ParachainStakingCandidateInfo]) {
+        self.selectedValidatorList.set(selectedValidatorList)
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+}

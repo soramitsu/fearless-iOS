@@ -16,7 +16,7 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     var filteredValidatorList: [SelectedValidatorInfo] = []
 
     var viewModel: CustomValidatorListViewModel?
-    var filter: CustomValidatorListFilter = .recommendedFilter()
+    var filter: CustomValidatorRelaychainListFilter = .recommendedFilter()
 
     init(
         baseFlow: CustomValidatorListFlow,
@@ -39,7 +39,7 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     }
 
     func validatorSearchFlow() -> ValidatorSearchFlow? {
-        .relaychain(validatorList: fullValidatorList, selectedValidatorList: selectedValidatorList.items)
+        .relaychain(validatorList: fullValidatorList, selectedValidatorList: selectedValidatorList.items, delegate: self)
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
@@ -118,8 +118,8 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
         stateListener?.viewModelChanged(viewModel, at: [index])
     }
 
-    func composeFilteredValidatorList(filter: CustomValidatorListFilter) -> [SelectedValidatorInfo] {
-        let composer = CustomValidatorListComposer(filter: filter)
+    func composeFilteredValidatorList(filter: CustomValidatorRelaychainListFilter) -> [SelectedValidatorInfo] {
+        let composer = CustomValidatorRelaychainListComposer(filter: filter)
         return composer.compose(from: fullValidatorList)
     }
 }
@@ -133,12 +133,6 @@ extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserIn
 
             stateListener?.modelStateDidChanged(viewModelState: self)
         }
-    }
-
-    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo]) {
-        self.selectedValidatorList.set(selectedValidatorList)
-
-        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func fillWithRecommended() {
@@ -158,7 +152,7 @@ extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserIn
     }
 
     func clearFilter() {
-        filter = CustomValidatorListFilter.defaultFilter()
+        filter = CustomValidatorRelaychainListFilter.defaultFilter()
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
     }
 
@@ -170,5 +164,13 @@ extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserIn
         filter = updatedFilter
 
         filteredValidatorList = composeFilteredValidatorList(filter: updatedFilter)
+    }
+}
+
+extension CustomValidatorListRelaychainViewModelState: ValidatorSearchRelaychainDelegate {
+    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo]) {
+        self.selectedValidatorList.set(selectedValidatorList)
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }

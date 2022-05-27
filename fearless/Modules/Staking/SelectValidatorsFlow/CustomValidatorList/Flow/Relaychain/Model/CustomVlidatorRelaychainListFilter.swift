@@ -1,4 +1,4 @@
-struct CustomValidatorListFilter: Equatable {
+struct CustomValidatorRelaychainListFilter: Equatable {
     enum ValidatorClusterLimit: Equatable {
         case unlimited
         case limited(amount: Int)
@@ -30,8 +30,8 @@ struct CustomValidatorListFilter: Equatable {
         self.sortedBy = sortedBy
     }
 
-    static func recommendedFilter() -> CustomValidatorListFilter {
-        CustomValidatorListFilter(
+    static func recommendedFilter() -> CustomValidatorRelaychainListFilter {
+        CustomValidatorRelaychainListFilter(
             allowsNoIdentity: false,
             allowsSlashed: false,
             allowsOversubscribed: false,
@@ -39,8 +39,8 @@ struct CustomValidatorListFilter: Equatable {
         )
     }
 
-    static func defaultFilter() -> CustomValidatorListFilter {
-        CustomValidatorListFilter(
+    static func defaultFilter() -> CustomValidatorRelaychainListFilter {
+        CustomValidatorRelaychainListFilter(
             allowsNoIdentity: true,
             allowsSlashed: true,
             allowsOversubscribed: true,
@@ -48,7 +48,7 @@ struct CustomValidatorListFilter: Equatable {
         )
     }
 
-    static func == (lhs: CustomValidatorListFilter, rhs: CustomValidatorListFilter) -> Bool {
+    static func == (lhs: CustomValidatorRelaychainListFilter, rhs: CustomValidatorRelaychainListFilter) -> Bool {
         lhs.allowsNoIdentity == rhs.allowsNoIdentity &&
             lhs.allowsSlashed == rhs.allowsSlashed &&
             lhs.allowsOversubscribed == rhs.allowsOversubscribed &&

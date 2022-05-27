@@ -46,7 +46,6 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
     func presentSearch(
         from view: ControllerBackedProtocol?,
         flow: ValidatorSearchFlow,
-        delegate: ValidatorSearchDelegate?,
         chainAsset: ChainAsset
     )
 

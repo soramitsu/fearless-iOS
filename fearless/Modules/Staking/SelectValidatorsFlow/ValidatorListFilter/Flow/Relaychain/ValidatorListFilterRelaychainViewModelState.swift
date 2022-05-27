@@ -7,10 +7,10 @@ final class ValidatorListFilterRelaychainViewModelState: ValidatorListFilterView
         self.stateListener = stateListener
     }
 
-    let initialFilter: CustomValidatorListFilter
-    private(set) var currentFilter: CustomValidatorListFilter
+    let initialFilter: CustomValidatorRelaychainListFilter
+    private(set) var currentFilter: CustomValidatorRelaychainListFilter
 
-    init(filter: CustomValidatorListFilter) {
+    init(filter: CustomValidatorRelaychainListFilter) {
         initialFilter = filter
         currentFilter = filter
     }
@@ -53,7 +53,7 @@ extension ValidatorListFilterRelaychainViewModelState: ValidatorListFilterUserIn
     }
 
     func resetFilter() {
-        currentFilter = CustomValidatorListFilter.recommendedFilter()
+        currentFilter = CustomValidatorRelaychainListFilter.recommendedFilter()
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }

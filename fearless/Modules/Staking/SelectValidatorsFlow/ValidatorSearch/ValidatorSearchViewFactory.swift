@@ -4,7 +4,7 @@ import RobinHood
 import FearlessUtils
 
 struct ValidatorSearchViewFactory {
-    private static func createContainer(flow: ValidatorSearchFlow, delegate _: ValidatorSearchDelegate?, chainAsset: ChainAsset) -> ValidatorSearchDependencyContainer? {
+    private static func createContainer(flow: ValidatorSearchFlow, chainAsset: ChainAsset) -> ValidatorSearchDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -29,13 +29,40 @@ struct ValidatorSearchViewFactory {
         )
 
         switch flow {
-        case let .relaychain(validatorList, selectedValidatorList):
-            let viewModelState = ValidatorSearchRelaychainViewModelState(fullValidatorList: validatorList, selectedValidatorList: selectedValidatorList)
-            let strategy = ValidatorSearchRelaychainStrategy(validatorOperationFactory: validatorOperationFactory, operationManager: OperationManagerFacade.sharedManager, output: viewModelState)
+        case let .relaychain(validatorList, selectedValidatorList, delegate):
+            let viewModelState = ValidatorSearchRelaychainViewModelState(
+                fullValidatorList: validatorList,
+                selectedValidatorList: selectedValidatorList,
+                delegate: delegate
+            )
+            let strategy = ValidatorSearchRelaychainStrategy(
+                validatorOperationFactory: validatorOperationFactory,
+                operationManager: OperationManagerFacade.sharedManager,
+                output: viewModelState
+            )
             let viewModelFactory = ValidatorSearchRelaychainViewModelFactory()
-            return ValidatorSearchDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
-        case .parachain:
-            return nil
+            return ValidatorSearchDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .parachain(validatorList, selectedValidatorList, delegate):
+            let viewModelState = ValidatorSearchParachainViewModelState(
+                fullValidatorList: validatorList,
+                selectedValidatorList: selectedValidatorList,
+                delegate: delegate
+            )
+            let strategy = ValidatorSearchParachainStrategy(
+                validatorOperationFactory: validatorOperationFactory,
+                operationManager: OperationManagerFacade.sharedManager,
+                output: viewModelState
+            )
+            let viewModelFactory = ValidatorSearchParachainViewModelFactory()
+            return ValidatorSearchDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }
@@ -43,10 +70,9 @@ struct ValidatorSearchViewFactory {
 extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
     static func createView(
         chainAsset: ChainAsset,
-        flow: ValidatorSearchFlow,
-        delegate: ValidatorSearchDelegate?
+        flow: ValidatorSearchFlow
     ) -> ValidatorSearchViewProtocol? {
-        guard let container = createContainer(flow: flow, delegate: delegate, chainAsset: chainAsset) else {
+        guard let container = createContainer(flow: flow, chainAsset: chainAsset) else {
             return nil
         }
 
@@ -63,7 +89,6 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
             chainAsset: chainAsset
         )
 
-        presenter.delegate = delegate
         interactor.presenter = presenter
 
         let view = ValidatorSearchViewController(

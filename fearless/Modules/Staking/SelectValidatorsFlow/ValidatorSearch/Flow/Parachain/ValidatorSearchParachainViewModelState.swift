@@ -12,16 +12,19 @@ final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelStat
     let referenceValidatorList: [ParachainStakingCandidateInfo]
     var filteredValidatorList: [ParachainStakingCandidateInfo] = []
     private var viewModel: ValidatorSearchViewModel?
+    weak var delegate: ValidatorSearchParachainDelegate?
 
     var searchString: String = ""
 
     init(
         fullValidatorList: [ParachainStakingCandidateInfo],
-        selectedValidatorList: [ParachainStakingCandidateInfo]
+        selectedValidatorList: [ParachainStakingCandidateInfo],
+        delegate: ValidatorSearchParachainDelegate?
     ) {
         self.fullValidatorList = fullValidatorList
         self.selectedValidatorList = selectedValidatorList
         referenceValidatorList = selectedValidatorList
+        self.delegate = delegate
     }
 
     func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
@@ -91,9 +94,13 @@ final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelStat
         filteredValidatorList = []
         viewModel = nil
     }
+
+    func applyChanges() {
+        delegate?.validatorSearchDidUpdate(selectedValidatorList: selectedValidatorList)
+    }
 }
 
-extension ValidatorSearchParachainViewModelState: ValidatorSearchRelaychainStrategyOutput {
+extension ValidatorSearchParachainViewModelState: ValidatorSearchParachainStrategyOutput {
     func didReceiveValidatorInfo(_ validatorInfo: ParachainStakingCandidateInfo?) {
         stateListener?.didStopLoading()
 

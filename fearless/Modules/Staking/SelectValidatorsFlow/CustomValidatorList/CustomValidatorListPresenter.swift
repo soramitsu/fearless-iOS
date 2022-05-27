@@ -38,7 +38,7 @@ final class CustomValidatorListPresenter {
     // MARK: - Private functions
 
     private func provideFilterButtonViewModel() {
-        let emptyFilter = CustomValidatorListFilter.defaultFilter()
+        let emptyFilter = CustomValidatorRelaychainListFilter.defaultFilter()
         let appliedState = viewModelState.filter != emptyFilter
 
         view?.setFilterAppliedState(to: appliedState)
@@ -148,7 +148,6 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         wireframe.presentSearch(
             from: view,
             flow: flow,
-            delegate: self,
             chainAsset: chainAsset
         )
     }
@@ -197,14 +196,6 @@ extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
     func didUpdate(with flow: ValidatorListFilterFlow) {
         viewModelState.updateFilter(with: flow)
         provideViewModels(viewModelState: viewModelState)
-    }
-}
-
-// MARK: - ValidatorSearchDelegate
-
-extension CustomValidatorListPresenter: ValidatorSearchDelegate {
-    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo]) {
-        viewModelState.validatorSearchDidUpdate(selectedValidatorList: selectedValidatorList)
     }
 }
 

@@ -11,8 +11,12 @@ protocol ValidatorSearchWireframeProtocol: AlertPresentable {
     func close(_ view: ControllerBackedProtocol?)
 }
 
-protocol ValidatorSearchDelegate: AnyObject {
+protocol ValidatorSearchRelaychainDelegate: AnyObject {
     func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])
+}
+
+protocol ValidatorSearchParachainDelegate: AnyObject {
+    func validatorSearchDidUpdate(selectedValidatorList: [ParachainStakingCandidateInfo])
 }
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
@@ -39,8 +43,7 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
         chainAsset: ChainAsset,
-        flow: ValidatorSearchFlow,
-        delegate: ValidatorSearchDelegate?
+        flow: ValidatorSearchFlow
     ) -> ValidatorSearchViewProtocol?
 }
 

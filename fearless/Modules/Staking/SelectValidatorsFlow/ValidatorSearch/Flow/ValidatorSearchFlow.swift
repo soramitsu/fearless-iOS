@@ -5,8 +5,17 @@ enum ValidatorSearchError: Error {
 }
 
 enum ValidatorSearchFlow {
-    case relaychain(validatorList: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])
-    case parachain(validatorList: [ParachainStakingCandidateInfo], selectedValidatorList: [ParachainStakingCandidateInfo])
+    case relaychain(
+        validatorList: [SelectedValidatorInfo],
+        selectedValidatorList: [SelectedValidatorInfo],
+        delegate: ValidatorSearchRelaychainDelegate
+    )
+
+    case parachain(
+        validatorList: [ParachainStakingCandidateInfo],
+        selectedValidatorList: [ParachainStakingCandidateInfo],
+        delegate: ValidatorSearchParachainDelegate
+    )
 }
 
 protocol ValidatorSearchModelStateListener: AnyObject {
@@ -52,10 +61,12 @@ protocol ValidatorSearchUserInputHandler {
     func performFullAddressSearch(by address: AccountAddress, accountId: AccountId)
     func performSearch()
     func changeValidatorSelection(at index: Int)
+    func applyChanges()
 }
 
 extension ValidatorSearchUserInputHandler {
     func performFullAddressSearch(by _: AccountAddress, accountId _: AccountId) {}
     func performSearch() {}
     func changeValidatorSelection(at _: Int) {}
+    func applyChanges() {}
 }

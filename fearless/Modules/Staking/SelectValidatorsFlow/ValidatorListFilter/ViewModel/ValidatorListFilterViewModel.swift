@@ -68,7 +68,7 @@ enum ValidatorListSortRow: Int, CaseIterable {
     case totalStake
     case ownStake
 
-    var sortCriterion: CustomValidatorListFilter.CustomValidatorListSort {
+    var sortCriterion: CustomValidatorRelaychainListFilter.CustomValidatorListSort {
         switch self {
         case .estimatedReward:
             return .estimatedReward

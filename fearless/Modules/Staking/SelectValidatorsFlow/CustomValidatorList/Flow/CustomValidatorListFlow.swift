@@ -35,7 +35,7 @@ protocol CustomValidatorListModelStateListener: AnyObject {
 
 protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler {
     var stateListener: CustomValidatorListModelStateListener? { get set }
-    var filter: CustomValidatorListFilter { get set }
+    var filter: CustomValidatorRelaychainListFilter { get set }
 
     func setStateListener(_ stateListener: CustomValidatorListModelStateListener?)
     func updateViewModel(_ viewModel: CustomValidatorListViewModel)
@@ -66,7 +66,6 @@ protocol CustomValidatorListStrategy {
 
 protocol CustomValidatorListUserInputHandler {
     func remove(validator: SelectedValidatorInfo)
-    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])
     func fillWithRecommended()
     func performDeselect()
     func changeValidatorSelection(at index: Int)
@@ -76,7 +75,6 @@ protocol CustomValidatorListUserInputHandler {
 
 extension CustomValidatorListUserInputHandler {
     func remove(validator _: SelectedValidatorInfo) {}
-    func validatorSearchDidUpdate(selectedValidatorList _: [SelectedValidatorInfo]) {}
     func fillWithRecommended() {}
     func performDeselect() {}
     func changeValidatorSelection(at _: Int) {}

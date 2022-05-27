@@ -15,7 +15,7 @@ class CustomValidatorListRelaychainViewModelFactory {
     private func createHeaderViewModel(
         displayValidatorsCount: Int,
         totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
+        filter: CustomValidatorRelaychainListFilter,
         locale: Locale
     ) -> TitleWithSubtitleViewModel {
         let title = R.string.localizable
@@ -44,7 +44,7 @@ class CustomValidatorListRelaychainViewModelFactory {
     private func createCellsViewModel(
         from validatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        filter: CustomValidatorListFilter,
+        filter: CustomValidatorRelaychainListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> [CustomValidatorCellViewModel] {
@@ -98,7 +98,7 @@ class CustomValidatorListRelaychainViewModelFactory {
         from displayValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
         totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
+        filter: CustomValidatorRelaychainListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> CustomValidatorListViewModel {

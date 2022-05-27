@@ -44,14 +44,12 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func presentSearch(
         from view: ControllerBackedProtocol?,
         flow: ValidatorSearchFlow,
-        delegate: ValidatorSearchDelegate?,
         chainAsset: ChainAsset
     ) {
         guard let searchView = ValidatorSearchViewFactory
             .createView(
                 chainAsset: chainAsset,
-                flow: flow,
-                delegate: delegate
+                flow: flow
             ) else { return }
 
         view?.controller.navigationController?.pushViewController(

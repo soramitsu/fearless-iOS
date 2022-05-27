@@ -30,17 +30,19 @@ final class ValidatorSearchParachainViewModelFactory {
         return displayValidatorList.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
+            // TODO: Real stake return value
             let detailsText = apyFormatter.string(
-                from: validator.stakeReturn as NSNumber
+                from: 0 as NSNumber
             )
 
+            // TODO: Real oversubscribed and hasSlashes value
             return ValidatorSearchCellViewModel(
                 icon: icon,
                 name: validator.identity?.displayName,
                 address: validator.address,
                 details: detailsText,
-                shouldShowWarning: validator.oversubscribed,
-                shouldShowError: validator.hasSlashes,
+                shouldShowWarning: false,
+                shouldShowError: false,
                 isSelected: selectedValidatorList.contains(validator)
             )
         }

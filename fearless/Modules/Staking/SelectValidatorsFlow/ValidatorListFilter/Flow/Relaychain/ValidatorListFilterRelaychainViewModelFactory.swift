@@ -2,7 +2,7 @@ import Foundation
 
 final class ValidatorListFilterRelaychainViewModelFactory {
     private func createFilterViewModelSection(
-        from filter: CustomValidatorListFilter,
+        from filter: CustomValidatorRelaychainListFilter,
         locale: Locale
     ) -> ValidatorListFilterViewModelSection {
         let cellViewModels: [SelectableViewModel<TitleWithSubtitleViewModel>] =
@@ -46,7 +46,7 @@ final class ValidatorListFilterRelaychainViewModelFactory {
     }
 
     private func createSortViewModelSection(
-        from filter: CustomValidatorListFilter,
+        from filter: CustomValidatorRelaychainListFilter,
         token: String,
         locale: Locale
     ) -> ValidatorListFilterViewModelSection {
@@ -115,7 +115,7 @@ extension ValidatorListFilterRelaychainViewModelFactory: ValidatorListFilterView
             filterModel: createFilterViewModelSection(from: relaychainViewModelState.currentFilter, locale: locale),
             sortModel: createSortViewModelSection(from: relaychainViewModelState.currentFilter, token: token, locale: locale),
             canApply: relaychainViewModelState.currentFilter != relaychainViewModelState.initialFilter,
-            canReset: relaychainViewModelState.currentFilter != CustomValidatorListFilter.recommendedFilter()
+            canReset: relaychainViewModelState.currentFilter != CustomValidatorRelaychainListFilter.recommendedFilter()
         )
     }
 }

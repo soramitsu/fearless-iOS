@@ -1,16 +1,16 @@
 import Foundation
 
-class CustomValidatorListComposer {
-    let filter: CustomValidatorListFilter
+class CustomValidatorRelaychainListComposer {
+    let filter: CustomValidatorRelaychainListFilter
 
     init(
-        filter: CustomValidatorListFilter
+        filter: CustomValidatorRelaychainListFilter
     ) {
         self.filter = filter
     }
 }
 
-extension CustomValidatorListComposer: RecommendationsComposing {
+extension CustomValidatorRelaychainListComposer: RecommendationsComposing {
     typealias RecommendableType = SelectedValidatorInfo
 
     func compose(from validators: [RecommendableType]) -> [RecommendableType] {

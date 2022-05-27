@@ -3,7 +3,6 @@ import IrohaCrypto
 
 final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?
-    weak var delegate: ValidatorSearchDelegate?
 
     let wireframe: ValidatorSearchWireframeProtocol
     let interactor: ValidatorSearchInteractorInputProtocol
@@ -116,7 +115,7 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     }
 
     func applyChanges() {
-        delegate?.validatorSearchDidUpdate(selectedValidatorList: viewModelState.selectedValidatorList)
+        viewModelState.applyChanges()
 
         wireframe.close(view)
     }

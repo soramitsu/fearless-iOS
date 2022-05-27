@@ -1,7 +1,7 @@
 import Foundation
 
 enum ValidatorListFilterFlow {
-    case relaychain(filter: CustomValidatorListFilter)
+    case relaychain(filter: CustomValidatorRelaychainListFilter)
 }
 
 protocol ValidatorListFilterModelStateListener: AnyObject {

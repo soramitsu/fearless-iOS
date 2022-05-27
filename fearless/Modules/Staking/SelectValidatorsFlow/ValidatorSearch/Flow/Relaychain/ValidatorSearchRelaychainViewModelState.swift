@@ -12,16 +12,19 @@ final class ValidatorSearchRelaychainViewModelState: ValidatorSearchViewModelSta
     let referenceValidatorList: [SelectedValidatorInfo]
     var filteredValidatorList: [SelectedValidatorInfo] = []
     private var viewModel: ValidatorSearchViewModel?
+    weak var delegate: ValidatorSearchRelaychainDelegate?
 
     var searchString: String = ""
 
     init(
         fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo]
+        selectedValidatorList: [SelectedValidatorInfo],
+        delegate: ValidatorSearchRelaychainDelegate?
     ) {
         self.fullValidatorList = fullValidatorList
         self.selectedValidatorList = selectedValidatorList
         referenceValidatorList = selectedValidatorList
+        self.delegate = delegate
     }
 
     func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
@@ -107,5 +110,9 @@ extension ValidatorSearchRelaychainViewModelState: ValidatorSearchRelaychainStra
 
     func didReceiveError(_ error: Error) {
         stateListener?.didReceiveError(error: error)
+    }
+
+    func applyChanges() {
+        delegate?.validatorSearchDidUpdate(selectedValidatorList: selectedValidatorList)
     }
 }

@@ -19,7 +19,7 @@ class CustomValidatorListParachainViewModelFactory {
     private func createHeaderViewModel(
         displayCollatorsCount: Int,
         totalCollatorsCount: Int,
-        filter: CustomValidatorListFilter,
+        filter: CustomValidatorRelaychainListFilter,
         locale: Locale
     ) -> TitleWithSubtitleViewModel {
         let title = R.string.localizable
@@ -48,7 +48,7 @@ class CustomValidatorListParachainViewModelFactory {
     private func createCellsViewModel(
         from collatorList: [ParachainStakingCandidateInfo],
         selectedCollatorList: [ParachainStakingCandidateInfo],
-        filter: CustomValidatorListFilter,
+        filter: CustomValidatorRelaychainListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> [CustomValidatorCellViewModel] {
@@ -112,7 +112,7 @@ class CustomValidatorListParachainViewModelFactory {
         from displayCollatorList: [ParachainStakingCandidateInfo],
         selectedCollatorList: [ParachainStakingCandidateInfo],
         totalCollatorsCount: Int,
-        filter: CustomValidatorListFilter,
+        filter: CustomValidatorRelaychainListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> CustomValidatorListViewModel {
