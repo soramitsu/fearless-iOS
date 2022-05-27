@@ -16,9 +16,11 @@ extension String {
         for index in 0 ... comparableComponentsCount - 1 {
             if let currentVersionComponent = Int(currentVersionComponents[index]),
                let minimalVersionComponent = Int(minimalVersionComponents[index]) {
-                return currentVersionComponent < minimalVersionComponent
+                if currentVersionComponent < minimalVersionComponent {
+                    return true
+                }
             } else {
-                return false
+                return true
             }
         }
 
