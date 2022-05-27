@@ -1,12 +1,6 @@
 import Foundation
 
 final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWireframe {
-    let state: InitiatedBonding
-
-    init(state: InitiatedBonding) {
-        self.state = state
-    }
-
     override func proceed(
         from view: RecommendedValidatorListViewProtocol?,
         flow: SelectValidatorsConfirmFlow,

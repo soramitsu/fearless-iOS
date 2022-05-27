@@ -28,7 +28,7 @@ final class YourValidatorListWireframe: YourValidatorListWireframeProtocol {
         guard let nextView = SelectValidatorsStartViewFactory.createChangeYourValidatorsView(
             wallet: selectedAccount,
             chainAsset: ChainAsset(chain: chain, asset: asset),
-            state: existingBonding
+            flow: .relaychainExisting(state: existingBonding)
         ) else {
             return
         }

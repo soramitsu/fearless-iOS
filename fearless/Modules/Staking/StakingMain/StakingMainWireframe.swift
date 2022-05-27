@@ -45,11 +45,12 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
+        // TODO: add parachain case
         guard let recommendedView = SelectValidatorsStartViewFactory
             .createChangeTargetsView(
                 wallet: selectedAccount,
                 chainAsset: ChainAsset(chain: chain, asset: asset),
-                state: existingBonding
+                flow: .relaychainExisting(state: existingBonding)
             )
         else {
             return

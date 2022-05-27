@@ -1,10 +1,4 @@
 final class ChangeTargetsSelectedValidatorListWireframe: SelectedValidatorListWireframe {
-    let state: ExistingBonding
-
-    init(state: ExistingBonding) {
-        self.state = state
-    }
-
     override func proceed(
         from view: SelectedValidatorListViewProtocol?,
         flow: SelectValidatorsConfirmFlow,

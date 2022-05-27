@@ -5,7 +5,7 @@ import SoraFoundation
 enum SelectValidatorsStartFlow {
     case relaychainInitiated(state: InitiatedBonding)
     case relaychainExisting(state: ExistingBonding)
-    case parachain
+    case parachain(state: InitiatedBonding)
 
     var phase: SelectValidatorsStartViewController.Phase {
         switch self {

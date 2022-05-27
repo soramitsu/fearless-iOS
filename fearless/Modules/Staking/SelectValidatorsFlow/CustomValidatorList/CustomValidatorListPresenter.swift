@@ -78,10 +78,10 @@ final class CustomValidatorListPresenter {
 
 extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideViewModels(viewModelState: viewModelState)
         interactor.setup()
-
-        viewModelState.setStateListener(self)
     }
 
     // MARK: - Header actions

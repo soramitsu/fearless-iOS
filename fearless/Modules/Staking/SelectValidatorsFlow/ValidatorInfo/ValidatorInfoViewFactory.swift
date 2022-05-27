@@ -9,6 +9,11 @@ final class ValidatorInfoViewFactory {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) -> ValidatorInfoDependencyContainer? {
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount
+        )
+
         switch flow {
         case let .relaychain(validatorInfo, address):
             let storageRequestFactory = StorageRequestFactory(
@@ -35,11 +40,6 @@ final class ValidatorInfoViewFactory {
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
             )
 
-            let balanceViewModelFactory = BalanceViewModelFactory(
-                targetAssetInfo: chainAsset.asset.displayInfo,
-                limit: StakingConstants.maxAmount
-            )
-
             let viewModelState = ValidatorInfoRelaychainViewModelState()
             let strategy = ValidatorInfoRelaychainStrategy(
                 validatorInfo: validatorInfo,
@@ -60,10 +60,40 @@ final class ValidatorInfoViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            let viewModelState = ValidatorInfoParachainViewModelState()
-            let strategy = ValidatorInfoParachainStrategy()
-            let viewModelFactory = ValidatorInfoParachainViewModelFactory()
+        case let .parachain(candidate):
+            let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+            guard
+                let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+                let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+                return nil
+            }
+
+            let storageRequestFactory = StorageRequestFactory(
+                remoteFactory: StorageKeyFactory(),
+                operationManager: OperationManagerFacade.sharedManager
+            )
+
+            let operationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageRequestFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+            )
+            let viewModelState = ValidatorInfoParachainViewModelState(collatorInfo: candidate)
+            let strategy = ValidatorInfoParachainStrategy(
+                collatorId: candidate.owner,
+                operationFactory: operationFactory,
+                operationManager: OperationManagerFacade.sharedManager,
+                output: viewModelState
+            )
+            let viewModelFactory = ValidatorInfoParachainViewModelFactory(
+                iconGenerator: PolkadotIconGenerator(),
+                balanceViewModelFactory: balanceViewModelFactory,
+                chainAsset: chainAsset
+            )
 
             return ValidatorInfoDependencyContainer(
                 viewModelState: viewModelState,

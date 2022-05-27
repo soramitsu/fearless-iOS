@@ -15,7 +15,10 @@ final class RecommendedValidatorCell: UITableViewCell {
     }
 
     func bind(viewModel: RecommendedValidatorViewModelProtocol) {
-        iconView.bind(icon: viewModel.icon)
+        if let icon = viewModel.icon {
+            iconView.bind(icon: icon)
+        }
+
         titleLabel.text = viewModel.title
         detailsLabel.text = viewModel.details
     }

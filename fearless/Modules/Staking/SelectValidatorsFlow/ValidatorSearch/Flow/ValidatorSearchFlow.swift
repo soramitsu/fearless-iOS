@@ -6,7 +6,7 @@ enum ValidatorSearchError: Error {
 
 enum ValidatorSearchFlow {
     case relaychain(validatorList: [SelectedValidatorInfo], selectedValidatorList: [SelectedValidatorInfo])
-    case parachain
+    case parachain(validatorList: [ParachainStakingCandidateInfo], selectedValidatorList: [ParachainStakingCandidateInfo])
 }
 
 protocol ValidatorSearchModelStateListener: AnyObject {
@@ -21,7 +21,7 @@ protocol ValidatorSearchModelStateListener: AnyObject {
 
 protocol ValidatorSearchViewModelState: ValidatorSearchUserInputHandler {
     var stateListener: ValidatorSearchModelStateListener? { get set }
-    var selectedValidatorList: [SelectedValidatorInfo] { get set }
+//    var selectedValidatorList: [SelectedValidatorInfo] { get set }
 
     func setStateListener(_ stateListener: ValidatorSearchModelStateListener?)
     func updateViewModel(_ viewModel: ValidatorSearchViewModel?)

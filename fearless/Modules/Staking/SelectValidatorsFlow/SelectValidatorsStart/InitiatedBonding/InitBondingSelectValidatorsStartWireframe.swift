@@ -1,18 +1,11 @@
 import Foundation
 
 final class InitBondingSelectValidatorsStartWireframe: SelectValidatorsStartWireframe {
-    private let state: InitiatedBonding
-
-    init(state: InitiatedBonding) {
-        self.state = state
-    }
-
     override func proceedToCustomList(from view: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: MetaAccountModel) {
         guard let nextView = CustomValidatorListViewFactory.createInitiatedBondingView(
             chainAsset: chainAsset,
             wallet: wallet,
-            flow: flow,
-            with: state
+            flow: flow
         ) else {
             return
         }
@@ -32,8 +25,7 @@ final class InitBondingSelectValidatorsStartWireframe: SelectValidatorsStartWire
         guard let nextView = RecommendedValidatorListViewFactory.createInitiatedBondingView(
             flow: flow,
             wallet: wallet,
-            chainAsset: chainAsset,
-            with: state
+            chainAsset: chainAsset
         ) else {
             return
         }

@@ -69,4 +69,12 @@ extension ConstantCodingPath {
     static var maxDelegationsPerDelegator: ConstantCodingPath {
         ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxDelegationsPerDelegator")
     }
+
+    static var maxTopDelegationsPerCandidate: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxTopDelegationsPerCandidate")
+    }
+
+    static var maxBottomDelegationsPerCandidate: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxBottomDelegationsPerCandidate")
+    }
 }

@@ -43,23 +43,20 @@ protocol SelectedValidatorListViewFactoryProtocol {
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with state: InitiatedBonding
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol?
 
     static func createChangeTargetsView(
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with state: ExistingBonding
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol?
 
     static func createChangeYourValidatorsView(
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with state: ExistingBonding
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol?
 }

@@ -2,12 +2,6 @@ import Foundation
 
 extension YourValidatorList {
     final class SelectionStartWireframe: SelectValidatorsStartWireframe {
-        private let state: ExistingBonding
-
-        init(state: ExistingBonding) {
-            self.state = state
-        }
-
         override func proceedToCustomList(
             from view: ControllerBackedProtocol?,
             flow: CustomValidatorListFlow,
@@ -17,8 +11,7 @@ extension YourValidatorList {
             guard let nextView = CustomValidatorListViewFactory.createChangeYourValidatorsView(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                flow: flow,
-                with: state
+                flow: flow
             ) else { return }
 
             view?.controller.navigationController?.pushViewController(
@@ -36,8 +29,7 @@ extension YourValidatorList {
             guard let nextView = RecommendedValidatorListViewFactory.createChangeYourValidatorsView(
                 flow: flow,
                 wallet: wallet,
-                chainAsset: chainAsset,
-                with: state
+                chainAsset: chainAsset
             ) else {
                 return
             }

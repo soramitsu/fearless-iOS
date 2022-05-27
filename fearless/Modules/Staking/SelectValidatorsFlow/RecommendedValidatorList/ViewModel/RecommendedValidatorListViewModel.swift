@@ -8,7 +8,7 @@ protocol RecommendedValidatorListViewModelProtocol {
 }
 
 protocol RecommendedValidatorViewModelProtocol {
-    var icon: DrawableIcon { get }
+    var icon: DrawableIcon? { get }
     var title: String { get }
     var details: String { get }
 }
@@ -19,7 +19,7 @@ struct RecommendedValidatorListViewModel: RecommendedValidatorListViewModelProto
 }
 
 struct RecommendedValidatorViewModel: RecommendedValidatorViewModelProtocol {
-    let icon: DrawableIcon
+    let icon: DrawableIcon?
     let title: String
     let details: String
 }

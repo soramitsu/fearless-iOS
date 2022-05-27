@@ -1,5 +1,5 @@
 import Foundation
 
 extension Data {
-    func getAccountIdFromKey() -> Data { suffix(32) }
+    func getAccountIdFromKey(accountIdLenght: Int) -> Data { suffix(accountIdLenght) }
 }

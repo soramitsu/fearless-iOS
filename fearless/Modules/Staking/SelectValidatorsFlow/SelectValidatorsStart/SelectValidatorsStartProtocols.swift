@@ -39,21 +39,21 @@ protocol SelectValidatorsStartViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        state: InitiatedBonding
+        flow: SelectValidatorsStartFlow
     )
         -> SelectValidatorsStartViewProtocol?
 
     static func createChangeTargetsView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        state: ExistingBonding
+        flow: SelectValidatorsStartFlow
     )
         -> SelectValidatorsStartViewProtocol?
 
     static func createChangeYourValidatorsView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        state: ExistingBonding
+        flow: SelectValidatorsStartFlow
     )
         -> SelectValidatorsStartViewProtocol?
 }

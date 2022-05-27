@@ -115,7 +115,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
-                for: chainAsset.chain.chainId
+                for: chainAsset.chain
             )
 
             let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(

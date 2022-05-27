@@ -149,4 +149,12 @@ extension StorageCodingPath {
     static var selectedCandidates: StorageCodingPath {
         StorageCodingPath(moduleName: "ParachainStaking", itemName: "SelectedCandidates")
     }
+
+    static var candidateInfo: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CandidateInfo")
+    }
+
+    static var topDelegations: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "TopDelegations")
+    }
 }

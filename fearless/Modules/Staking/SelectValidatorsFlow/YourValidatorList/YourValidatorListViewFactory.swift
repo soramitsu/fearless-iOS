@@ -92,7 +92,7 @@ struct YourValidatorListViewFactory {
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: chain.chainId
+            for: chain
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

@@ -1,10 +1,4 @@
 final class InitBondingCustomValidatorListWireframe: CustomValidatorListWireframe {
-    let state: InitiatedBonding
-
-    init(state: InitiatedBonding) {
-        self.state = state
-    }
-
     override func proceed(
         from view: ControllerBackedProtocol?,
         flow: SelectedValidatorListFlow,
@@ -16,8 +10,7 @@ final class InitBondingCustomValidatorListWireframe: CustomValidatorListWirefram
             flow: flow,
             chainAsset: chainAsset,
             wallet: wallet,
-            delegate: delegate,
-            with: state
+            delegate: delegate
         )
         else { return }
 

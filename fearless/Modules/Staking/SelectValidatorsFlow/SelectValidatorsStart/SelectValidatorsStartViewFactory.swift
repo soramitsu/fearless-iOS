@@ -7,42 +7,42 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     static func createInitiatedBondingView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        state: InitiatedBonding
+        flow: SelectValidatorsStartFlow
     ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = InitBondingSelectValidatorsStartWireframe(state: state)
+        let wireframe = InitBondingSelectValidatorsStartWireframe()
         return createView(
             wallet: wallet,
             chainAsset: chainAsset,
             wireframe: wireframe,
-            flow: .relaychainInitiated(state: state)
+            flow: flow
         )
     }
 
     static func createChangeTargetsView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        state: ExistingBonding
+        flow: SelectValidatorsStartFlow
     ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
+        let wireframe = ChangeTargetsSelectValidatorsStartWireframe()
         return createView(
             wallet: wallet,
             chainAsset: chainAsset,
             wireframe: wireframe,
-            flow: .relaychainExisting(state: state)
+            flow: flow
         )
     }
 
     static func createChangeYourValidatorsView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        state: ExistingBonding
+        flow: SelectValidatorsStartFlow
     ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
+        let wireframe = YourValidatorList.SelectionStartWireframe()
         return createView(
             wallet: wallet,
             chainAsset: chainAsset,
             wireframe: wireframe,
-            flow: .relaychainExisting(state: state)
+            flow: flow
         )
     }
 
@@ -118,7 +118,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         guard
             let settings = stakingSettings.value,
             let eraValidatorService = try? serviceFactory.createEraValidatorService(
-                for: settings.chain.chainId
+                for: settings.chain
             ) else {
             return nil
         }
@@ -196,19 +196,17 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
 
             let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
             return SelectValidatorsStartDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
-        case .parachain:
-            let operationFactory = ParachainValidatorOperationFactory(
+        case let .parachain(bonding):
+            let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
-                eraValidatorService: eraValidatorService,
-                rewardService: rewardService,
                 storageRequestFactory: storageOperationFactory,
                 runtimeService: runtimeService,
                 engine: connection,
                 identityOperationFactory: identityOperationFactory
             )
 
-            let viewModelState = SelectValidatorsStartParachainViewModelState()
+            let viewModelState = SelectValidatorsStartParachainViewModelState(bonding: bonding, chainAsset: chainAsset)
 
             let strategy = SelectValidatorsStartParachainStrategy(
                 operationFactory: operationFactory,

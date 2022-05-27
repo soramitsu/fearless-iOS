@@ -149,6 +149,10 @@ class ChainModel: Codable {
         URL(string: "")!
     }
 
+    var accountIdLenght: Int {
+        isEthereumBased ? 20 : 32
+    }
+
     func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {
         ChainModel(
             chainId: chainId,

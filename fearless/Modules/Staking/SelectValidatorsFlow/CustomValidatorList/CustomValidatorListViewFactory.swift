@@ -46,14 +46,25 @@ enum CustomValidatorListViewFactory {
 }
 
 extension CustomValidatorListViewFactory {
-    static func createContainer(flow: CustomValidatorListFlow, chainAsset: ChainAsset) -> CustomValidatorListDependencyContainer? {
+    static func createContainer(
+        flow: CustomValidatorListFlow,
+        chainAsset: ChainAsset
+    ) -> CustomValidatorListDependencyContainer? {
         let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: chainAsset.asset.displayInfo)
 
         switch flow {
-        case .parachain:
-            let viewModelState = CustomValidatorListParachainViewModelState()
+        case let .parachain(candidates, maxTargets, bonding, selectedValidatorList):
+            let viewModelState = CustomValidatorListParachainViewModelState(
+                candidates: candidates,
+                maxTargets: maxTargets,
+                bonding: bonding,
+                selectedValidatorList: selectedValidatorList
+            )
             let strategy = CustomValidatorListParachainStrategy()
-            let viewModelFactory = CustomValidatorListParachainViewModelFactory()
+            let viewModelFactory = CustomValidatorListParachainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                chainAsset: chainAsset
+            )
 
             return CustomValidatorListDependencyContainer(
                 viewModelState: viewModelState,
@@ -98,10 +109,9 @@ extension CustomValidatorListViewFactory {
     static func createInitiatedBondingView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow,
-        with state: InitiatedBonding
+        flow: CustomValidatorListFlow
     ) -> CustomValidatorListViewProtocol? {
-        let wireframe = InitBondingCustomValidatorListWireframe(state: state)
+        let wireframe = InitBondingCustomValidatorListWireframe()
         return createView(
             chainAsset: chainAsset,
             wallet: wallet,
@@ -113,10 +123,9 @@ extension CustomValidatorListViewFactory {
     static func createChangeTargetsView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow,
-        with state: ExistingBonding
+        flow: CustomValidatorListFlow
     ) -> CustomValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsCustomValidatorListWireframe(state: state)
+        let wireframe = ChangeTargetsCustomValidatorListWireframe()
         return createView(
             chainAsset: chainAsset,
             wallet: wallet,
@@ -128,10 +137,9 @@ extension CustomValidatorListViewFactory {
     static func createChangeYourValidatorsView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow,
-        with state: ExistingBonding
+        flow: CustomValidatorListFlow
     ) -> CustomValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.CustomListWireframe(state: state)
+        let wireframe = YourValidatorList.CustomListWireframe()
         return createView(
             chainAsset: chainAsset,
             wallet: wallet,

@@ -1,11 +1,5 @@
 extension YourValidatorList {
     final class SelectedListWireframe: SelectedValidatorListWireframe {
-        private let state: ExistingBonding
-
-        init(state: ExistingBonding) {
-            self.state = state
-        }
-
         override func proceed(
             from view: SelectedValidatorListViewProtocol?,
             flow: SelectValidatorsConfirmFlow,

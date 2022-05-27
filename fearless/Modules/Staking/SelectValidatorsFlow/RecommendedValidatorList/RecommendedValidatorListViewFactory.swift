@@ -6,10 +6,9 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
     static func createInitiatedBondingView(
         flow: RecommendedValidatorListFlow,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        with state: InitiatedBonding
+        chainAsset: ChainAsset
     ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = InitiatedBondingRecommendationWireframe(state: state)
+        let wireframe = InitiatedBondingRecommendationWireframe()
         return createView(
             flow: flow,
             chainAsset: chainAsset,
@@ -21,10 +20,9 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
     static func createChangeTargetsView(
         flow: RecommendedValidatorListFlow,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        with state: ExistingBonding
+        chainAsset: ChainAsset
     ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsRecommendationWireframe(state: state)
+        let wireframe = ChangeTargetsRecommendationWireframe()
         return createView(
             flow: flow,
             chainAsset: chainAsset,
@@ -36,10 +34,9 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
     static func createChangeYourValidatorsView(
         flow: RecommendedValidatorListFlow,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        with state: ExistingBonding
+        chainAsset: ChainAsset
     ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.RecommendationWireframe(state: state)
+        let wireframe = YourValidatorList.RecommendationWireframe()
         return createView(
             flow: flow,
             chainAsset: chainAsset,
@@ -97,8 +94,8 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            let viewModelState = RecommendedValidatorListParachainViewModelState()
+        case let .parachain(collators, maxTargets, bonding):
+            let viewModelState = RecommendedValidatorListParachainViewModelState(collators: collators, bonding: bonding, maxTargets: maxTargets)
             let strategy = RecommendedValidatorListParachainStrategy()
             let viewModelFactory = RecommendedValidatorListParachainViewModelFactory(iconGenerator: PolkadotIconGenerator())
             return RecommendedValidatorListDependencyContainer(

@@ -30,21 +30,18 @@ protocol RecommendedValidatorListViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(
         flow: RecommendedValidatorListFlow,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        with state: InitiatedBonding
+        chainAsset: ChainAsset
     ) -> RecommendedValidatorListViewProtocol?
 
     static func createChangeTargetsView(
         flow: RecommendedValidatorListFlow,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        with state: ExistingBonding
+        chainAsset: ChainAsset
     ) -> RecommendedValidatorListViewProtocol?
 
     static func createChangeYourValidatorsView(
         flow: RecommendedValidatorListFlow,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        with state: ExistingBonding
+        chainAsset: ChainAsset
     ) -> RecommendedValidatorListViewProtocol?
 }

@@ -35,10 +35,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with state: InitiatedBonding
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol? {
-        let wireframe = InitiatedBondingSelectedValidatorListWireframe(state: state)
+        let wireframe = InitiatedBondingSelectedValidatorListWireframe()
         return createView(
             flow: flow,
             chainAsset: chainAsset,
@@ -52,10 +51,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with state: ExistingBonding
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsSelectedValidatorListWireframe(state: state)
+        let wireframe = ChangeTargetsSelectedValidatorListWireframe()
         return createView(
             flow: flow,
             chainAsset: chainAsset,
@@ -69,10 +67,9 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with state: ExistingBonding
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.SelectedListWireframe(state: state)
+        let wireframe = YourValidatorList.SelectedListWireframe()
         return createView(
             flow: flow,
             chainAsset: chainAsset,

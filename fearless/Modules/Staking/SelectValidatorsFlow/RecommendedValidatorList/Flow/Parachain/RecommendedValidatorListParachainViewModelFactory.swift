@@ -34,35 +34,32 @@ class RecommendedValidatorListParachainViewModelFactory {
 
 extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
     func buildViewModel(viewModelState: RecommendedValidatorListViewModelState) -> RecommendedValidatorListViewModel? {
-        guard let relaychainViewModelState = viewModelState as? RecommendedValidatorListParachainViewModelState else {
+        guard let parachainViewModelState = viewModelState as? RecommendedValidatorListParachainViewModelState else {
             return nil
         }
 
-        return nil
-//        let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
-//        relaychainViewModelState.validators.compactMap { validator in
-//            guard let icon = try? iconGenerator.generateFromAddress(validator.address) else {
-//                return nil
-//            }
-//
-//            let title = validator.identity?.displayName ?? validator.address
-//
-//            let details = createStakeReturnString(from: validator.stakeInfo?.stakeReturn)
-//
-//            return LocalizableResource { locale in
-//                RecommendedValidatorViewModel(
-//                    icon: icon,
-//                    title: title,
-//                    details: details.value(for: locale)
-//                )
-//            }
-//        }
-//
-//        let itemsCountString = createItemsCountString(for: items.count, outOf: relaychainViewModelState.maxTargets)
-//
-//        return RecommendedValidatorListViewModel(
-//            itemsCountString: itemsCountString,
-//            itemViewModels: items
-//        )
+        let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
+            parachainViewModelState.collators.compactMap { collator in
+                let icon = try? iconGenerator.generateFromAddress(collator.address)
+                let title = collator.identity?.displayName ?? collator.address
+
+                // TODO: stake return real value
+                let details = createStakeReturnString(from: Decimal.zero)
+
+                return LocalizableResource { locale in
+                    RecommendedValidatorViewModel(
+                        icon: icon,
+                        title: title,
+                        details: details.value(for: locale)
+                    )
+                }
+            }
+
+        let itemsCountString = createItemsCountString(for: items.count, outOf: parachainViewModelState.maxTargets)
+
+        return RecommendedValidatorListViewModel(
+            itemsCountString: itemsCountString,
+            itemViewModels: items
+        )
     }
 }

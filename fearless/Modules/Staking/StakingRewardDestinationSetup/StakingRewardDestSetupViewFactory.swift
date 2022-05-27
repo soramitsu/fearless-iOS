@@ -144,7 +144,7 @@ struct StakingRewardDestSetupViewFactory {
         }
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: settings.chain.chainId
+            for: settings.chain
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

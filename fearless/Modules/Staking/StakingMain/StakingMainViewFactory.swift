@@ -183,7 +183,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: chainAsset.chain.chainId
+            for: chainAsset.chain
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

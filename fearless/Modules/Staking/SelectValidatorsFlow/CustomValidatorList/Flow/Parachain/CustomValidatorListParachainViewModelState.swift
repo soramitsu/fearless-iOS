@@ -1,6 +1,27 @@
 import Foundation
 
 class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelState {
+    let candidates: [ParachainStakingCandidateInfo]
+    let maxTargets: Int
+    let bonding: InitiatedBonding
+    let selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
+
+    var filteredValidatorList: [ParachainStakingCandidateInfo] = []
+
+    init(
+        candidates: [ParachainStakingCandidateInfo],
+        maxTargets: Int,
+        bonding: InitiatedBonding,
+        selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
+    ) {
+        self.candidates = candidates
+        self.maxTargets = maxTargets
+        self.bonding = bonding
+        self.selectedValidatorList = selectedValidatorList
+
+        filteredValidatorList = candidates
+    }
+
     var filter: CustomValidatorListFilter = .recommendedFilter()
 
     var viewModel: CustomValidatorListViewModel?
@@ -15,12 +36,12 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
         self.viewModel = viewModel
     }
 
-    func validatorInfoFlow(validatorIndex _: Int) -> ValidatorInfoFlow? {
-        .parachain
+    func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow? {
+        .parachain(candidate: filteredValidatorList[validatorIndex])
     }
 
     func validatorSearchFlow() -> ValidatorSearchFlow? {
-        .parachain
+        .parachain(validatorList: candidates, selectedValidatorList: selectedValidatorList.items)
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {

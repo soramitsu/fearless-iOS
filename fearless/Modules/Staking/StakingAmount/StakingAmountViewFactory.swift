@@ -237,7 +237,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
-            for: chain.chainId
+            for: chain
         ) else {
             return nil
         }

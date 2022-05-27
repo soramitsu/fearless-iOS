@@ -5,7 +5,12 @@ enum CustomValidatorListFlowError {
 }
 
 enum CustomValidatorListFlow {
-    case parachain
+    case parachain(
+        candidates: [ParachainStakingCandidateInfo],
+        maxTargets: Int,
+        bonding: InitiatedBonding,
+        selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
+    )
     case relaychainInitiated(
         validatorList: [SelectedValidatorInfo],
         recommendedValidatorList: [SelectedValidatorInfo],
