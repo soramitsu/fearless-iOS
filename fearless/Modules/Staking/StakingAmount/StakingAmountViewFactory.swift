@@ -205,7 +205,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             let strategy = StakingAmountParachainStrategy(
                 chainAsset: chainAsset,
                 stakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory,
-                output: viewModelState
+                output: viewModelState,
+                extrinsicService: extrinsicService
             )
 
             let viewModelFactory = StakingAmountParachainViewModelFactory(

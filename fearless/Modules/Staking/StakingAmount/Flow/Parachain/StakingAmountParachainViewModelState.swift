@@ -24,7 +24,18 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
         let closure: ExtrinsicBuilderClosure = { builder in
-            builder
+            guard let accountId = Data.random(of: 20) else {
+                return builder
+            }
+
+            let call = SubstrateCallFactory().delegate(
+                candidate: accountId,
+                amount: BigUInt(stringLiteral: "9999999999999999"),
+                candidateDelegationCount: 100,
+                delegationCount: 100
+            )
+
+            return try builder.adding(call: call)
         }
 
         return closure
@@ -48,6 +59,8 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 }
 
 extension StakingAmountParachainViewModelState: StakingAmountParachainStrategyOutput {
+    func didReceive(error _: Error) {}
+
     func didReceive(paymentInfo: RuntimeDispatchInfo) {
         if let feeValue = BigUInt(paymentInfo.fee),
            let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(chainAsset.asset.precision)) {

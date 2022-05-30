@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 
 protocol StakingAmountParachainStrategyOutput: AnyObject {
+    func didReceive(error: Error)
     func didReceive(paymentInfo: RuntimeDispatchInfo)
 }
 
@@ -11,27 +12,33 @@ class StakingAmountParachainStrategy {
     var stakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     let chainAsset: ChainAsset
     private weak var output: StakingAmountParachainStrategyOutput?
+    private let extrinsicService: ExtrinsicServiceProtocol
 
     init(
         chainAsset: ChainAsset,
         stakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
-        output: StakingAmountParachainStrategyOutput?
+        output: StakingAmountParachainStrategyOutput?,
+        extrinsicService: ExtrinsicServiceProtocol
     ) {
         self.chainAsset = chainAsset
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.output = output
+        self.extrinsicService = extrinsicService
     }
 }
 
 extension StakingAmountParachainStrategy: StakingAmountStrategy {
     func setup() {}
 
-    func estimateFee(extrinsicBuilderClosure _: @escaping ExtrinsicBuilderClosure) {
-        output?.didReceive(paymentInfo: RuntimeDispatchInfo(
-            dispatchClass: "class",
-            fee: "100",
-            weight: 100
-        ))
+    func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure) {
+        extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { [weak self] result in
+            switch result {
+            case let .success(info):
+                self?.output?.didReceive(paymentInfo: info)
+            case let .failure(error):
+                self?.output?.didReceive(error: error)
+            }
+        }
     }
 }
 
