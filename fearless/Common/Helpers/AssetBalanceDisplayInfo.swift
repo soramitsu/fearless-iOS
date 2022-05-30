@@ -11,11 +11,11 @@ struct AssetBalanceDisplayInfo {
 }
 
 extension AssetBalanceDisplayInfo {
-    static func usd() -> AssetBalanceDisplayInfo {
+    static func forCurrency(_ currency: Currency) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 2,
             assetPrecision: 2,
-            symbol: "$",
+            symbol: currency.symbol,
             symbolValueSeparator: "",
             symbolPosition: .prefix,
             icon: nil

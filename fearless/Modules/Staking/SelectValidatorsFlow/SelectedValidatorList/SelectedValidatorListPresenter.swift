@@ -62,7 +62,8 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
             validatorInfo,
             asset: asset,
             chain: chain,
-            from: view
+            from: view,
+            wallet: selectedAccount
         )
     }
 

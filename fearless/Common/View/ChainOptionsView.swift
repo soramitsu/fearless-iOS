@@ -3,7 +3,7 @@ import UIKit
 class ChainOptionsView: UIView {
     enum LayoutConstants {
         static let corderRadius: CGFloat = 3
-        static let iconSize: CGFloat = 16
+        static let iconSize = CGSize(width: 16, height: 16)
     }
 
     let imageView = UIImageView()
@@ -50,7 +50,7 @@ class ChainOptionsView: UIView {
         label.text = viewModel.text.uppercased()
         viewModel.icon?.loadImage(
             on: imageView,
-            targetSize: imageView.frame.size,
+            targetSize: LayoutConstants.iconSize,
             animated: true
         )
     }

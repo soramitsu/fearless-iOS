@@ -13,6 +13,8 @@ struct MetaAccountModel: Equatable, Codable {
     let assetKeysOrder: [String]?
     let assetIdsEnabled: [String]?
     let canExportEthereumMnemonic: Bool
+    let unusedChainIds: [String]?
+    let selectedCurrency: Currency
 }
 
 extension MetaAccountModel {
@@ -44,7 +46,9 @@ extension MetaAccountModel {
             chainAccounts: newChainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
-            canExportEthereumMnemonic: canExportEthereumMnemonic
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -60,7 +64,9 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
-            canExportEthereumMnemonic: canExportEthereumMnemonic
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -76,7 +82,9 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
-            canExportEthereumMnemonic: canExportEthereumMnemonic
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -92,7 +100,9 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
-            canExportEthereumMnemonic: canExportEthereumMnemonic
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -108,7 +118,9 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: newAssetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
-            canExportEthereumMnemonic: canExportEthereumMnemonic
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
         )
     }
 
@@ -124,7 +136,45 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: newAssetIdsEnabled,
-            canExportEthereumMnemonic: canExportEthereumMnemonic
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency
+        )
+    }
+
+    func replacingUnusedChainIds(_ newUnusedChainIds: [String]) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: newUnusedChainIds,
+            selectedCurrency: selectedCurrency
+        )
+    }
+
+    func replacingCurrency(_ currency: Currency) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: currency
         )
     }
 }

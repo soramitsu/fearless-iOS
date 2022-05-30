@@ -10,6 +10,7 @@ struct WalletSendConfirmViewFactory {
         asset: AssetModel,
         receiverAddress: String,
         amount: Decimal,
+        tip: Decimal?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
@@ -25,7 +26,10 @@ struct WalletSendConfirmViewFactory {
 
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: selectedMetaAccount
+        )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
 
@@ -47,6 +51,7 @@ struct WalletSendConfirmViewFactory {
             chain: chain,
             receiverAddress: receiverAddress,
             amount: amount,
+            tip: tip,
             transferFinishBlock: transferFinishBlock
         )
 

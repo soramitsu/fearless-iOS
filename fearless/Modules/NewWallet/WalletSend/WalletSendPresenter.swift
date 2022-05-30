@@ -21,6 +21,7 @@ final class WalletSendPresenter {
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var priceData: PriceData?
+    private var tip: Decimal?
     private var fee: Decimal?
     private var blockDuration: BlockTime?
     private var minimumBalance: BigUInt?
@@ -59,6 +60,8 @@ final class WalletSendPresenter {
         let viewModel = WalletSendViewModel(
             accountViewModel: provideAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
+            tipRequired: chain.isTipRequired,
+            tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
             amountInputViewModel: provideInputViewModel()
         )
@@ -85,6 +88,12 @@ final class WalletSendPresenter {
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
+    }
+
+    private func provideTipViewModel() -> BalanceViewModelProtocol? {
+        tip
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .value(for: selectedLocale)
     }
 
     private func provideFeeViewModel() -> BalanceViewModelProtocol? {
@@ -120,6 +129,8 @@ final class WalletSendPresenter {
         let viewModel = WalletSendViewModel(
             accountViewModel: provideAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
+            tipRequired: chain.isTipRequired,
+            tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
             amountInputViewModel: inputViewModel
         )
@@ -135,7 +146,8 @@ final class WalletSendPresenter {
 
         view?.didStartFeeCalculation()
 
-        interactor.estimateFee(for: amount)
+        let tip = self.tip?.toSubstrateAmount(precision: Int16(asset.precision))
+        interactor.estimateFee(for: amount, tip: tip)
     }
 }
 
@@ -150,7 +162,10 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
             preferredLanguages: selectedLocale.rLanguages
         ))
 
-        refreshFee()
+        if !chain.isTipRequired {
+            // To not distract users with two different fees one by one, let's wait for tip, and then refresh fee
+            refreshFee()
+        }
     }
 
     func selectAmountPercentage(_ percentage: Float) {
@@ -199,14 +214,15 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
             )
 
         ]).runValidation { [weak self] in
-            guard let strongSelf = self, let amount = sendAmountDecimal else { return }
-            strongSelf.wireframe.presentConfirm(
-                from: strongSelf.view,
-                chain: strongSelf.chain,
-                asset: strongSelf.asset,
-                receiverAddress: strongSelf.receiverAddress,
+            guard let self = self, let amount = sendAmountDecimal else { return }
+            self.wireframe.presentConfirm(
+                from: self.view,
+                chain: self.chain,
+                asset: self.asset,
+                receiverAddress: self.receiverAddress,
                 amount: amount,
-                transferFinishBlock: strongSelf.transferFinishBlock
+                tip: self.tip,
+                transferFinishBlock: self.transferFinishBlock
             )
         }
     }
@@ -263,7 +279,6 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
 
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         view?.didStopFeeCalculation()
-
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
@@ -274,6 +289,23 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
             provideInputViewModelIfRate()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
+        }
+    }
+
+    func didReceiveTip(result: Result<BigUInt, Error>) {
+        view?.didStopTipCalculation()
+        switch result {
+        case let .success(tip):
+            self.tip = Decimal.fromSubstrateAmount(tip, precision: Int16(asset.precision))
+
+            provideViewModel()
+            provideInputViewModelIfRate()
+            refreshFee()
+        case let .failure(error):
+            logger?.error("Did receive tip error: \(error)")
+
+            // Even though no tip received, let's refresh fee, because we didn't load it at start
+            refreshFee()
         }
     }
 }

@@ -40,7 +40,6 @@ class ChainModel: Codable {
     let selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
     let iosMinAppVersion: String?
-    var unused: Bool
 
     init(
         chainId: Id,
@@ -55,8 +54,7 @@ class ChainModel: Codable {
         externalApi: ExternalApiSet? = nil,
         selectedNode: ChainNodeModel? = nil,
         customNodes: Set<ChainNodeModel>? = nil,
-        iosMinAppVersion: String?,
-        unused: Bool
+        iosMinAppVersion: String?
     ) {
         self.chainId = chainId
         self.parentId = parentId
@@ -71,7 +69,6 @@ class ChainModel: Codable {
         self.selectedNode = selectedNode
         self.customNodes = customNodes
         self.iosMinAppVersion = iosMinAppVersion
-        self.unused = unused
     }
 
     var isEthereumBased: Bool {
@@ -84,6 +81,10 @@ class ChainModel: Codable {
 
     var isOrml: Bool {
         options?.contains(.orml) ?? false
+    }
+
+    var isTipRequired: Bool {
+        options?.contains(.tipRequired) ?? false
     }
 
     var isPolkadotOrKusama: Bool {
@@ -161,8 +162,7 @@ class ChainModel: Codable {
             externalApi: externalApi,
             selectedNode: node,
             customNodes: customNodes,
-            iosMinAppVersion: iosMinAppVersion,
-            unused: unused
+            iosMinAppVersion: iosMinAppVersion
         )
     }
 
@@ -180,8 +180,7 @@ class ChainModel: Codable {
             externalApi: externalApi,
             selectedNode: selectedNode,
             customNodes: Set(newCustomNodes),
-            iosMinAppVersion: iosMinAppVersion,
-            unused: unused
+            iosMinAppVersion: iosMinAppVersion
         )
     }
 }
@@ -215,6 +214,7 @@ enum ChainOptions: String, Codable {
     case testnet
     case crowdloans
     case orml
+    case tipRequired
 }
 
 extension ChainModel {

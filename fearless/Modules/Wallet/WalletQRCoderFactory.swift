@@ -8,7 +8,7 @@ final class WalletQREncoder: WalletQREncoderProtocol {
     let addressPrefix: UInt16
     let publicKey: Data
 
-    private lazy var substrateEncoder = SubstrateQREncoder()
+    private lazy var substrateEncoder = AddressQREncoder()
     private lazy var addressFactory = SS58AddressFactory()
 
     init(addressPrefix: UInt16, publicKey: Data, username: String?) {
@@ -25,7 +25,7 @@ final class WalletQREncoder: WalletQREncoderProtocol {
             type: addressPrefix
         )
 
-        let info = SubstrateQRInfo(
+        let info = AddressQRInfo(
             address: address,
             rawPublicKey: publicKey,
             username: username
@@ -35,17 +35,19 @@ final class WalletQREncoder: WalletQREncoderProtocol {
 }
 
 final class WalletQRDecoder: WalletQRDecoderProtocol {
-    private let substrateDecoder: SubstrateQRDecoder
+    private let substrateDecoder: AddressQRDecoder
     private let qrDecoders: [QRDecodable]
     private let asset: AssetModel
+    private let addressPrefix: UInt16
 
     init(addressPrefix: UInt16, asset: AssetModel) {
-        substrateDecoder = SubstrateQRDecoder(chainType: addressPrefix)
+        substrateDecoder = AddressQRDecoder(chainType: addressPrefix)
         qrDecoders = [
-            SubstrateQRDecoder(chainType: addressPrefix),
+            AddressQRDecoder(chainType: addressPrefix),
             CexQRDecoder()
         ]
         self.asset = asset
+        self.addressPrefix = addressPrefix
     }
 
     func decode(data: Data) throws -> ReceiveInfo {
@@ -57,10 +59,14 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
             throw QRDecoderError.wrongDecoder
         }
 
-        let accountId = try info.address.toAccountId()
+        let chainFormat: ChainFormat = info.address.hasPrefix("0x")
+            ? .ethereum
+            : .substrate(addressPrefix)
+
+        let accountId = try info.address.toAccountId(using: chainFormat)
 
         return ReceiveInfo(
-            accountId: accountId.toHex(includePrefix: true),
+            accountId: accountId.toHex(includePrefix: info.address.hasPrefix("0x")),
             assetId: asset.identifier,
             amount: nil,
             details: nil

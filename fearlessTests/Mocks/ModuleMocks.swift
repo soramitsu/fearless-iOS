@@ -10947,15 +10947,16 @@ import SoraFoundation
     
     
     
-     var controller: UIViewController {
-        get {
-            return cuckoo_manager.getter("controller",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.controller)
-        }
+     func submit(contribution: BigUInt)  {
+        
+    return cuckoo_manager.call("submit(contribution: BigUInt?)",
+            parameters: (contribution),
+            escapingParameters: (contribution),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.submit(contribution: contribution))
         
     }
     
@@ -11006,9 +11007,9 @@ import SoraFoundation
 	        return .init(manager: cuckoo_manager, name: "isSetup")
 	    }
 	    
-	    
-	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockCrowdloanListViewProtocol, UIViewController> {
-	        return .init(manager: cuckoo_manager, name: "controller")
+	    func submit<M1: Cuckoo.OptionalMatchable>(contribution: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(BigUInt?)> where M1.OptionalMatchedType == BigUInt {
+	        let matchers: [Cuckoo.ParameterMatcher<(BigUInt?)>] = [wrap(matchable: contribution) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmInteractorInputProtocol.self, method: "submit(contribution: BigUInt?)", parameterMatchers: matchers))
 	    }
 	    
 	    
@@ -11041,9 +11042,10 @@ import SoraFoundation
 	        return .init(manager: cuckoo_manager, name: "isSetup", callMatcher: callMatcher, sourceLocation: sourceLocation)
 	    }
 	    
-	    
-	    var controller: Cuckoo.VerifyReadOnlyProperty<UIViewController> {
-	        return .init(manager: cuckoo_manager, name: "controller", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    @discardableResult
+	    func submit<M1: Cuckoo.OptionalMatchable>(contribution: M1) -> Cuckoo.__DoNotUse<(BigUInt?), Void> where M1.OptionalMatchedType == BigUInt {
+	        let matchers: [Cuckoo.ParameterMatcher<(BigUInt?)>] = [wrap(matchable: contribution) { $0 }]
+	        return cuckoo_manager.verify("submit(contribution: BigUInt?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	
@@ -11073,12 +11075,8 @@ import SoraFoundation
         
     }
     
-    
-     var controller: UIViewController {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (UIViewController).self)
-        }
-        
+     func submit(contribution: BigUInt?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
 

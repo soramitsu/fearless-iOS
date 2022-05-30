@@ -5,7 +5,8 @@ protocol ValidatorSearchWireframeProtocol: AlertPresentable {
         _ validatorInfo: ValidatorInfoProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     )
 
     func close(_ view: ControllerBackedProtocol?)
@@ -44,7 +45,8 @@ protocol ValidatorSearchViewFactoryProtocol {
         chain: ChainModel,
         with fullValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?
+        delegate: ValidatorSearchDelegate?,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol?
 }
 

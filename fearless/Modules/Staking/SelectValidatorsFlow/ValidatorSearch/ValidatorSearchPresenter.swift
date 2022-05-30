@@ -5,12 +5,13 @@ final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?
     weak var delegate: ValidatorSearchDelegate?
 
-    let wireframe: ValidatorSearchWireframeProtocol
-    let interactor: ValidatorSearchInteractorInputProtocol
-    let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
-    let logger: LoggerProtocol?
-    let asset: AssetModel
-    let chain: ChainModel
+    private let wireframe: ValidatorSearchWireframeProtocol
+    private let interactor: ValidatorSearchInteractorInputProtocol
+    private let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
+    private let logger: LoggerProtocol?
+    private let asset: AssetModel
+    private let chain: ChainModel
+    private let wallet: MetaAccountModel
 
     private var fullValidatorList: [SelectedValidatorInfo]
     private var selectedValidatorList: [SelectedValidatorInfo]
@@ -31,7 +32,8 @@ final class ValidatorSearchPresenter {
         localizationManager: LocalizationManager,
         logger: LoggerProtocol? = nil,
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -42,6 +44,7 @@ final class ValidatorSearchPresenter {
         self.logger = logger
         self.asset = asset
         self.chain = chain
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -171,7 +174,8 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
             selectedValidator,
             asset: asset,
             chain: chain,
-            from: view
+            from: view,
+            wallet: wallet
         )
     }
 

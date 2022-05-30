@@ -20,6 +20,7 @@ protocol CrowdloanDataValidatorFactoryProtocol: BaseDataValidatingFactoryProtoco
     func crowdloanIsNotCompleted(
         crowdloan: Crowdloan?,
         metadata: CrowdloanMetadata?,
+        displayInfo: CrowdloanDisplayInfo?,
         locale: Locale
     ) -> DataValidating
 
@@ -133,6 +134,7 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
     func crowdloanIsNotCompleted(
         crowdloan: Crowdloan?,
         metadata: CrowdloanMetadata?,
+        displayInfo: CrowdloanDisplayInfo?,
         locale: Locale
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
@@ -145,7 +147,7 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
         }, preservesCondition: {
             if let crowdloan = crowdloan,
                let metadata = metadata {
-                return !crowdloan.isCompleted(for: metadata)
+                return !crowdloan.isCompleted(for: metadata, displayInfo: displayInfo)
             } else {
                 return false
             }

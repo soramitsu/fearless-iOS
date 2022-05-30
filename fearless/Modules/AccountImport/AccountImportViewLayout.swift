@@ -12,6 +12,12 @@ final class AccountImportViewLayout: UIView {
         static let derivationPathLabelHeight: CGFloat = 15
         static let derivationPathViewToLabelSpacing: CGFloat = 12
         static let contentBottomOffset: CGFloat = 92
+        static let usernameTextFieldContentInsets = UIEdgeInsets(
+            top: 4.0,
+            left: 0.0,
+            bottom: 4.0,
+            right: 0.0
+        )
     }
 
     var locale = Locale.current {
@@ -44,6 +50,7 @@ final class AccountImportViewLayout: UIView {
         view.actionControl.contentView.subtitleLabelView.textColor = R.color.colorWhite()
         view.actionControl.contentView.subtitleLabelView.font = .p1Paragraph
         view.actionControl.contentView.subtitleLabelView.numberOfLines = 1
+        view.actionControl.contentView.subtitleImageView.isHidden = true
         view.actionControl.imageIndicator.image = R.image.iconDropDown()
         return view
     }()
@@ -80,6 +87,7 @@ final class AccountImportViewLayout: UIView {
         inputView.backgroundView.strokeColor = R.color.colorGray()!
         inputView.backgroundView.highlightedStrokeColor = R.color.colorGray()!
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
+        inputView.animatedInputField.contentInsets = Constants.usernameTextFieldContentInsets
         inputView.defaultSetup()
         return inputView
     }()
@@ -223,7 +231,7 @@ final class AccountImportViewLayout: UIView {
         view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
-        view.clearButtonMode = .whileEditing
+        view.clearButtonMode = .never
         view.returnKeyType = .done
         return view
     }()
@@ -233,7 +241,7 @@ final class AccountImportViewLayout: UIView {
         view.tintColor = .white
         view.font = .p1Paragraph
         view.textColor = .white
-        view.clearButtonMode = .whileEditing
+        view.clearButtonMode = .never
         view.keyboardType = .decimalPad
         return view
     }()
@@ -359,6 +367,17 @@ extension AccountImportViewLayout {
         ethereumDerivationPathLabel.isHidden = !chainType.includeEthereum
         ethereumCryptoTypeView.isHidden = !chainType.includeEthereum
     }
+
+    func setAdvancedVisibility(_ visible: Bool) {
+        expandableControlContainerView.isHidden = !visible
+        expandableControl.isHidden = !visible
+        advancedContainerView.isHidden = !visible
+    }
+
+    func setUsernameVisibility(_ visible: Bool) {
+        usernameTextFieldContainer.isHidden = !visible
+        usernameLabelContainer.isHidden = !visible
+    }
 }
 
 private extension AccountImportViewLayout {
@@ -416,7 +435,7 @@ private extension AccountImportViewLayout {
         ethereumCryptoTypeView.actionControl.invalidateLayout()
 
         nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: locale.rLanguages)
+            .commonContinue(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
     }
 

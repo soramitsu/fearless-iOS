@@ -9,8 +9,10 @@ final class ProfilePresenter {
     private let logger: LoggerProtocol
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
+    private let eventCenter: EventCenter
 
     private var selectedWallet: MetaAccountModel?
+    private var selectedCurrency: Currency?
 
     init(
         viewModelFactory: ProfileViewModelFactoryProtocol,
@@ -18,6 +20,7 @@ final class ProfilePresenter {
         wireframe: ProfileWireframeProtocol,
         logger: LoggerProtocol,
         settings: SettingsManagerProtocol,
+        eventCenter: EventCenter,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.viewModelFactory = viewModelFactory
@@ -25,19 +28,27 @@ final class ProfilePresenter {
         self.wireframe = wireframe
         self.logger = logger
         self.settings = settings
+        self.eventCenter = eventCenter
         self.localizationManager = localizationManager
+
+        self.eventCenter.add(
+            observer: self,
+            dispatchIn: .main
+        )
     }
 
     private func receiveState() {
         guard
             let wallet = selectedWallet,
-            let language = localizationManager?.selectedLanguage
+            let language = localizationManager?.selectedLanguage,
+            let currency = selectedCurrency
         else { return }
 
         let viewModel = viewModelFactory.createProfileViewModel(
             from: wallet,
             locale: selectedLocale,
-            language: language
+            language: language,
+            currency: currency
         )
         let state = ProfileViewState.loaded(viewModel)
         view?.didReceive(state: state)
@@ -71,6 +82,9 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showLanguageSelection(from: view)
         case .about:
             wireframe.showAbout(from: view)
+        case .currency:
+            guard let selectedWallet = selectedWallet else { return }
+            wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry:
             break
         }
@@ -141,6 +155,11 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
             )
         }
     }
+
+    func didRecieve(selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        receiveState()
+    }
 }
 
 extension ProfilePresenter: Localizable {
@@ -148,5 +167,13 @@ extension ProfilePresenter: Localizable {
         if view?.isSetup == true {
             receiveState()
         }
+    }
+}
+
+extension ProfilePresenter: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        let currency = event.account.selectedCurrency
+        selectedWallet = event.account
+        interactor.update(currency: currency)
     }
 }

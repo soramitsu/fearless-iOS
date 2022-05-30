@@ -1,19 +1,6 @@
 import UIKit
 
 final class ManageAssetsViewLayout: UIView {
-    let navigationBar: BaseNavigationBar = {
-        let navBar = BaseNavigationBar()
-        navBar.set(.present)
-        return navBar
-    }()
-
-    let navigationTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .h3Title
-        label.textColor = .white
-        return label
-    }()
-
     let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
@@ -45,7 +32,6 @@ final class ManageAssetsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationTitleLabel.text = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
         applyButton.imageWithTitleView?.title = R.string.localizable.commonApply(preferredLanguages: locale.rLanguages)
         searchBar.placeholder = R.string.localizable.manageAssetsSearchHint(preferredLanguages: locale.rLanguages)
     }
@@ -69,21 +55,14 @@ final class ManageAssetsViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(navigationBar)
         addSubview(searchBar)
         addSubview(tableView)
         addSubview(applyButton)
 
-        navigationBar.setCenterViews([navigationTitleLabel])
-
-        navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
-        }
-
         searchBar.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
+            make.top.equalTo(safeAreaLayoutGuide)
         }
 
         tableView.snp.makeConstraints { make in

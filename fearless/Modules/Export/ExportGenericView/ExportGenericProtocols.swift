@@ -6,6 +6,8 @@ protocol ExportGenericViewProtocol: ControllerBackedProtocol {
 }
 
 protocol ExportGenericPresenterProtocol {
+    var flow: ExportFlow { get }
+
     func didLoadView()
     func setup()
     func activateExport()

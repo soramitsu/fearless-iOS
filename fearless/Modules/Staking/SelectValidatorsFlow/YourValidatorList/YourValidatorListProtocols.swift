@@ -30,7 +30,8 @@ protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
         _ validatorInfo: ValidatorInfoProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        from view: YourValidatorListViewProtocol?
+        from view: YourValidatorListViewProtocol?,
+        wallet: MetaAccountModel
     )
 
     func proceedToSelectValidatorsStart(

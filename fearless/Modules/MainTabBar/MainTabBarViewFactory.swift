@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 import CommonWallet
+import FearlessUtils
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
@@ -9,6 +10,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createView() -> MainTabBarViewProtocol? {
         guard
+            let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable,
             let selectedMetaAccount = SelectedWalletSettings.shared.value,
             let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
             .findService()
@@ -21,11 +23,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let serviceCoordinator = ServiceCoordinator.createDefault(
             with: selectedMetaAccount
-        )
-
-        let jsonDataProviderFactory = JsonDataProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared,
-            useCache: false
         )
 
         let wireframe = MainTabBarWireframe()
@@ -44,12 +41,19 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             applicationHandler: ApplicationHandler()
         )
 
+        let networkStatusPresenter = NetworkAvailabilityLayerPresenter(
+            view: window,
+            localizationManager: localizationManager
+        )
+
         let presenter = MainTabBarPresenter(
             wireframe: wireframe,
             interactor: interactor,
             appVersionObserver: appVersionObserver,
             applicationHandler: ApplicationHandler(),
-            localizationManager: LocalizationManager.shared
+            networkStatusPresenter: networkStatusPresenter,
+            reachability: ReachabilityManager.shared,
+            localizationManager: localizationManager
         )
 
         guard
@@ -81,7 +85,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let view = MainTabBarViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: localizationManager
         )
         view.viewControllers = [
             walletController,

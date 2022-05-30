@@ -3,20 +3,23 @@ import SoraFoundation
 import SoraKeystore
 
 struct AnalyticsRewardDetailsViewFactory {
-    static func createView(rewardModel: AnalyticsRewardDetailsModel) -> AnalyticsRewardDetailsViewProtocol? {
+    static func createView(
+        rewardModel: AnalyticsRewardDetailsModel,
+        wallet: MetaAccountModel
+    ) -> AnalyticsRewardDetailsViewProtocol? {
         let interactor = AnalyticsRewardDetailsInteractor()
         let wireframe = AnalyticsRewardDetailsWireframe()
 
         let settings = SettingsManager.shared
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let addressType = settings.selectedConnection.type
         let chain = addressType.chain
 
+        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: addressType,
-            limit: StakingConstants.maxAmount
+            targetAssetInfo: targetAssetInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
         )
 
         let viewModelFactory = AnalyticsRewardDetailsViewModelFactory(

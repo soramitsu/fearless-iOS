@@ -6,6 +6,7 @@ protocol WalletSendViewProtocol: ControllerBackedProtocol {
     func didReceive(title: String)
     func didStartFeeCalculation()
     func didStopFeeCalculation()
+    func didStopTipCalculation()
 }
 
 protocol WalletSendPresenterProtocol: AnyObject {
@@ -18,7 +19,7 @@ protocol WalletSendPresenterProtocol: AnyObject {
 
 protocol WalletSendInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(for amount: BigUInt)
+    func estimateFee(for amount: BigUInt, tip: BigUInt?)
 }
 
 protocol WalletSendInteractorOutputProtocol: AnyObject {
@@ -27,6 +28,7 @@ protocol WalletSendInteractorOutputProtocol: AnyObject {
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveTip(result: Result<BigUInt, Error>)
 }
 
 protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseErrorPresentable {
@@ -37,6 +39,7 @@ protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseEr
         asset: AssetModel,
         receiverAddress: String,
         amount: Decimal,
+        tip: Decimal?,
         transferFinishBlock: WalletTransferFinishBlock?
     )
 }

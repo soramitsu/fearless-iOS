@@ -15,8 +15,8 @@ protocol WalletSendConfirmPresenterProtocol: AnyObject {
 
 protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
     func setup()
-    func submitExtrinsic(for transferAmount: BigUInt, receiverAddress: String)
-    func estimateFee(for amount: BigUInt)
+    func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String)
+    func estimateFee(for amount: BigUInt, tip: BigUInt?)
 }
 
 protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {

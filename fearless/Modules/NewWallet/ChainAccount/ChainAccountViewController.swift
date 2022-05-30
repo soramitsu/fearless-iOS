@@ -41,8 +41,6 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        presenter.setup()
-
         rootView.navigationBar.backButton.addTarget(
             self,
             action: #selector(backButtonClicked),
@@ -55,6 +53,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
         rootView.balanceView.lockedView.button
             .addTarget(self, action: #selector(lockedInfoButtonClicked), for: .touchUpInside)
+        presenter.setup()
     }
 
     private func applyState() {
