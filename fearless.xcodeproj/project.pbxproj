@@ -3995,7 +3995,7 @@
 		FA4B92AB2844D0E60003BCEF /* SelectCurrencyPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectCurrencyPresenter.swift; sourceTree = "<group>"; };
 		FA4B92AC2844D0E60003BCEF /* SelectCurrencyViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectCurrencyViewLayout.swift; sourceTree = "<group>"; };
 		FA4B92B72844D2360003BCEF /* CoingeckoPricesSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoingeckoPricesSource.swift; sourceTree = "<group>"; };
-		FA4B92C72844DC8F0003BCEF /* MultiassetUserDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		FA4B92C72844DC8F0003BCEF /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
 		FA4CC6632817C3AC00A7E85F /* StackedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackedTableView.swift; sourceTree = "<group>"; };
 		FA4CC665281801CB00A7E85F /* StakingUnitInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnitInfoView.swift; sourceTree = "<group>"; };
 		FA5989522812658F008BD8A2 /* StakingOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingOperationFactory.swift; sourceTree = "<group>"; };
@@ -13412,13 +13412,13 @@
 		8467FD4F24EFD11E005D486C /* UserDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				FA4B92C72844DC8F0003BCEF /* MultiassetUserDataModel_v5.xcdatamodel */,
+				FA4B92C72844DC8F0003BCEF /* MultiassetUserDataModel_v4.xcdatamodel */,
 				FA99422B27FEA68D00D771E5 /* MultiassetUserDataModel_v3.xcdatamodel */,
 				FA9278A627C3811700FF7B5B /* MultiassetUserDataModel_v2.xcdatamodel */,
 				848DE75726D595660045CD29 /* MultiassetUserDataModel.xcdatamodel */,
 				8467FD5024EFD11E005D486C /* UserDataModel.xcdatamodel */,
 			);
-			currentVersion = FA99422B27FEA68D00D771E5 /* MultiassetUserDataModel_v3.xcdatamodel */;
+			currentVersion = FA4B92C72844DC8F0003BCEF /* MultiassetUserDataModel_v4.xcdatamodel */;
 			path = UserDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
