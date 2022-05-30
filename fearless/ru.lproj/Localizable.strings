@@ -42,6 +42,10 @@
 "no.email.bound.error.message" = "Пожалуйста, убедитесь, что на устройстве установлено почтовое приложение.";
 "connection.management.title" = "Сети";
 "onboarding.create.account" = "Создать аккаунт";
+"NSCameraUsageDescription" = "Камера используется для сканирования QR кода.";
+"NSFaceIDUsageDescription" = "Face ID используется для авторизации в приложении";
+"NSPhotoLibraryUsageDescription" = "Загрузить изображения из библиотеки";
+"NSPhotoLibraryAddUsageDescription" = "Вы можете сохранить запрос на перевод в виде QR кода";
 "username.setup.choose.title" = "Имя";
 "username.setup.hint" = "Данное имя будет отображаться только для вас и храниться только на вашем мобильном устройстве.";
 "username.setup.title" = "Создать аккаунт";
@@ -550,8 +554,9 @@
 "substrate.secret.derivation.path" = "Путь деривации секрета substrate\
 ";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
-"example" = "Example: %@";
-"pincode.setup.top.title" = "Установить пин-код";
+"example" = "Пример: %@";
+"pincode.setup.top.title" = "Установить пин-код\
+";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
 "share.referral.code" = "Поделиться реферальным кодом";
 "copy.referral.code" = "Копировать реферальный код";
@@ -586,7 +591,7 @@
 "view.in" = "Посмотреть в %s";
 "wallet.transaction.history.unsupported.message" = "История транзакций для этой сети еще не поддерживается";
 "wallet.transaction.history.empty.message" = "Здесь появится история транзакций";
-"account.option" = "";
+"account.option" = "Account option";
 "switch.node.autoselect.title" = "Автоматический выбор нод";
 "add.node.button.title" = "Добавить ноду";
 "profile.logout.title" = "Выйти";
@@ -638,11 +643,20 @@
 "connection.problems.text" = "Проблемы с подключением";
 "learn.more.about.crowdloans" = "Узнайте больше о Crowdloans";
 "navigation.title.crowdloan" = "Краудлоны парачейна";
+"common.yes" = "Да";
+"common.no" = "Нет";
+"alert.add.ethereum.title" = "ETH аккаунты";
+"alert.add.ethereum.message" = "Добавить аккаунты Moonbeam и Moonriver?";
 "account.import.substrate.raw.seed.placeholder" = "Бинарный сид для сабстрейт аккаунтов (64 шестнадцатиричных символа)";
 "account.import.ethereum.raw.seed.placeholder" = "Бинарный сид для эфир аккаунтов (64 шестнадцатиричных символа)";
 "import.substrate.recovery.json" = "JSON для восстановления Substrate аккаунтов";
 "import.ethereum.recovery.json" = "JSON для восстановления ETH аккаунтов";
 "common.unsupported" = "Не поддерживается";
+"min.staking.warning.text" = "The bonded amount is less than the current active minimum nominated amount of %s\
+and depending on the network state, may not be selected to participate";
+"staking.inactive.bond" = "Неактивен";
+"min.staking.calculating.text" = "Calculating active minimum nominated amount. Please try again in few seconds.";
+"manage.assets.account.missing.text" = "Добавить аккаунт...";
 "stories.version2.slide1.title" = "Больше сетей — больше токенов";
 "stories.version2.slide2.title" = "Аккаунты улучшились до кошельков";
 "stories.version2.slide3.title" = "Кошелёк стал мощнее";
@@ -656,15 +670,27 @@
 \
 Не забудьте сделать резервную копию и хранить её в безопасном и приватном месте (например, на листе бумаге)";
 "stories.bottom.close.button" = "Отличные новости!";
-"missing.account.skip" = "Мне не нужен аккаунт";
-"common.yes" = "Да";
-"common.no" = "Нет";
-"alert.add.ethereum.title" = "ETH аккаунты";
-"alert.add.ethereum.message" = "Добавить Moonbeam и Moonriver аккаунты?";
+"export.substrate.title" = "Экспорт Substrate";
+"export.ethereum.title" = "Экспорт Ethereum";
+"account.template" = "%s аккаунт";
+"i.dont.need.account" = "Мне не нужен аккаунт";
 "export.wallet.chains.count" = "+%d ДРУГИХ";
 "import.empty.derivation.message" = "Вы можете задать нулевой путь (//00//00//0/0/0) или оставить путь деривации пустым. Пустой путь не позволит вам экспортировать аккаунт. Пожалуйста, выберите, какой путь вы хотите задать";
 "import.empty.derivation.confirm" = "Пустой";
 "import.empty.derivation.cancel" = "Оставить как есть";
-"account.import.substrate.raw.seed.placeholder" = "Бинарный сид для сабстрейт аккаунтов (64 шестнадцатиричных символа)";
-"account.import.ethereum.raw.seed.placeholder" = "Бинарный сид для эфир аккаунтов (64 шестнадцатиричных символа)";
+"contribution.type.direct.dot" = "Direct DOT";
+"contribution.type.lcdot" = "lcDOT";
+"common.currency" = "Валюта";
+"label.testnet" = "Testnet";
+"identity.twitter.title" = "Twitter";
+"moonbeam.registration.description.system.remark" = "system.remark";
+"default.account.shared.secret" = "Аккаунты с одним ключом";
+"account.unique.secret" = "Аккаунты с измененным ключом";
 "account.import.recovery.select.file" = "Выбрать файл";
+"account.create.error.missing.crypto.type.title" = "Неверный тип шифрования";
+"common.error.missing.crypto.type.message" = "Не получилось определить тип шифрования для этого кошелька";
+"no.account.found" = "Аккаунт не найден";
+"missing.account.skip" = "Мне не нужен аккаунт";
+"create.new.pincode" = "Создайте новый PIN код";
+"common.currency" = "Валюта";
+"wallet.send.tip.title" = "Чаевые";

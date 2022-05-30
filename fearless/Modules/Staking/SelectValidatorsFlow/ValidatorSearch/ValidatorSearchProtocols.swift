@@ -43,7 +43,8 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
         chainAsset: ChainAsset,
-        flow: ValidatorSearchFlow
+        flow: ValidatorSearchFlow,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol?
 }
 

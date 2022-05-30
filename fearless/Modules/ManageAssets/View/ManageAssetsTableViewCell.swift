@@ -64,18 +64,11 @@ class ManageAssetsTableViewCell: UITableViewCell {
         return button
     }()
 
-    var locale = Locale.current {
-        didSet {
-            applyLocalization()
-        }
-    }
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         configure()
         setupLayout()
-        applyLocalization()
     }
 
     override func prepareForReuse() {
@@ -92,11 +85,6 @@ class ManageAssetsTableViewCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func applyLocalization() {
-        accountMissingHintView.titleLabel.text = R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
-        addMissingAccountButton.setTitle(R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages), for: .normal)
     }
 
     private func configure() {
@@ -151,7 +139,6 @@ class ManageAssetsTableViewCell: UITableViewCell {
         dragButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
-            make.top.bottom.equalToSuperview()
             make.size.equalTo(LayoutConstants.iconSize)
         }
 
@@ -208,7 +195,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         delegate = viewModel
         viewModel.imageViewModel?.cancel(on: chainIconImageView)
 
-        chainNameLabel.text = viewModel.assetName?.uppercased()
+        chainNameLabel.text = viewModel.assetName?.capitalized
         tokenBalanceLabel.text = viewModel.balanceString
         switcher.isOn = viewModel.assetEnabled
 
@@ -235,7 +222,28 @@ class ManageAssetsTableViewCell: UITableViewCell {
         dragButton.isHidden = viewModel.accountMissing
         switcher.isHidden = viewModel.accountMissing
         accountMissingHintView.isHidden = !viewModel.accountMissing
-        accountMissingHintView.iconView.isHidden = viewModel.chainAsset.chain.unused == true
         addMissingAccountButton.isHidden = !viewModel.accountMissing
+        accountMissingHintView.setIconHidden(viewModel.chainUnused)
+
+        accountMissingHintView.titleLabel.text = R.string.localizable.manageAssetsAccountMissingText(
+            preferredLanguages: viewModel.locale?.rLanguages
+        )
+        addMissingAccountButton.setTitle(
+            R.string.localizable.accountsAddAccount(
+                preferredLanguages: viewModel.locale?.rLanguages),
+            for: .normal
+        )
+
+        setDeactivated(viewModel.cellInactive)
+    }
+}
+
+extension ManageAssetsTableViewCell: DeactivatableView {
+    var deactivatableViews: [UIView] {
+        [chainNameLabel, accountMissingHintView.titleLabel]
+    }
+
+    var deactivatedAlpha: CGFloat {
+        0.5
     }
 }

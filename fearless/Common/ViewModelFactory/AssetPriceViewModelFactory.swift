@@ -6,7 +6,8 @@ protocol AssetPriceViewModelFactoryProtocol {
     func buildPriceViewModel(
         for _: AssetModel,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> NSAttributedString?
 }
 
@@ -14,29 +15,30 @@ extension AssetPriceViewModelFactoryProtocol {
     func buildPriceViewModel(
         for _: AssetModel,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        currency: Currency
     ) -> NSAttributedString? {
-        let usdDisplayInfo = AssetBalanceDisplayInfo.usd()
-        let usdTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: usdDisplayInfo)
-        let usdTokenFormatterValue = usdTokenFormatter.value(for: locale)
+        let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatterValue = tokenFormatter.value(for: locale)
 
         guard let priceData = priceData,
               let priceDecimal = Decimal(string: priceData.price) else {
             return nil
         }
 
-        let changeString: String = priceData.usdDayChange.map {
+        let changeString: String = priceData.fiatDayChange.map {
             let percentValue = $0 / 100
-            return percentValue.percentString() ?? ""
+            return percentValue.percentString(locale: locale) ?? ""
         } ?? ""
 
-        let priceString: String = usdTokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
+        let priceString: String = tokenFormatterValue.stringFromDecimal(priceDecimal) ?? ""
 
         let priceWithChangeString = [priceString, changeString].joined(separator: " ")
 
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
 
-        let color = (priceData.usdDayChange ?? 0) > 0 ? R.color.colorGreen() : R.color.colorRed()
+        let color = (priceData.fiatDayChange ?? 0) > 0 ? R.color.colorGreen() : R.color.colorRed()
 
         if let color = color {
             priceWithChangeAttributed.addAttributes(

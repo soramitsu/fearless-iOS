@@ -2,7 +2,12 @@ import RobinHood
 final class WalletDetailsInteractor {
     weak var presenter: WalletDetailsInteractorOutputProtocol!
 
-    private let flow: WalletDetailsFlow
+    private var flow: WalletDetailsFlow {
+        didSet {
+            presenter.didReceive(updatedFlow: flow)
+        }
+    }
+
     private let chainsRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
@@ -29,12 +34,44 @@ final class WalletDetailsInteractor {
 extension WalletDetailsInteractor: AccountFetching {}
 
 extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
+    func markUnused(chain: ChainModel) {
+        var unusedChainIds = flow.wallet.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = flow.wallet.replacingUnusedChainIds(unusedChainIds)
+
+        let saveOperation = repository.saveOperation {
+            [updatedAccount]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                switch result {
+                case let .success(account):
+                    DispatchQueue.main.async {
+                        if case .normal = self?.flow {
+                            self?.flow = .normal(wallet: account)
+                        }
+
+                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                    }
+
+                case .failure:
+                    break
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [saveOperation], in: .transient)
+    }
+
     func setup() {
         switch flow {
         case .normal:
             fetchChainsWithAccounts()
         case let .export(_, accounts):
-            presenter.didReceive(chainAccounts: accounts)
+            presenter.didReceive(chains: accounts.map(\.chain))
         }
     }
 
@@ -42,7 +79,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
             self.flow.wallet.replacingName(walletName)
         }
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try updateOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             return accountItem
@@ -65,12 +102,16 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         operationManager.enqueue(operations: [updateOperation, saveOperation], in: .transient)
     }
 
-    func getAvailableExportOptions(for chainAccount: ChainAccountInfo, address: String) {
-        fetchChainAccount(
+    func getAvailableExportOptions(for chainAccount: ChainAccountInfo) {
+        guard let address = chainAccount.account.toAddress() else {
+            presenter.didReceive(error: ChainAccountFetchingError.accountNotExists)
+            return
+        }
+
+        fetchChainAccountFor(
+            meta: flow.wallet,
             chain: chainAccount.chain,
-            address: address,
-            from: repository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):
@@ -109,15 +150,7 @@ private extension WalletDetailsInteractor {
     func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            let chainAccounts: [ChainAccountInfo] = chains.compactMap { chain in
-                if let chainAccount = self.flow.wallet.fetch(for: chain.accountRequest()) {
-                    return ChainAccountInfo(chain: chain, account: chainAccount)
-                }
-
-                return nil
-            }
-
-            presenter.didReceive(chainAccounts: chainAccounts)
+            presenter.didReceive(chains: chains)
         case .failure, .none:
             return
         }

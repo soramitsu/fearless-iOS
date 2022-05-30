@@ -86,6 +86,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.commonSettings = commonSettings
         self.logger = logger
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     deinit {

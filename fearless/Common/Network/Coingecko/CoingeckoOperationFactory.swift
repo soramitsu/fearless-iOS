@@ -2,14 +2,17 @@ import Foundation
 import RobinHood
 
 protocol CoingeckoOperationFactoryProtocol {
-    func fetchPriceOperation(for tokenIds: [String]) -> BaseOperation<[PriceData]>
+    func fetchPriceOperation(
+        for tokenIds: [String],
+        currency: Currency
+    ) -> BaseOperation<[PriceData]>
 }
 
 final class CoingeckoOperationFactory {
     private func buildURLForAssets(
         _ tokenIds: [String],
         method: String,
-        currencies: [String] = ["usd"]
+        currency: Currency
     ) -> URL? {
         guard var components = URLComponents(
             url: CoingeckoAPI.baseURL.appendingPathComponent(method),
@@ -17,7 +20,7 @@ final class CoingeckoOperationFactory {
         ) else { return nil }
 
         let tokenIDParam = tokenIds.joined(separator: ",")
-        let currencyParam = currencies.joined(separator: ",")
+        let currencyParam = currency.id
 
         components.queryItems = [
             URLQueryItem(name: "ids", value: tokenIDParam),
@@ -30,8 +33,15 @@ final class CoingeckoOperationFactory {
 }
 
 extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
-    func fetchPriceOperation(for tokenIds: [String]) -> BaseOperation<[PriceData]> {
-        guard let url = buildURLForAssets(tokenIds, method: CoingeckoAPI.price) else {
+    func fetchPriceOperation(
+        for tokenIds: [String],
+        currency: Currency
+    ) -> BaseOperation<[PriceData]> {
+        guard let url = buildURLForAssets(
+            tokenIds,
+            method: CoingeckoAPI.price,
+            currency: currency
+        ) else {
             return BaseOperation.createWithError(NetworkBaseError.invalidUrl)
         }
 
@@ -49,24 +59,32 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
         }
 
         let resultFactory = AnyNetworkResultFactory<[PriceData]> { data in
-            let priceData = try JSONDecoder().decode(
-                [String: CoingeckoPriceData].self,
-                from: data
-            )
+            let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
 
             return tokenIds.compactMap { assetId in
-                guard let priceData = priceData[assetId] else {
+                guard let priceDataJson = json?[assetId] as? [String: Any] else {
+                    return nil
+                }
+
+                let price = priceDataJson[currency.id] as? CGFloat
+                let dayChange = priceDataJson["\(currency.id)_24h_change"] as? CGFloat
+
+                guard let price = price else {
                     return nil
                 }
 
                 return PriceData(
-                    price: priceData.usdPrice.stringWithPointSeparator,
-                    usdDayChange: priceData.usdDayChange
+                    priceId: assetId,
+                    price: String(describing: price),
+                    fiatDayChange: Decimal(dayChange ?? 0.0)
                 )
             }
         }
 
-        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
+        let operation = NetworkOperation(
+            requestFactory: requestFactory,
+            resultFactory: resultFactory
+        )
 
         return operation
     }

@@ -83,27 +83,21 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
         }
     }
 
-    func fetchExportDataForAddress(_ address: String, chain: ChainModel) {
-        guard let metaAccount = SelectedWalletSettings.shared.value else {
-            presenter.didReceive(error: ExportMnemonicInteractorError.missingAccount)
-            return
-        }
-
-        fetchChainAccount(
+    func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: MetaAccountModel) {
+        fetchChainAccountFor(
+            meta: wallet,
             chain: chain,
-            address: address,
-            from: accountRepository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainRespone):
                 guard let response = chainRespone,
-                      let accountId = metaAccount.fetch(for: chain.accountRequest())?.accountId else {
+                      let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
                     self?.presenter.didReceive(error: ExportSeedInteractorError.missingAccount)
                     return
                 }
                 self?.fetchExportData(
-                    metaId: metaAccount.metaId,
+                    metaId: wallet.metaId,
                     accountId: response.isChainAccount ? accountId : nil,
                     cryptoType: response.cryptoType,
                     chain: chain

@@ -70,7 +70,8 @@ struct ValidatorSearchViewFactory {
 extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
     static func createView(
         chainAsset: ChainAsset,
-        flow: ValidatorSearchFlow
+        flow: ValidatorSearchFlow,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol? {
         guard let container = createContainer(flow: flow, chainAsset: chainAsset) else {
             return nil
@@ -86,7 +87,8 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
             viewModelState: container.viewModelState,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         )
 
         interactor.presenter = presenter

@@ -21,7 +21,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedAccount
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)

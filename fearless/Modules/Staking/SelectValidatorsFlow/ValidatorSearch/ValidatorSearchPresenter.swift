@@ -11,6 +11,8 @@ final class ValidatorSearchPresenter {
     let logger: LoggerProtocol?
     let chainAsset: ChainAsset
 
+    private let wallet: MetaAccountModel
+
     private var isSearching: Bool = false
 
     private lazy var addressFactory = SS58AddressFactory()
@@ -22,7 +24,8 @@ final class ValidatorSearchPresenter {
         viewModelState: ValidatorSearchViewModelState,
         localizationManager: LocalizationManager,
         logger: LoggerProtocol? = nil,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -30,6 +33,7 @@ final class ValidatorSearchPresenter {
         self.viewModelState = viewModelState
         self.logger = logger
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 

@@ -71,18 +71,16 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         }
     }
 
-    func exportAccount(address: String, password: String, chain: ChainModel) {
-        fetchChainAccount(
+    func exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel) {
+        fetchChainAccountFor(
+            meta: wallet,
             chain: chain,
-            address: address,
-            from: accountRepository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):
                 guard let self = self,
-                      let response = chainResponse,
-                      let metaAccount = SelectedWalletSettings.shared.value else {
+                      let response = chainResponse else {
                     self?.presenter.didReceive(error: AccountExportPasswordInteractorError.missingAccount)
                     return
                 }
@@ -98,7 +96,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                                 password: password,
                                 chain: chain,
                                 chainAccount: response,
-                                metaId: metaAccount.metaId,
+                                metaId: wallet.metaId,
                                 genesisHash: genesisHash
                             )
                         } catch {
@@ -114,7 +112,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                         password: password,
                         chain: chain,
                         chainAccount: response,
-                        metaId: metaAccount.metaId,
+                        metaId: wallet.metaId,
                         genesisHash: nil
                     )
                 }

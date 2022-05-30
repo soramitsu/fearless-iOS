@@ -77,4 +77,8 @@ extension ConstantCodingPath {
     static var maxBottomDelegationsPerCandidate: ConstantCodingPath {
         ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxBottomDelegationsPerCandidate")
     }
+
+    static var defaultTip: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Balances", constantName: "DefaultTip")
+    }
 }

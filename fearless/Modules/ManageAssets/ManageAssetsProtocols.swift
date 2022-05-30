@@ -27,6 +27,7 @@ protocol ManageAssetsInteractorOutputProtocol: AnyObject {
     func didReceiveSortOrder(_ sortedKeys: [String]?)
     func didReceiveAssetIdsEnabled(_ assetIdsEnabled: [String]?)
     func saveDidComplete()
+    func didReceiveWallet(_ wallet: MetaAccountModel)
 }
 
 protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, PresentDismissable {

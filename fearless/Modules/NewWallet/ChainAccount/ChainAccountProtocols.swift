@@ -28,6 +28,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
     func didReceiveExportOptions(options: [ExportOption])
+    func didReceive(currency: Currency)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
@@ -65,12 +66,14 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     func presentLockedInfo(
         from view: ControllerBackedProtocol?,
         balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo
+        info: AssetBalanceDisplayInfo,
+        currency: Currency
     )
 
     func presentChainActionsFlow(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],
+        chain: ChainModel,
         callback: @escaping ModalPickerSelectionCallback
     )
 
@@ -84,6 +87,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         chain: ChainModel,
         options: [ExportOption],
         locale: Locale?,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 

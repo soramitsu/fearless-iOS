@@ -17,10 +17,9 @@ final class WalletDetailsViewLayout: UIView {
     }()
 
     let tableView: UITableView = {
-        let view = UITableView()
+        let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
-        view.refreshControl = UIRefreshControl()
-        view.separatorColor = R.color.colorDarkGray()
+        view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
 
         return view
@@ -48,7 +47,7 @@ final class WalletDetailsViewLayout: UIView {
         return button
     }()
 
-    var locale = Locale.current {
+    var locale: Locale? {
         didSet {
             applyLocalization()
         }
@@ -68,7 +67,7 @@ final class WalletDetailsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        exportButton.imageWithTitleView?.title = R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
+        exportButton.imageWithTitleView?.title = R.string.localizable.accountExportAction(preferredLanguages: locale?.rLanguages)
     }
 
     func bind(to viewModel: WalletDetailsViewModel) {

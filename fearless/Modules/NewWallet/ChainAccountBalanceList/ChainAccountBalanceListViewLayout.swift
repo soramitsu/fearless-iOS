@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 protocol ChainAccountBalanceListViewDelegate: AnyObject {
     func accountButtonDidTap()
@@ -9,7 +10,10 @@ final class ChainAccountBalanceListViewLayout: UIView {
         static let accountButtonSize: CGFloat = 40
         static let manageAssetsIconSize: CGFloat = 24
         static let warningImageSize: CGFloat = 14
+        static let balanceSkeletonSize = CGSize(width: 164.0, height: 16.0)
     }
+
+    private var skeletonView: SkrullableView?
 
     let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -48,10 +52,11 @@ final class ChainAccountBalanceListViewLayout: UIView {
         return label
     }()
 
-    let totalBalanceLabel: UILabel = {
-        let label = UILabel()
+    let totalBalanceLabel: ShimmeredLabel = {
+        let label = ShimmeredLabel()
         label.font = .h1Title
         label.textColor = .white
+        label.isUserInteractionEnabled = true
         return label
     }()
 
@@ -79,9 +84,7 @@ final class ChainAccountBalanceListViewLayout: UIView {
         }
     }
 
-    private func applyLocalization() {
-        manageAssetsLabel.text = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
-    }
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -94,6 +97,24 @@ final class ChainAccountBalanceListViewLayout: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Public methods
+
+    func bind(to viewModel: ChainAccountBalanceListViewModel) {
+        accountNameLabel.text = viewModel.accountName
+        totalBalanceLabel.apply(state: viewModel.balance)
+        ethAccountMissingIconImageView.isHidden = !viewModel.ethAccountMissed
+
+        viewModel.isColdBoot
+            ? startSkeletonAmimating()
+            : stopSkeletonAnimating()
+    }
+
+    // MARK: - Private methods
+
+    private func applyLocalization() {
+        manageAssetsLabel.text = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -172,10 +193,62 @@ final class ChainAccountBalanceListViewLayout: UIView {
     private func accountButtonHandler() {
         delegate?.accountButtonDidTap()
     }
+}
 
-    func bind(to viewModel: ChainAccountBalanceListViewModel) {
-        accountNameLabel.text = viewModel.accountName
-        totalBalanceLabel.text = viewModel.balance
-        ethAccountMissingIconImageView.isHidden = !viewModel.ethAccountMissed
+// MARK: - Skeleton
+
+extension ChainAccountBalanceListViewLayout {
+    private func startSkeletonAmimating() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        totalBalanceLabel.alpha = 0
+        setupSkeleton()
+    }
+
+    private func stopSkeletonAnimating() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        totalBalanceLabel.alpha = 1
+    }
+
+    private func setupSkeleton() {
+        guard frame.size != .zero else { return }
+        let spaceSize = frame.size
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, belowSubview: totalBalanceLabel)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        [
+            SingleSkeleton.createRow(
+                inPlaceOf: totalBalanceLabel,
+                containerView: self,
+                spaceSize: spaceSize,
+                size: LayoutConstants.balanceSkeletonSize
+            )
+        ]
     }
 }

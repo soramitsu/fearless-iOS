@@ -11,8 +11,11 @@ final class ValidatorInfoViewFactory {
     ) -> ValidatorInfoDependencyContainer? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
         )
+
+        let localizationManager = LocalizationManager.shared
 
         switch flow {
         case let .relaychain(validatorInfo, address):

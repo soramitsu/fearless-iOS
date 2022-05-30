@@ -181,6 +181,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
             GitHubUrl.url(suffix: "ios_app_support.json")
         #endif
     }
+
+    var fiatsURL: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
+    }
 }
 
 private enum GitHubUrl {

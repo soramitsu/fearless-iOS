@@ -4,6 +4,7 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 
+// swiftlint:disable function_body_length
 extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
         let userAssets: [WalletAsset] = assets.compactMap { identifier in
@@ -15,12 +16,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         }
 
         let balanceOperation = fetchBalanceInfoForAsset(userAssets)
-        let priceOperations: [CompoundOperationWrapper<Price?>] = userAssets.compactMap {
-            if let assetId = WalletAssetId(rawValue: $0.identifier) {
-                return fetchPriceOperation(assetId)
-            } else {
-                return nil
-            }
+        let priceOperations: [CompoundOperationWrapper<Price?>] = userAssets.compactMap { _ in
+            nil
         }
 
         let minimalBalanceOperation: CompoundOperationWrapper<BigUInt> = fetchMinimalBalanceOperation()

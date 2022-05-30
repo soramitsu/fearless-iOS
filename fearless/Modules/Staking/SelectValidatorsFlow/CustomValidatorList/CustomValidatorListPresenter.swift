@@ -148,7 +148,8 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         wireframe.presentSearch(
             from: view,
             flow: flow,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 

@@ -8,6 +8,8 @@ protocol AccountExportPasswordViewProtocol: ControllerBackedProtocol {
 }
 
 protocol AccountExportPasswordPresenterProtocol: AnyObject {
+    var flow: ExportFlow { get }
+
     func setup()
     func proceed()
 }
@@ -22,7 +24,8 @@ protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
     func exportAccount(
         address: String,
         password: String,
-        chain: ChainModel
+        chain: ChainModel,
+        wallet: MetaAccountModel
     )
 }
 
@@ -32,7 +35,8 @@ protocol AccountExportPasswordInteractorOutputProtocol: AnyObject {
 }
 
 protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, AlertPresentable {
-    func showJSONExport(_ jsons: [RestoreJson], from view: AccountExportPasswordViewProtocol?)
+    func showJSONExport(_ jsons: [RestoreJson], flow: ExportFlow, from view: AccountExportPasswordViewProtocol?)
+    func back(from view: ControllerBackedProtocol?)
 }
 
 protocol AccountExportPasswordViewFactoryProtocol: AnyObject {

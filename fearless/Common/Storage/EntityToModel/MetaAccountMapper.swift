@@ -28,6 +28,21 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             )
         } ?? []
 
+        var selectedCurrency: Currency?
+        if let currency = entity.selectedCurrency,
+           let id = currency.id,
+           let symbol = currency.symbol,
+           let name = currency.name,
+           let icon = currency.icon {
+            selectedCurrency = Currency(
+                id: id,
+                symbol: symbol,
+                name: name,
+                icon: icon,
+                isSelected: currency.isSelected
+            )
+        }
+
         let substrateAccountId = try Data(hexString: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexString: $0) }
 
@@ -42,7 +57,9 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccounts: Set(chainAccounts),
             assetKeysOrder: entity.assetKeysOrder as? [String],
             assetIdsEnabled: entity.assetIdsEnabled as? [String],
-            canExportEthereumMnemonic: entity.canExportEthereumMnemonic
+            canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
+            unusedChainIds: entity.unusedChainIds as? [String],
+            selectedCurrency: selectedCurrency ?? Currency.defaultCurrency()
         )
     }
 
@@ -61,6 +78,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.assetIdsEnabled = model.assetIdsEnabled as? NSArray
         entity.assetKeysOrder = model.assetKeysOrder as? NSArray
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
+        entity.unusedChainIds = model.unusedChainIds as? NSArray
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {
@@ -85,5 +103,22 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccountEntity?.publicKey = chainAccount.publicKey
             chainAccountEntity?.ethereumBased = chainAccount.ethereumBased
         }
+
+        updatedEntityCurrency(for: entity, from: model, context: context)
+    }
+
+    private func updatedEntityCurrency(
+        for entity: CoreDataEntity,
+        from model: DataProviderModel,
+        context: NSManagedObjectContext
+    ) {
+        let currencyEntity = CDCurrency(context: context)
+        currencyEntity.id = model.selectedCurrency.id
+        currencyEntity.name = model.selectedCurrency.name
+        currencyEntity.symbol = model.selectedCurrency.symbol
+        currencyEntity.icon = model.selectedCurrency.icon
+        currencyEntity.isSelected = model.selectedCurrency.isSelected ?? false
+
+        entity.selectedCurrency = currencyEntity
     }
 }

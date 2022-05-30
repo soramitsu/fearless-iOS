@@ -58,8 +58,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            priceAssetInfo: AssetBalanceDisplayInfo.usd(),
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
         )
 
         switch flow {
@@ -201,9 +201,9 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            priceAssetInfo: AssetBalanceDisplayInfo.usd(),
             formatterFactory: AssetBalanceFormatterFactory(),
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(

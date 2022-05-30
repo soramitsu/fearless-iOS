@@ -139,12 +139,18 @@ private extension AccountImportPresenter {
             return
         }
 
-        if let data = preferredData {
-            selectedCryptoType = data.cryptoType
-            view?.setSource(type: selectedSourceType, selectable: false)
-        } else {
-            selectedCryptoType = selectedCryptoType ?? metadata.defaultCryptoType
-            view?.setSource(type: selectedSourceType, selectable: true)
+        switch flow {
+        case let .chain(model):
+            let chainType: AccountCreateChainType = model.chain.isEthereumBased ? .ethereum : .substrate
+            view?.setSource(type: selectedSourceType, chainType: chainType, selectable: true)
+        case let .wallet(step):
+            switch step {
+            case .first:
+                view?.setSource(type: selectedSourceType, chainType: .substrate, selectable: true)
+            case let .second(data):
+                selectedCryptoType = data.cryptoType
+                view?.setSource(type: selectedSourceType, chainType: .ethereum, selectable: false)
+            }
         }
 
         applySourceTextViewModel(value)
@@ -156,7 +162,7 @@ private extension AccountImportPresenter {
         case let .wallet(step):
             switch step {
             case .first:
-                username = ""
+                username = preferredData?.username ?? ""
             case let .second(data):
                 username = data.username
             }
@@ -235,7 +241,15 @@ private extension AccountImportPresenter {
         let viewModel = InputViewModel(inputHandler: inputHandler)
         usernameViewModel = viewModel
 
-        view?.setName(viewModel: viewModel)
+        var visible: Bool
+        switch flow {
+        case .wallet:
+            visible = true
+        case .chain:
+            visible = false
+        }
+
+        view?.setName(viewModel: viewModel, visible: visible)
     }
 
     func applyPasswordViewModel() {
@@ -247,7 +261,7 @@ private extension AccountImportPresenter {
         case .mnemonic, .seed:
             passwordViewModel = nil
         case .keystore:
-            let viewModel = InputViewModel(inputHandler: InputHandler(required: false))
+            let viewModel = InputViewModel(inputHandler: InputHandler(required: true))
             passwordViewModel = viewModel
 
             view?.setPassword(viewModel: viewModel)
@@ -261,13 +275,24 @@ private extension AccountImportPresenter {
             view?.setUploadWarning(message: warning)
             return
         }
-
         switch selectedSourceType {
         case .mnemonic:
             applyCryptoTypeViewModel(cryptoType)
-            applySubstrateDerivationPathViewModel()
-            applyEthereumDerivationPathViewModel()
-            view?.show(chainType: .both)
+
+            switch flow {
+            case .wallet:
+                applySubstrateDerivationPathViewModel()
+                applyEthereumDerivationPathViewModel()
+                view?.show(chainType: .both)
+            case let .chain(model):
+                if model.chain.isEthereumBased {
+                    applyEthereumDerivationPathViewModel()
+                    view?.show(chainType: .ethereum)
+                } else {
+                    applySubstrateDerivationPathViewModel()
+                    view?.show(chainType: .substrate)
+                }
+            }
         case .seed:
             applyCryptoTypeViewModel(cryptoType)
             if flow.isEthereumFlow {
@@ -446,18 +471,17 @@ private extension AccountImportPresenter {
     }
 
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
         let showAction = AlertPresentableAction(
-            title: R.string.localizable.commonYes(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonYes(),
             handler: showHandler
         )
         let closeAction = AlertPresentableAction(
-            title: R.string.localizable.commonNo(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonNo(preferredLanguages: selectedLocale.rLanguages),
             handler: closeHandler
         )
         let alertViewModel = AlertPresentableViewModel(
-            title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: locale.rLanguages),
-            message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: selectedLocale.rLanguages),
             actions: [showAction, closeAction],
             closeAction: nil
         )
@@ -709,7 +733,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
 
         if viewModel.inputHandler.completed {
-            view?.didValidateSubstrateDerivationPath(.valid)
+            if viewModel.inputHandler.value.isEmpty {
+                view?.didValidateSubstrateDerivationPath(.none)
+            } else {
+                view?.didValidateSubstrateDerivationPath(.valid)
+            }
         } else {
             view?.didValidateSubstrateDerivationPath(.invalid)
             presentDerivationPathError(
@@ -728,7 +756,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
 
         if viewModel.inputHandler.completed {
-            view?.didValidateEthereumDerivationPath(.valid)
+            if viewModel.inputHandler.value.isEmpty {
+                view?.didValidateEthereumDerivationPath(.none)
+            } else {
+                view?.didValidateEthereumDerivationPath(.valid)
+            }
         } else {
             view?.didValidateEthereumDerivationPath(.invalid)
             presentDerivationPathError(

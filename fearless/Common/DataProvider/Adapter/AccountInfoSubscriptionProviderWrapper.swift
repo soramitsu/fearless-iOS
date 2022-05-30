@@ -7,7 +7,7 @@ final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber
     }
 
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
-    var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler
+    weak var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler?
 
     init(factory: WalletLocalSubscriptionFactoryProtocol, handler: WalletLocalSubscriptionHandler) {
         walletLocalSubscriptionFactory = factory

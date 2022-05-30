@@ -2,6 +2,8 @@ import Foundation
 import SoraFoundation
 import Charts
 
+typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
+
 final class ChainAccountBalanceListPresenter {
     weak var view: ChainAccountBalanceListViewProtocol?
     let wireframe: ChainAccountBalanceListWireframeProtocol
@@ -11,10 +13,11 @@ final class ChainAccountBalanceListPresenter {
     private var sortedKeys: [String]?
     private var chainModels: [ChainModel] = []
 
-    private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
-    private var prices: [AssetModel.PriceId: PriceData] = [:]
+    private var accountInfos: [ChainModel.Id: AccountInfo?] = [:]
+    private var prices: PriceDataUpdated = ([], false)
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
+    private var selectedCurrency: Currency?
 
     init(
         interactor: ChainAccountBalanceListInteractorInputProtocol,
@@ -44,6 +47,10 @@ final class ChainAccountBalanceListPresenter {
 
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
+
+    private func priceUpdateDidStart() {
+        prices.updated = false
+    }
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProtocol {
@@ -54,6 +61,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didPullToRefreshOnAssetsTable() {
+        priceUpdateDidStart()
+        provideViewModel()
         interactor.refresh()
     }
 
@@ -65,14 +74,47 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
         if viewModel.chain.isSupported {
             wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
         } else {
-            wireframe.presentWarningAlert(from: view, config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)) { [weak self] in
+            wireframe.presentWarningAlert(
+                from: view,
+                config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)
+            ) { [weak self] in
                 self?.wireframe.showAppstoreUpdatePage()
             }
         }
     }
+
+    func didTapTotalBalanceLabel() {
+        interactor.fetchFiats()
+    }
 }
 
 extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOutputProtocol {
+    func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>) {
+        switch supportedCurrencys {
+        case let .success(supportedCurrencys):
+
+            let selectionCallback: ModalPickerSelectionCallback = { [weak self, supportedCurrencys] selectedIndex in
+                guard let strongSelf = self else { return }
+
+                strongSelf.priceUpdateDidStart()
+                strongSelf.provideViewModel()
+
+                var selectedCurrency = supportedCurrencys[selectedIndex]
+                selectedCurrency.isSelected = true
+                strongSelf.interactor.didReceive(currency: selectedCurrency)
+            }
+
+            wireframe.presentSelectCurrency(
+                from: view,
+                supportedCurrencys: supportedCurrencys,
+                selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
+                callback: selectionCallback
+            )
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: localizationManager?.selectedLocale)
+        }
+    }
+
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
         case let .success(chains):
@@ -84,18 +126,30 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
-        accountInfos[chainId] = try? result.get()
+        switch result {
+        case let .success(accountInfo):
+            accountInfos[chainId] = accountInfo
+        case .failure:
+            break
+        }
         provideViewModel()
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId) {
-        if prices[priceId] != nil, case let .success(priceData) = result, priceData != nil {
-            prices[priceId] = try? result.get()
-        } else if prices[priceId] == nil {
-            prices[priceId] = try? result.get()
+    func didReceivePricesData(result: Result<[PriceData], Error>) {
+        switch result {
+        case let .success(priceDataResult):
+            let priceDataUpdated = (pricesData: priceDataResult, updated: true)
+            prices = priceDataUpdated
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
 
         provideViewModel()
+    }
+
+    func didReceiveAssetIdWithoutPriceId(_ assetId: String) {
+        let emptyPrice = PriceData(priceId: assetId, price: "", fiatDayChange: nil)
+        prices.pricesData.append(emptyPrice)
     }
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {
@@ -107,6 +161,12 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
 
     func didTapAccountButton() {
         wireframe.showWalletSelection(from: view)
+    }
+
+    func didRecieveSelectedCurrency(_ selectedCurrency: Currency) {
+        self.selectedCurrency = selectedCurrency
+        priceUpdateDidStart()
+        provideViewModel()
     }
 }
 

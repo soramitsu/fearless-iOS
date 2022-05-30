@@ -13,7 +13,7 @@ enum CustomValidatorListViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        guard let container = createContainer(flow: flow, chainAsset: chainAsset) else {
+        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet) else {
             return nil
         }
 
@@ -48,9 +48,10 @@ enum CustomValidatorListViewFactory {
 extension CustomValidatorListViewFactory {
     static func createContainer(
         flow: CustomValidatorListFlow,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> CustomValidatorListDependencyContainer? {
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: chainAsset.asset.displayInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: chainAsset.asset.displayInfo, selectedMetaAccount: wallet)
 
         switch flow {
         case let .parachain(candidates, maxTargets, bonding, selectedValidatorList):
