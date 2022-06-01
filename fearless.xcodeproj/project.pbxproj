@@ -20,6 +20,7 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		07995FD92840C554009B2C9A /* ExistentialDeposit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07995FD82840C554009B2C9A /* ExistentialDeposit.swift */; };
 		079EDB9328349E0100744C70 /* CoingeckoPricesSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079EDB9228349E0100744C70 /* CoingeckoPricesSource.swift */; };
 		07A93B0E28238627005A1E0D /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B0828238627005A1E0D /* UserDataModel.xcdatamodeld */; };
 		07A93B1028239D65005A1E0D /* ShimmeredLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A93B0F28239D64005A1E0D /* ShimmeredLabel.swift */; };
@@ -2026,6 +2027,7 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		07995FD82840C554009B2C9A /* ExistentialDeposit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistentialDeposit.swift; sourceTree = "<group>"; };
 		079EDB9228349E0100744C70 /* CoingeckoPricesSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoingeckoPricesSource.swift; sourceTree = "<group>"; };
 		07A93B0928238627005A1E0D /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
 		07A93B0A28238627005A1E0D /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
@@ -2035,6 +2037,7 @@
 		07A93B0F28239D64005A1E0D /* ShimmeredLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShimmeredLabel.swift; sourceTree = "<group>"; };
 		07A93B1128239D8E005A1E0D /* ShimmeredProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShimmeredProtocol.swift; sourceTree = "<group>"; };
 		07A93B1328239DA2005A1E0D /* UIImageView+Shimmered.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Shimmered.swift"; sourceTree = "<group>"; };
+		07A93B29282E74A4005A1E0D /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		07BFF6902820F1A100645906 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07DC9B172810501300526040 /* WalletDetailsTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableHeaderView.swift; sourceTree = "<group>"; };
@@ -4113,6 +4116,14 @@
 			path = YourValidatorList;
 			sourceTree = "<group>";
 		};
+		07995FD72840C533009B2C9A /* ExistentialDeposit */ = {
+			isa = PBXGroup;
+			children = (
+				07995FD82840C554009B2C9A /* ExistentialDeposit.swift */,
+			);
+			name = ExistentialDeposit;
+			sourceTree = "<group>";
+		};
 		07DC9B1928105FF500526040 /* view */ = {
 			isa = PBXGroup;
 			children = (
@@ -5725,6 +5736,7 @@
 		8463A70725E2FFE2003B8160 /* DataProvider */ = {
 			isa = PBXGroup;
 			children = (
+				07995FD72840C533009B2C9A /* ExistentialDeposit */,
 				FAED6F4227DA197F0051B337 /* Adapter */,
 				84CD82BC263C3A64001A6F01 /* Subscription */,
 				84F98D9425E3E29B0040418E /* Repositories */,
@@ -11927,6 +11939,7 @@
 				843F657A265854A700829C14 /* CrowdloanDisplayInfo.swift in Sources */,
 				FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */,
 				6BAF97802DB9C640515F47C7 /* StakingMainInteractor.swift in Sources */,
+				07995FD92840C554009B2C9A /* ExistentialDeposit.swift in Sources */,
 				8466BB42263F501000E065A8 /* StakingUnbondConfirmViewModel.swift in Sources */,
 				E5F3DF66415E54AE04D0C9A9 /* StakingMainViewController.swift in Sources */,
 				F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */,
@@ -12975,6 +12988,7 @@
 		FA2569A7274CE70700875A53 /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				07A93B29282E74A4005A1E0D /* SubstrateDataModel_v3.xcdatamodel */,
 				FA402F3027CCCAA7008CF986 /* SubstrateDataModel_v2.xcdatamodel */,
 				FA2569A8274CE70700875A53 /* SubstrateDataModel.xcdatamodel */,
 			);

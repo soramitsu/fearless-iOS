@@ -60,7 +60,8 @@ final class ManageAssetsInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
+        let chainsAssets = chains.map(\.chainAssets).reduce([], +)
+        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainsAssets, handler: self)
     }
 }
 
@@ -154,9 +155,9 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
 extension ManageAssetsInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainId: ChainModel.Id
+        accountId: AccountId,
+        chainAsset: ChainAsset
     ) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainId)
+        presenter?.didReceiveAccountInfo(result: result, for: chainAsset.uniqueKey(accountId: accountId))
     }
 }

@@ -4,7 +4,7 @@ protocol ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainModel.Id: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
@@ -118,7 +118,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainModel.Id: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
@@ -142,7 +142,10 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
-            let accountInfo: AccountInfo? = accountInfos?[chainAsset.chain.chainId]
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let accountInfo: AccountInfo? = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
 
             usdBalanceByChainAsset[chainAsset] = getUsdBalance(
                 for: chainAsset,
@@ -182,12 +185,15 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 }
             }
 
-        let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.map { chainAsset in
+        let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.compactMap { chainAsset in
             let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)) == true
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return nil
+            }
 
             return buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
-                accountInfo: accountInfos?[chainAsset.chain.chainId],
+                accountInfo: accountInfos?[chainAsset.uniqueKey(accountId: accountId)],
                 delegate: cellsDelegate,
                 assetEnabled: enabled,
                 selectedMetaAccount: selectedMetaAccount,

@@ -8,7 +8,7 @@ final class ManageAssetsPresenter {
     private let viewModelFactory: ManageAssetsViewModelFactoryProtocol
     private var selectedMetaAccount: MetaAccountModel
     private var chainModels: [ChainModel] = []
-    private var accountInfos: [ChainModel.Id: AccountInfo] = [:]
+    private var accountInfos: [ChainAssetKey: AccountInfo] = [:]
     private var viewModel: ManageAssetsViewModel?
     private var sortedKeys: [String]?
     private var assetIdsEnabled: [String]?
@@ -108,8 +108,8 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
-        accountInfos[chainId] = try? result.get()
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for key: ChainAssetKey) {
+        accountInfos[key] = try? result.get()
         provideViewModel()
     }
 

@@ -5,7 +5,7 @@ import SoraFoundation
 struct AssetSelectionViewFactory {
     static func createView(
         delegate: AssetSelectionDelegate,
-        selectedChainId: ChainAssetId?,
+        selectedChain: ChainAsset?,
         selectedMetaAccount: MetaAccountModel,
         assetFilter: @escaping AssetSelectionFilter
     ) -> ChainSelectionViewProtocol? {
@@ -35,7 +35,8 @@ struct AssetSelectionViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             assetFilter: assetFilter,
-            selectedChainAssetId: selectedChainId,
+            selectedChainAsset: selectedChain,
+            selectedMetaAccount: selectedMetaAccount,
             assetBalanceFormatterFactory: assetBalanceFormatterFactory,
             localizationManager: localizationManager
         )

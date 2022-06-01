@@ -3,15 +3,14 @@ import Foundation
 protocol WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
         of accountId: AccountId,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) -> UUID?
 
     func detachFromAccountInfo(
         for subscriptionId: UUID,
-        accountId: AccountId,
-        chainId: ChainModel.Id,
+        chainAssetKey: ChainAssetKey,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     )
@@ -20,26 +19,29 @@ protocol WalletRemoteSubscriptionServiceProtocol {
 class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
         of accountId: AccountId,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) -> UUID? {
         do {
-            let storagePath = chain.isOrml ? StorageCodingPath.tokens : StorageCodingPath.account
+            var storagePath: StorageCodingPath
+            switch chainAsset.chainAssetType {
+            case .normal:
+                storagePath = StorageCodingPath.account
+            case .ormlChain, .ormlAsset, .foreignAsset:
+                storagePath = StorageCodingPath.tokens
+            }
 
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 storagePath,
-                accountId: accountId,
-                chainId: chain.chainId
+                chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
             )
 
             var request: SubscriptionRequestProtocol
 
-            if let tokenSymbol = chain.tokenSymbol {
-                let data = CurrencyId.token(symbol: tokenSymbol)
-
+            if let currencyId = chainAsset.currencyId {
                 request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
-                    [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: data)]]
+                    [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: currencyId)]]
                 })
             } else {
                 request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
@@ -49,7 +51,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
 
             return attachToSubscription(
                 with: [request],
-                chainId: chain.chainId,
+                chainId: chainAsset.chain.chainId,
                 cacheKey: localKey,
                 queue: queue,
                 closure: closure
@@ -62,8 +64,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
 
     func detachFromAccountInfo(
         for subscriptionId: UUID,
-        accountId: AccountId,
-        chainId: ChainModel.Id,
+        chainAssetKey: ChainAssetKey,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) {
@@ -71,8 +72,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
             let storagePath = StorageCodingPath.account
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 storagePath,
-                accountId: accountId,
-                chainId: chainId
+                chainAssetKey: chainAssetKey
             )
 
             detachFromSubscription(localKey, subscriptionId: subscriptionId, queue: queue, closure: closure)

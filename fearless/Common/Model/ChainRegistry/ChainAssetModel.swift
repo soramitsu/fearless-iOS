@@ -6,6 +6,7 @@ class ChainAssetModel: Codable {
     let assetId: String
     let staking: StakingType?
     let purchaseProviders: [PurchaseProvider]?
+    let type: ChainAssetType
     var asset: AssetModel!
     weak var chain: ChainModel?
 
@@ -15,14 +16,26 @@ class ChainAssetModel: Codable {
         assetId: String,
         staking: StakingType? = nil,
         purchaseProviders: [PurchaseProvider]? = nil,
+        type: ChainAssetType,
         asset: AssetModel,
         chain: ChainModel
     ) {
         self.assetId = assetId
         self.staking = staking
         self.purchaseProviders = purchaseProviders
+        self.type = type
         self.asset = asset
         self.chain = chain
+    }
+
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        assetId = try container.decode(String.self, forKey: .assetId)
+        staking = try? container.decode(StakingType.self, forKey: .staking)
+        purchaseProviders = try? container.decode([PurchaseProvider]?.self, forKey: .purchaseProviders)
+        let type = try? container.decode(ChainAssetType?.self, forKey: .type)
+        self.type = type ?? ChainAssetType.normal
     }
 }
 

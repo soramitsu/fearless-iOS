@@ -2,35 +2,22 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-enum TokenSymbol: String {
-    enum CodingKeys: String, CodingKey {
-        case dot
-        case interbtc
-        case intr
-        case ksm
-        case kbtc
-        case kint
-    }
-
-    case dot
-    case interbtc
-    case intr
-    case ksm
-    case kbtc
-    case kint
+struct TokenSymbol {
+    let symbol: String
 }
 
 extension TokenSymbol: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
 
-        try container.encode(rawValue.uppercased())
+        try container.encode(symbol.uppercased())
         try container.encodeNil()
     }
 }
 
 enum CurrencyId {
     case token(symbol: TokenSymbol?)
+    case foreignAsset(foreignAsset: String)
 }
 
 extension CurrencyId: Codable {
@@ -41,6 +28,9 @@ extension CurrencyId: Codable {
         case let .token(symbol):
             try container.encode("Token")
             try container.encode(symbol)
+        case let .foreignAsset(foreignAsset):
+            try container.encode("ForeignAsset")
+            try container.encode(foreignAsset)
         }
     }
 }

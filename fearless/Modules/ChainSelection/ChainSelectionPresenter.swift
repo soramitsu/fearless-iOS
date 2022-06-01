@@ -3,15 +3,13 @@ import SoraFoundation
 
 final class ChainSelectionPresenter {
     weak var view: ChainSelectionViewProtocol?
-    let wireframe: ChainSelectionWireframeProtocol
-    let interactor: ChainSelectionInteractorInputProtocol
-    let selectedChainId: ChainModel.Id?
-    let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let wireframe: ChainSelectionWireframeProtocol
+    private let interactor: ChainSelectionInteractorInputProtocol
+    private let selectedChainId: ChainModel.Id?
+    private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
-    private var chainModels: [ChainModel] = []
-
-    private var accountInfoResults: [ChainModel.Id: Result<AccountInfo?, Error>] = [:]
-
+    private var chainAssetModels: [ChainAsset] = []
+    private var accountInfoResults: [ChainAssetKey: Result<AccountInfo?, Error>] = [:]
     private var viewModels: [SelectableIconDetailsListViewModel] = []
 
     init(
@@ -60,11 +58,11 @@ final class ChainSelectionPresenter {
     }
 
     private func updateView() {
-        viewModels = chainModels.map { chainModel in
-            let icon: ImageViewModelProtocol? = chainModel.icon.map { RemoteImageViewModel(url: $0) }
-            let title = chainModel.name
-            let isSelected = chainModel.identifier == selectedChainId
-            let balance = extractBalance(for: chainModel) ?? ""
+        viewModels = chainAssetModels.map { chainAsset in
+            let icon: ImageViewModelProtocol? = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
+            let title = chainAsset.chain.name
+            let isSelected = chainAsset.chain.identifier == selectedChainId
+            let balance = extractBalance(for: chainAsset.chain) ?? ""
 
             return SelectableIconDetailsListViewModel(
                 title: title,
@@ -92,7 +90,7 @@ extension ChainSelectionPresenter: ChainSelectionPresenterProtocol {
             return
         }
 
-        wireframe.complete(on: view, selecting: chainModels[index])
+        wireframe.complete(on: view, selecting: chainAssetModels[index])
     }
 
     func setup() {
@@ -104,15 +102,15 @@ extension ChainSelectionPresenter: ChainSelectionInteractorOutputProtocol {
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
         case let .success(chains):
-            chainModels = chains
+            chainAssetModels = chains.map(\.chainAssets).reduce([], +)
             updateView()
         case let .failure(error):
             _ = wireframe.present(error: error, from: view, locale: selectedLocale)
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
-        accountInfoResults[chainId] = result
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAssetKey: ChainAssetKey) {
+        accountInfoResults[chainAssetKey] = result
         updateView()
     }
 }

@@ -6,27 +6,27 @@ import SoraKeystore
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
+    var chainAsset: ChainAsset
+
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let selectedMetaAccount: MetaAccountModel
-    var chain: ChainModel
-    private let asset: AssetModel
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let storageRequestFactory: StorageRequestFactoryProtocol
-    let connection: JSONRPCEngine
-    let eventCenter: EventCenterProtocol
-    let transactionSubscription: StorageSubscriptionContainer?
-    let repository: AnyDataProviderRepository<MetaAccountModel>
-    let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let storageRequestFactory: StorageRequestFactoryProtocol
+    private let connection: JSONRPCEngine
+    private let eventCenter: EventCenterProtocol
+    private let transactionSubscription: StorageSubscriptionContainer?
+    private let repository: AnyDataProviderRepository<MetaAccountModel>
+    private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     private let settingsManager: SettingsManager
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
@@ -37,11 +37,11 @@ final class ChainAccountInteractor {
         transactionSubscription: StorageSubscriptionContainer?,
         repository: AnyDataProviderRepository<MetaAccountModel>,
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
-        settingsManager: SettingsManager
+        settingsManager: SettingsManager,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.connection = connection
@@ -53,21 +53,22 @@ final class ChainAccountInteractor {
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
         self.settingsManager = settingsManager
+        self.existentialDepositService = existentialDepositService
     }
 
     private func subscribeToAccountInfo() {
-        if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         } else {
             presenter?.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists),
-                for: chain.chainId
+                for: chainAsset.chain.chainId
             )
         }
     }
 
     private func fetchBalanceLocks() {
-        if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId {
+        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let balanceLocksOperation = createBalanceLocksFetchOperation(accountId)
             balanceLocksOperation.targetOperation.completionBlock = { [weak self] in
                 DispatchQueue.main.async {
@@ -123,14 +124,14 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         fetchBalanceLocks()
         provideSelectedCurrency()
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             _ = subscribeToPrice(for: priceId)
         }
     }
 
     func getAvailableExportOptions(for address: String) {
         fetchChainAccount(
-            chain: chain,
+            chain: chainAsset.chain,
             address: address,
             from: repository,
             operationManager: operationManager
@@ -166,19 +167,15 @@ extension ChainAccountInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainId)
+        presenter?.didReceiveAccountInfo(result: result, for: chainAsset.chain.chainId)
     }
 }
 
 extension ChainAccountInteractor: RuntimeConstantFetching {
     func fetchMinimalBalance() {
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
     }
@@ -190,9 +187,9 @@ extension ChainAccountInteractor: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
             guard let self = self else { return false }
-            return updatedChain.chainId == self.chain.chainId
+            return updatedChain.chainId == self.chainAsset.chain.chainId
         }) {
-            chain = updated
+            chainAsset = ChainAsset(chain: updated, asset: chainAsset.asset)
         }
     }
 

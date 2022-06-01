@@ -10,17 +10,27 @@ final class AssetModelMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { "id" }
 
     func transform(entity: CDAsset) throws -> AssetModel {
-        guard let id = entity.id, let chainId = entity.chainId else {
+        guard
+            let id = entity.id,
+            let chainId = entity.chainId,
+            let symbol = entity.symbol,
+            let typeRawValue = entity.type
+        else {
             throw AssetModelMapperError.requiredFieldsMissing
         }
 
         return AssetModel(
             id: id,
+            symbol: symbol,
             chainId: chainId,
             precision: UInt16(entity.precision),
             icon: entity.icon,
             priceId: entity.priceId,
-            price: entity.price as Decimal?
+            price: entity.price as Decimal?,
+            transfersEnabled: entity.transfersEnabled,
+            type: ChainAssetType(rawValue: typeRawValue) ?? .normal,
+            foreignAssetId: entity.foreignAssetId,
+            displayName: entity.displayName
         )
     }
 
@@ -35,5 +45,9 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.icon = model.icon
         entity.priceId = model.priceId
         entity.price = model.price as NSDecimalNumber?
+        entity.symbol = model.symbol
+        entity.transfersEnabled = model.transfersEnabled ?? true
+        entity.type = model.type.rawValue
+        entity.foreignAssetId = model.foreignAssetId
     }
 }

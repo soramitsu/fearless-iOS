@@ -78,6 +78,7 @@ struct WalletSendConfirmViewFactory {
 
         let operationManager = OperationManagerFacade.sharedManager
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -122,10 +123,16 @@ struct WalletSendConfirmViewFactory {
             accountResponse: accountResponse
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            chainAsset: chainAsset,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         return WalletSendConfirmInteractor(
             selectedMetaAccount: selectedMetaAccount,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             receiverAddress: receiverAddress,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
@@ -136,7 +143,8 @@ struct WalletSendConfirmViewFactory {
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
-            signingWrapper: signingWrapper
+            signingWrapper: signingWrapper,
+            existentialDepositService: existentialDepositService
         )
     }
 }

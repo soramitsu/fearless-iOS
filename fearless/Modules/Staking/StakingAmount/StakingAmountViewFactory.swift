@@ -97,6 +97,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         selectedAccount: MetaAccountModel
     ) -> StakingAmountInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         let serviceFactory = StakingServiceFactory(
             chainRegisty: ChainRegistryFacade.sharedRegistry,
@@ -166,6 +167,13 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            chainAsset: chainAsset,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         return StakingAmountInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -177,12 +185,12 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             rewardService: rewardCalculatorService,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             accountRepository: AnyDataProviderRepository(accountRepository),
             eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
-            eraValidatorService: eraValidatorService
+            eraValidatorService: eraValidatorService,
+            existentialDepositService: existentialDepositService
         )
     }
 }

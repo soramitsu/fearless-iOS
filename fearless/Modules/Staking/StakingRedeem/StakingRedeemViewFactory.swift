@@ -73,6 +73,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         selectedAccount: MetaAccountModel
     ) -> StakingRedeemInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -138,8 +139,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,

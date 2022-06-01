@@ -39,11 +39,11 @@ struct AnalyticsValidatorsViewFactory {
         selectedAccount: MetaAccountModel
     ) -> AnalyticsValidatorsInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
@@ -78,8 +78,7 @@ struct AnalyticsValidatorsViewFactory {
             engine: connection,
             runtimeService: runtimeService,
             storageRequestFactory: requestFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }

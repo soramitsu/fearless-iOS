@@ -17,8 +17,7 @@ struct WalletChainAccountDashboardViewFactory {
                 selectedAccount: selectedMetaAccount
             ),
             let chainAccountModule = ChainAccountViewFactory.createView(
-                chain: chain,
-                asset: asset,
+                chainAsset: ChainAsset(chain: chain, asset: asset),
                 selectedMetaAccount: selectedMetaAccount,
                 moduleOutput: presenter
             )

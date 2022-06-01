@@ -12,8 +12,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     let durationOperationFactory: StakingDurationOperationFactoryProtocol
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
-    let asset: AssetModel
-    let chain: ChainModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -35,8 +34,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         durationOperationFactory: StakingDurationOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel
     ) {
         self.balanceAccountId = balanceAccountId
@@ -48,25 +46,21 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         self.durationOperationFactory = durationOperationFactory
         self.operationManager = operationManager
         self.signer = signer
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
     }
 
     // MARK: - SelectValidatorsConfirmInteractorInputProtocol
 
     func setup() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: balanceAccountId, handler: self)
-
-        minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
-
-        counterForNominatorsProvider = subscribeToCounterForNominators(for: chain.chainId)
-
-        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chain.chainId)
+        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: balanceAccountId, handler: self)
+        minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
+        counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
+        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainAsset.chain.chainId)
 
         fetchStakingDuration(
             runtimeCodingService: runtimeService,
@@ -97,7 +91,7 @@ extension SelectValidatorsConfirmInteractorBase: StakingLocalStorageSubscriber, 
 }
 
 extension SelectValidatorsConfirmInteractorBase: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }

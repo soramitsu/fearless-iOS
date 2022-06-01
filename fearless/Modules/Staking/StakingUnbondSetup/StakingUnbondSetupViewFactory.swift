@@ -56,6 +56,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         selectedAccount: MetaAccountModel
     ) -> StakingUnbondSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -105,9 +106,15 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            chainAsset: chainAsset,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         return StakingUnbondSetupInteractor(
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,
@@ -120,7 +127,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 selectedMetaAccount: selectedAccount
             ),
             connection: connection,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            existentialDepositService: existentialDepositService
         )
     }
 }
