@@ -31,7 +31,7 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
 
-        rootView.feeView.actionButton.addTarget(
+        rootView.tipAndFeeView.actionButton.addTarget(
             self,
             action: #selector(continueButtonClicked),
             for: .touchUpInside
@@ -43,25 +43,28 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
     }
 
     private func applyState(_ state: WalletSendConfirmViewState) {
+        self.state = state
+
         switch state {
         case .loading:
             break
-        case let .loaded(walletSendConfirmViewModel):
-            if let senderAccountViewModel = walletSendConfirmViewModel.senderAccountViewModel {
+        case let .loaded(model):
+            if let senderAccountViewModel = model.senderAccountViewModel {
                 rootView.bind(senderAccountViewModel: senderAccountViewModel)
             }
 
-            if let receiverAccountViewModel = walletSendConfirmViewModel.receiverAccountViewModel {
+            if let receiverAccountViewModel = model.receiverAccountViewModel {
                 rootView.bind(receiverAccountViewModel: receiverAccountViewModel)
             }
 
-            if let assetBalanceViewModel = walletSendConfirmViewModel.assetBalanceViewModel {
+            if let assetBalanceViewModel = model.assetBalanceViewModel {
                 rootView.bind(assetViewModel: assetBalanceViewModel)
             }
 
-            rootView.bind(feeViewModel: walletSendConfirmViewModel.feeViewModel)
+            rootView.bind(feeViewModel: model.feeViewModel)
+            rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
 
-            rootView.amountView.fieldText = walletSendConfirmViewModel.amountString
+            rootView.amountView.fieldText = model.amountString
         }
     }
 
@@ -76,8 +79,6 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
 
 extension WalletSendConfirmViewController: WalletSendConfirmViewProtocol {
     func didReceive(state: WalletSendConfirmViewState) {
-        self.state = state
-
         applyState(state)
     }
 

@@ -444,7 +444,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             )
 
             try saveSeed(query.seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
-            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+            try saveEntropy(request.mnemonic.entropy(), metaId: metaId, accountId: accountId)
 
             let chainAccount = ChainAccountModel(
                 chainId: request.chainId,

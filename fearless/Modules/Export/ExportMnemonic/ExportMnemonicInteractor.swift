@@ -57,11 +57,10 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
     }
 
     func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: MetaAccountModel) {
-        fetchChainAccount(
+        fetchChainAccountFor(
+            meta: wallet,
             chain: chain,
-            address: address,
-            from: repository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainRespone):

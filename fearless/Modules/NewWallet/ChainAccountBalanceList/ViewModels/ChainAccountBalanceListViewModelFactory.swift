@@ -9,7 +9,7 @@ protocol ChainAccountBalanceListViewModelFactoryProtocol {
         chains: [ChainModel],
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo?],
-        prices: [AssetModel.PriceId: PriceDataUpdated],
+        prices: PriceDataUpdated,
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel
 }
@@ -21,7 +21,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         chains: [ChainModel],
         locale: Locale,
         accountInfos: [ChainModel.Id: AccountInfo?],
-        prices: [AssetModel.PriceId: PriceDataUpdated],
+        prices: PriceDataUpdated,
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
         let balanceTokenFormatterValue = tokenFormatter(
@@ -54,10 +54,11 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         chainAssets.forEach { chainAsset in
             let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
 
+            let priceData = prices.pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
             fiatBalanceByChainAsset[chainAsset] = getFiatBalance(
                 for: chainAsset,
                 accountInfo: accountInfo,
-                priceData: prices[chainAsset.asset.priceId ?? ""]?.priceData
+                priceData: priceData
             )
 
             balanceByChainAsset[chainAsset] = getBalance(
@@ -112,8 +113,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 )
 
                 guard let priceId = asset.asset.priceId,
-                      let priceData = prices[priceId]?.priceData,
-                      let priceDecimal = Decimal(string: priceData.price)
+                      let price = prices.pricesData.first(where: { $0.priceId == priceId })?.price,
+                      let priceDecimal = Decimal(string: price)
                 else {
                     return nil
                 }
@@ -123,18 +124,14 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         }.reduce(0, +)
 
         var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
-            var priceData: PriceDataUpdated?
-
-            if let priceId = chainAsset.asset.priceId {
-                priceData = prices[priceId]
-            } else {
-                priceData = prices[chainAsset.asset.id]
-            }
+            let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
+            let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
             return buildChainAccountBalanceCellViewModel(
                 chains: chains,
                 chainAsset: chainAsset,
                 priceData: priceData,
+                priceDataUpdated: prices.updated,
                 accountInfos: accountInfos,
                 locale: locale,
                 currency: selectedMetaAccount.selectedCurrency
@@ -150,8 +147,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 && (selectedMetaAccount.unusedChainIds ?? []).contains($0.chainId) == false
         }) != nil
 
-        let isColdBoot = accountInfos.keys.count != fiatBalanceByChainAsset.count
-        let balanceUpdated = prices.filter { $0.value.updated == false }.isEmpty
+        let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
+            chainAssets.contains { $0.chain.chainId == key }
+        }
+
+        let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
+        let balanceUpdated = prices.updated
 
         let balance = balanceTokenFormatterValue.stringFromDecimal(totalWalletBalance)
         return ChainAccountBalanceListViewModel(
@@ -172,7 +173,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
     func buildChainAccountBalanceCellViewModel(
         chains: [ChainModel],
         chainAsset: ChainAsset,
-        priceData: PriceDataUpdated?,
+        priceData: PriceData?,
+        priceDataUpdated: Bool,
         accountInfos: [ChainModel.Id: AccountInfo?],
         locale: Locale,
         currency: Currency
@@ -195,19 +197,18 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         let totalAmountString = getFiatBalanceString(
             for: chainAsset,
             accountInfo: accountInfo,
-            priceData: priceData?.priceData,
+            priceData: priceData,
             locale: locale,
             currency: currency
         )
         let priceAttributedString = getPriceAttributedString(
-            priceData: priceData?.priceData,
+            priceData: priceData,
             locale: locale,
             currency: currency
         )
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         let isColdBoot = !accountInfos.keys.contains(chainAsset.chain.chainId)
-        let isUpdated = priceData?.updated ?? false
 
         return ChainAccountBalanceCellViewModel(
             chain: chainAsset.chain,
@@ -217,19 +218,19 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             imageViewModel: icon,
             balanceString: .init(
                 value: .text(balance),
-                isUpdated: isUpdated
+                isUpdated: priceDataUpdated
             ),
             priceAttributedString: .init(
                 value: .attributed(priceAttributedString),
-                isUpdated: isUpdated
+                isUpdated: priceDataUpdated
             ),
             totalAmountString: .init(
                 value: .text(totalAmountString),
-                isUpdated: isUpdated
+                isUpdated: priceDataUpdated
             ),
             options: options,
             isColdBoot: isColdBoot,
-            priceDataWasUpdated: isUpdated
+            priceDataWasUpdated: priceDataUpdated
         )
     }
 }
@@ -346,8 +347,8 @@ extension ChainAccountBalanceListViewModelFactory {
             balance = Decimal.zero
         }
 
-        guard let priceData = priceData,
-              let priceDecimal = Decimal(string: priceData.price) else {
+        guard let price = priceData?.price,
+              let priceDecimal = Decimal(string: price) else {
             return Decimal.zero
         }
 
