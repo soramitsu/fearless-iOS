@@ -38,10 +38,7 @@ final class CustomValidatorListPresenter {
     // MARK: - Private functions
 
     private func provideFilterButtonViewModel() {
-        let emptyFilter = CustomValidatorRelaychainListFilter.defaultFilter()
-        let appliedState = viewModelState.filter != emptyFilter
-
-        view?.setFilterAppliedState(to: appliedState)
+        view?.setFilterAppliedState(to: viewModelState.filterApplied)
     }
 
     private func provideViewModels(viewModelState: CustomValidatorListViewModelState) {
@@ -188,6 +185,10 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
 extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
     func didRemove(_ validator: SelectedValidatorInfo) {
         viewModelState.remove(validator: validator)
+    }
+
+    func didRemove(validatorAddress: AccountAddress) {
+        viewModelState.remove(validatorAddress: validatorAddress)
     }
 }
 

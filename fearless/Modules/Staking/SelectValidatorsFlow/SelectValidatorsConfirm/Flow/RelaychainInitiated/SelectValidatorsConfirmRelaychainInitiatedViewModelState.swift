@@ -10,7 +10,7 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
     let wallet: MetaAccountModel
     var stateListener: SelectValidatorsConfirmModelStateListener?
 
-    var confirmationModel: SelectValidatorsConfirmationModel?
+    var confirmationModel: SelectValidatorsConfirmRelaychainModel?
 
     private(set) var balance: Decimal?
     private(set) var priceData: PriceData?
@@ -88,7 +88,7 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
             username: wallet.name
         )
 
-        confirmationModel = SelectValidatorsConfirmationModel(
+        confirmationModel = SelectValidatorsConfirmRelaychainModel(
             wallet: stash,
             amount: initiatedBonding.amount,
             rewardDestination: rewardDestination,

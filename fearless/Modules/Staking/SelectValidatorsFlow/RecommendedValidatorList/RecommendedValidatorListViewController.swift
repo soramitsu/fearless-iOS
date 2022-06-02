@@ -85,7 +85,7 @@ extension RecommendedValidatorListViewController: UITableViewDelegate, UITableVi
 
         let items = viewModel?.itemViewModels ?? []
         cell.bind(viewModel: items[indexPath.row].value(for: selectedLocale))
-
+        cell.delegate = self
         return cell
     }
 
@@ -109,6 +109,14 @@ extension RecommendedValidatorListViewController {
         if isViewLoaded {
             setupLocalization()
             view.setNeedsLayout()
+        }
+    }
+}
+
+extension RecommendedValidatorListViewController: RecommendedValidatorCellDelegate {
+    func didTapInfoButton(in cell: RecommendedValidatorCell) {
+        if let indexPath = tableView.indexPath(for: cell) {
+            presenter.showValidatorInfoAt(index: indexPath.row)
         }
     }
 }

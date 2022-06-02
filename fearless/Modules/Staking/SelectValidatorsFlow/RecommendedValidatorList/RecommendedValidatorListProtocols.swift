@@ -7,6 +7,7 @@ protocol RecommendedValidatorListViewProtocol: ControllerBackedProtocol, Localiz
 protocol RecommendedValidatorListPresenterProtocol: AnyObject {
     func setup()
     func selectedValidatorAt(index: Int)
+    func showValidatorInfoAt(index: Int)
     func proceed()
 }
 

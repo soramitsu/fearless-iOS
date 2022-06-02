@@ -6,13 +6,16 @@ enum NetworkStakingInfo {
         baseInfo: BaseStakingInfo,
         relaychainInfo: RelaychainStakingInfo
     )
-    case parachain(baseInfo: BaseStakingInfo)
+    case parachain(
+        baseInfo: BaseStakingInfo,
+        parachainInfo: ParachainStakingInfo
+    )
 
     var baseInfo: BaseStakingInfo {
         switch self {
         case let .relaychain(baseInfo, _):
             return baseInfo
-        case let .parachain(baseInfo):
+        case let .parachain(baseInfo, _):
             return baseInfo
         }
     }
@@ -25,12 +28,25 @@ enum NetworkStakingInfo {
             return nil
         }
     }
+
+    var parachainInfo: ParachainStakingInfo? {
+        switch self {
+        case .relaychain:
+            return nil
+        case let .parachain(_, parachainInfo):
+            return parachainInfo
+        }
+    }
 }
 
 struct BaseStakingInfo {
     let lockUpPeriod: UInt32
     let minimalBalance: BigUInt
     let minStakeAmongActiveNominators: BigUInt
+}
+
+struct ParachainStakingInfo {
+    let rewardPaymentDelay: UInt32
 }
 
 struct RelaychainStakingInfo {

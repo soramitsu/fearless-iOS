@@ -5,6 +5,7 @@ import RobinHood
 import FearlessUtils
 
 final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {
+    // swiftlint:disable function_body_length
     private static func createContainer(
         flow: SelectValidatorsConfirmFlow,
         chainAsset: ChainAsset,
@@ -16,10 +17,18 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let chain = chainAsset.chain
 
+        let storageFacade = SubstrateDataStorageFacade.shared
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: storageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = wallet.fetch(for: chain.accountRequest()) else {
+            let accountResponse = wallet.fetch(for: chain.accountRequest()),
+            let eraValidatorService = try? serviceFactory.createEraValidatorService(for: chainAsset.chain) else {
             return nil
         }
 
@@ -40,7 +49,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         )
 
         let logger = Logger.shared
-        let storageFacade = SubstrateDataStorageFacade.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
@@ -61,6 +69,12 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             limit: StakingConstants.maxAmount,
             selectedMetaAccount: wallet
         )
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):
@@ -89,11 +103,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainInitiatedViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
 
-            return SelectValidatorsConfirmDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
+            return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         case let .relaychainExisting(targets, maxTargets, bonding):
             let viewModelState = SelectValidatorsConfirmRelaychainExistingViewModelState(
                 targets: targets,
@@ -121,13 +131,44 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainExistingViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
 
-            return SelectValidatorsConfirmDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
+            return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+        case let .parachain(target, maxTargets, bonding):
+
+            let collatorOperationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
             )
-        case .parachain:
-            return nil
+
+            let viewModelState = SelectValidatorsConfirmParachainViewModelState(
+                target: target,
+                maxTargets: maxTargets,
+                initiatedBonding: bonding,
+                chainAsset: chainAsset,
+                wallet: wallet
+            )
+            let strategy = SelectValidatorsConfirmParachainStrategy(
+                collatorAccountId: target.owner,
+                balanceAccountId: accountResponse.accountId,
+                accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
+                    walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                    selectedMetaAccount: wallet
+                ),
+                runtimeService: runtimeService,
+                extrinsicService: extrinsicService,
+                signer: signer,
+                operationManager: operationManager,
+                chainAsset: chainAsset,
+                output: viewModelState,
+                collatorOperationFactory: collatorOperationFactory,
+                eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
+                eraValidatorService: eraValidatorService
+            )
+            let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+            return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         }
     }
 

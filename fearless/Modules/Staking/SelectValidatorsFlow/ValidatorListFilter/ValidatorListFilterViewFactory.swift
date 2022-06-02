@@ -7,8 +7,19 @@ struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {
         case let .relaychain(filter):
             let viewModelState = ValidatorListFilterRelaychainViewModelState(filter: filter)
             let viewModelFactory = ValidatorListFilterRelaychainViewModelFactory()
-            let container = ValidatorListFilterDependencyContainer(viewModelState: viewModelState, viewModelFactory: viewModelFactory)
+            let container = ValidatorListFilterDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
 
+            return container
+        case let .parachain(filter):
+            let viewModelState = ValidatorListFilterParachainViewModelState(filter: filter)
+            let viewModelFactory = ValidatorListFilterParachainViewModelFactory()
+            let container = ValidatorListFilterDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
             return container
         }
     }

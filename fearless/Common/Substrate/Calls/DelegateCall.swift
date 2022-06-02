@@ -5,6 +5,6 @@ import BigInt
 struct DelegateCall: Codable {
     let candidate: AccountId
     @StringCodable var amount: BigUInt
-    let candidateDelegationCount: UInt32
-    let delegationCount: UInt32
+    @StringCodable var candidateDelegationCount: UInt32
+    @StringCodable var delegationCount: UInt32
 }

@@ -85,6 +85,8 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         rootView.networkFeeConfirmView.locale = selectedLocale
 
+        rootView.selectedCollatorTitle.text = R.string.localizable.stakingSelectedCollator(preferredLanguages: languages)
+
         applyConfirmationViewModel()
         applyHints()
         applyBalanceView()
@@ -103,7 +105,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         rootView.amountView.fieldText = viewModel.amount
 
-        rootView.mainAccountView.iconImage = viewModel.senderIcon
+        rootView.mainAccountView.iconImage = viewModel.senderIcon?
             .imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
@@ -138,12 +140,23 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
                 contentScale: UIScreen.main.scale
             )
             rootView.payoutAccountView?.subtitle = title
+        case .none:
+            rootView.rewardDestinationView.isHidden = true
+            rootView.payoutAccountView?.isHidden = true
         }
 
-        rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
-            quantityFormatter.string(from: NSNumber(value: viewModel.validatorsCount)) ?? "",
-            quantityFormatter.string(from: NSNumber(value: viewModel.maxValidatorCount)) ?? ""
-        )
+        if let validatorsCount = viewModel.validatorsCount, let maxValidatorCount = viewModel.maxValidatorCount {
+            rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
+                quantityFormatter.string(from: NSNumber(value: validatorsCount)) ?? "",
+                quantityFormatter.string(from: NSNumber(value: maxValidatorCount)) ?? ""
+            )
+        } else {
+            rootView.validatorsView.isHidden = true
+        }
+
+        rootView.selectedCollatorView.isHidden = viewModel.selectedCollatorViewModel == nil
+        rootView.selectedCollatorView.title = viewModel.selectedCollatorViewModel?.name
+        rootView.selectedCollatorView.subtitle = viewModel.selectedCollatorViewModel?.address
     }
 
     private func applyHints() {

@@ -163,6 +163,10 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
 }
 
 extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateListener {
+    func feeParametersUpdated() {
+        interactor.estimateFee(closure: viewModelState.createExtrinsicBuilderClosure())
+    }
+
     func didReceiveError(error: Error) {
         handle(error: error)
     }

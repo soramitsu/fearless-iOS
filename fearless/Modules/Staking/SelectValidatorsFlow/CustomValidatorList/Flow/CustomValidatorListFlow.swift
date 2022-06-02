@@ -35,7 +35,6 @@ protocol CustomValidatorListModelStateListener: AnyObject {
 
 protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler {
     var stateListener: CustomValidatorListModelStateListener? { get set }
-    var filter: CustomValidatorRelaychainListFilter { get set }
 
     func setStateListener(_ stateListener: CustomValidatorListModelStateListener?)
     func updateViewModel(_ viewModel: CustomValidatorListViewModel)
@@ -44,6 +43,8 @@ protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler 
     func validatorSearchFlow() -> ValidatorSearchFlow?
     func validatorListFilterFlow() -> ValidatorListFilterFlow?
     func selectedValidatorListFlow() -> SelectedValidatorListFlow?
+
+    var filterApplied: Bool { get }
 }
 
 struct CustomValidatorListDependencyContainer {
@@ -66,6 +67,8 @@ protocol CustomValidatorListStrategy {
 
 protocol CustomValidatorListUserInputHandler {
     func remove(validator: SelectedValidatorInfo)
+    func remove(validatorAddress: AccountAddress)
+
     func fillWithRecommended()
     func performDeselect()
     func changeValidatorSelection(at index: Int)

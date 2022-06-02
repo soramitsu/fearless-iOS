@@ -122,6 +122,11 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
         let composer = CustomValidatorRelaychainListComposer(filter: filter)
         return composer.compose(from: fullValidatorList)
     }
+
+    var filterApplied: Bool {
+        let emptyFilter = CustomValidatorRelaychainListFilter.defaultFilter()
+        return filter != emptyFilter
+    }
 }
 
 extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserInputHandler {
@@ -133,6 +138,14 @@ extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserIn
 
             stateListener?.modelStateDidChanged(viewModelState: self)
         }
+    }
+
+    func remove(validatorAddress: AccountAddress) {
+        guard let validator = filteredValidatorList.first(where: { $0.address == validatorAddress }) else {
+            return
+        }
+
+        remove(validator: validator)
     }
 
     func fillWithRecommended() {

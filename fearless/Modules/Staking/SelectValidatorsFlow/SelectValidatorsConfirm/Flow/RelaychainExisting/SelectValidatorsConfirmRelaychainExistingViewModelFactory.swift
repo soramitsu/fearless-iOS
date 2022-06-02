@@ -102,7 +102,8 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
                 amount: amount ?? "",
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
-                maxValidatorCount: state.maxTargets
+                maxValidatorCount: state.maxTargets,
+                selectedCollatorViewModel: nil
             )
         }
     }

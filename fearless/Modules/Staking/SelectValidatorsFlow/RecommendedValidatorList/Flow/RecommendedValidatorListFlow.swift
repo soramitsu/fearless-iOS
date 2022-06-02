@@ -8,8 +8,6 @@ enum RecommendedValidatorListFlow {
 
 protocol RecommendedValidatorListModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: RecommendedValidatorListViewModelState)
-    func viewModelChanged(_ viewModel: RecommendedValidatorListViewModel, at indexes: [Int]?)
-    func didReceiveError(error: Error)
 }
 
 protocol RecommendedValidatorListViewModelState: RecommendedValidatorListUserInputHandler {
@@ -37,6 +35,10 @@ protocol RecommendedValidatorListStrategy {
     func setup()
 }
 
-protocol RecommendedValidatorListUserInputHandler {}
+protocol RecommendedValidatorListUserInputHandler {
+    func shouldSelectValidatorAt(index: Int) -> Bool
+}
 
-extension RecommendedValidatorListUserInputHandler {}
+extension RecommendedValidatorListUserInputHandler {
+    func shouldSelectValidatorAt(index _: Int) -> Bool { false }
+}

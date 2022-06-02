@@ -9,6 +9,7 @@ protocol SelectedValidatorListViewProtocol: ControllerBackedProtocol, Localizabl
 }
 
 protocol SelectedValidatorListDelegate: AnyObject {
+    func didRemove(validatorAddress: AccountAddress)
     func didRemove(_ validator: SelectedValidatorInfo)
 }
 

@@ -11,7 +11,7 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let operationManager: OperationManagerProtocol
 
-    var confirmationModel: SelectValidatorsConfirmationModel?
+    var confirmationModel: SelectValidatorsConfirmRelaychainModel?
 
     private(set) var balance: Decimal?
     private(set) var priceData: PriceData?
@@ -74,7 +74,7 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         let currentTargets = targets
         let currentBonding = existingBonding
 
-        let mapOperation: BaseOperation<SelectValidatorsConfirmationModel> = ClosureOperation {
+        let mapOperation: BaseOperation<SelectValidatorsConfirmRelaychainModel> = ClosureOperation {
             let controller = currentBonding.controllerAccount
             let rewardDestination = try rewardDestWrapper.targetOperation.extractNoCancellableResultData()
 
@@ -83,7 +83,7 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
                 username: controller.name
             )
 
-            return SelectValidatorsConfirmationModel(
+            return SelectValidatorsConfirmRelaychainModel(
                 wallet: controllerDisplayAddress,
                 amount: currentBonding.amount,
                 rewardDestination: rewardDestination,

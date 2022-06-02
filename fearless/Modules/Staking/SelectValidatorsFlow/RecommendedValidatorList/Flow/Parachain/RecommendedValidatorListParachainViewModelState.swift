@@ -2,6 +2,8 @@ import Foundation
 
 class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListViewModelState {
     var collators: [ParachainStakingCandidateInfo]
+    var selectedCollators: [ParachainStakingCandidateInfo] = []
+
     let bonding: InitiatedBonding
     let maxTargets: Int
 
@@ -22,6 +24,16 @@ class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListV
     }
 
     func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
-        .parachain
+        guard let collator = selectedCollators.first else {
+            return nil
+        }
+
+        return .parachain(target: collator, maxTargets: maxTargets, bonding: bonding)
+    }
+
+    func shouldSelectValidatorAt(index: Int) -> Bool {
+        selectedCollators = [collators[index]]
+        stateListener?.modelStateDidChanged(viewModelState: self)
+        return true
     }
 }

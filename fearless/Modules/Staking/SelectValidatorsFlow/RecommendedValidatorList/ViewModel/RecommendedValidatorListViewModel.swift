@@ -11,6 +11,7 @@ protocol RecommendedValidatorViewModelProtocol {
     var icon: DrawableIcon? { get }
     var title: String { get }
     var details: String { get }
+    var isSelected: Bool { get }
 }
 
 struct RecommendedValidatorListViewModel: RecommendedValidatorListViewModelProtocol {
@@ -22,4 +23,5 @@ struct RecommendedValidatorViewModel: RecommendedValidatorViewModelProtocol {
     let icon: DrawableIcon?
     let title: String
     let details: String
+    let isSelected: Bool
 }

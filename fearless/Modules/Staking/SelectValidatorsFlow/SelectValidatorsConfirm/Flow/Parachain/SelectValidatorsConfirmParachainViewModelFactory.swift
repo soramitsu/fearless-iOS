@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 import SoraFoundation
 
-final class SelectValidatorsConfirmRelaychainInitiatedViewModelFactory {
+final class SelectValidatorsConfirmParachainViewModelFactory {
     init(balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
@@ -12,9 +12,10 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelFactory {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 }
 
-extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
+extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
     func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState, let state = viewModelState.confirmationModel else {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
+              let state = viewModelState.confirmationModel else {
             return nil
         }
 
@@ -26,19 +27,20 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
     }
 
     func buildHintsViewModel(viewModelState: SelectValidatorsConfirmViewModelState) -> LocalizableResource<[TitleIconViewModel]>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState,
-              let duration = viewModelState.stakingDuration else {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
+              let networkStakingInfo = viewModelState.networkStakingInfo,
+              case let .parachain(baseInfo, parachainInfo) = networkStakingInfo else {
             return nil
         }
 
         return LocalizableResource { locale in
             let eraDurationString = R.string.localizable.commonHoursFormat(
-                format: duration.era.hoursFromSeconds,
+                format: Int(parachainInfo.rewardPaymentDelay),
                 preferredLanguages: locale.rLanguages
             )
 
             let unlockingDurationString = R.string.localizable.commonDaysFormat(
-                format: duration.unlocking.daysFromSeconds,
+                format: Int(baseInfo.lockUpPeriod),
                 preferredLanguages: locale.rLanguages
             )
 
@@ -73,25 +75,23 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
         }
     }
 
-    func buildViewModel(viewModelState: SelectValidatorsConfirmViewModelState, asset: AssetModel) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState, let state = viewModelState.confirmationModel else {
+    func buildViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        asset: AssetModel
+    ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
+              let state = viewModelState.confirmationModel else {
             return nil
         }
 
-        let icon = try iconGenerator.generateFromAddress(state.wallet.address)
+        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
-        let rewardViewModel: RewardDestinationTypeViewModel
-
-        switch state.rewardDestination {
-        case .restake:
-            rewardViewModel = .restake
-        case let .payout(account):
-            let payoutIcon = try iconGenerator.generateFromAddress(account.address)
-
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
-        }
+        let selectedCollatorViewModel = SelectedValidatorViewModel(
+            name: state.target.identity?.name,
+            address: state.target.address
+        )
 
         return LocalizableResource { locale in
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
@@ -100,16 +100,20 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
                 senderIcon: icon,
                 senderName: state.wallet.username,
                 amount: amount ?? "",
-                rewardDestination: rewardViewModel,
-                validatorsCount: state.targets.count,
-                maxValidatorCount: state.maxTargets,
-                selectedCollatorViewModel: nil
+                rewardDestination: nil,
+                validatorsCount: nil,
+                maxValidatorCount: nil,
+                selectedCollatorViewModel: selectedCollatorViewModel
             )
         }
     }
 
-    func buildFeeViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState, let fee = viewModelState.fee else {
+    func buildFeeViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
+              let fee = viewModelState.fee else {
             return nil
         }
 

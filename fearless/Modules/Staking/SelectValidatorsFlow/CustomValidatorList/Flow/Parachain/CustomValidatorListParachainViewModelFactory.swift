@@ -19,7 +19,7 @@ class CustomValidatorListParachainViewModelFactory {
     private func createHeaderViewModel(
         displayCollatorsCount: Int,
         totalCollatorsCount: Int,
-        filter: CustomValidatorRelaychainListFilter,
+        filter: CustomValidatorParachainListFilter,
         locale: Locale
     ) -> TitleWithSubtitleViewModel {
         let title = R.string.localizable
@@ -37,7 +37,13 @@ class CustomValidatorListParachainViewModelFactory {
         case .ownStake:
             subtitle = R.string.localizable
                 .stakingFilterTitleOwnStake(preferredLanguages: locale.rLanguages)
-        case .totalStake:
+        case .effectiveAmountBonded:
+            subtitle = R.string.localizable
+                .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
+        case .delegations:
+            subtitle = R.string.localizable
+                .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
+        case .minimumBond:
             subtitle = R.string.localizable
                 .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
         }
@@ -48,7 +54,7 @@ class CustomValidatorListParachainViewModelFactory {
     private func createCellsViewModel(
         from collatorList: [ParachainStakingCandidateInfo],
         selectedCollatorList: [ParachainStakingCandidateInfo],
-        filter: CustomValidatorRelaychainListFilter,
+        filter: CustomValidatorParachainListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> [CustomValidatorCellViewModel] {
@@ -80,7 +86,7 @@ class CustomValidatorListParachainViewModelFactory {
                 detailsText = balanceViewModel.amount
                 auxDetailsText = balanceViewModel.price
 
-            case .totalStake:
+            case .effectiveAmountBonded:
                 let totalStake = Decimal.fromSubstrateAmount(
                     collator.metadata?.totalCounted ?? BigUInt.zero,
                     precision: Int16(chainAsset.asset.precision)
@@ -92,6 +98,16 @@ class CustomValidatorListParachainViewModelFactory {
 
                 detailsText = balanceViewModel.amount
                 auxDetailsText = balanceViewModel.price
+            case .delegations:
+                detailsText = collator.metadata?.delegationCount
+                auxDetailsText = ""
+            case .minimumBond:
+                let minimumBond = Decimal.fromSubstrateAmount(
+                    collator.metadata?.totalCounted ?? BigUInt.zero,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? Decimal.zero
+                detailsText = minimumBond.stringWithPointSeparator
+                auxDetailsText = ""
             }
 
             // TODO: Real hasSlashes and oversubscribed value
@@ -112,7 +128,7 @@ class CustomValidatorListParachainViewModelFactory {
         from displayCollatorList: [ParachainStakingCandidateInfo],
         selectedCollatorList: [ParachainStakingCandidateInfo],
         totalCollatorsCount: Int,
-        filter: CustomValidatorRelaychainListFilter,
+        filter: CustomValidatorParachainListFilter,
         priceData: PriceData?,
         locale: Locale
     ) -> CustomValidatorListViewModel {

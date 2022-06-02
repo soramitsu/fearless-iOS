@@ -1,6 +1,6 @@
 import Foundation
 
-final class SelectedValidatorListRelaychainViewModelState: SelectedValidatorListViewModelState {
+final class SelectedValidatorListParachainViewModelState: SelectedValidatorListViewModelState {
     weak var delegate: SelectedValidatorListDelegate?
 
     var stateListener: SelectedValidatorListModelStateListener?
@@ -10,33 +10,32 @@ final class SelectedValidatorListRelaychainViewModelState: SelectedValidatorList
     }
 
     let maxTargets: Int
-    var selectedValidatorList: [SelectedValidatorInfo]
+    var selectedValidatorList: [ParachainStakingCandidateInfo]
+    let bonding: InitiatedBonding
     let baseFlow: SelectedValidatorListFlow
 
-    init(baseFlow: SelectedValidatorListFlow, maxTargets: Int, selectedValidatorList: [SelectedValidatorInfo], delegate: SelectedValidatorListDelegate?) {
+    init(baseFlow: SelectedValidatorListFlow, maxTargets: Int, selectedValidatorList: [ParachainStakingCandidateInfo], delegate: SelectedValidatorListDelegate?, bonding: InitiatedBonding) {
         self.baseFlow = baseFlow
         self.delegate = delegate
         self.maxTargets = maxTargets
         self.selectedValidatorList = selectedValidatorList
+        self.bonding = bonding
     }
 
     func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow? {
-        .relaychain(validatorInfo: selectedValidatorList[validatorIndex], address: nil)
+        .parachain(candidate: selectedValidatorList[validatorIndex])
     }
 
     func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
-        switch baseFlow {
-        case let .relaychainInitiated(_, maxTargets, state):
-            return .relaychainInitiated(targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
-        case let .relaychainExisting(_, maxTargets, state):
-            return .relaychainExisting(targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
-        default:
+        guard let collator = selectedValidatorList.first else {
             return nil
         }
+
+        return .parachain(target: collator, maxTargets: maxTargets, bonding: bonding)
     }
 }
 
-extension SelectedValidatorListRelaychainViewModelState: SelectedValidatorListUserInputHandler {
+extension SelectedValidatorListParachainViewModelState: SelectedValidatorListUserInputHandler {
     func removeItem(at index: Int) {
         let validator = selectedValidatorList[index]
 

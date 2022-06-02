@@ -50,7 +50,7 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
                     RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
-                        details: details.value(for: locale)
+                        details: details.value(for: locale), isSelected: parachainViewModelState.selectedCollators.contains(collator)
                     )
                 }
             }

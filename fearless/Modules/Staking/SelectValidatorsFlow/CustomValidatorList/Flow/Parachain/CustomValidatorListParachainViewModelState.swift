@@ -7,6 +7,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     let selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
 
     var filteredValidatorList: [ParachainStakingCandidateInfo] = []
+    var filter: CustomValidatorParachainListFilter = .recommendedFilter()
 
     init(
         candidates: [ParachainStakingCandidateInfo],
@@ -21,8 +22,6 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
 
         filteredValidatorList = candidates
     }
-
-    var filter: CustomValidatorRelaychainListFilter = .recommendedFilter()
 
     var viewModel: CustomValidatorListViewModel?
 
@@ -45,15 +44,66 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
-        nil
+        .parachain(filter: filter)
     }
 
     func selectedValidatorListFlow() -> SelectedValidatorListFlow? {
-        nil
+        .parachain(collators: selectedValidatorList.items, maxTargets: maxTargets, state: bonding)
+    }
+
+    func composeFilteredValidatorList(filter: CustomValidatorParachainListFilter) -> [ParachainStakingCandidateInfo] {
+        let composer = CustomValidatorParachainListComposer(filter: filter)
+        return composer.compose(from: candidates)
+    }
+
+    var filterApplied: Bool {
+        let emptyFilter = CustomValidatorParachainListFilter.defaultFilter()
+        return filter != emptyFilter
     }
 }
 
-extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInputHandler {}
+extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInputHandler {
+    func changeValidatorSelection(at index: Int) {
+        let validator = filteredValidatorList[index]
+
+        selectedValidatorList.set([validator])
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func remove(validator: ParachainStakingCandidateInfo) {
+        if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
+            changeValidatorSelection(at: displayedIndex)
+        } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
+            selectedValidatorList.remove(at: selectedIndex)
+
+            stateListener?.modelStateDidChanged(viewModelState: self)
+        }
+    }
+
+    func remove(validatorAddress: AccountAddress) {
+        guard let validator = filteredValidatorList.first(where: { $0.address == validatorAddress }) else {
+            return
+        }
+
+        remove(validator: validator)
+    }
+
+    func clearFilter() {
+        filter = CustomValidatorParachainListFilter.defaultFilter()
+        filteredValidatorList = composeFilteredValidatorList(filter: filter)
+    }
+
+    func updateFilter(with flow: ValidatorListFilterFlow) {
+        guard case let ValidatorListFilterFlow.parachain(updatedFilter) = flow else {
+            return
+        }
+
+        filter = updatedFilter
+
+        filteredValidatorList = composeFilteredValidatorList(filter: updatedFilter)
+    }
+}
 
 extension CustomValidatorListParachainViewModelState: ValidatorSearchParachainDelegate {
     func validatorSearchDidUpdate(selectedValidatorList: [ParachainStakingCandidateInfo]) {

@@ -6,7 +6,7 @@ enum SelectValidatorsConfirmFlowError: Error {}
 enum SelectValidatorsConfirmFlow {
     case relaychainInitiated(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case relaychainExisting(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
-    case parachain
+    case parachain(target: ParachainStakingCandidateInfo, maxTargets: Int, bonding: InitiatedBonding)
 }
 
 protocol SelectValidatorsConfirmModelStateListener: AnyObject {
@@ -14,6 +14,7 @@ protocol SelectValidatorsConfirmModelStateListener: AnyObject {
     func didStartNomination()
     func didCompleteNomination(txHash: String)
     func didFailNomination(error: Error)
+    func feeParametersUpdated()
 
     func provideConfirmationState(viewModelState: SelectValidatorsConfirmViewModelState)
     func provideHints(viewModelState: SelectValidatorsConfirmViewModelState)

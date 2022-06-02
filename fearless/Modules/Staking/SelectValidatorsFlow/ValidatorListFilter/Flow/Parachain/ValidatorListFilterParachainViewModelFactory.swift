@@ -1,36 +1,22 @@
 import Foundation
 
-final class ValidatorListFilterRelaychainViewModelFactory {
+final class ValidatorListFilterParachainViewModelFactory {
     private func createFilterViewModelSection(
-        from filter: CustomValidatorRelaychainListFilter,
+        from filter: CustomValidatorParachainListFilter,
         locale: Locale
     ) -> ValidatorListFilterViewModelSection {
         let cellViewModels: [SelectableViewModel<TitleWithSubtitleViewModel>] =
-            ValidatorListRelaychainFilterRow.allCases.map { row in
+            ValidatorListParachainFilterRow.allCases.map { row in
                 switch row {
                 case .withoutIdentity:
                     return SelectableViewModel(
                         underlyingViewModel: row.titleSubtitleViewModel.value(for: locale),
                         selectable: !filter.allowsNoIdentity
                     )
-
-                case .slashed:
-                    return SelectableViewModel(
-                        underlyingViewModel: row.titleSubtitleViewModel.value(for: locale),
-                        selectable: !filter.allowsSlashed
-                    )
-
                 case .oversubscribed:
                     return SelectableViewModel(
                         underlyingViewModel: row.titleSubtitleViewModel.value(for: locale),
                         selectable: !filter.allowsOversubscribed
-                    )
-
-                case .clusterLimit:
-                    let allowsUnlimitedClusters = filter.allowsClusters == .unlimited
-                    return SelectableViewModel(
-                        underlyingViewModel: row.titleSubtitleViewModel.value(for: locale),
-                        selectable: !allowsUnlimitedClusters
                     )
                 }
             }
@@ -46,12 +32,12 @@ final class ValidatorListFilterRelaychainViewModelFactory {
     }
 
     private func createSortViewModelSection(
-        from filter: CustomValidatorRelaychainListFilter,
+        from filter: CustomValidatorParachainListFilter,
         token: String,
         locale: Locale
     ) -> ValidatorListFilterViewModelSection {
         let cellViewModels: [SelectableViewModel<TitleWithSubtitleViewModel>] =
-            ValidatorListRelaychainSortRow.allCases.map { row in
+            ValidatorListParachainSortRow.allCases.map { row in
                 switch row {
                 case .estimatedReward:
                     let titleSubtitleViewModel = TitleWithSubtitleViewModel(
@@ -78,7 +64,7 @@ final class ValidatorListFilterRelaychainViewModelFactory {
                         selectable: filter.sortedBy == .ownStake
                     )
 
-                case .totalStake:
+                case .effectiveAmountBonded:
                     let titleSubtitleViewModel = TitleWithSubtitleViewModel(
                         title: R.string.localizable
                             .stakingValidatorTotalStakeToken(
@@ -89,7 +75,34 @@ final class ValidatorListFilterRelaychainViewModelFactory {
 
                     return SelectableViewModel(
                         underlyingViewModel: titleSubtitleViewModel,
-                        selectable: filter.sortedBy == .totalStake
+                        selectable: filter.sortedBy == .effectiveAmountBonded
+                    )
+                case .delegations:
+                    let titleSubtitleViewModel = TitleWithSubtitleViewModel(
+                        title: R.string.localizable
+                            .stakingValidatorTotalStakeToken(
+                                token,
+                                preferredLanguages: locale.rLanguages
+                            )
+                    )
+
+                    return SelectableViewModel(
+                        underlyingViewModel: titleSubtitleViewModel,
+                        selectable: filter.sortedBy == .effectiveAmountBonded
+                    )
+
+                case .minimumBond:
+                    let titleSubtitleViewModel = TitleWithSubtitleViewModel(
+                        title: R.string.localizable
+                            .stakingValidatorTotalStakeToken(
+                                token,
+                                preferredLanguages: locale.rLanguages
+                            )
+                    )
+
+                    return SelectableViewModel(
+                        underlyingViewModel: titleSubtitleViewModel,
+                        selectable: filter.sortedBy == .effectiveAmountBonded
                     )
                 }
             }
@@ -105,17 +118,17 @@ final class ValidatorListFilterRelaychainViewModelFactory {
     }
 }
 
-extension ValidatorListFilterRelaychainViewModelFactory: ValidatorListFilterViewModelFactoryProtocol {
+extension ValidatorListFilterParachainViewModelFactory: ValidatorListFilterViewModelFactoryProtocol {
     func buildViewModel(viewModelState: ValidatorListFilterViewModelState, token: String, locale: Locale) -> ValidatorListFilterViewModel? {
-        guard let relaychainViewModelState = viewModelState as? ValidatorListFilterRelaychainViewModelState else {
+        guard let parachainViewModelState = viewModelState as? ValidatorListFilterParachainViewModelState else {
             return nil
         }
 
         return ValidatorListFilterViewModel(
-            filterModel: createFilterViewModelSection(from: relaychainViewModelState.currentFilter, locale: locale),
-            sortModel: createSortViewModelSection(from: relaychainViewModelState.currentFilter, token: token, locale: locale),
-            canApply: relaychainViewModelState.currentFilter != relaychainViewModelState.initialFilter,
-            canReset: relaychainViewModelState.currentFilter != CustomValidatorRelaychainListFilter.recommendedFilter()
+            filterModel: createFilterViewModelSection(from: parachainViewModelState.currentFilter, locale: locale),
+            sortModel: createSortViewModelSection(from: parachainViewModelState.currentFilter, token: token, locale: locale),
+            canApply: parachainViewModelState.currentFilter != parachainViewModelState.initialFilter,
+            canReset: parachainViewModelState.currentFilter != CustomValidatorParachainListFilter.recommendedFilter()
         )
     }
 }

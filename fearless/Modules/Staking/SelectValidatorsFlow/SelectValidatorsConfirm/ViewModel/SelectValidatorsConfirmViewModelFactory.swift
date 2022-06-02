@@ -50,7 +50,7 @@ final class SelectValidatorsConfirmViewModelFactory {
         }
     }
 
-    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: AssetModel) throws
+    func createViewModel(from state: SelectValidatorsConfirmRelaychainModel, asset: AssetModel) throws
         -> LocalizableResource<SelectValidatorsConfirmViewModel> {
         let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
@@ -76,7 +76,8 @@ final class SelectValidatorsConfirmViewModelFactory {
                 amount: amount ?? "",
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
-                maxValidatorCount: state.maxTargets
+                maxValidatorCount: state.maxTargets,
+                selectedCollatorViewModel: nil
             )
         }
     }

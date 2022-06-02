@@ -66,6 +66,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MinDelegation")
     }
 
+    static var rewardPaymentDelay: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "RewardPaymentDelay")
+    }
+
     static var maxDelegationsPerDelegator: ConstantCodingPath {
         ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxDelegationsPerDelegator")
     }

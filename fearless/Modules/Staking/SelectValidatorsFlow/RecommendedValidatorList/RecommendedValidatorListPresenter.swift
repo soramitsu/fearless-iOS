@@ -1,6 +1,10 @@
 import Foundation
 
-final class RecommendedValidatorListPresenter {
+final class RecommendedValidatorListPresenter: RecommendedValidatorListModelStateListener {
+    func modelStateDidChanged(viewModelState _: RecommendedValidatorListViewModelState) {
+        provideViewModel()
+    }
+
     weak var view: RecommendedValidatorListViewProtocol?
     var wireframe: RecommendedValidatorListWireframeProtocol!
 
@@ -33,10 +37,12 @@ final class RecommendedValidatorListPresenter {
 
 extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideViewModel()
     }
 
-    func selectedValidatorAt(index: Int) {
+    func showValidatorInfoAt(index: Int) {
         guard let flow = viewModelState.validatorInfoFlow(validatorIndex: index) else {
             return
         }
@@ -47,6 +53,12 @@ extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterPr
             wallet: wallet,
             from: view
         )
+    }
+
+    func selectedValidatorAt(index: Int) {
+        if viewModelState.shouldSelectValidatorAt(index: index) {
+            return
+        }
     }
 
     func proceed() {
