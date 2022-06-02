@@ -134,7 +134,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
                 preferredLanguages: selectedLocale.rLanguages
             )
 
-            rootView.payoutAccountView?.iconImage = icon.imageWithFillColor(
+            rootView.payoutAccountView?.iconImage = icon?.imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale

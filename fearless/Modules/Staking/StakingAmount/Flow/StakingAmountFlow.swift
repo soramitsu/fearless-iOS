@@ -10,6 +10,8 @@ enum StakingAmountFlow {
 
 protocol StakingAmountModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: StakingAmountViewModelState)
+    func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState)
+    func provideSelectRewardDestinationViewModel(viewModelState: StakingAmountViewModelState)
 }
 
 protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
@@ -35,6 +37,36 @@ protocol StakingAmountViewModelFactoryProtocol {
         priceData: PriceData?,
         calculator: RewardCalculatorEngineProtocol?
     ) -> StakingAmountMainViewModel?
+
+    func buildYourRewardDestinationViewModel(
+        viewModelState: StakingAmountViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<YourRewardDestinationViewModel>?
+
+    func buildSelectRewardDestinationViewModel(
+        viewModelState: StakingAmountViewModelState,
+        priceData: PriceData?,
+        calculator: RewardCalculatorEngineProtocol?
+    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>?
+}
+
+extension StakingAmountViewModelFactoryProtocol {
+    func buildViewModel(
+        viewModelState _: StakingAmountViewModelState,
+        priceData _: PriceData?,
+        calculator _: RewardCalculatorEngineProtocol?
+    ) -> StakingAmountMainViewModel? { nil }
+
+    func buildYourRewardDestinationViewModel(
+        viewModelState _: StakingAmountViewModelState,
+        priceData _: PriceData?
+    ) -> LocalizableResource<YourRewardDestinationViewModel>? { nil }
+
+    func buildSelectRewardDestinationViewModel(
+        viewModelState _: StakingAmountViewModelState,
+        priceData _: PriceData?,
+        calculator _: RewardCalculatorEngineProtocol?
+    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? { nil }
 }
 
 protocol StakingAmountStrategy {

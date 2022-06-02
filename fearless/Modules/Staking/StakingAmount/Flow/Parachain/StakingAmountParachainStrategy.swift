@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 
 protocol StakingAmountParachainStrategyOutput: AnyObject {
+    func didSetup()
     func didReceive(error: Error)
     func didReceive(paymentInfo: RuntimeDispatchInfo)
 }
@@ -28,7 +29,9 @@ class StakingAmountParachainStrategy {
 }
 
 extension StakingAmountParachainStrategy: StakingAmountStrategy {
-    func setup() {}
+    func setup() {
+        output?.didSetup()
+    }
 
     func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure) {
         extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { [weak self] result in

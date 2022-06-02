@@ -65,6 +65,10 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
         }
     }
 
+    func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
+        nil
+    }
+
     func performDeselect() {
         guard var viewModel = viewModel else { return }
 
@@ -130,6 +134,10 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
 }
 
 extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserInputHandler {
+    func proceed() {
+        stateListener?.showSelectedList()
+    }
+
     func remove(validator: SelectedValidatorInfo) {
         if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
             changeValidatorSelection(at: displayedIndex)

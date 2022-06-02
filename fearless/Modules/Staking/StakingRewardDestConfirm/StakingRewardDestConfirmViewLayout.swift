@@ -100,7 +100,7 @@ final class StakingRewardDestConfirmViewLayout: UIView {
                 .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
             insertPayoutViewIfNeeded()
 
-            payoutAccountView?.iconImage = icon.imageWithFillColor(
+            payoutAccountView?.iconImage = icon?.imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale

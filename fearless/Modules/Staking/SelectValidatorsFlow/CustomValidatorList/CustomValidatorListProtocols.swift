@@ -57,6 +57,13 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
+
+    func confirm(
+        from view: ControllerBackedProtocol?,
+        flow: SelectValidatorsConfirmFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 }
 
 extension CustomValidatorListViewProtocol {

@@ -23,7 +23,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             return nil
         }
 
-        let rewardDestinationViewModel = try? buildRewardDestinationViewModel(
+        let rewardDestinationViewModel = try? buildSelectRewardDestinationViewModel(
             viewModelState: relaychainViewModelState,
             priceData: priceData,
             calculator: calculator
@@ -53,7 +53,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 
-    private func buildRewardDestinationViewModel(
+    func buildSelectRewardDestinationViewModel(
         viewModelState: StakingAmountRelaychainViewModelState,
         priceData: PriceData?,
         calculator: RewardCalculatorEngineProtocol?

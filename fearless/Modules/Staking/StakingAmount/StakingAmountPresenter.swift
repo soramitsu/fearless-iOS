@@ -60,46 +60,16 @@ final class StakingAmountPresenter {
     }
 
     private func provideRewardDestination() {
-        do {
-            let reward: CalculatedReward?
-
-            if let calculator = calculator {
-                let restake = calculator.calculateMaxReturn(
-                    isCompound: true,
-                    period: .year
-                )
-
-                let payout = calculator.calculateMaxReturn(
-                    isCompound: false,
-                    period: .year
-                )
-
-                let curAmount = viewModelState?.amount ?? 0.0
-                reward = CalculatedReward(
-                    restakeReturn: restake * curAmount,
-                    restakeReturnPercentage: restake,
-                    payoutReturn: payout * curAmount,
-                    payoutReturnPercentage: payout
-                )
-            } else {
-                reward = nil
-            }
-
-            switch rewardDestination {
-            case .restake:
-                let viewModel = rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
-                view?.didReceiveRewardDestination(viewModel: viewModel)
-            case .payout:
-                if let payoutAccount = payoutAccount,
-                   let address = payoutAccount.toAddress() {
-                    let viewModel = try rewardDestViewModelFactory
-                        .createPayout(from: reward, priceData: priceData, address: address, title: (try? payoutAccount.toDisplayAddress().username) ?? address)
-                    view?.didReceiveRewardDestination(viewModel: viewModel)
-                }
-            }
-        } catch {
-            logger.error("Can't create reward destination")
+        guard let viewModelState = viewModelState,
+              let viewModel = try? viewModelFactory?.buildSelectRewardDestinationViewModel(
+                  viewModelState: viewModelState,
+                  priceData: priceData,
+                  calculator: calculator
+              ) else {
+            return
         }
+
+        view?.didReceiveRewardDestination(viewModel: viewModel)
     }
 
     private func provideAsset() {
@@ -153,23 +123,12 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
     func selectRestakeDestination() {
         viewModelState?.selectRestakeDestination()
-//        rewardDestination = .restake
-//        provideRewardDestination()
-//
-//        scheduleFeeEstimation()
+        scheduleFeeEstimation()
     }
 
     func selectPayoutDestination() {
         viewModelState?.selectPayoutDestination()
-
-//        guard let payoutAccount = payoutAccount else {
-//            return
-//        }
-//
-//        rewardDestination = .payout(account: payoutAccount)
-//        provideRewardDestination()
-//
-//        scheduleFeeEstimation()
+        scheduleFeeEstimation()
     }
 
     func selectAmountPercentage(_ percentage: Float) {
@@ -415,5 +374,17 @@ extension StakingAmountPresenter: StakingAmountModelStateListener {
         if let viewModel = viewModelFactory?.buildViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) {
             view?.didReceive(viewModel: viewModel)
         }
+    }
+
+    func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState) {
+        guard let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(viewModelState: viewModelState, priceData: priceData) else {
+            return
+        }
+
+        view?.didReceiveYourRewardDestination(viewModel: viewModel)
+    }
+
+    func provideSelectRewardDestinationViewModel(viewModelState _: StakingAmountViewModelState) {
+        provideRewardDestination()
     }
 }

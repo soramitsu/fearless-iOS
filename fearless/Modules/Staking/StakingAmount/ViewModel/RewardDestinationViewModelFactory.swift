@@ -60,7 +60,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         address: AccountAddress,
         title: String
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol> {
-        let icon = try iconGenerator.generateFromAddress(address)
+        let icon = try? iconGenerator.generateFromAddress(address)
 
         let type = RewardDestinationTypeViewModel.payout(icon: icon, title: title)
 

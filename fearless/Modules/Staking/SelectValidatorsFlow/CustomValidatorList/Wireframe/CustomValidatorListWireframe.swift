@@ -67,4 +67,20 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         chainAsset _: ChainAsset,
         wallet _: MetaAccountModel
     ) {}
+
+    func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel) {
+        guard let confirmView = SelectValidatorsConfirmViewFactory
+            .createInitiatedBondingView(
+                wallet: wallet,
+                chainAsset: chainAsset,
+                flow: flow
+            ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            confirmView.controller,
+            animated: true
+        )
+    }
 }

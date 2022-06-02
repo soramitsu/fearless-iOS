@@ -151,17 +151,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func proceed() {
-        guard let flow = viewModelState.selectedValidatorListFlow() else {
-            return
-        }
-
-        wireframe.proceed(
-            from: view,
-            flow: flow,
-            delegate: self,
-            chainAsset: chainAsset,
-            wallet: wallet
-        )
+        viewModelState.proceed()
     }
 }
 
@@ -225,5 +215,32 @@ extension CustomValidatorListPresenter: CustomValidatorListModelStateListener {
 
     func viewModelChanged(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?) {
         view?.reload(viewModel, at: indexes)
+    }
+
+    func showSelectedList() {
+        guard let flow = viewModelState.selectedValidatorListFlow() else {
+            return
+        }
+
+        wireframe.proceed(
+            from: view,
+            flow: flow,
+            delegate: self,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
+
+    func showConfirmation() {
+        guard let flow = viewModelState.selectValidatorsConfirmFlow() else {
+            return
+        }
+
+        wireframe.confirm(
+            from: view,
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
     }
 }

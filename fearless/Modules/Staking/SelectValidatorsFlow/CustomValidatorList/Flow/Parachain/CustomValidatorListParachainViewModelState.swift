@@ -51,6 +51,14 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
         .parachain(collators: selectedValidatorList.items, maxTargets: maxTargets, state: bonding)
     }
 
+    func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
+        guard let target = selectedValidatorList.items.first else {
+            return nil
+        }
+
+        return .parachain(target: target, maxTargets: maxTargets, bonding: bonding)
+    }
+
     func composeFilteredValidatorList(filter: CustomValidatorParachainListFilter) -> [ParachainStakingCandidateInfo] {
         let composer = CustomValidatorParachainListComposer(filter: filter)
         return composer.compose(from: candidates)
@@ -63,6 +71,10 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
 }
 
 extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInputHandler {
+    func proceed() {
+        stateListener?.showConfirmation()
+    }
+
     func changeValidatorSelection(at index: Int) {
         let validator = filteredValidatorList[index]
 

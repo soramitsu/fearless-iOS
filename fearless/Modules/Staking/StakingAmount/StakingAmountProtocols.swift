@@ -6,6 +6,7 @@ import CommonWallet
 protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingAmountMainViewModel)
 
+    func didReceiveYourRewardDestination(viewModel: LocalizableResource<YourRewardDestinationViewModel>)
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)

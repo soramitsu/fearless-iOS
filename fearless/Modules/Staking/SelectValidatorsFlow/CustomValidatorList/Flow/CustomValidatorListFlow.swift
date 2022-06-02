@@ -31,6 +31,8 @@ protocol CustomValidatorListModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: CustomValidatorListViewModelState)
     func viewModelChanged(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?)
     func didReceiveError(error: CustomValidatorListFlowError)
+    func showSelectedList()
+    func showConfirmation()
 }
 
 protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler {
@@ -43,6 +45,7 @@ protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler 
     func validatorSearchFlow() -> ValidatorSearchFlow?
     func validatorListFilterFlow() -> ValidatorListFilterFlow?
     func selectedValidatorListFlow() -> SelectedValidatorListFlow?
+    func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow?
 
     var filterApplied: Bool { get }
 }
@@ -74,6 +77,7 @@ protocol CustomValidatorListUserInputHandler {
     func changeValidatorSelection(at index: Int)
     func updateFilter(with flow: ValidatorListFilterFlow)
     func clearFilter()
+    func proceed()
 }
 
 extension CustomValidatorListUserInputHandler {
@@ -83,4 +87,5 @@ extension CustomValidatorListUserInputHandler {
     func changeValidatorSelection(at _: Int) {}
     func updateFilter(with _: ValidatorListFilterFlow) {}
     func clearFilter() {}
+    func proceed() {}
 }

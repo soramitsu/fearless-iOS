@@ -59,6 +59,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 }
 
 extension StakingAmountParachainViewModelState: StakingAmountParachainStrategyOutput {
+    func didSetup() {
+        stateListener?.provideYourRewardDestinationViewModel(viewModelState: self)
+    }
+
     func didReceive(error _: Error) {}
 
     func didReceive(paymentInfo: RuntimeDispatchInfo) {

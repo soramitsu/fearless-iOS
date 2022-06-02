@@ -99,13 +99,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        notifyListeners()
+        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
     }
 
     func selectRestakeDestination() {
         rewardDestination = .restake
 
-        notifyListeners()
+        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
     }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?) {
