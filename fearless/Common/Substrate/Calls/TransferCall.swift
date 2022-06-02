@@ -18,6 +18,7 @@ extension TokenSymbol: Codable {
 enum CurrencyId {
     case token(symbol: TokenSymbol?)
     case foreignAsset(foreignAsset: String)
+    case stableAssetPoolToken(stableAssetPoolToken: String)
 }
 
 extension CurrencyId: Codable {
@@ -31,6 +32,9 @@ extension CurrencyId: Codable {
         case let .foreignAsset(foreignAsset):
             try container.encode("ForeignAsset")
             try container.encode(foreignAsset)
+        case let .stableAssetPoolToken(stableAssetPoolToken):
+            try container.encode("StableAssetPoolToken")
+            try container.encode(stableAssetPoolToken)
         }
     }
 }

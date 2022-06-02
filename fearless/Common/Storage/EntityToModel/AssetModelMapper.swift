@@ -29,7 +29,7 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             price: entity.price as Decimal?,
             transfersEnabled: entity.transfersEnabled,
             type: ChainAssetType(rawValue: typeRawValue) ?? .normal,
-            foreignAssetId: entity.foreignAssetId,
+            currencyId: entity.currencyId,
             displayName: entity.displayName
         )
     }
@@ -48,6 +48,6 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.symbol = model.symbol
         entity.transfersEnabled = model.transfersEnabled ?? true
         entity.type = model.type.rawValue
-        entity.foreignAssetId = model.foreignAssetId
+        entity.currencyId = model.currencyId
     }
 }

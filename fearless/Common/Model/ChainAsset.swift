@@ -18,10 +18,15 @@ struct ChainAsset: Equatable, Hashable {
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
             return CurrencyId.token(symbol: tokenSymbol)
         case .foreignAsset:
-            guard let foreignAssetId = asset.foreignAssetId else {
+            guard let foreignAssetId = asset.currencyId else {
                 return nil
             }
             return CurrencyId.foreignAsset(foreignAsset: foreignAssetId)
+        case .stableAssetPoolToken:
+            guard let stableAssetPoolTokenId = asset.currencyId else {
+                return nil
+            }
+            return CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
         }
     }
 
@@ -48,4 +53,5 @@ enum ChainAssetType: String, Codable {
     case ormlChain
     case ormlAsset
     case foreignAsset
+    case stableAssetPoolToken
 }

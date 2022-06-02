@@ -28,7 +28,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
             switch chainAsset.chainAssetType {
             case .normal:
                 storagePath = StorageCodingPath.account
-            case .ormlChain, .ormlAsset, .foreignAsset:
+            case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken:
                 storagePath = StorageCodingPath.tokens
             }
 

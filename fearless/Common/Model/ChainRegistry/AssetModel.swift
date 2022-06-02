@@ -15,7 +15,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let price: Decimal?
     let transfersEnabled: Bool?
     let type: ChainAssetType
-    let foreignAssetId: String?
+    let currencyId: String?
     let displayName: String?
 
     var name: String {
@@ -32,7 +32,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         price: Decimal?,
         transfersEnabled: Bool?,
         type: ChainAssetType,
-        foreignAssetId: String?,
+        currencyId: String?,
         displayName: String?
     ) {
         self.id = id
@@ -44,7 +44,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.price = price
         self.transfersEnabled = transfersEnabled
         self.type = type
-        self.foreignAssetId = foreignAssetId
+        self.currencyId = currencyId
         self.displayName = displayName
     }
 
@@ -58,7 +58,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         icon = try? container.decode(URL?.self, forKey: .icon)
         priceId = try? container.decode(String?.self, forKey: .priceId)
         transfersEnabled = try? container.decode(Bool?.self, forKey: .transfersEnabled)
-        foreignAssetId = try? container.decode(String?.self, forKey: .foreignAssetId)
+        currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
 
         price = nil
@@ -76,7 +76,7 @@ struct AssetModel: Equatable, Codable, Hashable {
             price: newPrice,
             transfersEnabled: transfersEnabled,
             type: type,
-            foreignAssetId: foreignAssetId,
+            currencyId: currencyId,
             displayName: displayName
         )
     }
@@ -90,7 +90,7 @@ struct AssetModel: Equatable, Codable, Hashable {
             lhs.symbol == rhs.symbol &&
             lhs.type == rhs.type &&
             lhs.transfersEnabled == rhs.transfersEnabled &&
-            lhs.foreignAssetId == rhs.foreignAssetId &&
+            lhs.currencyId == rhs.currencyId &&
             lhs.displayName == rhs.displayName
     }
 }

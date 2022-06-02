@@ -28,7 +28,7 @@ final class ChainModelMapper {
             price: entity.price as Decimal?,
             transfersEnabled: entity.transfersEnabled,
             type: createChainAssetModelType(from: entity.type),
-            foreignAssetId: entity.foreignAssetId,
+            currencyId: entity.currencyId,
             displayName: entity.displayName
         )
     }
@@ -135,7 +135,7 @@ final class ChainModelMapper {
         assetEntity.symbol = model.asset.symbol
         assetEntity.transfersEnabled = model.asset.transfersEnabled ?? true
         assetEntity.type = model.type.rawValue
-        assetEntity.foreignAssetId = model.asset.foreignAssetId
+        assetEntity.currencyId = model.asset.currencyId
         assetEntity.displayName = model.asset.displayName
 
         entity.asset = assetEntity
