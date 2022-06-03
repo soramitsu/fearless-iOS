@@ -35,16 +35,9 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(accounts: [ChainAccountResponse])
     func didReceive(price: PriceData?)
     func didReceive(balance: AccountData?)
-    func didReceive(paymentInfo: RuntimeDispatchInfo)
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
-    func didReceive(minimalBalance: BigUInt)
-    func didReceive(minBondAmount: BigUInt?)
-    func didReceive(counterForNominators: UInt32?)
-    func didReceive(maxNominatorsCount: UInt32?)
-    func didReceive(networkStakingInfo: NetworkStakingInfo)
-    func didReceive(networkStakingInfoError: Error)
 }
 
 protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,

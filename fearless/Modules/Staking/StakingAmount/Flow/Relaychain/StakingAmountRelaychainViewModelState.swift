@@ -9,6 +9,8 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
 
+    private var networkStakingInfo: NetworkStakingInfo?
+    private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
     private(set) var minimumBond: Decimal?
     private(set) var counterForNominators: UInt32?
@@ -25,15 +27,26 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     var payoutAccount: ChainAccountResponse?
 
     init(
-        stateListener: StakingAmountModelStateListener?,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        amount: Decimal?
+
     ) {
-        self.stateListener = stateListener
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
+        self.amount = amount
+
+        payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
+    }
+
+    var bonding: InitiatedBonding? {
+        guard let amount = amount else {
+            return nil
+        }
+
+        return InitiatedBonding(amount: amount, rewardDestination: rewardDestination)
     }
 
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
@@ -73,7 +86,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         return closure
     }
 
-    var validators: [DataValidating] {
+    func validators(using _: Locale) -> [DataValidating] {
         [dataValidatingFactory.canNominate(
             amount: amount,
             minimalBalance: minimalBalance,
@@ -114,6 +127,18 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
     func updateAmount(_ newValue: Decimal) {
         amount = newValue
+    }
+
+    func selectPayoutAccount(payoutAccount: ChainAccountResponse?) {
+        guard let payoutAccount = payoutAccount else {
+            return
+        }
+
+        self.payoutAccount = payoutAccount
+
+        rewardDestination = .payout(account: payoutAccount)
+
+        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
     }
 }
 
@@ -157,6 +182,15 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
 
         notifyListeners()
     }
+
+    func didReceive(networkStakingInfo: NetworkStakingInfo) {
+        self.networkStakingInfo = networkStakingInfo
+
+        let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: minimumBond?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)))
+        minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
+    }
+
+    func didReceive(networkStakingInfoError _: Error) {}
 }
 
 extension StakingAmountRelaychainViewModelState: Localizable {

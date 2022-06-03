@@ -154,7 +154,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             rootView.validatorsView.isHidden = true
         }
 
-        rootView.selectedCollatorView.isHidden = viewModel.selectedCollatorViewModel == nil
+        rootView.selectedCollatorContainer.isHidden = viewModel.selectedCollatorViewModel == nil
         rootView.selectedCollatorView.title = viewModel.selectedCollatorViewModel?.name
         rootView.selectedCollatorView.subtitle = viewModel.selectedCollatorViewModel?.address
     }

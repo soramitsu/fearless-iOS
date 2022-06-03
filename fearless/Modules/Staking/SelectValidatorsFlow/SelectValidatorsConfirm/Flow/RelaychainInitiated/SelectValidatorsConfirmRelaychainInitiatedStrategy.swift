@@ -3,7 +3,6 @@ import RobinHood
 import BigInt
 
 protocol SelectValidatorsConfirmRelaychainInitiatedStrategyOutput: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveMinBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
@@ -13,6 +12,7 @@ protocol SelectValidatorsConfirmRelaychainInitiatedStrategyOutput: AnyObject {
     func didFailNomination(error: Error)
     func didReceive(paymentInfo: RuntimeDispatchInfo)
     func didReceive(feeError: Error)
+    func didSetup()
 }
 
 final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationFetching {
@@ -23,7 +23,6 @@ final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationF
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let chainAsset: ChainAsset
     let output: SelectValidatorsConfirmRelaychainInitiatedStrategyOutput?
@@ -37,7 +36,6 @@ final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationF
     init(
         balanceAccountId: AccountId,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -49,7 +47,6 @@ final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationF
     ) {
         self.balanceAccountId = balanceAccountId
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
@@ -104,8 +101,6 @@ extension SelectValidatorsConfirmRelaychainInitiatedStrategy: SelectValidatorsCo
     }
 
     func setup() {
-        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: balanceAccountId, handler: self)
-
         minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
 
         counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
@@ -119,6 +114,8 @@ extension SelectValidatorsConfirmRelaychainInitiatedStrategy: SelectValidatorsCo
         ) { [weak self] result in
             self?.output?.didReceiveStakingDuration(result: result)
         }
+
+        output?.didSetup()
     }
 }
 
@@ -133,11 +130,5 @@ extension SelectValidatorsConfirmRelaychainInitiatedStrategy: RelaychainStakingL
 
     func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         output?.didReceiveMaxNominatorsCount(result: result)
-    }
-}
-
-extension SelectValidatorsConfirmRelaychainInitiatedStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
-        output?.didReceiveAccountInfo(result: result)
     }
 }

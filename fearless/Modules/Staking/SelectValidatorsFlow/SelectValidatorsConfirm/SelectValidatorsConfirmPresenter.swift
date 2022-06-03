@@ -8,6 +8,7 @@ final class SelectValidatorsConfirmPresenter {
     let interactor: SelectValidatorsConfirmInteractorInputProtocol
 
     private(set) var priceData: PriceData?
+    private(set) var balance: Decimal?
 
     let logger: LoggerProtocol?
     let viewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol
@@ -106,45 +107,24 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
     }
 
     func proceed() {
-        // TODO: Transition with new parameters
-//        guard let state = state else {
-//            return
-//        }
-//
-//        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-//
-//        let spendingAmount: Decimal = !state.hasExistingBond ? state.amount : 0.0
-//
-//        let validators: [DataValidating] = [
-//            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
-//                self?.interactor.estimateFee()
-//            },
-//
-//            dataValidatingFactory.canPayFeeAndAmount(
-//                balance: balance,
-//                fee: fee,
-//                spendingAmount: spendingAmount,
-//                locale: locale
-//            ),
-//
-//            dataValidatingFactory.maxNominatorsCountNotApplied(
-//                counterForNominators: counterForNominators,
-//                maxNominatorsCount: maxNominatorsCount,
-//                hasExistingNomination: state.hasExistingNomination,
-//                locale: locale
-//            ),
-//
-//            dataValidatingFactory.canNominate(
-//                amount: state.amount,
-//                minimalBalance: minimalBalance,
-//                minNominatorBond: minNominatorBond,
-//                locale: locale
-//            )
-//        ]
-//
-//        DataValidationRunner(validators: validators).runValidation { [weak self] in
-//            self?.interactor.submitNomination()
-//        }
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        let customValidators: [DataValidating] = viewModelState.validators(using: locale) ?? []
+        let commonValidators: [DataValidating] = [
+            dataValidatingFactory.has(fee: viewModelState.fee, locale: locale) { [weak self] in
+                self?.feeParametersUpdated()
+            },
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: viewModelState.fee,
+                spendingAmount: viewModelState.amount,
+                locale: locale
+            )
+        ]
+
+        DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
+            self?.interactor.submitNomination(closure: self?.viewModelState.createExtrinsicBuilderClosure())
+        }
     }
 }
 
@@ -158,6 +138,24 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
             provideFee(viewModelState: viewModelState)
         case let .failure(error):
             handle(error: error)
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.available {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                balance = 0.0
+            }
+
+            provideAsset(viewModelState: viewModelState)
+        case let .failure(error):
+            didReceiveError(error: error)
         }
     }
 }
@@ -202,7 +200,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
     }
 
     func provideAsset(viewModelState: SelectValidatorsConfirmViewModelState) {
-        guard let viewModel = viewModelFactory.buildAssetBalanceViewModel(viewModelState: viewModelState, priceData: priceData) else {
+        guard let viewModel = viewModelFactory.buildAssetBalanceViewModel(viewModelState: viewModelState, priceData: priceData, balance: balance) else {
             return
         }
 

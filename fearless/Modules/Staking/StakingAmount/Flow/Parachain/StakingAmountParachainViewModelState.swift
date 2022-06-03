@@ -9,17 +9,28 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
+    private var networkStakingInfo: NetworkStakingInfo?
+    private var minStake: Decimal?
+    private(set) var minimalBalance: Decimal?
 
     init(
-        stateListener: StakingAmountModelStateListener?,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        amount: Decimal?
     ) {
-        self.stateListener = stateListener
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
+        self.amount = amount
+    }
+
+    var bonding: InitiatedBonding? {
+        guard let amount = amount, let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            return nil
+        }
+
+        return InitiatedBonding(amount: amount, rewardDestination: .payout(account: account))
     }
 
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
@@ -41,8 +52,21 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         return closure
     }
 
-    var validators: [DataValidating] {
-        []
+    func validators(using locale: Locale) -> [DataValidating] {
+        let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+
+        return [dataValidatingFactory.canNominate(
+            amount: amount,
+            minimalBalance: minimalBalance,
+            minNominatorBond: minimumStake,
+            locale: locale
+        ),
+        dataValidatingFactory.bondAtLeastMinStaking(
+            asset: chainAsset.asset,
+            amount: amount,
+            minNominatorBond: minStake,
+            locale: locale
+        )]
     }
 
     private func notifyListeners() {
@@ -59,9 +83,27 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 }
 
 extension StakingAmountParachainViewModelState: StakingAmountParachainStrategyOutput {
+    func didReceive(minimalBalance: BigUInt?) {
+        if let minimalBalance = minimalBalance,
+           let amount = Decimal.fromSubstrateAmount(minimalBalance, precision: Int16(chainAsset.asset.precision)) {
+            self.minimalBalance = amount
+
+            notifyListeners()
+        }
+    }
+
+    func didReceive(networkStakingInfo: NetworkStakingInfo) {
+        self.networkStakingInfo = networkStakingInfo
+
+        let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: networkStakingInfo.baseInfo.minStakeAmongActiveNominators)
+        minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
+    }
+
     func didSetup() {
         stateListener?.provideYourRewardDestinationViewModel(viewModelState: self)
     }
+
+    func didReceive(networkStakingInfoError _: Error) {}
 
     func didReceive(error _: Error) {}
 

@@ -9,6 +9,8 @@ protocol StakingAmountRelaychainStrategyOutput: AnyObject {
     func didReceive(counterForNominators: UInt32?)
     func didReceive(maxNominatorsCount: UInt32?)
     func didReceive(paymentInfo: RuntimeDispatchInfo)
+    func didReceive(networkStakingInfo: NetworkStakingInfo)
+    func didReceive(networkStakingInfoError _: Error)
 }
 
 class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
@@ -21,6 +23,8 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
+    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
+    let eraValidatorService: EraValidatorServiceProtocol
 
     private weak var output: StakingAmountRelaychainStrategyOutput?
 
@@ -30,7 +34,9 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
-        output: StakingAmountRelaychainStrategyOutput?
+        output: StakingAmountRelaychainStrategyOutput?,
+        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
+        eraValidatorService: EraValidatorServiceProtocol
     ) {
         self.chain = chain
         self.runtimeService = runtimeService
@@ -38,11 +44,17 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.output = output
+        self.eraInfoOperationFactory = eraInfoOperationFactory
+        self.eraValidatorService = eraValidatorService
     }
 }
 
 extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
     func setup() {
+        eraValidatorService.setup()
+
+        provideNetworkStakingInfo()
+
         minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
 
         counterForNominatorsProvider = subscribeToCounterForNominators(for: chain.chainId)
@@ -72,6 +84,26 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
                 self?.output?.didReceive(error: error)
             }
         }
+    }
+
+    func provideNetworkStakingInfo() {
+        let wrapper = eraInfoOperationFactory.networkStakingOperation(
+            for: eraValidatorService,
+            runtimeService: runtimeService
+        )
+
+        wrapper.targetOperation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try wrapper.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(networkStakingInfo: info)
+                } catch {
+                    self?.output?.didReceive(networkStakingInfoError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 }
 

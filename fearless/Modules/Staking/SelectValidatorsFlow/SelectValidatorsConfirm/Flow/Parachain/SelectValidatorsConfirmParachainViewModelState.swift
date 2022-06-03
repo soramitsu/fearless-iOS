@@ -8,14 +8,14 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     var stateListener: SelectValidatorsConfirmModelStateListener?
-
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     var confirmationModel: SelectValidatorsConfirmParachainModel?
 
-    private(set) var balance: Decimal?
     private(set) var priceData: PriceData?
     private(set) var fee: Decimal?
     private(set) var minimalBalance: Decimal?
     private(set) var networkStakingInfo: NetworkStakingInfo?
+    var amount: Decimal?
 
     private(set) var candidateDelegationCount: UInt32?
     private(set) var delegationCount: UInt32?
@@ -29,13 +29,32 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
         maxTargets: Int,
         initiatedBonding: InitiatedBonding,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) {
         self.target = target
         self.maxTargets = maxTargets
         self.initiatedBonding = initiatedBonding
         self.chainAsset = chainAsset
         self.wallet = wallet
+        self.dataValidatingFactory = dataValidatingFactory
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+
+        return [dataValidatingFactory.canNominate(
+            amount: initiatedBonding.amount,
+            minimalBalance: minimalBalance,
+            minNominatorBond: minimumStake,
+            locale: locale
+        ),
+        dataValidatingFactory.bondAtLeastMinStaking(
+            asset: chainAsset.asset,
+            amount: initiatedBonding.amount,
+            minNominatorBond: minimumStake,
+            locale: locale
+        )]
     }
 
     func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
@@ -47,7 +66,8 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
 
         let closure: ExtrinsicBuilderClosure = { [weak self] builder in
             guard let strongSelf = self,
-                  let candidateDelegationCount = self?.candidateDelegationCount,
+                  let candidateDelegationCountString = self?.target.metadata?.delegationCount,
+                  let candidateDelegationCount = UInt32(candidateDelegationCountString),
                   let delegationCount = self?.delegationCount else {
                 return builder
             }
@@ -105,24 +125,6 @@ extension SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConfir
 
     func didSetup() {
         provideInitiatedBondingConfirmationModel()
-    }
-
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
-                balance = Decimal.fromSubstrateAmount(
-                    availableValue,
-                    precision: Int16(chainAsset.asset.precision)
-                )
-            } else {
-                balance = 0.0
-            }
-
-            stateListener?.provideAsset(viewModelState: self)
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
     }
 
     func didStartNomination() {

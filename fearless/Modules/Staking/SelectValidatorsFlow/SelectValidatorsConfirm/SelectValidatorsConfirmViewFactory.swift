@@ -9,7 +9,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
     private static func createContainer(
         flow: SelectValidatorsConfirmFlow,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactory
     ) -> SelectValidatorsConfirmDependencyContainer? {
         let operationManager = OperationManagerFacade.sharedManager
 
@@ -83,15 +84,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 maxTargets: maxTargets,
                 initiatedBonding: bonding,
                 chainAsset: chainAsset,
-                wallet: wallet
+                wallet: wallet, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmRelaychainInitiatedStrategy(
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                    walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                    selectedMetaAccount: wallet
-                ),
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
@@ -111,15 +108,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 existingBonding: bonding,
                 chainAsset: chainAsset,
                 wallet: wallet,
-                operationManager: OperationManagerFacade.sharedManager
+                operationManager: OperationManagerFacade.sharedManager, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmRelaychainExistingStrategy(
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                    walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                    selectedMetaAccount: wallet
-                ),
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
@@ -148,15 +141,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 maxTargets: maxTargets,
                 initiatedBonding: bonding,
                 chainAsset: chainAsset,
-                wallet: wallet
+                wallet: wallet, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmParachainStrategy(
                 collatorAccountId: target.owner,
                 balanceAccountId: accountResponse.accountId,
-                accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                    walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                    selectedMetaAccount: wallet
-                ),
                 runtimeService: runtimeService,
                 extrinsicService: extrinsicService,
                 signer: signer,
@@ -235,11 +224,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         wallet: MetaAccountModel,
         wireframe: SelectValidatorsConfirmWireframeProtocol
     ) -> SelectValidatorsConfirmViewProtocol? {
-        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet),
-              let interactor = createInteractor(wallet: wallet, asset: chainAsset.asset, strategy: container.strategy) else {
-            return nil
-        }
-
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
             formatterFactory: AssetBalanceFormatterFactory(),
@@ -251,6 +235,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             presentable: wireframe,
             balanceFactory: errorBalanceViewModelFactory
         )
+
+        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet, dataValidatingFactory: dataValidatingFactory),
+              let interactor = createInteractor(wallet: wallet, chainAsset: chainAsset, strategy: container.strategy) else {
+            return nil
+        }
 
         let presenter = SelectValidatorsConfirmPresenter(
             interactor: interactor,
@@ -276,16 +265,50 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
     }
 
     private static func createInteractor(
-        wallet _: MetaAccountModel,
-        asset: AssetModel,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         strategy: SelectValidatorsConfirmStrategy
     ) -> SelectValidatorsConfirmInteractorBase? {
         let priceLocalSubcriptionFactory = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
 
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return nil
+        }
+
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        let chain = chainAsset.chain
+
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
+
+        let logger = Logger.shared
+
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            selectedMetaAccount: wallet
+        )
+
         return SelectValidatorsConfirmInteractorBase(
+            balanceAccountId: accountId,
             priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
-            asset: asset,
-            strategy: strategy
+            chainAsset: chainAsset,
+            strategy: strategy,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
         )
     }
 }

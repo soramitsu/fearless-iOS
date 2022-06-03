@@ -2,7 +2,6 @@ import Foundation
 import RobinHood
 
 protocol SelectValidatorsConfirmParachainStrategyOutput: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveAtStake(snapshot: ParachainStakingCollatorSnapshot?)
     func didReceiveDelegatorState(state: ParachainStakingDelegatorState?)
     func didReceiveNetworkStakingInfo(info: NetworkStakingInfo)
@@ -18,7 +17,6 @@ protocol SelectValidatorsConfirmParachainStrategyOutput: AnyObject {
 final class SelectValidatorsConfirmParachainStrategy {
     let collatorAccountId: AccountId
     let balanceAccountId: AccountId
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let signer: SigningWrapperProtocol
@@ -32,7 +30,6 @@ final class SelectValidatorsConfirmParachainStrategy {
     init(
         collatorAccountId: AccountId,
         balanceAccountId: AccountId,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         signer: SigningWrapperProtocol,
@@ -45,7 +42,6 @@ final class SelectValidatorsConfirmParachainStrategy {
     ) {
         self.collatorAccountId = collatorAccountId
         self.balanceAccountId = balanceAccountId
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.runtimeService = runtimeService
         self.extrinsicService = extrinsicService
         self.signer = signer
@@ -60,8 +56,6 @@ final class SelectValidatorsConfirmParachainStrategy {
 
 extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrategy {
     func setup() {
-        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: balanceAccountId, handler: self)
-
         provideConstants()
         provideNetworkStakingInfo()
 
@@ -178,11 +172,5 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
                 self?.output?.didFailNomination(error: error)
             }
         }
-    }
-}
-
-extension SelectValidatorsConfirmParachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
-        output?.didReceiveAccountInfo(result: result)
     }
 }

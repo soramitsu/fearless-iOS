@@ -13,14 +13,14 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelFactory {
 }
 
 extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
-    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
             return nil
         }
 
         return balanceViewModelFactory.createAssetBalanceViewModel(
             viewModelState.confirmationModel?.amount ?? 0,
-            balance: viewModelState.balance,
+            balance: balance,
             priceData: priceData
         )
     }
@@ -78,7 +78,7 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
             return nil
         }
 
-        let icon = try iconGenerator.generateFromAddress(state.wallet.address)
+        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
@@ -88,7 +88,7 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
         case .restake:
             rewardViewModel = .restake
         case let .payout(account):
-            let payoutIcon = try iconGenerator.generateFromAddress(account.address)
+            let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
 
             rewardViewModel = .payout(icon: payoutIcon, title: account.username)
         }

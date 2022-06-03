@@ -24,6 +24,7 @@ protocol SelectValidatorsConfirmInteractorInputProtocol: AnyObject {
 
 protocol SelectValidatorsConfirmInteractorOutputProtocol: AnyObject {
     func didReceivePrice(result: Result<PriceData?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
 protocol SelectValidatorsConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,

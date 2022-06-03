@@ -11,7 +11,6 @@ final class StakingAmountInteractor {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let extrinsicService: ExtrinsicServiceProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let rewardService: RewardCalculatorServiceProtocol
     let operationManager: OperationManagerProtocol
@@ -19,22 +18,15 @@ final class StakingAmountInteractor {
     let chain: ChainModel
     let selectedAccount: MetaAccountModel
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
-    let eraValidatorService: EraValidatorServiceProtocol
     let strategy: StakingAmountStrategy?
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
-//    private var minBondProvider: AnyDataProvider<DecodedBigUInt>?
-//    private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
-//    private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
-
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        extrinsicService: ExtrinsicServiceProtocol,
         rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
@@ -42,14 +34,11 @@ final class StakingAmountInteractor {
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
-        eraValidatorService: EraValidatorServiceProtocol,
         strategy: StakingAmountStrategy?
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.extrinsicService = extrinsicService
         self.rewardService = rewardService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
@@ -57,8 +46,6 @@ final class StakingAmountInteractor {
         self.asset = asset
         self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
-        self.eraInfoOperationFactory = eraInfoOperationFactory
-        self.eraValidatorService = eraValidatorService
         self.strategy = strategy
     }
 
@@ -81,26 +68,6 @@ final class StakingAmountInteractor {
             in: .transient
         )
     }
-
-    func provideNetworkStakingInfo() {
-        let wrapper = eraInfoOperationFactory.networkStakingOperation(
-            for: eraValidatorService,
-            runtimeService: runtimeService
-        )
-
-        wrapper.targetOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
-                do {
-                    let info = try wrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter?.didReceive(networkStakingInfo: info)
-                } catch {
-                    self?.presenter?.didReceive(networkStakingInfoError: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
-    }
 }
 
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
@@ -117,7 +84,6 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
         strategy?.setup()
 
         provideRewardCalculator()
-        provideNetworkStakingInfo()
 
         rewardService.setup()
     }
@@ -163,32 +129,3 @@ extension StakingAmountInteractor: AccountInfoSubscriptionAdapterHandler {
         }
     }
 }
-
-// extension StakingAmountInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
-//    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chainId _: ChainModel.Id) {
-//        switch result {
-//        case let .success(value):
-//            presenter?.didReceive(minBondAmount: value)
-//        case let .failure(error):
-//            presenter?.didReceive(error: error)
-//        }
-//    }
-//
-//    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
-//        switch result {
-//        case let .success(value):
-//            presenter?.didReceive(maxNominatorsCount: value)
-//        case let .failure(error):
-//            presenter?.didReceive(error: error)
-//        }
-//    }
-//
-//    func handleCounterForNominators(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
-//        switch result {
-//        case let .success(value):
-//            presenter?.didReceive(counterForNominators: value)
-//        case let .failure(error):
-//            presenter?.didReceive(error: error)
-//        }
-//    }
-// }

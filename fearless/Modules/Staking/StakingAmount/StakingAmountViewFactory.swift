@@ -27,9 +27,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         guard let dependencyContainer = createContainer(
             chainAsset: ChainAsset(chain: chain, asset: asset),
-            viewModelStateListener: nil,
             dataValidatingFactory: dataValidatingFactory,
-            wallet: selectedAccount
+            wallet: selectedAccount,
+            amount: amount
         ) else {
             return nil
         }
@@ -59,6 +59,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         view.uiFactory = UIFactory()
         view.localizationManager = LocalizationManager.shared
 
+        dataValidatingFactory.view = view
         presenter.interactor = interactor
         interactor.presenter = presenter
         view.presenter = presenter
@@ -120,9 +121,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
     private static func createContainer(
         chainAsset: ChainAsset,
-        viewModelStateListener: StakingAmountModelStateListener?,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        amount: Decimal?
     ) -> StakingAmountDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
@@ -136,6 +137,19 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let flow: StakingAmountFlow = chainAsset.chain.isEthereumBased ? .parachain : .relaychain
         let operationManager = OperationManagerFacade.sharedManager
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: chainAsset.chain
+        ) else {
+            return nil
+        }
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -166,10 +180,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             )
 
             let viewModelState = StakingAmountRelaychainViewModelState(
-                stateListener: viewModelStateListener,
                 dataValidatingFactory: dataValidatingFactory,
                 wallet: wallet,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                amount: amount
             )
 
             let strategy = StakingAmountRelaychainStrategy(
@@ -178,7 +192,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 operationManager: operationManager,
                 stakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
                 extrinsicService: extrinsicService,
-                output: viewModelState
+                output: viewModelState,
+                eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
+                eraValidatorService: eraValidatorService
             )
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
@@ -200,17 +216,21 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             )
 
             let viewModelState = StakingAmountParachainViewModelState(
-                stateListener: viewModelStateListener,
                 dataValidatingFactory: dataValidatingFactory,
                 wallet: wallet,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                amount: amount
             )
 
             let strategy = StakingAmountParachainStrategy(
                 chainAsset: chainAsset,
                 stakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory,
                 output: viewModelState,
-                extrinsicService: extrinsicService
+                extrinsicService: extrinsicService,
+                eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
+                eraValidatorService: eraValidatorService,
+                runtimeService: runtimeService,
+                operationManager: operationManager
             )
 
             let viewModelFactory = StakingAmountParachainViewModelFactory(
@@ -310,7 +330,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
                 selectedMetaAccount: selectedAccount
             ),
-            extrinsicService: extrinsicService,
             rewardService: rewardCalculatorService,
             runtimeService: runtimeService,
             operationManager: operationManager,
@@ -318,8 +337,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             asset: asset,
             selectedAccount: selectedAccount,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
-            eraValidatorService: eraValidatorService,
             strategy: strategy
         )
     }

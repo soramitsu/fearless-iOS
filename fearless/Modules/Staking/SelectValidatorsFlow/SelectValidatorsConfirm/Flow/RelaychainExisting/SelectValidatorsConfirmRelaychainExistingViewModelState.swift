@@ -3,6 +3,8 @@ import RobinHood
 import BigInt
 
 final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmViewModelState {
+    var amount: Decimal? { existingBonding.amount }
+
     let targets: [SelectedValidatorInfo]
     let maxTargets: Int
     let existingBonding: ExistingBonding
@@ -10,10 +12,10 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
     let wallet: MetaAccountModel
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let operationManager: OperationManagerProtocol
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     var confirmationModel: SelectValidatorsConfirmRelaychainModel?
 
-    private(set) var balance: Decimal?
     private(set) var priceData: PriceData?
     private(set) var fee: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -32,7 +34,9 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         existingBonding: ExistingBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+
     ) {
         self.targets = targets
         self.maxTargets = maxTargets
@@ -40,6 +44,22 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.operationManager = operationManager
+        self.dataValidatingFactory = dataValidatingFactory
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        [dataValidatingFactory.canNominate(
+            amount: existingBonding.amount,
+            minimalBalance: minimalBalance,
+            minNominatorBond: minNominatorBond,
+            locale: locale
+        ),
+        dataValidatingFactory.maxNominatorsCountNotApplied(
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount,
+            hasExistingNomination: false,
+            locale: locale
+        )]
     }
 
     private func createRewardDestinationOperation(
@@ -135,24 +155,6 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
 extension SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmRelaychainExistingStrategyOutput {
     func didSetup() {
         provideChangeTargetsConfirmationModel()
-    }
-
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
-                balance = Decimal.fromSubstrateAmount(
-                    availableValue,
-                    precision: Int16(chainAsset.asset.precision)
-                )
-            } else {
-                balance = 0.0
-            }
-
-            stateListener?.provideAsset(viewModelState: self)
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
     }
 
     func didReceiveMinBond(result: Result<BigUInt?, Error>) {

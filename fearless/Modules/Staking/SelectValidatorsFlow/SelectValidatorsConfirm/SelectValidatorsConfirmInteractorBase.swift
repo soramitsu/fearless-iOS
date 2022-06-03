@@ -6,26 +6,34 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     StakingDurationFetching {
     weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let strategy: SelectValidatorsConfirmStrategy
+    let balanceAccountId: AccountId
+    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
+        balanceAccountId: AccountId,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        asset: AssetModel,
-        strategy: SelectValidatorsConfirmStrategy
+        chainAsset: ChainAsset,
+        strategy: SelectValidatorsConfirmStrategy,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.strategy = strategy
+        self.balanceAccountId = balanceAccountId
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
     }
 
     // MARK: - SelectValidatorsConfirmInteractorInputProtocol
 
     func setup() {
-        if let priceId = asset.priceId {
+        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: balanceAccountId, handler: self)
+
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -44,5 +52,11 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
 extension SelectValidatorsConfirmInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         presenter.didReceivePrice(result: result)
+    }
+}
+
+extension SelectValidatorsConfirmInteractorBase: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        presenter.didReceiveAccountInfo(result: result)
     }
 }

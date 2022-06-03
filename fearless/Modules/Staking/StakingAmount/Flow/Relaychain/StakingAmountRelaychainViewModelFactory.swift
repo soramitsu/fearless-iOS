@@ -54,10 +54,14 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
     }
 
     func buildSelectRewardDestinationViewModel(
-        viewModelState: StakingAmountRelaychainViewModelState,
+        viewModelState: StakingAmountViewModelState,
         priceData: PriceData?,
         calculator: RewardCalculatorEngineProtocol?
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? StakingAmountRelaychainViewModelState else {
+            return nil
+        }
+
         do {
             let reward: CalculatedReward?
 

@@ -26,7 +26,12 @@ protocol SelectValidatorsConfirmViewModelState: SelectValidatorsConfirmUserInput
     var stateListener: SelectValidatorsConfirmModelStateListener? { get set }
     func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?)
 
+    func validators(using locale: Locale) -> [DataValidating]
+
     func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure?
+
+    var amount: Decimal? { get }
+    var fee: Decimal? { get }
 }
 
 struct SelectValidatorsConfirmDependencyContainer {
@@ -49,7 +54,8 @@ protocol SelectValidatorsConfirmViewModelFactoryProtocol {
     ) -> LocalizableResource<BalanceViewModelProtocol>?
     func buildAssetBalanceViewModel(
         viewModelState: SelectValidatorsConfirmViewModelState,
-        priceData: PriceData?
+        priceData: PriceData?,
+        balance: Decimal?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol>?
 }
 

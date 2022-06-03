@@ -4,7 +4,6 @@ import BigInt
 
 protocol SelectValidatorsConfirmRelaychainExistingStrategyOutput: AnyObject {
     func didSetup()
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveMinBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
@@ -24,7 +23,6 @@ final class SelectValidatorsConfirmRelaychainExistingStrategy: StakingDurationFe
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let chainAsset: ChainAsset
     let output: SelectValidatorsConfirmRelaychainExistingStrategyOutput?
@@ -38,7 +36,6 @@ final class SelectValidatorsConfirmRelaychainExistingStrategy: StakingDurationFe
     init(
         balanceAccountId: AccountId,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -50,7 +47,6 @@ final class SelectValidatorsConfirmRelaychainExistingStrategy: StakingDurationFe
     ) {
         self.balanceAccountId = balanceAccountId
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
@@ -107,8 +103,6 @@ extension SelectValidatorsConfirmRelaychainExistingStrategy: SelectValidatorsCon
     func setup() {
         output?.didSetup()
 
-        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: balanceAccountId, handler: self)
-
         minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
 
         counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
@@ -122,6 +116,8 @@ extension SelectValidatorsConfirmRelaychainExistingStrategy: SelectValidatorsCon
         ) { [weak self] result in
             self?.output?.didReceiveStakingDuration(result: result)
         }
+
+        output?.didSetup()
     }
 }
 
@@ -136,11 +132,5 @@ extension SelectValidatorsConfirmRelaychainExistingStrategy: RelaychainStakingLo
 
     func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         output?.didReceiveMaxNominatorsCount(result: result)
-    }
-}
-
-extension SelectValidatorsConfirmRelaychainExistingStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
-        output?.didReceiveAccountInfo(result: result)
     }
 }
