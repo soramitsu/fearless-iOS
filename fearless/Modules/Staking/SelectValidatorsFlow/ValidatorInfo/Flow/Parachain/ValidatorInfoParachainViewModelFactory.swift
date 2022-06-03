@@ -64,16 +64,10 @@ final class ValidatorInfoParachainViewModelFactory {
         from collatorInfo: ParachainStakingCandidateInfo,
         priceData: PriceData?,
         locale: Locale
-    ) -> ValidatorInfoViewModel.Exposure {
+    ) -> ValidatorInfoViewModel.ParachainExposure {
         let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
-        let nominatorsCount = collatorInfo.metadata?.delegationCount ?? ""
-        let maxNominatorsReward = ""
-
-        let nominators = R.string.localizable.stakingValidatorInfoNominators(
-            nominatorsCount,
-            maxNominatorsReward
-        )
+        let delegationsCountString = collatorInfo.metadata?.delegationCount ?? ""
 
         let myNomination: ValidatorInfoViewModel.MyNomination?
 
@@ -98,13 +92,35 @@ final class ValidatorInfoParachainViewModelFactory {
         let estimatedReward = NumberFormatter.percentAPY.localizableResource()
             .value(for: locale).stringFromDecimal(estimatedRewardDecimal) ?? ""
 
+        let minimumBond = Decimal.fromSubstrateAmount(collatorInfo.metadata?.lowestTopDelegationAmount ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+
+        let selfBonded = Decimal.fromSubstrateAmount(collatorInfo.metadata?.bond ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+
+        let effectiveAmountBonded = Decimal.fromSubstrateAmount(collatorInfo.metadata?.bond ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+
+        let minimumBondString = balanceViewModelFactory.balanceFromPrice(
+            minimumBond,
+            priceData: priceData
+        ).value(for: locale).amount
+
+        let selfBondedString = balanceViewModelFactory.balanceFromPrice(
+            selfBonded,
+            priceData: priceData
+        ).value(for: locale).amount
+
+        let effectiveAmountBondedString = balanceViewModelFactory.balanceFromPrice(
+            effectiveAmountBonded,
+            priceData: priceData
+        ).value(for: locale).amount
+
         // TODO: Oversubscribed real value
-        return ValidatorInfoViewModel.Exposure(
-            nominators: nominators,
-            myNomination: myNomination,
+        return ValidatorInfoViewModel.ParachainExposure(
+            delegations: delegationsCountString,
             totalStake: totalStake,
             estimatedReward: estimatedReward,
-            oversubscribed: false
+            minimumBond: minimumBondString,
+            selfBonded: selfBondedString,
+            effectiveAmountBonded: effectiveAmountBondedString
         )
     }
 
@@ -186,7 +202,7 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
 
         if parachainViewModelState.collatorInfo.metadata != nil {
             let exposure = createExposure(from: parachainViewModelState.collatorInfo, priceData: priceData, locale: locale)
-            status = .elected(exposure: exposure)
+            status = .electedParachain(exposure: exposure)
         } else {
             status = .unelected
         }

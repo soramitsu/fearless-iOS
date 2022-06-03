@@ -102,6 +102,11 @@ final class ValidatorInfoViewLayout: UIView {
             statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusUnelected(
                 preferredLanguages: locale.rLanguages
             )
+        case .electedParachain:
+            statusView.indicatorColor = R.color.colorGreen()!
+            statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusElected(
+                preferredLanguages: locale.rLanguages
+            )
         }
 
         let statusContentView = GenericTitleValueView(titleView: titleLabel, valueView: statusView)
@@ -124,6 +129,35 @@ final class ValidatorInfoViewLayout: UIView {
         } else {
             return rowView
         }
+    }
+
+    @discardableResult
+    func addDelegationsView(_ exposure: ValidatorInfoViewModel.ParachainExposure, locale: Locale) -> UIView {
+        let nominatorsView = addTitleValueView(
+            for: R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages),
+            value: exposure.delegations
+        )
+
+        // TODO: ParachainStaking oversubsribed handle
+//        if exposure.oversubscribed {
+//            nominatorsView.borderView.borderType = .none
+//
+//            let hintTitle: String = {
+//                if let myNomination = exposure.myNomination, !myNomination.isRewarded {
+//                    return R.string.localizable.stakingValidatorMyOversubscribedMessage(
+//                        preferredLanguages: locale.rLanguages
+//                    )
+//                } else {
+//                    return R.string.localizable.stakingValidatorOtherOversubscribedMessage(
+//                        preferredLanguages: locale.rLanguages
+//                    )
+//                }
+//            }()
+//
+//            return addHintView(for: hintTitle, icon: R.image.iconWarning())
+//        } else {
+        return nominatorsView
+//        }
     }
 
     @discardableResult
@@ -180,7 +214,7 @@ final class ValidatorInfoViewLayout: UIView {
 
     @discardableResult
     func addTotalStakeView(
-        _ exposure: ValidatorInfoViewModel.Exposure,
+        _ totalStake: BalanceViewModelProtocol,
         locale: Locale
     ) -> UIControl {
         let titleView = factory.createInfoIndicatingView()
@@ -191,8 +225,8 @@ final class ValidatorInfoViewLayout: UIView {
         let rowContentView = GenericTitleValueView<ImageWithTitleView, MultiValueView>(titleView: titleView)
 
         rowContentView.valueView.bind(
-            topValue: exposure.totalStake.amount,
-            bottomValue: exposure.totalStake.price
+            topValue: totalStake.amount,
+            bottomValue: totalStake.price
         )
 
         let rowView = RowView(contentView: rowContentView, preferredHeight: 48.0)
