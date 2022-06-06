@@ -88,7 +88,9 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
             self?.presenter.didReceiveBondingDuration(result: result)
         }
 
-        existentialDepositService.fetchExistentialDeposit { [weak self] result in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveExistentialDeposit(result: result)
         }
 

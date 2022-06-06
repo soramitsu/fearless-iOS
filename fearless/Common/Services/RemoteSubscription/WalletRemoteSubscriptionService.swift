@@ -24,13 +24,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
         closure: RemoteSubscriptionClosure?
     ) -> UUID? {
         do {
-            var storagePath: StorageCodingPath
-            switch chainAsset.chainAssetType {
-            case .normal:
-                storagePath = StorageCodingPath.account
-            case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken:
-                storagePath = StorageCodingPath.tokens
-            }
+            let storagePath = chainAsset.storagePath
 
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 storagePath,

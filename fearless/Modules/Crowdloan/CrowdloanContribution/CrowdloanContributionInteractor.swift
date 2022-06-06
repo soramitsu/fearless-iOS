@@ -72,7 +72,9 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             self?.presenter.didReceiveLeasingPeriod(result: result)
         }
 
-        existentialDepositService.fetchExistentialDeposit { [weak self] result in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
 

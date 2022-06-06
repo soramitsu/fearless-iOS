@@ -175,7 +175,9 @@ extension ChainAccountInteractor: AccountInfoSubscriptionAdapterHandler {
 
 extension ChainAccountInteractor: RuntimeConstantFetching {
     func fetchMinimalBalance() {
-        existentialDepositService.fetchExistentialDeposit { [weak self] result in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
     }

@@ -59,7 +59,9 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             self?.presenter?.didReceiveBlockDuration(result: result)
         }
 
-        existentialDepositService.fetchExistentialDeposit { [weak self] result in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
     }

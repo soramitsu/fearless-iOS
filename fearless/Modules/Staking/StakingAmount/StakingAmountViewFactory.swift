@@ -168,7 +168,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let existentialDepositService = ExistentialDepositService(
-            chainAsset: chainAsset,
             runtimeCodingService: runtimeService,
             operationManager: operationManager,
             engine: connection

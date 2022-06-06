@@ -4,57 +4,15 @@ import RobinHood
 import FearlessUtils
 
 protocol ExistentialDepositServiceProtocol {
-    func fetchExistentialDeposit(completion: @escaping (Result<BigUInt, Error>) -> Void)
-}
-
-enum ExistentialDepositCurrencyId {
-    case token(tokenSymbol: String)
-    case foreignAsset(tokenSymbol: UInt16)
-    case stableAssetPoolToken(stableAssetPoolToken: UInt16)
-
-    init?(from currencyId: CurrencyId?) {
-        guard let currencyId = currencyId else {
-            return nil
-        }
-        switch currencyId {
-        case let .token(symbol):
-            guard let symbol = symbol?.symbol else {
-                return nil
-            }
-            self = .token(tokenSymbol: symbol.uppercased())
-        case let .foreignAsset(foreignAsset):
-            guard let uint = UInt16(foreignAsset) else {
-                return nil
-            }
-            self = .foreignAsset(tokenSymbol: uint)
-        case let .stableAssetPoolToken(stableAssetPoolToken):
-            guard let uint = UInt16(stableAssetPoolToken) else {
-                return nil
-            }
-            self = .stableAssetPoolToken(stableAssetPoolToken: uint)
-        }
-    }
-}
-
-extension ExistentialDepositCurrencyId: Codable {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        switch self {
-        case let .token(symbol):
-            try container.encode(symbol, forKey: .token)
-        case let .foreignAsset(foreignAsset):
-            try container.encode(foreignAsset, forKey: .foreignAsset)
-        case let .stableAssetPoolToken(stableAssetPoolToken):
-            try container.encode(stableAssetPoolToken, forKey: .stableAssetPoolToken)
-        }
-    }
+    func fetchExistentialDeposit(
+        chainAsset: ChainAsset,
+        completion: @escaping (Result<BigUInt, Error>) -> Void
+    )
 }
 
 final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepositServiceProtocol {
     // MARK: - Private properties
 
-    private let chainAsset: ChainAsset
     private let runtimeCodingService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let engine: JSONRPCEngine
@@ -62,12 +20,10 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
     // MARK: - Constructor
 
     init(
-        chainAsset: ChainAsset,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         engine: JSONRPCEngine
     ) {
-        self.chainAsset = chainAsset
         self.runtimeCodingService = runtimeCodingService
         self.operationManager = operationManager
         self.engine = engine
@@ -75,7 +31,10 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
 
     // MARK: - Public methods
 
-    func fetchExistentialDeposit(completion: @escaping (Result<BigUInt, Error>) -> Void) {
+    func fetchExistentialDeposit(
+        chainAsset: ChainAsset,
+        completion: @escaping (Result<BigUInt, Error>) -> Void
+    ) {
         switch chainAsset.chainAssetType {
         case .normal, .ormlChain:
             fetchConstant(
@@ -86,13 +45,16 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
                 completion(result)
             }
         case .ormlAsset, .foreignAsset, .stableAssetPoolToken:
-            fetchOrmlExistentialDeposit(completion: completion)
+            fetchOrmlExistentialDeposit(chainAsset: chainAsset, completion: completion)
         }
     }
 
     // MARK: - Private methods
 
-    private func fetchOrmlExistentialDeposit(completion: @escaping (Result<BigUInt, Error>) -> Void) {
+    private func fetchOrmlExistentialDeposit(
+        chainAsset: ChainAsset,
+        completion: @escaping (Result<BigUInt, Error>) -> Void
+    ) {
         guard let parameter = ExistentialDepositCurrencyId(from: chainAsset.currencyId) else {
             return
         }

@@ -46,6 +46,18 @@ extension ChainAsset {
     }
 
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
+    
+    var storagePath: StorageCodingPath {
+        var storagePath: StorageCodingPath
+        switch chainAssetType {
+        case .normal:
+            storagePath = StorageCodingPath.account
+        case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken:
+            storagePath = StorageCodingPath.tokens
+        }
+        
+        return storagePath
+    }
 }
 
 enum ChainAssetType: String, Codable {

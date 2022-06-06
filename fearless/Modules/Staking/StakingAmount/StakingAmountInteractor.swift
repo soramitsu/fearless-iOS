@@ -117,7 +117,9 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
         provideRewardCalculator()
         provideNetworkStakingInfo()
 
-        existentialDepositService.fetchExistentialDeposit { [weak self] result in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             switch result {
             case let .success(amount):
                 self?.presenter?.didReceive(minimalBalance: amount)

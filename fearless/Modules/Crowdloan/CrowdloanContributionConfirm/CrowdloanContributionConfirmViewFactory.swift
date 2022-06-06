@@ -111,7 +111,6 @@ struct CrowdloanContributionConfirmViewFactory {
         )
 
         let existentialDepositService = ExistentialDepositService(
-            chainAsset: chainAsset,
             runtimeCodingService: runtimeService,
             operationManager: operationManager,
             engine: connection

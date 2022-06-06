@@ -14,7 +14,8 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             let id = entity.id,
             let chainId = entity.chainId,
             let symbol = entity.symbol,
-            let typeRawValue = entity.type
+            let typeRawValue = entity.type,
+            let type = ChainAssetType(rawValue: typeRawValue)
         else {
             throw AssetModelMapperError.requiredFieldsMissing
         }
@@ -28,7 +29,7 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             priceId: entity.priceId,
             price: entity.price as Decimal?,
             transfersEnabled: entity.transfersEnabled,
-            type: ChainAssetType(rawValue: typeRawValue) ?? .normal,
+            type: type,
             currencyId: entity.currencyId,
             displayName: entity.displayName
         )
