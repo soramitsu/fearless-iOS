@@ -5,27 +5,16 @@ import FearlessUtils
 
 struct StakingBalanceViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBalanceFlow
     ) -> StakingBalanceViewProtocol? {
-        guard let interactor = createInteractor(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
-        ) else { return nil }
-
         let wireframe = StakingBalanceWireframe()
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedAccount
-        )
 
-        let viewModelFactory = StakingBalanceViewModelFactory(
-            asset: asset,
-            balanceViewModelFactory: balanceViewModelFactory,
-            timeFormatter: TotalTimeFormatter()
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(
@@ -33,15 +22,28 @@ struct StakingBalanceViewFactory {
             balanceFactory: balanceViewModelFactory
         )
 
+        guard let container = createContainer(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            dataValidatingFactory: dataValidatingFactory
+        ) else {
+            return nil
+        }
+        guard let interactor = createInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
+        ) else { return nil }
+
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory,
+            viewModelFactory: container.viewModelFactory,
+            viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            countdownTimer: CountdownTimer(),
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet
         )
 
         interactor.presenter = presenter
@@ -58,16 +60,39 @@ struct StakingBalanceViewFactory {
     }
 
     private static func createInteractor(
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet _: MetaAccountModel,
+        strategy: StakingBalanceStrategy
     ) -> StakingBalanceInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingBalanceInteractor(
+            chainAsset: chainAsset,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            strategy: strategy
+        )
+    }
+
+    private static func createContainer(
+        flow: StakingBalanceFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    ) -> StakingBalanceDependencyContainer? {
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
+        )
+
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -75,22 +100,10 @@ struct StakingBalanceViewFactory {
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: keyFactory,
             operationManager: operationManager
-        )
-
-        let eraCountdownOperationFactory = EraCountdownOperationFactory(
-            storageRequestFactory: storageRequestFactory
         )
 
         let facade = UserDataStorageFacade.shared
@@ -103,17 +116,47 @@ struct StakingBalanceViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        return StakingBalanceInteractor(
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
-            runtimeCodingService: runtimeService,
-            eraCountdownOperationFactory: eraCountdownOperationFactory,
-            operationManager: operationManager,
-            connection: connection,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+        let eraCountdownOperationFactory = EraCountdownOperationFactory(
+            storageRequestFactory: storageRequestFactory
         )
+
+        switch flow {
+        case .relaychain:
+            let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+                chainRegistry: chainRegistry,
+                storageFacade: substrateStorageFacade,
+                operationManager: operationManager,
+                logger: Logger.shared
+            )
+
+            let viewModelState = StakingBalanceRelaychainViewModelState(
+                countdownTimer: CountdownTimer(),
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let viewModelFactory = StakingBalanceRelaychainViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                timeFormatter: TotalTimeFormatter()
+            )
+
+            let strategy = StakingBalanceRelaychainStrategy(
+                output: viewModelState,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager,
+                eraCountdownOperationFactory: eraCountdownOperationFactory,
+                connection: connection,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                chainAsset: chainAsset,
+                wallet: wallet
+            )
+            return StakingBalanceDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .parachain:
+            return nil
+        }
     }
 }

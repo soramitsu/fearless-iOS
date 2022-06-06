@@ -705,9 +705,9 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         case .stakingBalance:
             wireframe.showStakingBalance(
                 from: view,
-                chain: chainAsset.chain,
-                asset: chainAsset.asset,
-                selectedAccount: selectedAccount
+                chainAsset: chainAsset,
+                wallet: selectedAccount,
+                flow: .relaychain
             )
         case .changeValidators:
             wireframe.showNominatorValidators(

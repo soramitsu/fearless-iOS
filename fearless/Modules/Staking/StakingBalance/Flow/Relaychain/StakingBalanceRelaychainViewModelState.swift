@@ -1,0 +1,114 @@
+import Foundation
+import SoraFoundation
+
+final class StakingBalanceRelaychainViewModelState {
+    var stateListener: StakingBalanceModelStateListener?
+
+    var controllerAccount: ChainAccountResponse?
+    var stashAccount: ChainAccountResponse?
+    var stakingLedger: StakingLedger?
+    private var stashItem: StashItem?
+    private var activeEra: EraIndex?
+    private var eraCountdown: EraCountdown?
+    private let countdownTimer: CountdownTimerProtocol
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+
+    init(countdownTimer: CountdownTimerProtocol, dataValidatingFactory: StakingDataValidatingFactoryProtocol) {
+        self.countdownTimer = countdownTimer
+        self.dataValidatingFactory = dataValidatingFactory
+
+        self.countdownTimer.delegate = self
+    }
+
+    var stakingBalanceData: StakingBalanceData? {
+        nil
+    }
+
+    deinit {
+        countdownTimer.stop()
+    }
+}
+
+extension StakingBalanceRelaychainViewModelState: StakingBalanceViewModelState {
+    func setStateListener(_ stateListener: StakingBalanceModelStateListener?) {
+        self.stateListener = stateListener
+    }
+}
+
+extension StakingBalanceRelaychainViewModelState: StakingBalanceRelaychainStrategyOutput {
+    func didReceive(ledgerResult: Result<StakingLedger?, Error>) {
+        switch ledgerResult {
+        case let .success(ledger):
+            stakingLedger = ledger
+            stateListener?.modelStateDidChanged(viewModelState: self)
+        case .failure:
+            stakingLedger = nil
+            stateListener?.modelStateDidChanged(viewModelState: self)
+        }
+    }
+
+    func didReceive(activeEraResult: Result<EraIndex?, Error>) {
+        switch activeEraResult {
+        case let .success(activeEra):
+            self.activeEra = activeEra
+            stateListener?.modelStateDidChanged(viewModelState: self)
+        case .failure:
+            activeEra = nil
+            stateListener?.modelStateDidChanged(viewModelState: self)
+        }
+    }
+
+    func didReceive(stashItemResult: Result<StashItem?, Error>) {
+        switch stashItemResult {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+            if stashItem == nil {
+                stateListener?.finishFlow()
+            }
+        case .failure:
+            stashItem = nil
+        }
+    }
+
+    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>) {
+        switch controllerResult {
+        case let .success(controller):
+            controllerAccount = controller
+        case .failure:
+            controllerAccount = nil
+        }
+    }
+
+    func didReceive(stashResult: Result<ChainAccountResponse?, Error>) {
+        switch stashResult {
+        case let .success(stash):
+            stashAccount = stash
+        case .failure:
+            stashAccount = nil
+        }
+    }
+
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            self.eraCountdown = eraCountdown
+            countdownTimer.start(with: eraCountdown.timeIntervalTillNextActiveEraStart(), runLoop: .main, mode: .common)
+        case .failure:
+            eraCountdown = nil
+        }
+    }
+}
+
+extension StakingBalanceRelaychainViewModelState: CountdownTimerDelegate {
+    func didStart(with _: TimeInterval) {
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func didCountdown(remainedInterval _: TimeInterval) {
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func didStop(with _: TimeInterval) {
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+}

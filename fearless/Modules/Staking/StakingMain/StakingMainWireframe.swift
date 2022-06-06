@@ -124,14 +124,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showStakingBalance(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBalanceFlow
     ) {
         guard let stakingBalance = StakingBalanceViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let controller = stakingBalance.controller
         controller.hidesBottomBarWhenPushed = true
