@@ -595,4 +595,36 @@ enum ModalPickerFactory {
 
         return viewController
     }
+
+    static func createPickerForFilterOptions(
+        options: [TitleSwitchTableViewCellModel]
+    ) -> UIViewController? {
+        let viewController: ModalPickerViewController<TitleSwitchTableViewCell, TitleSwitchTableViewCellModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.walletFiltersTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.hideWhenDidSelected = false
+        viewController.modalPresentationStyle = .custom
+
+        viewController.viewModels = options.map { model in
+            LocalizableResource { _ in
+                model
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(options.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
 }

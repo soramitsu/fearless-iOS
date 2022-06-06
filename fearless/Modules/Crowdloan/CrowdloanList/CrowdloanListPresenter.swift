@@ -295,8 +295,11 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
 }
 
 extension CrowdloanListPresenter: ChainSelectionDelegate {
-    func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
-        selectedChainResult = .success(chainAsset.chain)
+    func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel?) {
+        guard let chain = chain else {
+            return
+        }
+        selectedChainResult = .success(chain)
         accountInfoResult = nil
         crowdloansResult = nil
         displayInfoResult = nil
@@ -309,7 +312,7 @@ extension CrowdloanListPresenter: ChainSelectionDelegate {
         updateChainView()
         view?.didReceive(listState: .loading)
 
-        interactor.saveSelected(chainModel: chainAsset.chain)
+        interactor.saveSelected(chainModel: chain)
     }
 }
 

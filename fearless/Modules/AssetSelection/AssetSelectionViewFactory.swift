@@ -21,7 +21,8 @@ struct AssetSelectionViewFactory {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            showBalances: true
         )
 
         let wireframe = AssetSelectionWireframe()

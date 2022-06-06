@@ -7,6 +7,8 @@ final class ManageAssetsPresenter {
     private let interactor: ManageAssetsInteractorInputProtocol
     private let viewModelFactory: ManageAssetsViewModelFactoryProtocol
     private var selectedMetaAccount: MetaAccountModel
+    private let filterFactory: TitleSwitchTableViewCellModelFactoryProtocol
+
     private var chainModels: [ChainModel] = []
     private var accountInfos: [ChainAssetKey: AccountInfo] = [:]
     private var viewModel: ManageAssetsViewModel?
@@ -14,18 +16,23 @@ final class ManageAssetsPresenter {
     private var assetIdsEnabled: [String]?
     private var filter: String?
     private var chainAssets: [ChainAsset]?
+    private var filterOptions: [FilterOption] = []
+
+    private var allChainModels: [ChainModel] = []
 
     init(
         interactor: ManageAssetsInteractorInputProtocol,
         wireframe: ManageAssetsWireframeProtocol,
         viewModelFactory: ManageAssetsViewModelFactoryProtocol,
         selectedMetaAccount: MetaAccountModel,
+        filterFactory: TitleSwitchTableViewCellModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.selectedMetaAccount = selectedMetaAccount
+        self.filterFactory = filterFactory
 
         self.localizationManager = localizationManager
     }
@@ -39,7 +46,8 @@ final class ManageAssetsPresenter {
             assetIdsEnabled: assetIdsEnabled,
             cellsDelegate: self,
             filter: filter,
-            locale: localizationManager?.selectedLocale
+            locale: localizationManager?.selectedLocale,
+            filterOptions: filterOptions
         )
 
         self.viewModel = viewModel
@@ -62,8 +70,22 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
         }
     }
 
-    func didTapCloseButton() {
-        wireframe.dismiss(view: view)
+    func didTapFilterButton() {
+        let filters = filterFactory.createFilters(
+            options: filterOptions,
+            locale: selectedLocale,
+            delegate: self
+        )
+        wireframe.showFilters(filters, from: view)
+    }
+
+    func didTapChainSelectButton() {
+        wireframe.showSelectChain(
+            selectedMetaAccount: selectedMetaAccount,
+            selectedChainId: viewModel?.selectedChain.chainId,
+            delegate: self,
+            from: view
+        )
     }
 
     func didTapApplyButton() {
@@ -77,6 +99,18 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 }
 
 extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
+    func didReceiveFilterOptions(_ options: [FilterOption]?) {
+        filterOptions = options ?? []
+        provideViewModel()
+    }
+
+    func didReceiveAccount(_ account: MetaAccountModel) {
+        assetIdsEnabled = account.assetIdsEnabled
+        sortedKeys = account.assetKeysOrder
+        filterOptions = account.assetFilterOptions
+        provideViewModel()
+    }
+
     func didReceiveWallet(_ wallet: MetaAccountModel) {
         selectedMetaAccount = wallet
         provideViewModel()
@@ -96,6 +130,7 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
         switch result {
         case let .success(chains):
             chainModels = chains
+            allChainModels = chains
             chainAssets = chains.map { chain in
                 chain.assets.compactMap { asset in
                     ChainAsset(chain: chain, asset: asset.asset)
@@ -162,5 +197,30 @@ extension ManageAssetsPresenter: ManageAssetsTableViewCellModelDelegate {
         ) { [weak self] chain in
             self?.interactor.markUnused(chain: chain)
         }
+    }
+}
+
+extension ManageAssetsPresenter: TitleSwitchTableViewCellModelDelegate {
+    func switchOptionChangeState(option: FilterOption, isOn: Bool) {
+        if isOn {
+            filterOptions.append(option)
+        } else {
+            guard let optionIndex = filterOptions.firstIndex(of: option) else { return }
+            filterOptions.remove(at: optionIndex)
+        }
+        interactor.saveFilter(filterOptions)
+        provideViewModel()
+    }
+}
+
+extension ManageAssetsPresenter: ChainSelectionDelegate {
+    func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel?) {
+        guard let chain = chain else {
+            chainModels = allChainModels
+            provideViewModel()
+            return
+        }
+        chainModels = allChainModels.filter { $0.chainId == chain.chainId }
+        provideViewModel()
     }
 }

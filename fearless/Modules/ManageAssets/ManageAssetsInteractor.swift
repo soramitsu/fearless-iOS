@@ -18,6 +18,7 @@ final class ManageAssetsInteractor {
 
     private var assetIdsEnabled: [String]?
     private var sortKeys: [String]?
+    private var filterOptions: [FilterOption]?
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -63,14 +64,11 @@ final class ManageAssetsInteractor {
         let chainsAssets = chains.map(\.chainAssets).reduce([], +)
         accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainsAssets, handler: self)
     }
-}
 
-extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
-    func markUnused(chain: ChainModel) {
-        var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
-        unusedChainIds.append(chain.chainId)
-        let updatedAccount = selectedMetaAccount.replacingUnusedChainIds(unusedChainIds)
-
+    private func save(
+        _ updatedAccount: MetaAccountModel,
+        needDismiss: Bool
+    ) {
         let saveOperation = accountRepository.saveOperation {
             [updatedAccount]
         } _: {
@@ -78,6 +76,11 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         }
 
         saveOperation.completionBlock = { [weak self] in
+            if needDismiss {
+                DispatchQueue.main.async {
+                    self?.presenter?.saveDidComplete()
+                }
+            }
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
@@ -93,12 +96,25 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
 
         operationQueue.addOperation(saveOperation)
     }
+}
+
+extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
+    func markUnused(chain: ChainModel) {
+        var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = selectedMetaAccount.replacingUnusedChainIds(unusedChainIds)
+
+        save(updatedAccount, needDismiss: false)
+    }
+
+    func saveFilter(_ options: [FilterOption]) {
+        filterOptions = options
+        presenter?.didReceiveFilterOptions(filterOptions)
+    }
 
     func setup() {
         fetchChainsAndSubscribeBalance()
-
-        presenter?.didReceiveSortOrder(selectedMetaAccount.assetKeysOrder)
-        presenter?.didReceiveAssetIdsEnabled(selectedMetaAccount.assetIdsEnabled)
+        presenter?.didReceiveAccount(selectedMetaAccount)
     }
 
     func saveAssetsOrder(assets: [ChainAsset]) {
@@ -125,29 +141,12 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
             updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
         }
 
+        if let filterOptions = filterOptions, filterOptions != selectedMetaAccount.assetFilterOptions {
+            updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+        }
+
         if let updatedAccount = updatedAccount {
-            let saveOperation = accountRepository.saveOperation {
-                [updatedAccount]
-            } _: {
-                []
-            }
-
-            saveOperation.completionBlock = { [weak self] in
-                DispatchQueue.main.async {
-                    self?.presenter?.saveDidComplete()
-
-                    SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                        switch result {
-                        case let .success(account):
-                            self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                        case .failure:
-                            break
-                        }
-                    }
-                }
-            }
-
-            operationQueue.addOperation(saveOperation)
+            save(updatedAccount, needDismiss: true)
         }
     }
 }

@@ -8,6 +8,7 @@ final class ChainSelectionInteractor {
     private let repository: AnyDataProviderRepository<ChainModel>
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationQueue: OperationQueue
+    private let showBalances: Bool
 
     private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
 
@@ -15,12 +16,14 @@ final class ChainSelectionInteractor {
         selectedMetaAccount: MetaAccountModel,
         repository: AnyDataProviderRepository<ChainModel>,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        showBalances: Bool
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.repository = repository
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
+        self.showBalances = showBalances
     }
 
     private func fetchChainsAndSubscribeBalance() {
@@ -48,6 +51,7 @@ final class ChainSelectionInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
+        guard showBalances else { return }
         let chainAsset = chains.map(\.chainAssets).reduce([], +)
         accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAsset, handler: self)
     }

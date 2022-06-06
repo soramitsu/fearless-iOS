@@ -46,14 +46,7 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
 
     let chainInfoView = UIView()
 
-    let chainOptionsView: ScrollableContainerView = {
-        let containerView = ScrollableContainerView()
-        containerView.stackView.axis = .horizontal
-        containerView.stackView.distribution = .fillProportionally
-        containerView.stackView.alignment = .fill
-        containerView.stackView.spacing = UIConstants.defaultOffset
-        return containerView
-    }()
+    let chainOptionsView = UIFactory.default.createChainOptionsView()
 
     private var balanceView: HorizontalKeyValueView = {
         let view = HorizontalKeyValueView()

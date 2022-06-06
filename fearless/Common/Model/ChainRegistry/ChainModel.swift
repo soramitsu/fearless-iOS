@@ -134,6 +134,12 @@ class ChainModel: Codable {
         }
     }
 
+    func utilityChainAssets() -> [ChainAsset] {
+        assets.filter { $0.isUtility }.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
+    }
+
     func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {
         ChainModel(
             chainId: chainId,

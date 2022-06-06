@@ -74,10 +74,28 @@ final class ManageAssetsViewController: UIViewController, ViewHolder {
         rootView.tableView.dragInteractionEnabled = true
 
         rootView.applyButton.addTarget(self, action: #selector(applyButtonClicked), for: .touchUpInside)
+
+        let filterButton = UIBarButtonItem(
+            image: R.image.manageAssetsFilterIcon(),
+            style: .plain,
+            target: self,
+            action: #selector(filterButtonClicked)
+        )
+        navigationItem.rightBarButtonItem = filterButton
+
+        rootView.chainSelectionView.addTarget(
+            self,
+            action: #selector(selectChainButtonClicked),
+            for: .touchUpInside
+        )
     }
 
-    @objc private func backButtonClicked() {
-        presenter.didTapCloseButton()
+    @objc private func filterButtonClicked() {
+        presenter.didTapFilterButton()
+    }
+
+    @objc private func selectChainButtonClicked() {
+        presenter.didTapChainSelectButton()
     }
 
     @objc private func applyButtonClicked() {

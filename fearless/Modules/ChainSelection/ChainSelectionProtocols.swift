@@ -14,9 +14,9 @@ protocol ChainSelectionInteractorOutputProtocol: AnyObject {
 }
 
 protocol ChainSelectionWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func complete(on view: ChainSelectionViewProtocol, selecting chainAsset: ChainAsset)
+    func complete(on view: ChainSelectionViewProtocol, selecting chain: ChainModel?)
 }
 
 protocol ChainSelectionDelegate: AnyObject {
-    func chainSelection(view: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset)
+    func chainSelection(view: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel?)
 }

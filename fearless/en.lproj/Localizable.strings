@@ -689,3 +689,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "missing.account.skip" = "I don't need an account";
 "create.new.pincode" = "Create a new pin code";
 "wallet.send.tip.title" = "Tip";
+"chain.selection.all.networks" = "All networks";
+"chain.selection.hide.zero.balances" = "Hide with empty balance";

@@ -132,7 +132,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             }.reduce(0, +)
         }.reduce(0, +)
 
-        var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
+        var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
@@ -198,8 +198,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         locale: Locale,
         currency: Currency,
         selectedMetaAccount: MetaAccountModel
-    ) -> ChainAccountBalanceCellViewModel {
-        var icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
+    ) -> ChainAccountBalanceCellViewModel? {
+        var icon = (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) }
         var title = chainAsset.chain.name
 
         if chainAsset.chain.parentId == chainAsset.asset.chainId,
@@ -238,7 +238,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             isColdBoot = !accountInfos.keys.contains(key)
         }
 
-        return ChainAccountBalanceCellViewModel(
+        let viewModel = ChainAccountBalanceCellViewModel(
             chain: chainAsset.chain,
             asset: chainAsset.asset,
             assetName: title,
@@ -260,6 +260,14 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated
         )
+
+        if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),
+           accountInfo == nil,
+           !isColdBoot {
+            return nil
+        } else {
+            return viewModel
+        }
     }
 }
 

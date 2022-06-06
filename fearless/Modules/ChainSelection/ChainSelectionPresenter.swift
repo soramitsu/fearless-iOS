@@ -7,8 +7,11 @@ final class ChainSelectionPresenter {
     private let interactor: ChainSelectionInteractorInputProtocol
     private let selectedChainId: ChainModel.Id?
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let selectedMetaAccount: MetaAccountModel
+    private let includeAllNetworksCell: Bool
+    private let showBalances: Bool
 
-    private var chainAssetModels: [ChainAsset] = []
+    private var chainModels: [ChainModel] = []
     private var accountInfoResults: [ChainAssetKey: Result<AccountInfo?, Error>] = [:]
     private var viewModels: [SelectableIconDetailsListViewModel] = []
 
@@ -17,25 +20,45 @@ final class ChainSelectionPresenter {
         wireframe: ChainSelectionWireframeProtocol,
         selectedChainId: ChainModel.Id?,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        includeAllNetworksCell: Bool,
+        showBalances: Bool,
+        selectedMetaAccount: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.selectedChainId = selectedChainId
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.includeAllNetworksCell = includeAllNetworksCell
+        self.showBalances = showBalances
+        self.selectedMetaAccount = selectedMetaAccount
         self.localizationManager = localizationManager
     }
 
     private func extractBalance(for chain: ChainModel) -> String? {
         guard
-            let asset = chain.utilityAssets().first,
-            let accountInfoResult = accountInfoResults[chain.chainId],
-            case let .success(accountInfo) = accountInfoResult else {
+            showBalances,
+            let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId
+        else {
             return nil
         }
 
-        let assetInfo = asset.asset.displayInfo
+        guard let chainAssetWithBalance = chain.utilityChainAssets().first(where: { chainAsset in
+            let accountInfoResult = accountInfoResults[chainAsset.uniqueKey(accountId: accountId)]
 
+            guard case let .success(accountInfo) = accountInfoResult else {
+                return false
+            }
+            return accountInfo != nil
+        }) else {
+            return nil
+        }
+
+        let assetInfo = chainAssetWithBalance.asset.displayInfo
+        let accountInfoResult = accountInfoResults[chainAssetWithBalance.uniqueKey(accountId: accountId)]
+        guard case let .success(accountInfo) = accountInfoResult else {
+            return nil
+        }
         let maybeBalance: Decimal?
 
         if let accountInfo = accountInfo {
@@ -58,11 +81,11 @@ final class ChainSelectionPresenter {
     }
 
     private func updateView() {
-        viewModels = chainAssetModels.map { chainAsset in
-            let icon: ImageViewModelProtocol? = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
-            let title = chainAsset.chain.name
-            let isSelected = chainAsset.chain.identifier == selectedChainId
-            let balance = extractBalance(for: chainAsset.chain) ?? ""
+        viewModels = chainModels.map { chain in
+            let icon: ImageViewModelProtocol? = chain.icon.map { RemoteImageViewModel(url: $0) }
+            let title = chain.name
+            let isSelected = chain.identifier == selectedChainId
+            let balance = extractBalance(for: chain) ?? ""
 
             return SelectableIconDetailsListViewModel(
                 title: title,
@@ -70,6 +93,16 @@ final class ChainSelectionPresenter {
                 icon: icon,
                 isSelected: isSelected
             )
+        }
+
+        if includeAllNetworksCell {
+            let allNetworksViewModel = SelectableIconDetailsListViewModel(
+                title: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: selectedLocale.rLanguages),
+                subtitle: nil,
+                icon: nil,
+                isSelected: selectedChainId == nil
+            )
+            viewModels.insert(allNetworksViewModel, at: 0)
         }
 
         view?.didReload()
@@ -90,7 +123,8 @@ extension ChainSelectionPresenter: ChainSelectionPresenterProtocol {
             return
         }
 
-        wireframe.complete(on: view, selecting: chainAssetModels[index])
+        let index = includeAllNetworksCell ? index - 1 : index
+        wireframe.complete(on: view, selecting: chainModels[safe: index])
     }
 
     func setup() {
@@ -102,7 +136,7 @@ extension ChainSelectionPresenter: ChainSelectionInteractorOutputProtocol {
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
         case let .success(chains):
-            chainAssetModels = chains.map(\.chainAssets).reduce([], +)
+            chainModels = chains
             updateView()
         case let .failure(error):
             _ = wireframe.present(error: error, from: view, locale: selectedLocale)
