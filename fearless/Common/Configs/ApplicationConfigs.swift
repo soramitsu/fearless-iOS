@@ -167,7 +167,11 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var assetListURL: URL? {
-        GitHubUrl.url(suffix: "chains/assets.json")
+        #if F_DEV
+            GitHubUrl.url(suffix: "chains/assets_dev.json")
+        #else
+            GitHubUrl.url(suffix: "chains/assets.json")
+        #endif
     }
 
     var commonTypesURL: URL? {
