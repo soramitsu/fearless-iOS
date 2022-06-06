@@ -23,7 +23,8 @@ protocol ChainAccountBalanceListInteractorInputProtocol: AnyObject {
 protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveChains(result: Result<[ChainModel], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
+    func didReceivePricesData(result: Result<[PriceData], Error>)
+    func didReceiveAssetIdWithoutPriceId(_ assetId: String)
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
     func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>)
     func didRecieveSelectedCurrency(_ selectedCurrency: Currency)

@@ -28,18 +28,14 @@ struct EraCountdown {
         let eraProgress = (currentSessionIndexInt - UInt64(activeEraStartSessionIndex)) *
             numberOfSlotsPerSession + sessionProgress
 
-        guard eraLengthInSlots >= eraProgress else {
-            return 0
-        }
-
-        let eraRemained = TimeInterval(eraLengthInSlots - eraProgress)
+        let eraRemained = TimeInterval(UInt64(eraLength) * numberOfSlotsPerSession) - TimeInterval(eraProgress)
         let eraRemainedTimeInterval = eraRemained * blockTimeInSeconds
 
         let datesTimeinterval = Date().timeIntervalSince(createdAtDate)
         let activeEraRemainedTime = eraRemainedTimeInterval - datesTimeinterval
 
         let distanceBetweenEras = TimeInterval(targetEra - (activeEra + 1))
-        let targetEraDuration = distanceBetweenEras * TimeInterval(eraLengthInSlots) * blockTimeInSeconds
+        let targetEraDuration = distanceBetweenEras * TimeInterval(eraLength) * TimeInterval(numberOfSlotsPerSession) * blockTimeInSeconds
         return max(0.0, targetEraDuration + activeEraRemainedTime)
     }
 

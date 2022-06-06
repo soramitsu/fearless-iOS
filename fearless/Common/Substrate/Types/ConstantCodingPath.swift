@@ -57,4 +57,8 @@ extension ConstantCodingPath {
     static var blockHashCount: ConstantCodingPath {
         ConstantCodingPath(moduleName: "System", constantName: "BlockHashCount")
     }
+
+    static var defaultTip: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Balances", constantName: "DefaultTip")
+    }
 }

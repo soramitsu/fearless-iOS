@@ -83,6 +83,10 @@ class ChainModel: Codable {
         options?.contains(.orml) ?? false
     }
 
+    var isTipRequired: Bool {
+        options?.contains(.tipRequired) ?? false
+    }
+
     var isPolkadotOrKusama: Bool {
         name.lowercased() == "polkadot" || name.lowercased() == "kusama"
     }
@@ -210,6 +214,7 @@ enum ChainOptions: String, Codable {
     case testnet
     case crowdloans
     case orml
+    case tipRequired
 
     case unsupported
 
