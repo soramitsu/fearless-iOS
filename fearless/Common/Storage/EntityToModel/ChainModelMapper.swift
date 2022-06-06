@@ -79,7 +79,7 @@ final class ChainModelMapper {
                 assetEntity = CDChainAsset(context: context)
             }
 
-            let purchaseProviders: [String]? = asset.purchaseProviders?.map(\.rawValue)
+            let purchaseProviders: [String]? = asset.purchaseProviders.map(\.rawValue)
 
             assetEntity.assetId = asset.assetId
             assetEntity.purchaseProviders = purchaseProviders
@@ -162,16 +162,10 @@ final class ChainModelMapper {
         entity.nodes = Set(nodeEntities) as NSSet
     }
 
-    private func updateEntityCustomNodes(
-        for entity: CDChain,
-        from model: ChainModel,
-        context: NSManagedObjectContext
-    ) {
-        guard let customNodes = model.customNodes else {
-            return
-        }
+    private func updateEntityCustomNodes(for entity: CDChain, from model: ChainModel, context: NSManagedObjectContext) {
+        guard model.customNodes.isNotEmpty else { return }
 
-        let nodeEntities: [CDChainNode] = customNodes.map { node in
+        let nodeEntities: [CDChainNode] = model.customNodes.map { node in
             let nodeEntity: CDChainNode
 
             let maybeExistingEntity = entity.customNodes?
@@ -191,7 +185,7 @@ final class ChainModelMapper {
             return nodeEntity
         }
 
-        let existingNodeIds = Set(customNodes.map(\.url))
+        let existingNodeIds = model.customNodes.map(\.url)
 
         if let oldNodes = entity.customNodes as? Set<CDChainNode> {
             for oldNode in oldNodes {
@@ -349,7 +343,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon,
-            options: options.isEmpty ? nil : options,
+            options: options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: Set(customNodes),

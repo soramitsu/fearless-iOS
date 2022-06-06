@@ -33,12 +33,7 @@ extension AddCustomNodeInteractor: AddCustomNodeInteractorInputProtocol {
 
         let node = ChainNodeModel(url: url, name: name, apikey: nil)
 
-        var updatedNodes: [ChainNodeModel]
-        if let customNodes = chain.customNodes {
-            updatedNodes = Array(customNodes)
-        } else {
-            updatedNodes = []
-        }
+        var updatedNodes: [ChainNodeModel] = chain.customNodes.toArray()
         updatedNodes.append(node)
 
         let updatedChain = chain.replacingCustomNodes(updatedNodes)

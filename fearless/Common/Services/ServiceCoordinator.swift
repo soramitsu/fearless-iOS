@@ -3,10 +3,17 @@ import SoraKeystore
 import SoraFoundation
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
+    var delegate: ServiceCoordinatorDelegate? { get set }
     func updateOnAccountChange()
 }
 
+protocol ServiceCoordinatorDelegate: AnyObject {
+    func chainSyncFinished(success: Bool)
+}
+
 final class ServiceCoordinator {
+    weak var delegate: ServiceCoordinatorDelegate?
+
     let walletSettings: SelectedWalletSettings
     let accountInfoService: AccountInfoUpdatingServiceProtocol
     let githubPhishingService: ApplicationServiceProtocol
@@ -26,10 +33,10 @@ final class ServiceCoordinator {
 
         let semaphore = DispatchSemaphore(value: 0)
 
-        chainRegistry.chainsSubscribe(self, runningInQueue: DispatchQueue.global()) { changes in
-            if !changes.isEmpty {
-                semaphore.signal()
-            }
+        chainRegistry.chainsSubscribe(self, runningInQueue: DispatchQueue.global()) { [weak self] in
+            // Don't block UI thread, let in the app
+            semaphore.signal()
+            self?.delegate?.chainSyncFinished(success: !$0.isEmpty)
         }
 
         semaphore.wait()

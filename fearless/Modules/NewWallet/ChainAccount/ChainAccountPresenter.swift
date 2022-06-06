@@ -99,7 +99,7 @@ private extension ChainAccountPresenter {
             let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
 
             var availableProviders: [PurchaseProviderProtocol] = []
-            chainAsset?.purchaseProviders?.compactMap { $0 }.forEach {
+            chainAsset?.purchaseProviders.compactMap { $0 }.forEach {
                 switch $0 {
                 case .moonpay:
                     availableProviders.append(moonpayProvider)

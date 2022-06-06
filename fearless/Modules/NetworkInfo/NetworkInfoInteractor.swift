@@ -42,12 +42,7 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
             apikey: nil
         )
 
-        var updatedNodes: [ChainNodeModel]
-        if let customNodes = chain.customNodes {
-            updatedNodes = Array(customNodes)
-        } else {
-            updatedNodes = []
-        }
+        var updatedNodes: [ChainNodeModel] = chain.customNodes.toArray()
         updatedNodes = updatedNodes.filter { $0 != node }
         updatedNodes.append(updatedNode)
 

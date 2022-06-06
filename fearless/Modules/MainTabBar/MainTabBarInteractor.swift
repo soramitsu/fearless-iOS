@@ -9,7 +9,7 @@ final class MainTabBarInteractor {
 
     private let eventCenter: EventCenterProtocol
     private let keystoreImportService: KeystoreImportServiceProtocol
-    private let serviceCoordinator: ServiceCoordinatorProtocol
+    private var serviceCoordinator: ServiceCoordinatorProtocol
     private let applicationHandler: ApplicationHandlerProtocol
 
     private var goneBackgroundTimestamp: TimeInterval?
@@ -33,11 +33,19 @@ final class MainTabBarInteractor {
     }
 
     private func startServices() {
+        serviceCoordinator.delegate = self
         serviceCoordinator.setup()
     }
 
     private func stopServices() {
+        serviceCoordinator.delegate = nil
         serviceCoordinator.throttle()
+    }
+}
+
+extension MainTabBarInteractor: ServiceCoordinatorDelegate {
+    func chainSyncFinished(success: Bool) {
+        presenter?.chainSyncFinished(success: success)
     }
 }
 

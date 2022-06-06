@@ -5,11 +5,13 @@ import FearlessUtils
 
 final class MainTabBarPresenter {
     weak var view: MainTabBarViewProtocol?
+
     private let interactor: MainTabBarInteractorInputProtocol
     private let wireframe: MainTabBarWireframeProtocol
     private let appVersionObserver: AppVersionObserver
     private let applicationHandler: ApplicationHandler
 
+    private var chainsSyncFailed = false
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
 
@@ -38,6 +40,12 @@ final class MainTabBarPresenter {
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
     func setup() {
+        assertNotNil(view) // should be called from view on appear
+        // Update reachability if decided before view set
+        if let reachability = reachability {
+            didChangeReachability(by: reachability)
+        }
+
         interactor.setup()
 
         appVersionObserver.checkVersion(from: view, callback: nil)
@@ -65,6 +73,13 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func handleLongInactivity() {
         wireframe.logout(from: view)
     }
+
+    func chainSyncFinished(success: Bool) {
+        chainsSyncFailed = !success
+        if let reachability = reachability {
+            didChangeReachability(by: reachability)
+        }
+    }
 }
 
 extension MainTabBarPresenter: Localizable {
@@ -79,11 +94,13 @@ extension MainTabBarPresenter: ApplicationHandlerDelegate {
 
 extension MainTabBarPresenter: ReachabilityListenerDelegate {
     func didChangeReachability(by _: ReachabilityManagerProtocol) {
-        guard let isReachable = reachability?.isReachable else {
-            return
+        assertNotNil(reachability)
+
+        let isReachable = (reachability?.isReachable).orTrue() && !chainsSyncFailed
+        if isReachable {
+            networkStatusPresenter.didDecideReachableStatusPresentation()
+        } else {
+            networkStatusPresenter.didDecideUnreachableStatusPresentation()
         }
-        isReachable
-            ? networkStatusPresenter.didDecideReachableStatusPresentation()
-            : networkStatusPresenter.didDecideUnreachableStatusPresentation()
     }
 }
