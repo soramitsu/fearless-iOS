@@ -44,7 +44,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             ) { result in
                 completion(result)
             }
-        case .ormlAsset, .foreignAsset, .stableAssetPoolToken:
+        case .ormlAsset, .foreignAsset, .stableAssetPoolToken, .liquidCroadloan:
             fetchOrmlExistentialDeposit(chainAsset: chainAsset, completion: completion)
         }
     }

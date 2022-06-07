@@ -25,7 +25,7 @@ final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber
             if let provider = subscribeToAccountInfoProvider(for: accountId, chainAsset: chainAsset) {
                 subscription = .usual(provider: provider)
             }
-        case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken:
+        case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken, .liquidCroadloan:
             if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chainAsset: chainAsset) {
                 subscription = .orml(provider: provider)
             }
