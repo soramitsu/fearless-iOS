@@ -9,7 +9,7 @@ final class WalletDetailsPresenter {
     private var flow: WalletDetailsFlow
     private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
-    private var chainAccounts: [ChainAccountInfo] = []
+    private var chains: [ChainModel] = []
     private lazy var inputViewModel: InputViewModelProtocol = {
         let inputHandling = InputHandler(
             predicate: NSPredicate.notEmpty,
@@ -43,7 +43,8 @@ final class WalletDetailsPresenter {
 
 extension WalletDetailsPresenter: Localizable {
     func applyLocalization() {
-        provideViewModel(chainAccounts: chainAccounts)
+        provideViewModel(chains: chains)
+        view?.didReceive(locale: selectedLocale)
     }
 }
 
@@ -51,6 +52,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol) {
         view = ui
         view?.setInput(viewModel: inputViewModel)
+        view?.didReceive(locale: selectedLocale)
         interactor.setup()
     }
 
@@ -95,12 +97,26 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         )
     }
 
-    func showActions(for chainAccount: ChainAccountInfo) {
-        guard let address = chainAccount.account.toAddress() else {
+    func showActions(for chain: ChainModel, account: ChainAccountResponse?) {
+        let unused = (flow.wallet.unusedChainIds ?? []).contains(chain.chainId)
+        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+
+        guard let account = account else {
+            wireframe.presentAccountOptions(
+                from: view,
+                locale: selectedLocale,
+                options: options.compactMap { $0 },
+                uniqueChainModel: UniqueChainModel(
+                    meta: flow.wallet,
+                    chain: chain
+                )
+            ) { [weak self] chain in
+                self?.interactor.markUnused(chain: chain)
+            }
             return
         }
 
-        interactor.getAvailableExportOptions(for: chainAccount, address: address)
+        interactor.getAvailableExportOptions(for: ChainAccountInfo(chain: chain, account: account))
     }
 }
 
@@ -118,7 +134,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             switch action {
             case .export:
                 self.wireframe.showExport(
-                    flow: .single(chain: chainAccount.chain, address: address),
+                    flow: .single(chain: chainAccount.chain, address: address, wallet: self.flow.wallet),
                     options: options,
                     locale: self.selectedLocale,
                     from: self.view
@@ -139,44 +155,54 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             case .replace:
                 let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
                 let options: [ReplaceChainOption] = ReplaceChainOption.allCases
-                self.wireframe.showUniqueChainSourceSelection(from: view, items: options, callback: { [weak self] selectedIndex in
-                    let option = options[selectedIndex]
-                    switch option {
-                    case .create:
-                        self?.wireframe.showCreate(uniqueChainModel: model, from: view)
-                    case .import:
-                        self?.wireframe.showImport(uniqueChainModel: model, from: view)
+                self.wireframe.showUniqueChainSourceSelection(
+                    from: view,
+                    items: options,
+                    callback: { [weak self] selectedIndex in
+                        let option = options[selectedIndex]
+                        switch option {
+                        case .create:
+                            self?.wireframe.showCreate(uniqueChainModel: model, from: view)
+                        case .import:
+                            self?.wireframe.showImport(uniqueChainModel: model, from: view)
+                        }
                     }
-                })
+                )
             }
         }
         wireframe.presentActions(
             from: view,
             items: items,
+            chain: chainAccount.chain,
             callback: selectionCallback
         )
     }
 
-    func didReceive(chainAccounts: [ChainAccountInfo]) {
-        self.chainAccounts = chainAccounts
-        provideViewModel(chainAccounts: chainAccounts)
+    func didReceive(chains: [ChainModel]) {
+        self.chains = chains
+        provideViewModel(chains: chains)
+    }
+
+    func didReceive(updatedFlow: WalletDetailsFlow) {
+        flow = updatedFlow
+        provideViewModel(chains: chains)
     }
 }
 
 private extension WalletDetailsPresenter {
-    func provideViewModel(chainAccounts: [ChainAccountInfo]) {
+    func provideViewModel(chains: [ChainModel]) {
         switch flow {
         case .normal:
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
-                chainAccounts: chainAccounts,
+                chains: chains,
                 locale: selectedLocale
             )
             view?.didReceive(state: .normal(viewModel: viewModel))
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
-                chainAccounts: chainAccounts,
+                chains: chains,
                 locale: selectedLocale
             )
             view?.didReceive(state: .export(viewModel: viewModel))

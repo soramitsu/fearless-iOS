@@ -29,7 +29,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             asset: asset,
             chain: chain,
             for: interactor,
-            wireframe: wireframe
+            wireframe: wireframe,
+            selectedMetaAccount: selectedAccount
         )
     }
 
@@ -88,7 +89,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             asset: asset,
             chain: chain,
             for: interactor,
-            wireframe: wireframe
+            wireframe: wireframe,
+            selectedMetaAccount: selectedAccount
         )
     }
 
@@ -96,21 +98,22 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         asset: AssetModel,
         chain: ChainModel,
         for interactor: SelectValidatorsConfirmInteractorBase,
-        wireframe: SelectValidatorsConfirmWireframeProtocol
+        wireframe: SelectValidatorsConfirmWireframeProtocol,
+        selectedMetaAccount: MetaAccountModel
     ) -> SelectValidatorsConfirmViewProtocol? {
         let confirmViewModelFactory = SelectValidatorsConfirmViewModelFactory()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            priceAssetInfo: AssetBalanceDisplayInfo.usd(),
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            priceAssetInfo: AssetBalanceDisplayInfo.usd(),
             formatterFactory: AssetBalanceFormatterFactory(),
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(

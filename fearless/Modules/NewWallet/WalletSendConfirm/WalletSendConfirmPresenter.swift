@@ -22,6 +22,7 @@ final class WalletSendConfirmPresenter {
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var priceData: PriceData?
+    private var tip: Decimal?
     private var fee: Decimal?
     private var blockDuration: BlockTime?
     private var minimumBalance: BigUInt?
@@ -40,6 +41,7 @@ final class WalletSendConfirmPresenter {
         chain: ChainModel,
         receiverAddress: String,
         amount: Decimal,
+        tip: Decimal?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
@@ -52,6 +54,7 @@ final class WalletSendConfirmPresenter {
         self.asset = asset
         self.receiverAddress = receiverAddress
         self.amount = amount
+        self.tip = tip
         self.selectedAccount = selectedAccount
         self.chain = chain
         self.transferFinishBlock = transferFinishBlock
@@ -63,6 +66,8 @@ final class WalletSendConfirmPresenter {
             senderAccountViewModel: provideSenderAccountViewModel(),
             receiverAccountViewModel: provideReceiverAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
+            tipRequired: chain.isTipRequired,
+            tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
             locale: selectedLocale
         )
@@ -106,6 +111,12 @@ final class WalletSendConfirmPresenter {
         ).value(for: selectedLocale)
     }
 
+    private func provideTipViewModel() -> BalanceViewModelProtocol? {
+        tip
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .value(for: selectedLocale)
+    }
+
     private func provideFeeViewModel() -> BalanceViewModelProtocol? {
         fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
@@ -117,7 +128,8 @@ final class WalletSendConfirmPresenter {
             return
         }
 
-        interactor.estimateFee(for: amount)
+        let tip = self.tip?.toSubstrateAmount(precision: Int16(asset.precision))
+        interactor.estimateFee(for: amount, tip: tip)
     }
 }
 
@@ -165,9 +177,15 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             )
 
         ]).runValidation { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.view?.didStartLoading()
-            strongSelf.interactor.submitExtrinsic(for: sendAmountValue, receiverAddress: strongSelf.receiverAddress)
+            guard let self = self else { return }
+            let tip = self.tip?.toSubstrateAmount(precision: Int16(self.asset.precision))
+
+            self.view?.didStartLoading()
+            self.interactor.submitExtrinsic(
+                for: sendAmountValue,
+                tip: tip,
+                receiverAddress: self.receiverAddress
+            )
         }
     }
 }

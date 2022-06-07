@@ -1,12 +1,14 @@
 import Foundation
 import FearlessUtils
 import SoraFoundation
+import SoraKeystore
 
 struct WalletSendViewFactory {
     static func createView(
         receiverAddress: String,
         asset: AssetModel,
         chain: ChainModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendViewProtocol? {
         guard let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress) else {
@@ -14,10 +16,12 @@ struct WalletSendViewFactory {
         }
 
         let wireframe = WalletSendWireframe()
-
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: wallet
+        )
 
         let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
 

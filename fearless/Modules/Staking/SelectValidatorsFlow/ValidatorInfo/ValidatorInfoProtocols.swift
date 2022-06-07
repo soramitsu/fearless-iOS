@@ -29,7 +29,8 @@ protocol ValidatorInfoViewFactoryProtocol: AnyObject {
     static func createView(
         asset: AssetModel,
         chain: ChainModel,
-        validatorInfo: ValidatorInfoProtocol
+        validatorInfo: ValidatorInfoProtocol,
+        wallet: MetaAccountModel
     ) -> ValidatorInfoViewProtocol?
 
     static func createView(

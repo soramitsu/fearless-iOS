@@ -104,8 +104,9 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
             didStopLoading()
 
             rootView.setSeparators(enabled: false)
-            rootView.bringSubviewToFront(rootView.statusView)
         }
+
+        rootView.tableView.tableFooterView = shouldDisplayEmptyState ? rootView.statusView : nil
 
         rootView.tableView.reloadData()
 

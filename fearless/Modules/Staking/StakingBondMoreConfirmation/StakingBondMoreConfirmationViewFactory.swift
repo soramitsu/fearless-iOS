@@ -26,7 +26,8 @@ struct StakingBondMoreConfirmViewFactory {
             selectedAccount: selectedAccount,
             from: interactor,
             wireframe: wireframe,
-            amount: amount
+            amount: amount,
+            selectedMetaAccount: selectedAccount
         )
 
         let view = StakingBondMoreConfirmationVC(
@@ -46,11 +47,13 @@ struct StakingBondMoreConfirmViewFactory {
         selectedAccount: MetaAccountModel,
         from interactor: StakingBondMoreConfirmationInteractorInputProtocol,
         wireframe: StakingBondMoreConfirmationWireframeProtocol,
-        amount: Decimal
+        amount: Decimal,
+        selectedMetaAccount: MetaAccountModel
     ) -> StakingBondMoreConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let confirmationViewModelFactory = StakingBondMoreConfirmViewModelFactory(asset: asset, chain: chain)

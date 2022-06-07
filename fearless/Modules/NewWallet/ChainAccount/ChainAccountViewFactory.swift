@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 import RobinHood
+import SoraKeystore
 
 struct ChainAccountModule {
     let view: ChainAccountViewProtocol?
@@ -105,7 +106,8 @@ enum ChainAccountViewFactory {
             eventCenter: eventCenter,
             transactionSubscription: subscriptionContainer,
             repository: AccountRepositoryFactory.createRepository(),
-            availableExportOptionsProvider: AvailableExportOptionsProvider()
+            availableExportOptionsProvider: AvailableExportOptionsProvider(),
+            settingsManager: SettingsManager.shared
         )
 
         let wireframe = ChainAccountWireframe()
@@ -124,13 +126,14 @@ enum ChainAccountViewFactory {
             moduleOutput: moduleOutput
         )
 
+        interactor.presenter = presenter
+
         let view = ChainAccountViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return ChainAccountModule(view: view, moduleInput: presenter)
     }

@@ -39,7 +39,7 @@ final class RampProvider: PurchaseProviderProtocol {
         var components = URLComponents(string: Self.baseUrlString)
 
         var queryItems = [
-            URLQueryItem(name: "swapAsset", value: token),
+            URLQueryItem(name: "swapAsset", value: token.uppercased()),
             URLQueryItem(name: "userAddress", value: address),
             URLQueryItem(name: "hostApiKey", value: Self.pubToken),
             URLQueryItem(name: "variant", value: "hosted-mobile")

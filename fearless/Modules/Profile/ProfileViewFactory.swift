@@ -6,6 +6,7 @@ import FearlessUtils
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
     static func createView() -> ProfileViewProtocol? {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
         let repository = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
             .createManagedMetaAccountRepository(
@@ -23,7 +24,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
             repository: repository,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            selectedMetaAccount: selectedMetaAccount
         )
 
         let presenter = ProfilePresenter(
@@ -32,6 +34,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             wireframe: ProfileWireframe(),
             logger: Logger.shared,
             settings: settings,
+            eventCenter: EventCenter.shared,
             localizationManager: localizationManager
         )
 

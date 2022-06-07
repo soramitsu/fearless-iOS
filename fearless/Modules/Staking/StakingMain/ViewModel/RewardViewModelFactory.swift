@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import IrohaCrypto
 import BigInt
+import SoraKeystore
 
 protocol RewardViewModelFactoryProtocol {
     func createRewardViewModel(
@@ -12,18 +13,21 @@ protocol RewardViewModelFactoryProtocol {
 }
 
 final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
-    let targetAssetInfo: AssetBalanceDisplayInfo
-    let priceAssetInfo: AssetBalanceDisplayInfo
-    let formatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let targetAssetInfo: AssetBalanceDisplayInfo
+    private let formatterFactory: AssetBalanceFormatterFactoryProtocol
+    private var selectedMetaAccount: MetaAccountModel
+    private let eventCenter = EventCenter.shared
 
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
-        priceAssetInfo: AssetBalanceDisplayInfo = AssetBalanceDisplayInfo.usd(),
-        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+        formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.targetAssetInfo = targetAssetInfo
-        self.priceAssetInfo = priceAssetInfo
         self.formatterFactory = formatterFactory
+        self.selectedMetaAccount = selectedMetaAccount
+
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     func createRewardViewModel(
@@ -32,6 +36,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         priceData: PriceData?
     ) -> LocalizableResource<RewardViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
 
         return LocalizableResource { locale in
@@ -62,5 +67,11 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
                 increase: rewardPercentageString
             )
         }
+    }
+}
+
+extension RewardViewModelFactory: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        selectedMetaAccount = event.account
     }
 }

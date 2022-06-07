@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import SoraKeystore
 
 protocol GetBalanceMetaAccountHandler: AnyObject {
     func handleMetaAccountBalance(metaAccount: MetaAccountModel, balance: String?)
@@ -42,9 +43,9 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
 
     // MARK: - State
 
-    private var priceProviders: [AnySingleValueProvider<PriceData>]?
+    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private lazy var chainModels: [ChainModel] = []
-    private lazy var prices: [AssetModel.PriceId: PriceData] = [:]
+    private lazy var prices: [PriceData] = []
 
     private lazy var accountInfos: [ChainModel.Id: AccountInfo] = [:]
     private lazy var accountsInfoForAccountId: [String: [ChainModel.Id: AccountInfo]] = [:]
@@ -128,7 +129,8 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         balanceBuilder.buildBalance(
             chains: chainModels,
             accountInfos: accountInfos,
-            prices: prices
+            prices: prices,
+            currency: metaAccount.selectedCurrency
         ) { [weak self] totalBalanceString in
             self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
                 metaAccount: metaAccount,
@@ -214,27 +216,16 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
 
             chainModels = filteredChains
             subscribeToAccountInfo(chains: filteredChains)
-            subscribeToPrice(for: filteredChains)
+            subscribeToPrices(for: filteredChains)
 
         case .failure, .none:
             handleFailure()
         }
     }
 
-    private func subscribeToPrice(for chains: [ChainModel]) {
-        var providers: [AnySingleValueProvider<PriceData>] = []
-
-        for chain in chains {
-            for asset in chain.assets {
-                if
-                    let priceId = asset.asset.priceId,
-                    let dataProvider = subscribeToPrice(for: priceId) {
-                    providers.append(dataProvider)
-                }
-            }
-        }
-
-        priceProviders = providers
+    private func subscribeToPrices(for chains: [ChainModel]) {
+        let pricesIds = chains.compactMap { $0.assets.compactMap(\.asset.priceId) }.reduce([], +)
+        pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
     private func subscribeToAccountInfo(chains: [ChainModel]) {
@@ -292,13 +283,13 @@ extension GetBalanceProvider: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension GetBalanceProvider: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        if prices[priceId] != nil, case let .success(priceData) = result, priceData != nil {
-            prices[priceId] = try? result.get()
-        } else if prices[priceId] == nil {
-            prices[priceId] = try? result.get()
+    func handlePrices(result: Result<[PriceData], Error>) {
+        switch result {
+        case let .success(prices):
+            self.prices = prices
+        case .failure:
+            handleFailure()
         }
-
         provideBalance()
     }
 }

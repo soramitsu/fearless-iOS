@@ -1,13 +1,17 @@
 import UIKit
 import Kingfisher
 import simd
+import SoraUI
 
-class ChainAccountBalanceTableCell: UITableViewCell {
+final class ChainAccountBalanceTableCell: UITableViewCell {
     enum LayoutConstants {
         static let cellHeight: CGFloat = 80
         static let assetImageTopOffset: CGFloat = 11
         static let stackViewVerticalOffset: CGFloat = 6
         static let iconSize: CGFloat = 48
+        static let priceRowSize = CGSize(width: 50.0, height: 6.0)
+        static let balanceRowSize = CGSize(width: 80.0, height: 12.0)
+        static let balancePriceRowSize = CGSize(width: 56.0, height: 6.0)
     }
 
     private var backgroundTriangularedView = TriangularedBlurView()
@@ -33,8 +37,8 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         return stackView
     }()
 
-    private var chainNameLabel: UILabel = {
-        let label = UILabel()
+    private var chainNameLabel: ShimmeredLabel = {
+        let label = ShimmeredLabel()
         label.font = .capsTitle
         label.textColor = R.color.colorAlmostWhite()
         return label
@@ -70,11 +74,20 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         return view
     }()
 
+    private var skeletonView: SkrullableView?
+
+    // MARK: - Lifecycle
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         configure()
         setupLayout()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func prepareForReuse() {
@@ -88,10 +101,34 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         }
     }
 
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    // MARK: - Public methods
+
+    func bind(to viewModel: ChainAccountBalanceCellViewModel) {
+        viewModel.imageViewModel?.cancel(on: assetIconImageView)
+
+        balanceView.valueLabel.apply(state: viewModel.balanceString)
+        priceView.valueLabel.apply(state: viewModel.totalAmountString)
+        priceView.keyLabel.apply(state: viewModel.priceAttributedString)
+
+        viewModel.imageViewModel?.loadBalanceListIcon(
+            on: assetIconImageView,
+            animated: false
+        )
+
+        if let options = viewModel.options {
+            options.forEach { option in
+                let view = ChainOptionsView()
+                view.bind(to: option)
+
+                chainOptionsView.stackView.addArrangedSubview(view)
+            }
+        }
+
+        setDeactivated(!viewModel.chain.isSupported)
+        controlSkeleton(for: viewModel)
     }
+
+    // MARK: - Private methods
 
     private func configure() {
         backgroundColor = .clear
@@ -106,7 +143,7 @@ class ChainAccountBalanceTableCell: UITableViewCell {
         selectionStyle = .none
     }
 
-    func setupLayout() {
+    private func setupLayout() {
         contentView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
@@ -173,36 +210,120 @@ class ChainAccountBalanceTableCell: UITableViewCell {
 
         chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     }
-
-    func bind(to viewModel: ChainAccountBalanceCellViewModel) {
-        viewModel.imageViewModel?.cancel(on: assetIconImageView)
-
-        chainNameLabel.text = viewModel.assetName?.uppercased()
-        balanceView.keyLabel.text = viewModel.assetInfo?.symbol.uppercased()
-        balanceView.valueLabel.text = viewModel.balanceString
-        priceView.keyLabel.attributedText = viewModel.priceAttributedString
-        priceView.valueLabel.text = viewModel.totalAmountString
-
-        viewModel.imageViewModel?.loadBalanceListIcon(
-            on: assetIconImageView,
-            animated: false
-        )
-
-        if let options = viewModel.options {
-            options.forEach { option in
-                let view = ChainOptionsView()
-                view.bind(to: option)
-
-                chainOptionsView.stackView.addArrangedSubview(view)
-            }
-        }
-
-        setDeactivated(!viewModel.chain.isSupported)
-    }
 }
 
 extension ChainAccountBalanceTableCell: DeactivatableView {
     var deactivatableViews: [UIView] {
         [assetIconImageView, chainNameLabel, balanceView, priceView]
+    }
+}
+
+// MARK: - Skeleton
+
+extension ChainAccountBalanceTableCell {
+    private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
+        let chainName = viewModel.assetName?.uppercased()
+        let chainSymbol = viewModel.assetInfo?.symbol.uppercased()
+        chainNameLabel.apply(state: .updating(chainName))
+        balanceView.keyLabel.apply(state: .updating(chainSymbol))
+        assetIconImageView.startShimmeringAnimation()
+
+        if viewModel.isColdBoot {
+            startLoading()
+            return
+        }
+
+        guard viewModel.priceDataWasUpdated else {
+            return
+        }
+
+        stopLoadingIfNeeded()
+        assetIconImageView.stopShimmeringAnimation()
+        chainNameLabel.apply(state: .normal(chainName))
+        balanceView.keyLabel.apply(state: .normal(chainSymbol))
+    }
+
+    private func startLoading() {
+        guard skeletonView == nil, backgroundTriangularedView.frame.size != .zero else {
+            return
+        }
+
+        priceView.keyLabel.alpha = 0
+        priceView.valueLabel.alpha = 0
+        balanceView.valueLabel.alpha = 0
+
+        setupLoadingSkeleton()
+    }
+
+    private func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        priceView.keyLabel.alpha = 1
+        priceView.valueLabel.alpha = 1
+        balanceView.valueLabel.alpha = 1
+    }
+
+    private func setupLoadingSkeleton() {
+        let spaceSize = frame.size
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createLoadingSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        backgroundTriangularedView.insertSubview(skeletonView, belowSubview: contentStackView)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createLoadingSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        [
+            SingleSkeleton.createRow(
+                under: priceView.keyLabel,
+                containerView: backgroundTriangularedView,
+                spaceSize: spaceSize,
+                offset: CGPoint(
+                    x: 0,
+                    y: -(LayoutConstants.priceRowSize.height + priceView.keyLabel.frame.height) / 2
+                ),
+                size: LayoutConstants.priceRowSize
+            ),
+
+            SingleSkeleton.createRow(
+                under: balanceView.valueLabel,
+                containerView: backgroundTriangularedView,
+                spaceSize: spaceSize,
+                offset: CGPoint(
+                    x: -LayoutConstants.balanceRowSize.width + balanceView.valueLabel.frame.width,
+                    y: -(LayoutConstants.balanceRowSize.height + balanceView.valueLabel.frame.height) / 2
+                ),
+                size: LayoutConstants.balanceRowSize
+            ),
+
+            SingleSkeleton.createRow(
+                under: priceView.valueLabel,
+                containerView: backgroundTriangularedView,
+                spaceSize: spaceSize,
+                offset: CGPoint(
+                    x: -LayoutConstants.balancePriceRowSize.width + priceView.valueLabel.frame.width,
+                    y: -(LayoutConstants.balancePriceRowSize.height + priceView.valueLabel.frame.height) / 2
+                ),
+                size: LayoutConstants.balancePriceRowSize
+            )
+        ]
     }
 }

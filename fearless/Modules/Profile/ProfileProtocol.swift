@@ -16,11 +16,13 @@ protocol ProfileInteractorInputProtocol: AnyObject {
     func setup(with output: ProfileInteractorOutputProtocol)
     func updateWallet(_ wallet: MetaAccountModel)
     func logout(completion: @escaping () -> Void)
+    func update(currency: Currency)
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {
     func didReceive(wallet: MetaAccountModel)
     func didReceiveUserDataProvider(error: Error)
+    func didRecieve(selectedCurrency: Currency)
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable,
@@ -42,6 +44,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         from view: ProfileViewProtocol?,
         output: CheckPincodeModuleOutput
     )
+    func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
     func close(view: ControllerBackedProtocol?)
 }
 

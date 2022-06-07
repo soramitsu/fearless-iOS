@@ -44,7 +44,8 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
         asset: AssetModel,
         chain: ChainModel,
         validatorInfo: ValidatorInfoProtocol,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     )
 
     func presentFilters(
@@ -60,7 +61,8 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
         selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchDelegate?,
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        wallet: MetaAccountModel
     )
 
     func proceed(

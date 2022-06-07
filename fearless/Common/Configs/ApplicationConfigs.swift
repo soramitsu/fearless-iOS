@@ -167,7 +167,11 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var assetListURL: URL? {
-        GitHubUrl.url(suffix: "chains/assets.json")
+        #if F_DEV
+            GitHubUrl.url(suffix: "chains/assets_dev.json")
+        #else
+            GitHubUrl.url(suffix: "chains/assets.json")
+        #endif
     }
 
     var commonTypesURL: URL? {
@@ -181,6 +185,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
             GitHubUrl.url(suffix: "ios_app_support.json")
         #endif
     }
+
+    var fiatsURL: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
+    }
 }
 
 private enum GitHubUrl {
@@ -188,7 +196,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "ios/v2"
+    private static let defaultBranch = "ios/v2.0.10"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

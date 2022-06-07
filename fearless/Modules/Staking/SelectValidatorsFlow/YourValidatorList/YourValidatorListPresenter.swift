@@ -102,7 +102,8 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
                 validatorInfo,
                 asset: asset,
                 chain: chain,
-                from: view
+                from: view,
+                wallet: selectedAccount
             )
         }
     }

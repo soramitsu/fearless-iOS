@@ -55,7 +55,8 @@ extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterPr
             asset: asset,
             chain: chain,
             validatorInfo: selectedValidator,
-            from: view
+            from: view,
+            wallet: selectedAccount
         )
     }
 
