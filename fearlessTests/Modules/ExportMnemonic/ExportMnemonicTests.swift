@@ -58,7 +58,7 @@ class ExportMnemonicTests: XCTestCase {
                                                       addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
 
         let presenter = ExportMnemonicPresenter(flow: .single(chain: chain,
-                                                              address: AddressTestConstants.polkadotAddress),
+                                                              address: AddressTestConstants.polkadotAddress, wallet: givenAccount),
                                                 localizationManager: LocalizationManager.shared)
 
         let interactor = ExportMnemonicInteractor(keystore: keychain,
@@ -156,7 +156,8 @@ class ExportMnemonicTests: XCTestCase {
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
                                                       addressPrefix: 0)
 
-        let presenter = ExportMnemonicPresenter(flow: .single(chain: chain, address: AddressTestConstants.ethereumAddres),
+        let presenter = ExportMnemonicPresenter(flow: .single(chain: chain, address: AddressTestConstants.ethereumAddres,
+                                                              wallet: givenAccount),
                                                 localizationManager: LocalizationManager.shared)
 
         let interactor = ExportMnemonicInteractor(keystore: keychain,
