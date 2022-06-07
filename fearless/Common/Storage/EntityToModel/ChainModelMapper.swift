@@ -391,7 +391,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isOrml = model.isOrml
         entity.minimalAppVersion = model.iosMinAppVersion
 
-        entity.unused = model.unused
+        entity.unused = model.unused ?? false // TODO: Use orFalse after merge
 
         updateEntityChainAssets(for: entity, from: model, context: context)
 
