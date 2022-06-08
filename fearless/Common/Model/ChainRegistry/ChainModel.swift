@@ -91,8 +91,6 @@ class ChainModel: Codable {
         if nodes.isEmpty {
             throw DecodingError.missingNodes
         }
-
-        // TODO: why types optional?
     }
 
     init(
