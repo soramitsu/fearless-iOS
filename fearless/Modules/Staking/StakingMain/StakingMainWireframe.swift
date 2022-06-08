@@ -218,18 +218,19 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     ) {
         guard let bondMoreView = StakingBondMoreViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: bondMoreView.controller
         )
+
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 

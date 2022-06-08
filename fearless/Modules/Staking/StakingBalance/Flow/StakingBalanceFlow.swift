@@ -17,6 +17,10 @@ protocol StakingBalanceModelStateListener: AnyObject {
 protocol StakingBalanceViewModelState: StakingBalanceUserInputHandler {
     var stateListener: StakingBalanceModelStateListener? { get set }
     func setStateListener(_ stateListener: StakingBalanceModelStateListener?)
+
+    func stakeMoreValidators(using locale: Locale) -> [DataValidating]
+    func stakeLessValidators(using locale: Locale) -> [DataValidating]
+    func revokeValidators(using locale: Locale) -> [DataValidating]
 }
 
 struct StakingBalanceDependencyContainer {
@@ -27,7 +31,8 @@ struct StakingBalanceDependencyContainer {
 
 protocol StakingBalanceViewModelFactoryProtocol {
     func buildViewModel(
-        viewModelState: StakingBalanceViewModelState
+        viewModelState: StakingBalanceViewModelState,
+        priceData: PriceData?
     ) -> LocalizableResource<StakingBalanceViewModel>?
 }
 

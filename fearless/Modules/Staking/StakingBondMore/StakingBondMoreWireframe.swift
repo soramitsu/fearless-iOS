@@ -3,12 +3,15 @@ import Foundation
 final class StakingBondMoreWireframe: StakingBondMoreWireframeProtocol {
     func showConfirmation(
         from view: ControllerBackedProtocol?,
-        amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        flow: StakingBondMoreConfirmationFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
-        guard let confirmation = StakingBondMoreConfirmViewFactory.createView(chain: chain, asset: asset, selectedAccount: selectedAccount, amount: amount) else {
+        guard let confirmation = StakingBondMoreConfirmViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
+        ) else {
             return
         }
 

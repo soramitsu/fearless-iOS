@@ -346,9 +346,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
         wireframe.showBondMore(
             from: view,
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: .relaychain
         )
     }
 

@@ -32,84 +32,60 @@ final class StakingBalancePresenter {
     }
 
     private func updateView() {
-        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState) else {
+        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState, priceData: priceData) else {
             return
         }
 
         view?.reload(with: viewModel)
     }
 
-    private func handleBondExtraAction(for _: StakingBalanceViewProtocol, locale _: Locale?) {
-        // TODO: Move datavalidators to viewmodelstate
+    private func handleBondExtraAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        let locale = locale ?? Locale.current
+        DataValidationRunner(validators: viewModelState.stakeMoreValidators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
 
-//        DataValidationRunner(validators: [
-//            dataValidatingFactory.has(
-//                stash: stashAccount,
-//                for: stashItem?.stash ?? "",
-//                locale: locale ?? Locale.current
-//            )
-//        ]).runValidation { [weak self] in
-//            guard let self = self else {
-//                return
-//            }
-//            self.wireframe.showBondMore(
-//                from: view,
-//                chain: self.chain,
-//                asset: self.asset,
-//                selectedAccount: self.selectedAccount
-//            )
-//        }
+            strongSelf.wireframe.showBondMore(
+                from: view,
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                flow: .relaychain
+            )
+        }
     }
 
-    private func handleUnbondAction(for _: StakingBalanceViewProtocol, locale _: Locale?) {
-        // TODO: Move datavalidators to viewmodelstate
+    private func handleUnbondAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        let locale = locale ?? Locale.current
 
-//        let locale = locale ?? Locale.current
-//
-//        DataValidationRunner(validators: [
-//            dataValidatingFactory.has(
-//                controller: controllerAccount,
-//                for: stashItem?.controller ?? "",
-//                locale: locale
-//            ),
-//
-//            dataValidatingFactory.unbondingsLimitNotReached(
-//                stakingLedger?.unlocking.count,
-//                locale: locale
-//            )
-//        ]).runValidation { [weak self] in
-//            guard let self = self else {
-//                return
-//            }
-//            self.wireframe.showUnbond(
-//                from: view,
-//                chain: self.chain,
-//                asset: self.asset,
-//                selectedAccount: self.selectedAccount
-//            )
-//        }
+        DataValidationRunner(validators: viewModelState.stakeLessValidators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+
+            strongSelf.wireframe.showUnbond(
+                from: view,
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                flow: .relaychain
+            )
+        }
     }
 
-    private func handleRedeemAction(for _: StakingBalanceViewProtocol, locale _: Locale?) {
-        // TODO: Move datavalidators to viewmodelstate
-//        DataValidationRunner(validators: [
-//            dataValidatingFactory.has(
-//                controller: controllerAccount,
-//                for: stashItem?.controller ?? "",
-//                locale: locale ?? Locale.current
-//            )
-//        ]).runValidation { [weak self] in
-//            guard let self = self else {
-//                return
-//            }
-//
-//            self.wireframe.showRedeem(
-//                from: view,
-//                chain: self.chain,
-//                asset: self.asset,
-//                selectedAccount: self.selectedAccount
-//            )
-//        }
+    private func handleRedeemAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        let locale = locale ?? Locale.current
+        DataValidationRunner(validators: viewModelState.revokeValidators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+
+            strongSelf.wireframe.showRedeem(
+                from: view,
+                chain: strongSelf.chainAsset.chain,
+                asset: strongSelf.chainAsset.asset,
+                selectedAccount: strongSelf.wallet
+            )
+        }
     }
 
     private func presentRebond(for view: StakingBalanceViewProtocol, locale: Locale?) {
@@ -146,6 +122,8 @@ final class StakingBalancePresenter {
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         interactor.setup()
     }
 

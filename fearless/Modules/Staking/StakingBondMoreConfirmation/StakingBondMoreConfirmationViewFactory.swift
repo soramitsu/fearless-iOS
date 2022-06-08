@@ -5,29 +5,37 @@ import RobinHood
 
 struct StakingBondMoreConfirmViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        amount: Decimal
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreConfirmationFlow
     ) -> StakingBondMoreConfirmationViewProtocol? {
-        guard let interactor = createInteractor(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+        let wireframe = StakingBondMoreConfirmationWireframe()
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
+        guard let container = createContainer(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            dataValidatingFactory: dataValidatingFactory
         ) else {
             return nil
         }
 
-        let wireframe = StakingBondMoreConfirmationWireframe()
+        guard let interactor = createInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
+        ) else {
+            return nil
+        }
 
         let presenter = createPresenter(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             from: interactor,
-            wireframe: wireframe,
-            amount: amount,
-            selectedMetaAccount: selectedAccount
+            viewModelState: container.viewModelState,
+            dataValidatingFactory: dataValidatingFactory,
+            wireframe: wireframe
         )
 
         let view = StakingBondMoreConfirmationVC(
@@ -42,62 +50,71 @@ struct StakingBondMoreConfirmViewFactory {
     }
 
     private static func createPresenter(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from interactor: StakingBondMoreConfirmationInteractorInputProtocol,
-        wireframe: StakingBondMoreConfirmationWireframeProtocol,
-        amount: Decimal,
-        selectedMetaAccount: MetaAccountModel
+        viewModelState: StakingBondMoreConfirmationViewModelState,
+        dataValidatingFactory: StakingDataValidatingFactory,
+        wireframe: StakingBondMoreConfirmationWireframe
     ) -> StakingBondMoreConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
 
-        let confirmationViewModelFactory = StakingBondMoreConfirmViewModelFactory(asset: asset, chain: chain)
-
-        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+        let confirmationViewModelFactory = StakingBondMoreConfirmViewModelFactory(asset: chainAsset.asset, chain: chainAsset.chain)
 
         return StakingBondMoreConfirmationPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            inputAmount: amount,
             confirmViewModelFactory: confirmationViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            viewModelState: viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             logger: Logger.shared
         )
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        strategy: StakingBondMoreConfirmationStrategy
     ) -> StakingBondMoreConfirmationInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingBondMoreConfirmationInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: strategy
+        )
+    }
+
+    private static func createContainer(
+        flow: StakingBondMoreConfirmationFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactory
+    ) -> StakingBondMoreConfirmationDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
-        )
-
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -109,7 +126,6 @@ struct StakingBondMoreConfirmViewFactory {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -126,7 +142,7 @@ struct StakingBondMoreConfirmViewFactory {
         let keystore = Keychain()
         let signingWrapper = SigningWrapper(
             keystore: keystore,
-            metaId: selectedAccount.metaId,
+            metaId: wallet.metaId,
             accountResponse: accountResponse
         )
 
@@ -140,25 +156,41 @@ struct StakingBondMoreConfirmViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        return StakingBondMoreConfirmationInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            substrateProviderFactory: substrateProviderFactory,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
-            signingWrapper: signingWrapper,
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            connection: connection,
-            keystore: keystore
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            selectedMetaAccount: wallet
         )
+
+        switch flow {
+        case let .relaychain(amount):
+            let viewModelState = StakingBondMoreConfirmationRelaychainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                amount: amount,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = StakingBondMoreConfirmationRelaychainStrategy(
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                connection: connection,
+                keystore: keystore,
+                signingWrapper: signingWrapper,
+                output: viewModelState
+            )
+
+            return StakingBondMoreConfirmationDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy
+            )
+        case .parachain:
+            return nil
+        }
     }
 }

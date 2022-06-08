@@ -16,7 +16,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
         self.timeFormatter = timeFormatter
     }
 
-    func buildViewModel(viewModelState: StakingBalanceViewModelState) -> LocalizableResource<StakingBalanceViewModel>? {
+    func buildViewModel(viewModelState: StakingBalanceViewModelState, priceData: PriceData?) -> LocalizableResource<StakingBalanceViewModel>? {
         guard let viewModelState = viewModelState as? StakingBalanceRelaychainViewModelState,
               let balanceData = viewModelState.stakingBalanceData else {
             return nil
@@ -33,11 +33,13 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                 from: balanceData,
                 precision: precision,
                 redeemableDecimal: redeemableDecimal,
-                locale: locale
+                locale: locale,
+                priceData: priceData
             )
 
             let unbondingViewModel = self.createUnbondingViewModel(
                 balanceData: balanceData,
+                priceData: priceData,
                 precision: precision,
                 locale: locale
             )
@@ -54,7 +56,8 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
         from balanceData: StakingBalanceData,
         precision: Int16,
         redeemableDecimal: Decimal,
-        locale: Locale
+        locale: Locale,
+        priceData: PriceData?
     ) -> StakingBalanceWidgetViewModel {
         let bondedDecimal = Decimal.fromSubstrateAmount(
             balanceData.stakingLedger.active,
@@ -63,7 +66,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
         let bondedViewModel = createWidgetItemViewModel(
             amount: bondedDecimal,
             title: R.string.localizable.walletBalanceBonded(preferredLanguages: locale.rLanguages),
-            priceData: balanceData.priceData,
+            priceData: priceData,
             locale: locale
         )
 
@@ -74,14 +77,14 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
         let unbondedViewModel = createWidgetItemViewModel(
             amount: unbondedDecimal,
             title: R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
-            priceData: balanceData.priceData,
+            priceData: priceData,
             locale: locale
         )
 
         let redeemableViewModel = createWidgetItemViewModel(
             amount: redeemableDecimal,
             title: R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages),
-            priceData: balanceData.priceData,
+            priceData: priceData,
             locale: locale
         )
 
@@ -118,11 +121,13 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
 
     func createUnbondingViewModel(
         balanceData: StakingBalanceData,
+        priceData: PriceData?,
         precision: Int16,
         locale: Locale
     ) -> StakingBalanceUnbondingWidgetViewModel {
         let viewModels = createUnbondingsViewModels(
             from: balanceData,
+            priceData: priceData,
             precision: precision,
             locale: locale
         )
@@ -137,6 +142,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
 
     func createUnbondingsViewModels(
         from balanceData: StakingBalanceData,
+        priceData: PriceData?,
         precision: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
@@ -150,7 +156,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                         precision: precision
                     ) ?? .zero
                 let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
-                let usdAmount = priceText(unbondingAmountDecimal, priceData: balanceData.priceData, locale: locale)
+                let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
                 let timeLeft = timeLeftAttributedString(
                     unbondingEra: unbondingItem.era,
                     eraCountdown: balanceData.eraCountdown,

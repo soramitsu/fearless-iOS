@@ -21,7 +21,52 @@ final class StakingBalanceRelaychainViewModelState {
     }
 
     var stakingBalanceData: StakingBalanceData? {
-        nil
+        guard let stakingLedger = stakingLedger,
+              let activeEra = activeEra,
+              let eraCountdown = eraCountdown else {
+            return nil
+        }
+
+        return StakingBalanceData(
+            stakingLedger: stakingLedger,
+            activeEra: activeEra,
+            eraCountdown: eraCountdown
+        )
+    }
+
+    func stakeMoreValidators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(
+                stash: stashAccount,
+                for: stashItem?.stash ?? "",
+                locale: locale ?? Locale.current
+            )
+        ]
+    }
+
+    func stakeLessValidators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
+
+            dataValidatingFactory.unbondingsLimitNotReached(
+                stakingLedger?.unlocking.count,
+                locale: locale
+            )
+        ]
+    }
+
+    func revokeValidators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale ?? Locale.current
+            )
+        ]
     }
 
     deinit {

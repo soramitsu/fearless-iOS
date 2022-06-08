@@ -1,14 +1,14 @@
 final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     ) {
         guard let bondMoreView = StakingBondMoreViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let navigationController = ImportantFlowViewFactory.createNavigation(from: bondMoreView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
@@ -16,14 +16,14 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
 
     func showUnbond(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondSetupFlow
     ) {
         guard let unbondView = StakingUnbondSetupViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }
