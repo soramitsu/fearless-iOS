@@ -6,25 +6,37 @@ import FearlessUtils
 
 final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow
     ) -> StakingRedeemViewProtocol? {
-        guard let interactor = createInteractor(chain: chain, asset: asset, selectedAccount: selectedAccount) else {
-            return nil
-        }
-
         let wireframe = StakingRedeemWireframe()
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
+        guard let container = createContainer(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            dataValidatingFactory: dataValidatingFactory
+        ) else {
+            return nil
+        }
+        guard let interactor = createInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            container: container
+        ) else {
+            return nil
+        }
+
         let presenter = createPresenter(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory,
-            selectedMetaAccount: selectedAccount
+            wallet: wallet,
+            container: container
         )
 
         let view = StakingRedeemViewController(
@@ -40,44 +52,60 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     }
 
     private static func createPresenter(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         interactor: StakingRedeemInteractorInputProtocol,
         wireframe: StakingRedeemWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel,
+        container: StakingRedeemDependencyContainer
     ) -> StakingRedeemPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
-
-        let confirmationViewModelFactory = StakingRedeemViewModelFactory(asset: asset)
 
         return StakingRedeemPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            confirmViewModelFactory: confirmationViewModelFactory,
+            confirmViewModelFactory: container.viewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             logger: Logger.shared
         )
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        container: StakingRedeemDependencyContainer
     ) -> StakingRedeemInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingRedeemInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
+        )
+    }
+
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow,
+        dataValidatingFactory: StakingDataValidatingFactory
+    ) -> StakingRedeemDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -85,7 +113,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -131,24 +159,51 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        return StakingRedeemInteractor(
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            slashesOperationFactory: slashesOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            operationManager: operationManager,
-            keystore: Keychain(),
-            accountRepository: AnyDataProviderRepository(accountRepository)
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            selectedMetaAccount: wallet
         )
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
+        )
+
+        switch flow {
+        case .relaychain:
+            let viewModelState = StakingRedeemRelaychainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = StakingRedeemRelaychainStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                slashesOperationFactory: slashesOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain(),
+                accountRepository: AnyDataProviderRepository(accountRepository)
+            )
+            let viewModelFactory = StakingRedeemRelaychainViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory
+            )
+
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .parachain:
+            return nil
+        }
     }
 }

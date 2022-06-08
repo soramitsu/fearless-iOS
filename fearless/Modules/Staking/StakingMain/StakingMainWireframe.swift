@@ -236,14 +236,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow
     ) {
         guard let redeemView = StakingRedeemViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }

@@ -70,6 +70,7 @@
 		2918DCAEB91F8276446873C8 /* StakingRewardPayoutsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57E3EA5C070C64000ABCDC0 /* StakingRewardPayoutsWireframe.swift */; };
 		2A66CF4F25D109780006E4C1 /* CDPhishingItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */; };
 		2A66CFAF25D10EDF0006E4C1 /* PhishingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */; };
+		2A753CE585E2F0DA4BAD7CF4 /* StakingRedeemFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74547DAC8B04C2A1A7FD625 /* StakingRedeemFlow.swift */; };
 		2A84E87825D425750006FE9C /* AlertControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A84E87725D425750006FE9C /* AlertControllerFactory.swift */; };
 		2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB7A7FE25CD0E7F00767D87 /* GitHubPhishingAPIService.swift */; };
 		2AD0A16A25D3854700312428 /* TransferConfirmCommandProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD0A16925D3854700312428 /* TransferConfirmCommandProxy.swift */; };
@@ -1836,6 +1837,9 @@
 		FA3430EE285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */; };
 		FA3430F0285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */; };
 		FA3430F2285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */; };
+		FA3430F628508C02002B5975 /* StakingRedeemRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430F528508C02002B5975 /* StakingRedeemRelaychainStrategy.swift */; };
+		FA3430F828508C10002B5975 /* StakingRedeemRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430F728508C10002B5975 /* StakingRedeemRelaychainViewModelState.swift */; };
+		FA3430FA28508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430F928508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift */; };
 		FA389B34283E22FC00FF16E9 /* ParachainStakingDelegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */; };
 		FA389B362840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B352840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift */; };
 		FA389B382840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B372840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift */; };
@@ -3849,6 +3853,7 @@
 		F52B8815D6AF5E69B145D245 /* CustomValidatorListViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewFactory.swift; sourceTree = "<group>"; };
 		F5DAE633286997F8D7A5D84E /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		F61D8973ADEB461DE2AD3E13 /* RecommendedValidatorListViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListViewController.swift; sourceTree = "<group>"; };
+		F74547DAC8B04C2A1A7FD625 /* StakingRedeemFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRedeemFlow.swift; sourceTree = "<group>"; };
 		F829E7F8B39EE7D977001510 /* ControllerAccountProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountProtocols.swift; sourceTree = "<group>"; };
 		F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		FA00488E282CC7710032FF49 /* SelectValidatorsStartFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartFlow.swift; sourceTree = "<group>"; };
@@ -3965,6 +3970,9 @@
 		FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA3430F528508C02002B5975 /* StakingRedeemRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemRelaychainStrategy.swift; sourceTree = "<group>"; };
+		FA3430F728508C10002B5975 /* StakingRedeemRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemRelaychainViewModelState.swift; sourceTree = "<group>"; };
+		FA3430F928508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingDelegation.swift; sourceTree = "<group>"; };
 		FA389B352840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA389B372840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchParachainStrategy.swift; sourceTree = "<group>"; };
@@ -9028,6 +9036,7 @@
 		DD14136EDA92D17AC679E523 /* StakingRedeem */ = {
 			isa = PBXGroup;
 			children = (
+				FA3430F328508BE5002B5975 /* Flow */,
 				84DB9E8E2640A47500F23DD3 /* ViewModel */,
 				84DB9E8826409E7200F23DD3 /* View */,
 				2E4B0600AFFB96A75CF98755 /* StakingRedeemProtocols.swift */,
@@ -9826,6 +9835,25 @@
 				FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */,
 				FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */,
 				FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */,
+			);
+			path = Relaychain;
+			sourceTree = "<group>";
+		};
+		FA3430F328508BE5002B5975 /* Flow */ = {
+			isa = PBXGroup;
+			children = (
+				FA3430F428508BF3002B5975 /* Relaychain */,
+				F74547DAC8B04C2A1A7FD625 /* StakingRedeemFlow.swift */,
+			);
+			path = Flow;
+			sourceTree = "<group>";
+		};
+		FA3430F428508BF3002B5975 /* Relaychain */ = {
+			isa = PBXGroup;
+			children = (
+				FA3430F528508C02002B5975 /* StakingRedeemRelaychainStrategy.swift */,
+				FA3430F728508C10002B5975 /* StakingRedeemRelaychainViewModelState.swift */,
+				FA3430F928508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift */,
 			);
 			path = Relaychain;
 			sourceTree = "<group>";
@@ -11384,6 +11412,7 @@
 				F471897626C297AA006487AD /* AnalyticsValidatorsPage.swift in Sources */,
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,
 				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
+				FA3430F628508C02002B5975 /* StakingRedeemRelaychainStrategy.swift in Sources */,
 				84F13F1A26F23697006725FF /* Data+Keccak.swift in Sources */,
 				84A3034926A834F900E64382 /* ValidatorInfoViewLayout.swift in Sources */,
 				F409670026B29A58008CD244 /* FWLineChartView.swift in Sources */,
@@ -12254,6 +12283,7 @@
 				FA99422527FE921000D771E5 /* ManageAssetsTableViewCell.swift in Sources */,
 				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
 				847C96492553614F002D288F /* ExportRestoreJsonPresenter.swift in Sources */,
+				FA3430FA28508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift in Sources */,
 				FA4B92B02844D0E60003BCEF /* SelectCurrencyRouter.swift in Sources */,
 				8463A71225E30C95003B8160 /* BalanceViewModelFactory.swift in Sources */,
 				6D315EFF2B664235D297674E /* AccountImportProtocols.swift in Sources */,
@@ -12479,6 +12509,7 @@
 				84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */,
 				840DCBF625E0059D00D45C6A /* AmountInputView+Inspectable.swift in Sources */,
 				8488ECEA258CE456004591CC /* PurchaseViewController.swift in Sources */,
+				FA3430F828508C10002B5975 /* StakingRedeemRelaychainViewModelState.swift in Sources */,
 				847C9659255362F7002D288F /* RestoreJson.swift in Sources */,
 				5BA47B0F2286D41E7056DA0F /* AddConnectionInteractor.swift in Sources */,
 				48641BF5A7B1B9F53246F376 /* AddConnectionViewController.swift in Sources */,
@@ -12959,6 +12990,7 @@
 				872DF7DE5A001DF5B8A4E288 /* StakingBondMoreConfirmationFlow.swift in Sources */,
 				2ED5B5FFD880BA1905051E89 /* StakingUnbondSetupFlow.swift in Sources */,
 				794029A3A00B085D6CFE3FF1 /* StakingUnbondConfirmFlow.swift in Sources */,
+				2A753CE585E2F0DA4BAD7CF4 /* StakingRedeemFlow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

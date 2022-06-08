@@ -160,9 +160,9 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow
     )
 
     func showAnalytics(

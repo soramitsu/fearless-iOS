@@ -81,9 +81,9 @@ final class StakingBalancePresenter {
 
             strongSelf.wireframe.showRedeem(
                 from: view,
-                chain: strongSelf.chainAsset.chain,
-                asset: strongSelf.chainAsset.asset,
-                selectedAccount: strongSelf.wallet
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                flow: .relaychain
             )
         }
     }
