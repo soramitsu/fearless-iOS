@@ -32,10 +32,9 @@ protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable
     func close(view: StakingUnbondSetupViewProtocol?)
     func proceed(
         view: StakingUnbondSetupViewProtocol?,
-        amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        flow: StakingUnbondConfirmFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

@@ -5,28 +5,37 @@ import RobinHood
 
 struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        amount: Decimal
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondConfirmFlow
     ) -> StakingUnbondConfirmViewProtocol? {
-        guard let interactor = createInteractor(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+        let wireframe = StakingUnbondConfirmWireframe()
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
+        guard let container = createContainer(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            dataValidatingFactory: dataValidatingFactory
         ) else {
             return nil
         }
 
-        let wireframe = StakingUnbondConfirmWireframe()
+        guard let interactor = createInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
+        ) else {
+            return nil
+        }
 
         let presenter = createPresenter(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             interactor: interactor,
             wireframe: wireframe,
-            amount: amount,
-            selectedMetaAccount: selectedAccount
+            wallet: wallet,
+            container: container,
+            dataValidatingFactory: dataValidatingFactory
         )
 
         let view = StakingUnbondConfirmViewController(
@@ -41,47 +50,59 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
     }
 
     private static func createPresenter(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         interactor: StakingUnbondConfirmInteractorInputProtocol,
         wireframe: StakingUnbondConfirmWireframeProtocol,
-        amount: Decimal,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel,
+        container: StakingUnbondConfirmDependencyContainer,
+        dataValidatingFactory: StakingDataValidatingFactory
     ) -> StakingUnbondConfirmPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
-
-        let confirmationViewModelFactory = StakingUnbondConfirmViewModelFactory(asset: asset)
-
-        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         return StakingUnbondConfirmPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            inputAmount: amount,
-            confirmViewModelFactory: confirmationViewModelFactory,
+            confirmViewModelFactory: container.viewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            chain: chain,
-            asset: asset,
-            logger: Logger.shared
+            chainAsset: chainAsset
         )
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        strategy: StakingUnbondConfirmStrategy
     ) -> StakingUnbondConfirmInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingUnbondConfirmInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: strategy
+        )
+    }
+
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondConfirmFlow,
+        dataValidatingFactory: StakingDataValidatingFactory
+    ) -> StakingUnbondConfirmDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -89,7 +110,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -99,7 +120,6 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -125,24 +145,39 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             sortDescriptors: [],
             mapper: AnyCoreDataMapper(mapper)
         )
-
-        return StakingUnbondConfirmInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            connection: connection,
-            keystore: Keychain(),
-            accountRepository: AnyDataProviderRepository(accountRepository)
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            selectedMetaAccount: wallet
         )
+        switch flow {
+        case let .relaychain(amount):
+            let viewModelState = StakingUnbondConfirmRelaychainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                inputAmount: amount
+            )
+            let strategy = StakingUnbondConfirmRelaychainStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                keystore: Keychain(),
+                accountRepository: AnyDataProviderRepository(accountRepository)
+            )
+            let viewModelFactory = StakingUnbondConfirmRelaychainViewModelFactory(asset: chainAsset.asset)
+            return StakingUnbondConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .parachain:
+            return nil
+        }
     }
 }

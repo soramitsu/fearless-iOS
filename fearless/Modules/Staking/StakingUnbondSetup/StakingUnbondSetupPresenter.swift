@@ -65,20 +65,19 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 return
             }
 
-            if let amount = self.viewModelState.inputAmount {
-                self.wireframe.proceed(
-                    view: self.view,
-                    amount: amount,
-                    chain: self.chainAsset.chain,
-                    asset: self.chainAsset.asset,
-                    selectedAccount: self.wallet
+            if let amount = strongSelf.viewModelState.inputAmount {
+                strongSelf.wireframe.proceed(
+                    view: strongSelf.view,
+                    flow: .relaychain(amount: amount),
+                    chainAsset: strongSelf.chainAsset,
+                    wallet: strongSelf.wallet
                 )
             } else {
-                self.logger?.warning("Missing amount after validation")
+                strongSelf.logger?.warning("Missing amount after validation")
             }
         }
     }
