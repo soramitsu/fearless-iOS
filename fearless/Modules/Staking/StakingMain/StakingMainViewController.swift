@@ -35,6 +35,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
+    private lazy var tableView = UITableView()
     private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
 
     private var balanceViewModel: LocalizableResource<String>?
@@ -283,6 +284,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
 
         return stateView
+    }
+
+    private func setupTableView() {
+        stackView.addArrangedSubview(tableView)
     }
 
     private func applyNominator(viewModel: LocalizableResource<NominationViewModelProtocol>) {
