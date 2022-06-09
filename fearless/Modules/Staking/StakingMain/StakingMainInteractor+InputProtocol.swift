@@ -20,6 +20,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
+        eraInfoOperationFactory = selectedChainAsset?.chain.isEthereumBased == true ? ParachainStakingInfoOperationFactory() : RelaychainStakingInfoOperationFactory()
+
         provideNewChain()
         provideSelectedAccount()
 
@@ -63,6 +65,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         guard let newSelectedChainAsset = stakingSettings.value else {
             return
         }
+
+        // TODO: replace isEthereumBased with real relaychain/parachain parameter
+        eraInfoOperationFactory = newSelectedChainAsset.chain.isEthereumBased ? ParachainStakingInfoOperationFactory() : RelaychainStakingInfoOperationFactory()
 
         selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
 

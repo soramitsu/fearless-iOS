@@ -3,17 +3,7 @@ import FearlessUtils
 import CommonWallet
 import SoraFoundation
 
-protocol SelectValidatorsConfirmViewModelFactoryProtocol {
-    func createViewModel(
-        from state: SelectValidatorsConfirmationModel,
-        asset: AssetModel
-    ) throws
-        -> LocalizableResource<SelectValidatorsConfirmViewModel>
-
-    func createHints(from duration: StakingDuration) -> LocalizableResource<[TitleIconViewModel]>
-}
-
-final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
+final class SelectValidatorsConfirmViewModelFactory {
     private lazy var iconGenerator = PolkadotIconGenerator()
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
 
@@ -60,7 +50,7 @@ final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmView
         }
     }
 
-    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: AssetModel) throws
+    func createViewModel(from state: SelectValidatorsConfirmRelaychainModel, asset: AssetModel) throws
         -> LocalizableResource<SelectValidatorsConfirmViewModel> {
         let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
@@ -86,7 +76,8 @@ final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmView
                 amount: amount ?? "",
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
-                maxValidatorCount: state.maxTargets
+                maxValidatorCount: state.maxTargets,
+                selectedCollatorViewModel: nil
             )
         }
     }

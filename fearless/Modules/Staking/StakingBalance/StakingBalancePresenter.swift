@@ -5,76 +5,52 @@ final class StakingBalancePresenter {
     let interactor: StakingBalanceInteractorInputProtocol
     let wireframe: StakingBalanceWireframeProtocol
     let viewModelFactory: StakingBalanceViewModelFactoryProtocol
+    let viewModelState: StakingBalanceViewModelState
     weak var view: StakingBalanceViewProtocol?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: ChainModel
-    let asset: AssetModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
 
-    var controllerAccount: ChainAccountResponse?
-    var stashAccount: ChainAccountResponse?
-    var stakingLedger: StakingLedger?
-    private var stashItem: StashItem?
-    private var activeEra: EraIndex?
     private var priceData: PriceData?
-    private var eraCountdown: EraCountdown?
-    private let countdownTimer: CountdownTimerProtocol
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol,
         viewModelFactory: StakingBalanceViewModelFactoryProtocol,
+        viewModelState: StakingBalanceViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        countdownTimer: CountdownTimerProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.countdownTimer = countdownTimer
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
-        self.countdownTimer.delegate = self
-    }
-
-    deinit {
-        countdownTimer.stop()
+        self.chainAsset = chainAsset
+        self.wallet = wallet
+        self.viewModelState = viewModelState
     }
 
     private func updateView() {
-        guard let stakingLedger = stakingLedger, let activeEra = activeEra else { return }
+        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState, priceData: priceData) else {
+            return
+        }
 
-        let balanceData = StakingBalanceData(
-            stakingLedger: stakingLedger,
-            activeEra: activeEra,
-            priceData: priceData,
-            eraCountdown: eraCountdown
-        )
-
-        let viewModel = viewModelFactory.createViewModel(from: balanceData)
         view?.reload(with: viewModel)
     }
 
     private func handleBondExtraAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(
-                stash: stashAccount,
-                for: stashItem?.stash ?? "",
-                locale: locale ?? Locale.current
-            )
-        ]).runValidation { [weak self] in
-            guard let self = self else {
+        let locale = locale ?? Locale.current
+        DataValidationRunner(validators: viewModelState.stakeMoreValidators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
                 return
             }
-            self.wireframe.showBondMore(
+
+            strongSelf.wireframe.showBondMore(
                 from: view,
-                chain: self.chain,
-                asset: self.asset,
-                selectedAccount: self.selectedAccount
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                flow: .relaychain
             )
         }
     }
@@ -82,47 +58,32 @@ final class StakingBalancePresenter {
     private func handleUnbondAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
         let locale = locale ?? Locale.current
 
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(
-                controller: controllerAccount,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            ),
-
-            dataValidatingFactory.unbondingsLimitNotReached(
-                stakingLedger?.unlocking.count,
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
-            guard let self = self else {
+        DataValidationRunner(validators: viewModelState.stakeLessValidators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
                 return
             }
-            self.wireframe.showUnbond(
+
+            strongSelf.wireframe.showUnbond(
                 from: view,
-                chain: self.chain,
-                asset: self.asset,
-                selectedAccount: self.selectedAccount
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                flow: .relaychain
             )
         }
     }
 
     private func handleRedeemAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(
-                controller: controllerAccount,
-                for: stashItem?.controller ?? "",
-                locale: locale ?? Locale.current
-            )
-        ]).runValidation { [weak self] in
-            guard let self = self else {
+        let locale = locale ?? Locale.current
+        DataValidationRunner(validators: viewModelState.revokeValidators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
                 return
             }
 
-            self.wireframe.showRedeem(
+            strongSelf.wireframe.showRedeem(
                 from: view,
-                chain: self.chain,
-                asset: self.asset,
-                selectedAccount: self.selectedAccount
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                flow: .relaychain
             )
         }
     }
@@ -138,9 +99,9 @@ final class StakingBalancePresenter {
                 self.wireframe.showRebond(
                     from: view,
                     option: option,
-                    chain: self.chain,
-                    asset: self.asset,
-                    selectedAccount: self.selectedAccount
+                    chain: self.chainAsset.chain,
+                    asset: self.chainAsset.asset,
+                    selectedAccount: self.wallet
                 )
             }
             return action
@@ -161,6 +122,8 @@ final class StakingBalancePresenter {
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         interactor.setup()
     }
 
@@ -179,47 +142,26 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     }
 
     func handleUnbondingMoreAction() {
-        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(
-                controller: controllerAccount,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
-            guard let view = self?.view else {
-                return
-            }
-
-            self?.presentRebond(for: view, locale: locale)
-        }
+        // TODO: Move datavalidators to viewmodelstate
+//        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+//
+//        DataValidationRunner(validators: [
+//            dataValidatingFactory.has(
+//                controller: controllerAccount,
+//                for: stashItem?.controller ?? "",
+//                locale: locale
+//            )
+//        ]).runValidation { [weak self] in
+//            guard let view = self?.view else {
+//                return
+//            }
+//
+//            self?.presentRebond(for: view, locale: locale)
+//        }
     }
 }
 
 extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
-    func didReceive(ledgerResult: Result<StakingLedger?, Error>) {
-        switch ledgerResult {
-        case let .success(ledger):
-            stakingLedger = ledger
-            updateView()
-        case .failure:
-            stakingLedger = nil
-            updateView()
-        }
-    }
-
-    func didReceive(activeEraResult: Result<EraIndex?, Error>) {
-        switch activeEraResult {
-        case let .success(activeEra):
-            self.activeEra = activeEra
-            updateView()
-        case .failure:
-            activeEra = nil
-            updateView()
-        }
-    }
-
     func didReceive(priceResult: Result<PriceData?, Error>) {
         switch priceResult {
         case let .success(priceData):
@@ -230,58 +172,16 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
             updateView()
         }
     }
-
-    func didReceive(stashItemResult: Result<StashItem?, Error>) {
-        switch stashItemResult {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-            if stashItem == nil {
-                wireframe.cancel(from: view)
-            }
-        case .failure:
-            stashItem = nil
-        }
-    }
-
-    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>) {
-        switch controllerResult {
-        case let .success(controller):
-            controllerAccount = controller
-        case .failure:
-            controllerAccount = nil
-        }
-    }
-
-    func didReceive(stashResult: Result<ChainAccountResponse?, Error>) {
-        switch stashResult {
-        case let .success(stash):
-            stashAccount = stash
-        case .failure:
-            stashAccount = nil
-        }
-    }
-
-    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
-        switch eraCountdownResult {
-        case let .success(eraCountdown):
-            self.eraCountdown = eraCountdown
-            countdownTimer.start(with: eraCountdown.timeIntervalTillNextActiveEraStart(), runLoop: .main, mode: .common)
-        case .failure:
-            eraCountdown = nil
-        }
-    }
 }
 
-extension StakingBalancePresenter: CountdownTimerDelegate {
-    func didStart(with _: TimeInterval) {
+extension StakingBalancePresenter: StakingBalanceModelStateListener {
+    func modelStateDidChanged(viewModelState _: StakingBalanceViewModelState) {
         updateView()
     }
 
-    func didCountdown(remainedInterval _: TimeInterval) {
-        updateView()
-    }
+    func didReceiveError(error _: StakingBalanceFlowError) {}
 
-    func didStop(with _: TimeInterval) {
-        updateView()
+    func finishFlow() {
+        wireframe.cancel(from: view)
     }
 }

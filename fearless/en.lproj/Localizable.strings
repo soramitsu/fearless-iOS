@@ -688,4 +688,15 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "no.account.found" = "No account found";
 "missing.account.skip" = "I don't need an account";
 "create.new.pincode" = "Create a new pin code";
+"staking.collators" = "Collators";
+"staking.start.change.collators.suggested.title" = "Stake with collators suggested by the algorithm";
+"staking.start.change.collators.suggested.subtitle" = "FEARLESS algorithm has made a list of suggested collators based on the following criteria:";
+"staking.select.suggested" = "Select suggested";
+"staking.start.change.collators.custom.title" = "Stake with your collators";
+"select.collators.warning" = "WARNING: Holders of MOVR/GLMR tokens should perform careful due diligence on collators before delegating. Being listed as a collator is not an endorsement or recommendation from the Moonbeam Network, the Moonriver Network, or Moonbeam Foundation. Neither the Moonbeam Network, Moonriver Network, nor Moonbeam Foundation has vetted the list collators and assumes no responsibility with regard to the selection, performance, security, accuracy, or use of any third-party offerings. You alone are responsible for doing your own diligence to understand the applicable fees and all risks present, including actively monitoring the activity of your collators.";
+"staking.suggested.collators.title" = "Suggested collators";
 "wallet.send.tip.title" = "Tip";
+"staking.selected.collator" = "Selected collator";
+"parachain.staking.minimum.bond" = "Min. bond";
+"parachain.staking.self.bonded" = "Self-bonded";
+"parachain.staking.effective.amount.bonded" = "Effective amount bonded";

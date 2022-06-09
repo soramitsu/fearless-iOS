@@ -52,6 +52,13 @@ protocol SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<CrowdloanAddMemo>
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
+
+    func delegate(
+        candidate: AccountId,
+        amount: BigUInt,
+        candidateDelegationCount: UInt32,
+        delegationCount: UInt32
+    ) -> RuntimeCall<DelegateCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -188,6 +195,26 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall> {
         let args = AddRemarkCall(remark: data)
         return RuntimeCall(moduleName: "System", callName: "remark", args: args)
+    }
+
+    func delegate(
+        candidate: AccountId,
+        amount: BigUInt,
+        candidateDelegationCount: UInt32,
+        delegationCount: UInt32
+    ) -> RuntimeCall<DelegateCall> {
+        let args = DelegateCall(
+            candidate: candidate,
+            amount: amount,
+            candidateDelegationCount: candidateDelegationCount,
+            delegationCount: delegationCount
+        )
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "Delegate",
+            args: args
+        )
     }
 }
 

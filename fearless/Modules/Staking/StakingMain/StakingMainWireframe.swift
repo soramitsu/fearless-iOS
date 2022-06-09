@@ -45,12 +45,12 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
+        // TODO: add parachain case
         guard let recommendedView = SelectValidatorsStartViewFactory
             .createChangeTargetsView(
-                selectedAccount: selectedAccount,
-                asset: asset,
-                chain: chain,
-                state: existingBonding
+                wallet: selectedAccount,
+                chainAsset: ChainAsset(chain: chain, asset: asset),
+                flow: .relaychainExisting(state: existingBonding)
             )
         else {
             return
@@ -124,14 +124,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showStakingBalance(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBalanceFlow
     ) {
         guard let stakingBalance = StakingBalanceViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let controller = stakingBalance.controller
         controller.hidesBottomBarWhenPushed = true
@@ -218,31 +218,32 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     ) {
         guard let bondMoreView = StakingBondMoreViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: bondMoreView.controller
         )
+
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow
     ) {
         guard let redeemView = StakingRedeemViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }
@@ -272,22 +273,23 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showYourValidatorInfo(
-        _ stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        from view: ControllerBackedProtocol?
+        _: AccountAddress,
+        chain _: ChainModel,
+        asset _: AssetModel,
+        selectedAccount _: MetaAccountModel,
+        from _: ControllerBackedProtocol?
     ) {
-        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
-            address: stashAddress,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
-        ) else {
-            return
-        }
-        let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
-        view?.controller.present(navigationController, animated: true, completion: nil)
+        // TODO: Transition with new parameters
+//        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
+//            address: stashAddress,
+//            asset: asset,
+//            chain: chain,
+//            selectedAccount: selectedAccount
+//        ) else {
+//            return
+//        }
+//        let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
+//        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showChainAssetSelection(

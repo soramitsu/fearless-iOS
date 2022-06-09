@@ -155,7 +155,7 @@ extension StakingMainInteractor {
     }
 }
 
-extension StakingMainInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler,
+extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler,
     AnyProviderAutoCleaning {
     func handleStashItem(result: Result<StashItem?, Error>, for address: AccountAddress) {
         guard selectedAccount?.toAddress() == address else {

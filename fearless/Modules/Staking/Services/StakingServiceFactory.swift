@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 protocol StakingServiceFactoryProtocol {
-    func createEraValidatorService(for chainId: ChainModel.Id) throws -> EraValidatorServiceProtocol
+    func createEraValidatorService(for chain: ChainModel) throws -> EraValidatorServiceProtocol
     func createRewardCalculatorService(
         for chainId: ChainModel.Id,
         assetPrecision: Int16,
@@ -36,17 +36,17 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         self.logger = logger
     }
 
-    func createEraValidatorService(for chainId: ChainModel.Id) throws -> EraValidatorServiceProtocol {
-        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainId) else {
+    func createEraValidatorService(for chain: ChainModel) throws -> EraValidatorServiceProtocol {
+        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chain.chainId) else {
             throw ChainRegistryError.runtimeMetadaUnavailable
         }
 
-        guard let connection = chainRegisty.getConnection(for: chainId) else {
+        guard let connection = chainRegisty.getConnection(for: chain.chainId) else {
             throw ChainRegistryError.connectionUnavailable
         }
 
         return EraValidatorService(
-            chainId: chainId,
+            chain: chain,
             storageFacade: storageFacade,
             runtimeCodingService: runtimeService,
             connection: connection,

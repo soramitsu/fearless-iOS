@@ -13,7 +13,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let signer: SigningWrapperProtocol
 
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
@@ -38,7 +38,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol!
 
     init(
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -356,7 +356,7 @@ extension StakingPayoutConfirmationInteractor: AccountInfoSubscriptionAdapterHan
     }
 }
 
-extension StakingPayoutConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingPayoutConfirmationInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handlePayee(result: Result<RewardDestinationArg?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         switch result {
         case let .success(payee):

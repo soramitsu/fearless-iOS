@@ -8,22 +8,16 @@ protocol NetworkInfoViewDelegate: AnyObject {
 }
 
 final class NetworkInfoView: UIView {
+    private let stackTableView = StackedTableView(columns: 2)
+    private let totalStakeView = StakingUnitInfoView()
+    private let minimumStakeView = StakingUnitInfoView()
+    private let activeNominatorsView = StakingUnitInfoView()
+    private let unstakingPeriodView = StakingUnitInfoView()
+
     @IBOutlet var backgroundView: TriangularedBlurView!
     @IBOutlet var networkInfoContainer: UIView!
     @IBOutlet var titleControl: ActionTitleControl!
     @IBOutlet var collectionView: UICollectionView!
-
-    @IBOutlet var totalStakedTitleLabel: UILabel!
-    @IBOutlet var totalStakedAmountLabel: UILabel!
-    @IBOutlet var totalStakedFiatAmountLabel: UILabel!
-    @IBOutlet var minimumStakeTitleLabel: UILabel!
-    @IBOutlet var minimumStakeAmountLabel: UILabel!
-    @IBOutlet var minimumStakeFiatAmountLabel: UILabel!
-    @IBOutlet var activeNominatorsTitleLabel: UILabel!
-    @IBOutlet var activeNominatorsLabel: UILabel!
-    @IBOutlet var lockUpPeriodTitleLabel: UILabel!
-    @IBOutlet var lockUpPeriodLabel: UILabel!
-
     @IBOutlet var contentTop: NSLayoutConstraint!
     @IBOutlet var contentHeight: NSLayoutConstraint!
 
@@ -51,6 +45,19 @@ final class NetworkInfoView: UIView {
 
         titleControl.imageView.isUserInteractionEnabled = false
         titleControl.activate(animated: false)
+
+        setupLayout()
+    }
+
+    private func setupLayout() {
+        networkInfoContainer.addSubview(stackTableView)
+
+        stackTableView.snp.makeConstraints { make in
+            make.top.equalTo(collectionView.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
     }
 
     func setExpanded(_ value: Bool, animated: Bool) {
@@ -90,14 +97,35 @@ final class NetworkInfoView: UIView {
             return
         }
 
+        stackTableView.clear()
+
         let localizedViewModel = viewModel.value(for: locale)
 
-        totalStakedAmountLabel.text = localizedViewModel.totalStake?.amount
-        totalStakedFiatAmountLabel.text = localizedViewModel.totalStake?.price
-        minimumStakeAmountLabel.text = localizedViewModel.minimalStake?.amount
-        minimumStakeFiatAmountLabel.text = localizedViewModel.minimalStake?.price
-        activeNominatorsLabel.text = localizedViewModel.activeNominators
-        lockUpPeriodLabel.text = localizedViewModel.lockUpPeriod
+        if let totalStake = localizedViewModel.totalStake {
+            stackTableView.addView(view: totalStakeView)
+
+            totalStakeView.bind(value: totalStake.amount)
+            totalStakeView.bind(subtitle: totalStake.price)
+        }
+
+        if let minimumStake = localizedViewModel.minimalStake {
+            stackTableView.addView(view: minimumStakeView)
+
+            minimumStakeView.bind(value: minimumStake.amount)
+            minimumStakeView.bind(subtitle: minimumStake.price)
+        }
+
+        if let activeNominators = localizedViewModel.activeNominators {
+            stackTableView.addView(view: activeNominatorsView)
+
+            activeNominatorsView.bind(value: activeNominators)
+        }
+
+        if let unstakePeriod = localizedViewModel.lockUpPeriod {
+            stackTableView.addView(view: unstakingPeriodView)
+
+            unstakingPeriodView.bind(value: unstakePeriod)
+        }
     }
 
     private func applyTitle() {
@@ -113,14 +141,14 @@ final class NetworkInfoView: UIView {
     private func applyLocalization() {
         let languages = locale.rLanguages
 
-        totalStakedTitleLabel.text = R.string.localizable
-            .stakingMainTotalStakedTitle(preferredLanguages: languages)
-        minimumStakeTitleLabel.text = R.string.localizable
-            .stakingMainMinimumStakeTitle(preferredLanguages: languages)
-        activeNominatorsTitleLabel.text = R.string.localizable
-            .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
-        lockUpPeriodTitleLabel.text = R.string.localizable
-            .stakingMainLockupPeriodTitle_v190(preferredLanguages: languages)
+        totalStakeView.bind(title: R.string.localizable
+            .stakingMainTotalStakedTitle(preferredLanguages: languages))
+        minimumStakeView.bind(title: R.string.localizable
+            .stakingMainMinimumStakeTitle(preferredLanguages: languages))
+        activeNominatorsView.bind(title: R.string.localizable
+            .stakingMainActiveNominatorsTitle(preferredLanguages: languages))
+        unstakingPeriodView.bind(title: R.string.localizable
+            .stakingMainLockupPeriodTitle_v190(preferredLanguages: languages))
 
         collectionView.reloadData()
     }
@@ -149,11 +177,11 @@ final class NetworkInfoView: UIView {
 
     private func applyExpansionState() {
         if expanded {
-            contentTop.constant = 0.0
+//            contentTop.constant = 0.0
             networkInfoContainer.alpha = 1.0
             delegate?.didChangeExpansion(isExpanded: true, view: self)
         } else {
-            contentTop.constant = -contentHeight.constant
+//            contentTop.constant = -contentHeight.constant
             networkInfoContainer.alpha = 0.0
             delegate?.didChangeExpansion(isExpanded: false, view: self)
         }
@@ -164,12 +192,17 @@ final class NetworkInfoView: UIView {
             return
         }
 
-        totalStakedAmountLabel.alpha = 0.0
-        totalStakedFiatAmountLabel.alpha = 0.0
-        minimumStakeAmountLabel.alpha = 0.0
-        minimumStakeFiatAmountLabel.alpha = 0.0
-        activeNominatorsLabel.alpha = 0.0
-        lockUpPeriodLabel.alpha = 0.0
+        totalStakeView.alpha = 0
+        minimumStakeView.alpha = 0
+        activeNominatorsView.alpha = 0
+        unstakingPeriodView.alpha = 0
+
+        stackTableView.clear()
+
+        stackTableView.addView(view: totalStakeView)
+        stackTableView.addView(view: minimumStakeView)
+        stackTableView.addView(view: activeNominatorsView)
+        stackTableView.addView(view: unstakingPeriodView)
 
         setupSkeleton()
     }
@@ -183,12 +216,10 @@ final class NetworkInfoView: UIView {
         skeletonView?.removeFromSuperview()
         skeletonView = nil
 
-        totalStakedAmountLabel.alpha = 1.0
-        totalStakedFiatAmountLabel.alpha = 1.0
-        minimumStakeAmountLabel.alpha = 1.0
-        minimumStakeFiatAmountLabel.alpha = 1.0
-        activeNominatorsLabel.alpha = 1.0
-        lockUpPeriodLabel.alpha = 1.0
+        totalStakeView.alpha = 1
+        minimumStakeView.alpha = 1
+        activeNominatorsView.alpha = 1
+        unstakingPeriodView.alpha = 1
     }
 
     private func setupSkeleton() {
@@ -220,7 +251,7 @@ final class NetworkInfoView: UIView {
 
         return [
             SingleSkeleton.createRow(
-                under: totalStakedTitleLabel,
+                under: totalStakeView.titleLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
@@ -228,7 +259,7 @@ final class NetworkInfoView: UIView {
             ),
 
             SingleSkeleton.createRow(
-                under: totalStakedTitleLabel,
+                under: totalStakeView.valueLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
@@ -236,7 +267,7 @@ final class NetworkInfoView: UIView {
             ),
 
             SingleSkeleton.createRow(
-                under: minimumStakeTitleLabel,
+                under: minimumStakeView.titleLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
@@ -244,7 +275,7 @@ final class NetworkInfoView: UIView {
             ),
 
             SingleSkeleton.createRow(
-                under: minimumStakeTitleLabel,
+                under: minimumStakeView.valueLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
@@ -252,7 +283,7 @@ final class NetworkInfoView: UIView {
             ),
 
             SingleSkeleton.createRow(
-                under: activeNominatorsTitleLabel,
+                under: activeNominatorsView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
@@ -260,7 +291,7 @@ final class NetworkInfoView: UIView {
             ),
 
             SingleSkeleton.createRow(
-                under: lockUpPeriodTitleLabel,
+                under: unstakingPeriodView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),

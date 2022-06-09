@@ -172,7 +172,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             accountProviderFactory: accountProviderFactory,
             eventCenter: EventCenter.shared,
             operationManager: operationManager,
-            eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
             applicationHandler: ApplicationHandler(),
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             commonSettings: settings,
@@ -193,7 +192,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: chainAsset.chain.chainId
+            for: chainAsset.chain
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
@@ -202,7 +201,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             validatorService: eraValidatorService
         )
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             storageFacade: storageFacade,
             operationManager: OperationManagerFacade.sharedManager,

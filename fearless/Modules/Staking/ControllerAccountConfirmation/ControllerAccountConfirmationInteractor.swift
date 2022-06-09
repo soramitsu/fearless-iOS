@@ -7,7 +7,7 @@ final class ControllerAccountConfirmationInteractor {
     weak var presenter: ControllerAccountConfirmationInteractorOutputProtocol!
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
@@ -31,7 +31,7 @@ final class ControllerAccountConfirmationInteractor {
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -230,7 +230,7 @@ extension ControllerAccountConfirmationInteractor: AccountInfoSubscriptionAdapte
     }
 }
 
-extension ControllerAccountConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension ControllerAccountConfirmationInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             clear(dataProvider: &accountInfoProvider)

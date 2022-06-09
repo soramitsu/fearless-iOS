@@ -93,7 +93,7 @@ struct YourValidatorListViewFactory {
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: chain.chainId
+            for: chain
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
@@ -107,7 +107,7 @@ struct YourValidatorListViewFactory {
             rewardCalculatorService.setup()
         }
 
-        let validatorOperationFactory = ValidatorOperationFactory(
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
             asset: asset,
             chain: chain,
             eraValidatorService: eraValidatorService,
@@ -118,7 +118,7 @@ struct YourValidatorListViewFactory {
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager,

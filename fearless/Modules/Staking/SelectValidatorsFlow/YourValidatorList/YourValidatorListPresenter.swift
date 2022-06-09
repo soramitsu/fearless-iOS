@@ -95,17 +95,17 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
         interactor.refresh()
     }
 
-    func didSelectValidator(viewModel: YourValidatorViewModel) {
-        if let validatorInfo = validatorsModel?.allValidators
-            .first(where: { $0.address == viewModel.address }) {
-            wireframe.present(
-                validatorInfo,
-                asset: asset,
-                chain: chain,
-                from: view,
-                wallet: selectedAccount
-            )
-        }
+    func didSelectValidator(viewModel _: YourValidatorViewModel) {
+        // TODO: Transition with new parameters
+//        if let validatorInfo = validatorsModel?.allValidators
+//            .first(where: { $0.address == viewModel.address }) {
+//            wireframe.present(
+//                validatorInfo,
+//                asset: asset,
+//                chain: chain,
+//                from: view
+//            )
+//        }
     }
 
     func changeValidators() {

@@ -7,7 +7,7 @@ import SoraFoundation
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
-    var stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol {
+    var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol {
         sharedState.stakingLocalSubscriptionFactory
     }
 
@@ -28,7 +28,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let accountProviderFactory: AccountProviderFactoryProtocol
     let eventCenter: EventCenterProtocol
     let operationManager: OperationManagerProtocol
-    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
+    var eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol?
     let applicationHandler: ApplicationHandlerProtocol
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
@@ -66,7 +66,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         accountProviderFactory: AccountProviderFactoryProtocol,
         eventCenter: EventCenterProtocol,
         operationManager: OperationManagerProtocol,
-        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         commonSettings: SettingsManagerProtocol,
@@ -83,7 +82,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.accountProviderFactory = accountProviderFactory
         self.eventCenter = eventCenter
         self.operationManager = operationManager
-        self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.commonSettings = commonSettings
@@ -118,7 +116,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
-                for: chainAsset.chain.chainId
+                for: chainAsset.chain
             )
 
             let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
@@ -250,7 +248,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideNetworkStakingInfo() {
-        guard let chainId = selectedChainAsset?.chain.chainId else {
+        guard let chainId = selectedChainAsset?.chain.chainId, let eraInfoOperationFactory = eraInfoOperationFactory else {
             return
         }
 

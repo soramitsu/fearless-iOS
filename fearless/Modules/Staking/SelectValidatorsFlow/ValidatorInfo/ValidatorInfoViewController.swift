@@ -88,7 +88,7 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
         if case let .elected(exposure) = viewModel.staking.status {
             rootView.addNominatorsView(exposure, locale: selectedLocale)
 
-            let totalStakeView = rootView.addTotalStakeView(exposure, locale: selectedLocale)
+            let totalStakeView = rootView.addTotalStakeView(exposure.totalStake, locale: selectedLocale)
             totalStakeView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
 
             rootView.addTitleValueView(
@@ -96,6 +96,41 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
                     preferredLanguages: selectedLocale.rLanguages
                 ),
                 value: exposure.estimatedReward
+            )
+        }
+
+        if case let .electedParachain(exposure) = viewModel.staking.status {
+            rootView.addDelegationsView(exposure, locale: selectedLocale)
+
+            let totalStakeView = rootView.addTotalStakeView(exposure.totalStake, locale: selectedLocale)
+            totalStakeView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
+
+            rootView.addTitleValueView(
+                for: R.string.localizable.stakingValidatorEstimatedReward(
+                    preferredLanguages: selectedLocale.rLanguages
+                ),
+                value: exposure.estimatedReward
+            )
+
+            rootView.addTitleValueView(
+                for: R.string.localizable.parachainStakingMinimumBond(
+                    preferredLanguages: selectedLocale.rLanguages
+                ),
+                value: exposure.minimumBond
+            )
+
+            rootView.addTitleValueView(
+                for: R.string.localizable.parachainStakingSelfBonded(
+                    preferredLanguages: selectedLocale.rLanguages
+                ),
+                value: exposure.selfBonded
+            )
+
+            rootView.addTitleValueView(
+                for: R.string.localizable.parachainStakingEffectiveAmountBonded(
+                    preferredLanguages: selectedLocale.rLanguages
+                ),
+                value: exposure.effectiveAmountBonded
             )
         }
 

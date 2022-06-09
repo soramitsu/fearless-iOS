@@ -95,7 +95,7 @@ struct StakingRewardDestSetupViewFactory {
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -145,7 +145,7 @@ struct StakingRewardDestSetupViewFactory {
         }
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: settings.chain.chainId
+            for: settings.chain
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

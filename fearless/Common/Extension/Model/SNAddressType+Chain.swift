@@ -8,6 +8,7 @@ extension SNAddressType {
         case .kusama: self = .kusamaMain
         case .westend: self = .genericSubstrate
         case .rococo: self = .kusamaSecondary
+        default: self = .polkadotMain
         }
     }
 

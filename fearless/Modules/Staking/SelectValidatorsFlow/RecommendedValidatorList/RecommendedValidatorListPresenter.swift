@@ -1,73 +1,76 @@
 import Foundation
 
-final class RecommendedValidatorListPresenter {
+final class RecommendedValidatorListPresenter: RecommendedValidatorListModelStateListener {
+    func modelStateDidChanged(viewModelState _: RecommendedValidatorListViewModelState) {
+        provideViewModel()
+    }
+
     weak var view: RecommendedValidatorListViewProtocol?
     var wireframe: RecommendedValidatorListWireframeProtocol!
 
     let viewModelFactory: RecommendedValidatorListViewModelFactoryProtocol
-    let validators: [SelectedValidatorInfo]
-    let maxTargets: Int
+    let viewModelState: RecommendedValidatorListViewModelState
     let logger: LoggerProtocol?
-    let chain: ChainModel
-    let asset: AssetModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
 
     init(
         viewModelFactory: RecommendedValidatorListViewModelFactoryProtocol,
-        validators: [SelectedValidatorInfo],
-        maxTargets: Int,
+        viewModelState: RecommendedValidatorListViewModelState,
         logger: LoggerProtocol? = nil,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.viewModelFactory = viewModelFactory
-        self.validators = validators
-        self.maxTargets = maxTargets
+        self.viewModelState = viewModelState
         self.logger = logger
-        self.asset = asset
-        self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
     }
 
     private func provideViewModel() {
-        do {
-            let viewModel = try viewModelFactory.createViewModel(
-                from: validators,
-                maxTargets: maxTargets
-            )
-
+        if let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState) {
             view?.didReceive(viewModel: viewModel)
-        } catch {
-            logger?.debug("Did receive error: \(error)")
         }
     }
 }
 
 extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideViewModel()
     }
 
-    func selectedValidatorAt(index: Int) {
-        let selectedValidator = validators[index]
+    func showValidatorInfoAt(index: Int) {
+        guard let flow = viewModelState.validatorInfoFlow(validatorIndex: index) else {
+            return
+        }
+
         wireframe.present(
-            asset: asset,
-            chain: chain,
-            validatorInfo: selectedValidator,
-            from: view,
-            wallet: selectedAccount
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
         )
     }
 
+    func selectedValidatorAt(index: Int) {
+        if viewModelState.shouldSelectValidatorAt(index: index) {
+            return
+        }
+    }
+
     func proceed() {
+        guard let flow = viewModelState.selectValidatorsConfirmFlow() else {
+            return
+        }
+
         wireframe.proceed(
             from: view,
-            targets: validators,
-            maxTargets: maxTargets,
-            selectedAccount: selectedAccount,
-            asset: asset,
-            chain: chain
+            flow: flow,
+            wallet: wallet,
+            chainAsset: chainAsset
         )
     }
 }

@@ -141,4 +141,28 @@ extension StorageCodingPath {
     static var balanceLocks: StorageCodingPath {
         StorageCodingPath(moduleName: "Balances", itemName: "Locks")
     }
+
+    static var candidatePool: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CandidatePool")
+    }
+
+    static var selectedCandidates: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "SelectedCandidates")
+    }
+
+    static var candidateInfo: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CandidateInfo")
+    }
+
+    static var topDelegations: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "TopDelegations")
+    }
+
+    static var atStake: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "AtStake")
+    }
+
+    static var delegatorStake: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "DelegatorState")
+    }
 }

@@ -2,20 +2,44 @@ import SoraFoundation
 import SoraKeystore
 
 struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {
+    private static func createContainer(flow: ValidatorListFilterFlow) -> ValidatorListFilterDependencyContainer? {
+        switch flow {
+        case let .relaychain(filter):
+            let viewModelState = ValidatorListFilterRelaychainViewModelState(filter: filter)
+            let viewModelFactory = ValidatorListFilterRelaychainViewModelFactory()
+            let container = ValidatorListFilterDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
+
+            return container
+        case let .parachain(filter):
+            let viewModelState = ValidatorListFilterParachainViewModelState(filter: filter)
+            let viewModelFactory = ValidatorListFilterParachainViewModelFactory()
+            let container = ValidatorListFilterDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
+            return container
+        }
+    }
+
     static func createView(
         asset: AssetModel,
-        with filter: CustomValidatorListFilter,
+        flow: ValidatorListFilterFlow,
         delegate: ValidatorListFilterDelegate?
     ) -> ValidatorListFilterViewProtocol? {
-        let wireframe = ValidatorListFilterWireframe()
+        guard let container = createContainer(flow: flow) else {
+            return nil
+        }
 
-        let viewModelFactory = ValidatorListFilterViewModelFactory()
+        let wireframe = ValidatorListFilterWireframe()
 
         let presenter = ValidatorListFilterPresenter(
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory,
+            viewModelFactory: container.viewModelFactory,
+            viewModelState: container.viewModelState,
             asset: asset,
-            filter: filter,
             localizationManager: LocalizationManager.shared
         )
 

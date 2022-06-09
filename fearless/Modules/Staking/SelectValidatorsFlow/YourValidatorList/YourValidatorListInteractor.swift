@@ -14,7 +14,7 @@ final class YourValidatorListInteractor: AccountFetching {
     let eraValidatorService: EraValidatorServiceProtocol
     let validatorOperationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -35,7 +35,7 @@ final class YourValidatorListInteractor: AccountFetching {
         eraValidatorService: EraValidatorServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.chain = chain
@@ -131,7 +131,7 @@ final class YourValidatorListInteractor: AccountFetching {
     }
 }
 
-extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
+extension YourValidatorListInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
     func handleLedgerInfo(
         result: Result<StakingLedger?, Error>,
         accountId _: AccountId,
