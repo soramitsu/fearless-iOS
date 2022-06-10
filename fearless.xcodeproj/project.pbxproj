@@ -19,6 +19,8 @@
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		07859815284DDFBB002ECC5E /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07859814284DDFBB002ECC5E /* Collection.swift */; };
 		07859817284DE795002ECC5E /* ExistentialDepositCurrencyId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07859816284DE795002ECC5E /* ExistentialDepositCurrencyId.swift */; };
+		0785981B2851E8BD002ECC5E /* chains.json in Resources */ = {isa = PBXBuildFile; fileRef = 0785981A2851E8BD002ECC5E /* chains.json */; };
+		0785981D2851E8F2002ECC5E /* assets.json in Resources */ = {isa = PBXBuildFile; fileRef = 0785981C2851E8F2002ECC5E /* assets.json */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
@@ -2031,6 +2033,8 @@
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		07859814284DDFBB002ECC5E /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		07859816284DE795002ECC5E /* ExistentialDepositCurrencyId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistentialDepositCurrencyId.swift; sourceTree = "<group>"; };
+		0785981A2851E8BD002ECC5E /* chains.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chains.json; sourceTree = "<group>"; };
+		0785981C2851E8F2002ECC5E /* assets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = assets.json; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
@@ -5542,6 +5546,8 @@
 				84452F7225D5E2B300F47EC5 /* runtime-default.json */,
 				84452F7325D5E2B300F47EC5 /* runtime-kusama.json */,
 				8438C45A2655AC2600047E3F /* runtime-rococo.json */,
+				0785981A2851E8BD002ECC5E /* chains.json */,
+				0785981C2851E8F2002ECC5E /* assets.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -10231,6 +10237,7 @@
 				8419377D25441D2F00CFA50C /* ReceiveHeaderView.xib in Resources */,
 				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
 				8467FD4724ED6496005D486C /* ProfileDetailsTableViewCell.xib in Resources */,
+				0785981D2851E8F2002ECC5E /* assets.json in Resources */,
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */,
 				84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */,
@@ -10253,6 +10260,7 @@
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
 				AEF5058B261EF27B0098574D /* PurchaseProviderPickerTableViewCell.xib in Resources */,
+				0785981B2851E8BD002ECC5E /* chains.json in Resources */,
 				849013B524A80986008F705E /* Assets.xcassets in Resources */,
 				84D8F15724D80D5500AF43E9 /* ModalPickerViewController.xib in Resources */,
 				84452F7525D5E2B300F47EC5 /* runtime-polkadot.json in Resources */,

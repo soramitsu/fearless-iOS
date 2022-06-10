@@ -319,13 +319,13 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
-        let customNodes: [ChainNodeModel] = entity.customNodes?.compactMap { anyNode in
+        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
             guard let node = anyNode as? CDChainNode else {
                 return nil
             }
 
             return createChainNode(from: node)
-        } ?? []
+        }
 
         var selectedNode: ChainNodeModel?
 
@@ -365,6 +365,11 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let externalApiSet = createExternalApi(from: entity)
 
+        var customNodesSet: Set<ChainNodeModel>?
+        if let nodes = customNodes {
+            customNodesSet = Set(nodes)
+        }
+
         let chainModel = ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
@@ -376,7 +381,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: Set(customNodes),
+            customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion
         )
 
@@ -390,7 +395,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         let chainAssets = Set(chainAssetsArray)
 
         chainModel.assets = chainAssets
-
+        print("EL: return chainModel ", chainModel)
         return chainModel
     }
 

@@ -44,7 +44,8 @@ extension ChainAssetModel: Hashable {
         lhs.assetId == rhs.assetId &&
             lhs.asset == rhs.asset &&
             lhs.staking == rhs.staking &&
-            lhs.purchaseProviders == rhs.purchaseProviders
+            lhs.purchaseProviders == rhs.purchaseProviders &&
+            lhs.type == rhs.type
     }
 
     func hash(into hasher: inout Hasher) {

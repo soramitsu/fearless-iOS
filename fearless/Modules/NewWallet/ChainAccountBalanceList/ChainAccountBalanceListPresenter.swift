@@ -133,8 +133,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfos[key] = accountInfo
-        case .failure:
-            break
+        case let .failure(error):
+            print("failure(let error)", error)
         }
         provideViewModel()
     }
