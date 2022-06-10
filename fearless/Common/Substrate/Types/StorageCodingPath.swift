@@ -165,4 +165,8 @@ extension StorageCodingPath {
     static var delegatorStake: StorageCodingPath {
         StorageCodingPath(moduleName: "ParachainStaking", itemName: "DelegatorState")
     }
+
+    static var round: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "Round")
+    }
 }

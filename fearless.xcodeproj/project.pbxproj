@@ -1744,6 +1744,10 @@
 		FA15BC112823AFE10037C023 /* ParachainStakingLocalSubscriptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC102823AFE10037C023 /* ParachainStakingLocalSubscriptionHandler.swift */; };
 		FA15BC132823B35C0037C023 /* ParachainStakingLocalStorageSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC122823B35C0037C023 /* ParachainStakingLocalStorageSubscriber.swift */; };
 		FA15BC152823CB7B0037C023 /* ParachainCollatorOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC142823CB7B0037C023 /* ParachainCollatorOperationFactory.swift */; };
+		FA176BB52851A96500258125 /* ParachainStakingRoundInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BB42851A96500258125 /* ParachainStakingRoundInfo.swift */; };
+		FA176BB82851B42700258125 /* StakingBalanceParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BB72851B42700258125 /* StakingBalanceParachainViewModelFactory.swift */; };
+		FA176BBA2851B59000258125 /* StakingBalanceParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BB92851B59000258125 /* StakingBalanceParachainStrategy.swift */; };
+		FA176BBC2851B59800258125 /* StakingBalanceParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BBB2851B59800258125 /* StakingBalanceParachainViewModelState.swift */; };
 		FA17B4AE27E84911006E0735 /* WarningAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA17B4AD27E84911006E0735 /* WarningAlertConfig.swift */; };
 		FA17B4B127E856B7006E0735 /* UnsupportedChainAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA17B4B027E856B7006E0735 /* UnsupportedChainAlertConfig.swift */; };
 		FA17B4B327E857B9006E0735 /* UnsupportedAppVersionAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA17B4B227E857B9006E0735 /* UnsupportedAppVersionAlertConfig.swift */; };
@@ -3877,6 +3881,10 @@
 		FA15BC102823AFE10037C023 /* ParachainStakingLocalSubscriptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionHandler.swift; sourceTree = "<group>"; };
 		FA15BC122823B35C0037C023 /* ParachainStakingLocalStorageSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalStorageSubscriber.swift; sourceTree = "<group>"; };
 		FA15BC142823CB7B0037C023 /* ParachainCollatorOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainCollatorOperationFactory.swift; sourceTree = "<group>"; };
+		FA176BB42851A96500258125 /* ParachainStakingRoundInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingRoundInfo.swift; sourceTree = "<group>"; };
+		FA176BB72851B42700258125 /* StakingBalanceParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceParachainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA176BB92851B59000258125 /* StakingBalanceParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceParachainStrategy.swift; sourceTree = "<group>"; };
+		FA176BBB2851B59800258125 /* StakingBalanceParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA17B4AD27E84911006E0735 /* WarningAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningAlertConfig.swift; sourceTree = "<group>"; };
 		FA17B4B027E856B7006E0735 /* UnsupportedChainAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedChainAlertConfig.swift; sourceTree = "<group>"; };
 		FA17B4B227E857B9006E0735 /* UnsupportedAppVersionAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedAppVersionAlertConfig.swift; sourceTree = "<group>"; };
@@ -6612,6 +6620,7 @@
 				FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */,
 				FAA086D3284759D000CC2F33 /* ParachainStakingCollatorSnapshot.swift */,
 				FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */,
+				FA176BB42851A96500258125 /* ParachainStakingRoundInfo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -9651,6 +9660,16 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		FA176BB62851B41900258125 /* Parachain */ = {
+			isa = PBXGroup;
+			children = (
+				FA176BB72851B42700258125 /* StakingBalanceParachainViewModelFactory.swift */,
+				FA176BB92851B59000258125 /* StakingBalanceParachainStrategy.swift */,
+				FA176BBB2851B59800258125 /* StakingBalanceParachainViewModelState.swift */,
+			);
+			path = Parachain;
+			sourceTree = "<group>";
+		};
 		FA17B4AF27E856A5006E0735 /* Configs */ = {
 			isa = PBXGroup;
 			children = (
@@ -10519,6 +10538,7 @@
 		FAD646BF284DD2B2007CCB92 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
+				FA176BB62851B41900258125 /* Parachain */,
 				FAD646C0284DD2C3007CCB92 /* Relaychain */,
 				C67ACC943DA07FC529AE69B4 /* StakingBalanceFlow.swift */,
 			);
@@ -11163,6 +11183,7 @@
 				FA93A2D728323CB90021330F /* CustomValidatorListParachainViewModelState.swift in Sources */,
 				841AAC2326F6879900F0A25E /* AssetBalanceDisplayInfo.swift in Sources */,
 				849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */,
+				FA176BBA2851B59000258125 /* StakingBalanceParachainStrategy.swift in Sources */,
 				8428765524ADDE0200D91AD8 /* ProfileUserViewModel.swift in Sources */,
 				AE9EF2C5260C85370026910A /* StoriesProgressAnimator.swift in Sources */,
 				842876B624AE05C700D91AD8 /* EmailPresentable.swift in Sources */,
@@ -11215,6 +11236,7 @@
 				841494402604E71C000D8D1A /* TotalRewardItem.swift in Sources */,
 				C6264C292799A56E00FCA0DB /* WalletDetailsTableCell.swift in Sources */,
 				84DA3B1224C6D29100B5E27F /* RuntimeVersion.swift in Sources */,
+				FA176BB82851B42700258125 /* StakingBalanceParachainViewModelFactory.swift in Sources */,
 				843C49DB24DF373000B71DDA /* AccountImportRequest.swift in Sources */,
 				843910C1253F36F300E3C217 /* BaseStorageChildSubscription.swift in Sources */,
 				84644AC52567EC05004EAA4B /* MultilineTriangularedView.swift in Sources */,
@@ -11347,6 +11369,7 @@
 				F43F934B26D76E8E00A6B529 /* AnalyticsRewardsBaseView.swift in Sources */,
 				84D8F17124D856D300AF43E9 /* SNAddressType+ViewModel.swift in Sources */,
 				84A617262625AF51007B75E1 /* RuntimeMetadata+Internal.swift in Sources */,
+				FA176BBC2851B59800258125 /* StakingBalanceParachainViewModelState.swift in Sources */,
 				842876B324AE059700D91AD8 /* AboutData.swift in Sources */,
 				84EBC55B24F660F500459D15 /* SelectedAccountChanged.swift in Sources */,
 				84452F9325D5EE7300F47EC5 /* DataOperationFactory.swift in Sources */,
@@ -12058,6 +12081,7 @@
 				FA4B92B62844D0E60003BCEF /* SelectCurrencyViewLayout.swift in Sources */,
 				FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */,
 				847119CD262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift in Sources */,
+				FA176BB52851A96500258125 /* ParachainStakingRoundInfo.swift in Sources */,
 				FA90865B27915D8C00F785A7 /* WalletTransactionDetailsViewModelFactory.swift in Sources */,
 				FA256A32274CE7D600875A53 /* MoonbeamHealthRequest.swift in Sources */,
 				F40966E426B29919008CD244 /* Stacks.swift in Sources */,
