@@ -29,6 +29,7 @@ protocol SearchPeopleWireframeProtocol: AnyObject {
         to address: String,
         asset: AssetModel,
         chain: ChainModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     )
 

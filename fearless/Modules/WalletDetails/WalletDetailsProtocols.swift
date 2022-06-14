@@ -12,6 +12,7 @@ protocol WalletDetailsViewOutputProtocol {
 protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
     func didReceive(state: WalletDetailsViewState)
     func setInput(viewModel: InputViewModelProtocol)
+    func didReceive(locale: Locale)
 }
 
 protocol WalletDetailsInteractorInputProtocol: AnyObject {

@@ -25,7 +25,7 @@ final class WalletSendConfirmViewLayout: UIView {
         return view
     }()
 
-    let feeView = UIFactory.default.createNetworkFeeConfirmView()
+    let tipAndFeeView = UIFactory.default.createNetworkFeeConfirmView()
 
     var locale = Locale.current {
         didSet {
@@ -49,12 +49,12 @@ final class WalletSendConfirmViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        feeView.locale = locale
+        tipAndFeeView.locale = locale
 
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
-        feeView.actionButton.imageWithTitleView?.title = R.string.localizable
+        tipAndFeeView.actionButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
     }
 
@@ -73,33 +73,28 @@ final class WalletSendConfirmViewLayout: UIView {
             make.top.equalTo(navigationBar.snp.bottom)
         }
 
-        contentView.stackView.addArrangedSubview(senderView)
-        senderView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(52)
+        let viewOffset = -2.0 * UIConstants.horizontalInset
+
+        contentView.stackView.addArrangedSubview(senderView) {
+            $0.width.equalTo(self).offset(viewOffset)
+            $0.height.equalTo(UIConstants.triangularedViewHeight)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: senderView)
 
-        contentView.stackView.addArrangedSubview(receiverView)
-        receiverView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(52.0)
+        contentView.stackView.addArrangedSubview(receiverView) {
+            $0.width.equalTo(self).offset(viewOffset)
+            $0.height.equalTo(UIConstants.triangularedViewHeight)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: receiverView)
 
-        contentView.stackView.addArrangedSubview(amountView)
-        amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+        contentView.stackView.addArrangedSubview(amountView) {
+            $0.width.equalTo(self).offset(viewOffset)
+            $0.height.equalTo(UIConstants.amountViewHeight)
         }
 
-        addSubview(feeView)
-
-        feeView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
-        }
+        addSubview(tipAndFeeView) { $0.leading.bottom.trailing.equalToSuperview() }
     }
 
     func bind(senderAccountViewModel: AccountViewModel) {
@@ -147,7 +142,12 @@ final class WalletSendConfirmViewLayout: UIView {
         assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
     }
 
+    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
+        tipAndFeeView.tipView.bind(viewModel: tipViewModel)
+        tipAndFeeView.tipView.isHidden = !isRequired
+    }
+
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        feeView.networkFeeView.bind(viewModel: feeViewModel)
+        tipAndFeeView.networkFeeView.bind(viewModel: feeViewModel)
     }
 }

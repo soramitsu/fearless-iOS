@@ -242,7 +242,8 @@ private extension MetaAccountOperationFactory {
             assetKeysOrder: nil,
             assetIdsEnabled: nil,
             canExportEthereumMnemonic: true,
-            unusedChainIds: nil
+            unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency()
         )
     }
 }
@@ -409,7 +410,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 assetKeysOrder: nil,
                 assetIdsEnabled: nil,
                 canExportEthereumMnemonic: true,
-                unusedChainIds: nil
+                unusedChainIds: nil,
+                selectedCurrency: Currency.defaultCurrency()
             )
         }
     }
@@ -442,7 +444,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             )
 
             try saveSeed(query.seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
-            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+            try saveEntropy(request.mnemonic.entropy(), metaId: metaId, accountId: accountId)
 
             let chainAccount = ChainAccountModel(
                 chainId: request.chainId,

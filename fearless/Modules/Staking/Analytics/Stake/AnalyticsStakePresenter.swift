@@ -8,6 +8,7 @@ final class AnalyticsStakePresenter {
     let interactor: AnalyticsStakeInteractorInputProtocol
     private let viewModelFactory: AnalyticsStakeViewModelFactoryProtocol
     private let logger: LoggerProtocol?
+    private let wallet: MetaAccountModel
 
     private var rewardsData: [SubqueryStakeChangeData]?
     private var selectedPeriod = AnalyticsPeriod.default
@@ -20,12 +21,14 @@ final class AnalyticsStakePresenter {
         wireframe: AnalyticsStakeWireframeProtocol,
         viewModelFactory: AnalyticsStakeViewModelFactoryProtocol,
         localizationManager: LocalizationManagerProtocol?,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -58,7 +61,7 @@ extension AnalyticsStakePresenter: AnalyticsStakePresenterProtocol {
     }
 
     func handleReward(_ rewardModel: AnalyticsRewardDetailsModel) {
-        wireframe.showRewardDetails(rewardModel, from: view)
+        wireframe.showRewardDetails(rewardModel, from: view, wallet: wallet)
     }
 
     func didUnselectXValue() {

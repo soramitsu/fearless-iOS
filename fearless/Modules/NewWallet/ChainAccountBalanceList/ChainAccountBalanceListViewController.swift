@@ -4,8 +4,7 @@ import SoraFoundation
 final class ChainAccountBalanceListViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChainAccountBalanceListViewLayout
 
-    let presenter: ChainAccountBalanceListPresenterProtocol
-
+    private let presenter: ChainAccountBalanceListPresenterProtocol
     private var state: ChainAccountBalanceListViewState = .loading
 
     init(presenter: ChainAccountBalanceListPresenterProtocol) {
@@ -53,6 +52,10 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
             action: #selector(manageAssetsButtonClicked),
             for: .touchUpInside
         )
+
+        let recognizer = UITapGestureRecognizer()
+        recognizer.addTarget(self, action: #selector(totalBalanceTapped))
+        rootView.totalBalanceLabel.addGestureRecognizer(recognizer)
     }
 
     @objc private func pullToRefreshOnAssetsTableHandler() {
@@ -61,6 +64,10 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
 
     @objc private func manageAssetsButtonClicked() {
         presenter.didTapManageAssetsButton()
+    }
+
+    @objc private func totalBalanceTapped() {
+        presenter.didTapTotalBalanceLabel()
     }
 
     private func applyState(_ state: ChainAccountBalanceListViewState) {

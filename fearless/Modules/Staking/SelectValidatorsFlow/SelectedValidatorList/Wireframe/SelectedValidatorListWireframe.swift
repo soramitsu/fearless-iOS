@@ -3,14 +3,16 @@ class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
         _ validatorInfo: ValidatorInfoProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     ) {
         guard
             let validatorInfoView = ValidatorInfoViewFactory
             .createView(
                 asset: asset,
                 chain: chain,
-                validatorInfo: validatorInfo
+                validatorInfo: validatorInfo,
+                wallet: wallet
             ) else {
             return
         }

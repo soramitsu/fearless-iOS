@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import SoraFoundation
+import FearlessUtils
 
 final class MainTabBarPresenter {
     weak var view: MainTabBarViewProtocol?
@@ -9,6 +10,9 @@ final class MainTabBarPresenter {
     private let appVersionObserver: AppVersionObserver
     private let applicationHandler: ApplicationHandler
 
+    private let reachability: ReachabilityManager?
+    private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
+
     private var crowdloanListView: UINavigationController?
 
     init(
@@ -16,12 +20,16 @@ final class MainTabBarPresenter {
         interactor: MainTabBarInteractorInputProtocol,
         appVersionObserver: AppVersionObserver,
         applicationHandler: ApplicationHandler,
+        networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol,
+        reachability: ReachabilityManager?,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
         self.appVersionObserver = appVersionObserver
         self.applicationHandler = applicationHandler
+        self.networkStatusPresenter = networkStatusPresenter
+        self.reachability = reachability
         self.localizationManager = localizationManager
 
         applicationHandler.delegate = self
@@ -33,6 +41,7 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
         interactor.setup()
 
         appVersionObserver.checkVersion(from: view, callback: nil)
+        try? reachability?.add(listener: self)
     }
 }
 
@@ -65,5 +74,16 @@ extension MainTabBarPresenter: Localizable {
 extension MainTabBarPresenter: ApplicationHandlerDelegate {
     func didReceiveWillEnterForeground(notification _: Notification) {
         appVersionObserver.checkVersion(from: view, callback: nil)
+    }
+}
+
+extension MainTabBarPresenter: ReachabilityListenerDelegate {
+    func didChangeReachability(by _: ReachabilityManagerProtocol) {
+        guard let isReachable = reachability?.isReachable else {
+            return
+        }
+        isReachable
+            ? networkStatusPresenter.didDecideReachableStatusPresentation()
+            : networkStatusPresenter.didDecideUnreachableStatusPresentation()
     }
 }

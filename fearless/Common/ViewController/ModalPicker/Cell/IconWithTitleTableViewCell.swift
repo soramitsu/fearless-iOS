@@ -27,6 +27,15 @@ class IconWithTitleTableViewCell: UITableViewCell, ModalPickerCellProtocol {
 
     func bind(model: Model) {
         titleLabel.text = model.title
-        iconImageView.image = model.icon
+
+        if let remoteImageViewModel = model.remoteImageViewModel {
+            remoteImageViewModel.loadImage(
+                on: iconImageView,
+                targetSize: iconImageView.frame.size,
+                animated: true
+            )
+        } else {
+            iconImageView.image = model.icon
+        }
     }
 }

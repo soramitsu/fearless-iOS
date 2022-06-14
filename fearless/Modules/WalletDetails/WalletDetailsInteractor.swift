@@ -54,7 +54,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
                             self?.flow = .normal(wallet: account)
                         }
 
-                        self?.eventCenter.notify(with: AssetsListChangedEvent(account: account))
+                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                     }
 
                 case .failure:
@@ -79,7 +79,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
             self.flow.wallet.replacingName(walletName)
         }
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try updateOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             return accountItem
@@ -108,11 +108,10 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
             return
         }
 
-        fetchChainAccount(
+        fetchChainAccountFor(
+            meta: flow.wallet,
             chain: chainAccount.chain,
-            address: address,
-            from: repository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):

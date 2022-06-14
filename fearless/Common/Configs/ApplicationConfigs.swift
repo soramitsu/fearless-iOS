@@ -181,6 +181,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
             GitHubUrl.url(suffix: "ios_app_support.json")
         #endif
     }
+
+    var fiatsURL: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
+    }
 }
 
 private enum GitHubUrl {
@@ -188,7 +192,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "ios/v2"
+    private static let defaultBranch = "ios/v2.0.10"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

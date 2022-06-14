@@ -335,6 +335,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options.append(.orml)
         }
 
+        if entity.isTipRequired {
+            options.append(.tipRequired)
+        }
+
         let externalApiSet = createExternalApi(from: entity)
 
         let chainModel = ChainModel(
@@ -383,6 +387,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
         entity.isOrml = model.isOrml
+        entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
 
         updateEntityChainAssets(for: entity, from: model, context: context)

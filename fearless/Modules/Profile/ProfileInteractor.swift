@@ -15,6 +15,11 @@ final class ProfileInteractor {
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
+    private let selectedMetaAccount: MetaAccountModel
+
+    private lazy var currentCurrency: Currency? = {
+        selectedMetaAccount.selectedCurrency
+    }()
 
     // MARK: - Constructors
 
@@ -22,12 +27,14 @@ final class ProfileInteractor {
         selectedWalletSettings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        selectedMetaAccount: MetaAccountModel
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
         self.repository = repository
         self.operationQueue = operationQueue
+        self.selectedMetaAccount = selectedMetaAccount
     }
 
     // MARK: - Private methods
@@ -53,6 +60,11 @@ final class ProfileInteractor {
             presenter?.didReceiveUserDataProvider(error: error)
         }
     }
+
+    private func provideSelectedCurrency() {
+        guard let currentCurrency = currentCurrency else { return }
+        presenter?.didRecieve(selectedCurrency: currentCurrency)
+    }
 }
 
 // MARK: - ProfileInteractorInputProtocol
@@ -62,6 +74,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         presenter = output
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
+        provideSelectedCurrency()
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
@@ -75,6 +88,11 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         let operation = repository.deleteAllOperation()
         operation.completionBlock = completion
         operationQueue.addOperation(operation)
+    }
+
+    func update(currency: Currency) {
+        currentCurrency = currency
+        provideSelectedCurrency()
     }
 }
 

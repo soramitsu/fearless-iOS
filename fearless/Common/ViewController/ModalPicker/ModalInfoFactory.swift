@@ -61,8 +61,8 @@ struct ModalInfoFactory {
     static func createFromBalanceContext(
         _ balanceContext: BalanceContext,
         amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
-        priceFormatter: LocalizableResource<TokenFormatter>,
-        precision: Int16
+        precision: Int16,
+        currency: Currency
     ) -> UIViewController {
         let viewController: ModalPickerViewController<BottomSheetInfoBalanceCell, StakingAmountViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
@@ -79,6 +79,9 @@ struct ModalInfoFactory {
         }
 
         viewController.modalPresentationStyle = .custom
+
+        let assetBalanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let priceFormatter = AssetBalanceFormatterFactory().createTokenFormatter(for: assetBalanceDisplayInfo)
 
         let viewModels = createViewModelsForContext(
             balanceContext,

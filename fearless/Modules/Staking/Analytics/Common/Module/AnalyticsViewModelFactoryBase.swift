@@ -20,17 +20,6 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let calendar: Calendar
 
-    @available(*, deprecated, message: "Use init(assetInfo:balanceViewModelFactory:calendar:) instead")
-    init(
-        chain _: Chain,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        calendar: Calendar
-    ) {
-        assetInfo = AssetBalanceDisplayInfo.usd()
-        self.balanceViewModelFactory = balanceViewModelFactory
-        self.calendar = calendar
-    }
-
     init(
         assetInfo: AssetBalanceDisplayInfo,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,

@@ -34,6 +34,7 @@ protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
     func save(chainAsset: ChainAsset)
+    func updatePrices()
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {

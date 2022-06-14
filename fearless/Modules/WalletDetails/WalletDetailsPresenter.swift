@@ -44,6 +44,7 @@ final class WalletDetailsPresenter {
 extension WalletDetailsPresenter: Localizable {
     func applyLocalization() {
         provideViewModel(chains: chains)
+        view?.didReceive(locale: selectedLocale)
     }
 }
 
@@ -51,6 +52,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol) {
         view = ui
         view?.setInput(viewModel: inputViewModel)
+        view?.didReceive(locale: selectedLocale)
         interactor.setup()
     }
 
@@ -153,15 +155,19 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             case .replace:
                 let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
                 let options: [ReplaceChainOption] = ReplaceChainOption.allCases
-                self.wireframe.showUniqueChainSourceSelection(from: view, items: options, callback: { [weak self] selectedIndex in
-                    let option = options[selectedIndex]
-                    switch option {
-                    case .create:
-                        self?.wireframe.showCreate(uniqueChainModel: model, from: view)
-                    case .import:
-                        self?.wireframe.showImport(uniqueChainModel: model, from: view)
+                self.wireframe.showUniqueChainSourceSelection(
+                    from: view,
+                    items: options,
+                    callback: { [weak self] selectedIndex in
+                        let option = options[selectedIndex]
+                        switch option {
+                        case .create:
+                            self?.wireframe.showCreate(uniqueChainModel: model, from: view)
+                        case .import:
+                            self?.wireframe.showImport(uniqueChainModel: model, from: view)
+                        }
                     }
-                })
+                )
             }
         }
         wireframe.presentActions(

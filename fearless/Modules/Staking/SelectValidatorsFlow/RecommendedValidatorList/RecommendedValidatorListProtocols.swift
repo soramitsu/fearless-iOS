@@ -15,7 +15,8 @@ protocol RecommendedValidatorListWireframeProtocol: AnyObject {
         asset: AssetModel,
         chain: ChainModel,
         validatorInfo: SelectedValidatorInfo,
-        from view: RecommendedValidatorListViewProtocol?
+        from view: RecommendedValidatorListViewProtocol?,
+        wallet: MetaAccountModel
     )
 
     func proceed(
