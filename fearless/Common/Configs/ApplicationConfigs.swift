@@ -158,7 +158,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
-    private var localFiles: Bool { true }
+    private var localFiles: Bool { false }
 
     var chainListURL: URL? {
         if localFiles {
