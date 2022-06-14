@@ -11,7 +11,6 @@ final class MainTabBarPresenter {
     private let appVersionObserver: AppVersionObserver
     private let applicationHandler: ApplicationHandler
 
-    private var chainsSyncFailed = false
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
 
@@ -73,13 +72,6 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func handleLongInactivity() {
         wireframe.logout(from: view)
     }
-
-    func chainSyncFinished(success: Bool) {
-        chainsSyncFailed = !success
-        if let reachability = reachability {
-            didChangeReachability(by: reachability)
-        }
-    }
 }
 
 extension MainTabBarPresenter: Localizable {
@@ -96,7 +88,7 @@ extension MainTabBarPresenter: ReachabilityListenerDelegate {
     func didChangeReachability(by _: ReachabilityManagerProtocol) {
         assertNotNil(reachability)
 
-        let isReachable = (reachability?.isReachable).orTrue() && !chainsSyncFailed
+        let isReachable = (reachability?.isReachable).orFalse()
         if isReachable {
             networkStatusPresenter.didDecideReachableStatusPresentation()
         } else {

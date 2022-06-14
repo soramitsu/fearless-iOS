@@ -33,19 +33,11 @@ final class MainTabBarInteractor {
     }
 
     private func startServices() {
-        serviceCoordinator.delegate = self
         serviceCoordinator.setup()
     }
 
     private func stopServices() {
-        serviceCoordinator.delegate = nil
         serviceCoordinator.throttle()
-    }
-}
-
-extension MainTabBarInteractor: ServiceCoordinatorDelegate {
-    func chainSyncFinished(success: Bool) {
-        presenter?.chainSyncFinished(success: success)
     }
 }
 

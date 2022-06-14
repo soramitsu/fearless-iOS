@@ -20,7 +20,6 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func didUpdateWalletInfo()
     func didRequestImportAccount()
     func handleLongInactivity()
-    func chainSyncFinished(success: Bool)
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {

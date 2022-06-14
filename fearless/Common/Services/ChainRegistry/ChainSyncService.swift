@@ -6,6 +6,10 @@ protocol ChainSyncServiceProtocol {
     func syncUp()
 }
 
+enum ChainSyncError: Error {
+    case invalidDataReceived
+}
+
 final class ChainSyncService {
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -100,6 +104,12 @@ final class ChainSyncService {
 
             chainsList.forEach {
                 $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
+            }
+
+            if chainsList.filter({ !$0.assets.isEmpty }).isEmpty {
+                // In case if all assets failed to load, and this resulted into chains with no assets
+                // Throw an error, so data is loaded from cache instead of showing empty list with an error
+                throw ChainSyncError.invalidDataReceived
             }
 
             let remoteMapping = chainsList.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
