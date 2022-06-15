@@ -10,16 +10,26 @@ final class ChainModelMapper {
 
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
-        guard let id = entity.id, let chainId = entity.chainId else {
+        guard
+            let id = entity.id,
+            let chainId = entity.chainId,
+            let symbol = entity.symbol
+        else {
             preconditionFailure()
         }
+
         return AssetModel(
             id: id,
+            symbol: symbol,
             chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
             priceId: entity.priceId,
-            price: entity.price as Decimal?
+            price: entity.price as Decimal?,
+            transfersEnabled: entity.transfersEnabled,
+            type: createChainAssetModelType(from: entity.type),
+            currencyId: entity.currencyId,
+            displayName: entity.displayName
         )
     }
 
@@ -41,6 +51,7 @@ final class ChainModelMapper {
             assetId: assetId,
             staking: staking,
             purchaseProviders: purchaseProviders,
+            type: createChainAssetModelType(from: entity.type),
             asset: createAsset(from: asset),
             chain: parentChain
         )
@@ -84,6 +95,7 @@ final class ChainModelMapper {
             assetEntity.assetId = asset.assetId
             assetEntity.purchaseProviders = purchaseProviders
             assetEntity.staking = asset.staking?.rawValue
+            assetEntity.type = asset.type.rawValue
             updateEntityAsset(
                 for: assetEntity,
                 from: asset,
@@ -120,6 +132,11 @@ final class ChainModelMapper {
         assetEntity.precision = Int16(bitPattern: model.asset.precision)
         assetEntity.priceId = model.asset.priceId
         assetEntity.price = model.asset.price as NSDecimalNumber?
+        assetEntity.symbol = model.asset.symbol
+        assetEntity.transfersEnabled = model.asset.transfersEnabled ?? true
+        assetEntity.type = model.type.rawValue
+        assetEntity.currencyId = model.asset.currencyId
+        assetEntity.displayName = model.asset.displayName
 
         entity.asset = assetEntity
     }
@@ -283,6 +300,13 @@ final class ChainModelMapper {
         entity.crowdloansApiType = apis?.crowdloans?.type
         entity.crowdloansApiUrl = apis?.crowdloans?.url
     }
+
+    private func createChainAssetModelType(from rawValue: String?) -> ChainAssetType {
+        guard let rawValue = rawValue else {
+            return .normal
+        }
+        return ChainAssetType(rawValue: rawValue) ?? .normal
+    }
 }
 
 extension ChainModelMapper: CoreDataMapperProtocol {
@@ -295,13 +319,13 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
-        let customNodes: [ChainNodeModel] = entity.customNodes?.compactMap { anyNode in
+        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
             guard let node = anyNode as? CDChainNode else {
                 return nil
             }
 
             return createChainNode(from: node)
-        } ?? []
+        }
 
         var selectedNode: ChainNodeModel?
 
@@ -341,6 +365,11 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let externalApiSet = createExternalApi(from: entity)
 
+        var customNodesSet: Set<ChainNodeModel>?
+        if let nodes = customNodes {
+            customNodesSet = Set(nodes)
+        }
+
         let chainModel = ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
@@ -352,7 +381,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: Set(customNodes),
+            customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion
         )
 
@@ -366,7 +395,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         let chainAssets = Set(chainAssetsArray)
 
         chainModel.assets = chainAssets
-
+        print("EL: return chainModel ", chainModel)
         return chainModel
     }
 
@@ -386,7 +415,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isEthereumBased = model.isEthereumBased
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
-        entity.isOrml = model.isOrml
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
 

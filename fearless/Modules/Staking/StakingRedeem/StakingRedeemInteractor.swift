@@ -16,8 +16,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     let feeProxy: ExtrinsicFeeProxyProtocol
     let slashesOperationFactory: SlashesOperationFactoryProtocol
     let engine: JSONRPCEngine
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let keystore: KeystoreProtocol
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -37,8 +36,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -58,9 +56,8 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.engine = engine
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
-        self.chain = chain
         self.keystore = keystore
         self.accountRepository = accountRepository
     }
@@ -164,15 +161,15 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
 extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        activeEraProvider = subscribeActiveEra(for: chain.chainId)
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         fetchConstant(
             for: .existentialDeposit,
@@ -217,7 +214,7 @@ extension StakingRedeemInteractor: PriceLocalStorageSubscriber, PriceLocalSubscr
 }
 
 extension StakingRedeemInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -235,13 +232,13 @@ extension StakingRedeemInteractor: StakingLocalStorageSubscriber, StakingLocalSu
             let addressFactory = SS58AddressFactory()
 
             if let stashItem = maybeStashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
-                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
+               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chainAsset.chain.addressPrefix) {
+                ledgerProvider = subscribeLedgerInfo(for: accountId, chainAsset: chainAsset)
 
-                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.controller,
                     from: accountRepository,
                     operationManager: operationManager

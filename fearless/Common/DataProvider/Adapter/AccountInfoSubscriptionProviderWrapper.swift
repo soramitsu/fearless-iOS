@@ -14,17 +14,23 @@ final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber
         walletLocalSubscriptionHandler = handler
     }
 
-    func subscribeAccountProvider(for accountId: AccountId, chain: ChainModel) -> Subscription? {
-        if chain.isOrml {
-            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
-                return .orml(provider: provider)
+    func subscribeAccountProvider(
+        for accountId: AccountId,
+        chainAsset: ChainAsset
+    ) -> Subscription? {
+        var subscription: Subscription?
+
+        switch chainAsset.chainAssetType {
+        case .normal:
+            if let provider = subscribeToAccountInfoProvider(for: accountId, chainAsset: chainAsset) {
+                subscription = .usual(provider: provider)
             }
-            return nil
-        } else {
-            if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                return .usual(provider: provider)
+        case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken, .liquidCroadloan:
+            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chainAsset: chainAsset) {
+                subscription = .orml(provider: provider)
             }
-            return nil
         }
+
+        return subscription
     }
 }

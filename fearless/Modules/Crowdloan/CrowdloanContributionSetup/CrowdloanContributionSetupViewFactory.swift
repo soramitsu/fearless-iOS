@@ -112,6 +112,12 @@ struct CrowdloanContributionSetupViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
@@ -126,7 +132,8 @@ struct CrowdloanContributionSetupViewFactory {
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
     }
 }

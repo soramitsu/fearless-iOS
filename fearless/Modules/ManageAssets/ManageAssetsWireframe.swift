@@ -61,4 +61,39 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
             from: view
         )
     }
+
+    func showFilters(
+        _ filters: [TitleSwitchTableViewCellModel],
+        from view: ControllerBackedProtocol?
+    ) {
+        guard
+            let picker = ModalPickerFactory.createPickerForFilterOptions(
+                options: filters
+            ) else {
+            return
+        }
+
+        view?.controller.navigationController?.present(picker, animated: true)
+    }
+
+    func showSelectChain(
+        selectedMetaAccount: MetaAccountModel,
+        selectedChainId: ChainModel.Id?,
+        delegate: ChainSelectionDelegate,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard
+            let viewController = ChainSelectionViewFactory.createView(
+                delegate: delegate,
+                selectedChainId: selectedChainId,
+                repositoryFilter: nil,
+                selectedMetaAccount: selectedMetaAccount,
+                includeAllNetworksCell: true,
+                showBalances: false
+            )?.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(viewController, animated: true)
+    }
 }

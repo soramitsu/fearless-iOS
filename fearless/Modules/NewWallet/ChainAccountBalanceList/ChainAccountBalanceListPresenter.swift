@@ -13,7 +13,7 @@ final class ChainAccountBalanceListPresenter {
     private var sortedKeys: [String]?
     private var chainModels: [ChainModel] = []
 
-    private var accountInfos: [ChainModel.Id: AccountInfo?] = [:]
+    private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
@@ -125,12 +125,16 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            accountInfos[chainId] = accountInfo
-        case .failure:
-            break
+            guard let accountId = selectedMetaAccount?.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            accountInfos[key] = accountInfo
+        case let .failure(error):
+            print("failure(let error)", error)
         }
         provideViewModel()
     }

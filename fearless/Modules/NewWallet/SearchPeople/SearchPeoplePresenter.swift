@@ -80,7 +80,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
 
     func setup() {
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.id,
+            asset.name,
             preferredLanguages: selectedLocale.rLanguages
         ))
         view?.didReceive(locale: selectedLocale)

@@ -1,6 +1,16 @@
 import UIKit
 
 final class ManageAssetsViewLayout: UIView {
+    let chainSelectionView: DetailsTriangularedView = {
+        let view = UIFactory.default.createChainAssetSelectionView()
+        view.strokeColor = R.color.colorStrokeGray()!
+        view.highlightedStrokeColor = R.color.colorStrokeGray()!
+        view.borderWidth = 1.0
+        view.actionView.image = R.image.iconDropDown()
+        view.layout = .singleTitle
+        return view
+    }()
+
     let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
@@ -14,7 +24,12 @@ final class ManageAssetsViewLayout: UIView {
         view.backgroundColor = .clear
         view.refreshControl = UIRefreshControl()
         view.separatorColor = R.color.colorDarkGray()
-        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: (UIConstants.bigOffset * 2) + UIConstants.actionHeight, right: 0)
+        view.contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: (UIConstants.bigOffset * 2) + UIConstants.actionHeight,
+            right: 0
+        )
 
         return view
     }()
@@ -52,17 +67,33 @@ final class ManageAssetsViewLayout: UIView {
 
     func bind(viewModel: ManageAssetsViewModel) {
         applyButton.set(enabled: viewModel.applyEnabled, changeStyle: true)
+        chainSelectionView.title = viewModel.selectedChain.title
+        if viewModel.selectedChain.icon != nil {
+            viewModel.selectedChain.icon?.loadImage(
+                on: chainSelectionView.iconView,
+                targetSize: CGSize(width: 21, height: 21),
+                animated: true
+            )
+        } else {
+            chainSelectionView.iconView.image = R.image.allNetworksIcon()
+        }
     }
 
     private func setupLayout() {
+        addSubview(chainSelectionView)
         addSubview(searchBar)
         addSubview(tableView)
         addSubview(applyButton)
 
-        searchBar.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        chainSelectionView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(48.0)
+        }
+
+        searchBar.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalTo(chainSelectionView.snp.bottom).offset(UIConstants.accessoryItemsSpacing)
         }
 
         tableView.snp.makeConstraints { make in

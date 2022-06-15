@@ -45,6 +45,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var allowsSelection: Bool = true
     var showSelection: Bool = true
     var presenterCanDrag: Bool = true
+    var hideWhenDidSelected: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
@@ -164,7 +165,9 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         selectedIndex = indexPath.row
 
-        presenter?.hide(view: self, animated: true)
+        if hideWhenDidSelected {
+            presenter?.hide(view: self, animated: true)
+        }
         delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
 
         selectionCallback?(indexPath.row)

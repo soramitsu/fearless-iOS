@@ -1,6 +1,11 @@
 import UIKit
 
 final class SelectionIconDetailsTableViewCell: UITableViewCell {
+    private enum Constants {
+        static let iconSize = CGSize(width: 32.0, height: 32.0)
+        static let checkmarkSize = CGSize(width: 24.0, height: 24.0)
+    }
+
     let checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.listCheckmarkIcon()
@@ -55,32 +60,27 @@ final class SelectionIconDetailsTableViewCell: UITableViewCell {
         checkmarkImageView.snp.makeConstraints { make in
             make.left.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
-            make.size.equalTo(24.0)
+            make.size.equalTo(Constants.checkmarkSize)
         }
 
         contentView.addSubview(iconImageView)
 
         iconImageView.snp.makeConstraints { make in
-            make.left.equalTo(checkmarkImageView.snp.right).offset(12.0)
+            make.left.equalTo(checkmarkImageView.snp.right).offset(UIConstants.accessoryItemsSpacing)
             make.centerY.equalToSuperview()
-            make.size.equalTo(32.0)
+            make.size.equalTo(Constants.iconSize)
         }
 
-        contentView.addSubview(titleLabel)
-
-        titleLabel.snp.makeConstraints { make in
-            make.left.equalTo(iconImageView.snp.right).offset(12.0)
-            make.right.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().inset(7.0)
+        let textStackView = UIFactory.default.createVerticalStackView()
+        contentView.addSubview(textStackView)
+        textStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.accessoryItemsSpacing)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
-
-        contentView.addSubview(subtitleLabel)
-
-        subtitleLabel.snp.makeConstraints { make in
-            make.left.equalTo(iconImageView.snp.right).offset(12.0)
-            make.right.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalToSuperview().inset(8.0)
-        }
+        textStackView.addArrangedSubview(titleLabel)
+        textStackView.addArrangedSubview(subtitleLabel)
     }
 
     private func updateSelectionState() {
@@ -100,11 +100,15 @@ extension SelectionIconDetailsTableViewCell: SelectionItemViewProtocol {
         subtitleLabel.text = iconDetailsViewModel.subtitle
 
         iconImageView.image = nil
-        iconDetailsViewModel.icon?.loadImage(
-            on: iconImageView,
-            targetSize: CGSize(width: 32.0, height: 32.0),
-            animated: true
-        )
+        if iconDetailsViewModel.icon == nil {
+            iconImageView.image = R.image.allNetworksIcon()
+        } else {
+            iconDetailsViewModel.icon?.loadImage(
+                on: iconImageView,
+                targetSize: Constants.iconSize,
+                animated: true
+            )
+        }
 
         updateSelectionState()
 

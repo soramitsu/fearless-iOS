@@ -80,6 +80,7 @@ struct StakingRebondConfirmationViewFactory {
         selectedAccount: MetaAccountModel
     ) -> StakingRebondConfirmationInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -135,8 +136,7 @@ struct StakingRebondConfirmationViewFactory {
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,

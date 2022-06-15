@@ -52,6 +52,7 @@ struct StakingBondMoreViewFactory {
         selectedAccount: MetaAccountModel
     ) -> StakingBondMoreInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -117,8 +118,7 @@ struct StakingBondMoreViewFactory {
             feeProxy: feeProxy,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             accountRepository: AnyDataProviderRepository(accountRepository),
             connection: connection
